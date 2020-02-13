@@ -139,7 +139,8 @@ class Command(BaseCommand):
             'flags/4x3':['https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.4.6/flags/4x3/%s.svg'%flag for flag in FLAGS],
 
         }
-
+        if not os.path.exists(basepath+'flags'):
+            os.mkdir(basepath+'flags')
         for lib in libs:
             currentbasepath = basepath+lib+'/'
             if not os.path.exists(currentbasepath):
