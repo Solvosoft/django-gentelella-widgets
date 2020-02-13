@@ -90,3 +90,4 @@ demo/db.sqlite3
 
 venv/
 .idea/
+djgentelella/static/vendors/
