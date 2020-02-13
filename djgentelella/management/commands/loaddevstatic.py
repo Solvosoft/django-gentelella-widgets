@@ -17,7 +17,8 @@ class Command(BaseCommand):
 
     def get_flags(self, folder):
         dev = []
-
+        if not os.path.exists(folder+'flags/'):
+            os.mkdir(folder+'flags/')
         if not os.path.exists(folder+'flags/1x1/'):
             os.mkdir(folder+'flags/1x1/')
         if not os.path.exists(folder+'flags/4x3/'):
