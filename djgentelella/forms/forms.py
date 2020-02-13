@@ -16,7 +16,7 @@ class CustomForm(forms.Form):
     def as_inline(self):
             "Return this form rendered as HTML <tr>s -- excluding the <table></table>."
             return self._html_output(
-                normal_row='<div class="form-group"><span class="">%(label)s</span> %(field)s%(help_text)s</div>',
+                normal_row='<div class="form-group"><span class="">%(label)s</span> %(errors)s%(field)s%(help_text)s</div>',
                 error_row='%s',
                 row_ender='</div>',
                 help_text_html=' <span class="helptext">%s</span>',
@@ -26,7 +26,7 @@ class CustomForm(forms.Form):
     def as_horizontal(self):
             "Return this form rendered as HTML <tr>s -- excluding the <table></table>."
             return self._html_output(
-                normal_row='<div class="form-group row"><span class="col-sm-3">%(label)s</span> <div class="col-sm-9">%(field)s%(help_text)s</div></div>',
+                normal_row='<div class="form-group row"><span class="col-sm-3">%(label)s</span> <div class="col-sm-9">%(errors)s%(field)s%(help_text)s</div></div>',
                 error_row='%s',
                 row_ender='</div>',
                 help_text_html=' <span class="helptext">%s</span>',
