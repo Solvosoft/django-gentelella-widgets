@@ -15,19 +15,6 @@ class Command(BaseCommand):
             with open(basepath+name, 'wb') as arch:
                 arch.write(r.content)
 
-    def get_flags(self, folder):
-        dev = []
-        if not os.path.exists(folder+'flags/'):
-            os.mkdir(folder+'flags/')
-        if not os.path.exists(folder+'flags/1x1/'):
-            os.mkdir(folder+'flags/1x1/')
-        if not os.path.exists(folder+'flags/4x3/'):
-            os.mkdir(folder+'flags/4x3/')
-        for flag in FLAGS:
-            dev.append('https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.4.6/flags/1x1/%s.svg'%flag)
-            dev.append('https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.4.6/flags/4x3/%s.svg' % flag)
-        return dev
-
     def handle(self, *args, **options):
         try:
             import requests
@@ -42,7 +29,7 @@ class Command(BaseCommand):
 
         basepath = result.replace('gentelella/css/custom.css', 'vendors/')
 
-        flags_list = self.get_flags(basepath)
+
         libs = {
             'bootstrap': [
                 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css',
@@ -148,7 +135,9 @@ class Command(BaseCommand):
             'flag-icon-css': [
                 'https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.4.6/css/flag-icon.min.css',
             ],
-            'flags':flags_list
+            'flags/1x1':['https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.4.6/flags/1x1/%s.svg'%flag for flag in FLAGS],
+            'flags/4x3':['https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.4.6/flags/4x3/%s.svg'%flag for flag in FLAGS],
+
         }
 
         for lib in libs:
