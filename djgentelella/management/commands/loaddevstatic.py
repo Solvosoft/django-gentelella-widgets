@@ -128,6 +128,9 @@ class Command(BaseCommand):
                 'https://cdn.jsdelivr.net/npm/tail.select@0.5.15/css/bootstrap3/tail.select-default.min.css',
                 'https://cdn.jsdelivr.net/npm/tail.select@0.5.15/css/bootstrap3/tail.select-default.min.map',
                 'https://cdn.jsdelivr.net/npm/tail.select@0.5.15/js/tail.select-full.min.js',
+            ],
+            'flag-icon-css': [
+                'https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.4.6/css/flag-icon.min.css',
             ]
         }
 
