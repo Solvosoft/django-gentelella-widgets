@@ -1,19 +1,6 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 
-#from views.auth import testing
-
-"""
-accounts/login/ [name='login']
-accounts/logout/ [name='logout']
-accounts/password_change/ [name='password_change']
-accounts/password_change/done/ [name='password_change_done']
-accounts/password_reset/ [name='password_reset']
-accounts/password_reset/done/ [name='password_reset_done']
-accounts/reset/<uidb64>/<token>/ [name='password_reset_confirm']
-accounts/reset/done/ [name='password_reset_complete']
-"""
-
 auth_urls = [
     path('accounts/login/',
          auth_views.LoginView.as_view(template_name='gentelella/registration/login.html'),
@@ -24,10 +11,25 @@ auth_urls = [
         auth_views.PasswordChangeView.as_view(
             template_name='gentelella/registration/change-password.html',
             ), name="password_change"  ),
+    path('accounts/password_change/done/', auth_views.PasswordChangeDoneView.as_view(
+        template_name = 'gentelella/registration/password_change_done.html'), name='password_change_done'),
     path('accounts/password_reset/',
          auth_views.PasswordResetView.as_view(
-template_name='gentelella/registration/password_reset_form.html',
+             email_template_name='gentelella/registration/password_reset_email.html',
+             subject_template_name='gentelella/registration/password_reset_subject.txt',
+             html_email_template_name='gentelella/registration/password_reset_email.html',
+             template_name='gentelella/registration/password_reset_form.html',
          ), name="password_reset"),
+    path('accounts/password_reset/done/',
+         auth_views.PasswordResetDoneView.as_view(template_name = 'gentelella/registration/password_reset_done.html'),
+         name="password_reset_done"
+         ),
+    path('accounts/reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(
+            template_name = 'gentelella/registration/password_reset_confirm.html'
+    ), name='password_reset_confirm'),
+    path('accounts/reset/done/', auth_views.PasswordResetDoneView.as_view(
+        template_name = 'gentelella/registration/password_reset_done.html'
+    ) ,name="password_reset_complete")
 ]
 
 urlpatterns =   auth_urls + [

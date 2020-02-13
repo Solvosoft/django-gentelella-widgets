@@ -1,0 +1,16 @@
+{% extends 'gentelella/registration/email_base.html' %}
+{% load i18n %}
+
+{% block content %}
+<h3>{% trans 'Welcome' %} {{user.get_full_name}}</h3>
+<br>
+<p>
+    {% trans 'This email was sent because someone create an user with your email in ' %}
+    <a href="{{domain}}" target="_blank"> {{domain}} </a>  <br><br>
+    {% trans 'Your username is: ' %} {{user.username}}<br><br>
+    {% trans 'for security reason password was create randomly and it is not provided here, please use this link' %}
+    <br><a href="{{domain}}{% url 'password_reset' %}" target="_blank">{{domain}}{% url 'password_reset' %} </a>
+    {% trans 'to regenerate new password and login on platform' %}
+</p>
+
+{% endblock %}
