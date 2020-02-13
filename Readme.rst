@@ -24,6 +24,7 @@ Configure your settings
 
     INSTALLED_APPS = [ ..
         'djgentelella',
+        'mptt',
     ]
 
 Run migrations 
