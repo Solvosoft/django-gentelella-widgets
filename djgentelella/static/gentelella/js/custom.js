@@ -539,7 +539,7 @@ function init_time_widgets(){
 
     $('[data-widget="DateTimeInput"]').datetimepicker();
     $('[data-widget="TimeInput"]').datetimepicker({format: 'LT'});
-    $('[data-widget="DateInput"]').datetimepicker({format: "YYYY/MM/DD" });
+    $('[data-widget="DateInput"]').datetimepicker({format: "DD/MM/YYYY" });
 };
 
 function init_input_text(){
