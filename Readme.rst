@@ -10,7 +10,7 @@ Installing from repository (not in pip yet).
 
 .. code:: bash
 
-   pip install git@https://github.com/luisza/django-gentelella-widgets.git
+   pip install git+https://github.com/luisza/django-gentelella-widgets.git
 
 When pip is ready you can do
 
