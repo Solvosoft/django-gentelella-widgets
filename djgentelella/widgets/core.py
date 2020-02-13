@@ -140,29 +140,31 @@ class DateInput(DJDateInput):
     format_key = 'DATE_INPUT_FORMATS'
     template_name = 'gentelella/widgets/date.html'
 
-    def __init__(self, attrs=None):
+    def __init__(self, attrs=None, format=None):
         attrs = update_kwargs(attrs, self.__class__.__name__)
-        super().__init__(attrs)
-        self.format = format or None
+        super().__init__(attrs, format=format)
+
+
+
 
 class DateTimeInput(DJDateTimeInput):
     format_key = 'DATETIME_INPUT_FORMATS'
     template_name = 'gentelella/widgets/datetime.html'
 
-    def __init__(self, attrs=None):
+    def __init__(self, attrs=None, format=None):
         attrs = update_kwargs(attrs, self.__class__.__name__)
-        super().__init__(attrs)
-        self.format = format or None
+        super().__init__(attrs, format=format)
+
 
 
 class TimeInput(DJTimeInput):
     format_key = 'TIME_INPUT_FORMATS'
     template_name = 'gentelella/widgets/time.html'
 
-    def __init__(self, attrs=None):
+    def __init__(self, attrs=None, format=None):
         attrs = update_kwargs(attrs, self.__class__.__name__)
-        super().__init__(attrs)
-        self.format = format or None
+        super().__init__(attrs, format=format)
+        self.format = format or "%H:%M:%S"
 
 class CheckboxInput(DJCheckboxInput):
     input_type = 'checkbox'
