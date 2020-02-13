@@ -34,17 +34,12 @@ class Input(DJInput):
     def __init__(self, attrs=None, extraskwargs=True):
         if extraskwargs:
             attrs = update_kwargs(attrs, self.__class__.__name__)
-        self.input_type = attrs.pop('type', self.input_type)
         super().__init__(attrs)
 
 class TextInput(Input):
     input_type = 'text'
     template_name = 'gentelella/widgets/text.html'
 
-    def __init__(self, attrs=None, extraskwargs=True):
-        if extraskwargs:
-            attrs = update_kwargs(attrs, self.__class__.__name__)
-        super().__init__(attrs, extraskwargs=extraskwargs)
 
 class NumberInput(Input):
     input_type = 'number'
