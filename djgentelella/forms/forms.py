@@ -1,7 +1,5 @@
-
 from django import forms
 
-from djgentelella.widgets.core import *
 # "'<tr%(html_class_attr)s><th>%(label)s</th><td>%(errors)s%(field)s%(help_text)s</td></tr>'"
 class CustomForm(forms.Form):
 
@@ -35,39 +33,3 @@ class CustomForm(forms.Form):
                 errors_on_separate_row=False,
             )
 
-class NameForm(CustomForm):
-    FAVORITE_COLORS_CHOICES = [
-        ('blue', 'Blue'),
-        ('green', 'Green'),
-        ('black', 'Black'),
-    ]
-    FAVORITE_NUMBERS_CHOICES = [
-        ('one', 'One'),
-        ('two', 'Two'),
-        ('three', 'Three'),
-    ]
-
-    time_input = forms.TimeField(widget=TimeInput,required=True)
-    date_input = forms.DateField(widget=DateInput)
-    daterange_input = forms.DateField(widget=DateRangeInput)
-    datetime_input = forms.DateField(widget=DateTimeInput)
-    daterangetime_input = forms.DateField(widget=DateRangeTimeInput)
-    username = forms.CharField(widget=TextInput,required=True)
-    text_area = forms.CharField(widget=Textarea,required=True)
-    password = forms.CharField(widget=PasswordInput,required=True)
-
-    phone = forms.CharField(widget=PhoneNumberMaskInput)
-    email_input_mask = forms.CharField(widget=EmailMaskInput)
-    datetime_input_mask = forms.DateField(widget=DateTimeMaskInput)
-    date_input_mask = forms.DateField(widget=DateMaskInput)
-    boolean = forms.BooleanField(widget=CheckboxInput)
-    checkbox_favorite_colors = forms.MultipleChoiceField(
-            required=False,
-            widget=SelectMultiple,
-            choices=FAVORITE_COLORS_CHOICES,
-        )
-    radio_favorite_numbers = forms.ChoiceField(
-        required=False,
-        widget=Select,
-        choices=FAVORITE_NUMBERS_CHOICES,
-    )
