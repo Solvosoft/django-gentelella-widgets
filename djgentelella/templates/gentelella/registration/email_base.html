@@ -1,0 +1,40 @@
+<style>
+
+    .ebody{
+       padding: 2em;
+       background-color: #2A3F54;
+    }
+    .eheader{
+        width: 100%;
+        min-height: 1em;
+        color: #fff;
+        background-color: #5bc0de;
+    }
+    .econtent{
+        width: 100;
+        min-height: 1em;
+        background-color: #EDEDED;
+        padding: 1em;
+    }
+    .econtent a{
+        color: #73879C;
+    }
+    .efooter{
+        width: 100%;
+        min-height: 1em;
+        color: #fff;
+        background-color: #5bc0de;
+    }
+
+</style>
+<div class="ebody">
+    <div class="eheader">
+        {% block header %} {% include 'gentelella/registration/email_header.html' %} {% endblock %}
+    </div>
+    <div class="econtent">
+        {% block content %} {% endblock %}
+    </div>
+    <div class="efooter">
+        {% block footer %}{% include 'gentelella/registration/email_footer.html' %} {% endblock %}
+    </div>
+</div>

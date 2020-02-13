@@ -42,11 +42,8 @@
                         <button type="submit" class="btn btn-default submit" >{% trans 'Log in' %}</button>
                         <a class="reset_pass" href="{% url 'password_reset' %}">{% trans 'Lost your password?' %}</a>
                     </div>
-                    <div class="clearfix"></div>
-                    <div class="separator">
-  <h1><i class="fa fa-paw"></i>  </h1>
-  <p>©{% now "Y" %} {% trans "All Rights Reserved." %} </p>
-                    </div>
+
+{% include 'gentelella/registration/footer.html' %}
                 </form>
             </section>
         </div>
