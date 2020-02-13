@@ -1,0 +1,5 @@
+<div class="{{ widget.type }}">
+    <label>
+        <input type="{{ widget.type }}" name="{{ widget.name }}"{% if widget.value != None %} value="{{ widget.value|stringformat:'s' }}"{% endif %}{% include "gentelella/widgets/attrs.html" %}>
+    </label>
+</div>

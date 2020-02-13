@@ -1,0 +1,119 @@
+from django import forms
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
+from django.shortcuts import render
+from django.utils.timezone import now
+
+from djgentelella.forms.forms import CustomForm
+from djgentelella.widgets import core as genwidgets
+
+
+class ExampleForm(CustomForm):
+    """  """
+    your_name = forms.CharField(label='Your name', max_length=100, widget=genwidgets.TextInput)
+
+    your_age = forms.IntegerField(widget=genwidgets.NumberInput(attrs={'min_value':2, 'max_value': 8}) )
+    your_email = forms.EmailField(widget=genwidgets.EmailInput)
+    your_url = forms.URLField(widget=genwidgets.URLInput)
+    your_pass = forms.CharField(widget=genwidgets.PasswordInput)
+
+    #your_file = forms.FileField(widget=genwidgets.FileInput)
+    your_area = forms.CharField(widget=genwidgets.Textarea, max_length = 50)
+    your_date = forms.DateField(widget=genwidgets.DateInput)
+    your_datetime = forms.DateTimeField(widget=genwidgets.DateTimeInput)
+    your_daterange = forms.CharField(widget=genwidgets.DateRangeInput)
+
+
+   # your_time = forms.TimeField(widget=genwidgets.TimeInput(attrs={'arrow': True}))
+    your_check = forms.BooleanField(widget=genwidgets.CheckboxInput)
+
+
+    your_nullboolean = forms.NullBooleanField(widget=genwidgets.NullBooleanSelect)
+
+    your_choice = forms.ChoiceField(choices=(
+        ('enero', 'Enero'),
+        ('febrero', 'Febrero'),
+        ('marzo', 'abril')
+    ), widget=genwidgets.Select)
+
+    your_test = forms.ChoiceField(choices=(
+        ('enero', 'Enero'),
+        ('febrero', 'Febrero'),
+        ('marzo,abril', 'Marzo,Abril')
+    ), widget=genwidgets.Select)
+
+    your_multiple = forms.ChoiceField(choices=(
+        ('enero', 'Enero'),
+        ('febrero', 'Febrero'),
+        ('marzo,abril', 'Marzo,Abril')
+    ), widget=genwidgets.SelectMultiple)
+   
+    your_radio = forms.ChoiceField(choices=(
+        ('enero', 'Enero'),
+        ('febrero', 'Febrero'),
+        ('marzo,abril', 'Marzo,Abril')
+    ), widget=genwidgets.RadioSelect)
+
+    your_checkbox = forms.ChoiceField(choices=(
+        ('enero', 'Enero'),
+        ('febrero', 'Febrero'),
+        ('marzo,abril', 'Marzo,Abril')
+    ), widget=genwidgets.CheckboxSelectMultiple)
+
+    #your_date = forms.DateField(widget=DateInput)
+    #your_hiddendatime=forms.DateTimeField(widget=SplitHiddenDateTimeWidget)
+    #your_SplitDateTimeWidget = forms.DateTimeField(widget=SplitDateTimeWidget)
+
+    your_selectdate = forms.DateTimeField(widget=genwidgets.SelectDateWidget)
+
+    def __init__(self, *args, **kwargs):
+        kwargs['initial'] = {'your_name': "BINGO", 'your_age': 4,
+                             'your_SplitDateTimeWidget': now(),
+                             'your_selectdate': now(),
+                             'your_time': now(), 'your_nullboolean': True}
+
+        super().__init__(*args, **kwargs)
+
+    your_phone = forms.CharField(widget=genwidgets.PhoneNumberMaskInput)
+    your_boolean = forms.BooleanField(widget=genwidgets.YesNoInput)
+    your_datemask = forms.DateField(widget=genwidgets.DateMaskInput)
+    your_datetimeMask  = forms.DateTimeField(widget=genwidgets.DateTimeMaskInput)
+    you_emailmask = forms.EmailField(widget=genwidgets.EmailMaskInput)
+
+    #your_daterangeinput = forms.CharField(widget=genwidgets.DateRangeInput)
+    # your_knobinput = forms.IntegerField(widget=genwidgets.NumberKnobInput(
+    #    attrs={ 'max_value':300, 'min_value': 200,
+    #            'data-width': 100, 'data-height': 100,
+    #            'data-displayPrevious': "true",
+    #            'data-fgColor': "#26B99A",
+    #            'data-cursor': "true",
+    #            'data-thickness': '.3'
+    #            } ))
+
+    your_test = forms.ChoiceField(choices=(
+        ('enero', 'Enero'),
+        ('febrero', 'Febrero'),
+        ('marzo,abril', 'Marzo,Abril')
+    ), widget=genwidgets.SelectTail)
+
+    your_multiple = forms.ChoiceField(choices=(
+        ('enero', 'Enero'),
+        ('febrero', 'Febrero'),
+        ('marzo,abril', 'Marzo,Abril')
+    ), widget=genwidgets.SelectMultipleTail)
+
+    #your_wysiwyg = forms.CharField(widget=genwidgets.TextareaWysiwyg)
+
+
+
+def home(request):
+    form = ExampleForm()
+    if request.method == 'POST':
+        form  = ExampleForm(request.POST)
+        form.is_valid()
+    return render(request, 'gentelella/index.html', {'form': form})
+
+
+@login_required
+def logeado(request):
+    return HttpResponse("Wiii")

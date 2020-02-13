@@ -1,0 +1,108 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% block head %}
+      {% block meta %}
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <!-- Meta, title, CSS, favicons, etc. -->
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+      {% endblock meta %}
+
+      <title>{% block title %}Gentelella Alela! {% endblock %}</title>
+
+      {% block stylesheets %}
+        <!-- Bootstrap -->
+        <link href="{% static 'vendors/bootstrap/bootstrap.min.css' %}" rel="stylesheet">
+        <link href="{% static 'vendors/font-awesome/font-awesome.min.css' %}" rel="stylesheet">
+        <link href="{% static 'vendors/bootstrap-daterangepicker/daterangepicker.min.css' %}" rel="stylesheet">
+        <link href="{% static 'vendors/bootstrap-datetimepicker/bootstrap-datetimepicker-standalone.min.css' %}" rel="stylesheet">
+        <link href="{% static 'vendors/select2/select2.min.css' %}" rel="stylesheet"/>
+        <link href="{% static 'vendors/switchery/switchery.min.css'%}" rel="stylesheet"/>
+        <link href="{% static 'vendors/iCheck/green.css' %}" rel="stylesheet">
+        <link href="{% static 'vendors/bootstrap-progressbar/bootstrap-progressbar-3.3.4.min.css' %}" rel="stylesheet">
+        <link href="{% static 'vendors/nprogress/nprogress.min.css' %}" rel="stylesheet">
+        <link href="{% static 'vendors/tail.select/tail.select-default.min.css' %}" rel="stylesheet">
+
+
+    {% endblock stylesheets %}
+      <!-- Custom Theme Style -->
+      <link href="{% static 'gentelella/css/custom.css' %}" rel="stylesheet">
+    {% endblock head %}
+    {% block extra_css %} {% endblock %}
+    <!-- jQuery -->
+    <script src="{% static 'vendors/jquery/jquery.min.js' %}"></script>
+    <!-- Bootstrap -->
+    <script src="{% static 'vendors/bootstrap/bootstrap.min.js' %}"></script>
+  </head>
+
+  <body class="{% block body_class %}nav-md {% endblock body_class %}">
+    {% block body %}
+      <div class="container body">
+        <div class="main_container">
+
+          {% block sidebar %}
+
+            <div class="col-md-3 left_col {% block sidebar_class %} {% endblock sidebar_class %}">
+               {% include "gentelella/app/sidebar.html" %}
+            </div>
+
+          {% endblock sidebar %}
+
+          {% block top_navigation %}
+            <div class="top_nav">
+              {% include "gentelella/app/top_navigation.html" %}
+            </div>
+          {% endblock top_navigation %}
+
+          <div class="right_col" role="main">
+          {% block content %}
+            <!-- {{ content }} -->
+          {% endblock content %}
+          </div>
+
+          {% block footer %}
+
+            <footer>
+              {% include "gentelella/app/footer.html" %}
+            </footer>
+
+          {% endblock footer %}
+        </div>
+      </div>
+
+      {% block javascripts %}
+
+        <script src="{% static 'vendors/moment/moment-with-locales.min.js' %}"></script>
+        <script src="{% static 'vendors/jquery-knob/jquery.knob.min.js' %}"></script>
+        <script src="{% static 'vendors/inputmask/inputmask.min.js' %}"></script>
+        <script src="{% static 'vendors/inputmask/jquery.inputmask.min.js' %}"></script>
+        <script src="{% static 'vendors/nprogress/nprogress.min.js' %}"></script>
+        <script src="{% static 'vendors/bootstrap-progressbar/bootstrap-progressbar.min.js' %}"></script>
+        <script src="{% static 'vendors/iCheck/icheck.min.js' %}"></script>
+
+
+        <script src="{% static 'vendors/bootstrap-daterangepicker/daterangepicker.min.js' %}"></script>
+        <script src="{% static 'vendors/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js' %}"></script>
+        <!-- bootstrap-wysiwyg -->
+        <script src="{% static 'vendors/bootstrap-wysiwyg/bootstrap-wysiwyg.min.js' %}"></script>
+        <!-- Switchery -->
+        <script src="{% static 'vendors/switchery/switchery.min.js' %}"></script>
+        <!-- Select2 -->
+        <script src="{% static 'vendors/select2/select2.min.js' %}"></script>
+        <!-- Parsley -->
+        <script src="{% static 'vendors/parsleyjs/parsley.min.js' %}"></script>
+        <!-- Autosize -->
+        <script src="{% static 'vendors/autosize/autosize.min.js' %}"></script>
+        <script src="{% static 'vendors/bootstrap-maxlength/bootstrap-maxlength.min.js' %}"></script>
+        <script src="{% static 'vendors/tail.select/tail.select-full.min.js' %}"></script>
+
+      <!-- Custom Theme Scripts -->
+      <script src="{% static 'gentelella/js/custom.js' %}"></script>
+      {% endblock %}
+
+    {% endblock body %}
+  </body>
+</html>

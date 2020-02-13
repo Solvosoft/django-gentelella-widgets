@@ -1,0 +1,14 @@
+{% extends 'gentelella/base_site.html' %}
+
+{% block content %}
+<form data-toggle="validator">
+<div class="container">
+        <div class="row">
+        <div class='col-md-12'>
+            {{form.as_plain}}
+            {% csrf_token %}
+        </div>
+        </div>
+</div>
+</form>
+{% endblock %}

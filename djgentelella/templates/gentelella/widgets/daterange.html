@@ -1,0 +1,10 @@
+{% with id=widget.attrs.id %}
+      {% include "gentelella/widgets/input.html" %}
+
+<script>
+  $(function () {
+      $("#{{ id }}").daterangepicker();
+  });
+</script>
+{% endwith %}
+

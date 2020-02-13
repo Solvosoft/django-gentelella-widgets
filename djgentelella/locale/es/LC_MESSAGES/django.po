@@ -1,0 +1,110 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-02-13 04:48+0000\n"
+"PO-Revision-Date: 2020-02-12 22:53-0600\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"X-Generator: Poedit 2.2.1\n"
+
+#: templates/gentelella/app/footer.html:4
+#: templates/gentelella/registration/login.html:48
+#: templates/gentelella/registration/password_reset_form.html:31
+msgid "All Rights Reserved."
+msgstr "Todos los derechos reservados"
+
+#: templates/gentelella/registration/login.html:5
+msgid "vendors/animate.css/animate.min.css"
+msgstr "vendors/animate.css/animate.min.css"
+
+#: templates/gentelella/registration/login.html:19
+#: templates/gentelella/registration/logout.html:20
+msgid "Login"
+msgstr "Iniciar sesión"
+
+#: templates/gentelella/registration/login.html:22
+msgid "Your username and password didn't match. Please try again."
+msgstr "Nombre de usuario o contraseña no concuerdan. Por favor intente de nuevo"
+
+#: templates/gentelella/registration/login.html:27
+msgid ""
+"Your account doesn't have access to this page. To proceed,\n"
+"                        please login with an account that has access."
+msgstr ""
+"Su cuenta no tiene permisos de acceso para ver esta página. Para proceder,\n"
+"                        por favor inicie sesión con otra cuenta con permisos suficientes."
+
+#: templates/gentelella/registration/login.html:30
+msgid "Please login to see this page."
+msgstr "Por favor inicie sesión para ver esta página"
+
+#: templates/gentelella/registration/login.html:36
+msgid "Username"
+msgstr "Nombre de usuario"
+
+#: templates/gentelella/registration/login.html:39
+msgid "Password"
+msgstr "Contraseña"
+
+#: templates/gentelella/registration/login.html:42
+msgid "Log in"
+msgstr "Ingresar"
+
+#: templates/gentelella/registration/login.html:43
+msgid "Lost your password?"
+msgstr "Olvidó su contraseña"
+
+#: templates/gentelella/registration/logout.html:15
+msgid "Logged out"
+msgstr "Salir"
+
+#: templates/gentelella/registration/logout.html:16
+msgid "Do you want to login again?"
+msgstr "¿Desea iniciar sesión nuevamente?"
+
+#: templates/gentelella/registration/logout.html:17
+msgid "or maybe you want to"
+msgstr "o tal vez quiera"
+
+#: templates/gentelella/registration/logout.html:17
+msgid "go home"
+msgstr "ir a inicio"
+
+#: templates/gentelella/registration/password_reset_form.html:15
+msgid "Reset password"
+msgstr "Recuperar contraseña"
+
+#: templates/gentelella/registration/password_reset_form.html:17
+msgid "Please insert the user email registered in platform"
+msgstr "Por favor ingrese un correo válido registrado en la plataforma"
+
+#: templates/gentelella/registration/password_reset_form.html:22
+msgid "We will send you a email to verify you are were you say you are"
+msgstr "Vamos a enviarle un correo para verificar que usted es quien dice ser"
+
+#: templates/gentelella/registration/password_reset_form.html:26
+msgid "Send email"
+msgstr "Enviar correo"
+
+#: templates/gentelella/widgets/checkyesno.html:2 widgets/core.py:224
+msgid "No"
+msgstr "No"
+
+#: templates/gentelella/widgets/checkyesno.html:4 widgets/core.py:223
+msgid "Yes"
+msgstr "Sí"
+
+#: widgets/core.py:222
+msgid "Unknown"
+msgstr "Desconocido"

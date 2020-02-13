@@ -1,0 +1,13 @@
+{% with id=widget.attrs.id %}
+<div {% if id %} id="{{ id }}"{% endif %} {% if widget.attrs.class %}class="{{ widget.attrs.class }} "{% endif %}>
+    {% for group, options, index in widget.optgroups %}
+    {% if group %}{{group}}{% endif %}
+    {% for option in options %}
+    {{ option.label }}:
+    <input {% if id %} id="{{ id }}_{{ option.index }}"{% endif %}  name="{{ option.name }}" type="{{option.type}}" value="{{option.value}}" class="flat"
+    {% if option.selected %}checked{%endif%}  {% include option.template_name with widget=option %} />
+    {% endfor %}
+    {% endfor %}
+
+</div>
+{% endwith %}

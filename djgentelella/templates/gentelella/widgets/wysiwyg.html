@@ -1,0 +1,5 @@
+<div class="btn-toolbar" data-role="editor-toolbar"
+        data-target="#{{widget.attrs.id}}">
+</div>
+<textarea style="overflow:scroll; max-height:300px" name="{{ widget.name }}"{% include "gentelella/widgets/attrs.html" %}>
+{% if widget.value %}{{ widget.value }}{% endif %}</textarea>

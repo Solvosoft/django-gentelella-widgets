@@ -1,0 +1,25 @@
+{% extends 'gentelella/base.html' %}
+{% load static i18n %}
+
+
+{% block body_class %}{% endblock body_class %}
+{% block sidebar %}  {% endblock sidebar %}
+{% block top_navigation %} {% endblock top_navigation %}
+{% block content %}
+
+<div class="main_container">
+
+<div class="col-md-8 col-md-offset-2">
+<div class="col-middle">
+<div class="text-center text-center">
+<h1 class="error-number">{% trans "Logged out" %}</h1>
+<h2>{% trans 'Do you want to login again?' %}</h2>
+<p>{% trans 'or maybe you want to' %} <a href="/">{% trans 'go home' %}</a> </p>
+<div class="mid_center">
+    <a href="{% url 'login' %}" class="btn btn-secondary submit" >
+ {% trans 'Login'  %}
+    </a>
+</div>
+</div>
+</div>
+{% endblock %}
