@@ -1,12 +1,24 @@
 from django import template
+
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
 from djgentelella.models import MenuItem
 from djgentelella.templatetags._utils import get_title, get_link
 
+def validate_menu_item(item, context):
+    user = context['context']['request'].user
+    if not item.permission.exists():
+        return item
+    if user.has_perms(list(item.permission.all())):
+        return item
+
 
 def render_item(item, env={}):
+    item = validate_menu_item(item, env)
+    if not item:
+        return ""
+
     children = item.children.exists()
     dropdown = "nav-item dropdown"
     a_class=""
@@ -24,11 +36,11 @@ def render_item(item, env={}):
     else:
         a_class = 'tabindex = "-1"'
     dev += format_html("""<a href="{}" %s >{} {} </a> """%a_class,
-                      item.url_name,  icon, get_title(item) )
+                      get_link(item, env),  icon, get_title(item) )
     for node in item.children.all():
         dev += '<ul class="dropdown-menu " id="m_%d_%d"  aria-labelledby="navbarDropdown" role="menu">'%(
             item.pk, node.pk)
-        dev += render_item(node)
+        dev += render_item(node, env=env)
         dev += '</ul>'
     dev += '</li>'
     return dev
@@ -36,7 +48,7 @@ def render_item(item, env={}):
 register = template.Library()
 @register.simple_tag(takes_context=True)
 def top_menu(context,  *args, **kwargs):
-    menues = MenuItem.objects.filter(parent_id=None, category='main')
+    menues = MenuItem.objects.filter(parent_id=None, category='main').order_by('tree_id')
     dev  = ''
     environment = {
         'context': context,
@@ -51,7 +63,10 @@ def top_menu(context,  *args, **kwargs):
 
 
 def render_sidebar_item(item, father_pos=0, env={}):
-    print("-"*item.level, item.title)
+    item = validate_menu_item(item, env)
+    if not item:
+        return ""
+
     children, icon = item.children.exists(), ''
     if item.icon:
         icon = '<i class="%s"></i>'%item.icon
@@ -60,13 +75,13 @@ def render_sidebar_item(item, father_pos=0, env={}):
         dev = '<div class ="menu_section" ><h3>%s %s</h3>'%(icon, get_title(item))
     else:
         dev = '<li %s>'%('class="sub_menu"' if item.level == 2 else '' )
-        dev += """<a href="%s" >%s %s %s</a> """%( item.url_name,  icon, get_title(item),
+        dev += """<a href="%s" >%s %s %s</a> """%( get_link(item, env),  icon, get_title(item),
         '<span class="fa fa-chevron-down"></span>' if children else '')
 
     if children:
         dev += '<ul class="%s">' % ("nav side-menu" if not item.level and not father_pos else "nav child_menu")
         for i, node in enumerate(item.children.all()):
-            dev += render_sidebar_item(node, i)
+            dev += render_sidebar_item(node, i, env=env)
         dev += '</ul>'
     if not item.level:
         dev  += "</div>"
@@ -76,7 +91,7 @@ def render_sidebar_item(item, father_pos=0, env={}):
 
 @register.simple_tag(takes_context=True)
 def sidebar_menu(context,  *args, **kwargs):
-    menues = MenuItem.objects.filter(parent_id=None, category='sidebar')
+    menues = MenuItem.objects.filter(parent_id=None, category='sidebar').order_by('tree_id')
     dev = ''
     environment = {
         'context': context,
@@ -91,6 +106,9 @@ def sidebar_menu(context,  *args, **kwargs):
 
 
 def render_footer_sidebar_item(item, env={}):
+    item = validate_menu_item(item, env)
+    if not item:
+        return ""
     return """
     <a title="%s" href="%s">
       <span class="%s" aria-hidden="true"></span>
@@ -103,7 +121,7 @@ def render_footer_sidebar_item(item, env={}):
 
 @register.simple_tag(takes_context=True)
 def footer_sidebar_menu(context,  *args, **kwargs):
-    menues = MenuItem.objects.filter(parent_id=None, category='sidebarfooter')
+    menues = MenuItem.objects.filter(parent_id=None, category='sidebarfooter').order_by('tree_id')
     dev = ''
     environment = {
         'context': context,
