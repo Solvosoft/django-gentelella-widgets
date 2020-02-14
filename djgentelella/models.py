@@ -25,8 +25,10 @@ class MenuItem(MPTTModel):
     category = models.CharField(max_length=200, default='main',
                                 help_text="Clasifica items")
     is_reversed = models.BooleanField(default=False)
-    reversed_kwargs = models.CharField(max_length=500, null=True, blank=True)
-    reversed_args = models.CharField(max_length=500, null=True, blank=True)
+    reversed_kwargs = models.CharField(max_length=500, null=True, blank=True,
+                                       help_text="Ej key:value,key1:value,key2:value2")
+    reversed_args = models.CharField(max_length=500, null=True, blank=True,
+                                     help_text="Comma separed atributes, can access to template context with request.user.pk")
 
     is_widget = models.BooleanField(default=False)
     icon = models.CharField(max_length=50, null=True, blank=True)
