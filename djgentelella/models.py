@@ -17,7 +17,7 @@ class GentelellaSettings(models.Model):
 
 
 class MenuItem(MPTTModel):
-    name = models.SlugField(max_length=50, unique=True)
+    #name = models.SlugField(max_length=50, unique=True)
     parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
     title = models.CharField(max_length=500)
     permission = models.ManyToManyField(Permission, blank=True)
@@ -39,4 +39,4 @@ class MenuItem(MPTTModel):
         return self.title
 
     class MPTTMeta:
-        order_insertion_by = ['name']
+        order_insertion_by = ['-id']
