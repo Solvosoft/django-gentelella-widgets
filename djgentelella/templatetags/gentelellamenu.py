@@ -4,7 +4,8 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
 from djgentelella.models import MenuItem
-from djgentelella.templatetags._utils import get_title, get_link
+from djgentelella.templatetags._utils import get_title, get_link, get_menu_widget
+
 
 def validate_menu_item(item, context):
     user = context['context']['request'].user
@@ -35,7 +36,10 @@ def render_item(item, env={}):
         a_class = 'class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"'
     else:
         a_class = 'tabindex = "-1"'
-    dev += format_html("""<a href="{}" %s >{} {} </a> """%a_class,
+    if item.is_widget:
+        dev += get_menu_widget(item.url_name, context=env).render()
+    else:
+        dev += format_html("""<a href="{}" %s >{} {} </a> """%a_class,
                       get_link(item, env),  icon, get_title(item) )
     for node in item.children.all():
         dev += '<ul class="dropdown-menu " id="m_%d_%d"  aria-labelledby="navbarDropdown" role="menu">'%(
