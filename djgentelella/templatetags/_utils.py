@@ -1,4 +1,6 @@
 from django.urls import reverse
+from django.utils.module_loading import import_string
+
 
 def extract_element(item, context):
     fields = item.split('.')
@@ -56,3 +58,9 @@ def get_link(item, context):
                        kwargs=extract_kwargs(item, context),
                        args=extract_args(item, context))
     return ''
+
+def get_menu_widget(item, context):
+    widget = import_string(item.strip())
+    widget = widget(context)
+    return widget
+
