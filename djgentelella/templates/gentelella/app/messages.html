@@ -1,0 +1,16 @@
+<div class="container">
+<div class="row">
+     <div class='col-md-12' >
+         <div class="alert alert-success alert-dismissible fade in" role="alert">
+    <ul class="messages">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+  <span aria-hidden="true">&times;</span>
+</button>
+
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+    </ul></div>
+     </div>
+     </div>
+</div>

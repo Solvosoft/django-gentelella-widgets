@@ -76,6 +76,11 @@
           {% endblock top_navigation %}
 
           <div class="right_col" role="main">
+          {% block messages %}
+         {% if messages %}
+            {% include "gentelella/app/messages.html" %}
+          {% endif %}
+          {% endblock %}
           {% block content %}
             <!-- {{ content }} -->
           {% endblock content %}
