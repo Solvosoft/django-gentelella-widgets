@@ -11,7 +11,8 @@ def validate_menu_item(item, context):
     user = context['context']['request'].user
     if not item.permission.exists():
         return item
-    if user.has_perms(list(item.permission.all())):
+    perms=["%s.%s"%(i.content_type.app_label, i.codename) for i in item.permission.all()]
+    if user.has_perms(perms):
         return item
 
 
