@@ -201,6 +201,22 @@ class Select(DJSelect):
             attrs = update_kwargs(attrs, self.__class__.__name__, base_class='select2_single form-control ')
         super().__init__(attrs,  choices=choices)
 
+class SelectWithAdd(Select):
+    template_name = 'gentelella/widgets/addselect.html'
+    option_template_name = 'gentelella/widgets/select_option.html'
+
+
+    def __init__(self, attrs=None, choices=(), extraskwargs=True):
+        if extraskwargs:
+            attrs = update_kwargs(attrs, self.__class__.__name__,
+                                  base_class='form-control ')
+        if 'add_url' not in attrs:
+            raise ValueError('SelectWithAdd requires add_url in attrs')
+        super().__init__(attrs,  choices=choices, extraskwargs=False)
+
+
+
+
 class SelectTail(DJSelect):
     input_type = 'select'
     template_name = 'gentelella/widgets/select.html'

@@ -593,7 +593,15 @@ function init_imask(){
   });
 };
 
+function initial_gentelella_select_add(){
+    $('[data-widget="SelectWithAdd"]').each(function(i, e){
 
+        $($(e).data('modalname')).on('show.bs.modal', function (event) {
+            var modal = $(this);
+            modal.find('.modal-body').html("Cargando ... "+modal.data('url'));
+        });
+    });
+}
 
 $(document).ready(function() {
     init_sidebar();
@@ -604,7 +612,8 @@ $(document).ready(function() {
     init_textarea();
     init_selects();
     init_imask();
-
+    initial_gentelella_select_add();
+    $(".gencrud").listcrudrest();
 
 });
 
