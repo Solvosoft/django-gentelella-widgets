@@ -33,4 +33,5 @@ auth_urls = [
 ]
 
 urlpatterns =   auth_urls + [
+
 ]
