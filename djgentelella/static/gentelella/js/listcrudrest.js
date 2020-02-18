@@ -31,11 +31,19 @@
                 dataType : 'json', // data type
                 data : $(form).serialize(), // post data || get data
                 success : function(result) {
+                    form.find('p.error').remove();
                     update_list(result);
+
                 },
                 error: function(xhr, resp, text) {
-                    console.log(xhr, resp, text);
-                    alert("A ocurrido guardando los datos");
+                    if(xhr.status == 400 ){
+                        keys = Object.keys(xhr.responseJSON)
+
+                        $.each(keys, function(i, e){
+                            var item = form.find('*[name='+e+']');
+                            item.after('<p class="text-danger error">'+xhr.responseJSON[e].join("<br>")+'<p>');
+                        });
+                    }
                 }
             });
         });
