@@ -594,56 +594,8 @@ function init_imask(){
 };
 
 function initial_gentelella_select_add(){
-    $('[data-widget="SelectWithAdd"]').each(function(i, e){
-            $(document.body).append( $($(e).data('modalname')).detach() );
-            var $modalui = $($(e).data('modalname'));
-        $modalui.on('show.bs.modal', function (event) {
-            var modal = $(this);
-            $.ajax({
-                url: modal.data('url'), // url where to submit the request
-                type : "GET", // type of action POST || GET
-                dataType : 'json', // data type
-                success : function(result) {
-                    modal.find('.modal-body').html(result['message']);
-                    modal.find('.modal-header p').html(result['title']);
-                },
-                error: function(xhr, resp, text) {
-                    console.log(xhr, resp, text);
-                }
-            });
-        });
-        $($(e).data('modalname')+' .btnsubmit').on('click', function(){
-            var form = $($(e).data('modalname')+' form');
-            $.ajax({
-                url: $modalui.data('url'), // url where to submit the request
-                type : "POST", // type of action POST || GET
-                headers: {'X-CSRFToken': getCookie('csrftoken') },
-                dataType : 'json', // data type
-                data : $(form).serialize(), // post data || get data
-                success : function(result) {
-                    if(result.ok){
-                        $modalui.find('.modal-body').html("");
-                        $modalui.modal('hide');
-                    }else{
-                        $modalui.find('.modal-body').html(result['message']);
-                        $modalui.find('.modal-header p').html(result['title']);
-                    }
-                },
-                error: function(xhr, resp, text) {
-                    if(xhr.status == 400 ){
-                        keys = Object.keys(xhr.responseJSON)
-
-                        $.each(keys, function(i, e){
-                            var item = form.find('*[name='+e+']');
-                            item.after('<p class="text-danger error">'+xhr.responseJSON[e].join("<br>")+'<p>');
-                        });
-                    }
-                }
-            });
-        });
-
-
-    });
+    $('[data-widget="SelectWithAdd"]').addselectwidget();
+    $('[data-widget="SelectWithAdd"]').select2();
 }
 
 $(document).ready(function() {

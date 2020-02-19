@@ -120,7 +120,7 @@ def logeado(request):
 
 def add_view_select(request):
     if request.method == 'POST':
-        # return JsonResponse({'ok': True})
+        return JsonResponse({'ok': True, 'id': 2, 'text': 'Data example'})
         return JsonResponse({'ok': False,
                              'title': "Esto no dice nada",
                              'message': 'Esto es un errror'})
