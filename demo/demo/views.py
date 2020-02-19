@@ -92,12 +92,14 @@ class ExampleForm(CustomForm):
     #            'data-thickness': '.3'
     #            } ))
 
-    # your_test = forms.ChoiceField(choices=(
-    #     ('enero', 'Enero'),
-    #     ('febrero', 'Febrero'),
-    #     ('marzo,abril', 'Marzo,Abril')
-    # ), widget=genwidgets.SelectTail)
-    #
+    your_test = forms.ChoiceField(choices=(
+        ('enero', 'Enero'),
+        ('febrero', 'Febrero'),
+        ('marzo,abril', 'Marzo,Abril')
+    ), widget=genwidgets.SelectMultipleAdd(
+        attrs={'add_url': reverse_lazy('add_view_select')}
+    ))
+
     your_multiple = forms.ChoiceField(choices=(), widget=genwidgets.SelectWithAdd(
         attrs={'add_url': reverse_lazy('add_view_select')}))
 
