@@ -98,11 +98,8 @@ class ExampleForm(CustomForm):
     #     ('marzo,abril', 'Marzo,Abril')
     # ), widget=genwidgets.SelectTail)
     #
-    your_multiple = forms.ChoiceField(choices=(
-        ('enero', 'Enero'),
-        ('febrero', 'Febrero'),
-        ('marzo,abril', 'Marzo,Abril')
-    ), widget=genwidgets.SelectWithAdd(attrs={'add_url': reverse_lazy('add_view_select')}))
+    your_multiple = forms.ChoiceField(choices=(), widget=genwidgets.SelectWithAdd(
+        attrs={'add_url': reverse_lazy('add_view_select')}))
 
     #your_wysiwyg = forms.CharField(widget=genwidgets.TextareaWysiwyg)
 
@@ -123,10 +120,21 @@ def logeado(request):
 
 def add_view_select(request):
     if request.method == 'POST':
-
-        pass
+        # return JsonResponse({'ok': True})
+        return JsonResponse({'ok': False,
+                             'title': "Esto no dice nada",
+                             'message': 'Esto es un errror'})
     data = {
         'ok':  True,
-        'message': render_to_string('BINGO')
+        'title': 'Formulario de ejemplo',
+        'message': """
+        <form method="post" action="/add_view_select">
+            <textarea name="description" > </textarea>
+            <input type="text" name="name" />
+            <select name="bingo">
+               <option value="Nada">Nada</option><option value="otro">Otro</option>
+            </select>
+        </form>
+        """
     }
     return JsonResponse(data)
