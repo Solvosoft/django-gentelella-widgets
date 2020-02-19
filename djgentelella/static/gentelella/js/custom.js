@@ -596,6 +596,9 @@ function init_imask(){
 function initial_gentelella_select_add(){
     $('[data-widget="SelectWithAdd"]').addselectwidget();
     $('[data-widget="SelectWithAdd"]').select2();
+    $('[data-widget="SelectMultipleAdd"]').addselectwidget();
+    $('[data-widget="SelectMultipleAdd"]').select2();
+
 }
 
 $(document).ready(function() {
