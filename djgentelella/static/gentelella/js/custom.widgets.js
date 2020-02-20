@@ -1,6 +1,7 @@
 (function($){
     $.fn.listcrudrest = function(){
-        var $this = $(this),
+       $.each($(this), function(i, e){
+        var $this=$(e),
            btn = $this.find('.additemcrudlist'),
            form = $this.find('form'),
            url_add = form.attr('action'),
@@ -65,6 +66,7 @@
                     console.log(xhr, resp, text);
                 }
             });
+        });
         });
     };
     $.fn.addselectwidget = function(){
