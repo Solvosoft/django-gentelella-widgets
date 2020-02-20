@@ -73,6 +73,7 @@
         var $modalui = $($(e).data('modalname'));
         $modalui.on('show.bs.modal', function (event) {
             var modal = $(this);
+            actual_select = $(event.relatedTarget).parent().find("select").attr("name");
             $.ajax({
                 url: modal.data('url'), // url where to submit the request
                 type : "GET", // type of action POST || GET
@@ -101,7 +102,7 @@
                         'text': result.text
                         }
                         var newOption = new Option(data.text, data.id, false, true);
-                         e.append(newOption).trigger('change');
+                         $('select[name="'+actual_select+'"]').append(newOption).trigger('change');
 
                         $modalui.find('.modal-body').html("");
                         $modalui.modal('hide');
