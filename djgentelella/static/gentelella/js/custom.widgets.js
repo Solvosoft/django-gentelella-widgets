@@ -68,12 +68,12 @@
         });
     };
     $.fn.addselectwidget = function(){
-        var e=this;
+        //var e=this;
+        $.each(this, function(i,e){
         $(document.body).append( $($(e).data('modalname')).detach() );
         var $modalui = $($(e).data('modalname'));
         $modalui.on('show.bs.modal', function (event) {
             var modal = $(this);
-            actual_select = $(event.relatedTarget).parent().find("select").attr("name");
             $.ajax({
                 url: modal.data('url'), // url where to submit the request
                 type : "GET", // type of action POST || GET
@@ -102,7 +102,7 @@
                         'text': result.text
                         }
                         var newOption = new Option(data.text, data.id, false, true);
-                         $('select[name="'+actual_select+'"]').append(newOption).trigger('change');
+                         $(e).append(newOption).trigger('change');
 
                         $modalui.find('.modal-body').html("");
                         $modalui.modal('hide');
@@ -124,6 +124,7 @@
             });
         });
 
-
+    });
     }
+
 })(jQuery)
