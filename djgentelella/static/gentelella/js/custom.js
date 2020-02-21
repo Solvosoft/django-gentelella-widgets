@@ -554,6 +554,19 @@ function init_textarea() {
     //$('[data-widget="TextareaWysiwyg"]').wysiwyg();
 };
 
+function decore_select2 (data) {
+            // We only really care if there is an element to pull classes from
+            if (!data.element) {
+              return data.text;
+            }
+            var $element = $(data.element);
+            var $wrapper = $('<span></span>');
+            $wrapper.addClass($element[0].className);
+            $wrapper.text(data.text);
+            return $wrapper;
+}
+
+
 function init_selects(){
     $('[data-widget="Select"]').select2();
     $('[data-widget="SelectMultiple"]').select2();
@@ -571,6 +584,8 @@ function init_selects(){
         search: true
       });
 
+    $('[data-widget="TreeSelect"]').select2({templateResult: decore_select2});
+    $('[data-widget="TreeSelectMultiple"]').select2({templateResult: decore_select2});
 };
 
 function init_imask(){
