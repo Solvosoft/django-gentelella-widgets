@@ -16,7 +16,7 @@
 </ul>
 <div class="clearfix"></div>
 </div>
-<div class="x_content">
+<div class="x_content" {% if is_hidden %}style="display: none;"{% endif%}>
     <div class="row">
         <form action="{{gencrud_form_url}}" method="POST" onsubmit="return false;">
             {{ form.as_horizontal }}
