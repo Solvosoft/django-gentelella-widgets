@@ -104,7 +104,7 @@ class ExampleForm(CustomForm):
     #     attrs={'add_url': reverse_lazy('add_view_select')}))
 
     #your_wysiwyg = forms.CharField(widget=genwidgets.TextareaWysiwyg)
-    file = forms.FileField(
+    your_file = forms.FileField(
         widget=genwidgets.FileInput
     )
 

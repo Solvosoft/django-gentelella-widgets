@@ -31,12 +31,15 @@
             $.each($(this), function(i, e){
                 var $this=$(e),
                     upload_url = $this.data('href'),
+                    field_name = $this.attr('name'),
                     div_message = $this.data('message'),
                     div_process = $this.data('process'),
                     url_done = $this.data('done'),
                     input_token = $this.data('inputtoken'),
                     fileshow = $this.parent('div').parent('div').find('.fileshow'),
                     uploadfilecontent = $this.parent('div').parent('div').find('.uploadfilecontent');
+
+               $this.attr("required", false);
                $(div_message).hide();
                $(fileshow).on('click', function(){
                     $(uploadfilecontent).toggle();
@@ -54,6 +57,7 @@
                     // old upload_id and just keep the csrftoken (which is always first).
                     form_data.splice(1);
                     calculate_md5(data.files[0], 100000);  // Again, chunks of 100 kB
+                    data.paramName='file';
                     data.submit();
                     $(uploadfilecontent).hide();
                     $(div_message).show();
@@ -69,7 +73,7 @@
                     $(div_process).text(  progress + "%");
                   }
                 }).bind('fileuploaddone', function (e, data) {
-                    $(input_token).val(data.result.upload_id);
+                    $('input[name="'+input_token+'"]').val(data.result.upload_id);
                     $.ajax({
                           type: "POST",
                           url: url_done,
