@@ -1,3 +1,4 @@
+from chunked_upload.views import ChunkedUploadView, ChunkedUploadCompleteView
 from django.urls import path
 from django.contrib.auth import views as auth_views
 
@@ -33,5 +34,7 @@ auth_urls = [
 ]
 
 urlpatterns =   auth_urls + [
+    path('djgentelella/upload/', ChunkedUploadView.as_view(), name='upload_file_view'),
+    path('djgentelella/upload/done/', ChunkedUploadCompleteView.as_view(), name='upload_file_done'),
 
 ]
