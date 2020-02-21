@@ -214,9 +214,6 @@ class SelectWithAdd(Select):
             raise ValueError('SelectWithAdd requires add_url in attrs')
         super().__init__(attrs,  choices=choices, extraskwargs=False)
 
-
-
-
 class SelectTail(DJSelect):
     input_type = 'select'
     template_name = 'gentelella/widgets/select.html'

@@ -4277,3 +4277,12 @@ table thead .checkbox.radio { margin-top:-7px;margin-top:-21px; }
 .djgentelella-file-input {
     height: calc(2.5em + 0.75rem + 2px);
 }
+
+
+.l2 {
+  padding-left: 0.2em;
+   color: #1abb9c;
+}
+.l3 {
+  padding-left: 2em;
+}
