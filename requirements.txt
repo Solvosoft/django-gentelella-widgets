@@ -1,1 +1,2 @@
 django-mptt==0.11.0
+django-chunked-upload==2.0.0

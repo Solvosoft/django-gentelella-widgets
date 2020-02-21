@@ -141,6 +141,14 @@ class Command(BaseCommand):
                 'https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js',
                 'https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap.min.js',
                 'https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap.min.css',
+            ],
+            'fileupload':[
+                'https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.8.0/js/jquery.fileupload.min.js',
+                'https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.8.0/js/jquery.iframe-transport.min.js',
+                'https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.8.0/js/vendor/jquery.ui.widget.min.js',
+                'https://cdnjs.cloudflare.com/ajax/libs/spark-md5/3.0.0/spark-md5.min.js',
+
+
             ]
         }
         if not os.path.exists(basepath+'flags'):

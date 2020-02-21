@@ -4273,3 +4273,7 @@ table thead .checkbox.radio { margin-top:-7px;margin-top:-21px; }
     color: red;
     list-style-type: none;
 }
+
+.djgentelella-file-input {
+    height: calc(2.5em + 0.75rem + 2px);
+}

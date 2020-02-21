@@ -99,11 +99,11 @@ class FileInput(DJFileInput):
 
     def __init__(self, attrs=None, extraskwargs=True):
         if extraskwargs:
-            attrs = update_kwargs(attrs, self.__class__.__name__)
-        if 'url' not in attrs:
-            attrs.update({'url': reverse_lazy('upload_file_view')})
-        if 'limit' not in attrs:
-            attrs.update({'limit': 1})
+            attrs = update_kwargs(attrs, self.__class__.__name__, base_class='djgentelella-file-input form-control')
+        if 'data-href' not in attrs:
+            attrs.update({'data-href': reverse_lazy('upload_file_view')})
+        if 'data-done' not in attrs:
+            attrs['data-done'] = reverse_lazy('upload_file_done')
         super().__init__(attrs)
 
 

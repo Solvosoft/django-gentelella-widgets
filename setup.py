@@ -41,7 +41,8 @@ setup(
     platforms=['OS Independent'],
     classifiers=CLASSIFIERS,
     install_requires=[
-	    'django-mptt==0.11.0',
+	    'django-mptt>=0.11.0',
+        'django-chunked-upload>=2.0.0'
     ],
     packages=find_packages(exclude=["demo"]),
     include_package_data=True,

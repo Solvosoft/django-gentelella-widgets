@@ -611,6 +611,7 @@ $(document).ready(function() {
     init_imask();
     initial_gentelella_select_add();
     $(".gencrud").listcrudrest();
+    $('[data-widget="FileInput"]').fileuploadwidget();
 
 });
 
