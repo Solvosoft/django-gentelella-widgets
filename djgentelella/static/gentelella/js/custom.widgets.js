@@ -37,6 +37,7 @@
 
                 },
                 error: function(xhr, resp, text) {
+                    form.find('p.error').remove();
                     if(xhr.status == 400 ){
                         keys = Object.keys(xhr.responseJSON)
 
