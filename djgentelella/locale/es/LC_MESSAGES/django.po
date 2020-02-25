@@ -7,22 +7,47 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-02-13 04:48+0000\n"
-"PO-Revision-Date: 2020-02-12 22:53-0600\n"
+"POT-Creation-Date: 2020-02-25 06:35+0000\n"
+"PO-Revision-Date: 2020-02-25 00:50-0600\n"
+"Last-Translator: \n"
+"Language-Team: \n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"Last-Translator: \n"
-"Language-Team: \n"
 "X-Generator: Poedit 2.2.1\n"
 
 #: templates/gentelella/app/footer.html:4
-#: templates/gentelella/registration/login.html:48
+#: templates/gentelella/registration/footer.html:5
 #: templates/gentelella/registration/password_reset_form.html:31
 msgid "All Rights Reserved."
 msgstr "Todos los derechos reservados"
+
+#: templates/gentelella/blocks/crud_list.html:11
+msgid "Delete"
+msgstr "Eliminar"
+
+#: templates/gentelella/registration/activate.html:11
+msgid "Account activation failed"
+msgstr "Activación de cuentas falló"
+
+#: templates/gentelella/registration/activation_complete.html:12
+msgid "Your account is now activated."
+msgstr "Su cuenta está activada."
+
+#: templates/gentelella/registration/activation_email.txt:2
+msgid "Activate account at"
+msgstr "Cuenta activada el "
+
+#: templates/gentelella/registration/activation_email.txt:6
+#, python-format
+msgid "Link is valid for %(expiration_days)s days."
+msgstr "Enlace es válido por %(expiration_days)s días"
+
+#: templates/gentelella/registration/activation_email_subject.txt:1
+msgid "Account activation on"
+msgstr "Activación de cuentas"
 
 #: templates/gentelella/registration/login.html:5
 msgid "vendors/animate.css/animate.min.css"
@@ -35,7 +60,8 @@ msgstr "Iniciar sesión"
 
 #: templates/gentelella/registration/login.html:22
 msgid "Your username and password didn't match. Please try again."
-msgstr "Nombre de usuario o contraseña no concuerdan. Por favor intente de nuevo"
+msgstr ""
+"Nombre de usuario o contraseña no concuerdan. Por favor intente de nuevo"
 
 #: templates/gentelella/registration/login.html:27
 msgid ""
@@ -43,7 +69,8 @@ msgid ""
 "                        please login with an account that has access."
 msgstr ""
 "Su cuenta no tiene permisos de acceso para ver esta página. Para proceder,\n"
-"                        por favor inicie sesión con otra cuenta con permisos suficientes."
+"                        por favor inicie sesión con otra cuenta con permisos "
+"suficientes."
 
 #: templates/gentelella/registration/login.html:30
 msgid "Please login to see this page."
@@ -58,6 +85,7 @@ msgid "Password"
 msgstr "Contraseña"
 
 #: templates/gentelella/registration/login.html:42
+#: templates/gentelella/registration/password_reset_complete.html:15
 msgid "Log in"
 msgstr "Ingresar"
 
@@ -81,6 +109,89 @@ msgstr "o tal vez quiera"
 msgid "go home"
 msgstr "ir a inicio"
 
+#: templates/gentelella/registration/new_user.html:5
+msgid "Welcome"
+msgstr "Bienvenida"
+
+#: templates/gentelella/registration/new_user.html:8
+msgid "This email was sent because someone create an user with your email in "
+msgstr ""
+"Este correo fue enviado porque alguien creó un usuario con su correo en "
+
+#: templates/gentelella/registration/new_user.html:10
+msgid "Your username is: "
+msgstr "Su usuario de ingreso es: "
+
+#: templates/gentelella/registration/new_user.html:11
+msgid ""
+"for security reason password was create randomly and it is not provided "
+"here, please use this link"
+msgstr ""
+"por razones de seguridad la contraseña fue creada aleatoriamente y no está "
+"agregada en este correo, por favor use el siguiente link  "
+
+#: templates/gentelella/registration/new_user.html:13
+msgid "to regenerate new password and login on platform"
+msgstr "para regenerar una nueva contraseña e ingresá a la plataforma"
+
+#: templates/gentelella/registration/password_change_done.html:12
+msgid "Password changed"
+msgstr "Contraseña modificada"
+
+#: templates/gentelella/registration/password_change_form.html:17
+#: templates/gentelella/registration/password_reset_confirm.html:18
+#: templates/gentelella/registration/registration_form.html:17
+#: templates/gentelella/widgets/addselect.html:22
+msgid "Submit"
+msgstr "Enviar"
+
+#: templates/gentelella/registration/password_reset_complete.html:13
+msgid "Password reset successfully"
+msgstr "Contraseña modificada con éxito"
+
+#: templates/gentelella/registration/password_reset_confirm.html:14
+msgid "Password change"
+msgstr "Contraseña Modificada"
+
+#: templates/gentelella/registration/password_reset_confirm.html:23
+msgid "Password reset failed"
+msgstr "Cambio de contraseña falló"
+
+#: templates/gentelella/registration/password_reset_done.html:12
+msgid "Password reseted"
+msgstr "Contraseña reiniciadao"
+
+#: templates/gentelella/registration/password_reset_done.html:13
+msgid "Email with password reset instructions has been sent."
+msgstr "Correo con el cambio de contraseña ha sido enviado."
+
+#: templates/gentelella/registration/password_reset_done.html:15
+msgid "Go to home"
+msgstr "Ir a inicio"
+
+#: templates/gentelella/registration/password_reset_email.html:5
+#, python-format
+msgid "Reseting password at %(site_name)s"
+msgstr "Reiniciar contraseña en %(site_name)s"
+
+#: templates/gentelella/registration/password_reset_email.html:8
+msgid "Use the follow link to reset the password in the platform"
+msgstr "Use el siguiente enlace para reiniciar la contraseña en la plataforma"
+
+#: templates/gentelella/registration/password_reset_email.html:10
+msgid "Here"
+msgstr "Aquí"
+
+#: templates/gentelella/registration/password_reset_email.html:13
+msgid ""
+"This email was send because someone try to reset your password, if you "
+"didn't request a reset, please delete this email and do not more actions\n"
+"    "
+msgstr ""
+"Este correo fue enviado por que alguien, posiblemente usted trató de "
+"reiniciar la contraseña. Si no ha hecho la petición de reinicio, por favor "
+"elimine este correo y no realice ninguna otra acción"
+
 #: templates/gentelella/registration/password_reset_form.html:15
 msgid "Reset password"
 msgstr "Recuperar contraseña"
@@ -97,14 +208,32 @@ msgstr "Vamos a enviarle un correo para verificar que usted es quien dice ser"
 msgid "Send email"
 msgstr "Enviar correo"
 
-#: templates/gentelella/widgets/checkyesno.html:2 widgets/core.py:224
+#: templates/gentelella/registration/password_reset_subject.txt:3
+#, python-format
+msgid "Password reset on %(site_name)s"
+msgstr "Contraseña reiniciada en %(site_name)s"
+
+#: templates/gentelella/registration/registration_closed.html:12
+msgid "Registration is currently closed."
+msgstr "Registro está cerrado"
+
+#: templates/gentelella/registration/registration_complete.html:12
+msgid "You are now registered. Activation email sent."
+msgstr ""
+"Usted fue registrado adecuadamente. Un correo de activación ha sido enviado"
+
+#: templates/gentelella/widgets/addselect.html:21
+msgid "Close"
+msgstr "Cerrar"
+
+#: templates/gentelella/widgets/checkyesno.html:2 widgets/core.py:276
 msgid "No"
 msgstr "No"
 
-#: templates/gentelella/widgets/checkyesno.html:4 widgets/core.py:223
+#: templates/gentelella/widgets/checkyesno.html:4 widgets/core.py:275
 msgid "Yes"
 msgstr "Sí"
 
-#: widgets/core.py:222
+#: widgets/core.py:274
 msgid "Unknown"
 msgstr "Desconocido"
