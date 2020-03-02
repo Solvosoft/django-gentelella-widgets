@@ -1,7 +1,6 @@
 from django.utils.safestring import mark_safe
 
-
-class StatsElement:
+class Element:
     def __init__(self, position, brothers):
         self.position = position
         self.brothers = brothers
@@ -20,6 +19,7 @@ class StatsElement:
             pos_sm = 12
         return "col-md-%d col-sm-%d"%(pos,pos_sm)
 
+class StatsElement(Element):
     def render(self):
         self.load_data()
         dev = self.get_top()
@@ -85,11 +85,44 @@ class StatsElement:
             return '<i class="%s"></i>'%(icon,)
         return ""
 
-class StatsCountList:
-    stats_views = []
+
+class BoxTileElement(Element):
+    def get_icon(self):
+        return ""
+    def get_number(self):
+        return ""
+    def get_title(self):
+        return ""
+    def get_subtitle(self):
+        return ""
 
     def render(self):
-        dev = """<div class="row"><div class="tile_count">"""
+        return """
+<div class="animated flipInY">
+<div class="tile-stats">
+<div class="icon"><i class="%(icon)s"></i></div>
+<div class="count">%(number)s</div>
+<h3>%(title)s</h3>
+<p>%(subtitle)s</p>
+</div>
+</div>
+        """%{
+            'icon': self.get_icon(),
+            'number': self.get_number(),
+            'title': self.get_title(),
+            'subtitle': self.get_subtitle()
+
+        }
+
+
+
+class BaseListElement:
+    stats_views = []
+    css_class = ''
+    css_class = ''
+
+    def render(self):
+        dev = """<div class="row"><div class="%s">"""%self.css_class
         for i, stat in enumerate(self.stats_views):
             view = stat(i, len(self.stats_views))
             dev += '<div class="'+view.get_columns()+' tile_stats_count">'
@@ -97,3 +130,9 @@ class StatsCountList:
             dev += '</div>'
         dev += "</div></div>"
         return mark_safe(dev)
+
+class StatsCountList(BaseListElement):
+    css_class = 'tile_count'
+
+class BoxStatsCountList(BaseListElement):
+    css_class = 'tile_stats'
