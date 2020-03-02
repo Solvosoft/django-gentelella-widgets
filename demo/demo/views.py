@@ -109,6 +109,7 @@ class ExampleForm(CustomForm):
     )
 
 
+
 def home(request):
     form = ExampleForm()
     if request.method == 'POST':

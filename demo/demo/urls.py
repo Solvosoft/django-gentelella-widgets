@@ -17,11 +17,13 @@ from django.contrib import admin
 from django.urls import path
 
 from djgentelella.urls import urlpatterns as djgentelellaurls
+from .dashboad import show_top_counts
 from .views import home, logeado, add_view_select
 
 urlpatterns = djgentelellaurls + [
     path('admin/', admin.site.urls),
     path('', home, name="home"),
     path('logueado', logeado),
+    path('dashboard', show_top_counts, name='dashboard'),
     path('add_view_select', add_view_select, name='add_view_select')
 ]
