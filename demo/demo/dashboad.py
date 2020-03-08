@@ -1,7 +1,7 @@
 from django.shortcuts import render
 
 from djgentelella.elements import StatsCountList
-from elements import StatsElement, BoxStatsCountList, BoxTileElement
+from djgentelella.elements import StatsElement, BoxStatsCountList, BoxTileElement
 
 
 class MemberStats(StatsElement):
