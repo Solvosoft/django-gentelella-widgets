@@ -3841,6 +3841,20 @@ fieldset {
     width: 100%;
     margin: 0 0 20px
 }
+@media only screen and (max-width: 600px) {
+.wizard_horizontal ul.wizard_steps {
+    display: table;
+    list-style: none;
+    position: relative;
+    width: 100%;
+    margin: 16px -20px;
+    font-size: xx-small;
+}
+.step_descr{
+    display: none;
+}
+}
+
 .wizard_horizontal ul.wizard_steps li {
     display: table-cell;
     text-align: center
