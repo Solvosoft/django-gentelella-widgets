@@ -585,7 +585,9 @@ function init_selects(){
       });
 
     $('[data-widget="TreeSelect"]').select2({templateResult: decore_select2});
+    $('[data-widget="TreeSelectWithAdd"]').select2({templateResult: decore_select2});
     $('[data-widget="TreeSelectMultiple"]').select2({templateResult: decore_select2});
+    $('[data-widget="TreeSelectMultipleWithAdd"]').select2({templateResult: decore_select2});
 };
 
 function init_imask(){
@@ -613,7 +615,8 @@ function initial_gentelella_select_add(){
     $('[data-widget="SelectWithAdd"]').select2();
     $('[data-widget="SelectMultipleAdd"]').addselectwidget();
     $('[data-widget="SelectMultipleAdd"]').select2();
-
+    $('[data-widget="TreeSelectMultipleWithAdd"]').addselectwidget();
+    $('[data-widget="TreeSelectWithAdd"]').addselectwidget();
 }
 
 $(document).ready(function() {
