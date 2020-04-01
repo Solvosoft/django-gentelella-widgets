@@ -84,6 +84,10 @@
                 success : function(result) {
                     modal.find('.modal-body').html(result['message']);
                     modal.find('.modal-header p').html(result['title']);
+                    if(result.hasOwnProperty('script')){
+                        eval(result['script'])
+                    }
+
                 },
                 error: function(xhr, resp, text) {
                     console.log(xhr, resp, text);
@@ -112,6 +116,9 @@
                     }else{
                         $modalui.find('.modal-body').html(result['message']);
                         $modalui.find('.modal-header p').html(result['title']);
+                        if(result.hasOwnProperty('script')){
+                           eval(result['script'])
+                        }
                     }
                 },
                 error: function(xhr, resp, text) {
@@ -126,8 +133,9 @@
                 }
             });
         });
-
+        $modalui.modal('hide');
     });
+
     }
 
 })(jQuery)
