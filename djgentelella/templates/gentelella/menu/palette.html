@@ -1,0 +1,49 @@
+{% load i18n %}
+<div id="content_{{id}}" data-item-id="{{id}}" class="collapse col-md-3" >
+
+<div class="x_panel ">
+<div class="x_title">
+<h2>{% trans 'Help' %}</h2>
+<ul class="nav navbar-right panel_toolbox">
+
+</li>
+<li class="dropdown ">
+<a href="#" id="expand_{{id}}" ><i class="fa fa-arrows-alt"></i></a>
+<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+<a class="dropdown-item" href="#">Settings 1</a>
+<a class="dropdown-item" href="#">Settings 2</a>
+</div>
+</li>
+<li class="pull-right"><a aria-controls="content_{{id}}" data-toggle="collapse"  data-target="#content_{{id}}"
+class="collapse" role="button" aria-expanded="false"><i class="fa fa-close"></i></a>
+</li>
+</ul>
+<div class="clearfix"></div>
+</div>
+<div class="x_content" >
+    <div class="helper_list"></div>
+</div>
+</div> <!--AQUI -->
+
+
+</div>
+
+<script>
+ var menu=$("#fsb_{{item.pk}}");
+ var menuoffset=menu.offset();
+ $("#content_{{id}}").css({'position': 'fixed', 'top':  menuoffset.top-$("#content_{{id}}").height(), 'left': menuoffset.left, 'z-index': 1000});
+ $("#expand_{{id}}").on('click', function(){
+    if($("#content_{{id}}").hasClass("col-md-3")){
+        $("#content_{{id}}").addClass("col-md-10");
+        $("#content_{{id}}").removeClass("col-md-3");
+
+        $("#expand_{{id}} i").removeClass("fa-arrows-alt");
+        $("#expand_{{id}} i").addClass("fa-minus");
+    }else{
+        $("#content_{{id}}").addClass("col-md-3");
+        $("#content_{{id}}").removeClass("col-md-10");
+        $("#expand_{{id}} i").removeClass("fa-minus");
+        $("#expand_{{id}} i").addClass("fa-arrows-alt");
+    }
+ });
+</script>

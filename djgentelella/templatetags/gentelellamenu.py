@@ -38,10 +38,12 @@ def render_item(item, env={}):
     else:
         a_class = 'tabindex = "-1"'
     if item.is_widget:
-        dev += get_menu_widget(item.url_name, context=env).render()
+        wdcontext = {'id': 'tm_'+str(item.id), 'item': item}
+        wdcontext.update(env)
+        dev += get_menu_widget(item.url_name, context=wdcontext).render()
     else:
-        dev += format_html("""<a href="{}" %s >{} {} </a> """%a_class,
-                      get_link(item, env),  icon, get_title(item) )
+        dev += format_html("""<a id="{}" href="{}" %s >{} {} </a> """%a_class,
+                      'tm_'+str(item.id), get_link(item, env),  icon, get_title(item) )
     for node in item.children.all():
         dev += '<ul class="dropdown-menu " id="m_%d_%d"  aria-labelledby="navbarDropdown" role="menu">'%(
             item.pk, node.pk)
@@ -77,10 +79,12 @@ def render_sidebar_item(item, father_pos=0, env={}):
         icon = '<i class="%s"></i>'%item.icon
     # level 1
     if not item.level:
-        dev = '<div class ="menu_section" ><h3>%s %s</h3>'%(icon, get_title(item))
+        dev = '<div id="%s" class ="menu_section" ><h3>%s %s</h3>'%(
+            'sb'+str(item.id), icon, get_title(item))
     else:
         dev = '<li %s>'%('class="sub_menu"' if item.level == 2 else '' )
-        dev += """<a href="%s" >%s %s %s</a> """%( get_link(item, env),  icon, get_title(item),
+        dev += """<a id="%s" href="%s" >%s %s %s</a> """%(
+            'sb'+str(item.id), get_link(item, env),  icon, get_title(item),
         '<span class="fa fa-chevron-down"></span>' if children else '')
 
     if children:
@@ -110,19 +114,44 @@ def sidebar_menu(context,  *args, **kwargs):
 
 
 
-def render_footer_sidebar_item(item, env={}):
+def render_footer_sidebar_item(item, env={}, widget_list=[]):
     item = validate_menu_item(item, env)
     if not item:
         return ""
+
+    context = {
+        'id': "fsb_"+str(item.id),
+
+        'title': '',
+        'link': '',
+        'icon': ''
+    }
+    if item.is_widget:
+        wdcontext = {'id': 'tm_'+str(item.id),  'item': item}
+        wdcontext.update(env)
+        widget= get_menu_widget(item.url_name, context=wdcontext)
+        context.update({
+            'title': widget.get_title(item) if hasattr(widget, 'get_title') else '',
+            'link': widget.get_link(item, env) if hasattr(widget, 'get_link') else '#',
+            'icon': widget.get_icon(item) if hasattr(widget, 'get_icon') else item.icon
+        })
+        widget_list.append(widget)
+        if hasattr(widget, 'get_menu_item'):
+            return widget.get_menu_item()
+
+
+    else:
+        context.update( {
+            'title': get_title(item),
+            'link': get_link(item, env),
+            'icon': item.icon
+        })
+
     return """
-    <a title="%s" href="%s">
-      <span class="%s" aria-hidden="true"></span>
+    <a id="%(id)s" title="%(title)s" href="%(link)s">
+      <span class="%(icon)s" aria-hidden="true"></span>
     </a>
-    """%(
-        get_title(item),
-        get_link(item, env),
-        item.icon
-    )
+    """%context
 
 @register.simple_tag(takes_context=True)
 def footer_sidebar_menu(context,  *args, **kwargs):
@@ -133,6 +162,18 @@ def footer_sidebar_menu(context,  *args, **kwargs):
         'args': args,
         'kwargs': kwargs
     }
+    widget_list = []
     for item in menues:
-        dev += render_footer_sidebar_item(item, env=environment)
+        dev += render_footer_sidebar_item(item, env=environment, widget_list=widget_list)
+    setattr(context['request'], 'widget_list',  widget_list)
+    return mark_safe(dev)
+
+
+@register.simple_tag(takes_context=True)
+def render_external_widget(context,  *args, **kwargs):
+    dev = ''
+    if hasattr(context['request'], 'widget_list'):
+        widget_list=context['request'].widget_list
+        for widget in widget_list:
+            dev += widget.render()
     return mark_safe(dev)
