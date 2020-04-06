@@ -1,29 +1,29 @@
 {% load i18n %}
-<div id="content_{{id}}" data-item-id="{{id}}" class="collapse col-md-3" >
+<div id="content_{{id}}" data-item-id="{{id}}" class="collapse col-md-3">
+    <div class="x_panel ">
+        <div class="x_title">
+            <h2>{% trans 'Help' %}</h2>
+            <ul class="nav navbar-right panel_toolbox">
 
-<div class="x_panel ">
-<div class="x_title">
-<h2>{% trans 'Help' %}</h2>
-<ul class="nav navbar-right panel_toolbox">
+                <li class="dropdown ">
+                    <a href="#" id="expand_{{id}}"><i class="fa fa-arrows-alt"></i></a>
 
-</li>
-<li class="dropdown ">
-<a href="#" id="expand_{{id}}" ><i class="fa fa-arrows-alt"></i></a>
-<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-<a class="dropdown-item" href="#">Settings 1</a>
-<a class="dropdown-item" href="#">Settings 2</a>
-</div>
-</li>
-<li class="pull-right"><a aria-controls="content_{{id}}" data-toggle="collapse"  data-target="#content_{{id}}"
-class="collapse" role="button" aria-expanded="false"><i class="fa fa-close"></i></a>
-</li>
-</ul>
-<div class="clearfix"></div>
-</div>
-<div class="x_content" >
-    <div class="helper_list"></div>
-</div>
-</div> <!--AQUI -->
+                </li>
+                <li class="pull-right"><a aria-controls="content_{{id}}" data-toggle="collapse"
+                                          data-target="#content_{{id}}"
+                                          class="collapse" role="button" aria-expanded="false"><i
+                        class="fa fa-close"></i></a>
+                </li>
+            </ul>
+            <div class="clearfix"></div>
+        </div>
+        <div class="x_content">
+            <div class="helper_list" id="helper-body"></div>
+            <div class="hidden" id="helper-prototype">
+                {% include 'gentelella/blocks/helper_prototype.html' %}
+            </div>
+        </div>
+    </div>
 
 
 </div>
@@ -46,4 +46,5 @@ class="collapse" role="button" aria-expanded="false"><i class="fa fa-close"></i>
         $("#expand_{{id}} i").addClass("fa-arrows-alt");
     }
  });
+
 </script>
