@@ -32,8 +32,8 @@ class="collapse" role="button" aria-expanded="false"><i class="fa fa-close"></i>
     <div class="helperBody" id="$helperBody">
         {% if request.user|user_perms %}
         <div class="buttonContainer">
-            <button type="button" class="btAdd" data-toggle="modal" data-target="#exampleModal" title="Agregar" onclick="loadmodal(this)"><i class="glyphicon glyphicon-plus green"></i></button>
-            <button type="button" class="btEdit" data-toggle="modal" data-target="#exampleModal" title="Editar" onclick="loadmodal(this)"><i class="glyphicon glyphicon-pencil blue"></i></button>
+            <button type="button" class="btAdd" title="Agregar"><i class="glyphicon glyphicon-plus green"></i></button>
+            <button type="button" class="btEdit" title="Editar"><i class="glyphicon glyphicon-pencil blue"></i></button>
         </div>
         {% endif %}
         <title id="Pregunta" class="pregunta">$pregunta</title>
