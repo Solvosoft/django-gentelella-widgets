@@ -46,7 +46,7 @@ class PalleteWidget:
     }
  });
  $(document).ready(function(){
-    $('#helper_box').helper_box();
+    $('#helper_box').helper_box("%(id)s");
  });
 </script>    
         """%{'data':json.dumps(data),
