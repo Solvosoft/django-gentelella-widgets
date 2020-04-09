@@ -4300,3 +4300,11 @@ table thead .checkbox.radio { margin-top:-7px;margin-top:-21px; }
 .l3 {
   padding-left: 2em;
 }
+
+#helper-body {
+    overflow-y: auto;
+    height: 300px;
+}
+#helper-body .excerpt {
+    text-align: justify;
+}
