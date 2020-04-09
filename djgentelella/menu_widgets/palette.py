@@ -27,8 +27,31 @@ class PalleteWidget:
             "permissions": permissions
         }
         return """
-<script>document.help_widget=%s; </script>        
-        """%(json.dumps(data))
+<script>document.help_widget=%(data)s; 
+ var menu=$("#fsb_%(item_pk)s");
+ var menuoffset=menu.offset();
+ console.log(menuoffset);
+ $("#content_%(id)s").css({'position': 'fixed', 'top':  menuoffset.top-$("#content_%(id)s").height()-10, 'left': menuoffset.left, 'z-index': 1000});
+ $("#expand_%(id)s").on('click', function(){
+    if($("#content_%(id)s").hasClass("col-md-3")){
+        $("#content_%(id)s").addClass("col-md-10");
+        $("#content_%(id)s").removeClass("col-md-3");
+
+        $("#expand_%(id)s i").removeClass("fa-arrows-alt");
+        $("#expand_%(id)s i").addClass("fa-minus");
+    }else{
+        $("#content_%(id)s").addClass("col-md-3");
+        $("#content_%(id)s").removeClass("col-md-10");
+        $("#expand_%(id)s i").removeClass("fa-minus");
+        $("#expand_%(id)s i").addClass("fa-arrows-alt");
+    }
+ });
+
+</script>    
+        """%{'data':json.dumps(data),
+             'id': self.context['id'],
+             'item_pk': self.context['item'].pk
+             }
 
     def render_external_html(self):
         return render_to_string('gentelella/menu/palette_modal.html', context=self.context)

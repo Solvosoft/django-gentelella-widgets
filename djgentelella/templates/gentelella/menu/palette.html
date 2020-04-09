@@ -28,23 +28,3 @@
 
 </div>
 
-<script>
- var menu=$("#fsb_{{item.pk}}");
- var menuoffset=menu.offset();
- $("#content_{{id}}").css({'position': 'fixed', 'top':  menuoffset.top-$("#content_{{id}}").height(), 'left': menuoffset.left, 'z-index': 1000});
- $("#expand_{{id}}").on('click', function(){
-    if($("#content_{{id}}").hasClass("col-md-3")){
-        $("#content_{{id}}").addClass("col-md-10");
-        $("#content_{{id}}").removeClass("col-md-3");
-
-        $("#expand_{{id}} i").removeClass("fa-arrows-alt");
-        $("#expand_{{id}} i").addClass("fa-minus");
-    }else{
-        $("#content_{{id}}").addClass("col-md-3");
-        $("#content_{{id}}").removeClass("col-md-10");
-        $("#expand_{{id}} i").removeClass("fa-minus");
-        $("#expand_{{id}} i").addClass("fa-arrows-alt");
-    }
- });
-
-</script>
