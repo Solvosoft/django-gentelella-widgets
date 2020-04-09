@@ -3,6 +3,11 @@ class HelperBox {
         this.instance = instance
         this.box = box;
         this.configs = configs;
+        $("#modal_"+instance+"_btn").on('click', this.send_edit_data(this));
+        this.add_tool_active = false;
+        this.add_commands_toolbar();
+         var menuoffset=menu.offset();
+        $("#content_"+this.instance).css({'position': 'fixed', 'top':  menuoffset.top-$("#content_"+this.instance).height(), 'left': menuoffset.left, 'z-index': 1000});
 
     }
     /**
@@ -52,7 +57,7 @@ class HelperBox {
         var instance = $(protohtml);
         instance.find('.btn-edit').on('click', this.show_edit_modal(this));
         $('#helper-body').append(instance);
-
+        this.add_label_icon(data);
         //console.log(protohtml);
 
     }
@@ -64,8 +69,12 @@ class HelperBox {
 
        return dev;
     }
-    show_edit_modal(parent){
 
+    show_palette(){
+        $("#content_"+this.instance).collapse('show');
+    }
+
+    show_edit_modal(parent){
       return  function(){
         var item = $(this).closest('.helperitem');
         let modal =$("#modal_"+parent.instance);
@@ -78,6 +87,119 @@ class HelperBox {
         $("#modal_"+parent.instance).modal('show');
       }
     }
+    send_edit_data(parent){
+        return function(){
+            let modal = $(this).closest('.modal');
+            let form = modal.find('form');
+            let url = parent.configs.help_url;
+            let verb = 'POST';
+            let pk = form.find('input[name="pk"]').val();
+            if(pk != ''){
+                url = url+pk;
+                verb = 'PUT';
+            }
+
+            $.ajax({
+                url: url,
+                data: form.serialize(),
+                type: verb,
+                headers: {'X-CSRFToken': getCookie('csrftoken') },
+                success: function(result){
+                    $('[data-id-item="'+result['id']+'"]').remove();
+                    parent.add_element(result);
+                    modal.modal('hide');
+                },
+                error: function(error){
+                    console.log(error);
+                }
+            })
+        }
+    }
+    add_start_label_icon(){
+        let parent = this;
+        if(!parent.add_tool_active){
+            $(".right_col").find('label').each(function(i, e){
+                let item = $(e);
+                let forlabel = item.attr('for');
+                if(item.parent().attr('class') != "helpbtn" && parent.has_perm('djgentelella.change_help')){
+                    item.wrap('<div class="helpbtn" data-question_name="'+forlabel+'"></div>' );
+                    let img = $('<i class="fa fa-question-circle help_i"></i>');
+                    img.on('click', parent.show_help_in_box(parent, forlabel));
+                    item.closest('.helpbtn').prepend(img);
+                }
+            });
+        }else{
+            var inotgreen = $(".helpbtn").find("i:not(.green)");
+            var label = inotgreen.closest(".helpbtn").find('label');
+            inotgreen.remove();
+            label.unwrap();
+
+        }
+        }
+    add_label_icon(data){
+        let parent = this;
+        let item = $('label[for="'+data.question_name+'"]');
+        if(item.parent().attr('class') != "helpbtn"){
+            item.wrap('<div class="helpbtn" data-question_name="'+data.question_name+'"></div>' );
+            let img = $('<i class="fa fa-question-circle green help_i"></i>&nbsp;');
+            img.on('click', this.show_help_in_box(this, data.question_name));
+            item.closest('.helpbtn').prepend(img);
+        }else{
+            item.closest(".helpbtn").find('.help_i').addClass('green');
+        }
+    }
+
+    show_help_in_box(parent, question_name){
+        return function(){
+            let qname = $('[data-id_question="'+question_name+'"]');
+            if(qname.length>0){
+                parent.hide_elements();
+                qname.show();
+                parent.show_palette();
+            }else{
+                let label = $('label[for="'+question_name+'"]');
+                let modal =$("#modal_"+parent.instance);
+                modal.find('input[name="help_title"]').val(label.text());
+                modal.find('textarea[name="help_text"]').val("");
+                modal.find('input[name="pk"]').val("");
+                modal.find('input[name="id_view"]').val(parent.configs.id_view);
+                modal.find('input[name="question_name"]').val(question_name);
+                modal.find('input[name="ftype"]').val("add");
+                $("#modal_"+parent.instance).modal('show');
+            }
+        }
+    }
+
+    add_commands_toolbar(){
+        let parent = this;
+        $("#show_help_"+this.instance).on('click', function(){
+            parent.add_start_label_icon();
+            parent.add_tool_active = !parent.add_tool_active;
+            return false;
+        });
+
+ $("#expand_"+parent.instance).on('click', function(){
+     let instance = $("#content_"+parent.instance);
+     let iint = $("#expand_"+parent.instance+" i");
+    if(instance.hasClass("col-md-3")){
+        instance.addClass("col-md-10");
+        instance.removeClass("col-md-3");
+
+        iint.removeClass("fa-arrows-alt");
+        iint.addClass("fa-minus");
+    }else{
+        instance.addClass("col-md-3");
+        instance.removeClass("col-md-10");
+        iint.removeClass("fa-minus");
+        iint.addClass("fa-arrows-alt");
+    }
+ });
+
+
+
+
+    }
+
 }
 
 $.fn.helper_box = function($elemid){
