@@ -57,7 +57,7 @@ class HelperBox {
 
     }
     has_perm(perm){
-        let dev = true;
+        let dev = false;
         if(this.configs.permissions.hasOwnProperty(perm)){
             dev = this.configs.permissions[perm];
         }
