@@ -45,7 +45,9 @@ class PalleteWidget:
         $("#expand_%(id)s i").addClass("fa-arrows-alt");
     }
  });
-
+ $(document).ready(function(){
+    $('#helper_box').helper_box();
+ });
 </script>    
         """%{'data':json.dumps(data),
              'id': self.context['id'],

@@ -40,3 +40,13 @@ class MenuItem(MPTTModel):
 
     class MPTTMeta:
         order_insertion_by = ['-id']
+
+class Help(models.Model):
+    id_view = models.CharField(max_length=50,
+                               help_text="View id")
+    question_name = models.CharField(max_length=250,
+                                     help_text="Is a identificaction for question label")
+    help_text = models.TextField(blank=True, default="")
+
+    def __str__(self):
+        return self.help_text
