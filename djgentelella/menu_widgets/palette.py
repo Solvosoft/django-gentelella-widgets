@@ -38,22 +38,6 @@ class PalleteWidget:
   <script src="%(js_script)s"> </script>
 <script>document.help_widget=%(data)s; 
  var menu=$("#fsb_%(item_pk)s");
- var menuoffset=menu.offset();
- $("#content_%(id)s").css({'position': 'fixed', 'top':  menuoffset.top-$("#content_%(id)s").height(), 'left': menuoffset.left, 'z-index': 1000});
- $("#expand_%(id)s").on('click', function(){
-    if($("#content_%(id)s").hasClass("col-md-3")){
-        $("#content_%(id)s").addClass("col-md-10");
-        $("#content_%(id)s").removeClass("col-md-3");
-
-        $("#expand_%(id)s i").removeClass("fa-arrows-alt");
-        $("#expand_%(id)s i").addClass("fa-minus");
-    }else{
-        $("#content_%(id)s").addClass("col-md-3");
-        $("#content_%(id)s").removeClass("col-md-10");
-        $("#expand_%(id)s i").removeClass("fa-minus");
-        $("#expand_%(id)s i").addClass("fa-arrows-alt");
-    }
- });
  $(document).ready(function(){
     $('#helper_box').helper_box("%(id)s");
  });

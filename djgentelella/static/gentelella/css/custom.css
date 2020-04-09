@@ -4308,3 +4308,11 @@ table thead .checkbox.radio { margin-top:-7px;margin-top:-21px; }
 #helper-body .excerpt {
     text-align: justify;
 }
+
+.help_i {
+    margin-right: 1em;
+}
+
+.helpbtn {
+    display: inline-flex;
+}

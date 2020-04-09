@@ -8,7 +8,7 @@
       </div>
       <div class="modal-body ">
         <div class="row">
-          <form class="form"  id="form_{{id}}">
+          <form class="form" method="post" id="form_{{id}}" onsubmit="return false;">
           {{form.as_horizontal}}
             <input type="hidden" name="ftype" value="edit" />
             <input type="hidden" name="id_view" value="" />
@@ -19,7 +19,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">{% trans 'Close' %}</button>
-        <button type="button" class="btn btn-primary">{% trans 'Save changes' %}</button>
+        <button id="modal_{{id}}_btn" type="button" class="btn btn-primary">{% trans 'Save changes' %}</button>
       </div>
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
