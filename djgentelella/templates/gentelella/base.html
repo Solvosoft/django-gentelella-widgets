@@ -96,7 +96,7 @@
           {% endblock footer %}
         </div>
       </div>
-
+      {% render_external_widget %}
       {% block javascripts %}
 
         <script src="{% static 'vendors/moment/moment-with-locales.min.js' %}"></script>
@@ -135,9 +135,11 @@
       <script src="{% static 'gentelella/js/fileupload.widget.js' %}"></script>
       <script src="{% static 'gentelella/js/custom.widgets.js' %}"></script>
       <script src="{% static 'gentelella/js/custom.js' %}"></script>
+
+          {% render_menu_js_widget %}
       {% endblock %}
 
     {% endblock body %}
-  {% render_external_widget %}
+  {% render_extra_html_menu %}
   </body>
 </html>

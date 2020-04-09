@@ -177,3 +177,23 @@ def render_external_widget(context,  *args, **kwargs):
         for widget in widget_list:
             dev += widget.render()
     return mark_safe(dev)
+
+@register.simple_tag(takes_context=True)
+def render_menu_js_widget(context,  *args, **kwargs):
+    dev = ''
+    if hasattr(context['request'], 'widget_list'):
+        widget_list = context['request'].widget_list
+        for widget in widget_list:
+            if hasattr(widget, 'render_js'):
+                dev += widget.render_js()
+    return mark_safe(dev)
+
+@register.simple_tag(takes_context=True)
+def render_extra_html_menu(context,  *args, **kwargs):
+    dev = ''
+    if hasattr(context['request'], 'widget_list'):
+        widget_list = context['request'].widget_list
+        for widget in widget_list:
+            if hasattr(widget, 'render_external_html'):
+                dev += widget.render_external_html()
+    return mark_safe(dev)
