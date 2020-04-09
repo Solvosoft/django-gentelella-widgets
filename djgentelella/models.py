@@ -2,7 +2,7 @@ from django.contrib.auth.models import Permission, User
 from django.db import models
 from mptt.models import MPTTModel, TreeForeignKey
 # Create your models here.
-
+from django.utils.translation import ugettext_lazy as _
 class GentelellaSettings(models.Model):
     """
     Permite personalizar el sitio, se usa para modificar configuraciones,
@@ -46,7 +46,8 @@ class Help(models.Model):
                                help_text="View id")
     question_name = models.CharField(max_length=250,
                                      help_text="Is a identificaction for question label")
-    help_text = models.TextField(blank=True, default="")
+    help_title = models.CharField(max_length=350, verbose_name=_('Help title'))
+    help_text = models.TextField(blank=True, default="", verbose_name=_('Help text'))
 
     def __str__(self):
         return self.help_text

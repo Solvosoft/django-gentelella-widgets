@@ -1,6 +1,9 @@
 import json
 
 from django.template.loader import render_to_string
+from django.templatetags import static
+
+from djgentelella.forms.models import HelpForm
 
 
 class PalleteWidget:
@@ -18,8 +21,13 @@ class PalleteWidget:
             help_url = ''
         permissions = {}
         if self.context['item'].reversed_kwargs:
-            for item in self.context['item'].reversed_kwargs.split(','):
-                permissions[item] = self.context['context']['request'].user.has_perm(item)
+            item_permissions =self.context['item'].reversed_kwargs.split(',')
+        else:
+            item_permissions = ["djgentelella.add_help",  "djgentelella.change_help",
+                                 "djgentelella.view_help", "djgentelella.delete_help"]
+
+        for item in item_permissions:
+            permissions[item] = self.context['context']['request'].user.has_perm(item)
 
         data = {
             'id_view': view_name,
@@ -27,6 +35,7 @@ class PalleteWidget:
             "permissions": permissions
         }
         return """
+  <script src="%(js_script)s"> </script>
 <script>document.help_widget=%(data)s; 
  var menu=$("#fsb_%(item_pk)s");
  var menuoffset=menu.offset();
@@ -51,10 +60,12 @@ class PalleteWidget:
 </script>    
         """%{'data':json.dumps(data),
              'id': self.context['id'],
-             'item_pk': self.context['item'].pk
+             'item_pk': self.context['item'].pk,
+             'js_script': static.static('gentelella/js/helper_widget.js')
              }
 
     def render_external_html(self):
+        self.context['form'] = HelpForm()
         return render_to_string('gentelella/menu/palette_modal.html', context=self.context)
 
     def get_menu_item(self):
