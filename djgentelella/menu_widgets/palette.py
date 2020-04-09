@@ -1,3 +1,5 @@
+import json
+
 from django.template.loader import render_to_string
 
 
@@ -6,7 +8,30 @@ class PalleteWidget:
         self.context = context
 
     def render(self):
-        return  render_to_string('gentelella/menu/palette.html', context=self.context)
+        return render_to_string('gentelella/menu/palette.html', context=self.context)
+
+    def render_js(self):
+        view_name = self.context['context']['request'].resolver_match.view_name
+        if self.context['item'].reversed_args:
+            help_url = self.context['item'].reversed_args
+        else:
+            help_url = ''
+        permissions = {}
+        if self.context['item'].reversed_kwargs:
+            for item in self.context['item'].reversed_kwargs.split(','):
+                permissions[item] = self.context['context']['request'].user.has_perm(item)
+
+        data = {
+            'id_view': view_name,
+            "help_url": help_url,
+            "permissions": permissions
+        }
+        return """
+<script>document.help_widget=%s; </script>        
+        """%(json.dumps(data))
+
+    def render_external_html(self):
+        return render_to_string('gentelella/menu/palette_modal.html', context=self.context)
 
     def get_menu_item(self):
         dev = {
