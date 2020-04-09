@@ -30,8 +30,7 @@ class PalleteWidget:
 <script>document.help_widget=%(data)s; 
  var menu=$("#fsb_%(item_pk)s");
  var menuoffset=menu.offset();
- console.log(menuoffset);
- $("#content_%(id)s").css({'position': 'fixed', 'top':  menuoffset.top-$("#content_%(id)s").height()-10, 'left': menuoffset.left, 'z-index': 1000});
+ $("#content_%(id)s").css({'position': 'fixed', 'top':  menuoffset.top-$("#content_%(id)s").height(), 'left': menuoffset.left, 'z-index': 1000});
  $("#expand_%(id)s").on('click', function(){
     if($("#content_%(id)s").hasClass("col-md-3")){
         $("#content_%(id)s").addClass("col-md-10");
