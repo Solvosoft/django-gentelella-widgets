@@ -24,3 +24,27 @@
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
+
+<div id="del_modal_{{id}}" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">{% trans 'Deleting help instance' %}</h4>
+      </div>
+      <div class="modal-body">
+        <form class="formdelitem" method="post">
+          <input type="hidden" value="" name="pk" />
+          <input type="hidden" value="" name="question_name" />
+        </form>
+        <p>{% trans 'You are deleting the next helping item' %}</p>
+        <p class="delp green"></p>
+        <p>{% trans 'Are you sure you want to continue?' %} </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">{% trans 'Close' %}</button>
+        <button type="button" class="btn btn-primary btnsavedel">{% trans 'Yes, delete it' %}</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->

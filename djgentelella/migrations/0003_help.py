@@ -20,5 +20,4 @@ class Migration(migrations.Migration):
                 ('help_title', models.CharField(max_length=350, verbose_name='Help title'))
             ],
         ),
-
     ]

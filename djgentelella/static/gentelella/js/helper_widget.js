@@ -9,7 +9,7 @@ class HelperBox {
         this.add_commands_toolbar();
         this.hide_edit_button();
         $("#content_"+this.instance).css({'position': 'fixed', 'bottom':  '35px', 'left': '50px', 'z-index': 1000});
-
+        $(".btnsavedel").on('click', this.delete_element_save(this));
     }
     /**
     this.configs ={
@@ -18,8 +18,14 @@ class HelperBox {
     permissions: Object { "djgentelella.add_help": true, "djgentelella.change_help": true, "djgentelella.view_help": true }
     }
     */
+    hide_palette(){
+        $("#content_"+this.instance).collapse('hide');
+    }
     hide_elements(){
         $("#helper-body").find(".helperitem").hide();
+    }
+    show_elements(){
+        $("#helper-body").find(".helperitem").show();
     }
     hide_edit_button(){
        if(!this.has_perm('djgentelella.change_help')){
@@ -40,8 +46,30 @@ class HelperBox {
             } );
     }
 
-    delete_element(parent){
+    delete_element_save(parent){
         return function(){
+            var pk = $('.formdelitem input[name="pk"]').val();
+            let question_name = $('.formdelitem input[name="question_name"]').val();
+            let url = parent.configs.help_url;
+            $.ajax({
+                url: url+pk,
+                //data: form.serialize(),
+                type: "DELETE",
+                headers: {'X-CSRFToken': getCookie('csrftoken') },
+                success: function(){
+                    $('#helper-body').find('[data-id_question="'+question_name+'"]').remove();
+                    var label = $('label[for="'+question_name+'"]');
+                    var icon = label.closest(".helpbtn").find('i');
+                    icon.remove();
+                    label.unwrap();
+                    $("#del_modal_"+parent.instance).modal('hide');
+                    parent.hide_palette();
+                    parent.show_elements();
+                },
+                error: function(error){
+                    console.log(error);
+                }
+            });
         }
     }
     add_element(data){
@@ -66,6 +94,7 @@ class HelperBox {
         protohtml = protohtml.replace('$byline', byline)
         var instance = $(protohtml);
         instance.find('.btn-edit').on('click', this.show_edit_modal(this));
+        instance.find('.btn-del').on('click', this.show_delete_modal(this));
         $('#helper-body').append(instance);
         this.add_label_icon(data);
         //console.log(protohtml);
@@ -197,7 +226,17 @@ class HelperBox {
 
 
     }
+    show_delete_modal(parent){
+        return function(){
+            var item = $(this).closest('.helperitem');
+            $('.formdelitem input[name="pk"]').val(item.data('id-item'));
+            $('.formdelitem input[name="question_name"]').val(item.data('id_question'));
 
+            $('.delp').html(item.find(".title").html());
+            $("#del_modal_"+parent.instance).modal();
+
+        }
+    }
 }
 
 $.fn.helper_box = function($elemid){

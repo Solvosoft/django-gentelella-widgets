@@ -36,9 +36,9 @@ auth_urls = [
     ) ,name="password_reset_complete")
 ]
 
-urlpatterns =   auth_urls + [
+urlpatterns = auth_urls + [
     path('djgentelella/upload/', ChunkedUploadView.as_view(), name='upload_file_view'),
     path('djgentelella/upload/done/', ChunkedUploadCompleteView.as_view(), name='upload_file_done'),
-    url('help/(?P<pk>\d+)?', HelperWidgetView.as_view({'get': 'list', 'post': 'create', 'put': 'update'}),
+    url('help/(?P<pk>\d+)?', HelperWidgetView.as_view({'get': 'list', 'post': 'create', 'put': 'update', 'delete': 'destroy'}),
         name='help'),
 ]
