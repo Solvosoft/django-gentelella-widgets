@@ -28,9 +28,14 @@ class HelperBox {
         $("#helper-body").find(".helperitem").show();
     }
     hide_edit_button(){
-       if(!this.has_perm('djgentelella.change_help')){
-            $("#editelemsbtn").hide();
+       if(!(this.has_perm('djgentelella.change_help')|| this.has_perm('djgentelella.delete_help'))){
+            $("#expand_"+this.instance).hide();
        }
+       if(!this.has_perm('djgentelella.add_help')){
+           $("#show_help_"+this.instance).hide();
+       }
+
+
     }
 
     get_help_list(hide=false){

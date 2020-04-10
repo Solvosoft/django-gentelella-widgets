@@ -24,7 +24,7 @@ class PalleteWidget:
             item_permissions =self.context['item'].reversed_kwargs.split(',')
         else:
             item_permissions = ["djgentelella.add_help",  "djgentelella.change_help",
-                                 "djgentelella.view_help", "djgentelella.delete_help"]
+                                "djgentelella.view_help", "djgentelella.delete_help"]
 
         for item in item_permissions:
             permissions[item] = self.context['context']['request'].user.has_perm(item)
