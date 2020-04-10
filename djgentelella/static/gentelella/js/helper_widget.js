@@ -1,3 +1,4 @@
+
 class HelperBox {
     constructor(instance,box, configs){
         this.instance = instance
@@ -6,8 +7,8 @@ class HelperBox {
         $("#modal_"+instance+"_btn").on('click', this.send_edit_data(this));
         this.add_tool_active = false;
         this.add_commands_toolbar();
-         var menuoffset=menu.offset();
-        $("#content_"+this.instance).css({'position': 'fixed', 'top':  menuoffset.top-$("#content_"+this.instance).height(), 'left': menuoffset.left, 'z-index': 1000});
+        this.hide_edit_button();
+        $("#content_"+this.instance).css({'position': 'fixed', 'bottom':  '35px', 'left': '50px', 'z-index': 1000});
 
     }
     /**
@@ -19,6 +20,11 @@ class HelperBox {
     */
     hide_elements(){
         $("#helper-body").find(".helperitem").hide();
+    }
+    hide_edit_button(){
+       if(!this.has_perm('djgentelella.change_help')){
+            $("#editelemsbtn").hide();
+       }
     }
 
     get_help_list(hide=false){
@@ -34,6 +40,10 @@ class HelperBox {
             } );
     }
 
+    delete_element(parent){
+        return function(){
+        }
+    }
     add_element(data){
         let parent = this;
         var protohtml = $('#helper-prototype').html();
@@ -53,7 +63,7 @@ class HelperBox {
         if (this.has_perm('djgentelella.delete_help')){
             byline += '<button class="btn btn-xs btn-del" ><i class="fa fa-minus-circle red"></i></button>';
         }
-        protohtml = protohtml.replace('<div class="byline">$byline </div>', byline)
+        protohtml = protohtml.replace('$byline', byline)
         var instance = $(protohtml);
         instance.find('.btn-edit').on('click', this.show_edit_modal(this));
         $('#helper-body').append(instance);
@@ -148,7 +158,6 @@ class HelperBox {
             item.closest(".helpbtn").find('.help_i').addClass('green');
         }
     }
-
     show_help_in_box(parent, question_name){
         return function(){
             let qname = $('[data-id_question="'+question_name+'"]');
@@ -169,7 +178,6 @@ class HelperBox {
             }
         }
     }
-
     add_commands_toolbar(){
         let parent = this;
         $("#show_help_"+this.instance).on('click', function(){
@@ -181,18 +189,8 @@ class HelperBox {
  $("#expand_"+parent.instance).on('click', function(){
      let instance = $("#content_"+parent.instance);
      let iint = $("#expand_"+parent.instance+" i");
-    if(instance.hasClass("col-md-3")){
-        instance.addClass("col-md-10");
-        instance.removeClass("col-md-3");
 
-        iint.removeClass("fa-arrows-alt");
-        iint.addClass("fa-minus");
-    }else{
-        instance.addClass("col-md-3");
-        instance.removeClass("col-md-10");
-        iint.removeClass("fa-minus");
-        iint.addClass("fa-arrows-alt");
-    }
+     $(".byline").toggle();
  });
 
 
@@ -206,3 +204,57 @@ $.fn.helper_box = function($elemid){
      var helperbox = new HelperBox($elemid, this, document.help_widget);
      helperbox.get_help_list();
 }
+
+
+interact('.resize-drag')
+  .resizable({
+    // resize from all edges and corners
+    edges: { left: true, right: true, bottom: true, top: true },
+
+    listeners: {
+      move (event) {
+        var target = event.target
+        var x = (parseFloat(target.getAttribute('data-x')) || 0)
+        var y = (parseFloat(target.getAttribute('data-y')) || 0)
+
+        // update the element's style
+        target.style.width = event.rect.width + 'px'
+        target.style.height = event.rect.height + 'px'
+
+        $('#helper-body').css('height',(event.rect.height-50) + 'px');
+
+        // translate when resizing from top or left edges
+        x += event.deltaRect.left
+        y += event.deltaRect.bottom
+
+        target.style.webkitTransform = target.style.transform =
+          'translate(' + x + 'px,' + y + 'px)'
+
+        target.setAttribute('data-x', x)
+        target.setAttribute('data-y', y)
+      }
+    },
+    modifiers: [
+      // keep the edges inside the parent
+      interact.modifiers.restrictEdges({
+        outer: 'parent'
+      }),
+
+      // minimum size
+      interact.modifiers.restrictSize({
+        min: { width: 150, height: 350 }
+      })
+    ],
+
+    inertia: true
+  })
+  .draggable({
+    listeners: { move: window.dragMoveListener },
+    inertia: true,
+    modifiers: [
+      interact.modifiers.restrictRect({
+        restriction: 'parent',
+        endOnly: true
+      })
+    ]
+  })

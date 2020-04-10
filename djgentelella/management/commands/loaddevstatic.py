@@ -147,8 +147,9 @@ class Command(BaseCommand):
                 'https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.8.0/js/jquery.iframe-transport.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.8.0/js/vendor/jquery.ui.widget.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/spark-md5/3.0.0/spark-md5.min.js',
-
-
+            ],
+            'interact': [
+                'https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js'
             ]
         }
         if not os.path.exists(basepath+'flags'):
