@@ -1,24 +1,26 @@
 {% load i18n %}
-<div id="content_{{id}}" data-item-id="{{id}}" class="collapse col-md-3">
+<div id="content_{{id}}" data-item-id="{{id}}" class="collapse col-md-3 resize-drag">
     <div class="x_panel ">
+
         <div class="x_title">
             <h2>{% trans 'Help' %}</h2>
             <ul class="nav navbar-right panel_toolbox">
                 <li>
-                    <a href="#" id="show_help_{{id}}"><i class="fa fa-plus"></i></a>
+                    <a href="#" id="show_help_{{id}}"><i class="fa fa-plus green"></i></a>
                 </li>
                 <li class="dropdown ">
-                    <a href="#" id="expand_{{id}}"><i class="fa fa-arrows-alt"></i></a>
+                    <a href="#" id="expand_{{id}}"><i class="fa fa-edit blue"></i></a>
 
                 </li>
-                <li class="pull-right"><a aria-controls="content_{{id}}" data-toggle="collapse"
+                <li class="pull-right" id="editelemsbtn"><a aria-controls="content_{{id}}" data-toggle="collapse"
                                           data-target="#content_{{id}}"
                                           class="collapse" role="button" aria-expanded="false"><i
-                        class="fa fa-close"></i></a>
+                        class="fa fa-close red"></i></a>
                 </li>
             </ul>
             <div class="clearfix"></div>
         </div>
+            </div>
         <div class="x_content">
             <div class=" dashboard-widget-content" id="helper-body-container">
                 <ul id="helper-body" class="helper_list list-unstyled timeline widget">
@@ -29,7 +31,5 @@
             </div>
         </div>
     </div>
-
-
 </div>
 

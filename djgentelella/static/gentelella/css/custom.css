@@ -4301,10 +4301,27 @@ table thead .checkbox.radio { margin-top:-7px;margin-top:-21px; }
   padding-left: 2em;
 }
 
+h1 {
+    color: #a97c0a;
+}
+
+h4 small {
+    color: #c18d0b;
+}
+
+h2.subtitle {
+    color: #c18d0b;
+}
+
+h4.revision {
+    color: #d99f0d;
+}
+
 #helper-body {
     overflow-y: auto;
     height: 300px;
 }
+
 #helper-body .excerpt {
     text-align: justify;
 }
@@ -4315,4 +4332,12 @@ table thead .checkbox.radio { margin-top:-7px;margin-top:-21px; }
 
 .helpbtn {
     display: inline-flex;
+}
+
+.resize-drag {
+  background-color: #fff;
+  padding: 10px;
+  touch-action: none;
+  box-sizing: border-box;
+  overflow-y: hidden;
 }
