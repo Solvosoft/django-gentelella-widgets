@@ -8,7 +8,9 @@ from djgentelella.serializers.helper import HelperSerializer
 class HelperWidgetView(viewsets.ModelViewSet):
     serializer_class = HelperSerializer
     queryset = Help.objects.all()
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated,
+                          permissions.DjangoModelPermissions
+                          ]
 
 
     def get_queryset(self):
