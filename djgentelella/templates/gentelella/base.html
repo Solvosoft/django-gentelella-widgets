@@ -55,6 +55,7 @@
         return cookieValue;
     }
     </script>
+  {% block extra_head %}{% endblock %}
   </head>
 
   <body class="{% block body_class %}nav-md {% endblock body_class %}">
@@ -75,18 +76,22 @@
               {% include "gentelella/app/top_navigation.html" %}
             </div>
           {% endblock top_navigation %}
-
+{% block content_wrapper %}
           <div class="right_col" role="main">
           {% block messages %}
          {% if messages %}
             {% include "gentelella/app/messages.html" %}
           {% endif %}
           {% endblock %}
-          {% block content %}
-            <!-- {{ content }} -->
-          {% endblock content %}
+            {% block breadcrumbs %}
+            {% endblock %}
+            {% block content_block_wrap %}
+              {% block content %}
+                <!-- {{ content }} -->
+              {% endblock content %}
+            {% endblock content_block_wrap %}
           </div>
-
+{% endblock content_wrapper %}
           {% block footer %}
 
             <footer>
