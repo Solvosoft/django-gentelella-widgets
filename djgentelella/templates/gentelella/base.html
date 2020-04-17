@@ -27,6 +27,7 @@
         <link href="{% static 'vendors/nprogress/nprogress.min.css' %}" rel="stylesheet">
         <link href="{% static 'vendors/tail.select/tail.select-default.min.css' %}" rel="stylesheet">
         <link href="{% static 'vendors/flag-icon-css/flag-icon.min.css' %}" rel="stylesheet">
+        <link href="{% static 'vendors/chartjs/Chart.min.css' %}" rel="stylesheet">
 
 
     {% endblock stylesheets %}
@@ -131,10 +132,13 @@
         <!-- Calculate md5 -->
         <script src="{% static 'vendors/fileupload/spark-md5.min.js' %}"></script>
 
+        <script src="{% static 'vendors/chartjs/Chart.min.js' %}"></script>
+
       <!-- Custom Theme Scripts -->
       <script src="{% static 'gentelella/js/fileupload.widget.js' %}"></script>
       <script src="{% static 'gentelella/js/custom.widgets.js' %}"></script>
       <script src="{% static 'gentelella/js/custom.js' %}"></script>
+
 
           {% render_menu_js_widget %}
       {% endblock %}
