@@ -150,6 +150,11 @@ class Command(BaseCommand):
             ],
             'interact': [
                 'https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js'
+            ],
+
+            'chartjs':[
+                'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js',
+                'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.css'
             ]
         }
         if not os.path.exists(basepath+'flags'):
