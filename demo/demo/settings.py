@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'djgentelella',
     'mptt',
     'chunked_upload',
+    'demoapp'
 ]
 
 MIDDLEWARE = [

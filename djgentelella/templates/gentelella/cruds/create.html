@@ -1,0 +1,26 @@
+{% extends template_father %}
+{% load i18n %}
+
+{% block title %}{% if blocks.title %}{{ blocks.page_description }}{% else %}{% trans "Create new" %} {{ model_verbose_name_plural|lower }}{% endif %}{% endblock %}
+{% block page_name %}{{ blocks.page_name|default:model_verbose_name_plural }}{% endblock %}
+{% block page_description %}{% if blocks.page_description %}{{ blocks.page_description }}{% else %}{% trans "Create new" %} {{ model_verbose_name_plural|lower }}{% endif %}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 col-md-offset-2">
+        {% if crud_perms.list %}
+        <a href="{{ url_list }}{{getparams}}" class="btn btn-info">
+            <i class="fa fa-angle-double-left"></i>
+            {% trans "Back to" %} {{ model_verbose_name_plural|lower }}
+        </a>
+        {% endif %}
+        <br /><br />
+        <div class=" ">
+            <div class="box-header with-border">
+                <h3 class="box-title">{% trans "New" %} {{ model_verbose_name }}</h3>
+            </div>
+            {% include "gentelella/cruds/_form.html" with action='create' %}
+        </div>
+    </div>
+</div>
+{% endblock %}
