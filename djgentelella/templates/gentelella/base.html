@@ -1,5 +1,5 @@
 {% load static %}
-{% load  gentelellamenu %}
+{% load  gentelellamenu gtsettings %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -12,7 +12,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
       {% endblock meta %}
 
-      <title>{% block title %}Gentelella Alela! {% endblock %}</title>
+      <title>{% block title %}{% get_settings 'site_title' %} {% endblock %}</title>
 
       {% block stylesheets %}
         <!-- Bootstrap -->

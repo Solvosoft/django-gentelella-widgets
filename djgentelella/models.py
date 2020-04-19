@@ -3,6 +3,8 @@ from django.db import models
 from mptt.models import MPTTModel, TreeForeignKey
 # Create your models here.
 from django.utils.translation import ugettext_lazy as _
+
+
 class GentelellaSettings(models.Model):
     """
     Permite personalizar el sitio, se usa para modificar configuraciones,
