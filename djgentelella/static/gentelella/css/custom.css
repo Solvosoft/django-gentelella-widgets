@@ -4353,3 +4353,7 @@ h4.revision {
     }
 }
 
+.nav-sm .nohidden {
+     width: 200%;
+     padding: 0px;
+}
