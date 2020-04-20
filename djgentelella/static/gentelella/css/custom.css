@@ -4341,3 +4341,15 @@ h4.revision {
   box-sizing: border-box;
   overflow-y: hidden;
 }
+
+.nohidden span.fa {
+    display: block;
+}
+
+@media only screen and (max-width: 991px) {
+    .nohidden {
+     width: 200%;
+     padding: 0px;
+    }
+}
+
