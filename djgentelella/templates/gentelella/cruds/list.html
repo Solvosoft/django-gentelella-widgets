@@ -76,6 +76,7 @@
 {% if paginate_position == 'Up' or paginate_position == 'Both' %}
     {% include paginate_template %}
 {% endif %}
+    <div class="table-responsive">
     <table id="datatable" class="table table-responsive table-bordered table-hover">
     {% if object_list %}
         <thead>
@@ -93,7 +94,6 @@
               {% for field, field_name in fields.items %}
               <td class="td-field-{{ field|lower }} td-fieldtype-{{ field_name.1|lower }}">
                 {% show_object_field object field field_name %}
-
               </td>
               {% endfor %}
               <td>
@@ -121,7 +121,7 @@
       <tbody><tr><td>{% trans "No items yet." %}</td></tr></tbody>
     {% endif %}
     </table>
-
+</div>
     {% if paginate_position == 'Bottom' or paginate_position == 'Both' %}
   {% include paginate_template %}
 {% endif %}

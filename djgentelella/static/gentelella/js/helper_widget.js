@@ -8,7 +8,14 @@ class HelperBox {
         this.add_tool_active = false;
         this.add_commands_toolbar();
         this.hide_edit_button();
-        $("#content_"+this.instance).css({'position': 'fixed', 'bottom':  '35px', 'left': '50px', 'z-index': 1000});
+        let widthx='50%';
+        if($(window).width() < 502){
+            widthx='90%';
+        }
+
+        $("#content_"+this.instance).css(
+        {'position': 'fixed',
+        'bottom':  '35px', 'left': '50px', 'width': widthx, 'z-index': 10000});
         $(".btnsavedel").on('click', this.delete_element_save(this));
     }
     /**
