@@ -3,28 +3,26 @@
 {% load crud_tags %}
 
 {% block title %}{% if blocks.title %}{{ blocks.page_description }}{% else %}{% trans "Update" %} {{ model_verbose_name_plural|lower }}{% endif %}{% endblock %}
-{% block body_class %}{{ blocks.body_class|default:model_verbose_name_plural|lower }}{% endblock body_class %}
 {% block page_name %}{{ blocks.page_name|default:model_verbose_name_plural }}{% endblock %}
 {% block page_description %}{% if blocks.page_description %}{{ blocks.page_description }}{% else %}{% trans "Update" %} {{ model_verbose_name_plural|lower }}{% endif %}{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-8 col-md-offset-2">
+<div class="x_panel gencrud">
+<div class="x_title">
+
+<ul class="nav navbar-left panel_toolbox">
         {% if crud_perms.list %}
-        <a href="{{ url_list }}{{getparams}}">
-            <i class="fa fa-angle-double-left"></i>
-            {% trans "Back to" %} {{ model_verbose_name_plural|lower }}
-        </a>
+        <li><a href="{{ url_list }}{{getparams}}" title=" {% trans "Back to" %} {{ model_verbose_name_plural|lower }}">
+            <i class="fa fa-angle-double-left red"></i>
+        </a></li>
         {% endif %}
-        <br /><br />
-        <div class="box">
-            <div class="box-header with-border">
-                <h3 class="box-title">{% trans "Edit" %} {{ model_verbose_name }}</h3>
-            </div>
-
-            {% include "cruds/_form.html" with action='update' %}
-
-          {% if inlines%}
+</ul>
+    <h2>{% trans "Update" %} {{ model_verbose_name_plural|lower }}</h2>
+    <div class="clearfix"></div>
+</div>
+    <div class="x_content">
+        {% include "gentelella/cruds/_form.html" with action='update' %}
+        {% if inlines%}
             <div class="box-body row">
                 <div class="col-md-12">
 
@@ -69,7 +67,7 @@
                 </div>
             </div>
         {% endif %}
-        </div>
+
     </div>
 </div>
 {% endblock %}

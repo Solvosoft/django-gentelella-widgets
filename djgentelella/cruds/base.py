@@ -6,7 +6,6 @@ Free as freedom will be 26/8/2016
 @author: luisza
 '''
 
-
 from django.conf.urls import url, include
 from django.contrib.auth.decorators import login_required
 from django.http.response import HttpResponseRedirect, HttpResponseForbidden
@@ -26,6 +25,8 @@ from django.shortcuts import get_object_or_404
 
 from django.template.loader import render_to_string
 import types
+
+from ..forms.decorators import decore_form_instance
 
 
 class CRUDMixin(object):
@@ -383,7 +384,13 @@ class CRUDView(object):
                     url += '?' + self.getparams
                 return url
 
+            def get_form(self):
+                form = super().get_form()
+                form = decore_form_instance(form)
+                return form
+
         return OCreateView
+
 
     def get_detail_view_class(self):
         return DetailView
@@ -446,7 +453,10 @@ class CRUDView(object):
                 if (self.getparams):  # fixed filter edit action
                     url += '?' + self.getparams
                 return url
-
+            def get_form(self):
+                form = super().get_form()
+                form = decore_form_instance(form)
+                return form
         return OEditView
 
     def get_list_view_class(self):
