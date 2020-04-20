@@ -2,6 +2,7 @@ from django import forms
 
 # "'<tr%(html_class_attr)s><th>%(label)s</th><td>%(errors)s%(field)s%(help_text)s</td></tr>'"
 class CustomForm(forms.Form):
+    exposed_method = ('as_plain', 'as_inline', 'as_horizontal')
 
     def as_plain(self):
         "Returns this form rendered as HTML <tr>s -- excluding the <table></table>."
@@ -32,4 +33,5 @@ class CustomForm(forms.Form):
                 help_text_html=' <span class="helptext">%s</span>',
                 errors_on_separate_row=False,
             )
+
 

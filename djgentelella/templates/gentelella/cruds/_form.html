@@ -1,11 +1,12 @@
 {% load i18n %}
-
+{% load crud_tags %}
 
 <form action="{% if action == 'create'%}{{url_create}}{%else%}{{url_update}}{% endif %}{{getparams}}" method="POST" enctype="multipart/form-data">
     {% csrf_token %}
     <div class="box-body row">
         <div class="col-md-12">
-             {{ form  }}
+            {% form_get_form_display form as render_field %}
+            {{ render_field }}
         </div>
     </div>
 
