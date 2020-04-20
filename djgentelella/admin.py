@@ -8,6 +8,12 @@ from djgentelella.models import MenuItem, Help, GentelellaSettings
 
 class MenuAdmin(DraggableMPTTAdmin):
     filter_horizontal = ['permission']
+
+class GentelellaSettingsAdmin(admin.ModelAdmin):
+    list_display = ['key', 'value']
+    search_fields =  ['key']
+    list_editable = ['value']
+
 admin.site.register(MenuItem, MenuAdmin)
 admin.site.register(Help)
-admin.site.register(GentelellaSettings)
+admin.site.register(GentelellaSettings, GentelellaSettingsAdmin)
