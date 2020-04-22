@@ -10,8 +10,10 @@ Welcome to Django gentelella widgets's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   templates
+   forms
+   widgets
    crud
-
 
 Indices and tables
 ==================

@@ -2,6 +2,9 @@ from django import forms
 
 # "'<tr%(html_class_attr)s><th>%(label)s</th><td>%(errors)s%(field)s%(help_text)s</td></tr>'"
 class CustomForm(forms.Form):
+    """
+    Append the next render methods to forms
+    """
     exposed_method = ('as_plain', 'as_inline', 'as_horizontal')
 
     def as_plain(self):
