@@ -1,4 +1,6 @@
 from django.core.management import BaseCommand
+from django.urls import reverse
+
 from djgentelella.models import MenuItem
 
 class Command(BaseCommand):
@@ -53,6 +55,18 @@ class Command(BaseCommand):
             reversed_kwargs = None,
             reversed_args = None,
             is_widget = True,
-            icon = 'fa fa-question-circle',
+            icon = 'fa fa-envelope-o',
             only_icon = True
+        )
+        item = MenuItem.objects.create(
+            parent = None,
+            title = 'top_navigation',
+            url_name ='djgentelella.notification.widgets.NotificationMenu',
+            category = 'main',
+            is_reversed = False,
+            reversed_kwargs = None,
+            reversed_args = reverse('notifications'),
+            is_widget = True,
+            icon = 'fa fa-envelope',
+            only_icon = False
         )
