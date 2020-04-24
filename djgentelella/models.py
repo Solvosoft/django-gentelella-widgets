@@ -53,3 +53,33 @@ class Help(models.Model):
 
     def __str__(self):
         return self.help_text
+
+
+class Notification(models.Model):
+    STATE = [('visible',_('Visible')),
+               ('hide', _('Hidden'))]
+
+    MESSAGE_TYPE=(
+        ('default', _('Default')),
+        ('info', _('Information')),
+        ('success', _('Success')),
+        ('warning', _('Warning')),
+        ('danger', _('Danger')),
+    )
+
+    description = models.TextField(verbose_name=_("Description"))
+    link = models.URLField(verbose_name=_('Link'))
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('User'))
+    # warning, success, info,
+    message_type = models.CharField(max_length=150, choices=MESSAGE_TYPE, verbose_name=_('Message Type'))
+    state = models.CharField(max_length=150, default='visible', choices=STATE, verbose_name=_('State'))
+    category = models.UUIDField(null=True, blank=True, verbose_name=_("Category"))
+    creation_date = models.DateTimeField(auto_now_add=True)
+    update_date = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.description
+
+    class Meta:
+        ordering = ['-creation_date']
+

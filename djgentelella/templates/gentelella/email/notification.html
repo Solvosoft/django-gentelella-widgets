@@ -1,0 +1,13 @@
+{% extends 'gentelella/email/base.html' %}
+{% load i18n %}
+{% block content %}
+<p>Hello <strong>{{object.user.get_full_name }}</strong></p>
+<br>
+{{ object.description }}
+<br>
+
+<a class="btn btn-{{object.message_type }}" href="{{object.link}}">
+    {% trans 'Show' %}
+</a>
+
+{% endblock %}
