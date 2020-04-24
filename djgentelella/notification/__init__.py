@@ -18,6 +18,31 @@ def get_site_url(request, name, **kwargs):
 def create_notification(description, user, message_type, category=None, link=None,
                         link_prop=None, request=None, send_email=False,
                         email_subject=None, email_template=None, email_context={}):
+    """
+    Create a notification for provided user, and send email notification if it's set
+
+    There is two default setting you can configurate on django settings
+
+    - NOTIFICATION_DEFAULT_SUBJECT
+    - NOTIFICATION_DEFAULT_TEMPLATE
+
+    All settings has a default value provided by django-gentelella-widgets but you can overwrite it
+
+    :param description: description to show
+    :param user: user to be notified
+    :param message_type: type of message available options (info, default, success, warning, danger) there is no priority here yet
+    :param category: used for group notifications (not required)
+    :param link: complete url or reverse name (see django reverse)
+    :param link_prop: when is set, the link is take as reverse name, you need to provide dict of args and kwargs
+    :param request: it's django request used on email and for make a complete uri on reverse
+    :param send_email: True/False specify you want to send a email notification
+    :param email_subject: alternative subject message
+    :param email_template: alternative email template
+    :param email_context: extra context for email template
+    :return: notification object
+    """
+
+
     if message_type not in message_type_default:
         raise ValueError("Message type are not valid (options: %s)"%("".join(message_type_default)))
     if category is None:

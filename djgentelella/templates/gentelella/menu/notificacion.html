@@ -1,5 +1,5 @@
 {% load i18n %}
-<a id="{{id}}" data-lang="{{lang_code}}" data-viewurl="{{view_url}}"  data-apiurl="{{ api_url }}" href="javascript:;" class="dropdown-toggle info-number notificationmenu" data-toggle="dropdown" aria-expanded="false">
+<a id="{{id}}" data-lang="{{lang_code}}"    data-apiurl="{{ api_url }}" href="javascript:;" class="dropdown-toggle info-number notificationmenu" data-toggle="dropdown" aria-expanded="false">
   <i class="{{ item.icon }}"></i>
   <span class="badge bg-green notificacionnumero">0</span>
 </a>
@@ -20,7 +20,7 @@
         <btn id="prev_{{id}}" data-url="false" class="pull-left btn btn-xs btn-success">
             <i class="fa fa-angle-left "></i>
         </btn>
-      <a href="{% url 'notification_list' %}">
+      <a href="{{view_url}}">
         <strong>{% trans 'Show all notifications' %} </strong>
 
       </a>
