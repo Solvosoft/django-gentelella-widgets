@@ -23,13 +23,73 @@ class Command(BaseCommand):
         item = MenuItem.objects.create(
             parent = item,
             title = 'Dashboard',
-            url_name ='/',
+            url_name ='#',
             category = 'sidebar',  #sidebar, sidebarfooter,
             is_reversed = False,
             reversed_kwargs = None,
             reversed_args = None,
             is_widget = False,
             icon = '',
+            only_icon = False
+        )
+        noti=MenuItem.objects.create(
+            parent = item,
+            title = 'Create notification',
+            url_name ='/create/notification',
+            category = 'sidebar',  #sidebar, sidebarfooter,
+            is_reversed = False,
+            reversed_kwargs = None,
+            reversed_args = None,
+            is_widget = False,
+            icon = 'fa fa-power-off',
+            only_icon = False
+        )
+        MenuItem.objects.create(
+            parent = item,
+            title = 'Create notification email',
+            url_name ='/create/notification?email=1',
+            category = 'sidebar',  #sidebar, sidebarfooter,
+            is_reversed = False,
+            reversed_kwargs = None,
+            reversed_args = None,
+            is_widget = False,
+            icon = 'fa fa-power-off',
+            only_icon = False
+        )
+        MenuItem.objects.create(
+            parent = item,
+            title = 'Country list',
+            url_name ='demoapp_country_list',
+            category = 'sidebar',  #sidebar, sidebarfooter,
+            is_reversed = True,
+            reversed_kwargs = None,
+            reversed_args = None,
+            is_widget = False,
+            icon = 'fa fa-power-off',
+            only_icon = False
+        )
+        MenuItem.objects.create(
+            parent = item,
+            title = 'Person list',
+            url_name ='demoapp_person_list',
+            category = 'sidebar',  #sidebar, sidebarfooter,
+            is_reversed = True,
+            reversed_kwargs = None,
+            reversed_args = None,
+            is_widget = False,
+            icon = 'fa fa-power-off',
+            only_icon = False
+        )
+        MenuItem.objects.create(
+            parent = item,
+            title = 'Dashboard widgets',
+            url_name ='dashboard',
+            category = 'sidebar',  #sidebar, sidebarfooter,
+            is_reversed = True,
+            reversed_kwargs = None,
+            reversed_args = None,
+            is_widget = False,
+            icon = 'fa fa-power-off',
             only_icon = False
         )
         item = MenuItem.objects.create(

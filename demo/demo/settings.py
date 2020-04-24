@@ -130,3 +130,5 @@ DATETIME_INPUT_FORMATS = [
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+EMAIL_HOST = 'localhost'
+EMAIL_PORT = '1025'
