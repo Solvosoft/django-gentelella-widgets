@@ -6,7 +6,12 @@ from django.utils.safestring import mark_safe
 from djgentelella.models import MenuItem
 from djgentelella.templatetags._utils import get_title, get_link, get_menu_widget
 
-
+def update_widget_list(context, widget_list):
+    if widget_list:
+        if hasattr(context['request'], 'widget_list'):
+            context['request'].widget_list += widget_list
+        else:
+            setattr(context['request'], 'widget_list',  widget_list)
 def validate_menu_item(item, context):
     user = context['context']['request'].user
     if not item.permission.exists():
@@ -16,7 +21,7 @@ def validate_menu_item(item, context):
         return item
 
 
-def render_item(item, env={}):
+def render_item(item, env={}, widget_list=[]):
     item = validate_menu_item(item, env)
     if not item:
         return ""
@@ -40,14 +45,17 @@ def render_item(item, env={}):
     if item.is_widget:
         wdcontext = {'id': 'tm_'+str(item.id), 'item': item}
         wdcontext.update(env)
-        dev += get_menu_widget(item.url_name, context=wdcontext).render()
+        widget = get_menu_widget(item.url_name, context=wdcontext)
+        dev += widget.render()
+        widget_list.append(widget)
+
     else:
         dev += format_html("""<a id="{}" href="{}" %s >{} {} </a> """%a_class,
                       'tm_'+str(item.id), get_link(item, env),  icon, get_title(item) )
     for node in item.children.all():
         dev += '<ul class="dropdown-menu " id="m_%d_%d"  aria-labelledby="navbarDropdown" role="menu">'%(
             item.pk, node.pk)
-        dev += render_item(node, env=env)
+        dev += render_item(node, env=env, widget_list=widget_list)
         dev += '</ul>'
     dev += '</li>'
     return dev
@@ -62,14 +70,15 @@ def top_menu(context,  *args, **kwargs):
         'args': args,
         'kwargs': kwargs
     }
+    widget_list = []
     for item in menues:
-        dev += render_item(item, env=environment)
-
+        dev += render_item(item, env=environment, widget_list=widget_list)
+    update_widget_list(context, widget_list)
     return mark_safe(dev)
 
 
 
-def render_sidebar_item(item, father_pos=0, env={}):
+def render_sidebar_item(item, father_pos=0, env={}, widget_list=[]):
     item = validate_menu_item(item, env)
     if not item:
         return ""
@@ -90,7 +99,7 @@ def render_sidebar_item(item, father_pos=0, env={}):
     if children:
         dev += '<ul class="%s">' % ("nav side-menu" if not item.level and not father_pos else "nav child_menu")
         for i, node in enumerate(item.children.all()):
-            dev += render_sidebar_item(node, i, env=env)
+            dev += render_sidebar_item(node, i, env=env, widget_list=widget_list)
         dev += '</ul>'
     if not item.level:
         dev  += "</div>"
@@ -107,9 +116,10 @@ def sidebar_menu(context,  *args, **kwargs):
         'args': args,
         'kwargs': kwargs
     }
-
+    widget_list = []
     for item in menues:
-        dev += render_sidebar_item(item, env=environment)
+        dev += render_sidebar_item(item, env=environment, widget_list=widget_list)
+    update_widget_list(context, widget_list)
     return mark_safe(dev)
 
 
@@ -165,7 +175,7 @@ def footer_sidebar_menu(context,  *args, **kwargs):
     widget_list = []
     for item in menues:
         dev += render_footer_sidebar_item(item, env=environment, widget_list=widget_list)
-    setattr(context['request'], 'widget_list',  widget_list)
+    update_widget_list(context, widget_list)
     return mark_safe(dev)
 
 
@@ -175,7 +185,10 @@ def render_external_widget(context,  *args, **kwargs):
     if hasattr(context['request'], 'widget_list'):
         widget_list=context['request'].widget_list
         for widget in widget_list:
-            dev += widget.render()
+            if hasattr(widget, 'render_content'):
+                dev += widget.render_content()
+            else:
+                dev += widget.render()
     return mark_safe(dev)
 
 @register.simple_tag(takes_context=True)

@@ -1,0 +1,32 @@
+{% load i18n %}
+<a id="{{id}}" data-lang="{{lang_code}}"    data-apiurl="{{ api_url }}" href="javascript:;" class="dropdown-toggle info-number notificationmenu" data-toggle="dropdown" aria-expanded="false">
+  <i class="{{ item.icon }}"></i>
+  <span class="badge bg-green notificacionnumero">0</span>
+</a>
+<div id="temp_{{id}}" class="hidden">
+   <div>
+    <span class="image btn btn-xs"><i data-action="hide" class="clk fa fa-eye-slash text-$message_type"></i> </span>
+    <span class="pull-right "><i style="font-size: 1.2em;" data-action="delete" class="clk fa fa-close red"></i></span>
+     <a href="$link" target="_blank" style="margin-top: 10px;">
+      <span><span class="time">$datedata</span></span>
+      <span class="message text-justify">$description</span>
+    </a>
+
+  </div>
+</div>
+<ul id="ddm_{{id}}" class="dropdown-menu list-unstyled msg_list gentelellamenu" role="menu">
+  <li id="showall_{{id}}">
+    <div class="text-center">
+        <btn id="prev_{{id}}" data-url="false" class="pull-left btn btn-xs btn-success">
+            <i class="fa fa-angle-left "></i>
+        </btn>
+      <a href="{{view_url}}">
+        <strong>{% trans 'Show all notifications' %} </strong>
+
+      </a>
+        <btn id="next_{{id}}" data-url="false" class="pull-right btn btn-xs btn-success">
+            <i class="fa fa-angle-right "></i>
+        </btn>
+    </div>
+  </li>
+</ul>
