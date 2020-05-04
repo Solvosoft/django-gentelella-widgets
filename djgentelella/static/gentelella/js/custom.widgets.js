@@ -26,6 +26,7 @@
             });
         }
         $(btn).on('click', function(){
+            $(form).closest('.x_content').find('.alert').remove();
             $.ajax({
                 url: url_add, // url where to submit the request
                 type : "POST", // type of action POST || GET
@@ -34,7 +35,8 @@
                 success : function(result) {
                     form.find('p.error').remove();
                     update_list(result);
-
+                    form[0].reset();
+                    $(document).trigger('crudlistadd', [form, result]);
                 },
                 error: function(xhr, resp, text) {
                     form.find('p.error').remove();
@@ -44,6 +46,11 @@
                         $.each(keys, function(i, e){
                             var item = form.find('*[name='+e+']');
                             item.after('<p class="text-danger error">'+xhr.responseJSON[e].join("<br>")+'<p>');
+
+                            if(e == 'non_field_errors'){
+                                form.before('<div class="alert"><p class="text-danger error">'+xhr.responseJSON[e].join("<br>")+'<p></div>');
+                            }
+
                         });
                     }
                 }
