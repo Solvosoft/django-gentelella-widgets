@@ -1,4 +1,5 @@
-{% load i18n %}
+{% load i18n gtsettings %}
+
 <div class="x_panel gencrud">
 <div class="x_title">
 <h2>{{ title }}</h2>
@@ -18,7 +19,7 @@
 </div>
 <div class="x_content" {% if is_hidden %}style="display: none;"{% endif%}>
     <div class="row">
-        <form action="{{gencrud_form_url}}" method="POST" onsubmit="return false;">
+        <form  name="{% if form_name %}{{form_name}}{% else %}{% get_random_uuid %}{% endif %}" class="crudlistform" action="{{gencrud_form_url}}" method="POST" onsubmit="return false;">
             {{ form.as_horizontal }}
             {% csrf_token %}
         </form>
