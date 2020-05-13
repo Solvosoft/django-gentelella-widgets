@@ -125,7 +125,7 @@ class Command(BaseCommand):
                 'https://cdnjs.cloudflare.com/ajax/libs/autosize.js/3.0.15/autosize.min.js'
             ],
             'bootstrap-maxlength':[
-                'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-maxlength/1.7.0/bootstrap-maxlength.min.js'
+                'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-maxlength/1.9.0/bootstrap-maxlength.min.js'
             ],
             'tail.select':[
                 'https://cdn.jsdelivr.net/npm/tail.select@0.5.15/css/bootstrap3/tail.select-default.min.css',

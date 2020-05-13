@@ -549,8 +549,12 @@ function init_textarea() {
     //if (typeof $.fn.autosize !== 'undefined') {
         autosize($('[data-widget="Textarea"]') );
     //}
+    $('[data-widget="Textarea"]').each(function(i, e){
+        if($(e).attr('maxlength') != undefined){
+            $(e).maxlength({alwaysShow: true, warningClass: "label label-success"});
+        }
+    });
 
-    $('[data-widget="Textarea"]').maxlength();
     //$('[data-widget="TextareaWysiwyg"]').wysiwyg();
 };
 

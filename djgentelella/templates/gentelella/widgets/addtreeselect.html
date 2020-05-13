@@ -1,6 +1,6 @@
 {% load i18n %}
 <div class="input-group">
-  <div id="add_{{ widget.name }}_id" data-toggle="modal" data-target="#modal_{{ widget.name }}_id" class="input-group-addon">+</div>
+  <div id="add_{{ widget.name }}_id" data-toggle="modal" data-target="#modal_{{ widget.name }}_id" class="input-group-addon gentelella_select_add">+</div>
 <select name="{{ widget.name }}" data-modalname="#modal_{{ widget.name }}_id" {% include "gentelella/widgets/attrs.html" %} >
 {% for group_name, group_choices, group_index in widget.optgroups %}
 {% if group_name %}<optgroup label="{{ group_name }}">{% endif %}
