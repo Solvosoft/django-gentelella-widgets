@@ -11,7 +11,7 @@ class CustomForm(forms.Form):
         "Returns this form rendered as HTML <tr>s -- excluding the <table></table>."
 
         return self._html_output(
-            normal_row='<div %(html_class_attr)s >%(label)s%(errors)s%(field)s%(help_text)s</div>',
+            normal_row='<div class="as_plain"><div %(html_class_attr)s >%(label)s%(errors)s%(field)s%(help_text)s</div></div>',
             error_row='%s',
             row_ender=' ',
             help_text_html='<br /><span class="helptext">%s</span>',
