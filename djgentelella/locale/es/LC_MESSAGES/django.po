@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-05-14 03:47+0000\n"
-"PO-Revision-Date: 2020-05-13 21:56-0600\n"
+"PO-Revision-Date: 2020-05-14 15:39-0600\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: es\n"
@@ -402,7 +402,7 @@ msgstr "Cambio de contraseña falló"
 
 #: templates/gentelella/registration/password_reset_done.html:12
 msgid "Password reseted"
-msgstr "Contraseña reiniciadao"
+msgstr "Contraseña reiniciada"
 
 #: templates/gentelella/registration/password_reset_done.html:13
 msgid "Email with password reset instructions has been sent."
