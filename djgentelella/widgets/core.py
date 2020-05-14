@@ -2,15 +2,13 @@ from django.forms import (PasswordInput as DJPasswordInput, FileInput as DJFileI
                           ClearableFileInput as DJClearableFileInput, Textarea as DJTextarea,
                           DateInput as DJDateInput, DateTimeInput as DJDateTimeInput,
                           TimeInput as DJTimeInput, CheckboxInput as DJCheckboxInput, Select as DJSelect,
-                          NullBooleanSelect as DJNullBooleanSelect,
                           SplitHiddenDateTimeWidget as DJSplitHiddenDateTimeWidget,
                           CheckboxSelectMultiple as DJCheckboxSelectMultiple, SelectMultiple as DJSelectMultiple,
-                          SelectDateWidget as DJSelectDateWidget, SplitDateTimeWidget as DJSplitDateTimeWidget, Widget)
-
-from django.utils.translation import gettext as _
+                          SelectDateWidget as DJSelectDateWidget, SplitDateTimeWidget as DJSplitDateTimeWidget)
 from django.forms.widgets import Input as DJInput
 from django.urls import reverse_lazy
-import json
+from django.utils.translation import gettext as _
+
 
 def update_kwargs(attrs, widget, base_class='form-control '):
     if attrs is not None:
@@ -137,6 +135,16 @@ class TextareaWysiwyg(DJTextarea):
         super().__init__(attrs)
 
 class DateInput(DJDateInput):
+    """
+    .. warning::
+        Set in settings
+
+            USE_L10N = False
+
+            DATE_INPUT_FORMATS=[ '%Y-%m-%d','%d/%m/%Y','%d/%m/%y']
+
+        By limitation on js datetime widget format conversion
+    """
     format_key = 'DATE_INPUT_FORMATS'
     template_name = 'gentelella/widgets/date.html'
 
@@ -148,6 +156,17 @@ class DateInput(DJDateInput):
 
 
 class DateTimeInput(DJDateTimeInput):
+    """
+    .. warning::
+        Set in settings
+
+            USE_L10N = False
+
+            DATETIME_INPUT_FORMATS=[ '%m/%d/%Y %H:%M %p' ]
+
+        By limitation on js datetime widget format conversion
+    """
+
     format_key = 'DATETIME_INPUT_FORMATS'
     template_name = 'gentelella/widgets/datetime.html'
 

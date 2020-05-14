@@ -2,6 +2,7 @@ from djgentelella.widgets.core import Select, update_kwargs, SelectMultiple
 
 
 class TreeSelect(Select):
+    """ """
     template_name = 'gentelella/widgets/tree_select.html'
     option_template_name = 'gentelella/widgets/tree_select_option.html'
 
@@ -14,6 +15,7 @@ class TreeSelect(Select):
 
 
 class TreeSelectMultiple(SelectMultiple):
+    """ """
     template_name = 'gentelella/widgets/tree_select.html'
     option_template_name = 'gentelella/widgets/tree_select_option.html'
 
@@ -27,6 +29,7 @@ class TreeSelectMultiple(SelectMultiple):
 
 
 class TreeSelectMultipleWithAdd(TreeSelectMultiple):
+    """ """
     template_name = 'gentelella/widgets/addtreeselect.html'
     option_template_name = 'gentelella/widgets/tree_select_option.html'
 
@@ -40,6 +43,7 @@ class TreeSelectMultipleWithAdd(TreeSelectMultiple):
 
 
 class TreeSelectWithAdd(TreeSelect):
+    """ """
     template_name = 'gentelella/widgets/addtreeselect.html'
     option_template_name = 'gentelella/widgets/tree_select_option.html'
 
