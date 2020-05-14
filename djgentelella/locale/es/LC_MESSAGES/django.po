@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-02-25 06:35+0000\n"
-"PO-Revision-Date: 2020-02-25 00:50-0600\n"
+"POT-Creation-Date: 2020-05-14 03:47+0000\n"
+"PO-Revision-Date: 2020-05-13 21:56-0600\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: es\n"
@@ -18,15 +18,265 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 2.2.1\n"
 
+#: cruds/base.py:642
+#, python-format
+msgid "Can see available %s"
+msgstr "Puede ver los disponibles %s"
+
+#: models.py:51
+msgid "Help title"
+msgstr "Título de ayuda"
+
+#: models.py:52
+msgid "Help text"
+msgstr "Texto de ayuda"
+
+#: models.py:59
+msgid "Visible"
+msgstr "Visible"
+
+#: models.py:60
+msgid "Hidden"
+msgstr "Oculto"
+
+#: models.py:63
+msgid "Default"
+msgstr "Por defecto"
+
+#: models.py:64
+msgid "Information"
+msgstr "Información"
+
+#: models.py:65
+msgid "Success"
+msgstr "Éxito"
+
+#: models.py:66
+msgid "Warning"
+msgstr "Precaución"
+
+#: models.py:67
+msgid "Danger"
+msgstr "Peligro"
+
+#: models.py:70 templates/gentelella/menu/notification_list.html:20
+msgid "Description"
+msgstr "Descripción"
+
+#: models.py:71 templates/gentelella/menu/notification_list.html:21
+msgid "Link"
+msgstr "Enlace"
+
+#: models.py:72
+msgid "User"
+msgstr "Usuario"
+
+#: models.py:74
+msgid "Message Type"
+msgstr "Tipo de mensaje"
+
+#: models.py:75 templates/gentelella/menu/notification_list.html:22
+msgid "State"
+msgstr "Estado"
+
+#: models.py:76
+msgid "Category"
+msgstr "Categoría"
+
+#: notification/__init__.py:74
+msgid "This is a html email, please use a visor with HTML support"
+msgstr "Este es un correo HTML, por favor use un cliente con soporte HTML"
+
+#: settings.py:5
+msgid "You have a new notification"
+msgstr "Usted tiene una nueva notificación"
+
 #: templates/gentelella/app/footer.html:4
 #: templates/gentelella/registration/footer.html:5
 #: templates/gentelella/registration/password_reset_form.html:31
 msgid "All Rights Reserved."
 msgstr "Todos los derechos reservados"
 
-#: templates/gentelella/blocks/crud_list.html:11
+#: templates/gentelella/blocks/crud_list.html:12
+#: templates/gentelella/cruds/_form.html:20
+#: templates/gentelella/cruds/list.html:111
 msgid "Delete"
 msgstr "Eliminar"
+
+#: templates/gentelella/cruds/403.html:5 templates/gentelella/cruds/403.html:6
+msgid "Error 403"
+msgstr "Error 403"
+
+#: templates/gentelella/cruds/403.html:11
+msgid "Return to Main Page"
+msgstr "Volver a inicio"
+
+#: templates/gentelella/cruds/_form.html:18
+#: templates/gentelella/registration/password_change_form.html:17
+#: templates/gentelella/registration/password_reset_confirm.html:18
+#: templates/gentelella/registration/registration_form.html:17
+#: templates/gentelella/widgets/addselect.html:22
+#: templates/gentelella/widgets/addtreeselect.html:26
+msgid "Submit"
+msgstr "Enviar"
+
+#: templates/gentelella/cruds/create.html:4
+#: templates/gentelella/cruds/create.html:6
+msgid "Create new"
+msgstr "Nuevo"
+
+#: templates/gentelella/cruds/create.html:15
+#: templates/gentelella/cruds/delete.html:11
+#: templates/gentelella/cruds/detail.html:17
+#: templates/gentelella/cruds/update.html:15
+msgid "Back to"
+msgstr "Atrás"
+
+#: templates/gentelella/cruds/create.html:20
+msgid "New"
+msgstr "Nuevo"
+
+#: templates/gentelella/cruds/delete.html:16
+#: templates/gentelella/cruds/delete.html:27
+msgid "Remove"
+msgstr "Eliminar"
+
+#: templates/gentelella/cruds/delete.html:20
+#: templates/gentelella/cruds/detail.html:26
+#: templates/gentelella/cruds/list.html:107
+msgid "Edit"
+msgstr "Editar"
+
+#: templates/gentelella/cruds/delete.html:32
+msgid "Confirm remove"
+msgstr "Confirmar eliminación"
+
+#: templates/gentelella/cruds/detail.html:5
+#: templates/gentelella/cruds/detail.html:7
+#: templates/gentelella/cruds/detail.html:22
+msgid "Detail of"
+msgstr "Detalle de"
+
+#: templates/gentelella/cruds/detail.html:36
+msgid "Label"
+msgstr "Etiqueta"
+
+#: templates/gentelella/cruds/detail.html:36
+msgid "Value"
+msgstr "Valor"
+
+#: templates/gentelella/cruds/list.html:5
+#: templates/gentelella/cruds/list.html:7
+#: templates/gentelella/cruds/list.html:14
+msgid "List of"
+msgstr "Lista de"
+
+#: templates/gentelella/cruds/list.html:19
+msgid "Create new "
+msgstr "Crear nuevo"
+
+#: templates/gentelella/cruds/list.html:35
+msgid "Search for..."
+msgstr "Búsqueda para ..."
+
+#: templates/gentelella/cruds/list.html:52
+msgid "Filters"
+msgstr "Flitros"
+
+#: templates/gentelella/cruds/list.html:66
+msgid "Filter"
+msgstr "Filtro"
+
+#: templates/gentelella/cruds/list.html:67
+msgid "Clean filter"
+msgstr "Limpiar filtros"
+
+#: templates/gentelella/cruds/list.html:87
+msgid "Actions"
+msgstr "Acciones"
+
+#: templates/gentelella/cruds/list.html:103
+#: templates/gentelella/email/notification.html:10
+#: templates/gentelella/menu/notification_list.html:31
+msgid "Show"
+msgstr "Ver"
+
+#: templates/gentelella/cruds/list.html:121
+msgid "No items yet."
+msgstr "Sin elementos"
+
+#: templates/gentelella/cruds/pagination/prev_next.html:8
+msgid "Previous"
+msgstr "Anterior"
+
+#: templates/gentelella/cruds/pagination/prev_next.html:12
+msgid "Page"
+msgstr "Página"
+
+#: templates/gentelella/cruds/pagination/prev_next.html:12
+msgid "of"
+msgstr "de"
+
+#: templates/gentelella/cruds/pagination/prev_next.html:16
+msgid "Next"
+msgstr "Siguiente"
+
+#: templates/gentelella/cruds/update.html:5
+#: templates/gentelella/cruds/update.html:7
+#: templates/gentelella/cruds/update.html:20
+msgid "Update"
+msgstr "Actualizar"
+
+#: templates/gentelella/cruds/update.html:60
+msgid "Create"
+msgstr "Crear"
+
+#: templates/gentelella/menu/notificacion.html:24
+msgid "Show all notifications"
+msgstr "Ver todas las notificaciones"
+
+#: templates/gentelella/menu/notification_list.html:8
+msgid "List of notifications"
+msgstr "Lista de notificaciones"
+
+#: templates/gentelella/menu/notification_list.html:18
+msgid "Type"
+msgstr "Tipo"
+
+#: templates/gentelella/menu/notification_list.html:19
+msgid "Creation date"
+msgstr "Fecha de creación"
+
+#: templates/gentelella/menu/palette.html:6
+msgid "Help"
+msgstr "Ayuda"
+
+#: templates/gentelella/menu/palette_modal.html:21
+#: templates/gentelella/menu/palette_modal.html:45
+#: templates/gentelella/widgets/addselect.html:21
+#: templates/gentelella/widgets/addtreeselect.html:25
+msgid "Close"
+msgstr "Cerrar"
+
+#: templates/gentelella/menu/palette_modal.html:22
+msgid "Save changes"
+msgstr "Guardar cambios"
+
+#: templates/gentelella/menu/palette_modal.html:33
+msgid "Deleting help instance"
+msgstr "Eliminar instancia de ayuda"
+
+#: templates/gentelella/menu/palette_modal.html:40
+msgid "You are deleting the next helping item"
+msgstr "Está eliminando el siguiente elemento de ayuda"
+
+#: templates/gentelella/menu/palette_modal.html:42
+msgid "Are you sure you want to continue?"
+msgstr "¿Está seguro que desea continuar?"
+
+#: templates/gentelella/menu/palette_modal.html:46
+msgid "Yes, delete it"
+msgstr "Si eliminarlo"
 
 #: templates/gentelella/registration/activate.html:11
 msgid "Account activation failed"
@@ -138,13 +388,6 @@ msgstr "para regenerar una nueva contraseña e ingresá a la plataforma"
 msgid "Password changed"
 msgstr "Contraseña modificada"
 
-#: templates/gentelella/registration/password_change_form.html:17
-#: templates/gentelella/registration/password_reset_confirm.html:18
-#: templates/gentelella/registration/registration_form.html:17
-#: templates/gentelella/widgets/addselect.html:22
-msgid "Submit"
-msgstr "Enviar"
-
 #: templates/gentelella/registration/password_reset_complete.html:13
 msgid "Password reset successfully"
 msgstr "Contraseña modificada con éxito"
@@ -222,18 +465,14 @@ msgid "You are now registered. Activation email sent."
 msgstr ""
 "Usted fue registrado adecuadamente. Un correo de activación ha sido enviado"
 
-#: templates/gentelella/widgets/addselect.html:21
-msgid "Close"
-msgstr "Cerrar"
-
-#: templates/gentelella/widgets/checkyesno.html:2 widgets/core.py:276
+#: templates/gentelella/widgets/checkyesno.html:2 widgets/core.py:295
 msgid "No"
 msgstr "No"
 
-#: templates/gentelella/widgets/checkyesno.html:4 widgets/core.py:275
+#: templates/gentelella/widgets/checkyesno.html:4 widgets/core.py:294
 msgid "Yes"
 msgstr "Sí"
 
-#: widgets/core.py:274
+#: widgets/core.py:293
 msgid "Unknown"
 msgstr "Desconocido"
