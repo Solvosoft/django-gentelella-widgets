@@ -8,6 +8,10 @@ def forwards_func(apps, schema_editor):
         key='site_title',
         value='Django Gentelella Alela!'
     )
+    Settings.objects.create(
+        key='site_logo',
+        value='<h1><i class="fa fa-paw"></i></h1>'
+    )
 
 class Migration(migrations.Migration):
 
