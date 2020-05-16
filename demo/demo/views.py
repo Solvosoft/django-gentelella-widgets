@@ -108,6 +108,24 @@ class ExampleForm(CustomForm):
     text = forms.CharField(
         widget=ColorInput
     )
+    text_2 = forms.CharField(
+        widget=ColorInput
+    )
+    text_3 = forms.CharField(
+        widget=ColorInput
+    )
+    text_4 = forms.CharField(
+        widget=ColorInput
+    )
+    text_5 = forms.CharField(
+        widget=ColorInput
+    )
+    text_6 = forms.CharField(
+        widget=ColorInput
+    )
+    text_7 = forms.CharField(
+        widget=ColorInput
+    )
 
 
 

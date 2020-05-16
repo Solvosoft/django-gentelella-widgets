@@ -1,4 +1,4 @@
-<div class="input-group" id="cp3a"  data-color="rgb(7, 21, 195)">
+<div class="input-group color-input-field">
 {% with id=widget.attrs.id %}
       {% include "gentelella/widgets/input.html" %}
 
@@ -9,7 +9,7 @@
 
 <script>
   $(function () {
-    $('#cp3a').colorpicker();
+    $('.color-input-field').colorpicker({"color": "#2630a9"})
   });
 </script>
 {% endwith %}
