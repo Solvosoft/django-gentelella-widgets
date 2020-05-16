@@ -7,7 +7,8 @@ from django.urls import reverse_lazy
 from django.utils.timezone import now
 
 from djgentelella.forms.forms import CustomForm
-from djgentelella.widgets import core as genwidgets
+from djgentelella.widgets.color import ColorInput
+
 
 
 class ExampleForm(CustomForm):
@@ -104,8 +105,8 @@ class ExampleForm(CustomForm):
     #     attrs={'add_url': reverse_lazy('add_view_select')}))
 
     #your_wysiwyg = forms.CharField(widget=genwidgets.TextareaWysiwyg)
-    your_file = forms.FileField(
-        widget=genwidgets.FileInput
+    text = forms.CharField(
+        widget=ColorInput
     )
 
 
@@ -113,7 +114,7 @@ class ExampleForm(CustomForm):
 def home(request):
     form = ExampleForm()
     if request.method == 'POST':
-        form  = ExampleForm(request.POST)
+        form = ExampleForm(request.POST)
         form.is_valid()
     return render(request, 'gentelella/index.html', {'form': form})
 

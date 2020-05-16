@@ -1,0 +1,16 @@
+<div class="input-group" id="cp3a">
+{% with id=widget.attrs.id %}
+      {% include "gentelella/widgets/input.html" %}
+
+<span class="input-group-addon">
+    <span class="input-group-text colorpicker-input-addon"><i></i></span>
+</span>
+</div>
+
+<script>
+  $(function () {
+    $('#cp3a').colorpicker();
+  });
+</script>
+{% endwith %}
+
