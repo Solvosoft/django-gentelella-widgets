@@ -120,7 +120,7 @@ def home(request):
     if request.method == 'POST':
         form  = ExampleForm(request.POST)
         form.is_valid()
-    return render(request, 'gentelella/index.html', {'form': form})
+    return render(request, 'index.html', {'form': form})
 
 
 @login_required
