@@ -10,20 +10,16 @@ class FooModelForm(CustomForm, forms.ModelForm):
         fields = ['number_of_eyes']
 
 class FooBasicForm(CustomForm, forms.Form):
+    """creates a basic form with three widgets using different attrs"""
     age = forms.IntegerField(
-            widget=knobwidget.NumberKnobInput(attrs={
-                                      "value": 5,
-                                      "data-min":1,
-                                      "data-max":120}))
+            widget=knobwidget.NumberKnobInput(attrs={}))
     speed_in_miles_per_hour = forms.FloatField(
                                 widget=knobwidget.NumberKnobInput(attrs={
-                                                          "value": 5,
                                                           "data-min":1,
                                                           "data-step": 0.1,
                                                           "data-max":50}))
     number_of_eyes = forms.IntegerField(
                         widget=knobwidget.NumberKnobInput(attrs={
-                                                  "value": 5,
                                                   "data-min":1,
                                                   "steps": 0.1,
                                                   "data-max":50}))
