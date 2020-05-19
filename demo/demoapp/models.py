@@ -17,3 +17,8 @@ class Person(models.Model):
 
     def __str__(self):
         return self.name
+
+class Foo(models.Model):
+    age = models.IntegerField()
+    speed_in_miles_per_hour = models.FloatField()
+    number_of_eyes = models.IntegerField()
