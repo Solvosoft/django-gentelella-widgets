@@ -1,7 +1,7 @@
-from .core import Input, update_kwargs
+from .core import TextInput, update_kwargs
 
 
-class DefaultColorInput(Input):
+class DefaultColorInput(TextInput):
     template_name = 'gentelella/widgets/color_default.html'
 
     class Media:
@@ -25,7 +25,7 @@ class StyleColorInput(DefaultColorInput):
     template_name = 'gentelella/widgets/color_style.html'
 
     def __init__(self, attrs=None):
-        super(DefaultColorInput, self).__init__()
+        super(DefaultColorInput, self).__init__(attrs)
 
 
 class HorizontalBarColorInput(DefaultColorInput):

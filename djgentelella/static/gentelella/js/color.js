@@ -1,8 +1,6 @@
 $(function () {
 
-
     $('.color-input-field').colorpicker()
-
 
     $('.color-input-field-horizontal').colorpicker({
         horizontal: true,

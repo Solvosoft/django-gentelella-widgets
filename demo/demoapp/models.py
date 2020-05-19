@@ -19,11 +19,11 @@ class Person(models.Model):
         return self.name
 
 
-class Bike(models.Model):
-    type = models.CharField(max_length=150)
-    name = models.CharField(max_length=150)
-    size = models.CharField(max_length=150)
+class Colors(models.Model):
     color = models.CharField(max_length=150)
+    color2 = models.CharField(max_length=150)
+    color3 = models.CharField(max_length=150)
+    color4 = models.CharField(max_length=150)
 
     def __str__(self):
-        return f"{self.type} {self.name} {self.size} {self.color}"
+        return f"{self.color} {self.color2} {self.color3} {self.color4}"

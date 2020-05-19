@@ -3,7 +3,7 @@
 {% block content %}
     {{form}}
 <hr>
-<h1>Bike</h1>
+<h1>Colors form</h1>
 <form action="{% url 'place' %}" method="POST">
     {% csrf_token %}
     {{form_form.as_inline}}
