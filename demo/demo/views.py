@@ -6,11 +6,18 @@ from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.utils.timezone import now
 
+from demoapp.models import Bike
 from djgentelella.forms.forms import CustomForm
 from djgentelella.widgets.color import StyleColorInput, DefaultColorInput, HorizontalBarColorInput, VerticalBarColorInput, InlinePickerColor
 
+class ExampleTwoForm(CustomForm, forms.ModelForm):
+    color = forms.CharField(widget=StyleColorInput)
+    class Meta:
+        model = Bike
+        fields = "__all__"
 
 class ExampleForm(CustomForm):
+
     """  """
    #  your_name = forms.CharField(label='Your name', max_length=100, widget=genwidgets.TextInput)
    #
@@ -128,10 +135,12 @@ class ExampleForm(CustomForm):
 
 def other_place(request):
     form = ExampleForm()
+    form_form = ExampleTwoForm()
     if request.method == 'POST':
-        form = ExampleForm(request.POST)
-        form.is_valid()
-    return render(request, 'index-color.html', {'form': form})
+        form_form = ExampleTwoForm(request.POST)
+        form_form.is_valid()
+        form_form.save()
+    return render(request, 'index-color.html', {'form': form, "form_form": form_form})
 
 def home(request):
     form = ExampleForm()

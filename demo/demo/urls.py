@@ -21,9 +21,10 @@ from .dashboad import show_top_counts
 from .views import home, logeado, add_view_select, other_place
 from demoapp.urls import  urlpatterns as demourls
 
+app_name = 'demo'
 urlpatterns = djgentelellaurls + [
     path('admin/', admin.site.urls),
-    path('', other_place, name="peace"),
+    path('', other_place, name="place"),
     path('logueado', logeado),
     path('dashboard', show_top_counts, name='dashboard'),
     path('add_view_select', add_view_select, name='add_view_select')
