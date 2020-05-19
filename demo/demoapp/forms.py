@@ -4,12 +4,12 @@ from .models import Foo
 from djgentelella.widgets import numberknobinput as knobwidget
 
 
-class FooForm(CustomForm, forms.ModelForm):
+class FooModelForm(CustomForm, forms.ModelForm):
     class Meta:
         model = Foo
         fields = ['number_of_eyes']
 
-class RawFooForm(CustomForm, forms.Form):
+class FooBasicForm(CustomForm, forms.Form):
     age = forms.IntegerField(
             widget=knobwidget.NumberKnobInput(attrs={
                                       "value": 5,
