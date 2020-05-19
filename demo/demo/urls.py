@@ -18,13 +18,13 @@ from django.urls import path
 
 from djgentelella.urls import urlpatterns as djgentelellaurls
 from .dashboad import show_top_counts
-from .views import home, logeado, add_view_select, other_place
+from .views import home, logeado, add_view_select, color_widget_test
 from demoapp.urls import  urlpatterns as demourls
 
 app_name = 'demo'
 urlpatterns = djgentelellaurls + [
     path('admin/', admin.site.urls),
-    path('', other_place, name="place"),
+    path('', color_widget_test, name="color-widget-test"),
     path('logueado', logeado),
     path('dashboard', show_top_counts, name='dashboard'),
     path('add_view_select', add_view_select, name='add_view_select')

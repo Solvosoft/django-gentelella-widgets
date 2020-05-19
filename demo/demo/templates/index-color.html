@@ -4,9 +4,9 @@
     {{form}}
 <hr>
 <h1>Colors form</h1>
-<form action="{% url 'place' %}" method="POST">
+<form action="{% url 'color-widget-test' %}" method="POST">
     {% csrf_token %}
-    {{form_form.as_inline}}
+    {{form_widgets.as_inline}}
     <input type="submit">
 </form>
 

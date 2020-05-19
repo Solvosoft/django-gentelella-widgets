@@ -10,7 +10,7 @@ from demoapp.models import Colors
 from djgentelella.forms.forms import CustomForm
 from djgentelella.widgets.color import StyleColorInput, DefaultColorInput, HorizontalBarColorInput, VerticalBarColorInput, InlinePickerColor
 
-class ExampleTwoForm(CustomForm, forms.ModelForm):
+class ColorWidgetsForm(CustomForm, forms.ModelForm):
     color = forms.CharField(widget=DefaultColorInput(attrs={"value": "#0014bb", "id": "c1"}))
     color2 = forms.CharField(widget=StyleColorInput(attrs={"value": "#0014bb", "id": "c2"}))
     color3 = forms.CharField(widget=HorizontalBarColorInput(attrs={"value": "#0014bb", "id": "c3"}))
@@ -115,19 +115,19 @@ class ExampleForm(CustomForm):
 
     #your_wysiwyg = forms.CharField(widget=genwidgets.TextareaWysiwyg)
     default_input = forms.CharField(
-        widget=DefaultColorInput(attrs={"value": "#0014bb"})
+        widget=DefaultColorInput
     )
     style_input = forms.CharField(
         widget=StyleColorInput(attrs={"value": "#0014bb"})
     )
     horizontal_bar_input = forms.CharField(
-         widget=HorizontalBarColorInput(attrs={"value": "#0014bb"})
+         widget=HorizontalBarColorInput
     )
     vertical_bar_input = forms.CharField(
          widget=VerticalBarColorInput(attrs={"value": "#0014bb"})
     )
     inline_picker = forms.CharField(
-         widget=InlinePickerColor(attrs={"value": "#0014bb"})
+         widget=InlinePickerColor
     )
     # text_6 = forms.CharField(
     #     widget=ColorInput
@@ -136,14 +136,14 @@ class ExampleForm(CustomForm):
     #     widget=ColorInput
     # )
 
-def other_place(request):
+def color_widget_test(request):
     form = ExampleForm()
-    form_form = ExampleTwoForm()
+    form_widgets = ColorWidgetsForm()
     if request.method == 'POST':
-        form_form = ExampleTwoForm(request.POST)
-        form_form.is_valid()
-        form_form.save()
-    return render(request, 'index-color.html', {'form': form, "form_form": form_form})
+        form_widgets = ColorWidgetsForm(request.POST)
+        form_widgets.is_valid()
+        form_widgets.save()
+    return render(request, 'index-color.html', {'form': form, "form_widgets": form_widgets})
 
 def home(request):
     form = ExampleForm()
