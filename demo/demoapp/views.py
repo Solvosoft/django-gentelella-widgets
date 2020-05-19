@@ -2,6 +2,8 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from djgentelella.notification import create_notification
+from .forms import RawFooForm, FooForm
+from .models import Foo
 # Create your views here.
 
 @login_required
@@ -22,3 +24,12 @@ def create_notification_view(request):
 
 
     return redirect("/")
+
+def formView(request):
+    form = RawFooForm()
+    if request.method == 'POST':
+        form  = RawFooForm(request.POST)
+        form.is_valid()
+        my_foo = Foo.objects.create(**form.cleaned_data)
+        my_foo.save()
+    return render(request, 'form.html', {'form': form})
