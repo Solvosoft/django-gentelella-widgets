@@ -11,13 +11,15 @@ from djgentelella.forms.forms import CustomForm
 from djgentelella.widgets.color import StyleColorInput, DefaultColorInput, HorizontalBarColorInput, VerticalBarColorInput, InlinePickerColor
 
 class ColorWidgetsForm(CustomForm, forms.ModelForm):
-    color = forms.CharField(widget=DefaultColorInput(attrs={"value": "#0014bb", "id": "c1"}))
-    color2 = forms.CharField(widget=StyleColorInput(attrs={"value": "#0014bb", "id": "c2"}))
-    color3 = forms.CharField(widget=HorizontalBarColorInput(attrs={"value": "#0014bb", "id": "c3"}))
-    color4 = forms.CharField(widget=VerticalBarColorInput(attrs={"value": "#0014bb", "id": "c4"}))
     class Meta:
         model = Colors
         fields = "__all__"
+        widgets = {
+            "color": DefaultColorInput,
+            "color2": StyleColorInput(attrs={"value": "#0014bb", "id": "c2"}),
+            "color3": HorizontalBarColorInput,
+            "color4": VerticalBarColorInput(attrs={"value": "#0014bb", "id": "c4"}),
+        }
 
 class ExampleForm(CustomForm):
 
