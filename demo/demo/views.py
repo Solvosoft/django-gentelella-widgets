@@ -7,7 +7,7 @@ from django.urls import reverse_lazy
 from django.utils.timezone import now
 
 from djgentelella.forms.forms import CustomForm
-from djgentelella.widgets.color import StyleColorInput, DefaultColorInput, HorizontalBarColorInput, VerticalBarColorInput
+from djgentelella.widgets.color import StyleColorInput, DefaultColorInput, HorizontalBarColorInput, VerticalBarColorInput, InlinePickerColor
 
 
 class ExampleForm(CustomForm):
@@ -116,9 +116,9 @@ class ExampleForm(CustomForm):
     vertical_bar_input = forms.CharField(
          widget=VerticalBarColorInput
     )
-    # text_5 = forms.CharField(
-    #     widget=ColorInput
-    # )
+    inline_picker = forms.CharField(
+         widget=InlinePickerColor
+    )
     # text_6 = forms.CharField(
     #     widget=ColorInput
     # )

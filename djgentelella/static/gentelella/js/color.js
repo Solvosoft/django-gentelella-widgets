@@ -11,4 +11,15 @@ $(function () {
         color: "#88cc33",
         format: 'rgb',
     })
+
+    $('.color-input-field-inline-picker')
+        .css("display", "inline-block")
+        .colorpicker({
+        color: "#88cc33",
+        container: true,
+        inline: true
+    })
+
+
+
 });
