@@ -10,6 +10,6 @@ menuclss = MenuItemclass()
 
 urlpatterns = [
         path('create/notification', create_notification_view),
-        path('form', formView),
+        path('knobwidget/testform', formView),
 
               ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()
