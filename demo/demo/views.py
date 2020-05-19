@@ -6,14 +6,17 @@ from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.utils.timezone import now
 
-from demoapp.models import Bike
+from demoapp.models import Colors
 from djgentelella.forms.forms import CustomForm
 from djgentelella.widgets.color import StyleColorInput, DefaultColorInput, HorizontalBarColorInput, VerticalBarColorInput, InlinePickerColor
 
 class ExampleTwoForm(CustomForm, forms.ModelForm):
-    color = forms.CharField(widget=StyleColorInput)
+    color = forms.CharField(widget=DefaultColorInput(attrs={"value": "#0014bb", "id": "c1"}))
+    color2 = forms.CharField(widget=StyleColorInput(attrs={"value": "#0014bb", "id": "c2"}))
+    color3 = forms.CharField(widget=HorizontalBarColorInput(attrs={"value": "#0014bb", "id": "c3"}))
+    color4 = forms.CharField(widget=VerticalBarColorInput(attrs={"value": "#0014bb", "id": "c4"}))
     class Meta:
-        model = Bike
+        model = Colors
         fields = "__all__"
 
 class ExampleForm(CustomForm):
@@ -112,19 +115,19 @@ class ExampleForm(CustomForm):
 
     #your_wysiwyg = forms.CharField(widget=genwidgets.TextareaWysiwyg)
     default_input = forms.CharField(
-        widget=DefaultColorInput
+        widget=DefaultColorInput(attrs={"value": "#0014bb"})
     )
     style_input = forms.CharField(
-        widget=StyleColorInput
+        widget=StyleColorInput(attrs={"value": "#0014bb"})
     )
     horizontal_bar_input = forms.CharField(
-         widget=HorizontalBarColorInput
+         widget=HorizontalBarColorInput(attrs={"value": "#0014bb"})
     )
     vertical_bar_input = forms.CharField(
-         widget=VerticalBarColorInput
+         widget=VerticalBarColorInput(attrs={"value": "#0014bb"})
     )
     inline_picker = forms.CharField(
-         widget=InlinePickerColor
+         widget=InlinePickerColor(attrs={"value": "#0014bb"})
     )
     # text_6 = forms.CharField(
     #     widget=ColorInput
