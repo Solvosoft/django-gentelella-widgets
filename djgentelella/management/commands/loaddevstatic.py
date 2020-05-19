@@ -155,6 +155,21 @@ class Command(BaseCommand):
             'chartjs':[
                 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.css'
+            ],
+
+            'mjolnic-bootstrap-colorpicker': [
+                'https://colorlib.com/polygon/vendors/mjolnic-bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css',
+                'https://colorlib.com/polygon/vendors/mjolnic-bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min.js'
+            ],
+            "img/": [],
+            "img/bootstrap-colorpicker": [
+                'https://colorlib.com/polygon/vendors/mjolnic-bootstrap-colorpicker/dist/img/bootstrap-colorpicker/alpha.png',
+                'https://colorlib.com/polygon/vendors/mjolnic-bootstrap-colorpicker/dist/img/bootstrap-colorpicker/hue.png',
+                'https://colorlib.com/polygon/vendors/mjolnic-bootstrap-colorpicker/dist/img/bootstrap-colorpicker/saturation.png',
+
+                'https://colorlib.com/polygon/vendors/mjolnic-bootstrap-colorpicker/dist/img/bootstrap-colorpicker/alpha-horizontal.png',
+                'https://colorlib.com/polygon/vendors/mjolnic-bootstrap-colorpicker/dist/img/bootstrap-colorpicker/hue-horizontal.png',
+                'https://colorlib.com/polygon/vendors/mjolnic-bootstrap-colorpicker/dist/img/bootstrap-colorpicker/saturation-horizontal.png',
             ]
         }
         if not os.path.exists(basepath+'flags'):

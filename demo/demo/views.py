@@ -7,8 +7,7 @@ from django.urls import reverse_lazy
 from django.utils.timezone import now
 
 from djgentelella.forms.forms import CustomForm
-from djgentelella.widgets.color import ColorInput
-
+from djgentelella.widgets.color import StyleColorInput, DefaultColorInput, HorizontalBarColorInput, VerticalBarColorInput
 
 
 class ExampleForm(CustomForm):
@@ -105,29 +104,34 @@ class ExampleForm(CustomForm):
     #     attrs={'add_url': reverse_lazy('add_view_select')}))
 
     #your_wysiwyg = forms.CharField(widget=genwidgets.TextareaWysiwyg)
-    text = forms.CharField(
-        widget=ColorInput
+    default_input = forms.CharField(
+        widget=DefaultColorInput
     )
-    text_2 = forms.CharField(
-        widget=ColorInput
+    style_input = forms.CharField(
+        widget=StyleColorInput
     )
-    text_3 = forms.CharField(
-        widget=ColorInput
+    horizontal_bar_input = forms.CharField(
+         widget=HorizontalBarColorInput
     )
-    text_4 = forms.CharField(
-        widget=ColorInput
+    vertical_bar_input = forms.CharField(
+         widget=VerticalBarColorInput
     )
-    text_5 = forms.CharField(
-        widget=ColorInput
-    )
-    text_6 = forms.CharField(
-        widget=ColorInput
-    )
-    text_7 = forms.CharField(
-        widget=ColorInput
-    )
+    # text_5 = forms.CharField(
+    #     widget=ColorInput
+    # )
+    # text_6 = forms.CharField(
+    #     widget=ColorInput
+    # )
+    # text_7 = forms.CharField(
+    #     widget=ColorInput
+    # )
 
-
+def other_place(request):
+    form = ExampleForm()
+    if request.method == 'POST':
+        form = ExampleForm(request.POST)
+        form.is_valid()
+    return render(request, 'index-color.html', {'form': form})
 
 def home(request):
     form = ExampleForm()

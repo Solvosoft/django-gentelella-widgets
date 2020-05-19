@@ -1,0 +1,18 @@
+{% extends 'gentelella/index.html' %}
+
+{% block stylesheets%}
+    {{block.super}}
+    {{form.media.css}}
+{% endblock%}
+
+{% block content %}
+    {{form}}
+{% endblock %}
+
+{% block javascripts %}
+    {{ block.super }}
+    {{form.media.js}}
+{% endblock %}
+
+
+
