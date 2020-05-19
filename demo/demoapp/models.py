@@ -17,3 +17,13 @@ class Person(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Bike(models.Model):
+    type = models.CharField(max_length=150)
+    name = models.CharField(max_length=150)
+    size = models.CharField(max_length=150)
+    color = models.CharField(max_length=150)
+
+    def __str__(self):
+        return f"{self.type} {self.name} {self.size} {self.color}"
