@@ -26,9 +26,9 @@ def create_notification_view(request):
     return redirect("/")
 
 def formView(request):
-    form = FooBasicForm()
+    form = FooModelForm()
     if request.method == 'POST':
-        form  = FooBasicForm(request.POST)
+        form  = FooModelForm(request.POST)
         form.is_valid()
         my_foo = Foo.objects.create(**form.cleaned_data)
         my_foo.save()
