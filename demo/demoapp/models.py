@@ -1,5 +1,6 @@
 from django.db import models
-from .validators import validate_age_value, validate_speed_value, validate_eyes_number
+from django.core.validators import MaxValueValidator, MinValueValidator
+
 
 # Create your models here.
 
@@ -20,6 +21,18 @@ class Person(models.Model):
         return self.name
 
 class Foo(models.Model):
-    age = models.IntegerField(validators=[validate_age_value])
-    speed_in_miles_per_hour = models.FloatField(validators=[validate_speed_value])
-    number_of_eyes = models.IntegerField(validators=[validate_eyes_number])
+    age = models.IntegerField(validators=
+                                    [
+                                        MaxValueValidator(120),
+                                        MinValueValidator(1)
+                                    ])
+    speed_in_miles_per_hour = models.FloatField(validators=
+                                    [
+                                        MinValueValidator(1),
+                                        MaxValueValidator(50)
+                                    ])
+    number_of_eyes = models.IntegerField(validators=
+                                    [
+                                        MinValueValidator(0),
+                                        MaxValueValidator(10)
+                                    ])
