@@ -29,7 +29,8 @@ def formView(request):
     form = FooModelForm()
     if request.method == 'POST':
         form  = FooModelForm(request.POST)
-        form.is_valid()
-        my_foo = Foo.objects.create(**form.cleaned_data)
-        my_foo.save()
+        if form.is_valid():
+            form.save()
+            form = FooModelForm()
+            
     return render(request, 'form.html', {'form': form})
