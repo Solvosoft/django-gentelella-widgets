@@ -4,6 +4,8 @@
 <html lang="en">
   <head>
     {% block head %}
+        {% block meta-keywords %} {% endblock %}
+        {% block extrameta%} {% endblock %}
       {% block meta %}
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <!-- Meta, title, CSS, favicons, etc. -->
@@ -102,6 +104,7 @@
           {% endblock footer %}
         </div>
       </div>
+      <div class="jsmessage"></div>
       {% render_external_widget %}
       {% block javascripts %}
 
@@ -149,6 +152,7 @@
       {% endblock %}
 
     {% endblock body %}
+    {% block js %}{% endblock %}
   {% render_extra_html_menu %}
   </body>
 </html>
