@@ -34,10 +34,10 @@ auth_urls = [
     ), name='password_reset_confirm'),
     path('accounts/reset/done/', auth_views.PasswordResetDoneView.as_view(
         template_name = 'gentelella/registration/password_reset_done.html'
-    ) ,name="password_reset_complete")
+    ), name="password_reset_complete")
 ]
 
-urlpatterns = auth_urls + [
+base_urlpatterns = [
 
     path('djgentelella/upload/', ChunkedUploadView.as_view(), name='upload_file_view'),
     path('djgentelella/upload/done/', ChunkedUploadCompleteView.as_view(), name='upload_file_done'),
@@ -47,3 +47,5 @@ urlpatterns = auth_urls + [
         name="notifications"),
     url('^notification/list/$', NotificationList.as_view(), name="notification_list")
 ]
+
+urlpatterns = auth_urls + base_urlpatterns
