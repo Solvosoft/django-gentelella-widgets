@@ -31,10 +31,10 @@ class Catalog(models.Model):
 
 class WithCatalog(models.Model):
     mycatalog = GTForeignKey(Catalog, on_delete=models.DO_NOTHING, key_name="key", key_value="Options")
-    countries = GTManyToManyField(Catalog, related_name="countryrel",key_name="key", key_value="countries")
+    countries = GTManyToManyField(Catalog, related_name="countryrel", key_name="key", key_value="countries")
 
     def __str__(self):
-        return str(self.me)
+        return str(self.mycatalog)
 
 class OneCatalog(models.Model):
     me = GTOneToOneField(Catalog, on_delete=models.CASCADE, key_name="key", key_value="countries")
