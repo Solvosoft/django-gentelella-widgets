@@ -42,7 +42,8 @@ setup(
     classifiers=CLASSIFIERS,
     install_requires=[
 	    'django-mptt>=0.11.0',
-        'django-chunked-upload>=2.0.0'
+        'django-chunked-upload>=2.0.0',
+        'djangoajax==3.2'
     ],
     packages=find_packages(exclude=["demo"]),
     include_package_data=True,
