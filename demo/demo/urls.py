@@ -14,17 +14,19 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 
 from djgentelella.urls import urlpatterns as djgentelellaurls
 from .dashboad import show_top_counts
 from .views import home, logeado, add_view_select
 from demoapp.urls import  urlpatterns as demourls
 
+
 urlpatterns = djgentelellaurls + [
     path('admin/', admin.site.urls),
     path('', home, name="home"),
     path('logueado', logeado),
     path('dashboard', show_top_counts, name='dashboard'),
-    path('add_view_select', add_view_select, name='add_view_select')
+    path('add_view_select', add_view_select, name='add_view_select'),
+    path('blog/', include('djgentelella.blog.urls'))
 ] + demourls

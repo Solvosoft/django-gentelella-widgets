@@ -1,0 +1,21 @@
+{% extends 'gentelella/base_site.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="x_panel " xmlns="http://www.w3.org/1999/html">
+    <div class="x_title"></div>
+        <div class="x_content">
+                <form method="post" action="" enctype="multipart/form-data">{% csrf_token %}
+                    {{ form.as_horizontal }}
+
+                    <button class="btn btn-success" type="submit" name="savebtn" value="save">{% trans 'Save' %}</button>
+                    <button class="btn btn-warning" type="submit" name="publishbtn" value="publish" >{% trans 'Publish' %}</button>
+
+                </form>
+
+        </div>
+    </div>
+</div>
+
+{{ form.media }}
+{% endblock %}
