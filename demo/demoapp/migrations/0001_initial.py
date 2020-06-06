@@ -64,4 +64,14 @@ class Migration(migrations.Migration):
                 ('me', djgentelella.fields.catalog.GTOneToOneField(on_delete=django.db.models.deletion.CASCADE, to='demoapp.Catalog')),
             ],
         ),
+        migrations.CreateModel(
+            name='Colors',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('color', models.CharField(max_length=150)),
+                ('color2', models.CharField(max_length=150)),
+                ('color3', models.CharField(max_length=150)),
+                ('color4', models.CharField(max_length=150)),
+            ],
+        ),
     ]

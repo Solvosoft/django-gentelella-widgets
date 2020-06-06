@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from djgentelella.notification import create_notification
-from .forms import FooModelForm, FooBasicForm
+from .forms import FooModelForm, FooBasicForm, ColorWidgetsForm, SimpleColorForm
 from .models import Foo
 # Create your views here.
 
@@ -34,3 +34,14 @@ def knobView(request):
             form = FooModelForm()
             
     return render(request, 'form.html', {'form': form})
+
+def color_widget_view(request):
+    form_widgets = SimpleColorForm()
+    form = ColorWidgetsForm()
+    if request.method == 'POST':
+        form = ColorWidgetsForm(request.POST)
+        form.is_valid()
+        form.save()
+    return render(request, 'index-color.html', {'form': form,
+                                                "form_widgets": form_widgets})
+
