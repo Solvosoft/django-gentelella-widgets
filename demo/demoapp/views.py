@@ -25,7 +25,7 @@ def create_notification_view(request):
 
     return redirect("/")
 
-def formView(request):
+def knobView(request):
     form = FooModelForm()
     if request.method == 'POST':
         form  = FooModelForm(request.POST)
