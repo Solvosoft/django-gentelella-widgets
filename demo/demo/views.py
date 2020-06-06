@@ -8,6 +8,7 @@ from django.utils.timezone import now
 
 from djgentelella.forms.forms import CustomForm
 from djgentelella.widgets import core as genwidgets
+from djgentelella.widgets import numberknobinput as knobwidget
 
 
 class ExampleForm(CustomForm):
@@ -108,6 +109,10 @@ class ExampleForm(CustomForm):
         widget=genwidgets.FileInput
     )
 
+    your_age = forms.IntegerField(
+        widget=knobwidget.NumberKnobInput(attrs={"value": 5, "data-min":1, "data-max":10})
+    )
+
 
 
 def home(request):
@@ -115,7 +120,7 @@ def home(request):
     if request.method == 'POST':
         form  = ExampleForm(request.POST)
         form.is_valid()
-    return render(request, 'gentelella/index.html', {'form': form})
+    return render(request, 'index.html', {'form': form})
 
 
 @login_required
