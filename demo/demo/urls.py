@@ -21,7 +21,6 @@ from .dashboad import show_top_counts
 from .views import home, logeado, add_view_select
 from demoapp.urls import  urlpatterns as demourls
 
-
 urlpatterns = djgentelellaurls + [
     path('admin/', admin.site.urls),
     path('', home, name="home"),

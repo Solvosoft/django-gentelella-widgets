@@ -1,14 +1,28 @@
 {% extends 'gentelella/base_site.html' %}
 
 {% block content %}
-<form data-toggle="validator">
-<div class="container">
-        <div class="row">
-        <div class='col-md-12'>
-            {{form.as_plain}}
-            {% csrf_token %}
+
+<div class="row">
+<div class='col-md-12'>
+     <div class="x_panel gencrud">
+            <div class="x_title"><h2> A form </h2>
+           <div class="clearfix"></div>
+            </div>
+
+            <div class="x_content">
+                <form action="" method="POST">
+                    {% csrf_token %}
+                    {{form.as_inline}}
+
+                    <input type="submit">
+                </form>
+
+            </div>
         </div>
-        </div>
+
+
 </div>
-</form>
+</div>
+
 {% endblock %}
+{% block js %} {{ form.media }} {% endblock %}
