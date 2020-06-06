@@ -32,6 +32,43 @@ class Command(BaseCommand):
             icon = '',
             only_icon = False
         )
+
+        extrawidget = MenuItem.objects.create(
+            parent = None,
+            title = 'Custom Widgets',
+            url_name ='/',
+            category = 'sidebar',  #sidebar, sidebarfooter,
+            is_reversed = False,
+            reversed_kwargs = None,
+            reversed_args = None,
+            is_widget = False,
+            icon = 'fa fa-home',
+            only_icon = False
+        )
+        cwidget = MenuItem.objects.create(
+            parent=extrawidget,
+            title='Form Widgets',
+            url_name='#',
+            category='sidebar',  # sidebar, sidebarfooter,
+            is_reversed=False,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-home',
+            only_icon=False
+        )
+        MenuItem.objects.create(
+            parent=cwidget,
+            title='Knob Widgets',
+            url_name='knobwidgets',
+            category='sidebar',  # sidebar, sidebarfooter,
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-home',
+            only_icon=False
+        )
         noti=MenuItem.objects.create(
             parent = item,
             title = 'Create notification',
