@@ -1,0 +1,42 @@
+{% extends 'gentelella/index.html' %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="x_panel gencrud">
+            <div class="x_title"><h2>Colors Model form</h2>
+           <div class="clearfix"></div>
+            </div>
+
+            <div class="x_content">
+                <form action="" method="POST">
+                    {% csrf_token %}
+                    {{form.as_inline}}
+
+                    <input type="submit">
+                </form>
+
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="x_panel gencrud">
+            <div class="x_title"><h2>Colors simple form</h2>  <div class="clearfix"></div></div>
+            <div class="x_content"> {{form_widgets.as_plain }}</div>
+        </div>
+    </div>
+</div>
+
+
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ block.super }}
+    {{form.media}}
+    {{form_widgets.media}}
+{% endblock %}
+
+
+

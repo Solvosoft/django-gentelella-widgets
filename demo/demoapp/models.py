@@ -60,3 +60,12 @@ class Foo(models.Model):
                                         MaxValueValidator(10)
                                     ])
 
+class Colors(models.Model):
+    color = models.CharField(max_length=150)
+    color2 = models.CharField(max_length=150)
+    color3 = models.CharField(max_length=150)
+    color4 = models.CharField(max_length=150)
+
+    def __str__(self):
+        return f"{self.color} {self.color2} {self.color3} {self.color4}"
+

@@ -6,29 +6,30 @@ from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.utils.timezone import now
 
+
 from djgentelella.forms.forms import CustomForm
 from djgentelella.widgets import core as genwidgets
 from djgentelella.widgets import numberknobinput as knobwidget
 
 
 class ExampleForm(CustomForm):
-    """  """
-   #  your_name = forms.CharField(label='Your name', max_length=100, widget=genwidgets.TextInput)
+
+    your_name = forms.CharField(label='Your name', max_length=100, widget=genwidgets.TextInput)
+
+    your_age = forms.IntegerField(widget=genwidgets.NumberInput(attrs={'min_value':2, 'max_value': 8}) )
+    your_email = forms.EmailField(widget=genwidgets.EmailInput)
+    your_url = forms.URLField(widget=genwidgets.URLInput)
+    your_pass = forms.CharField(widget=genwidgets.PasswordInput)
+
+    #your_file = forms.FileField(widget=genwidgets.FileInput)
+    your_area = forms.CharField(widget=genwidgets.Textarea, max_length = 50)
+    your_date = forms.DateField(widget=genwidgets.DateInput)
+    your_datetime = forms.DateTimeField(widget=genwidgets.DateTimeInput)
+    your_daterange = forms.CharField(widget=genwidgets.DateRangeInput)
    #
-   #  your_age = forms.IntegerField(widget=genwidgets.NumberInput(attrs={'min_value':2, 'max_value': 8}) )
-   #  your_email = forms.EmailField(widget=genwidgets.EmailInput)
-   #  your_url = forms.URLField(widget=genwidgets.URLInput)
-   #  your_pass = forms.CharField(widget=genwidgets.PasswordInput)
    #
-   #  #your_file = forms.FileField(widget=genwidgets.FileInput)
-   #  your_area = forms.CharField(widget=genwidgets.Textarea, max_length = 50)
-   #  your_date = forms.DateField(widget=genwidgets.DateInput)
-   #  your_datetime = forms.DateTimeField(widget=genwidgets.DateTimeInput)
-   #  your_daterange = forms.CharField(widget=genwidgets.DateRangeInput)
-   #
-   #
-   # # your_time = forms.TimeField(widget=genwidgets.TimeInput(attrs={'arrow': True}))
-   #  your_check = forms.BooleanField(widget=genwidgets.CheckboxInput)
+    your_time = forms.TimeField(widget=genwidgets.TimeInput(attrs={'arrow': True}))
+    your_check = forms.BooleanField(widget=genwidgets.CheckboxInput)
    #
    #
    #  your_nullboolean = forms.NullBooleanField(widget=genwidgets.NullBooleanSelect)
@@ -77,11 +78,11 @@ class ExampleForm(CustomForm):
    #
    #      super().__init__(*args, **kwargs)
 
-    # your_phone = forms.CharField(widget=genwidgets.PhoneNumberMaskInput)
-    # your_boolean = forms.BooleanField(widget=genwidgets.YesNoInput)
-    # your_datemask = forms.DateField(widget=genwidgets.DateMaskInput)
-    # your_datetimeMask  = forms.DateTimeField(widget=genwidgets.DateTimeMaskInput)
-    # you_emailmask = forms.EmailField(widget=genwidgets.EmailMaskInput)
+    your_phone = forms.CharField(widget=genwidgets.PhoneNumberMaskInput)
+    your_boolean = forms.BooleanField(widget=genwidgets.YesNoInput)
+    your_datemask = forms.DateField(widget=genwidgets.DateMaskInput)
+    your_datetimeMask  = forms.DateTimeField(widget=genwidgets.DateTimeMaskInput)
+    you_emailmask = forms.EmailField(widget=genwidgets.EmailMaskInput)
 
     #your_daterangeinput = forms.CharField(widget=genwidgets.DateRangeInput)
     # your_knobinput = forms.IntegerField(widget=genwidgets.NumberKnobInput(
@@ -105,15 +106,18 @@ class ExampleForm(CustomForm):
     #     attrs={'add_url': reverse_lazy('add_view_select')}))
 
     #your_wysiwyg = forms.CharField(widget=genwidgets.TextareaWysiwyg)
-    your_file = forms.FileField(
-        widget=genwidgets.FileInput
-    )
+
+    # text_6 = forms.CharField(
+    #     widget=ColorInput
+    # )
+    # text_7 = forms.CharField(
+    #     widget=ColorInput
+    # )
+
 
     your_age = forms.IntegerField(
         widget=knobwidget.NumberKnobInput(attrs={"value": 5, "data-min":1, "data-max":10})
     )
-
-
 
 def home(request):
     form = ExampleForm()
