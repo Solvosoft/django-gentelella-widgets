@@ -20,6 +20,42 @@ class Command(BaseCommand):
             icon = 'fa fa-home',
             only_icon = False
         )
+        blog = MenuItem.objects.create(
+            parent = None,
+            title = 'Blog',
+            url_name ='/',
+            category = 'sidebar',  #sidebar, sidebarfooter,
+            is_reversed = False,
+            reversed_kwargs = None,
+            reversed_args = None,
+            is_widget = False,
+            icon = 'fa fa-edit',
+            only_icon = False
+        )
+        blogentry = MenuItem.objects.create(
+            parent = blog,
+            title = 'Blog entries',
+            url_name ='blog:entrylist',
+            category = 'sidebar',  #sidebar, sidebarfooter,
+            is_reversed = True,
+            reversed_kwargs = None,
+            reversed_args = None,
+            is_widget = False,
+            icon = 'fa fa-build',
+            only_icon = False
+        )
+        blogentry = MenuItem.objects.create(
+            parent = blog,
+            title = 'Create  entry',
+            url_name ='blog:entrycreate',
+            category = 'sidebar',  #sidebar, sidebarfooter,
+            is_reversed = True,
+            reversed_kwargs = None,
+            reversed_args = None,
+            is_widget = False,
+            icon = 'fa fa-build',
+            only_icon = False
+        )
         item = MenuItem.objects.create(
             parent = item,
             title = 'Dashboard',

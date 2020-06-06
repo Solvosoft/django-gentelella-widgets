@@ -40,7 +40,9 @@ INSTALLED_APPS = [
     'djgentelella',
     'mptt',
     'chunked_upload',
-    'demoapp'
+    'demoapp',
+    'djgentelella.blog',
+    'markitup',
 ]
 
 MIDDLEWARE = [
@@ -132,3 +134,7 @@ DATETIME_INPUT_FORMATS = [
 STATIC_URL = '/static/'
 EMAIL_HOST = 'localhost'
 EMAIL_PORT = '1025'
+
+MARKITUP_FILTER = ('markdown.markdown', {'safe_mode': True})
+MARKITUP_SET = 'markitup/sets/markdown/'
+JQUERY_URL = None

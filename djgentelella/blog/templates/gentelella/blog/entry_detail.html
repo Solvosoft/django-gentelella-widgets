@@ -1,0 +1,35 @@
+{% extends 'gentelella/base_site.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="x_panel " xmlns="http://www.w3.org/1999/html">
+    <div class="x_title"><h2>{{ entry.title }}
+        {% if not entry.is_published %}<small> <span class="badge"> {% trans 'Draf' %}</span></small>{% endif %}
+    </h2>
+    <ul class="nav navbar-right panel_toolbox ">
+        {% if request.user == entry.author %}
+        <li> <a class="close-link" href="{{ entry.get_absolute_url }}?preview=True" title="{% trans 'This show the last version of the entry (it\'s not necesary the last published entry)' %}"> <i class="fa fa-binoculars blue"></i></a></li>
+        {% endif %}
+
+        {% if perms.blog.change_entry %}
+        <li><a class="close-link" href="{% url 'blog:entry_update' entry.pk %}"><i class="fa fa-edit blue"></i></a></li>
+        {% endif %}
+        {% if perms.blog.delete_entry %}
+        <li><a class="close-link" href="{% url 'blog:entry_delete' entry.pk %}"><i class="fa fa-close red"></i></a></li>
+        {% endif %}
+    </ul>
+        <div class="clearfix"></div>
+    </div>
+        <div class="x_content">
+
+
+        <p class="blog-post-meta">{{ entry.published_timestamp|date:"DATE_FORMAT" }}{% if entry.author %} by {{ entry.author }}{% endif %}</p>
+            {% if draft %}
+            {{ entry.content }}
+            {% else %}
+            {{ entry.published_content|safe }}
+            {% endif %}
+        </div>
+</div>
+
+{% endblock %}
