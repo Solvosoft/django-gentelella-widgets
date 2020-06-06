@@ -2,7 +2,6 @@ from django.contrib import admin
 
 # Register your models here.
 from mptt.admin import DraggableMPTTAdmin
-from demoapp.models import Foo
 from djgentelella.models import MenuItem, Help, GentelellaSettings, Notification
 
 
@@ -22,4 +21,3 @@ admin.site.register(MenuItem, MenuAdmin)
 admin.site.register(Help)
 admin.site.register(GentelellaSettings, GentelellaSettingsAdmin)
 admin.site.register(Notification, NotificationAdmin)
-admin.site.register(Foo)
