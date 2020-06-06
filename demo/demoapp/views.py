@@ -33,7 +33,7 @@ def knobView(request):
             form.save()
             form = FooModelForm()
             
-    return render(request, 'form.html', {'form': form})
+    return render(request, 'knobs-form.html', {'form': form})
 
 def color_widget_view(request):
     form_widgets = SimpleColorForm()
