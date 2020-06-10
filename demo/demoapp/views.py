@@ -45,3 +45,7 @@ def color_widget_view(request):
     return render(request, 'index-color.html', {'form': form,
                                                 "form_widgets": form_widgets})
 
+
+
+def select_sever_view(request):
+    return render(request, 'server_selects.html')

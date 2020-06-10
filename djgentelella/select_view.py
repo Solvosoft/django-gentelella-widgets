@@ -1,5 +1,6 @@
 from collections import OrderedDict
 
+from django.db.models import Q
 from rest_framework import mixins, viewsets
 from rest_framework import generics
 from rest_framework import serializers
@@ -63,7 +64,20 @@ class GModelLookup(generics.ListAPIView, viewsets.GenericViewSet):
     serializer_class = GSerializerBase
     id_field = 'pk'
 
+    def filter_data(self, queryset, q):
+        filters = None
+        for field in self.fields:
+            if filters is None:
+                filters = Q(**{field + '__icontains': q})
+            else:
+                filters |= Q(**{field+'__icontains': q})
+        return queryset.filter(filters)
 
+    def filter_queryset(self, queryset):
+        q=self.request.GET.get('q', '')
+        if q and self.fields:
+            queryset = self.filter_data(queryset, q)
+        return queryset
     def get_queryset(self):
         assert self.model is not None, (
             "'%s' should either include a `model` attribute, "
