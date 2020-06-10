@@ -33,6 +33,29 @@ The custom command createdemo, create in the sidebar two buttons to create notif
             only_icon = False
         )
 
+.. image:: https://user-images.githubusercontent.com/20632410/84221770-3a1b3f00-aa93-11ea-9546-2c3e9d337d65.png
+
+Also create a widget in the top navbar right side corner in wich we can access a modal with notifications when we hit the email icon
+
+.. image:: https://user-images.githubusercontent.com/20632410/84221507-9f226500-aa92-11ea-977f-f762083d5d38.png
+
+with the following code
+
+.. code:: python
+
+   item = MenuItem.objects.create(
+       parent = None,
+       title = 'top_navigation',
+       url_name ='djgentelella.notification.widgets.NotificationMenu',
+       category = 'main',
+       is_reversed = False,
+       reversed_kwargs = None,
+       reversed_args = reverse('notifications'),
+       is_widget = True,
+       icon = 'fa fa-envelope',
+       only_icon = False
+   )
+
 Then from the djgentelella.notication the create_notification subrutine must be imported.
 Also the user must be login in order to use this feature, as notification require a user
 to be registered, and also for the second case in which we wish to sent a email.
