@@ -12,6 +12,7 @@ Welcome to Django gentelella widgets's documentation!
 
    demo
    notifications
+   pallete
    templates
    forms
    widgets
