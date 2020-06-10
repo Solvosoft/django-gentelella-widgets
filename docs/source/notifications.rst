@@ -35,11 +35,8 @@ The custom command createdemo, create in the sidebar two buttons to create notif
 
 .. image:: https://user-images.githubusercontent.com/20632410/84221770-3a1b3f00-aa93-11ea-9546-2c3e9d337d65.png
 
+
 Also create a widget in the top navbar right side corner in wich we can access a modal with notifications when we hit the email icon.
-
-.. image:: https://user-images.githubusercontent.com/20632410/84221507-9f226500-aa92-11ea-977f-f762083d5d38.png
-
-with the following code
 
 .. code:: python
 
@@ -56,8 +53,14 @@ with the following code
        only_icon = False
    )
 
-Then to implement this feature we must import from the djgentelella.notication the create_notification subrutine.
-In the view we must require the user as his account and email are required to create notifications and send emails.
+.. image:: https://user-images.githubusercontent.com/20632410/84221507-9f226500-aa92-11ea-977f-f762083d5d38.png
+
+
+
+This feature use djgentelella.notication.create_notification subrutine.
+In order to create notifications the user must be provided, as the notifications are relate to his account
+and sometimes his email will be required.
+
 
 .. code:: python
 
@@ -81,3 +84,15 @@ In the view we must require the user as his account and email are required to cr
        return redirect("/")
 
 The Notification model comes from djgentelella app model.
+
+
+You can also modify the default email subject and template name used to render the email
+in the settings file, just overwriting 'NOTIFICATION_DEFAULT_SUBJECT' and 'NOTIFICATION_DEFAULT_TEMPLATE'
+variables
+
+.. code:: python
+
+   NOTIFICATION_DEFAULT_SUBJECT = getattr(settings, 'NOTIFICATION_DEFAULT_SUBJECT',
+                                     _('You have a new notification'))
+   NOTIFICATION_DEFAULT_TEMPLATE = getattr(settings, 'NOTIFICATION_DEFAULT_TEMPLATE',
+                                     'gentelella/email/notification.html')
