@@ -27,5 +27,6 @@ urlpatterns = djgentelellaurls + [
     path('logueado', logeado),
     path('dashboard', show_top_counts, name='dashboard'),
     path('add_view_select', add_view_select, name='add_view_select'),
-    path('blog/', include('djgentelella.blog.urls'))
+    path('blog/', include('djgentelella.blog.urls')),
+
 ] + demourls

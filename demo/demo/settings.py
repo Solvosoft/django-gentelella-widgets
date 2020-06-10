@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'djgentelella',
+    'rest_framework',
     'mptt',
     'chunked_upload',
     'demoapp',

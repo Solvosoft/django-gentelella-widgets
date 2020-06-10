@@ -1,12 +1,14 @@
 from django.core.management import BaseCommand
 from django.urls import reverse
 
+from demoapp.models import Country
 from djgentelella.models import MenuItem
 
 class Command(BaseCommand):
     help = "Load demo site structure"
 
-    def handle(self, *args, **options):
+    def create_menu(self):
+
         MenuItem.objects.all().delete()
         item = MenuItem.objects.create(
             parent = None,
@@ -215,3 +217,20 @@ class Command(BaseCommand):
             icon = 'fa fa-envelope',
             only_icon = False
         )
+
+    def create_countries(self):
+        Country.objects.all().delete()
+        data=[
+            Country(name="Costa Rica"),
+            Country(name="Panamá"),
+            Country(name="Nicaragua"),
+            Country(name="El Salvador"),
+            Country(name="Guatemala"),
+            Country(name="Hondura"),
+            Country(name="Belize"),
+        ]
+        Country.objects.bulk_create(data)
+
+    def handle(self, *args, **options):
+        self.create_menu()
+        self.create_countries()
