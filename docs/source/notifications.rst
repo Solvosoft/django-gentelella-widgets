@@ -86,9 +86,7 @@ and sometimes his email will be required.
 The Notification model comes from djgentelella app model.
 
 
-You can also modify the default email subject and template name used to render the email
-in the settings file, just overwriting 'NOTIFICATION_DEFAULT_SUBJECT' and 'NOTIFICATION_DEFAULT_TEMPLATE'
-variables
+You can also modify 'NOTIFICATION_DEFAULT_SUBJECT' and 'NOTIFICATION_DEFAULT_TEMPLATE' variables in the settings file.
 
 .. code:: python
 
