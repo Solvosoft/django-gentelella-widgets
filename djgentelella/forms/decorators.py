@@ -42,8 +42,10 @@ def _form_instance(fnc, instance):
         return fnc(instance)
     return new_fnc
 
-def decore_form_instance(form_instance):
+def decore_form_instance(form_instance, exclude=()):
     for field in form_instance.fields:
+        if field in exclude:
+            continue
         if type(form_instance.fields[field]) in [treeforms.TreeNodeChoiceField,
                                                  treeforms.TreeNodeMultipleChoiceField]:
             decore_treenode(form_instance, field)
