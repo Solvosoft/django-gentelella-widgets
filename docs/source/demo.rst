@@ -2,7 +2,7 @@
 Demo web site
 ===============
 
-In order to execute the demo WEB site in which django-gentelella is implemented you must follow these steps:
+To execute the demo WEB site in which django-gentelella is implemented you must follow these steps:
 
 From the terminal after cloned the repository.
 
@@ -19,13 +19,13 @@ From the terminal after cloned the repository.
 
    $ pip install -r requirements.txt
 
-3. Then in django-gentelella-widgets/demo directory you must execute django migrate command:
+3. Then in django-gentelella-widgets/demo directory, you must execute Django migrate command:
 
 .. code-block:: bash
 
    $ python manage.py migrate
 
-4. Load the side bar menu with this custom command:
+4. Load the sidebar menu with this custom command:
 
 .. code-block:: bash
 

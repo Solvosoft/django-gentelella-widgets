@@ -4,7 +4,7 @@ Notifications Menu
 
 How it works ??
 
-The custom command createdemo, create in the sidebar two buttons to create notifications the second button can sent emails.
+The custom command 'createdemo' create in the sidebar two buttons to create notifications the second button can send emails.
 
 .. code:: python
 
@@ -37,7 +37,7 @@ The custom command createdemo, create in the sidebar two buttons to create notif
    :align: center
 
 
-Also create a widget in the top navbar right side corner in wich we can access a modal with notifications when we hit the email icon.
+Also, create a widget in the top navbar right side corner in which we can access a modal with notifications when we hit the email icon.
 
 .. code:: python
 
@@ -59,8 +59,8 @@ Also create a widget in the top navbar right side corner in wich we can access a
 
 
 This feature use djgentelella.notication.create_notification subrutine.
-In order to create notifications the user must be provided, as the notifications are relate to his account
-and sometimes his email will be required.
+To create notifications the user must be provided, as the notifications
+are related to his account and sometimes his email will be required.
 
 
 .. code:: python
