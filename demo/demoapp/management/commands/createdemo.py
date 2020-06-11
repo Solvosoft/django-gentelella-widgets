@@ -198,7 +198,7 @@ class Command(BaseCommand):
             category = 'sidebarfooter',
             is_reversed = False,
             reversed_kwargs = None,
-            reversed_args = None,
+            reversed_args = reverse('help'),
             is_widget = True,
             icon = 'fa fa-envelope-o',
             only_icon = True
