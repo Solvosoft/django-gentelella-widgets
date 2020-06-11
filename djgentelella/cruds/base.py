@@ -440,6 +440,7 @@ class CRUDView(object):
             template_father = self.template_father
             template_blocks = self.template_blocks
             related_fields = self.related_fields
+            form_widget_exclude = self.form_widget_exclude
 
             def form_valid(self, form):
                 if not self.related_fields:
