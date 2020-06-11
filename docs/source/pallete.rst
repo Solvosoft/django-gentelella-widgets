@@ -2,15 +2,15 @@
 Pallete widget
 ===============
 
-It is a kind of helper, that is located at bottom left had side corner, with a mail icon.
-This widget is used to add description for each input field in the different displayed forms of the views.
-When we hit the mail icon the helper modal is displayed.
+It is a kind of helper, that is located at the bottom left-hand side corner, with a mail icon.
+This widget is used to add a description for each input field in the different displayed forms
+of the views. When we hit the mail icon the helper modal is displayed.
 
 .. image:: _static/pallete-modal.png
 
 
-The help button appears at the left side of the label in each input field as question mark,
-when we hit the show button in the helper modal.
+The help button appears at the left side of the label for each input field
+as a question mark, when we hit the show button in the helper modal.
 
 .. image:: _static/pallete-input-modal.png
 
