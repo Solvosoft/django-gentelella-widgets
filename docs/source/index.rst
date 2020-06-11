@@ -13,6 +13,7 @@ Welcome to Django gentelella widgets's documentation!
    demo
    notifications
    pallete
+   blog
    templates
    forms
    widgets
