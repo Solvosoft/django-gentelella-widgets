@@ -33,7 +33,8 @@ The custom command createdemo, create in the sidebar two buttons to create notif
             only_icon = False
         )
 
-.. image:: https://user-images.githubusercontent.com/20632410/84221770-3a1b3f00-aa93-11ea-9546-2c3e9d337d65.png
+.. image:: _static/email-buttons.png
+   :align: center
 
 
 Also create a widget in the top navbar right side corner in wich we can access a modal with notifications when we hit the email icon.
@@ -53,8 +54,8 @@ Also create a widget in the top navbar right side corner in wich we can access a
        only_icon = False
    )
 
-.. image:: https://user-images.githubusercontent.com/20632410/84221507-9f226500-aa92-11ea-977f-f762083d5d38.png
 
+.. image:: _static/email-widget.png
 
 
 This feature use djgentelella.notication.create_notification subrutine.
