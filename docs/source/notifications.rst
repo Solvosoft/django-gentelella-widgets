@@ -15,5 +15,7 @@ Then to use notification you must use create_notification function.
 .. automodule:: djgentelella.notification.create_notification
    :members:
 
+You can also add a widget to handle notifications from navbar.
 
-You can also modify 'NOTIFICATION_DEFAULT_SUBJECT' and 'NOTIFICATION_DEFAULT_TEMPLATE' variables in the settings file.
+.. automodule:: djgentelella.notification.widgets
+   :members:
