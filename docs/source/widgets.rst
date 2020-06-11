@@ -35,4 +35,10 @@ Django Gentelella use MTPP for tree database representations
 .. automodule:: djgentelella.widgets.trees
    :members:
 
+Notification widget
+^^^^^^^^^^^^^^^^^^^
+This widget allows to store and send email notifications
+.. automodule:: djgentelella.notification.widgets
+   :members:
+
 Not all widgets are good supported yet.
