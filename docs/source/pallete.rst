@@ -6,13 +6,13 @@ It is a kind of helper, that is located at bottom left had side corner, with a m
 This widget is used to add description for each input field in the different displayed forms of the views.
 When we hit the mail icon the helper modal is displayed.
 
-.. image:: https://user-images.githubusercontent.com/20632410/84224020-b95f4180-aa98-11ea-97a3-947fc465053c.png
+.. image:: _static/pallete-modal.png
 
 
 The help button appears at the left side of the label in each input field as question mark,
 when we hit the show button in the helper modal.
 
-.. image:: https://user-images.githubusercontent.com/20632410/84223921-77360000-aa98-11ea-9710-a5c3ce66c07e.png
+.. image:: _static/pallete-input-modal.png
 
 How to implement it ??
 
