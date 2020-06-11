@@ -313,6 +313,7 @@ class CRUDView(object):
     related_fields = None
     list_filter = None
     mixin = CRUDMixin
+    form_widget_exclude = []
 
     """
     It's obligatory this structure
@@ -367,6 +368,7 @@ class CRUDView(object):
             template_father = self.template_father
             template_blocks = self.template_blocks
             related_fields = self.related_fields
+            form_widget_exclude = self.form_widget_exclude
 
             def form_valid(self, form):
                 if not self.related_fields:
@@ -386,7 +388,7 @@ class CRUDView(object):
 
             def get_form(self):
                 form = super().get_form()
-                form = decore_form_instance(form)
+                form = decore_form_instance(form, exclude=self.form_widget_exclude)
                 return form
 
         return OCreateView
@@ -410,6 +412,7 @@ class CRUDView(object):
             template_father = self.template_father
             template_blocks = self.template_blocks
             related_fields = self.related_fields
+            form_widget_exclude = self.form_widget_exclude
 
             def get_success_url(self):
                 url = super(ODetailView, self).get_success_url()
@@ -437,6 +440,7 @@ class CRUDView(object):
             template_father = self.template_father
             template_blocks = self.template_blocks
             related_fields = self.related_fields
+            form_widget_exclude = self.form_widget_exclude
 
             def form_valid(self, form):
                 if not self.related_fields:
@@ -455,7 +459,7 @@ class CRUDView(object):
                 return url
             def get_form(self):
                 form = super().get_form()
-                form = decore_form_instance(form)
+                form = decore_form_instance(form, exclude=self.form_widget_exclude)
                 return form
         return OEditView
 

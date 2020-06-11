@@ -10,7 +10,6 @@
             type : "GET",
             dataType : 'json',
             success : function(result) {
-               console.log(result);
                var ctx = canvas[0].getContext('2d');
                var myChart = new Chart(ctx, result);
 
