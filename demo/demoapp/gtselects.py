@@ -1,10 +1,10 @@
-from demoapp.models import Country
+from demoapp.models import Person
 from djgentelella.groute import register_lookups
 from djgentelella.select_view import GModelLookup
 
 
-@register_lookups(prefix="hola", basename="luisza")
+@register_lookups(prefix="person", basename="personbasename")
 class PersonGModelLookup(GModelLookup):
-    model = Country
-    fields = ['pk', 'name']
+    model = Person
+    fields = ['name']
     #queryset = Person.objects.none()

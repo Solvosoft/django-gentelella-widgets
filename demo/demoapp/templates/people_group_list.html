@@ -1,0 +1,12 @@
+{% extends 'gentelella/base.html' %}
+
+{% block content %}
+
+<div class="container">
+    <ul>
+    {% for obj in object_list %}
+        <li>{{obj}} <a href="{% url '' %}">edit</a></li>
+    {% endfor %}
+    </ul>
+</div>
+{% endblock %}

@@ -13,9 +13,7 @@ from djgentelella.widgets import numberknobinput as knobwidget
 
 
 class ExampleForm(CustomForm):
-
     your_name = forms.CharField(label='Your name', max_length=100, widget=genwidgets.TextInput)
-
     your_age = forms.IntegerField(widget=genwidgets.NumberInput(attrs={'min_value':2, 'max_value': 8}) )
     your_email = forms.EmailField(widget=genwidgets.EmailInput)
     your_url = forms.URLField(widget=genwidgets.URLInput)
