@@ -599,7 +599,11 @@ function init_selects(){
         leme.select2({
           ajax: {
             url: url,
-            dataType: 'json'
+            dataType: 'json',
+            data: function (params) {
+                  params['selected']=leme.find(':selected').val()
+                  return params;
+            }
           }
         });
     });
