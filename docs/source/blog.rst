@@ -1,3 +1,6 @@
+
+
+
 ===============
 Blog app
 ===============
@@ -5,7 +8,16 @@ Blog app
 **How to install this app??**
 
 To install this app first you need to add 'djgentelella.blog' to INSTALLED_APPS in the settings file.
-Then you must add urls to urls.py as follow:
+
+.. code:: python
+
+   INSTALLED_APPS = [
+       ...
+       'djgentelella.blog'
+  ]
+
+
+Then you must add URLs to urls.py as follow:
 
 .. code:: python
 
@@ -15,22 +27,13 @@ Then you must add urls to urls.py as follow:
 
 
 
-.. code:: python
+The URL-name of the view is **'blog:entrylist'.**
+Here you can preview the entries and updated them,
+this view offers a brief description of the entry,
+as you can see the title and a resumen for each entry.
 
-   blog = MenuItem.objects.create(
-       parent = None,
-       title = 'Blog',
-       url_name ='/',
-       category = 'sidebar',  #sidebar, sidebarfooter,
-       is_reversed = False,
-       reversed_kwargs = None,
-       reversed_args = None,
-       is_widget = False,
-       icon = 'fa fa-edit',
-       only_icon = False
-   )
 
-You can also add an element to add new entries to the blog.
+In the demo example the command 'createdemo' insert an element that redirects to this view with the following code:
 
 .. code:: python
 
@@ -47,12 +50,10 @@ You can also add an element to add new entries to the blog.
        only_icon = False
    )
 
-This element redirect to the entry list view of the blog app.
 
 
-
-
-You can also add an elements to add new entries to the blog.
+The second view of this app is, **'blog:entrycreate'** in which you will able to create new entries.
+The following code in the 'createdemo' command of the demo inserts an element in the sidebar that redirect to this view.
 
 .. code:: python
 
