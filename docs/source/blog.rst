@@ -13,7 +13,7 @@ Then you must add urls to urls.py as follow:
        path('blog/', include('djgentelella.blog.urls'))
    ]
 
-You can also add buttons to access this blog.
+
 
 .. code:: python
 
@@ -30,6 +30,10 @@ You can also add buttons to access this blog.
        only_icon = False
    )
 
+You can also add an element to add new entries to the blog.
+
+.. code:: python
+
    blogentry = MenuItem.objects.create(
        parent = blog,
        title = 'Blog entries',
@@ -43,6 +47,15 @@ You can also add buttons to access this blog.
        only_icon = False
    )
 
+This element redirect to the entry list view of the blog app.
+
+
+
+
+You can also add an elements to add new entries to the blog.
+
+.. code:: python
+
    blogentry = MenuItem.objects.create(
        parent = blog,
        title = 'Create  entry',
@@ -55,3 +68,8 @@ You can also add buttons to access this blog.
        icon = 'fa fa-build',
        only_icon = False
    )
+
+
+.. image:: _static/blog-entry-1.png
+
+.. image:: _static/blog-entry-2.png

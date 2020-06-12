@@ -17,7 +17,7 @@ We can see, add, modify, and delete descriptions for each field.
 
 You must create MenuItem as follow:
 
-*Note: the only place in which this widget can be place is in the sidebar.*
+*Note: the only place in which this widget can be place is in the sidebar footer.*
 
 .. code:: python
 
