@@ -30,4 +30,4 @@ You can add this widget in a *IntegerField* or *FloatField.*
             'age': knobwidget.NumberKnobInput()
        }
 
-As you can see in the previous code you can add min, max and step increment values.
+As you can see in the previous code you can add min, max values as also a step increment.
