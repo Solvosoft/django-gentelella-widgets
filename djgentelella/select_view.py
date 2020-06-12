@@ -49,10 +49,16 @@ class GSerializerBase(serializers.Serializer):
     def get_text(self, obj):
         return self.view.get_text_display(obj)
 
+    def get_selected(self, obj):
+        return self.view.get_selected_display(obj)
+
+    def get_disabled(self, obj):
+        return self.view.get_disabled_display(obj)
+
     id = serializers.SerializerMethodField()
     text = serializers.SerializerMethodField()
-    #disabled = serializers.BooleanField(source='get_disabled_display',default=False)
-    #selected = serializers.BooleanField(source='get_selected_display', default=True)
+    disabled = serializers.SerializerMethodField()
+    selected = serializers.SerializerMethodField()
 
 
 
@@ -74,10 +80,12 @@ class GModelLookup(generics.ListAPIView, viewsets.GenericViewSet):
         return queryset.filter(filters)
 
     def filter_queryset(self, queryset):
-        q=self.request.GET.get('q', '')
+        q=self.request.GET.get('term', '')
+        self.selected = self.request.GET.get('selected', '').split(',')
         if q and self.fields:
-            queryset = self.filter_data(queryset, q)
+                queryset = self.filter_data(queryset, q)
         return queryset
+
     def get_queryset(self):
         assert self.model is not None, (
             "'%s' should either include a `model` attribute, "
@@ -95,7 +103,7 @@ class GModelLookup(generics.ListAPIView, viewsets.GenericViewSet):
             view = self
             class Meta:
                 model = self.model
-                fields = ['id', 'text']
+                fields = ['id', 'text', 'disabled', 'selected']
         return S
 
     def get_field_value(self, obj, name, func=None):
@@ -115,3 +123,14 @@ class GModelLookup(generics.ListAPIView, viewsets.GenericViewSet):
             fields = [self.get_field_value(obj, x, str) for x in self.fields]
             return " ".join(fields)
         return str(obj)
+
+    def get_selected_display(self, obj):
+        iid = str(self.get_id_display(obj))
+        return iid in self.selected
+
+
+    def get_selected(self, obj):
+        return self.view.get_selected_display(obj)
+
+    def get_disabled_display(self, obj):
+        return False
