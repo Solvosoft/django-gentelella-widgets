@@ -14,6 +14,7 @@ Welcome to Django gentelella widgets's documentation!
    notifications
    pallete
    blog
+   color
    templates
    forms
    widgets
