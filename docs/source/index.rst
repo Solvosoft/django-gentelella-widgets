@@ -16,6 +16,7 @@ Welcome to Django gentelella widgets's documentation!
    blog
    color
    elements
+   knob
    templates
    forms
    widgets
