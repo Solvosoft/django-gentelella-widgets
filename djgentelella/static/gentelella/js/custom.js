@@ -592,6 +592,17 @@ function init_selects(){
     $('[data-widget="TreeSelectWithAdd"]').select2({templateResult: decore_select2});
     $('[data-widget="TreeSelectMultiple"]').select2({templateResult: decore_select2});
     $('[data-widget="TreeSelectMultipleWithAdd"]').select2({templateResult: decore_select2});
+
+    $('[data-widget="AutocompleteSelect"]').each(function(index, elem){
+        var leme = $(elem);
+        var url = leme.data('url');
+        leme.select2({
+          ajax: {
+            url: url,
+            dataType: 'json'
+          }
+        });
+    });
 };
 
 function init_imask(){

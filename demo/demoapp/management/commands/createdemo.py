@@ -1,7 +1,10 @@
+from random import randint
+
 from django.core.management import BaseCommand
 from django.urls import reverse
+from django.utils.timezone import now
 
-from demoapp.models import Country
+from demoapp.models import Country, Person
 from djgentelella.models import MenuItem
 
 class Command(BaseCommand):
@@ -143,6 +146,32 @@ class Command(BaseCommand):
             icon = 'fa fa-power-off',
             only_icon = False
         )
+
+        MenuItem.objects.create(
+            parent = item,
+            title = 'People group',
+            url_name ='pgroup-list',
+            category = 'sidebar',  #sidebar, sidebarfooter,
+            is_reversed = True,
+            reversed_kwargs = None,
+            reversed_args = None,
+            is_widget = False,
+            icon = 'fa fa-power-off',
+            only_icon = False
+        )
+        MenuItem.objects.create(
+            parent = item,
+            title = 'People group create',
+            url_name ='pgroup-add',
+            category = 'sidebar',  #sidebar, sidebarfooter,
+            is_reversed = True,
+            reversed_kwargs = None,
+            reversed_args = None,
+            is_widget = False,
+            icon = 'fa fa-power-off',
+            only_icon = False
+        )
+
         MenuItem.objects.create(
             parent = item,
             title = 'Country list',
@@ -231,6 +260,17 @@ class Command(BaseCommand):
         ]
         Country.objects.bulk_create(data)
 
+    def create_person(self):
+        for x in range(10):
+            Person.objects.create(
+                name = "Person "+str(x),
+                num_children = randint(1, 10),
+                country = Country.objects.all().order_by('?').first(),
+                born_date = now(),
+                last_time = now()
+            )
+
     def handle(self, *args, **options):
         self.create_menu()
         self.create_countries()
+        self.create_person()
