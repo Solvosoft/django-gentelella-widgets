@@ -10,10 +10,18 @@ Welcome to Django gentelella widgets's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   demo
+   notifications
+   pallete
+   blog
+   elements
+   knob
+   color
    templates
    forms
    widgets
    crud
+
 
 Indices and tables
 ==================
