@@ -3,7 +3,11 @@
 {% load crud_tags %}
 
 {{ form.media }}
-
+<style>
+.box-body > div > .form-control {
+    margin-bottom: 10px !important;
+}
+</style>
 
 <form
     id="{{name}}_{{object.pk}}_addedit"
@@ -17,22 +21,22 @@
     {% csrf_token %}
     <div class="box-body row">
         <div class="col-md-12">
-  {{ form  }}
+            {{ form  }}
         </div>
     </div>
 
 
     <div class="box-footer">
         <div class="form-group">
-            <div class="controls">
-                <button
-                    id="{{name}}_{{object.pk}}_addedit_submit"
-                    type="submit"
-                    class="btn btn-primary">{% trans "Submit" %}</button>
+            <div class="controls text-right">
                 <a href="javascript::void(0);"
                     onclick="$('#{{name}}_editList').html('');"
                     class="btn btn-danger"
-                    data-dismiss="modal">{% trans "Cancel" %}</a>
+                    data-dismiss="modal">{% icon_fa_tag "cancel" %} {% trans "Cancel" %}</a>
+                <button
+                    id="{{name}}_{{object.pk}}_addedit_submit"
+                    type="submit"
+                    class="btn btn-success">{% icon_fa_tag "submit" %} {% trans "Submit" %}</button>
             </div>
         </div>
     </div>
