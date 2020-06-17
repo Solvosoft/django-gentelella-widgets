@@ -31,7 +31,7 @@
                       <a data-ajax="" data-success="function(){}"
                         id="#{{ name }}_{{ object.pk }}_show"
                         data-replace-inner="#{{name}}_editList"
-                        href="{{ url }}" class="btn btn-success">{% trans "Show" %}</a>
+                        href="{{ url }}" class="btn btn-success btn-xs">{% trans "Show" %}</a>
                     {% endif %}
 
                     {%  crud_inline_url base_model object 'update' namespace as url  %}
@@ -39,8 +39,7 @@
                       <a data-ajax="" data-success="function(){}"
                         id="#{{ name }}_{{ object.pk }}_edit"
                         data-replace-inner="#edit_modal_inner"
-                        href="{{ url }}"
-                        class="btn btn-primary">
+                        href="{{ url }}" class="btn btn-primary btn-xs">
                         {% trans "Edit" %}</a>
                     {% endif %}
 
@@ -51,7 +50,7 @@
                         id="#{{ name }}_{{ object.pk }}_delete"
                         data-replace-inner="#delete_modal_inner"
                         href="{{ url }}"
-                        class="btn btn-danger">{% trans "Delete" %}</a>
+                        class="btn btn-danger btn-xs">{% trans "Delete" %}</a>
                     {% endif %}
                 </td>
               </tr>
