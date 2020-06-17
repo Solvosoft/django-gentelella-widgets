@@ -1,6 +1,6 @@
 {% extends template_father %}
 {% load i18n %}
-
+{% load crud_tags %}
 {% block content %}
 
 <div class="x_panel gencrud">
@@ -29,7 +29,7 @@
     {% csrf_token %}
 
     <p>
-      <button type="submit" class="btn btn-danger">{% trans "Confirm remove" %}</button>
+      <button type="submit" class="btn btn-danger">{% icon_fa_tag "delete" %} {% trans "Confirm remove" %}</button>
     </p>
   </form>
 </div>

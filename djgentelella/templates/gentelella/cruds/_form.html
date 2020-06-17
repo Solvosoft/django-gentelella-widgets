@@ -20,9 +20,9 @@
         <div class="form-group">
             <div class="controls text-right">
                 {% if url_delete %}
-                    <a href="{{ url_delete }}" class="btn btn-danger">{% trans "Delete" %}</a>
+                    <a href="{{ url_delete }}" class="btn btn-danger">{% icon_fa_tag "delete" %} {% trans "Delete" %}</a>
                 {% endif %}
-                <button type="submit" class="btn btn-primary">{% trans "Submit" %}</button>
+                <button type="submit" class="btn btn-success">{% icon_fa_tag "submit" %} {% trans "Submit" %}</button>
             </div>
         </div>
     </div>
