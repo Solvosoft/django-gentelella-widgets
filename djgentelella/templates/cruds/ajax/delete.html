@@ -18,15 +18,15 @@
       data-refresh-inner="#{{name}}_myList"
       action="{% crud_inline_url base_model object 'delete' namespace %}" method="POST">
         {% csrf_token %}
-        <button
+          <button
           id="{{name}}_{{object.pk}}_delete_submit"
           type="submit"
-          class="btn btn-danger">{% trans "Confirm remove" %}</button>
-        <a data-href="{% crud_inline_url base_model object 'list' namespace %}"
+          class="btn btn-success">{% icon_fa_tag "accept" %} {% trans "Confirm remove" %}</button>
+          <a data-href="{% crud_inline_url base_model object 'list' namespace %}"
           data-ajax="" data-success="function(){}"
           data-replace-inner="#{{name}}_myList"
-          class="btn btn-warning"
-          data-dismiss="modal">{% trans "Cancel" %}</a>
+          class="btn btn-danger"
+          data-dismiss="modal">{% icon_fa_tag "cancel" %} {% trans "Cancel" %}</a>
     </form>
 </div>
 

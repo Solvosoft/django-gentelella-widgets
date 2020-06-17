@@ -194,3 +194,23 @@ def form_get_form_display(context, form, **kwargs):
             fnc_name = 'as_table'
     fnc = getattr(form, fnc_name)
     return fnc
+
+@register.simple_tag(takes_context=True)
+def icon_fa_tag(context, icon_name, **kwargs):
+    icon="fa fa-meh-o"
+    if icon_name == "delete":
+        icon="fa fa-times"
+    elif icon_name == "create":
+        icon = 'fa fa-plus-circle'
+    elif icon_name == "submit" or icon_name == "save":
+        icon = 'fa fa-floppy-o'
+    elif icon_name == "edit":
+        icon = 'fa fa-pencil-square-o'
+    elif icon_name == "cancel":
+        icon = 'fa fa-ban'
+    elif icon_name == "show":
+        icon= 'fa fa-eye'
+    elif icon_name == "accept":
+        icon= 'fa fa-check'
+    icon_result="<i class='"+icon+"'></i>"
+    return mark_safe(icon_result)
