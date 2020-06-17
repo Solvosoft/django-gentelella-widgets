@@ -47,19 +47,21 @@
                             </div>
                             {% endif %}
                             <div id="{{inline.name}}_editList"></div>
-                            {% if 'create' in inline.views_available %}
-                            <button class="btn btn-success"
-                                data-href="{% crud_inline_url form.instance inline.model 'create' namespace %}"
+                            <div class="text-right">
+                                {% if 'create' in inline.views_available %}
+                                    <button class="btn btn-success"
+                                        data-href="{% crud_inline_url form.instance inline.model 'create' namespace %}"
 
-                                id="#{{ name }}_{{ object.pk }}_add"
-                                data-replace-inner="#edit_modal_inner"
+                                        id="#{{ name }}_{{ object.pk }}_add"
+                                        data-replace-inner="#edit_modal_inner"
 
 
-                                data-replace-inner="#{{inline.name}}_editList"
-                                data-ajax="" data-success="function(){}" >
-                                {% trans 'Create' %}
-                            </button>
-                            {% endif %}
+                                        data-replace-inner="#{{inline.name}}_editList"
+                                        data-ajax="" data-success="function(){}" >
+                                        {% trans 'Create' %}
+                                    </button>
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
                     {% endfor %}
