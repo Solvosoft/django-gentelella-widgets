@@ -278,6 +278,10 @@ msgstr "¿Está seguro que desea continuar?"
 msgid "Yes, delete it"
 msgstr "Si eliminarlo"
 
+#: djgentelella/templates/cruds/ajax/delete.html:11
+msgid "Do you really want to remove"
+msgstr "¿Está seguro de eliminar"
+
 #: templates/gentelella/registration/activate.html:11
 msgid "Account activation failed"
 msgstr "Activación de cuentas falló"
