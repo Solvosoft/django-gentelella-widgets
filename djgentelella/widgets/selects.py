@@ -1,5 +1,7 @@
 import copy
 
+from django import forms
+from django.db.models import ManyToManyField
 from django.urls import reverse_lazy
 
 from djgentelella.widgets.core import Select, update_kwargs
@@ -32,6 +34,22 @@ class AutocompleteSelectMultipleBase(AutocompleteSelectBase):
             attrs = update_kwargs(attrs, 'AutocompleteSelectMultiple',  base_class='form-control ')
         super(AutocompleteSelectMultipleBase, self).__init__(attrs, multiple=True, choices=choices, extraskwargs=False)
 
+
+
+
+class AutocompleteModelSelectMultipleBase(forms.ModelMultipleChoiceField):
+
+    def __init__(self, queryset, **kwargs):
+        super().__init__(self, queryset, **kwargs)
+
+    def get_context(self, name, value, attrs):
+        attrs['class'] = 'form-control'
+        attrs['data-widget'] = 'AutocompleteSelectMultiple'
+        context = super().get_context(name,value,attrs)
+        context['url'] = reverse_lazy(self.baseurl)
+        return context
+
+
 def AutocompleteSelect(url):
     class AutocompleteSelect(AutocompleteSelectBase):
         baseurl = url
@@ -42,3 +60,9 @@ def AutocompleteSelectMultiple(url):
     class AutocompleteSelectMultiple(AutocompleteSelectMultipleBase):
         baseurl = url
     return AutocompleteSelectMultiple
+
+def AutocompleteModelSelectMultiple(url):
+    class AutocompleteModelSelectMultiple(AutocompleteModelSelectMultipleBase):
+        baseurl = url
+
+    return AutocompleteModelSelectMultiple

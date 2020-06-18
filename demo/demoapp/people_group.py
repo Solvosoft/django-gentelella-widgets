@@ -4,7 +4,7 @@ from django.views.generic import CreateView, UpdateView, ListView
 from django import forms
 from demoapp.models import PeopleGroup
 from djgentelella.forms.forms import CustomForm
-from djgentelella.widgets.selects import AutocompleteSelect, AutocompleteSelectMultiple
+from djgentelella.widgets.selects import AutocompleteSelect, AutocompleteSelectMultiple, AutocompleteModelSelectMultiple
 
 from django.db.models.fields.related import ManyToManyField
 
@@ -18,14 +18,14 @@ def formfield_callback_fnc(db_field, **kwargs):
 
 
 class PeopleGroupForm(CustomForm, forms.ModelForm):
-    formfield_callback = formfield_callback_fnc
+    #formfield_callback = formfield_callback_fnc
 
     class Meta:
         model = PeopleGroup
         fields = '__all__'
         widgets = {
-            'people': AutocompleteSelect("personbasename-list"),
-            'comunities': AutocompleteSelectMultiple("comunitybasename-list")
+            'people': AutocompleteModelSelectMultiple("personbasename-list"),
+            'comunities': AutocompleteModelSelectMultiple("comunitybasename-list")
         }
 
 
@@ -51,7 +51,7 @@ class PeopleGroupList(ListView):
 
 
 class PGorm(forms.ModelForm):
-    formfield_callback = formfield_callback_fnc
+    #formfield_callback = formfield_callback_fnc
 
     class Meta:
         model = PeopleGroup
