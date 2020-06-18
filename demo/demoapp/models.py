@@ -73,6 +73,14 @@ class Colors(models.Model):
 class PeopleGroup(models.Model):
     name = models.CharField(max_length=150)
     people = models.ManyToManyField(Person)
+    comunities = models.ManyToManyField('Comunity')
+
+    def __str__(self):
+        return self.name
+
+
+class Comunity(models.Model):
+    name = models.CharField(max_length=150)
 
     def __str__(self):
         return self.name

@@ -80,7 +80,7 @@ Take a look this file to note the template block that you can overwrite
 widgets
 __________
 
-There is several widgets implemented this is a list of what you can use
+There are several widgets implemented this is a list of what you can use
 
 - TextInput
 - NumberInput
@@ -110,7 +110,7 @@ There is several widgets implemented this is a list of what you can use
 - EmailMaskInput
 - DateRangeTimeInput
 - DateRangeInput
-
-
+- AutocompleteSelect
+- AutocompleteSelectMultiple
 
 

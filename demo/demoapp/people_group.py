@@ -2,7 +2,7 @@ from django.views.generic import CreateView, UpdateView, ListView
 from django import forms
 from demoapp.models import PeopleGroup
 from djgentelella.forms.forms import CustomForm
-from djgentelella.widgets.selects import AutocompleteSelect
+from djgentelella.widgets.selects import AutocompleteSelect, AutocompleteSelectMultiple
 
 
 class PeopleGroupForm(CustomForm, forms.ModelForm):
@@ -10,20 +10,21 @@ class PeopleGroupForm(CustomForm, forms.ModelForm):
         model = PeopleGroup
         fields = '__all__'
         widgets = {
-            'people': AutocompleteSelect(baseurl="personbasename-list")
+            'people': AutocompleteSelect(baseurl="personbasename-list"),
+            'comunities': AutocompleteSelectMultiple(baseurl="comunitybasename-list")
         }
 
 class PeopleGroupAdd(CreateView):
     model = PeopleGroup
     #fields = '__all__'
-    success_url = '/'
+    success_url = '/pgroup/'
     form_class = PeopleGroupForm
     template_name = 'gentelella/index.html'
 
 class PeopleGroupChange(UpdateView):
     model = PeopleGroup
     #fields = '__all__'
-    success_url = '/'
+    success_url = '/pgroup/'
     form_class = PeopleGroupForm
     template_name = 'gentelella/index.html'
 
