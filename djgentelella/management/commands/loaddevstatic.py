@@ -137,7 +137,7 @@ class Command(BaseCommand):
             ],
             'flags/1x1':['https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.4.6/flags/1x1/%s.svg'%flag for flag in FLAGS],
             'flags/4x3':['https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.4.6/flags/4x3/%s.svg'%flag for flag in FLAGS],
-            'datetables':[
+            'datatables':[
                 'https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js',
                 'https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap.min.js',
                 'https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap.min.css',
