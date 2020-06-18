@@ -122,6 +122,19 @@ class Command(BaseCommand):
             icon='fa fa-home',
             only_icon=False
         )
+
+        MenuItem.objects.create(
+            parent=cwidget,
+            title='Autocomplete Widgets',
+            url_name='pgroup-list',
+            category='sidebar',  # sidebar, sidebarfooter,
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-home',
+            only_icon=False
+        )
         noti=MenuItem.objects.create(
             parent = item,
             title = 'Create notification',

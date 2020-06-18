@@ -3,6 +3,7 @@
 {% block content %}
 
 <div class="container">
+    <a href="{% url 'pgroup-add' %}" class="btn btn-info"> Add People Group</a>
     <ul>
     {% for obj in object_list %}
         <li>{{obj}} <a href="{% url 'pgroup-edit' obj.pk %}">edit</a></li>
