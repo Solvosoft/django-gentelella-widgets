@@ -1,5 +1,9 @@
 {% extends 'gentelella/base_site.html' %}
-{% load static i18n %}
+{% load static i18n gtsettings %}
+
+{% block extra_css %}
+    <link href="{% static 'vendors/datatables/dataTables.bootstrap.min.css' %}" />
+{% endblock  %}
 
 {% block content %}
 <div class="container">
@@ -46,12 +50,15 @@
     {% endblock content %}
 {% block javascripts %}
 {{ block.super }}
-    <script src="{% static 'vendors/datetables/dataTables.bootstrap.min.css' %}"></script>
-    <script src="{% static 'vendors/datetables/jquery.dataTables.min.js' %}"></script>
-    <script src="{% static 'vendors/datetables/dataTables.bootstrap.min.js' %}"></script>
+    <script src="{% static 'vendors/datatables/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'vendors/datatables/dataTables.bootstrap.min.js' %}"></script>
 <script>
 (function(){
-    $("#notificationtable").DataTable();
+    $("#notificationtable").DataTable({
+        "language": {
+            "url": "{% get_dataset_translation %}"
+        }
+    });
 })(jQuery);
 </script>
 {% endblock %}
