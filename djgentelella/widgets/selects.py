@@ -25,6 +25,7 @@ class AutocompleteSelectBase(Select):
         context['url'] = reverse_lazy(self.baseurl)
         return context
 
+
 class AutocompleteSelectMultipleBase(AutocompleteSelectBase):
     def __init__(self, attrs=None, choices=(), extraskwargs=True):
         if extraskwargs:
@@ -32,11 +33,12 @@ class AutocompleteSelectMultipleBase(AutocompleteSelectBase):
         super(AutocompleteSelectMultipleBase, self).__init__(attrs, multiple=True, choices=choices, extraskwargs=False)
 
 def AutocompleteSelect(url):
-    class ASK(AutocompleteSelectBase):
+    class AutocompleteSelect(AutocompleteSelectBase):
         baseurl = url
-    return ASK
+
+    return AutocompleteSelect
 
 def AutocompleteSelectMultiple(url):
-    class ASK(AutocompleteSelectMultipleBase):
+    class AutocompleteSelectMultiple(AutocompleteSelectMultipleBase):
         baseurl = url
-    return ASK
+    return AutocompleteSelectMultiple
