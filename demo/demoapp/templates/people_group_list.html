@@ -5,7 +5,7 @@
 <div class="container">
     <ul>
     {% for obj in object_list %}
-        <li>{{obj}} <a href="{% url '' %}">edit</a></li>
+        <li>{{obj}} <a href="{% url 'pgroup-edit' obj.pk %}">edit</a></li>
     {% endfor %}
     </ul>
 </div>

@@ -607,6 +607,24 @@ function init_selects(){
           }
         });
     });
+
+    $('[data-widget="AutocompleteSelectMultiple"]').each(function(index, elem){
+        var leme = $(elem);
+        var url = leme.data('url');
+        leme.select2({
+          ajax: {
+            url: url,
+            dataType: 'json',
+            data: function (params) {
+                  params['selected']=leme.find(':selected').val()
+                  return params;
+            }
+          }
+        });
+    });
+
+
+
 };
 
 function init_imask(){

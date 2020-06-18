@@ -48,7 +48,6 @@ for x in settings.INSTALLED_APPS:
 
 
 base_urlpatterns = [
-    #url('gtselects/', include((routes.urls,'djgentelella'), namespace="gtselects")),
     url('gtselects/', include(routes.urls)),
     path('djgentelella/upload/', ChunkedUploadView.as_view(), name='upload_file_view'),
     path('djgentelella/upload/done/', ChunkedUploadCompleteView.as_view(), name='upload_file_done'),
