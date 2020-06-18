@@ -10,8 +10,8 @@ class PeopleGroupForm(CustomForm, forms.ModelForm):
         model = PeopleGroup
         fields = '__all__'
         widgets = {
-            'people': AutocompleteSelect(baseurl="personbasename-list"),
-            'comunities': AutocompleteSelectMultiple(baseurl="comunitybasename-list")
+            'people': AutocompleteSelect("personbasename-list"),
+            'comunities': AutocompleteSelectMultiple("comunitybasename-list")
         }
 
 class PeopleGroupAdd(CreateView):
