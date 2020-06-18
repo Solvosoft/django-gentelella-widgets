@@ -17,6 +17,7 @@ urlpatterns = [
         path('colorwidgets', color_widget_view, name="colorwidgets"),
 
         path('pgroup/', people_group.PeopleGroupList.as_view(), name='pgroup-list'),
+        path('pgroup-test/', people_group.pgroup_test, name='pgroup-test'),
         path('pgroup/create/', people_group.PeopleGroupAdd.as_view(), name='pgroup-add'),
         path('pgroup/<int:pk>/', people_group.PeopleGroupChange.as_view(), name='pgroup-edit'),
 
