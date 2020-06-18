@@ -7,7 +7,6 @@ from djgentelella.widgets.core import Select, update_kwargs
 class AutocompleteSelectBase(Select):
     template_name = 'gentelella/widgets/autocomplete_select.html'
     option_template_name = 'gentelella/widgets/select_option.html'
-    baseurl = None
 
     def __init__(self, attrs=None, choices=(), extraskwargs=True, multiple=None):
         if extraskwargs:
@@ -19,7 +18,7 @@ class AutocompleteSelectBase(Select):
 
         if multiple:
             attrs['multiple']=True
-        super().__init__(attrs,  choices=choices, extraskwargs=False)
+        super(AutocompleteSelectBase, self).__init__(attrs,  choices=choices, extraskwargs=False)
 
     def get_context(self, name, value, attrs):
         context = super().get_context(name,value,attrs)
@@ -27,18 +26,17 @@ class AutocompleteSelectBase(Select):
         return context
 
 class AutocompleteSelectMultipleBase(AutocompleteSelectBase):
-    baseurl = None
     def __init__(self, attrs=None, choices=(), extraskwargs=True):
         if extraskwargs:
             attrs = update_kwargs(attrs, 'AutocompleteSelectMultiple',  base_class='form-control ')
-        super().__init__(attrs, multiple=True, choices=choices, extraskwargs=False)
+        super(AutocompleteSelectMultipleBase, self).__init__(attrs, multiple=True, choices=choices, extraskwargs=False)
 
-def AutocompleteSelect(baseurl):
-    klass = copy.deepcopy(AutocompleteSelectBase)
-    klass.baseurl= baseurl
-    return klass
+def AutocompleteSelect(url):
+    class ASK(AutocompleteSelectBase):
+        baseurl = url
+    return ASK
 
-def AutocompleteSelectMultiple(baseurl):
-    klass = copy.deepcopy(AutocompleteSelectMultipleBase)
-    klass.baseurl= baseurl
-    return klass
+def AutocompleteSelectMultiple(url):
+    class ASK(AutocompleteSelectMultipleBase):
+        baseurl = url
+    return ASK
