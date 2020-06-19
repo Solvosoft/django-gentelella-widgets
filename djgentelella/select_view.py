@@ -19,7 +19,7 @@ from rest_framework.response import Response
       "id": 2,
       "text": "Option 2",
       "disabled": true
-      
+
     }
   ],
   "pagination": {
@@ -28,12 +28,13 @@ from rest_framework.response import Response
 }
 """
 
+
 class GPaginator(PageNumberPagination):
-    page_size = 10
+    page_size = 4
 
     def get_paginated_response(self, data):
         more = {
-            'more': self.display_page_controls
+            'more': self.page.has_next()
         }
         return Response(OrderedDict([
             ('count', self.page.paginator.count),
@@ -61,14 +62,17 @@ class GSerializerBase(serializers.Serializer):
     selected = serializers.SerializerMethodField()
 
 
-
-
-class GModelLookup(generics.ListAPIView, viewsets.GenericViewSet):
+class BaseSelect2View(generics.ListAPIView, viewsets.GenericViewSet):
     model = None
     fields = []
     pagination_class = GPaginator
     serializer_class = GSerializerBase
     id_field = 'pk'
+    ref_field = None
+    ref_name = ''
+    text_separator = ' '
+    text_wrapper = ''
+    order_by = 'pk'
 
     def filter_data(self, queryset, q):
         filters = None
@@ -76,34 +80,50 @@ class GModelLookup(generics.ListAPIView, viewsets.GenericViewSet):
             if filters is None:
                 filters = Q(**{field + '__icontains': q})
             else:
-                filters |= Q(**{field+'__icontains': q})
+                filters |= Q(**{field + '__icontains': q})
         return queryset.filter(filters)
 
+    def query_get(self, name, default, aslist=False):
+        if aslist:
+            q = self.request.GET.getlist(name, default)
+        else:
+            q = self.request.GET.get(name, default)
+        return q
+
+
     def filter_queryset(self, queryset):
-        q=self.request.GET.get('term', '')
-        self.selected = self.request.GET.get('selected', '').split(',')
+        q = self.query_get('term', '')
+        self.selected = self.query_get('selected', '').split(',')
+        if self.ref_field is not None:
+            relq = self.query_get(self.ref_name, [])
+            if relq:
+                queryset = queryset.filter(**{self.ref_field+'__in': relq})
+            else:
+                queryset = queryset.none()
+
         if q and self.fields:
-                queryset = self.filter_data(queryset, q)
+            queryset = self.filter_data(queryset, q)
         return queryset
 
     def get_queryset(self):
         assert self.model is not None, (
-            "'%s' should either include a `model` attribute, "
-            "or override the `get_queryset()` method."
-            % self.__class__.__name__
+                "'%s' should either include a `model` attribute, "
+                "or override the `get_queryset()` method."
+                % self.__class__.__name__
         )
-        return self.model.objects.all()
+        return self.model.objects.all().order_by(self.order_by)
 
     # def get_serializer(self, *args, **kwargs):
     #     return super().get_serializer(self, *args, **kwargs)
 
-
     def get_serializer_class(self):
         class S(self.serializer_class, serializers.ModelSerializer):
             view = self
+
             class Meta:
                 model = self.model
                 fields = ['id', 'text', 'disabled', 'selected']
+
         return S
 
     def get_field_value(self, obj, name, func=None):
@@ -113,6 +133,8 @@ class GModelLookup(generics.ListAPIView, viewsets.GenericViewSet):
         dev = getattr(obj, name)
         if func is not None:
             dev = func(dev)
+        if self.text_wrapper:
+            dev = self.text_wrapper%dev
         return dev
 
     def get_id_display(self, obj):
@@ -121,13 +143,12 @@ class GModelLookup(generics.ListAPIView, viewsets.GenericViewSet):
     def get_text_display(self, obj):
         if self.fields:
             fields = [self.get_field_value(obj, x, str) for x in self.fields]
-            return " ".join(fields)
+            return self.text_separator.join(fields)
         return str(obj)
 
     def get_selected_display(self, obj):
         iid = str(self.get_id_display(obj))
         return iid in self.selected
-
 
     def get_selected(self, obj):
         return self.view.get_selected_display(obj)
