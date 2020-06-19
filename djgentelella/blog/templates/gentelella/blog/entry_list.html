@@ -68,6 +68,14 @@
 </div>
  </div>
   <div class="col-md-3 col-ms-12">
+{% if perms.blog.add_entry %}
+ <div class="x_panel " xmlns="http://www.w3.org/1999/html">
+
+        <div class="x_content">
+            <a class="btn btn-success" href="{% url 'blog:entrycreate' %}">{% trans 'New Post' %} </a>
+        </div>
+</div>
+{% endif %}
 <div class="x_panel " xmlns="http://www.w3.org/1999/html">
     <div class="x_title"><h2>{% trans 'Categories' %}</h2>
         <ul class="nav navbar-right panel_toolbox ">
