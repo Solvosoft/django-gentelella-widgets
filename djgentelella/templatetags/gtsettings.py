@@ -20,9 +20,9 @@ def get_random_uuid():
 
 
 @register.simple_tag(takes_context=True)
-def get_dataset_translation(context):
+def get_datatables_translation(context):
     lang = get_language()
-    if lang:
-        if lang in settings.DATASETS_SUPPORT_LANGUAGES:
-            return settings.DATASETS_SUPPORT_LANGUAGES[lang]
+    if lang and hasattr(settings, 'DATATABLES_SUPPORT_LANGUAGES'):
+        if lang in settings.DATATABLES_SUPPORT_LANGUAGES:
+            return settings.DATATABLES_SUPPORT_LANGUAGES[lang]
     return "//cdn.datatables.net/plug-ins/1.10.20/i18n/English.json"
