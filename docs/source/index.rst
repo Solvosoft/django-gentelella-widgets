@@ -22,7 +22,7 @@ Welcome to Django gentelella widgets's documentation!
    forms
    widgets
    crud
-
+   contents
 
 Indices and tables
 ==================
