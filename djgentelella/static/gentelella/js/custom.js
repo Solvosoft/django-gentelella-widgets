@@ -594,30 +594,36 @@ function init_selects(){
     $('[data-widget="TreeSelectMultipleWithAdd"]').select2({templateResult: decore_select2});
 
     $('[data-widget="AutocompleteSelect"]').each(function(index, elem){
-        var leme = $(elem);
-        var url = leme.data('url');
+        let leme = $(elem);
+        let url = leme.data('url');
         leme.select2({
           ajax: {
             url: url,
             dataType: 'json',
             data: function (params) {
-                  params['selected']=leme.find(':selected').val()
-                  return params;
+                return {
+                    search: params.term,
+                    selected: leme.find(':selected').val(),
+                    page: params.page || 1
+                }
             }
           }
         });
     });
 
     $('[data-widget="AutocompleteSelectMultiple"]').each(function(index, elem){
-        var leme = $(elem);
-        var url = leme.data('url');
+        let leme = $(elem);
+        let url = leme.data('url');
         leme.select2({
           ajax: {
             url: url,
             dataType: 'json',
             data: function (params) {
-                  params['selected']=leme.find(':selected').val()
-                  return params;
+                return {
+                    search: params.term,
+                    selected: leme.find(':selected').val(),
+                    page: params.page || 1
+                }
             }
           }
         });

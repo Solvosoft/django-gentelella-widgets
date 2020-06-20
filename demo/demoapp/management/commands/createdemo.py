@@ -4,7 +4,7 @@ from django.core.management import BaseCommand
 from django.urls import reverse
 from django.utils.timezone import now
 
-from demoapp.models import Country, Person
+from demoapp.models import Country, Person, Comunity
 from djgentelella.models import MenuItem
 
 class Command(BaseCommand):
@@ -283,7 +283,12 @@ class Command(BaseCommand):
                 last_time = now()
             )
 
+    def create_comunities(self):
+        for x in range(10):
+            Comunity.objects.create(name="Comunity "+str(x))
+
     def handle(self, *args, **options):
         self.create_menu()
         self.create_countries()
         self.create_person()
+        self.create_comunities()
