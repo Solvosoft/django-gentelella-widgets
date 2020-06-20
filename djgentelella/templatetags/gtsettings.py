@@ -3,7 +3,9 @@ from django.utils.safestring import mark_safe
 from django.conf import settings
 from django.utils.translation import get_language
 from djgentelella.utils import get_settings as get_settings_utils
+from djgentelella import settings
 import uuid
+
 
 register = template.Library()
 
@@ -35,5 +37,8 @@ def define_true(context, val):
 
 @register.simple_tag(takes_context=True)
 def get_define(context, val):
-    value = getattr(context['request'], val, False)
+    value = False
+    if val in settings.DEFAULT_JS_IMPORTS:
+        value = settings.DEFAULT_JS_IMPORTS[val]
+    value = getattr(context['request'], val, value)
     return value

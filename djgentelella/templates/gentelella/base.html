@@ -31,8 +31,10 @@
         <link href="{% static 'vendors/nprogress/nprogress.min.css' %}" rel="stylesheet">
         <link href="{% static 'vendors/tail.select/tail.select-default.min.css' %}" rel="stylesheet">
         <link href="{% static 'vendors/flag-icon-css/flag-icon.min.css' %}" rel="stylesheet">
+        {% get_define 'use_chartjs' as use_chartjs %}
+        {% if use_chartjs %}
         <link href="{% static 'vendors/chartjs/Chart.min.css' %}" rel="stylesheet">
-
+        {% endif %}
         {% get_define 'use_datatables' as use_datatables %}
         {% if use_datatables %}
           <link href="{% static 'vendors/datatables/dataTables.bootstrap.min.css' %}" rel="stylesheet" />
@@ -146,14 +148,15 @@
         <!-- Calculate md5 -->
         <script src="{% static 'vendors/fileupload/spark-md5.min.js' %}"></script>
         {% get_define 'use_datatables' as use_datatables %}
-
         {% if use_datatables %}
         <script src="{% static 'vendors/datatables/jquery.dataTables.min.js' %}"></script>
         <script src="{% static 'vendors/datatables/dataTables.bootstrap.min.js' %}"></script>
         {% endif %}
 
+        {% get_define 'use_chartjs' as use_chartjs %}
+        {% if use_chartjs %}
         <script src="{% static 'vendors/chartjs/Chart.min.js' %}"></script>
-
+        {% endif %}
       <!-- Custom Theme Scripts -->
       <script src="{% static 'gentelella/js/fileupload.widget.js' %}"></script>
       <script src="{% static 'gentelella/js/custom.widgets.js' %}"></script>
