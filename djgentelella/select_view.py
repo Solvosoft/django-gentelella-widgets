@@ -30,15 +30,12 @@ from rest_framework.response import Response
 
 
 class GPaginator(PageNumberPagination):
-    page_size = 4
+    page_size = 5
 
     def get_paginated_response(self, data):
-        more = {
-            'more': self.page.has_next()
-        }
         return Response(OrderedDict([
-            ('count', self.page.paginator.count),
-            ("pagination", more),
+            ('total_count', self.page.paginator.count),
+            ("pagination", {'more': self.page.has_next()}),
             ('results', data)
         ]))
 
@@ -69,7 +66,7 @@ class BaseSelect2View(generics.ListAPIView, viewsets.GenericViewSet):
     serializer_class = GSerializerBase
     id_field = 'pk'
     ref_field = None
-    ref_name = ''
+    ref_name = 'relfield'
     text_separator = ' '
     text_wrapper = ''
     order_by = 'pk'

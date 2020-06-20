@@ -14,9 +14,9 @@ class PeopleGroupForm(CustomForm, forms.ModelForm):
         fields = '__all__'
         widgets = {
             'name': TextInput,
-            'people': AutocompleteSelectMultiple("personbasename-list"),
-            'comunities': AutocompleteSelectMultiple("comunitybasename-list"),
-            'country': AutocompleteSelect('countrybasename-list')
+            'people': AutocompleteSelectMultiple("personbasename"),
+            'comunities': AutocompleteSelectMultiple("comunitybasename"),
+            'country': AutocompleteSelect('countrybasename')
         }
 
 
