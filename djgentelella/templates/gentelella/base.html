@@ -40,6 +40,7 @@
           <link href="{% static 'vendors/datatables/dataTables.bootstrap.min.css' %}" rel="stylesheet" />
         {% endif %}
 
+
     {% endblock stylesheets %}
       <!-- Custom Theme Style -->
       <link href="{% static 'gentelella/css/custom.css' %}" rel="stylesheet">
@@ -157,6 +158,13 @@
         {% if use_chartjs %}
         <script src="{% static 'vendors/chartjs/Chart.min.js' %}"></script>
         {% endif %}
+
+        {% get_define 'use_bootstraptree' as use_bootstraptree %}
+        {% if use_bootstraptree %}
+            <script src="{% static 'vendors/bootstrap-tree/bootstrap-treeview.min.js' %}"></script>
+        {% endif %}
+
+
       <!-- Custom Theme Scripts -->
       <script src="{% static 'gentelella/js/fileupload.widget.js' %}"></script>
       <script src="{% static 'gentelella/js/custom.widgets.js' %}"></script>

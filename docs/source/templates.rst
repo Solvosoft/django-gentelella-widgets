@@ -64,6 +64,8 @@ This list could be grow in the next future.
 
 - use_datatables
 - use_chartjs
+- use_bootstraptree
+
 
 
 Force always include library
