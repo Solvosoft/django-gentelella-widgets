@@ -26,3 +26,14 @@ def get_datatables_translation(context):
         if lang in settings.DATATABLES_SUPPORT_LANGUAGES:
             return settings.DATATABLES_SUPPORT_LANGUAGES[lang]
     return "//cdn.datatables.net/plug-ins/1.10.20/i18n/English.json"
+
+
+@register.simple_tag(takes_context=True)
+def define_true(context, val):
+    setattr(context['request'], val, True)
+    return True
+
+@register.simple_tag(takes_context=True)
+def get_define(context, val):
+    value = getattr(context['request'], val, False)
+    return value
