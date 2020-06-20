@@ -74,6 +74,7 @@ class PeopleGroup(models.Model):
     name = models.CharField(max_length=150)
     people = models.ManyToManyField(Person)
     comunities = models.ManyToManyField('Comunity')
+    country = models.ForeignKey(Country, null=True, blank=True, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
