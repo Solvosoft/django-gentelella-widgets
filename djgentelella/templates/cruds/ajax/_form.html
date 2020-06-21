@@ -1,0 +1,58 @@
+{% load i18n %}
+
+{% load crud_tags %}
+
+{{ form.media }}
+<style>
+.box-body > div > .form-control {
+    margin-bottom: 10px !important;
+}
+</style>
+
+<form
+    id="{{name}}_{{object.pk}}_addedit"
+    action="{% crud_inline_url base_model inline_model action namespace %}"
+    method="POST" enctype="multipart/form-data"
+    data-replace-inner="#{{name}}_editList"
+    data-ajax-submit=""
+    data-refresh-inner="#{{name}}_myList"
+    data-success="success"
+    onsubmit="return false;">
+    {% csrf_token %}
+    <div class="box-body row">
+        <div class="col-md-12">
+            {{ form  }}
+        </div>
+    </div>
+
+
+    <div class="box-footer">
+        <div class="form-group">
+            <div class="controls text-right">
+                <a href="javascript::void(0);"
+                    onclick="$('#{{name}}_editList').html('');"
+                    class="btn btn-danger"
+                    data-dismiss="modal">{% icon_fa_tag "cancel" %} {% trans "Cancel" %}</a>
+                <button
+                    id="{{name}}_{{object.pk}}_addedit_submit"
+                    type="submit"
+                    class="btn btn-success">{% icon_fa_tag "submit" %} {% trans "Submit" %}</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+<script>
+    {% if form.helper %}
+    $(".modal select:first").val(1).trigger('change.select2');
+    $(".modal select:first").parent().parent().hide();
+    {% endif %}
+
+    function success() {
+        $('#edit_modal').modal('hide');
+    }
+
+    $('.modal #submit-id-submit').parent().parent().remove(); // FIXME: Remove the crispy buttons
+    $('#edit_modal').modal('show');
+</script>
