@@ -144,3 +144,8 @@ EMAIL_PORT = '1025'
 MARKITUP_FILTER = ('markdown.markdown', {'safe_mode': True})
 MARKITUP_SET = 'markitup/sets/markdown/'
 JQUERY_URL = None
+
+
+# DEFAULT_JS_IMPORTS = {
+#     'use_bootstraptree': True
+# }

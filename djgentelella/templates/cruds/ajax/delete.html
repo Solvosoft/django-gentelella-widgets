@@ -1,0 +1,38 @@
+{% load i18n %}
+{% load crud_tags %}
+
+<!-- Modal -->
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    <h4 class="modal-title">{% trans "Remove" %} {{ object }}?</h4>
+</div>
+
+<div class="modal-body">
+    <p class="text-centered">{% trans "Do you really want to remove" %} "{{ object }}"?</p>
+</div>
+
+<div class="modal-footer">
+    <form
+      id="{{name}}_{{object.pk}}_delete"
+      data-ajax-submit=""
+      data-refresh-inner="#{{name}}_myList"
+      action="{% crud_inline_url base_model object 'delete' namespace %}" method="POST">
+        {% csrf_token %}
+          <button
+          id="{{name}}_{{object.pk}}_delete_submit"
+          type="submit"
+          class="btn btn-success">{% icon_fa_tag "accept" %} {% trans "Confirm remove" %}</button>
+          <a data-href="{% crud_inline_url base_model object 'list' namespace %}"
+          data-ajax="" data-success="function(){}"
+          data-replace-inner="#{{name}}_myList"
+          class="btn btn-danger"
+          data-dismiss="modal">{% icon_fa_tag "cancel" %} {% trans "Cancel" %}</a>
+    </form>
+</div>
+
+<script>
+    $('#delete_modal').modal('show');
+    $('#{{name}}_{{object.pk}}_delete_submit').click( function() {
+        $('#delete_modal').modal('hide');
+    });
+</script>

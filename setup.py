@@ -26,7 +26,7 @@ README = open(os.path.join(os.path.dirname(__file__), 'Readme.rst')).read()
 # allow setup.py to be run from any path
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
-# Dynamically calculate the version based on django.VERSION.
+
 version = '0.0.1'
 
 setup(
@@ -43,9 +43,12 @@ setup(
     install_requires=[
 	    'django-mptt>=0.11.0',
         'django-chunked-upload>=2.0.0',
-        'djangoajax==3.2'
+        'djangoajax>=3.2',
+        'django-markitup>=4.0.0',
+        'markdown',
+        'Pillow'
     ],
-    packages=find_packages(exclude=["demo"]),
+    packages=find_packages(exclude=["demo", 'doc']),
     include_package_data=True,
     zip_safe=False
 )
