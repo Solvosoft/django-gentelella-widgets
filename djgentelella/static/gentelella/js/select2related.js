@@ -51,16 +51,12 @@
                     type: 'GET',
                     dataType: 'json',
                     data: function (params) {
-                      dev= {
+                      return {
                         relfield: get_selected_values($(parent.relatedobjs[x-1]['id']).find(':selected')),
                         selected: get_selected_values($(parent.relatedobjs[x]['id']).find(':selected')),
                         term: params.term,
-                        page: params.page || 1,
-                        wg: 'related'
+                        page: params.page || 1
                       }
-
-                      console.log(dev);
-                      return dev
                     },
                   }
                 });
