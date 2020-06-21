@@ -293,10 +293,6 @@ class Command(BaseCommand):
 
     def abcde(self):
         models.A.objects.all().delete()
-        # models.B.objects.all().delete()
-        # models.C.objects.all().delete()
-        # models.D.objects.all().delete()
-        # models.E.objects.all().delete()
         al,bl,cl,dl,el  = [], [], [], [], []
         bid=cid=did=eid=0
 
@@ -307,13 +303,13 @@ class Command(BaseCommand):
                 bl.append( models.B(display="B %d a(%d)"%(b, a), id=bid, a_id=a))
                 for c in range(1, 6):
                     cid+=1
-                    cl.append(models.C(display="C %d b(%d) a(%d)"%(c,b,a ), id=cid, b_id=b))
+                    cl.append(models.C(display="C %d b(%d) a(%d)"%(c,b,a ), id=cid, b_id=bid))
                     for d in range(1, 5):
                         did+=1
-                        dl.append(models.D(display="D %d c(%d) b(%d) a(%d)"%(d,c,b,a), id=did, c_id=c))
+                        dl.append(models.D(display="D %d c(%d) b(%d) a(%d)"%(d,c,b,a), id=did, c_id=cid))
                         for e in range(1, 4):
                             eid+=1
-                            el.append(models.E(display="E %d d(%d) c(%d) b(%d) a(%d)"%(e, d,c,b,a), id=eid, d_id=d))
+                            el.append(models.E(display="E %d d(%d) c(%d) b(%d) a(%d)"%(e, d,c,b,a), id=eid, d_id=did))
         models.A.objects.bulk_create(al)
         models.B.objects.bulk_create(bl)
         models.C.objects.bulk_create(cl)
