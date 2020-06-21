@@ -1,6 +1,6 @@
 
 from djgentelella.groute import register_lookups
-from djgentelella.select_view import BaseSelect2View
+from djgentelella.views.select2autocomplete import BaseSelect2View
 from demoapp import models
 
 @register_lookups(prefix="person", basename="personbasename")

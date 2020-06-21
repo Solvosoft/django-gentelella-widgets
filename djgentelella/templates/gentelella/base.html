@@ -3,6 +3,8 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+      {% block pre_head %}
+      {% endblock %}
     {% block head %}
         {% block meta-keywords %} {% endblock %}
         {% block extrameta%} {% endblock %}
@@ -23,14 +25,20 @@
         <link href="{% static 'vendors/bootstrap-daterangepicker/daterangepicker.min.css' %}" rel="stylesheet">
         <link href="{% static 'vendors/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css' %}" rel="stylesheet">
         <link href="{% static 'vendors/select2/select2.min.css' %}" rel="stylesheet"/>
-
-       <link href="{% static 'vendors/switchery/switchery.min.css'%}" rel="stylesheet"/>
+        <link href="{% static 'vendors/switchery/switchery.min.css'%}" rel="stylesheet"/>
         <link href="{% static 'vendors/iCheck/green.css' %}" rel="stylesheet">
         <link href="{% static 'vendors/bootstrap-progressbar/bootstrap-progressbar-3.3.4.min.css' %}" rel="stylesheet">
         <link href="{% static 'vendors/nprogress/nprogress.min.css' %}" rel="stylesheet">
         <link href="{% static 'vendors/tail.select/tail.select-default.min.css' %}" rel="stylesheet">
         <link href="{% static 'vendors/flag-icon-css/flag-icon.min.css' %}" rel="stylesheet">
+        {% get_define 'use_chartjs' as use_chartjs %}
+        {% if use_chartjs %}
         <link href="{% static 'vendors/chartjs/Chart.min.css' %}" rel="stylesheet">
+        {% endif %}
+        {% get_define 'use_datatables' as use_datatables %}
+        {% if use_datatables %}
+          <link href="{% static 'vendors/datatables/dataTables.bootstrap.min.css' %}" rel="stylesheet" />
+        {% endif %}
 
 
     {% endblock stylesheets %}
@@ -140,8 +148,22 @@
         <script src="{% static 'vendors/fileupload/jquery.fileupload.min.js' %}"></script>
         <!-- Calculate md5 -->
         <script src="{% static 'vendors/fileupload/spark-md5.min.js' %}"></script>
+        {% get_define 'use_datatables' as use_datatables %}
+        {% if use_datatables %}
+        <script src="{% static 'vendors/datatables/jquery.dataTables.min.js' %}"></script>
+        <script src="{% static 'vendors/datatables/dataTables.bootstrap.min.js' %}"></script>
+        {% endif %}
 
+        {% get_define 'use_chartjs' as use_chartjs %}
+        {% if use_chartjs %}
         <script src="{% static 'vendors/chartjs/Chart.min.js' %}"></script>
+        {% endif %}
+
+        {% get_define 'use_bootstraptree' as use_bootstraptree %}
+        {% if use_bootstraptree %}
+            <script src="{% static 'vendors/bootstrap-tree/bootstrap-treeview.min.js' %}"></script>
+        {% endif %}
+
 
       <!-- Custom Theme Scripts -->
       <script src="{% static 'gentelella/js/fileupload.widget.js' %}"></script>
@@ -151,6 +173,9 @@
 
           {% render_menu_js_widget %}
       {% endblock %}
+
+
+
 
     {% endblock body %}
     {% block js %}{% endblock %}
