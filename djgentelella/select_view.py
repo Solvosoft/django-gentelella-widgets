@@ -71,13 +71,14 @@ class BaseSelect2View(generics.ListAPIView, viewsets.GenericViewSet):
     text_wrapper = ''
     order_by = 'pk'
 
-    def filter_data(self, queryset, q):
+    def filter_data(self, queryset, qe):
         filters = None
         for field in self.fields:
-            if filters is None:
-                filters = Q(**{field + '__icontains': q})
-            else:
-                filters |= Q(**{field + '__icontains': q})
+            for q in qe:
+                if filters is None:
+                    filters = Q(**{field + '__icontains': q})
+                else:
+                    filters |= Q(**{field + '__icontains': q})
         return queryset.filter(filters)
 
     def query_get(self, name, default, aslist=False):
@@ -85,14 +86,18 @@ class BaseSelect2View(generics.ListAPIView, viewsets.GenericViewSet):
             q = self.request.GET.getlist(name, default)
         else:
             q = self.request.GET.get(name, default)
+            if isinstance(q, str):
+                q = q.split(',')
+            if q == ['']:
+                q = []
         return q
 
 
     def filter_queryset(self, queryset):
         q = self.query_get('term', '')
-        self.selected = self.query_get('selected', '').split(',')
+        self.selected = self.query_get('selected', '')
         if self.ref_field is not None:
-            relq = self.query_get(self.ref_name, [])
+            relq = self.query_get(self.ref_name, '')
             if relq:
                 queryset = queryset.filter(**{self.ref_field+'__in': relq})
             else:
