@@ -45,8 +45,6 @@ for x in settings.INSTALLED_APPS:
     except:
         pass
 
-
-
 base_urlpatterns = [
     url('gtselects/', include(routes.urls)),
     path('djgentelella/upload/', ChunkedUploadView.as_view(), name='upload_file_view'),
@@ -57,8 +55,5 @@ base_urlpatterns = [
         name="notifications"),
     url('^notification/list/$', NotificationList.as_view(), name="notification_list")
 ]
-
-
-
 
 urlpatterns = auth_urls + base_urlpatterns

@@ -592,7 +592,6 @@ function init_selects(){
     $('[data-widget="TreeSelectWithAdd"]').select2({templateResult: decore_select2});
     $('[data-widget="TreeSelectMultiple"]').select2({templateResult: decore_select2});
     $('[data-widget="TreeSelectMultipleWithAdd"]').select2({templateResult: decore_select2});
-
 };
 
 function init_imask(){
