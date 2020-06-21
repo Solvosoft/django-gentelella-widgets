@@ -39,6 +39,7 @@ class AutocompleteSelectBase(BaseAutocomplete, Select):
             'data-start_empty': 'false'
         }
         attrsn.update(attrs)
+        attrsn.update(self.extra_attrs)
         super(AutocompleteSelectBase, self).__init__(attrsn,  choices=choices, extraskwargs=False)
 
 class AutocompleteSelectMultipleBase(BaseAutocomplete, SelectMultiple):
@@ -56,15 +57,18 @@ class AutocompleteSelectMultipleBase(BaseAutocomplete, SelectMultiple):
             'data-start_empty': 'false'
         }
         attrsn.update(attrs)
+        attrsn.update(self.extra_attrs)
         super(AutocompleteSelectMultipleBase, self).__init__(attrsn, choices=choices, extraskwargs=False)
 
-def AutocompleteSelect(url):
+def AutocompleteSelect(url, attrs={}):
     class AutocompleteSelect(AutocompleteSelectBase):
         baseurl = url+"-list"
+        extra_attrs = attrs.copy()
 
     return AutocompleteSelect
 
-def AutocompleteSelectMultiple(url):
+def AutocompleteSelectMultiple(url, attrs={}):
     class AutocompleteSelectMultiple(AutocompleteSelectMultipleBase):
         baseurl = url+"-list"
+        extra_attrs = attrs.copy()
     return AutocompleteSelectMultiple

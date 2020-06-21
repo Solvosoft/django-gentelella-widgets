@@ -3,7 +3,7 @@
 {% block content %}
 
 <div class="row">
-<div class='col-md-12'>
+<div class='col-xs-12 col-sm-12 col-md-12'>
      <div class="x_panel gencrud">
             <div class="x_title"><h2> A form </h2>
            <div class="clearfix"></div>
@@ -14,7 +14,7 @@
                     {% csrf_token %}
                     {{form.as_inline}}
 
-                    <input type="submit">
+                    <input class="btn btn-success" type="submit"  value="Save"/>
                 </form>
 
             </div>

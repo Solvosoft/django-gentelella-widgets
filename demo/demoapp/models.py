@@ -85,3 +85,33 @@ class Comunity(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class A(models.Model):
+    display = models.CharField(max_length=150)
+
+class B(models.Model):
+    display = models.CharField(max_length=150)
+    a = models.ForeignKey(A, on_delete=models.CASCADE)
+
+class C(models.Model):
+    display = models.CharField(max_length=150)
+    b = models.ForeignKey(B, on_delete=models.CASCADE)
+
+class D(models.Model):
+    display = models.CharField(max_length=150)
+    c = models.ForeignKey(C, on_delete=models.CASCADE)
+
+class E(models.Model):
+    display = models.CharField(max_length=150)
+    d = models.ForeignKey(D, on_delete=models.CASCADE)
+
+class ABCDE(models.Model):
+    a = models.ManyToManyField(A)
+    b = models.ForeignKey(B, on_delete=models.CASCADE)
+    c = models.ManyToManyField(C)
+    d = models.ForeignKey(D, on_delete=models.CASCADE)
+    e = models.ManyToManyField(E)
+
+    def __str__(self):
+        return " ".join([x.display for x in self.e.all()])

@@ -10,7 +10,11 @@
         this.relatedobjs = relatedobjs;
         let parent = this;
         function get_selected_values(obj){
-            return obj.val();
+            var data = [];
+            $.each(obj, function(i, e){
+                if(e.value != "") data.push(e.value);
+            });
+            return data.join(',');
         }
 
         if(action === "simple"){
@@ -26,9 +30,10 @@
                       ajax: {
                         url: this.relatedobjs[x]['url'],
                         type: 'GET',
+                        dataType: 'json',
                         data: function (params) {
                               return {
-                                selected: $(parent.relatedobjs[x]['id']).find(':selected').val(),
+                                selected: get_selected_values($(parent.relatedobjs[x]['id']).find(':selected')),
                                 term: params.term,
                                 page: params.page || 1
                               }
@@ -44,13 +49,18 @@
                   ajax: {
                     url: this.relatedobjs[x]['url'],
                     type: 'GET',
+                    dataType: 'json',
                     data: function (params) {
-                      return {
-                        relfield: get_selected_values($(parent.relatedobjs[x-1]['id'])),
-                        selected: $(parent.relatedobjs[x]['id']).find(':selected').val(),
+                      dev= {
+                        relfield: get_selected_values($(parent.relatedobjs[x-1]['id']).find(':selected')),
+                        selected: get_selected_values($(parent.relatedobjs[x]['id']).find(':selected')),
                         term: params.term,
-                        page: params.page || 1
+                        page: params.page || 1,
+                        wg: 'related'
                       }
+
+                      console.log(dev);
+                      return dev
                     },
                   }
                 });
@@ -64,9 +74,10 @@
               ajax: {
                 url: parent.relatedobjs[0]['url'],
                 type: 'GET',
+                dataType: 'json',
                 data: function (params) {
                       return {
-                        selected: $(parent.relatedobjs[0]['id']).find(':selected').val(),
+                        selected: get_selected_values($(parent.relatedobjs[0]['id']).find(':selected')),
                         term: params.term,
                         page: params.page || 1
                       }

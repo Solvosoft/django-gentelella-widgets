@@ -4,7 +4,7 @@ from django.core.management import BaseCommand
 from django.urls import reverse
 from django.utils.timezone import now
 
-from demoapp.models import Country, Person, Comunity
+from demoapp import models
 from djgentelella.models import MenuItem
 
 class Command(BaseCommand):
@@ -123,18 +123,6 @@ class Command(BaseCommand):
             only_icon=False
         )
 
-        MenuItem.objects.create(
-            parent=cwidget,
-            title='Autocomplete Widgets',
-            url_name='pgroup-list',
-            category='sidebar',  # sidebar, sidebarfooter,
-            is_reversed=True,
-            reversed_kwargs=None,
-            reversed_args=None,
-            is_widget=False,
-            icon='fa fa-home',
-            only_icon=False
-        )
         noti=MenuItem.objects.create(
             parent = item,
             title = 'Create notification',
@@ -160,30 +148,7 @@ class Command(BaseCommand):
             only_icon = False
         )
 
-        MenuItem.objects.create(
-            parent = item,
-            title = 'People group',
-            url_name ='pgroup-list',
-            category = 'sidebar',  #sidebar, sidebarfooter,
-            is_reversed = True,
-            reversed_kwargs = None,
-            reversed_args = None,
-            is_widget = False,
-            icon = 'fa fa-power-off',
-            only_icon = False
-        )
-        MenuItem.objects.create(
-            parent = item,
-            title = 'People group create',
-            url_name ='pgroup-add',
-            category = 'sidebar',  #sidebar, sidebarfooter,
-            is_reversed = True,
-            reversed_kwargs = None,
-            reversed_args = None,
-            is_widget = False,
-            icon = 'fa fa-power-off',
-            only_icon = False
-        )
+
 
         MenuItem.objects.create(
             parent = item,
@@ -260,35 +225,95 @@ class Command(BaseCommand):
             only_icon = False
         )
 
+    def create_autocomplete_menu(self):
+        item = MenuItem.objects.create(
+            parent = None,
+            title = 'Remote autocomplete Widgets',
+            url_name ='/',
+            category = 'sidebar',  #sidebar, sidebarfooter,
+            is_reversed = False,
+            reversed_kwargs = None,
+            reversed_args = None,
+            is_widget = False,
+            icon = 'fa fa-home',
+            only_icon = False
+        )
+        MenuItem.objects.create(
+            parent = item,
+            title = 'People group (Autocomplete)',
+            url_name ='pgroup-list',
+            category = 'sidebar',  #sidebar, sidebarfooter,
+            is_reversed = True,
+            reversed_kwargs = None,
+            reversed_args = None,
+            is_widget = False,
+            icon = 'fa fa-power-off',
+            only_icon = False
+        )
+        MenuItem.objects.create(
+            parent = item,
+            title = 'Autocomplete related',
+            url_name ='abcde-list',
+            category = 'sidebar',  #sidebar, sidebarfooter,
+            is_reversed = True,
+            reversed_kwargs = None,
+            reversed_args = None,
+            is_widget = False,
+            icon = 'fa fa-power-off',
+            only_icon = False
+        )
     def create_countries(self):
-        Country.objects.all().delete()
+        models.Country.objects.all().delete()
         data=[
-            Country(name="Costa Rica"),
-            Country(name="Panamá"),
-            Country(name="Nicaragua"),
-            Country(name="El Salvador"),
-            Country(name="Guatemala"),
-            Country(name="Hondura"),
-            Country(name="Belize"),
+            models.Country(name="Costa Rica"),
+            models.Country(name="Panamá"),
+            models.Country(name="Nicaragua"),
+            models.Country(name="El Salvador"),
+            models.Country(name="Guatemala"),
+            models.Country(name="Hondura"),
+            models.Country(name="Belize"),
         ]
-        Country.objects.bulk_create(data)
+        models.Country.objects.bulk_create(data)
 
     def create_person(self):
+        models.Person.objects.all().delete()
         for x in range(10):
-            Person.objects.create(
+            models.Person.objects.create(
                 name = "Person "+str(x),
                 num_children = randint(1, 10),
-                country = Country.objects.all().order_by('?').first(),
+                country = models.Country.objects.all().order_by('?').first(),
                 born_date = now(),
                 last_time = now()
             )
 
     def create_comunities(self):
+        models.Comunity.objects.all().delete()
         for x in range(10):
-            Comunity.objects.create(name="Comunity "+str(x))
+            models.Comunity.objects.create(name="Comunity "+str(x))
+
+    def abcde(self):
+        models.A.objects.all().delete()
+        al,bl,cl,dl,el  = [], [], [], [], []
+        for a in range(1, 11):
+            al.append(models.A(display="A "+str(a), id=a))
+            for b in range(1, 11):
+                bl.append( models.B(display="B %d a(%d)"%(b, a), id=b, a_id=a))
+                for c in range(1, 6):
+                    cl.append(models.C(display="C %d b(%d) a(%d)"%(c,b,a ), id=c, b_id=b))
+                    for d in range(1, 5):
+                        dl.append(models.D(display="D %d c(%d) b(%d) a(%d)"%(d,c,b,a), id=d, c_id=c))
+                        for e in range(1, 4):
+                            el.append(models.E(display="E %d d(%d) c(%d) b(%d) a(%d)"%(e, d,c,b,a), id=e, d_id=d))
+        models.A.objects.bulk_create(al)
+        models.B.objects.bulk_create(bl)
+        models.C.objects.bulk_create(cl)
+        models.D.objects.bulk_create(dl)
+        models.E.objects.bulk_create(el)
 
     def handle(self, *args, **options):
         self.create_menu()
+        self.create_autocomplete_menu()
         self.create_countries()
         self.create_person()
         self.create_comunities()
+        self.abcde()
