@@ -4357,3 +4357,50 @@ h4.revision {
      width: 200%;
      padding: 0px;
 }
+
+.footer_nosidebar {
+    margin-left: 0px!important;
+}
+
+.onep_title {
+    font: normal 25px Helvetica, Arial, sans-serif;
+    line-height: normal;
+    letter-spacing: -0.05em;
+    line-height: 20px;
+    margin: 10px 0 30px;
+    color: #a97c0a;
+}
+
+.center-container {
+  position: relative;
+  height: 100%;
+}
+
+.vertical-center {
+  height: 50%;
+  overflow: auto;
+  margin: auto;
+  position: absolute;
+  top: 0; left: 0; bottom: 0; right: 0;
+}
+
+.vertical-bottom {
+  height: 10%;
+  overflow: auto;
+  margin: auto;
+  position: absolute;
+  top: 10; left: 0; bottom: 0; right: 0;
+}
+
+.hp-25{
+    height: 25%!important;
+}
+.hp-50{
+    height: 50%!important;
+}
+.hp-75{
+    height: 75%!important;
+}
+.hp-90{
+    height: 90%!important;
+}
