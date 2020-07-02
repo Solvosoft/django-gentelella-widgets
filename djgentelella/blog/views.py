@@ -44,8 +44,7 @@ class EntriesList(ListView):
                     )
         if values:
             dev += "&".join(values)
-        else:
-            dev = ''
+
         return dev
 
     def get_category_id(self):
@@ -65,7 +64,7 @@ class EntriesList(ListView):
             context['appendi'] = '?'
         else:
             context['appendi'] = '&'
-
+        context['getparams'] = self.get_query_get_params(exclude=['page'])
         return context
 
 class EntryDetail(DetailView):
