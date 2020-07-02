@@ -33,7 +33,7 @@ def get_datatables_translation(context):
 @register.simple_tag(takes_context=True)
 def define_true(context, val):
     setattr(context['request'], val, True)
-    return True
+    return ""
 
 @register.simple_tag(takes_context=True)
 def get_define(context, val):
