@@ -27,8 +27,8 @@
      <div class="media">
            <div class="media-left">
             <a href="{{ entry.get_absolute_url }}">
-                {% if entry.preview_image %}
-                 <img src="{{ entry.preview_image.url }}"  class="media-object" alt="{% trans 'Preview image for' %} {{ entry.title }}" class="img-responsive"/>
+                {% if entry.feature_image %}
+                 <img src="{{ entry.feature_image.url }}"  style="max-width: 256px" class="media-object" alt="{% trans 'Preview image for' %} {{ entry.title }}" class="img-responsive"/>
                 {% else %}
                  <img src="{% static 'images/article.png' %}" style="width: 128px"  class="media-object" alt="img">
                 {% endif %}
