@@ -31,3 +31,4 @@ urlpatterns = djgentelellaurls + [
     path('add_view_select', add_view_select, name='add_view_select'),
     path('blog/', include('djgentelella.blog.urls'))
 ] + demourls + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

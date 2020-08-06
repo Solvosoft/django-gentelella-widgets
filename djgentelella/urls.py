@@ -1,6 +1,6 @@
 from chunked_upload.views import ChunkedUploadView, ChunkedUploadCompleteView
 from django.conf.urls import url
-from django.urls import path
+from django.urls import path, include
 from django.contrib.auth import views as auth_views
 
 from djgentelella.notification.base import NotificacionAPIView, NotificationList
@@ -37,8 +37,16 @@ auth_urls = [
     ), name="password_reset_complete")
 ]
 
-base_urlpatterns = [
+from .groute import routes
+from django.conf import settings
+for x in settings.INSTALLED_APPS:
+    try:
+        __import__(x+'.gtselects')
+    except:
+        pass
 
+base_urlpatterns = [
+    url('gtselects/', include(routes.urls)),
     path('djgentelella/upload/', ChunkedUploadView.as_view(), name='upload_file_view'),
     path('djgentelella/upload/done/', ChunkedUploadCompleteView.as_view(), name='upload_file_done'),
     url('help/(?P<pk>\d+)?', HelperWidgetView.as_view({'get': 'list', 'post': 'create', 'put': 'update', 'delete': 'destroy'}),
