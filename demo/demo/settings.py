@@ -149,3 +149,8 @@ JQUERY_URL = None
 # DEFAULT_JS_IMPORTS = {
 #     'use_bootstraptree': True
 # }
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 4
+}

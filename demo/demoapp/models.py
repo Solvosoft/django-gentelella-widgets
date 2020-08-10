@@ -22,6 +22,16 @@ class Person(models.Model):
     def __str__(self):
         return self.name
 
+
+class RelPerson(models.Model):
+    description = models.CharField(max_length=150)
+    person = models.ForeignKey(Person, on_delete=models.CASCADE)
+    number = models.IntegerField()
+
+    def __str__(self):
+        return self.description
+
+
 class Catalog(models.Model):
     key = models.CharField(max_length=150)
     description = models.CharField(max_length=500)

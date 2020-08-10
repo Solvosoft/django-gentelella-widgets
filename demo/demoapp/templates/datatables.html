@@ -1,0 +1,51 @@
+{% extends 'gentelella/index.html' %}
+{% load static %}
+{% load gtsettings %}
+
+{% block pre_head %}
+    {% define_true  "use_datatables" %}
+{% endblock %}
+
+{% block content %}
+
+<table  class="table table-bordered table-hover table-striped relatedtable" data-rel-url="{% url 'api-persontable-list' %}"  >
+    <thead><tr>
+        <th>Name</th>
+        <th>Num children</th>
+        <th>Born date</th>
+        <th>Country</th>
+        <th>Last Time</th>
+    </tr></thead>
+    <tbody></tbody>
+</table>
+
+<hr>
+<div class="btn-group" role="group" aria-label="">
+    {% for relobj in object_list %}
+        <button data-person="{{ relobj.number }}" type="button" class="abtn btn {% cycle 'btn-default' 'btn-success' 'btn-info' %}">{{ relobj }}</button>
+    {% endfor %}
+</div>
+
+{% endblock %}
+
+{% block js %}
+<script src="{% static 'gentelella/js/relatedDatatables.js' %}"></script>
+<script>
+    m = $(".relatedtable").relDatatables();
+    m.initialize({ // datatables parameters
+        columns: [
+            { data: 'name' },
+            { data: 'num_children' },
+            { data: 'born_date' },
+            { data: 'country' },
+            { data: 'last_time' }
+        ]
+    });
+    $(".abtn").on('click', function(){
+        console.log($(this).data('person'));
+        m.updateInstance($(this).data('person'));
+    });
+
+</script>
+
+{% endblock %}

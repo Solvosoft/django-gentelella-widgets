@@ -1,8 +1,10 @@
 from django.conf.urls import url
 from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 
 from demoapp.cruds import Personclass, Countryclass, MenuItemclass
-from demoapp.views import create_notification_view, color_widget_view
+from demoapp.views import create_notification_view, color_widget_view, person_reltable_view
+from . import api
 from .autocomplete import views as autocompleteviews
 from .views import knobView
 
@@ -21,4 +23,10 @@ urlpatterns = [
         path('abcde/', autocompleteviews.ABCDEList.as_view(), name='abcde-list'),
         path('abcde/create/', autocompleteviews.ABCDECreate.as_view(), name='abcde-add'),
         path('abcde/<int:pk>/', autocompleteviews.ABCDEChange.as_view(), name='abcde-edit'),
+        path('datables/', person_reltable_view, name='abcde-edit'),
 ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()
+
+router = DefaultRouter()
+router.register('persontable', api.PersonViewSet, 'api-persontable')
+
+urlpatterns += router.get_urls()

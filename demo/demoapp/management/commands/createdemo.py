@@ -3,12 +3,14 @@ from random import randint
 from django.core.management import BaseCommand
 from django.urls import reverse
 from django.utils.timezone import now
-
+import random
 from demoapp import models
+from demoapp.models import RelPerson
 from djgentelella.models import MenuItem
 
 class Command(BaseCommand):
     help = "Load demo site structure"
+    persons = []
 
     def create_menu(self):
 
@@ -278,13 +280,14 @@ class Command(BaseCommand):
     def create_person(self):
         models.Person.objects.all().delete()
         for x in range(10):
-            models.Person.objects.create(
+            p = models.Person.objects.create(
                 name = "Person "+str(x),
                 num_children = randint(1, 10),
                 country = models.Country.objects.all().order_by('?').first(),
                 born_date = now(),
                 last_time = now()
             )
+            self.persons.append(p)
 
     def create_comunities(self):
         models.Comunity.objects.all().delete()
@@ -316,6 +319,16 @@ class Command(BaseCommand):
         models.D.objects.bulk_create(dl)
         models.E.objects.bulk_create(el)
 
+    def rel_person(self):
+        for x in range(4):
+            for s in random.sample(range(0, len(self.persons)), 3):
+                person = self.persons[s]
+                RelPerson.objects.create(
+                  description="RelPerson %d %s"%(x, person),
+                  person=person,
+                  number=x
+                )
+
     def handle(self, *args, **options):
         self.create_menu()
         self.create_autocomplete_menu()
@@ -323,3 +336,4 @@ class Command(BaseCommand):
         self.create_person()
         self.create_comunities()
         self.abcde()
+        self.rel_person()

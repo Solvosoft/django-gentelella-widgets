@@ -4,6 +4,7 @@ from django.shortcuts import render, redirect
 
 from djgentelella.notification import create_notification
 from .forms import FooModelForm, ColorWidgetsForm, SimpleColorForm
+from .models import RelPerson
 
 
 @login_required
@@ -44,3 +45,10 @@ def color_widget_view(request):
         form.save()
     return render(request, 'index-color.html', {'form': form,
                                                 "form_widgets": form_widgets})
+
+
+def person_reltable_view(request):
+    context = {
+        'object_list': RelPerson.objects.all()
+    }
+    return render(request, 'datatables.html', context=context)
