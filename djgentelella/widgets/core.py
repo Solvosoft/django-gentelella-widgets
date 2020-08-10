@@ -1,3 +1,4 @@
+from chunked_upload.models import ChunkedUpload
 from django.forms import (PasswordInput as DJPasswordInput, FileInput as DJFileInput,
                           ClearableFileInput as DJClearableFileInput, Textarea as DJTextarea,
                           DateInput as DJDateInput, DateTimeInput as DJDateTimeInput,
@@ -89,7 +90,8 @@ class PasswordInput(DJPasswordInput):
         if extraskwargs:
             attrs = update_kwargs(attrs, self.__class__.__name__)
         super().__init__(attrs)
-#Fixme: do upload view
+
+
 class FileInput(DJFileInput):
     input_type = 'file'
     needs_multipart_form = True
@@ -104,6 +106,21 @@ class FileInput(DJFileInput):
             attrs['data-done'] = reverse_lazy('upload_file_done')
         super().__init__(attrs)
 
+    def format_value(self, value):
+        """File input never renders a value."""
+        return
+
+    def value_from_datadict(self, data, files, name):
+        dev = None
+        token = data.get(name)
+        tmpupload = ChunkedUpload.objects.filter(upload_id=token).first()
+        if tmpupload:
+            dev = tmpupload.get_uploaded_file()
+            tmpupload.delete()
+        return dev
+
+    def value_omitted_from_data(self, data, files, name):
+        return name not in data
 
 class ClearableFileInput(DJClearableFileInput):
     template_name = 'gentelella/widgets/file.html'

@@ -19,7 +19,7 @@ class ExampleForm(CustomForm):
     your_url = forms.URLField(widget=genwidgets.URLInput)
     your_pass = forms.CharField(widget=genwidgets.PasswordInput)
 
-    #your_file = forms.FileField(widget=genwidgets.FileInput)
+    your_file = forms.FileField(widget=genwidgets.FileInput)
     your_area = forms.CharField(widget=genwidgets.Textarea, max_length = 50)
     your_date = forms.DateField(widget=genwidgets.DateInput)
     your_datetime = forms.DateTimeField(widget=genwidgets.DateTimeInput)

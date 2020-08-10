@@ -1,7 +1,7 @@
 <div class="input-group">
   <div   class="input-group-addon {{ widget.name }}_progress"><i class="fa fa-file"></i></div>
-  <div class="uploadfilecontent">
-    <input type="{{ widget.type }}" data-inputtoken="{{ widget.name }}" data-process=".{{ widget.name }}_progress"  data-message=".{{ widget.name }}_messages"  name="{{ widget.name }}_widget" {% if widget.value != None %} value="{{ widget.value|stringformat:'s' }}"{% endif %}{% include "gentelella/widgets/attrs.html" %}>
+  <div class="uploadfilecontent custom-file">
+    <input class="custom-file-input" type="{{ widget.type }}" data-inputtoken="{{ widget.name }}" data-process=".{{ widget.name }}_progress"  data-message=".{{ widget.name }}_messages"  name="{{ widget.name }}_widget" {% if widget.value != None %} value="{{ widget.value|stringformat:'s' }}"{% endif %}{% include "gentelella/widgets/attrs.html" %}>
   </div>
   <div   class="form-control {{ widget.name }}_messages" style="display:none;"></div>
   <input type="hidden" name="{{ widget.name }}" value="" />
