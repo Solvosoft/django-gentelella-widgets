@@ -29,7 +29,7 @@ class EntriesList(ListView):
         q = self.request.GET.get('q', '')
         if q:
             queryset = queryset.filter(Q(published_content__icontains=q)|Q(title__icontains=q))
-        cat = self.request.GET.get('cat', '')
+        cat = self.get_category_id()
         if cat:
             queryset = queryset.filter(categories__in=[cat])
         return queryset.order_by('is_published', '-published_timestamp')  # Put 'drafts' first.
@@ -42,9 +42,12 @@ class EntriesList(ListView):
                 values.append(
                     '%s=%s' % (key, self.request.GET.get(key))
                     )
+
         if values:
             dev += "&".join(values)
 
+        if dev != '?':
+            dev += '&'
         return dev
 
     def get_category_id(self):
@@ -60,10 +63,6 @@ class EntriesList(ListView):
         context['catparams'] = self.get_query_get_params(exclude=['cat'])
         context['q'] = self.request.GET.get('q', '')
         context['cat'] = self.get_category_id()
-        if not context['catparams']:
-            context['appendi'] = '?'
-        else:
-            context['appendi'] = '&'
         context['getparams'] = self.get_query_get_params(exclude=['page'])
         return context
 
