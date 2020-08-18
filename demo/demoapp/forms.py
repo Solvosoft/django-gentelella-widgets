@@ -1,9 +1,12 @@
 from django import forms
 from djgentelella.forms.forms import CustomForm
-from .models import Foo
+from djgentelella.widgets.core import DateTimeInput, DateInput
+from djgentelella.widgets.selects import AutocompleteSelect
+from .models import Foo, Person
 from djgentelella.widgets import numberknobinput as knobwidget
 from djgentelella.widgets.color import StyleColorInput, DefaultColorInput, HorizontalBarColorInput, VerticalBarColorInput, InlinePickerColor
 from demoapp.models import Colors
+
 
 class FooModelForm(CustomForm, forms.ModelForm):
     class Meta:
@@ -21,6 +24,7 @@ class FooModelForm(CustomForm, forms.ModelForm):
                                             }),
             'age': knobwidget.NumberKnobInput()
         }
+
 
 class FooBasicForm(CustomForm, forms.Form):
     """creates a basic form with three widgets using different attrs"""
@@ -67,3 +71,14 @@ class SimpleColorForm(CustomForm, forms.Form):
     inline_picker = forms.CharField(
          widget=InlinePickerColor
     )
+
+
+class PersonForm(CustomForm, forms.ModelForm):
+    class Meta:
+        model = Person
+        fields = '__all__'
+        widgets = {
+            'country': AutocompleteSelect('countrybasename'),
+            'last_time': DateTimeInput,
+            'born_date': DateInput
+        }
