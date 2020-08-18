@@ -1,7 +1,11 @@
 from django import forms
 
 # "'<tr%(html_class_attr)s><th>%(label)s</th><td>%(errors)s%(field)s%(help_text)s</td></tr>'"
-class CustomForm(forms.Form):
+from django.forms import BaseFormSet
+from django.utils.safestring import mark_safe
+
+
+class GTForm(forms.Form):
     """
     Append the next render methods to forms
     """
@@ -37,4 +41,18 @@ class CustomForm(forms.Form):
                 errors_on_separate_row=False,
             )
 
+CustomForm=GTForm
 
+
+class GTFormSet(BaseFormSet):
+    def as_plain(self):
+        forms = ' '.join(form.as_plain() for form in self)
+        return mark_safe(str(self.management_form) + '\n' + forms)
+
+    def as_inline(self):
+        forms = ' '.join(form.as_inline() for form in self)
+        return mark_safe(str(self.management_form) + '\n' + forms)
+
+    def as_horizontal(self):
+        forms = ' '.join(form.as_horizontal() for form in self)
+        return mark_safe(str(self.management_form) + '\n' + forms)
