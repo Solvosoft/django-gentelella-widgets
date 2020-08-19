@@ -1,15 +1,33 @@
 {% extends 'gentelella/base.html' %}
-
+{% load static %}
 {% block content %}
 
-<div class="row">
-    <div class="col-xs-12 col-sm-12 col-md-12">
-        {{ formset.as_horizontal }}
+<div class="row formset">
+    <div class="col-xs-12 col-sm-12 col-md-12 formlist">
+
     </div>
+
+    <div class="hidden formsetcontrol"
+         data-delete="{% if formset.can_delete %}1{% else %}0{% endif %}"
+         data-order="{% if formset.can_order %}1{% else %}0{% endif %}"
+         data-validate-min="{% if formset.validate_min %}1{% else %}0{% endif %}"
+         data-validate-max="{% if formset.validate_max %}1{% else %}0{% endif %}"
+         data-extra="{{formset.extra}}"  data-prefix="{{formset.prefix}}"
+         >
+         {{ formset.management_form }}
+        {% spaceless %}
+        <div class="hidden formsettemplate">
+            <!-- {% include 'formset_empty.html' %} -->
+        </div>
+        {% endspaceless %}
+    </div>
+
+    <button class="btn btn-success formsetadd" >Add </button>
 </div>
 
 {% endblock %}
 
 {% block js %}
     {{ formset.media }}
+<script src="{% static 'gentelella/js/formset.js' %}"></script>
 {% endblock %}
