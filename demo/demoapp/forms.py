@@ -1,6 +1,6 @@
 from django import forms
 from djgentelella.forms.forms import CustomForm
-from djgentelella.widgets.core import DateTimeInput, DateInput
+from djgentelella.widgets.core import DateTimeInput, DateInput, TextInput, NumberInput
 from djgentelella.widgets.selects import AutocompleteSelect
 from .models import Foo, Person
 from djgentelella.widgets import numberknobinput as knobwidget
@@ -80,5 +80,8 @@ class PersonForm(CustomForm, forms.ModelForm):
         widgets = {
             'country': AutocompleteSelect('countrybasename'),
             'last_time': DateTimeInput,
-            'born_date': DateInput
+            'born_date': DateInput,
+            'name': TextInput,
+            'num_children': NumberInput,
+
         }

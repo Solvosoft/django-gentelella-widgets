@@ -1,0 +1,18 @@
+<div class="x_panel">
+<div class="x_title">
+<ul class="nav navbar-right panel_toolbox">
+{% if formset.can_order %}
+<li><a class="btndown "><i class="fa fa-chevron-down"></i></a></li>
+<li><a class="btnup "><i class="fa fa-chevron-up"></i></a></li>
+{% endif %}
+{% if formset.can_delete %}
+    <li><a class="deletebtn "><i class="fa fa-close"></i></a>
+{% endif %}
+</li>
+</ul>
+<div class="clearfix"></div>
+</div>
+<div class="x_content">
+ {{ form.as_horizontal }}
+</div>
+</div>

@@ -1,10 +1,12 @@
 {% extends 'gentelella/base.html' %}
 {% load static %}
 {% block content %}
-
+<form method="post"> {% csrf_token %}
 <div class="row formset">
     <div class="col-xs-12 col-sm-12 col-md-12 formlist">
-
+{% for form in formset %}
+        {% include 'formset_form.html' %}
+{% endfor %}
     </div>
 
     <div class="hidden formsetcontrol"
@@ -17,17 +19,17 @@
          {{ formset.management_form }}
         {% spaceless %}
         <div class="hidden formsettemplate">
-            <!-- {% include 'formset_empty.html' %} -->
+            <!-- {% include 'formset_form.html' with form=formset.empty_form %} -->
         </div>
         {% endspaceless %}
     </div>
 
-    <button class="btn btn-success formsetadd" >Add </button>
+    <button type="button" class="btn btn-success formsetadd" >Add </button>
 </div>
-
+</form>
 {% endblock %}
 
 {% block js %}
     {{ formset.media }}
-<script src="{% static 'gentelella/js/formset.js' %}"></script>
+    <script src="{% static 'gentelella/js/formset.js' %}"></script>
 {% endblock %}
