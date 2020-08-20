@@ -535,105 +535,18 @@ function load_daterangepicker() {
               }
           });
 };
-function init_time_widgets(){
-
-    $('[data-widget="DateTimeInput"]').datetimepicker();
-    $('[data-widget="TimeInput"]').datetimepicker({format: 'LT'});
-    $('[data-widget="DateInput"]').datetimepicker({format: "DD/MM/YYYY" });
-};
 
 function init_input_text(){
     $('input[maxlength]').maxlength();
 };
-function init_textarea() {
-    //if (typeof $.fn.autosize !== 'undefined') {
-        autosize($('[data-widget="Textarea"]') );
-    //}
-    $('[data-widget="Textarea"]').each(function(i, e){
-        if($(e).attr('maxlength') != undefined){
-            $(e).maxlength({alwaysShow: true, warningClass: "label label-success"});
-        }
-    });
-
-    //$('[data-widget="TextareaWysiwyg"]').wysiwyg();
-};
-
-function decore_select2 (data) {
-            // We only really care if there is an element to pull classes from
-            if (!data.element) {
-              return data.text;
-            }
-            var $element = $(data.element);
-            var $wrapper = $('<span></span>');
-            $wrapper.addClass($element[0].className);
-            $wrapper.text(data.text);
-            return $wrapper;
-}
-
-
-function init_selects(){
-    $('[data-widget="Select"]').select2();
-    $('[data-widget="SelectMultiple"]').select2();
-
-    tail.select('[data-widget="SelectTail"]',{
-        classNames:'form-control',
-        locale:'es',
-        placeholder:'Selecciones una opción.',
-        search: true
-      });
-    tail.select('[data-widget="SelectMultipleTail"]',{
-        classNames:'form-control',
-        locale:'es',
-        placeholder:'Selecciones una o más opciones',
-        search: true
-      });
-
-    $('[data-widget="TreeSelect"]').select2({templateResult: decore_select2});
-    $('[data-widget="TreeSelectWithAdd"]').select2({templateResult: decore_select2});
-    $('[data-widget="TreeSelectMultiple"]').select2({templateResult: decore_select2});
-    $('[data-widget="TreeSelectMultipleWithAdd"]').select2({templateResult: decore_select2});
-};
-
-function init_imask(){
-    $('[data-widget="PhoneNumberMaskInput"]').inputmask({"mask":"(999)9999-9999"});
-    $('[data-widget="DateMaskInput"]').inputmask( "99/99/9999",{ "placeholder": "dd/mm/yyyy" });
-    $('[data-widget="DateTimeMaskInput"]').inputmask( "99/99/9999 99:99:99",{ "placeholder": "dd/mm/yyyy HH:mm:ss" });
-    $('[data-widget="EmailMaskInput"]').inputmask({
-    mask: "*{1,20}[.*{1,20}][.*{1,20}][.*{1,20}]@*{1,20}[.*{2,6}][.*{1,2}]",
-    greedy: false,
-    onBeforePaste: function (pastedValue, opts) {
-      pastedValue = pastedValue.toLowerCase();
-      return pastedValue.replace("mailto:", "");
-    },
-    definitions: {
-      '*': {
-        validator: "[0-9A-Za-z!#$%&'*+/=?^_`{|}~\-]",
-        casing: "lower"
-      }
-    }
-  });
-};
-
-function initial_gentelella_select_add(){
-    $('[data-widget="SelectWithAdd"]').addselectwidget();
-    $('[data-widget="SelectWithAdd"]').select2();
-    $('[data-widget="SelectMultipleAdd"]').addselectwidget();
-    $('[data-widget="SelectMultipleAdd"]').select2();
-    $('[data-widget="TreeSelectMultipleWithAdd"]').addselectwidget();
-    $('[data-widget="TreeSelectWithAdd"]').addselectwidget();
-}
 
 $(document).ready(function() {
     init_sidebar();
     init_input_text();
     load_daterangepicker();
-    init_time_widgets();
-    init_textarea();
-    init_selects();
-    init_imask();
-    initial_gentelella_select_add();
     $(".gencrud").listcrudrest();
-    $('[data-widget="FileInput"]').fileuploadwidget();
+    gt_find_initialize($('body'));
+
 
 });
 
