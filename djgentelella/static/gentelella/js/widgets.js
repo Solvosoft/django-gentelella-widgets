@@ -90,10 +90,14 @@ document.gtwidgets = {
         instance.fileuploadwidget();
     },
     AutocompleteSelectMultiple: function(instance){
-        build_select2_init(instance);
+        if(typeof build_select2_init == 'function') {
+            build_select2_init(instance);
+        }
     },
     AutocompleteSelect: function(instance){
-        build_select2_init(instance);
+        if(typeof build_select2_init == 'function') {
+            build_select2_init(instance);
+        }
     }
 
 
