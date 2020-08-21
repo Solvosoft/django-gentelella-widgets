@@ -4,7 +4,7 @@ from django import forms
 from django.forms import BaseFormSet, HiddenInput
 from django.forms.formsets import DELETION_FIELD_NAME
 from django.utils.safestring import mark_safe
-
+from django.forms import BaseModelFormSet
 
 class GTForm(forms.Form):
     """
@@ -44,16 +44,7 @@ class GTForm(forms.Form):
 
 CustomForm=GTForm
 
-
-class GTFormSet(BaseFormSet):
-    ordering_widget = HiddenInput
-
-    def add_fields(self, form, index):
-        super().add_fields(form, index)
-        if self.can_delete:
-            form.fields[DELETION_FIELD_NAME].widget.attrs['class'] = 'hidden'
-            form.fields[DELETION_FIELD_NAME].label = ''
-
+class BaseFormset:
     def as_plain(self):
         forms = ' '.join(form.as_plain() for form in self)
         return mark_safe(str(self.management_form) + '\n' + forms)
@@ -65,3 +56,23 @@ class GTFormSet(BaseFormSet):
     def as_horizontal(self):
         forms = ' '.join(form.as_horizontal() for form in self)
         return mark_safe(str(self.management_form) + '\n' + forms)
+
+
+class GTFormSet(BaseFormSet, BaseFormset):
+    ordering_widget = HiddenInput
+
+    def add_fields(self, form, index):
+        super().add_fields(form, index)
+        if self.can_delete:
+            form.fields[DELETION_FIELD_NAME].widget.attrs['class'] = 'hidden'
+            form.fields[DELETION_FIELD_NAME].label = ''
+
+
+class GTBaseModelFormSet(BaseModelFormSet):
+    ordering_widget = HiddenInput
+
+    def add_fields(self, form, index):
+        super().add_fields(form, index)
+        if self.can_delete:
+            form.fields[DELETION_FIELD_NAME].widget.attrs['class'] = 'hidden'
+            form.fields[DELETION_FIELD_NAME].label = ''

@@ -4,7 +4,7 @@ from django.urls import path, include
 from demoapp.cruds import Personclass, Countryclass, MenuItemclass
 from demoapp.views import create_notification_view, color_widget_view
 from .autocomplete import views as autocompleteviews
-from .formset import add_formset
+from .formset import add_formset, add_model_formset
 from .views import knobView
 
 pclss = Personclass()
@@ -13,6 +13,7 @@ menuclss = MenuItemclass()
 
 urlpatterns = [
         path('formset', add_formset, name='add_formset'),
+        path('modelformset', add_model_formset, name='add_model_formset'),
         path('create/notification', create_notification_view),
         url(r'^markitup/', include('markitup.urls')),
         path('knobwidget/testform', knobView, name="knobwidgets"),
