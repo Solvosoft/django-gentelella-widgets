@@ -73,6 +73,10 @@ document.gtwidgets = {
     CustomMaskInput: function (instace) {
         instace.inputmask({ "mask": "99-999999" });
     },
+
+    IdentificationCardMaskInput: function (instace) {
+        instace.inputmask({ "mask": "09-9999-9999" });
+    },
     DateTimeMaskInput: function (instance) {
         instance.inputmask("99/99/9999 99:99:99", { "placeholder": "dd/mm/yyyy HH:mm:ss" });
     },
