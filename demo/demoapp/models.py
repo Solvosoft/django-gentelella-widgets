@@ -115,3 +115,13 @@ class ABCDE(models.Model):
 
     def __str__(self):
         return " ".join([x.display for x in self.e.all()])
+    
+class InputMask(models.Model):
+  
+    date=models.DateField()
+    phone=models.CharField(max_length=20)
+    custom=models.CharField(max_length=10)
+    serial_number=models.CharField(max_length=25)
+    taxid=models.CharField(max_length=25)
+    credit_card=models.CharField(max_length=25)
+    

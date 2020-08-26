@@ -86,6 +86,31 @@ class Command(BaseCommand):
             icon = 'fa fa-home',
             only_icon = False
         )
+        forms = MenuItem.objects.create(
+            parent = None,
+            title = 'Forms',
+            url_name ='/',
+            category = 'sidebar',  #sidebar, sidebarfooter,
+            is_reversed = False,
+            reversed_kwargs = None,
+            reversed_args = None,
+            is_widget = False,
+            icon = 'fa fa-home',
+            only_icon = False
+        )
+        inputmask = MenuItem.objects.create(
+            parent = forms,
+            title = 'Advanced Components',
+            url_name ='inputmask',
+            category = 'sidebar',  #sidebar, sidebarfooter,
+            is_reversed = False,
+            reversed_kwargs = None,
+            reversed_args = None,
+            is_widget = False,
+            icon = '',
+            only_icon = False
+        )
+        
         cwidget = MenuItem.objects.create(
             parent=extrawidget,
             title='Form Widgets',

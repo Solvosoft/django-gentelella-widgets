@@ -98,8 +98,19 @@ document.gtwidgets = {
         if(typeof build_select2_init == 'function') {
             build_select2_init(instance);
         }
-    }
-
+    },
+    SerialNumberMaskInput: function(instance){
+        instance.inputmask({ "mask":"9999-9999-9999-9999-999"});
+    },
+    CustomMaskInput: function(instance){
+        instance.inputmask({"mask":"99-999999" });
+    },
+    TaxIDMaskInput: function(instance){
+        instance.inputmask({"mask":"99-99999999" });
+    },
+    CreditCardMaskInput: function(instance){
+        instance.inputmask({"mask":"9999-9999-9999-9999" });
+    },
 
 }
 
