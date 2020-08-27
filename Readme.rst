@@ -18,11 +18,6 @@ When pip is ready you can do
 
    pip install djgentelella
 
-Install rest_framework
-
-.. code:: bash
-
-    pip install djangorestframework
 
 Configure your settings
 
