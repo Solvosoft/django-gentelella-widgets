@@ -6,13 +6,13 @@ This app helps you to integrate Django apps with `Gentelella <https://colorlib.c
 Installation
 ________________
 
-Installing from repository (not in pip yet).
+Installing from repository (Updated frequently, most of great functionalities are not in pip yet ).
 
 .. code:: bash
 
    pip install git+https://github.com/luisza/django-gentelella-widgets.git#egg=djgentelella
 
-When pip is ready you can do
+An stable version on pip, but not all available widget are in this release (new release comming soon)
 
 .. code:: bash
 
@@ -46,6 +46,8 @@ Configure your settings
         '%Y-%m-%d %H:%M %p',
         '%d/%m/%y %H:%M %p'
     ]
+ 
+.. note:: Date format on Django uses localization and depends on USE_L10N, but we can not configure yet JS date widgets to change based on Django representation so USE_L10N need to be false.
 
 Run migrations 
 
@@ -78,10 +80,10 @@ In forms
 
 .. code:: python
 
-    from djgentelella.forms.forms import CustomForm
+    from djgentelella.forms.forms import GTForm
     from djgentelella.widgets import core as genwidgets
 
-    class myform(CustomForm, forms.ModelForm):
+    class myform(GTForm, forms.ModelForm):
         class Meta:
             model = MyObject
             fields = '__all__'
@@ -142,5 +144,8 @@ There are several widgets implemented this is a list of what you can use
 - DateRangeInput
 - AutocompleteSelect
 - AutocompleteSelectMultiple
+- Formset implementation
+- Remote select2 views.
 
 
+And More see demo app.
