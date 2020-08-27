@@ -359,7 +359,7 @@ class PhoneNumberMaskInput(TextInput):
     template_name = 'gentelella/widgets/phone_number_input_mask.html'
 
     def __init__(self, attrs=None):
-        attrs = update_kwargs(attrs, self.__class__.__name__)
+        attrs = update_kwargs(attrs, self.__class__.__name__,base_class='mask')
 
         super().__init__(attrs)
 
@@ -368,7 +368,7 @@ class DateMaskInput(DJDateInput):
     template_name = 'gentelella/widgets/date_input_mask.html'
 
     def __init__(self, attrs=None):
-        attrs = update_kwargs(attrs, self.__class__.__name__)
+        attrs = update_kwargs(attrs, self.__class__.__name__,base_class='form-control mask')
         super().__init__(attrs)
 
 class DateTimeMaskInput(DJDateTimeInput):
@@ -409,7 +409,7 @@ class SerialNumberMaskInput(TextInput):
     template_name='gentelella/widgets/serialnumber_input_mask.html'
     
     def __init__(self, attrs=None, format=None):
-        attrs = update_kwargs(attrs, self.__class__.__name__)
+        attrs = update_kwargs(attrs, self.__class__.__name__,base_class='mask')
         super().__init__(attrs)
 
 class CustomMaskInput(TextInput):
@@ -417,7 +417,7 @@ class CustomMaskInput(TextInput):
     template_name='gentelella/widgets/custom_input_mask.html'
     
     def __init__(self, attrs=None, format=None):
-        attrs = update_kwargs(attrs, self.__class__.__name__)
+        attrs = update_kwargs(attrs, self.__class__.__name__,base_class='mask')
         super().__init__(attrs)
         
 class TaxIDMaskInput(TextInput):
@@ -425,7 +425,7 @@ class TaxIDMaskInput(TextInput):
     template_name='gentelella/widgets/taxid_input_mask.html'
     
     def __init__(self, attrs=None, format=None):
-        attrs = update_kwargs(attrs, self.__class__.__name__)
+        attrs = update_kwargs(attrs, self.__class__.__name__,base_class='mask')
         super().__init__(attrs)
         
 class CreditCardMaskInput(TextInput):
@@ -433,5 +433,5 @@ class CreditCardMaskInput(TextInput):
     template_name='gentelella/widgets/credit_card_input_mask.html'
     
     def __init__(self, attrs=None, format=None):
-        attrs = update_kwargs(attrs, self.__class__.__name__)
+        attrs = update_kwargs(attrs, self.__class__.__name__,base_class='mask')
         super().__init__(attrs)

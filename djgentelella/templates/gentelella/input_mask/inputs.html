@@ -3,10 +3,11 @@
 {% block content %}
 
 <div class="row">
-<div class='col-xs-12 col-sm-12 col-md-12 col-lg-6'>
-     <div class="x_panel gencrud">
-            <div class="x_title"><h2> Input Mask </h2>
-           <div class="clearfix"></div>
+    <div class='col-xs-12 col-sm-12 col-md-12 col-lg-6'>
+        <div class="x_panel gencrud">
+            <div class="x_title">
+                <h2> Input Mask </h2>
+                <div class="clearfix"></div>
             </div>
 
             <div class="x_content">
@@ -15,47 +16,48 @@
                     <div class="form-group">
                         <label>{{form.date.label_tag}}</label>
                         {{form.date}}
-                       <small>{{form.date.errors}}</small>
-                    </div> 
+                        <small>{{form.date.errors}}</small>
+                    </div>
                     <div class="form-group">
                         <label>{{form.phone.label_tag}}</label>
                         {{form.phone}}
-                       <small>{{form.phone.errors}}</small>
-                    </div> 
+                        <small>{{form.phone.errors}}</small>
+                    </div>
                     <div class="form-group">
                         <label>{{form.custom.label_tag}}</label>
                         {{form.custom}}
-                       <small>{{form.custom.errors}}</small>
-                    </div> 
+                        <small>{{form.custom.errors}}</small>
+                    </div>
                     <div class="form-group">
                         <label>{{form.taxid.label_tag}}</label>
                         {{form.taxid}}
-                       <small>{{form.taxid.errors}}</small>
-                    </div> 
+                        <small>{{form.taxid.errors}}</small>
+                    </div>
                     <div class="form-group">
                         <label>{{form.serial_number.label_tag}}</label>
                         {{form.serial_number}}
-                       <small>{{form.serial_number.errors}}</small>
-                    </div> 
+                        <small>{{form.serial_number.errors}}</small>
+                    </div>
 
                     <div class="form-group">
                         <label>{{form.credit_card.label_tag}}</label>
                         {{form.credit_card}}
-                       <small>{{form.credit_card.errors}}</small>
-                    </div> 
+                        <small>{{form.credit_card.errors}}</small>
+                    </div>
 
                     <a class="btn btn-primary" href="{% url 'inputs_mask_view' %}">Cancel</a>
-                    <input class="btn btn-success" type="submit"  value="Save"/>
+                    <input class="btn btn-success" type="submit" value="Save" />
                 </form>
 
             </div>
         </div>
 
 
-</div>
+    </div>
 </div>
 
 
 {% endblock %}
-{% block js %} {{ form.media }} {% endblock %}
+{% block js %}
 
+{{ form.media }} {% endblock %}
