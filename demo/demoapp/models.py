@@ -126,6 +126,6 @@ class InputMask(models.Model):
     credit_card=models.CharField(max_length=25)
     
     def __str__(self):
-        return self.phone
+        return self.custom
     
    

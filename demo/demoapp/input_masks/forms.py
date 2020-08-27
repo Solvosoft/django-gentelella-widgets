@@ -20,21 +20,31 @@ class InputMaskForms(forms.ModelForm, CustomForm):
         }
 
     def clean_phone(self):
-        data = self.cleaned_data["phone"]
-        if len(self.data) < 14:
-            raise forms.ValidationError('at least 14 digits')
-
+        phone=self.cleaned_data["phone"]
+        if len(phone) < 14:
+            raise phone.ValidationError('at least 14 digits')
+        return phone
+    
     def clean_serial_number(self):
-        data = self.cleaned_data["serial_number"]
-        if len(self.data) < 23:
-            raise forms.ValidationError('at least 23 digits')
-
+        serial_number=self.cleaned_data["serial_number"]
+        if len(serial_number) < 23:
+            raise serial_number.ValidationError('at least 23 digits')
+        return serial_number
+    
+    def clean_custom(self):
+        custom=self.cleaned_data["custom"]
+        if len(custom) < 9:
+            raise custom.ValidationError('at least 9 digits')
+        return custom
+    
     def clean_taxid(self):
-        data = self.cleaned_data["taxid"]
-        if len(self.data) < 11:
-            raise forms.ValidationError('at least 11 digits')
-
+        taxid=self.cleaned_data['taxid']
+        if len(taxid) < 11:
+            raise taxid.ValidationError('at least 11 digits')
+        return taxid
+    
     def clean_credit_card(self):
-        data = self.cleaned_data["credit_card"]
-        if len(self.data) < 19:
-            raise forms.ValidationError('at least 19 digits')
+        credit_card=self.cleaned_data["credit_card"]
+        if len(credit_card) < 19:
+            raise credit_card.ValidationError('at least 19 digits')
+        return credit_card
