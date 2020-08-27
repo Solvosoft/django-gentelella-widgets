@@ -18,6 +18,12 @@ When pip is ready you can do
 
    pip install djgentelella
 
+Install rest_framework
+
+.. code:: bash
+
+    pip install djangorestframework
+
 Configure your settings
 
 .. code:: bash
@@ -25,6 +31,25 @@ Configure your settings
     INSTALLED_APPS = [ ..
         'djgentelella',
         'mptt',
+        'rest_framework',
+        'chunked_upload',
+        'markitup',
+    ]
+
+    USE_L10N = False
+
+    MARKITUP_FILTER = ('markdown.markdown', {'safe_mode': True})
+    MARKITUP_SET = 'markitup/sets/markdown/'
+    JQUERY_URL = None
+
+    DATE_INPUT_FORMATS=[
+        '%Y-%m-%d', '%d/%m/%Y', '%d/%m/%y'
+    ]
+
+    DATETIME_INPUT_FORMATS = [
+        '%m/%d/%Y %H:%M %p',
+        '%Y-%m-%d %H:%M %p',
+        '%d/%m/%y %H:%M %p'
     ]
 
 Run migrations 
@@ -39,6 +64,16 @@ Create statics files downloading from internet (you need to install requests for
 
      pip install requests
      python manage.py loaddevstatic
+
+Add djgentelella urls in your project urls.py file
+
+.. code:: bash
+
+    from djgentelella.urls import urlpatterns as djgentelellaurls
+
+    urlpatterns = djgentelellaurls + [
+                    ...
+                  ]
      
 Usage
 _________
