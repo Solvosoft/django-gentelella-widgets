@@ -91,6 +91,3 @@ demo/db.sqlite3
 venv/
 .idea/
 djgentelella/static/vendors/
-demo/demoapp/migrations/0006_inputmask.py
-demo/demoapp/management/commands/createdemo.py
-demo/demoapp/management/commands/createdemo.py

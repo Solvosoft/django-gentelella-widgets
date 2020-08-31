@@ -100,8 +100,8 @@ class Command(BaseCommand):
         )
         inputmask = MenuItem.objects.create(
             parent = forms,
-            title = 'Advanced Components',
-            url_name ='inputs_mask_view',
+            title = 'Input Mask',
+            url_name ='input-mask-add',
             category = 'sidebar',  #sidebar, sidebarfooter,
             is_reversed = True,
             reversed_kwargs = None,
