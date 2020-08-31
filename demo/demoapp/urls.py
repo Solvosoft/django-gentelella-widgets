@@ -25,5 +25,8 @@ urlpatterns = [
         path('abcde/', autocompleteviews.ABCDEList.as_view(), name='abcde-list'),
         path('abcde/create/', autocompleteviews.ABCDECreate.as_view(), name='abcde-add'),
         path('abcde/<int:pk>/', autocompleteviews.ABCDEChange.as_view(), name='abcde-edit'),
-        path('inputmask/',input_mask.InsertMask.as_view(), name='inputs_mask_view'),
+        path('inputmask/',input_mask.InsertMask.as_view(), name='input-mask-add'),
+        path('inputmask/<int:pk>',input_mask.EditMask.as_view(), name='input-mask-edit'),
+        path('inputmask/list',input_mask.listMask.as_view(), name='input-mask-list'),
+
 ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()

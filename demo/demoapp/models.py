@@ -1,5 +1,7 @@
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
 
 
 # Create your models here.
@@ -12,6 +14,7 @@ class Country(models.Model):
     def __str__(self):
         return self.name
 
+
 class Person(models.Model):
     name = models.CharField(max_length=150)
     num_children = models.IntegerField(default=0)
@@ -22,43 +25,47 @@ class Person(models.Model):
     def __str__(self):
         return self.name
 
+
 class Catalog(models.Model):
     key = models.CharField(max_length=150)
     description = models.CharField(max_length=500)
 
     def __str__(self):
-        return self.key +" - "+self.description
+        return self.key + " - "+self.description
 
 
 class WithCatalog(models.Model):
-    mycatalog = GTForeignKey(Catalog, on_delete=models.DO_NOTHING, key_name="key", key_value="Options")
-    countries = GTManyToManyField(Catalog, related_name="countryrel", key_name="key", key_value="countries")
+    mycatalog = GTForeignKey(
+        Catalog, on_delete=models.DO_NOTHING, key_name="key", key_value="Options")
+    countries = GTManyToManyField(
+        Catalog, related_name="countryrel", key_name="key", key_value="countries")
 
     def __str__(self):
         return str(self.mycatalog)
 
+
 class OneCatalog(models.Model):
-    me = GTOneToOneField(Catalog, on_delete=models.CASCADE, key_name="key", key_value="countries")
+    me = GTOneToOneField(Catalog, on_delete=models.CASCADE,
+                         key_name="key", key_value="countries")
 
     def __str__(self):
         return str(self.me)
 
+
 class Foo(models.Model):
-    age = models.IntegerField(validators=
-                                    [
-                                        MaxValueValidator(120),
-                                        MinValueValidator(1)
-                                    ])
-    speed_in_miles_per_hour = models.FloatField(validators=
-                                    [
-                                        MinValueValidator(1),
-                                        MaxValueValidator(50)
-                                    ])
-    number_of_eyes = models.IntegerField(validators=
-                                    [
-                                        MinValueValidator(0),
-                                        MaxValueValidator(10)
-                                    ])
+    age = models.IntegerField(validators=[
+        MaxValueValidator(120),
+        MinValueValidator(1)
+    ])
+    speed_in_miles_per_hour = models.FloatField(validators=[
+        MinValueValidator(1),
+        MaxValueValidator(50)
+    ])
+    number_of_eyes = models.IntegerField(validators=[
+        MinValueValidator(0),
+        MaxValueValidator(10)
+    ])
+
 
 class Colors(models.Model):
     color = models.CharField(max_length=150)
@@ -74,7 +81,8 @@ class PeopleGroup(models.Model):
     name = models.CharField(max_length=150)
     people = models.ManyToManyField(Person)
     comunities = models.ManyToManyField('Comunity')
-    country = models.ForeignKey(Country, null=True, blank=True, on_delete=models.CASCADE)
+    country = models.ForeignKey(
+        Country, null=True, blank=True, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
@@ -90,21 +98,26 @@ class Comunity(models.Model):
 class A(models.Model):
     display = models.CharField(max_length=150)
 
+
 class B(models.Model):
     display = models.CharField(max_length=150)
     a = models.ForeignKey(A, on_delete=models.CASCADE)
+
 
 class C(models.Model):
     display = models.CharField(max_length=150)
     b = models.ForeignKey(B, on_delete=models.CASCADE)
 
+
 class D(models.Model):
     display = models.CharField(max_length=150)
     c = models.ForeignKey(C, on_delete=models.CASCADE)
 
+
 class E(models.Model):
     display = models.CharField(max_length=150)
     d = models.ForeignKey(D, on_delete=models.CASCADE)
+
 
 class ABCDE(models.Model):
     a = models.ManyToManyField(A)
@@ -115,17 +128,38 @@ class ABCDE(models.Model):
 
     def __str__(self):
         return " ".join([x.display for x in self.e.all()])
+
+
+def validate_inputs(value):
+    if value.find('_') != -1:
+        raise ValidationError(
+            _('%(value)s need more digits'), params={'value': value},)
+
+
+def validate_email(value):
+    position = value.split('@')
+    if value.find('_') != -1 and len(position[0]) > 0 and len(position[1]) > 4:
+        raise ValidationError(_('that email invalid'))
+
+
+def validate_credit_card(value):
+    position = value.split('_')
+    value=position[0]
+    if len(value) < 13:
+        raise ValidationError(_('that card invalid'))
+    
+    return value
     
 class InputMask(models.Model):
-  
-    date=models.DateField()
-    phone=models.CharField(max_length=20)
-    custom=models.CharField(max_length=10)
-    serial_number=models.CharField(max_length=25)
-    taxid=models.CharField(max_length=25)
-    credit_card=models.CharField(max_length=25)
-    
+
+    date = models.DateField()
+    phone = models.CharField(max_length=14, validators=[validate_inputs])
+    serial_number = models.CharField(
+        max_length=23, validators=[validate_inputs])
+    taxid = models.CharField(max_length=11, validators=[validate_inputs])
+    credit_card = models.CharField(
+        max_length=19, validators=[validate_credit_card])
+    email = models.EmailField(validators=[validate_email])
+
     def __str__(self):
-        return self.custom
-    
-   
+        return str(self.id)+' - '+self.email

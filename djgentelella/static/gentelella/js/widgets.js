@@ -50,6 +50,12 @@ document.gtwidgets = {
     PhoneNumberMaskInput: function(instance){
         instance.inputmask({"mask":"(999)9999-9999"});
     },
+    PhoneNumberTwoDigitMaskInput: function(instance){
+        instance.inputmask({"mask":"(99)9999-9999"});
+    },
+    PhoneNumberFourDigitMaskInput: function(instance){
+        instance.inputmask({"mask":"(9999)9999-9999"});
+    },
     DateMaskInput: function(instance){
         instance.inputmask( "99/99/9999",{ "placeholder": "dd/mm/yyyy" });
     },
@@ -101,9 +107,6 @@ document.gtwidgets = {
     },
     SerialNumberMaskInput: function(instance){
         instance.inputmask({ "mask":"9999-9999-9999-9999-999"});
-    },
-    CustomMaskInput: function(instance){
-        instance.inputmask({"mask":"99-999999" });
     },
     TaxIDMaskInput: function(instance){
         instance.inputmask({"mask":"99-99999999" });
