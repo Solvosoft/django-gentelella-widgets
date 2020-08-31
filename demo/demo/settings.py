@@ -121,7 +121,7 @@ USE_L10N = False
 USE_TZ = True
 
 DATE_INPUT_FORMATS=[
-   '%d/%m/%Y', '%d/%m/%y', '%Y-%m-%d', 
+    '%Y-%m-%d', '%d/%m/%Y', '%d/%m/%y'
 ]
 DATE_FORMAT= ['%d/%m/%Y',]
 
