@@ -378,7 +378,7 @@ class SelectDateWidget(DJSelectDateWidget):
 
 
 class DateMaskInput(DJDateInput):
-    format_key = 'DATE_FORMAT'
+    format_key = 'DATE_INPUT_FORMATS'
     template_name = 'gentelella/widgets/date_input_mask.html'
 
     def __init__(self, attrs=None):
@@ -421,32 +421,8 @@ class DateRangeInput(DJDateInput):
         attrs = update_kwargs(attrs, self.__class__.__name__)
         super().__init__(attrs, format=format)
 
-class SerialNumberMaskInput(TextInput):
-    input_type='text'
-    template_name='gentelella/widgets/input_mask.html'
-    
-    def __init__(self, attrs=None, format=None):
-        attrs = update_kwargs(attrs, self.__class__.__name__)
-        super().__init__(attrs)
 
-
-class TaxIDMaskInput(TextInput):
-    input_type='text'
-    template_name='gentelella/widgets/input_mask.html'
-    
-    def __init__(self, attrs=None, format=None):
-        attrs = update_kwargs(attrs, self.__class__.__name__)
-        super().__init__(attrs)
-        
-class CreditCardMaskInput(TextInput):
-    input_type='text'
-    template_name='gentelella/widgets/input_mask.html'
-    
-    def __init__(self, attrs=None, format=None):
-        attrs = update_kwargs(attrs, self.__class__.__name__)
-        super().__init__(attrs)
-        
-class PhoneNumberTwoDigitMaskInput(TextInput):
+class PhoneNumberMaskInput(TextInput):
     input_type = 'text'
     template_name = 'gentelella/widgets/phone_number_input_mask.html'
 
@@ -455,3 +431,51 @@ class PhoneNumberTwoDigitMaskInput(TextInput):
 
         super().__init__(attrs)
 
+
+class CreditMaskInput(TextInput):
+    input_type = 'text'
+    template_name = 'gentelella/widgets/credit_card_input_mask.html'
+
+    def __init__(self, attrs=None):
+        attrs = update_kwargs(attrs, self.__class__.__name__)
+
+        super().__init__(attrs)
+
+
+class CustomMaskInput(TextInput):
+    input_type = 'text'
+    template_name = 'gentelella/widgets/custom_input_mask.html'
+
+    def __init__(self, attrs=None):
+        attrs = update_kwargs(attrs, self.__class__.__name__)
+
+        super().__init__(attrs)
+
+
+class SerialNumberMaskInput(TextInput):
+    input_type = 'text'
+    template_name = 'gentelella/widgets/serial_number_input_mask.html'
+
+    def __init__(self, attrs=None):
+        attrs = update_kwargs(attrs, self.__class__.__name__)
+
+        super().__init__(attrs)
+
+
+class TaxIDMaskInput(TextInput):
+    input_type = 'text'
+    template_name = 'gentelella/widgets/taxid_input_mask.html'
+
+    def __init__(self, attrs=None):
+        attrs = update_kwargs(attrs, self.__class__.__name__)
+
+        super().__init__(attrs)
+
+class IdentificationCardMaskInput(TextInput):
+    input_type = 'text'
+    template_name = 'gentelella/widgets/identification_card_input_mask.html'
+
+    def __init__(self, attrs=None):
+        attrs = update_kwargs(attrs, self.__class__.__name__)
+
+        super().__init__(attrs)
