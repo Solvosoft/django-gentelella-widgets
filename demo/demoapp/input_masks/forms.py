@@ -1,20 +1,14 @@
-from django import forms
-from demoapp import models
 from djgentelella.forms.forms import CustomForm
-from djgentelella.widgets import core as widget
+from djgentelella.widgets import core as genwidgets
+from django import forms
 
 
-class InputMaskForms(forms.ModelForm, CustomForm):
-
-    class Meta:
-        model = models.InputMask
-        fields = '__all__'
-        widgets = {
-            'phone': widget.PhoneNumberMaskInput,
-            'date': widget.DateMaskInput,
-            'serial_number': widget.SerialNumberMaskInput,
-            'taxid': widget.TaxIDMaskInput,
-            'credit_card': widget.CreditCardMaskInput, 
-            'email': widget.EmailMaskInput,
-        }
-
+class InputMaskForm(CustomForm):
+    identification_card=forms.CharField(widget=genwidgets.IdentificationCardMaskInput)
+    date_mask= forms.DateField(label="Date Mask",widget=genwidgets.DateMaskInput)
+    phone_mask= forms.CharField(label="Phone Mask", widget=genwidgets.PhoneNumberMaskInput)
+    custom_mask= forms.CharField(label="Custom Mask", widget=genwidgets.CustomMaskInput)
+    serial_number= forms.CharField(label="Serial Number Mask", widget=genwidgets.SerialNumberMaskInput)
+    credit_Card_mask = forms.CharField(label="Credit Card Mask",widget=genwidgets.CreditMaskInput)
+    taxID_mask= forms.CharField(label="TaxID Mask", widget=genwidgets.TaxIDMaskInput)
+    

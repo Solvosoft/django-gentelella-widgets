@@ -123,8 +123,6 @@ USE_TZ = True
 DATE_INPUT_FORMATS=[
     '%Y-%m-%d', '%d/%m/%Y', '%d/%m/%y'
 ]
-DATE_FORMAT= ['%d/%m/%Y',]
-
 DATETIME_INPUT_FORMATS = [
     '%m/%d/%Y %H:%M %p',
     '%Y-%m-%d %H:%M %p',

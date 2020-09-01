@@ -65,14 +65,9 @@ document.gtwidgets = {
     SerialNumberMaskInput: function (instance) {
         instance.inputmask({ "mask": "9999-9999-9999-9999-999" });
     },
-    PhoneNumberTwoDigitMaskInput: function(instance){
-        instance.inputmask({"mask":"(99)9999-9999"});
-    },
-    PhoneNumberFourDigitMaskInput: function(instance){
-        instance.inputmask({"mask":"(9999)9999-9999"});
-    },
-    DateMaskInput: function(instance){
-        instance.inputmask( "99/99/9999",{ "placeholder": "dd/mm/yyyy" });
+
+    TaxIDMaskInput: function (instace) {
+        instace.inputmask({ "mask": "99-99999999" });
     },
 
     CustomMaskInput: function (instace) {
@@ -130,16 +125,8 @@ document.gtwidgets = {
         if (typeof build_select2_init == 'function') {
             build_select2_init(instance);
         }
-    },
-    SerialNumberMaskInput: function(instance){
-        instance.inputmask({ "mask":"9999-9999-9999-9999-999"});
-    },
-    TaxIDMaskInput: function(instance){
-        instance.inputmask({"mask":"99-99999999" });
-    },
-    CreditCardMaskInput: function(instance){
-        instance.inputmask({"mask":"9999-9999-9999-9999" });
-    },
+    }
+
 
 }
 
