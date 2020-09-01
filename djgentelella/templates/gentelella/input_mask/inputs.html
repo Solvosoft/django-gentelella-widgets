@@ -1,0 +1,31 @@
+{% extends 'gentelella/base_site.html' %}
+
+{% block content %}
+
+<div class="row">
+    <div class='col-xs-12 col-sm-12 col-md-12 col-lg-6'>
+        <div class="x_panel gencrud">
+            <div class="x_title">
+                <h2> Input-Mask </h2>
+                <div class="clearfix"></div>
+            </div>
+
+            <div class="x_content">
+                <form action="" method="POST">
+                    {% csrf_token %}
+                    {{form.as_inline}}
+        <a class="btn btn-primary" href="{% url 'input-mask-add' %}">Cancel</a>
+        <input class="btn btn-success" type="submit" value="Save" />
+        </form>
+
+    </div>
+</div>
+
+
+</div>
+</div>
+
+
+{% endblock %}
+{% block js %}
+{{ form.media }} {% endblock %}
