@@ -6,17 +6,18 @@ This app helps you to integrate Django apps with `Gentelella <https://colorlib.c
 Installation
 ________________
 
-Installing from repository (not in pip yet).
+Installing from repository (Updated frequently, most of great functionalities are not in pip yet ).
 
 .. code:: bash
 
    pip install git+https://github.com/luisza/django-gentelella-widgets.git#egg=djgentelella
 
-When pip is ready you can do
+An stable version on pip, but not all available widget are in this release (new release comming soon)
 
 .. code:: bash
 
    pip install djgentelella
+
 
 Configure your settings
 
@@ -25,7 +26,28 @@ Configure your settings
     INSTALLED_APPS = [ ..
         'djgentelella',
         'mptt',
+        'rest_framework',
+        'chunked_upload',
+        'markitup',
     ]
+
+    USE_L10N = False
+
+    MARKITUP_FILTER = ('markdown.markdown', {'safe_mode': True})
+    MARKITUP_SET = 'markitup/sets/markdown/'
+    JQUERY_URL = None
+
+    DATE_INPUT_FORMATS=[
+        '%Y-%m-%d', '%d/%m/%Y', '%d/%m/%y'
+    ]
+
+    DATETIME_INPUT_FORMATS = [
+        '%m/%d/%Y %H:%M %p',
+        '%Y-%m-%d %H:%M %p',
+        '%d/%m/%y %H:%M %p'
+    ]
+ 
+.. note:: Date format on Django uses localization and depends on USE_L10N, but we can not configure yet JS date widgets to change based on Django representation so USE_L10N need to be false.
 
 Run migrations 
 
@@ -39,6 +61,16 @@ Create statics files downloading from internet (you need to install requests for
 
      pip install requests
      python manage.py loaddevstatic
+
+Add djgentelella urls in your project urls.py file
+
+.. code:: bash
+
+    from djgentelella.urls import urlpatterns as djgentelellaurls
+
+    urlpatterns = djgentelellaurls + [
+                    ...
+                  ]
      
 Usage
 _________
@@ -48,10 +80,10 @@ In forms
 
 .. code:: python
 
-    from djgentelella.forms.forms import CustomForm
+    from djgentelella.forms.forms import GTForm
     from djgentelella.widgets import core as genwidgets
 
-    class myform(CustomForm, forms.ModelForm):
+    class myform(GTForm, forms.ModelForm):
         class Meta:
             model = MyObject
             fields = '__all__'
@@ -112,5 +144,8 @@ There are several widgets implemented this is a list of what you can use
 - DateRangeInput
 - AutocompleteSelect
 - AutocompleteSelectMultiple
+- Formset implementation
+- Remote select2 views.
 
 
+And More see demo app.
