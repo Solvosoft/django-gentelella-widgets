@@ -1,8 +1,15 @@
-from django import forms
-from demoapp import models
-from djgentelella.forms.forms import CustomForm
-from djgentelella.widgets import core as widget
+======================
+InputMask widget
+======================
 
+.. image:: _static/InputMask.png
+  
+
+It is a kind of mask to input date, email and text values.
+You can uses this widget in a *DateField*, *CharField* , *EmailField*
+
+.. code:: python
+from djgentelella.widgets import core as widget 
 
 class InputMaskForms(forms.ModelForm, CustomForm):
 
@@ -18,3 +25,5 @@ class InputMaskForms(forms.ModelForm, CustomForm):
             'email': widget.EmailMaskInput,
         }
 
+
+Exist six types of InputMask widget: **PhoneNumberMaskInput, DateMaskInput, SerialNumberMaskInput, TaxIDMaskInput,CreditCardMaskInput,EmailMaskInput**
