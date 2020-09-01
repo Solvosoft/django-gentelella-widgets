@@ -86,6 +86,7 @@ class Command(BaseCommand):
             icon = 'fa fa-home',
             only_icon = False
         )
+
         cwidget = MenuItem.objects.create(
             parent=extrawidget,
             title='Form Widgets',
@@ -121,6 +122,18 @@ class Command(BaseCommand):
             is_widget=False,
             icon='fa fa-home',
             only_icon=False
+        )
+        inputmask = MenuItem.objects.create(
+            parent = cwidget,
+            title = 'Input Mask',
+            url_name ='input-mask-add',
+            category = 'sidebar',  #sidebar, sidebarfooter,
+            is_reversed = True,
+            reversed_kwargs = None,
+            reversed_args = None,
+            is_widget = False,
+            icon = 'fa fa-home',
+            only_icon = False
         )
 
         noti=MenuItem.objects.create(
