@@ -22,12 +22,12 @@ class Command(BaseCommand):
             print("Requests is required try pip install requests")
             exit(1)
 
-        result = finders.find('gentelella/css/custom.css')
+        result = finders.find('gentelella\\css\\custom.css')
         if result is None:
             print('No static folder found')
             exit(1)
 
-        basepath = result.replace('gentelella/css/custom.css', 'vendors/')
+        basepath = result.replace('gentelella\\css\\custom.css', 'vendors\\')
 
 
         libs = {
@@ -178,7 +178,7 @@ class Command(BaseCommand):
         if not os.path.exists(basepath+'flags'):
             os.mkdir(basepath+'flags')
         for lib in libs:
-            currentbasepath = basepath+lib+'/'
+            currentbasepath = basepath+lib+'\\'
             if not os.path.exists(currentbasepath):
                 os.mkdir(currentbasepath)
             for staticfile in libs[lib]:
