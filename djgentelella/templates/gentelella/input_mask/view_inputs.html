@@ -1,0 +1,51 @@
+{% extends 'gentelella/base.html' %}
+
+{% block content %}
+
+
+
+<div class="x_panel">
+    <div class="x_title">
+        <h2>Mask Group</h2>
+        <ul class="nav navbar-right panel_toolbox">
+            <li><a href="{% url 'input-mask-add' %}" class="collapse-link"><i class="fa fa-plus green" style="font-size: 2em"></i></a>
+            </li>
+
+        </ul>
+        <div class="clearfix"></div>
+    </div>
+    <div class="x_content">
+<div>
+    <table class="table table-light">
+        <thead class="thead-light">
+            <tr>
+                <th>Date</th>
+                <th>Phone</th>
+                <th>Tax ID</th>
+                <th>Serial Number</th>
+                <th>Credit Card</th>
+                <th>Edit</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for obj in object_list %}
+            <tr>
+                <td>{{obj.date | date:"d/m/Y"}}</td>
+                <td>{{obj.phone}}</td>
+                <td>{{obj.taxid}}</td>
+                <td>{{obj.serial_number}}</td>
+                <td>{{obj.credit_card}}</td>
+                <td><a href="{% url 'input-mask-edit' obj.id %}" class="btn btn-warning text-white">+</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+
+    </table>
+
+</div>
+    </div>
+</div>
+
+
+
+{% endblock %}

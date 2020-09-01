@@ -81,7 +81,6 @@ class ExampleForm(CustomForm):
     your_datemask = forms.DateField(widget=genwidgets.DateMaskInput)
     your_datetimeMask  = forms.DateTimeField(widget=genwidgets.DateTimeMaskInput)
     you_emailmask = forms.EmailField(widget=genwidgets.EmailMaskInput)
-
     #your_daterangeinput = forms.CharField(widget=genwidgets.DateRangeInput)
     # your_knobinput = forms.IntegerField(widget=genwidgets.NumberKnobInput(
     #    attrs={ 'max_value':300, 'min_value': 200,
