@@ -16,7 +16,6 @@ document.gtwidgets = {
         });
     },
     DateRangeInput: function (instance) {
-        instance.inputmask({ "mask": "99/99/9999", "placeholder": "dd/mm/yyyy" });
         instance.daterangepicker({
             timePicker: true,
             timePicker24Hour: true,
@@ -28,7 +27,7 @@ document.gtwidgets = {
         });
     },
 
-    DateRangeInputSigle: function (instance) {
+    DateRangeInputSingle: function (instance) {
         instance.inputmask({ "mask": "99/99/9999", "placeholder": "dd/mm/yyyy" });
         instance.daterangepicker({
             singleDatePicker: true,
