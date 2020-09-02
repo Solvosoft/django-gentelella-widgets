@@ -1,6 +1,4 @@
-(function ( $ ) {
-
-    $.fn.select2related = function(action, relatedobjs=[]) {
+$.fn.select2related = function(action, relatedobjs=[]) {
     /**
         [{ 'id': '#myfield',
           'url': '/myendpoint', * ignored on simple
@@ -86,4 +84,3 @@
         }
         return this;
     };
-}( jQuery ));

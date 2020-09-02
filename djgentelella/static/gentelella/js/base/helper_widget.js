@@ -57,7 +57,6 @@ class HelperBox {
                 }
             } );
     }
-
     delete_element_save(parent){
         return function(){
             var pk = $('.formdelitem input[name="pk"]').val();
@@ -120,7 +119,6 @@ class HelperBox {
 
        return dev;
     }
-
     show_palette(){
         $("#content_"+this.instance).collapse('show');
     }

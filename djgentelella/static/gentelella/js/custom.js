@@ -203,18 +203,7 @@ $(document).ready(function() {
 });
 // /Switchery
 
-// iCheck
-$(document).ready(function() {
-    if ($("input.flat")[0]) {
-        $(document).ready(function() {
-            $('input.flat').iCheck({
-                checkboxClass: 'icheckbox_flat-green',
-                radioClass: 'iradio_flat-green'
-            });
-        });
-    }
-});
-// /iCheck
+
 
 // Table
 $('table input').on('ifChecked', function() {
@@ -382,22 +371,12 @@ function init_skycons() {
 
 }
 
-
-
-
-/* AUTOCOMPLETE */
-
-
 /* AUTOSIZE */
 
 function init_autosize() {
-
     if (typeof $.fn.autosize !== 'undefined') {
-
         autosize($('.resizable_textarea'));
-
     }
-
 };
 
 
@@ -476,17 +455,6 @@ function init_wysiwyg() {
 };
 
 
-/* INPUT MASK */
-
-function init_InputMask() {
-
-    if (typeof($.fn.inputmask) === 'undefined') {
-        return;
-    }
-    $(":input").inputmask();
-
-};
-
 function init_validator() {
 
     if (typeof(validator) === 'undefined') {
@@ -524,21 +492,13 @@ function init_validator() {
 
 };
 
-function load_daterangepicker() {
-    $('[data-widget="daterangepicker"]').daterangepicker({
-              timePicker: true,
-              timePicker24Hour:true,
-              startDate: moment().startOf('hour'),
-              endDate: moment().startOf('hour').add(32, 'hour'),
-              locale: {
-                format: 'DD/MM/YYYY HH:mm A'
-              }
-          });
-};
-
 function init_input_text(){
     $('input[maxlength]').maxlength();
 };
+function load_daterangepicker(){
+
+}
+   
 
 $(document).ready(function() {
     init_sidebar();
