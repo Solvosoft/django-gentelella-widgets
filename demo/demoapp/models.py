@@ -163,3 +163,14 @@ class InputMask(models.Model):
 
     def __str__(self):
         return str(self.id)+' - '+self.email
+    
+    
+class DateRange(models.Model):
+
+    name= models.CharField(max_length=20)
+    date = models.DateField()
+    date_start= models.DateField()
+    date_end= models.DateField()
+    date_time=models.DateTimeField()    
+    
+    
