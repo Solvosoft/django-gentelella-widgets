@@ -9,6 +9,34 @@ document.gtwidgets = {
     TreeSelect: function(instance){
         instance.select2({templateResult: decore_select2});
     },
+    CheckboxInput: function(instance){
+        instance.iCheck({
+                checkboxClass: 'icheckbox_flat-green',
+                radioClass: 'iradio_flat-green'
+            });
+    },
+    DateRangeInput: function(instance){
+        instance.daterangepicker({
+              timePicker: true,
+              timePicker24Hour:true,
+              startDate: moment().startOf('hour'),
+              endDate: moment().startOf('hour').add(32, 'hour'),
+              locale: {
+                format: 'DD/MM/YYYY'
+              }
+          });
+    },
+    DateRangeTimeInput: function(instance){
+            instance.daterangepicker({
+              timePicker: true,
+              timePicker24Hour:true,
+              startDate: moment().startOf('hour'),
+              endDate: moment().startOf('hour').add(32, 'hour'),
+              locale: {
+                format: 'DD/MM/YYYY HH:mm A'
+              }
+          });
+    },
     TreeSelectWithAdd: function(instance){
         instance.select2({templateResult: decore_select2});
     },
