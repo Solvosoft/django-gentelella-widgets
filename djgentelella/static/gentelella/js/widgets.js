@@ -1,16 +1,4 @@
-function decore_select2 (data) {
-            // We only really care if there is an element to pull classes from
-            if (!data.element) {
-              return data.text;
-            }
-            var $element = $(data.element);
-            var $wrapper = $('<span></span>');
-            $wrapper.addClass($element[0].className);
-            $wrapper.text(data.text);
-            return $wrapper;
-}
-
-
+document.formset = [];
 document.gtwidgets = {
     Select: function (instance){
         instance.select2();
@@ -95,15 +83,9 @@ document.gtwidgets = {
     FileInput: function(instance){
         instance.fileuploadwidget();
     },
-    AutocompleteSelectMultiple: function(instance){
-        if(typeof build_select2_init == 'function') {
+
+    GTAutocompleteSelect: function(instance){
             build_select2_init(instance);
-        }
-    },
-    AutocompleteSelect: function(instance){
-        if(typeof build_select2_init == 'function') {
-            build_select2_init(instance);
-        }
     },
     SerialNumberMaskInput: function(instance){
         instance.inputmask({ "mask":"9999-9999-9999-9999-999"});
@@ -114,6 +96,27 @@ document.gtwidgets = {
     CreditCardMaskInput: function(instance){
         instance.inputmask({"mask":"9999-9999-9999-9999" });
     },
+    NumberKnobInput: function(instance){
+        instance.knob();
+    },
+    DefaultColorInput: function(instance){
+        instance.colorpicker();
+    },
+    StyleColorInput: function(instance){
+        instance.parent('.color-input-field').colorpicker();
+    },
+    HorizontalBarColorInput: function(instance){
+        instance.colorpicker({ horizontal: true });
+    },
+    VerticalBarColorInput: function(instance){
+        instance.colorpicker({format: 'rgb'});
+    },
+    InlinePickerColor: function(instance){
+        instance.parent('.color-input-field-inline-picker').css("display", "inline-block").colorpicker({container: true, inline: true });
+    },
+    DJGraph: function(instance){
+        instance.gentelella_chart();
+    }
 
 }
 
@@ -122,4 +125,17 @@ function gt_find_initialize(instance){
     widgets.forEach((widgetname) => {
         document.gtwidgets[widgetname](instance.find('[data-widget="'+widgetname+'"]'));
     });
+    var autocomplete = instance.find('[data-widget="AutocompleteSelectMultiple"],[data-widget="AutocompleteSelect"]');
+    if(autocomplete.length > 0){
+        document.gtwidgets['GTAutocompleteSelect'](autocomplete);
+    }
+
+
 }
+
+$(document).ready(function(){
+
+   $(".formset").each(function(index, elem){
+        document.formset.push(gtformSetManager($(elem)));
+   });
+});

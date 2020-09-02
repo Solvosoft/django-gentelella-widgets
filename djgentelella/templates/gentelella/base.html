@@ -124,6 +124,7 @@
         <script src="{% static 'vendors/nprogress/nprogress.min.js' %}"></script>
         <script src="{% static 'vendors/bootstrap-progressbar/bootstrap-progressbar.min.js' %}"></script>
         <script src="{% static 'vendors/iCheck/icheck.min.js' %}"></script>
+        <script src="{% static 'vendors/interact/interact.min.js' %}"></script>
 
 
         <script src="{% static 'vendors/bootstrap-daterangepicker/daterangepicker.min.js' %}"></script>
@@ -139,8 +140,6 @@
         <!-- Autosize -->
         <script src="{% static 'vendors/autosize/autosize.min.js' %}"></script>
         <script src="{% static 'vendors/bootstrap-maxlength/bootstrap-maxlength.min.js' %}"></script>
-        <script src="{% static 'vendors/tail.select/tail.select-full.min.js' %}"></script>
-
         <script src="{% static 'vendors/fileupload/jquery.ui.widget.min.js' %}"></script>
         <!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
         <script src="{% static 'vendors/fileupload/jquery.iframe-transport.min.js' %}"></script>
@@ -166,16 +165,11 @@
 
 
       <!-- Custom Theme Scripts -->
-      <script src="{% static 'gentelella/js/fileupload.widget.js' %}"></script>
-      <script src="{% static 'gentelella/js/custom.widgets.js' %}"></script>
-      <script src="{% static 'gentelella/js/widgets.js' %}"></script>
-      <script src="{% static 'gentelella/js/custom.js' %}"></script>
-
-
-          {% render_menu_js_widget %}
+      <script src="{% static 'gentelella/js/base.js' %}?v={% get_version %}"></script>
+      <script src="{% static 'gentelella/js/widgets.js' %}?v={% get_version %}"></script>
+      <script src="{% static 'gentelella/js/custom.js' %}?v={% get_version %}"></script>
+      {% render_menu_js_widget %}
       {% endblock %}
-
-
 
 
     {% endblock body %}
