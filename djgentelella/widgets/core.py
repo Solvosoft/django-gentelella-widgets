@@ -455,3 +455,12 @@ class PhoneNumberTwoDigitMaskInput(TextInput):
 
         super().__init__(attrs)
 
+class PhoneNumberMaskInput(TextInput):
+    input_type = 'text'
+    template_name = 'gentelella/widgets/phone_number_input_mask.html'
+
+    def __init__(self, attrs=None):
+        attrs = update_kwargs(attrs, self.__class__.__name__)
+
+        super().__init__(attrs)
+
