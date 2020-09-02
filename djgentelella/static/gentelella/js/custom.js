@@ -495,10 +495,6 @@ function init_validator() {
 function init_input_text(){
     $('input[maxlength]').maxlength();
 };
-function load_daterangepicker(){
-
-}
-   
 
 $(document).ready(function() {
     init_sidebar();

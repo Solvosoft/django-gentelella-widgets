@@ -1,3 +1,16 @@
+function decore_select2(data) {
+    // We only really care if there is an element to pull classes from
+    if (!data.element) {
+        return data.text;
+    }
+    var $element = $(data.element);
+    var $wrapper = $('<span></span>');
+    $wrapper.addClass($element[0].className);
+    $wrapper.text(data.text);
+    return $wrapper;
+}
+
+
 document.formset = [];
 document.gtwidgets = {
     Select: function (instance) {
@@ -9,52 +22,39 @@ document.gtwidgets = {
     TreeSelect: function (instance) {
         instance.select2({ templateResult: decore_select2 });
     },
-    CheckboxInput: function (instance) {
-        instance.iCheck({
-            checkboxClass: 'icheckbox_flat-green',
-            radioClass: 'iradio_flat-green'
-        });
-    },
-    DateRangeInput: function (instance) {
-        instance.inputmask({ "mask": "99/99/9999", "placeholder": "dd/mm/yyyy" });
-        instance.daterangepicker({
-            timePicker: true,
-            timePicker24Hour: true,
-            startDate: moment().startOf('hour'),
-            endDate: moment().startOf('hour').add(32, 'hour'),
-            locale: {
-                format: 'DD/MM/YYYY',
-            }
-        });
-    },
-
-    DateRangeInputSigle: function (instance) {
-        instance.inputmask({ "mask": "99/99/9999", "placeholder": "dd/mm/yyyy" });
-        instance.daterangepicker({
-            singleDatePicker: true,
-            showDropdowns: true,
-            timePicker: true,
-            timePicker24Hour: true,
-            startDate: moment().startOf('hour'),
-            endDate: moment().startOf('hour').add(32, 'hour'),
-            locale: {
-                format: 'DD/MM/YYYY',
-            }
-        });
-    },
-    DateRangeTimeInput: function (instance) {
-        instance.daterangepicker({
-            timePicker: true,
-            timePicker24Hour: true,
-            startDate: moment().startOf('hour'),
-            endDate: moment().startOf('hour').add(32, 'hour'),
-            locale: {
-                format: 'DD/MM/YYYY HH:mm A'
-            }
-        });
-    },
     TreeSelectWithAdd: function (instance) {
         instance.select2({ templateResult: decore_select2 });
+    },
+    CheckboxInput: function(instance){
+        instance.iCheck({
+                checkboxClass: 'icheckbox_flat-green',
+                radioClass: 'iradio_flat-green'
+            });
+    },
+    DateRangeInput: function(instance){
+        instance.daterangepicker({
+              timePicker: true,
+              timePicker24Hour:true,
+              startDate: moment().startOf('hour'),
+              endDate: moment().startOf('hour').add(32, 'hour'),
+              locale: {
+                format: 'DD/MM/YYYY'
+              }
+          });
+    },
+    DateRangeTimeInput: function(instance){
+            instance.daterangepicker({
+              timePicker: true,
+              timePicker24Hour:true,
+              startDate: moment().startOf('hour'),
+              endDate: moment().startOf('hour').add(32, 'hour'),
+              locale: {
+                format: 'DD/MM/YYYY HH:mm A'
+              }
+          });
+    },
+    TreeSelectWithAdd: function(instance){
+        instance.select2({templateResult: decore_select2});
     },
     TreeSelectMultiple: function (instance) {
         instance.select2({ templateResult: decore_select2 });
@@ -69,7 +69,6 @@ document.gtwidgets = {
         instance.datetimepicker({ format: 'LT' });
     },
     DateInput: function (instance) {
-        console.log("op");
         instance.datetimepicker({ format: "DD/MM/YYYY" });
     },
     Textarea: function (instance) {
@@ -80,21 +79,47 @@ document.gtwidgets = {
             }
         });
     },
+    
+    DateMaskInput: function (instance) {
+        instance.inputmask("99/99/9999", { "placeholder": "dd/mm/yyyy" });
+    },
+
+
     PhoneNumberMaskInput: function (instance) {
         instance.inputmask({ "mask": "(999)9999-9999" });
     },
-    PhoneNumberTwoDigitMaskInput: function (instance) {
-        instance.inputmask({ "mask": "(99)9999-9999" });
+
+
+    CreditMaskInput: function (instance) {
+        instance.inputmask({ "mask": "9999-9999-9999-9999" });
     },
-    PhoneNumberFourDigitMaskInput: function (instance) {
-        instance.inputmask({ "mask": "(9999)9999-9999" });
+
+    SerialNumberMaskInput: function (instance) {
+        instance.inputmask({ "mask": "9999-9999-9999-9999-999" });
     },
-    DateMaskInput: function (instance) {
-        instance.inputmask("99/99/9999", { "placeholder": "dd/mm/yyyy" });
+    PhoneNumberTwoDigitMaskInput: function(instance){
+        instance.inputmask({"mask":"(99)9999-9999"});
+    },
+    PhoneNumberFourDigitMaskInput: function(instance){
+        instance.inputmask({"mask":"(9999)9999-9999"});
+    },
+    DateMaskInput: function(instance){
+        instance.inputmask( "99/99/9999",{ "placeholder": "dd/mm/yyyy" });
+    },
+
+    CustomMaskInput: function (instace) {
+        instace.inputmask({ "mask": "99-999999" });
+    },
+
+    IdentificationCardMaskInput: function (instace) {
+        instace.inputmask({ "mask": "09-9999-9999" });
     },
     DateTimeMaskInput: function (instance) {
         instance.inputmask("99/99/9999 99:99:99", { "placeholder": "dd/mm/yyyy HH:mm:ss" });
     },
+
+    
+
     EmailMaskInput: function (instance) {
         instance.inputmask({
             mask: "*{1,20}[.*{1,20}][.*{1,20}][.*{1,20}]@*{1,20}[.*{2,6}][.*{1,2}]",
@@ -129,37 +154,37 @@ document.gtwidgets = {
         instance.fileuploadwidget();
     },
 
-    GTAutocompleteSelect: function (instance) {
-        build_select2_init(instance);
+    GTAutocompleteSelect: function(instance){
+            build_select2_init(instance);
     },
-    SerialNumberMaskInput: function (instance) {
-        instance.inputmask({ "mask": "9999-9999-9999-9999-999" });
+    SerialNumberMaskInput: function(instance){
+        instance.inputmask({ "mask":"9999-9999-9999-9999-999"});
     },
-    TaxIDMaskInput: function (instance) {
-        instance.inputmask({ "mask": "99-99999999" });
+    TaxIDMaskInput: function(instance){
+        instance.inputmask({"mask":"99-99999999" });
     },
-    CreditCardMaskInput: function (instance) {
-        instance.inputmask({ "mask": "9999-9999-9999-9999" });
+    CreditCardMaskInput: function(instance){
+        instance.inputmask({"mask":"9999-9999-9999-9999" });
     },
-    NumberKnobInput: function (instance) {
+    NumberKnobInput: function(instance){
         instance.knob();
     },
-    DefaultColorInput: function (instance) {
+    DefaultColorInput: function(instance){
         instance.colorpicker();
     },
-    StyleColorInput: function (instance) {
+    StyleColorInput: function(instance){
         instance.parent('.color-input-field').colorpicker();
     },
-    HorizontalBarColorInput: function (instance) {
+    HorizontalBarColorInput: function(instance){
         instance.colorpicker({ horizontal: true });
     },
-    VerticalBarColorInput: function (instance) {
-        instance.colorpicker({ format: 'rgb' });
+    VerticalBarColorInput: function(instance){
+        instance.colorpicker({format: 'rgb'});
     },
-    InlinePickerColor: function (instance) {
-        instance.parent('.color-input-field-inline-picker').css("display", "inline-block").colorpicker({ container: true, inline: true });
+    InlinePickerColor: function(instance){
+        instance.parent('.color-input-field-inline-picker').css("display", "inline-block").colorpicker({container: true, inline: true });
     },
-    DJGraph: function (instance) {
+    DJGraph: function(instance){
         instance.gentelella_chart();
     }
 
@@ -171,16 +196,16 @@ function gt_find_initialize(instance) {
         document.gtwidgets[widgetname](instance.find('[data-widget="' + widgetname + '"]'));
     });
     var autocomplete = instance.find('[data-widget="AutocompleteSelectMultiple"],[data-widget="AutocompleteSelect"]');
-    if (autocomplete.length > 0) {
+    if(autocomplete.length > 0){
         document.gtwidgets['GTAutocompleteSelect'](autocomplete);
     }
 
 
 }
 
-$(document).ready(function () {
+$(document).ready(function(){
 
-    $(".formset").each(function (index, elem) {
+   $(".formset").each(function(index, elem){
         document.formset.push(gtformSetManager($(elem)));
-    });
+   });
 });
