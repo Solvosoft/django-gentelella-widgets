@@ -35,8 +35,6 @@ class PalleteWidget:
             "permissions": permissions
         }
         return """
-  <script src="%(interact)s"></script>
-  <script src="%(js_script)s"> </script>
 <script>document.help_widget=%(data)s; 
  var menu=$("#fsb_%(item_pk)s");
  $(document).ready(function(){
@@ -45,10 +43,7 @@ class PalleteWidget:
 </script>    
         """%{'data':json.dumps(data),
              'id': self.context['id'],
-             'item_pk': self.context['item'].pk,
-             'interact': static.static('vendors/interact/interact.min.js'),
-             'js_script': static.static('gentelella/js/helper_widget.js')
-             }
+             'item_pk': self.context['item'].pk  }
 
     def render_external_html(self):
         self.context['form'] = HelpForm()

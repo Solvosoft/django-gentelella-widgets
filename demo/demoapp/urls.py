@@ -7,6 +7,7 @@ from .autocomplete import views as autocompleteviews
 from .formset import add_formset, add_model_formset
 from .views import knobView
 from .input_masks import views as input_mask
+from .date_range import views as date_ranges
 
 pclss = Personclass()
 countryclss = Countryclass()
@@ -28,5 +29,6 @@ urlpatterns = [
         path('inputmask/',input_mask.InsertMask.as_view(), name='input-mask-add'),
         path('inputmask/<int:pk>',input_mask.EditMask.as_view(), name='input-mask-edit'),
         path('inputmask/list',input_mask.listMask.as_view(), name='input-mask-list'),
+        path('daterange/',date_ranges.CreateDate.as_view(), name='date-range-add'),
 
 ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()
