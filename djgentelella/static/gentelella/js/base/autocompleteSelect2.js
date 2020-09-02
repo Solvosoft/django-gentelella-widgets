@@ -1,4 +1,3 @@
-
 function build_select2_init(instance){
     var autocompleteselect2 = {
         'remote': [],

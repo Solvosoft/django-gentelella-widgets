@@ -1,4 +1,3 @@
-
 function gtforms(index,manager, formList, extra=true)  {
     return {
         index: index,
@@ -55,7 +54,6 @@ function gtforms(index,manager, formList, extra=true)  {
         }
     }
 }
-
 function gtformSetManager(instance) {
     var obj = {
         index: 0,
@@ -191,10 +189,3 @@ function gtformSetManager(instance) {
     obj.initialize();
     return obj;
 }
-
-$(document).ready(function(){
-    document.formset = [];
-   $(".formset").each(function(index, elem){
-        document.formset.push(gtformSetManager($(elem)));
-   });
-});
