@@ -7,6 +7,7 @@ from django.utils.timezone import now
 from demoapp import models
 from djgentelella.models import MenuItem
 
+
 class Command(BaseCommand):
     help = "Load demo site structure"
 
@@ -14,77 +15,77 @@ class Command(BaseCommand):
 
         MenuItem.objects.all().delete()
         item = MenuItem.objects.create(
-            parent = None,
-            title = 'Home',
-            url_name ='/',
-            category = 'sidebar',  #sidebar, sidebarfooter,
-            is_reversed = False,
-            reversed_kwargs = None,
-            reversed_args = None,
-            is_widget = False,
-            icon = 'fa fa-home',
-            only_icon = False
+            parent=None,
+            title='Home',
+            url_name='/',
+            category='sidebar',  # sidebar, sidebarfooter,
+            is_reversed=False,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-home',
+            only_icon=False
         )
         blog = MenuItem.objects.create(
-            parent = None,
-            title = 'Blog',
-            url_name ='/',
-            category = 'sidebar',  #sidebar, sidebarfooter,
-            is_reversed = False,
-            reversed_kwargs = None,
-            reversed_args = None,
-            is_widget = False,
-            icon = 'fa fa-edit',
-            only_icon = False
+            parent=None,
+            title='Blog',
+            url_name='/',
+            category='sidebar',  # sidebar, sidebarfooter,
+            is_reversed=False,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-edit',
+            only_icon=False
         )
         blogentry = MenuItem.objects.create(
-            parent = blog,
-            title = 'Blog entries',
-            url_name ='blog:entrylist',
-            category = 'sidebar',  #sidebar, sidebarfooter,
-            is_reversed = True,
-            reversed_kwargs = None,
-            reversed_args = None,
-            is_widget = False,
-            icon = 'fa fa-build',
-            only_icon = False
+            parent=blog,
+            title='Blog entries',
+            url_name='blog:entrylist',
+            category='sidebar',  # sidebar, sidebarfooter,
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-build',
+            only_icon=False
         )
         blogentry = MenuItem.objects.create(
-            parent = blog,
-            title = 'Create  entry',
-            url_name ='blog:entrycreate',
-            category = 'sidebar',  #sidebar, sidebarfooter,
-            is_reversed = True,
-            reversed_kwargs = None,
-            reversed_args = None,
-            is_widget = False,
-            icon = 'fa fa-build',
-            only_icon = False
+            parent=blog,
+            title='Create  entry',
+            url_name='blog:entrycreate',
+            category='sidebar',  # sidebar, sidebarfooter,
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-build',
+            only_icon=False
         )
         item = MenuItem.objects.create(
-            parent = item,
-            title = 'Dashboard',
-            url_name ='#',
-            category = 'sidebar',  #sidebar, sidebarfooter,
-            is_reversed = False,
-            reversed_kwargs = None,
-            reversed_args = None,
-            is_widget = False,
-            icon = '',
-            only_icon = False
+            parent=item,
+            title='Dashboard',
+            url_name='#',
+            category='sidebar',  # sidebar, sidebarfooter,
+            is_reversed=False,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='',
+            only_icon=False
         )
 
         extrawidget = MenuItem.objects.create(
-            parent = None,
-            title = 'Custom Widgets',
-            url_name ='/',
-            category = 'sidebar',  #sidebar, sidebarfooter,
-            is_reversed = False,
-            reversed_kwargs = None,
-            reversed_args = None,
-            is_widget = False,
-            icon = 'fa fa-home',
-            only_icon = False
+            parent=None,
+            title='Custom Widgets',
+            url_name='/',
+            category='sidebar',  # sidebar, sidebarfooter,
+            is_reversed=False,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-home',
+            only_icon=False
         )
 
         cwidget = MenuItem.objects.create(
@@ -124,9 +125,21 @@ class Command(BaseCommand):
             only_icon=False
         )
         inputmask = MenuItem.objects.create(
+            parent=cwidget,
+            title='Input Mask',
+            url_name='input-mask-add',
+            category='sidebar',  # sidebar, sidebarfooter,
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-home',
+            only_icon=False
+        )
+        datetange = MenuItem.objects.create(
             parent = cwidget,
-            title = 'Input Mask',
-            url_name ='input-mask-add',
+            title = 'Date Range',
+            url_name ='date-range-add',
             category = 'sidebar',  #sidebar, sidebarfooter,
             is_reversed = True,
             reversed_kwargs = None,
