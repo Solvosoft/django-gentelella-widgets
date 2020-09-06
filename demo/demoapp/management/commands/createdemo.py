@@ -127,8 +127,8 @@ class Command(BaseCommand):
         inputmask = MenuItem.objects.create(
             parent=cwidget,
             title='Input Mask',
-            url_name='input-mask-add',
-            category='sidebar',  # sidebar, sidebarfooter,
+            url_name='input-mask-list',
+            category='sidebar',
             is_reversed=True,
             reversed_kwargs=None,
             reversed_args=None,
@@ -136,11 +136,11 @@ class Command(BaseCommand):
             icon='fa fa-home',
             only_icon=False
         )
-        datetange = MenuItem.objects.create(
+        daterange = MenuItem.objects.create(
             parent = cwidget,
             title = 'Date Range',
-            url_name ='date-range-add',
-            category = 'sidebar',  #sidebar, sidebarfooter,
+            url_name ='date-range-list',
+            category = 'sidebar',
             is_reversed = True,
             reversed_kwargs = None,
             reversed_args = None,

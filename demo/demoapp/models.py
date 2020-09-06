@@ -169,7 +169,7 @@ class DateRange(models.Model):
 
     date_range = models.CharField(max_length=25)
     date_custom= models.CharField(max_length=25)
-    date_time=models.DateTimeField() 
+    date_time=models.CharField(max_length=45) 
 
     
     

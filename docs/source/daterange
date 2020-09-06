@@ -3,7 +3,8 @@ DateRange widget
 ======================
 
 .. image:: _static/DateRange.png
-  
+.. image:: _static/Date-range-input.gif
+ 
 
 It is a kind of calendar picker to input dates values.
 You can uses this widget in a  *CharField* and *TextField*
@@ -33,4 +34,4 @@ Exist three types of daterange widget: **DateRangeInput, DateRangeInputCustom, D
 *DateRangeInputCustom*: this widget contains six options to choose from(Last 7 days, Next Week, Last 30 days, This month, Last month and Custom Range)
 Note: When you use custom range option of DateRangeInputCustom with need select the days similar to DateRangeInput 
 
-.. image:: _static/DateRangeInputCustom.gif
+.. image:: _static/Date-range-input-custom.gif

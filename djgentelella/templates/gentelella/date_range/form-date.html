@@ -14,7 +14,7 @@
                 <form action="" method="POST">
                     {% csrf_token %}
                     {{form.as_inline}}
-        <a class="btn btn-primary" href="{% url 'input-mask-add' %}">Cancel</a>
+        <a class="btn btn-primary" href="{% url 'date-range-add' %}">Cancel</a>
         <input class="btn btn-success" type="submit" value="Save" />
         </form>
 
