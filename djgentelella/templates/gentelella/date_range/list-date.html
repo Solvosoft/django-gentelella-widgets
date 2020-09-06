@@ -6,9 +6,9 @@
 
 <div class="x_panel">
     <div class="x_title">
-        <h2>Mask Group</h2>
+        <h2>Date Range Example</h2>
         <ul class="nav navbar-right panel_toolbox">
-            <li><a href="{% url 'input-mask-add' %}" class="collapse-link"><i class="fa fa-plus green" style="font-size: 2em"></i></a>
+            <li><a href="{% url 'date-range-add' %}" class="collapse-link"><i class="fa fa-plus green" style="font-size: 2em"></i></a>
             </li>
 
         </ul>
@@ -20,18 +20,16 @@
         <thead class="thead-light">
             <tr>
                 <th>Name</th>
-                <th>DateRange</th>
-                <th>Date</th>
-                <th>DateTime</th>
+                <th>Date Range</th>
+                 <th>Date Time</th>
                 <th>Edit</th>
             </tr>
         </thead>
         <tbody>
             {% for obj in object_list %}
             <tr>
-                <td>{{obj.name}}</td>
                 <td>{{obj.date_range}}</td>
-                <td>{{obj.date | date:"d/m/Y"}}</td>
+                <td>{{obj.date_custom}}</td>
                 <td>{{obj.date_time}}</td>
                 <td><a href="{% url 'date-range-edit' obj.id %}" class="btn btn-warning text-white">+</a></td>
             </tr>
