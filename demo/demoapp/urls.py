@@ -34,5 +34,7 @@ urlpatterns = [
         path('daterange/<int:pk>',date_ranges.UpdateDate.as_view(), name='date-range-edit'),
         path('daterange/list',date_ranges.ListDate.as_view(), name='date-range-list'),
         path('gridslider/',grid.AddGrid.as_view(), name='grid-slider-add'),
+        path('gridslider/list',grid.ListGrid.as_view(), name='grid-slider-list'),
+        path('gridslider/<int:pk>',grid.UpdateGrid.as_view(), name='grid-slider-edit'),
 
 ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()
