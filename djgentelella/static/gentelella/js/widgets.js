@@ -26,7 +26,7 @@ document.gtwidgets = {
     },
 
     GridSlider: function(instance){
-        load_slider(instance);
+        load_grid_slider(instance);
     },
     DateRangeInputCustom: function (instance) {
         instance.daterangepicker(load_date_range_custom(instance));
