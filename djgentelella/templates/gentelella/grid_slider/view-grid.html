@@ -1,0 +1,45 @@
+{% extends 'gentelella/base.html' %}
+
+{% block content %}
+
+
+
+<div class="x_panel">
+    <div class="x_title">
+        <h2>Grid Slider Example</h2>
+        <ul class="nav navbar-right panel_toolbox">
+            <li><a href="{% url 'grid-slider-add' %}" class="collapse-link"><i class="fa fa-plus green" style="font-size: 2em"></i></a>
+            </li>
+
+        </ul>
+        <div class="clearfix"></div>
+    </div>
+    <div class="x_content">
+<div>
+    <table class="table table-light">
+        <thead class="thead-light">
+            <tr>
+                <th>Max Value</th>
+                <th>Min Value</th>
+                <th>Edit</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for obj in object_list %}
+            <tr>
+                <td>{{obj.maximum}}</td>
+                <td>{{obj.minimum}}</td>
+                <td><a href="{% url 'grid-slider-edit' obj.id %}" class="btn btn-warning text-white">+</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+
+    </table>
+
+</div>
+    </div>
+</div>
+
+
+
+{% endblock %}
