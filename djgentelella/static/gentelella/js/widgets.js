@@ -25,6 +25,9 @@ document.gtwidgets = {
         });
     },
 
+    GridSlider: function(instance){
+        load_slider(instance);
+    },
     DateRangeInputCustom: function (instance) {
         instance.daterangepicker({
             startDate: moment().startOf('hour'),
