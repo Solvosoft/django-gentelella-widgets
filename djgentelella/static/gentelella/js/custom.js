@@ -498,24 +498,7 @@ function init_input_text() {
 function load_daterangepicker() {
 
 }
-function date_grid_slider(instance) {
-    let obj = $(instance);
-    let option = {
-        'min': obj.attr('min'),
-        'max': obj.attr('max'),
-        'from': obj.attr('from'),
-        'to': obj.attr('to'),
-        'type': 'double',
-        'step': obj.attr('step'),
-        'prefix': "$",
-        'grid': true,
-        'onChange': function (data) {
-        }
-    }
-    instance.ionRangeSlider(option);
-
-}
-function load_slider(instance) {
+function load_grid_slider(instance) {
     let obj = $(instance);
     let option = {
         'min': obj.attr('min'),
