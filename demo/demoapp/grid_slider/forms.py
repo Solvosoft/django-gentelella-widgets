@@ -13,7 +13,7 @@ class gridSliderForm(forms.ModelForm, CustomForm):
                                                              'prefix': "$",
                                                              'to_fixed': 'false',
                                                              'to_max': 750,
-                                                             'from_min':200,
+                                                             'from_min': 200,
                                                              'hide_min_max': 'true',
                                                              'data-target-from': 'minimum',
                                                              'data-target-to': 'maximum',
