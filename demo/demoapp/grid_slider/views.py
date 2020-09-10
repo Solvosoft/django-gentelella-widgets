@@ -8,8 +8,18 @@ class AddGrid(CreateView):
     model = gridSlider
     form_class = gridSliderForm
     template_name = 'gentelella/grid_slider/form-grid.html'
-    success_url = reverse_lazy('grid-slider-add')
+    success_url = reverse_lazy('grid-slider-list')
+
+class ListGrid(ListView):
+    model= gridSlider
+    template_name='gentelella/grid_slider/view-grid.html'
     
-    def form_valid(self, form):
-        print(self.request.POST)
-        return super().form_valid(form)
+    def get_queryset(self):
+        return self.model.objects.all()
+    
+
+class UpdateGrid(UpdateView):
+    model = gridSlider
+    form_class = gridSliderForm
+    template_name = 'gentelella/grid_slider/form-grid.html'
+    success_url = reverse_lazy('grid-slider-list')
