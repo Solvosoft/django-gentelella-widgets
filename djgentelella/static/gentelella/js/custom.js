@@ -496,6 +496,29 @@ function init_input_text() {
     $('input[maxlength]').maxlength();
 };
 
+function load_daterangepicker() {
+
+}
+function load_slider(instance) {
+    let obj = $('#' + instance[0].id);
+    let option = {
+        'hide_min_max': true,
+        'keyboard': true,
+        'min': obj.attr('min'),
+        'max': obj.attr('max'),
+        'from': obj.attr('from'),
+        'to': obj.attr('to'),
+        'type': 'double',
+        'step': obj.attr('step'),
+        'prefix': "$",
+        'grid': true,
+        'onChange': function (data) {
+            $('#id_' + obj.attr('data-from')).val(data.from);
+            $('#id_' + obj.attr('data-to')).val(data.to);
+        }
+    }
+    instance.ionRangeSlider(option);
+}
 
 $(document).ready(function () {
     init_sidebar();

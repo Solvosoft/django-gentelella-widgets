@@ -40,7 +40,17 @@ class TextInput(Input):
     input_type = 'text'
     template_name = 'gentelella/widgets/text.html'
 
-
+def GridSlider(attrs={}):
+    class GridSlider(Input):
+        input_type = 'text'
+        template_name = 'gentelella/widgets/input.html'
+        extra_attrs = attrs.copy()
+        def __init__(self, attrs=None, extraskwargs=True):
+            attrs = update_kwargs(attrs, self.__class__.__name__)
+            if self.extra_attrs:
+                attrs.update(self.extra_attrs)
+            super().__init__(attrs)
+    return GridSlider
 class NumberInput(Input):
     input_type = 'number'
     template_name = 'gentelella/widgets/number.html'
