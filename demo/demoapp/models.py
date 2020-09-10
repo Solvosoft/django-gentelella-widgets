@@ -171,6 +171,10 @@ class DateRange(models.Model):
     date_custom= models.CharField(max_length=25)
     date_time=models.CharField(max_length=45) 
 
+  
+class gridSlider(models.Model):
     
+    maximum= models.IntegerField()
+    minimum= models.IntegerField()  
     
     

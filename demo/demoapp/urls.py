@@ -8,6 +8,7 @@ from .formset import add_formset, add_model_formset
 from .views import knobView
 from .input_masks import views as input_mask
 from .date_range import views as date_ranges
+from .grid_slider import views as grid
 
 pclss = Personclass()
 countryclss = Countryclass()
@@ -32,5 +33,6 @@ urlpatterns = [
         path('daterange/',date_ranges.CreateDate.as_view(), name='date-range-add'),
         path('daterange/<int:pk>',date_ranges.UpdateDate.as_view(), name='date-range-edit'),
         path('daterange/list',date_ranges.ListDate.as_view(), name='date-range-list'),
+        path('gridslider/',grid.AddGrid.as_view(), name='grid-slider-add'),
 
 ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()
