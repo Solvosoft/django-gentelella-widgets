@@ -167,10 +167,10 @@ class InputMask(models.Model):
     
 class DateRange(models.Model):
 
-    date_range = models.CharField(max_length=25)
-    date_custom= models.CharField(max_length=25)
-    date_time=models.CharField(max_length=45) 
-
-    
+    name= models.CharField(max_length=20)
+    date = models.DateField()
+    date_start= models.DateField()
+    date_end= models.DateField()
+    date_time=models.DateTimeField()    
     
     

@@ -10,8 +10,10 @@ class DateRangeForms(forms.ModelForm, GTForm):
         model = models.DateRange
         fields = '__all__'
         widgets = {
-            'date_range': widget.DateRangeInput,
-            'date_custom': widget.DateRangeInputCustom,
-            'date_time': widget.DateRangeTimeInput,
+            'name': widget.TextInput,
+            'date': widget.DateRangeInput,
+            'date_start': widget.DateRangeInputSingle,
+            'date_end': widget.DateRangeInputSingle,
+            'date_time': widget.DateRangeInputSingle,
         }
 
