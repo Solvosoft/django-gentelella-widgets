@@ -1,3 +1,68 @@
+function grid_slider(instance) {
+    let obj = $(instance);
+    let to=750;
+    let from=200;
+    if($("input[name=" + obj.attr('data-target-to') + "]").val()>200){
+        to=$("input[name=" + obj.attr('data-target-to') + "]").val()
+    }
+    if($("input[name=" + obj.attr('data-target-from') + "]").val()<200){
+        from=$("input[name=" + obj.attr('data-target-from') + "]").val()
+    }
+    let option = {
+        'min': obj.attr('min'),
+        'max': obj.attr('max'),
+        'from': from,
+        'to': to,
+        'type': 'double',
+        'step': obj.attr('step'),
+        'prefix': obj.attr('prefix'),
+        'from_fixed': obj.attr('from_fixed') === 'true',
+        'to_fixed': obj.attr('to_fixed') === 'true',
+        'from_min': obj.attr('from_min'),
+        'from_max': obj.attr('to_max'),
+        'to_max': obj.attr('to_max'),
+        'hide_min_max': obj.attr('hide_min_max'),
+        'grid': true,
+        'onChange': function (data) {
+            $("input[name=" + obj.attr('data-target-from') + "]").val(data.from);
+            $("input[name=" + obj.attr('data-target-to') + "]").val(data.to);
+        }
+    }
+    instance.ionRangeSlider(option);
+}
+function date_grid_slider(instance) {
+    var lang = "en-US";
+    var year = 2018;
+
+    function dateToTS(date) {
+        return date.valueOf();
+    }
+
+    function tsToDate(ts) {
+        var d = new Date(ts);
+
+        return d.toLocaleDateString(lang, {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: false,
+
+
+        });
+    }
+
+    instance.ionRangeSlider({
+        skin: "flat",
+        type: "single",
+        min: dateToTS(new Date(year, 10, 1)),
+        max: dateToTS(new Date(year, 11, 1)),
+        from: dateToTS(new Date(year, 10, 8)),
+        to: dateToTS(new Date(year, 10, 23)),
+        prettify: tsToDate
+    })
+}
 document.formset = [];
 document.gtwidgets = {
     Select: function (instance) {
@@ -25,8 +90,11 @@ document.gtwidgets = {
         });
     },
 
-    GridSlider: function(instance){
-        load_grid_slider(instance);
+    GridSlider: function (instance) {
+        grid_slider(instance);
+    },
+    DateGridSlider: function (instance) {
+        date_grid_slider(instance);
     },
     DateRangeInputCustom: function (instance) {
         instance.daterangepicker({
@@ -34,7 +102,7 @@ document.gtwidgets = {
             endDate: moment().startOf('hour').add(32, 'hour'),
             ranges: {
                 'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-                'Next Week': [moment(),moment().add(7, 'days')],
+                'Next Week': [moment(), moment().add(7, 'days')],
                 'Last 30 Days': [moment().subtract(29, 'days'), moment()],
                 'This Month': [moment().startOf('month'), moment().endOf('month')],
                 'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]

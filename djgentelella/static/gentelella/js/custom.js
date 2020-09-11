@@ -498,30 +498,6 @@ function init_input_text() {
 function load_daterangepicker() {
 
 }
-function load_grid_slider(instance) {
-    let obj = $(instance);
-    let option = {
-        'min': obj.attr('min'),
-        'max': obj.attr('max'),
-        'from': $("input[name=" + obj.attr('data-target-from') + "]").val(),
-        'to': $("input[name=" + obj.attr('data-target-to') + "]").val(),
-        'type': 'double',
-        'step': obj.attr('step'),
-        'prefix': obj.attr('prefix'),
-        'from_fixed': $.parseJSON(obj.attr('from_fixed').toLowerCase()),
-        'to_fixed': $.parseJSON(obj.attr('to_fixed').toLowerCase()),
-        'from_min': obj.attr('from_min'),
-        'from_max': obj.attr('to_max'),
-        'to_max': obj.attr('to_max'),
-        'hide_min_max': obj.attr('hide_min_max'),
-        'grid': true,
-        'onChange': function (data) {
-            $("input[name=" + obj.attr('data-target-from') + "]").val(data.from);
-            $("input[name=" + obj.attr('data-target-to') + "]").val(data.to);
-        }
-    }
-    instance.ionRangeSlider(option);
-}
 
 $(document).ready(function () {
     init_sidebar();

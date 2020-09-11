@@ -18,6 +18,7 @@ class gridSliderForm(forms.ModelForm, CustomForm):
                                                              'data-target-from': 'minimum',
                                                              'data-target-to': 'maximum',
                                                              }))
+    date_time = forms.CharField(widget=widget.DateGridSlider({}))
 
     class Meta:
         model = models.gridSlider
