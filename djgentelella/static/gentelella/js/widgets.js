@@ -17,8 +17,6 @@ document.gtwidgets = {
     },
     DateRangeInput: function (instance) {
         instance.daterangepicker({
-            timePicker: true,
-            timePicker24Hour: true,
             startDate: moment().startOf('hour'),
             endDate: moment().startOf('hour').add(32, 'hour'),
             locale: {
@@ -27,20 +25,23 @@ document.gtwidgets = {
         });
     },
 
-    DateRangeInputSingle: function (instance) {
-        instance.inputmask({ "mask": "99/99/9999", "placeholder": "dd/mm/yyyy" });
+    DateRangeInputCustom: function (instance) {
         instance.daterangepicker({
-            singleDatePicker: true,
-            showDropdowns: true,
-            timePicker: true,
-            timePicker24Hour: true,
             startDate: moment().startOf('hour'),
             endDate: moment().startOf('hour').add(32, 'hour'),
+            ranges: {
+                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                'Next Week': [moment(),moment().add(7, 'days')],
+                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                'This Month': [moment().startOf('month'), moment().endOf('month')],
+                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+            },
             locale: {
                 format: 'DD/MM/YYYY',
             }
         });
     },
+
     DateRangeTimeInput: function (instance) {
         instance.daterangepicker({
             timePicker: true,
@@ -68,7 +69,6 @@ document.gtwidgets = {
         instance.datetimepicker({ format: 'LT' });
     },
     DateInput: function (instance) {
-        console.log("op");
         instance.datetimepicker({ format: "DD/MM/YYYY" });
     },
     Textarea: function (instance) {
