@@ -421,7 +421,7 @@ class DateRangeInput(DJDateInput):
         attrs = update_kwargs(attrs, self.__class__.__name__)
         super().__init__(attrs, format=format)
 
-class DateRangeInputCustom(DJDateInput):
+class DateRangeInputSingle(DJDateInput):
     format_key = 'DATE_INPUT_FORMATS'
     template_name = 'gentelella/widgets/daterange.html'
 
