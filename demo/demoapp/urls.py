@@ -30,5 +30,7 @@ urlpatterns = [
         path('inputmask/<int:pk>',input_mask.EditMask.as_view(), name='input-mask-edit'),
         path('inputmask/list',input_mask.listMask.as_view(), name='input-mask-list'),
         path('daterange/',date_ranges.CreateDate.as_view(), name='date-range-add'),
+        path('daterange/<int:pk>',date_ranges.UpdateDate.as_view(), name='date-range-edit'),
+        path('daterange/list',date_ranges.ListDate.as_view(), name='date-range-list'),
 
 ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()

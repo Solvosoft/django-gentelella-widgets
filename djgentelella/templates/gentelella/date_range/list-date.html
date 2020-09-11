@@ -1,0 +1,47 @@
+{% extends 'gentelella/base.html' %}
+
+{% block content %}
+
+
+
+<div class="x_panel">
+    <div class="x_title">
+        <h2>Date Range Example</h2>
+        <ul class="nav navbar-right panel_toolbox">
+            <li><a href="{% url 'date-range-add' %}" class="collapse-link"><i class="fa fa-plus green" style="font-size: 2em"></i></a>
+            </li>
+
+        </ul>
+        <div class="clearfix"></div>
+    </div>
+    <div class="x_content">
+<div>
+    <table class="table table-light">
+        <thead class="thead-light">
+            <tr>
+                <th>Name</th>
+                <th>Date Range</th>
+                 <th>Date Time</th>
+                <th>Edit</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for obj in object_list %}
+            <tr>
+                <td>{{obj.date_range}}</td>
+                <td>{{obj.date_custom}}</td>
+                <td>{{obj.date_time}}</td>
+                <td><a href="{% url 'date-range-edit' obj.id %}" class="btn btn-warning text-white">+</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+
+    </table>
+
+</div>
+    </div>
+</div>
+
+
+
+{% endblock %}
