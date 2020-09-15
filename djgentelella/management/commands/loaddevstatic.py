@@ -3,7 +3,9 @@ from django.contrib.staticfiles import finders
 import os
 from pathlib import Path
 
-FLAGS = ['ad', 'ae', 'af', 'ag', 'ai', 'al', 'am', 'ao', 'aq', 'ar', 'as', 'at', 'au', 'aw', 'ax', 'az', 'ba', 'bb', 'bd', 'be', 'bf', 'bg', 'bh', 'bi', 'bj', 'bl', 'bm', 'bn', 'bo', 'bq', 'br', 'bs', 'bt', 'bv', 'bw', 'by', 'bz', 'ca', 'cc', 'cd', 'cf', 'cg', 'ch', 'ci', 'ck', 'cl', 'cm', 'cn', 'co', 'cr', 'cu', 'cv', 'cw', 'cx', 'cy', 'cz', 'de', 'dj', 'dk', 'dm', 'do', 'dz', 'ec', 'ee', 'eg', 'eh', 'er', 'es-ca', 'es', 'et', 'eu', 'fi', 'fj', 'fk', 'fm', 'fo', 'fr', 'ga', 'gb-eng', 'gb-nir', 'gb-sct', 'gb-wls', 'gb', 'gd', 'ge', 'gf', 'gg', 'gh', 'gi', 'gl', 'gm', 'gn', 'gp', 'gq', 'gr', 'gs', 'gt', 'gu', 'gw', 'gy', 'hk', 'hm', 'hn', 'hr', 'ht', 'hu', 'id', 'ie', 'il', 'im', 'in', 'io', 'iq', 'ir', 'is', 'it', 'je', 'jm', 'jo', 'jp', 'ke', 'kg', 'kh', 'ki', 'km', 'kn', 'kp', 'kr', 'kw', 'ky', 'kz', 'la', 'lb', 'lc', 'li', 'lk', 'lr', 'ls', 'lt', 'lu', 'lv', 'ly', 'ma', 'mc', 'md', 'me', 'mf', 'mg', 'mh', 'mk', 'ml', 'mm', 'mn', 'mo', 'mp', 'mq', 'mr', 'ms', 'mt', 'mu', 'mv', 'mw', 'mx', 'my', 'mz', 'na', 'nc', 'ne', 'nf', 'ng', 'ni', 'nl', 'no', 'np', 'nr', 'nu', 'nz', 'om', 'pa', 'pe', 'pf', 'pg', 'ph', 'pk', 'pl', 'pm', 'pn', 'pr', 'ps', 'pt', 'pw', 'py', 'qa', 're', 'ro', 'rs', 'ru', 'rw', 'sa', 'sb', 'sc', 'sd', 'se', 'sg', 'sh', 'si', 'sj', 'sk', 'sl', 'sm', 'sn', 'so', 'sr', 'ss', 'st', 'sv', 'sx', 'sy', 'sz', 'tc', 'td', 'tf', 'tg', 'th', 'tj', 'tk', 'tl', 'tm', 'tn', 'to', 'tr', 'tt', 'tv', 'tw', 'tz', 'ua', 'ug', 'um', 'un', 'us', 'uy', 'uz', 'va', 'vc', 've', 'vg', 'vi', 'vn', 'vu', 'wf', 'ws', 'xk', 'ye', 'yt', 'za', 'zm', 'zw']
+FLAGS = ['ad', 'ae', 'af', 'ag', 'ai', 'al', 'am', 'ao', 'aq', 'ar', 'as', 'at', 'au', 'aw', 'ax', 'az', 'ba', 'bb', 'bd', 'be', 'bf', 'bg', 'bh', 'bi', 'bj', 'bl', 'bm', 'bn', 'bo', 'bq', 'br', 'bs', 'bt', 'bv', 'bw', 'by', 'bz', 'ca', 'cc', 'cd', 'cf', 'cg', 'ch', 'ci', 'ck', 'cl', 'cm', 'cn', 'co', 'cr', 'cu', 'cv', 'cw', 'cx', 'cy', 'cz', 'de', 'dj', 'dk', 'dm', 'do', 'dz', 'ec', 'ee', 'eg', 'eh', 'er', 'es-ca', 'es', 'et', 'eu', 'fi', 'fj', 'fk', 'fm', 'fo', 'fr', 'ga', 'gb-eng', 'gb-nir', 'gb-sct', 'gb-wls', 'gb', 'gd', 'ge', 'gf', 'gg', 'gh', 'gi', 'gl', 'gm', 'gn', 'gp', 'gq', 'gr', 'gs', 'gt', 'gu', 'gw', 'gy', 'hk', 'hm', 'hn', 'hr', 'ht', 'hu', 'id', 'ie', 'il', 'im', 'in', 'io', 'iq', 'ir', 'is', 'it', 'je', 'jm', 'jo', 'jp', 'ke', 'kg', 'kh', 'ki', 'km', 'kn',
+         'kp', 'kr', 'kw', 'ky', 'kz', 'la', 'lb', 'lc', 'li', 'lk', 'lr', 'ls', 'lt', 'lu', 'lv', 'ly', 'ma', 'mc', 'md', 'me', 'mf', 'mg', 'mh', 'mk', 'ml', 'mm', 'mn', 'mo', 'mp', 'mq', 'mr', 'ms', 'mt', 'mu', 'mv', 'mw', 'mx', 'my', 'mz', 'na', 'nc', 'ne', 'nf', 'ng', 'ni', 'nl', 'no', 'np', 'nr', 'nu', 'nz', 'om', 'pa', 'pe', 'pf', 'pg', 'ph', 'pk', 'pl', 'pm', 'pn', 'pr', 'ps', 'pt', 'pw', 'py', 'qa', 're', 'ro', 'rs', 'ru', 'rw', 'sa', 'sb', 'sc', 'sd', 'se', 'sg', 'sh', 'si', 'sj', 'sk', 'sl', 'sm', 'sn', 'so', 'sr', 'ss', 'st', 'sv', 'sx', 'sy', 'sz', 'tc', 'td', 'tf', 'tg', 'th', 'tj', 'tk', 'tl', 'tm', 'tn', 'to', 'tr', 'tt', 'tv', 'tw', 'tz', 'ua', 'ug', 'um', 'un', 'us', 'uy', 'uz', 'va', 'vc', 've', 'vg', 'vi', 'vn', 'vu', 'wf', 'ws', 'xk', 'ye', 'yt', 'za', 'zm', 'zw']
+
 
 class Command(BaseCommand):
     help = "Load static files for development command"
@@ -11,7 +13,7 @@ class Command(BaseCommand):
     def get_static_file(self, requests, url, basepath):
         name = url.split('/')[-1]
         if not os.path.exists(basepath / name):
-            print("Downloading %s --> %s"%(url, basepath / name))
+            print("Downloading %s --> %s" % (url, basepath / name))
             r = requests.get(url)
             with open(basepath / name, 'wb') as arch:
                 arch.write(r.content)
@@ -23,13 +25,13 @@ class Command(BaseCommand):
             print("Requests is required try pip install requests")
             exit(1)
 
-        result = finders.find('gentelella\\css\\custom.css')
+        result = finders.find(Path('gentelella/css/custom.css'))
         if result is None:
             print('No static folder found')
             exit(1)
 
-        basepath = result.replace('gentelella\\css\\custom.css', 'vendors\\')
-
+        basepath = Path(result.replace(
+            str(Path('gentelella/css/custom.css')), 'vendors/'))
 
         libs = {
             'bootstrap': [
@@ -56,7 +58,7 @@ class Command(BaseCommand):
                 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css',
                 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.css.map'
             ],
-            'bootstrap-daterangepicker':[
+            'bootstrap-daterangepicker': [
                 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/2.1.24/daterangepicker.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/2.1.24/daterangepicker.min.js.map',
                 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/2.1.24/daterangepicker.min.css',
@@ -68,11 +70,11 @@ class Command(BaseCommand):
                 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css.map',
                 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css'
             ],
-            'select2':[
+            'select2': [
                 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css'
             ],
-            'switchery':[
+            'switchery': [
                 'https://cdnjs.cloudflare.com/ajax/libs/switchery/0.8.2/switchery.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/switchery/0.8.2/switchery.min.css',
             ],
@@ -113,10 +115,10 @@ class Command(BaseCommand):
                 'https://cdnjs.cloudflare.com/ajax/libs/inputmask/3.3.11/inputmask/inputmask.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/inputmask/3.3.11/inputmask/jquery.inputmask.min.js',
             ],
-            'moment':[
+            'moment': [
                 'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment-with-locales.min.js'
             ],
-            'bootstrap-wysiwyg':[
+            'bootstrap-wysiwyg': [
                 'https://raw.githubusercontent.com/steveathon/bootstrap-wysiwyg/1.0.4/js/bootstrap-wysiwyg.min.js',
             ],
             'parsleyjs': [
@@ -125,10 +127,10 @@ class Command(BaseCommand):
             'autosize': [
                 'https://cdnjs.cloudflare.com/ajax/libs/autosize.js/3.0.15/autosize.min.js'
             ],
-            'bootstrap-maxlength':[
+            'bootstrap-maxlength': [
                 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-maxlength/1.9.0/bootstrap-maxlength.min.js'
             ],
-            'tail.select':[
+            'tail.select': [
                 'https://cdn.jsdelivr.net/npm/tail.select@0.5.15/css/bootstrap3/tail.select-default.min.css',
                 'https://cdn.jsdelivr.net/npm/tail.select@0.5.15/css/bootstrap3/tail.select-default.min.map',
                 'https://cdn.jsdelivr.net/npm/tail.select@0.5.15/js/tail.select-full.min.js',
@@ -136,14 +138,14 @@ class Command(BaseCommand):
             'flag-icon-css': [
                 'https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.4.6/css/flag-icon.min.css',
             ],
-            'flags/1x1':['https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.4.6/flags/1x1/%s.svg'%flag for flag in FLAGS],
-            'flags/4x3':['https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.4.6/flags/4x3/%s.svg'%flag for flag in FLAGS],
-            'datatables':[
+            'flags/1x1': ['https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.4.6/flags/1x1/%s.svg' % flag for flag in FLAGS],
+            'flags/4x3': ['https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.4.6/flags/4x3/%s.svg' % flag for flag in FLAGS],
+            'datatables': [
                 'https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js',
                 'https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap.min.js',
                 'https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap.min.css',
             ],
-            'fileupload':[
+            'fileupload': [
                 'https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.8.0/js/jquery.fileupload.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.8.0/js/jquery.iframe-transport.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.8.0/js/vendor/jquery.ui.widget.min.js',
@@ -153,7 +155,7 @@ class Command(BaseCommand):
                 'https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js'
             ],
 
-            'chartjs':[
+            'chartjs': [
                 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.css'
             ],
@@ -179,7 +181,7 @@ class Command(BaseCommand):
         if not os.path.exists(basepath / 'flags'):
             os.mkdir(basepath / 'flags')
         for lib in libs:
-            currentbasepath = basepath+lib+'\\'
+            currentbasepath = basepath / lib
             if not os.path.exists(currentbasepath):
                 os.mkdir(currentbasepath)
             for staticfile in libs[lib]:
