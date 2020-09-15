@@ -2,17 +2,11 @@ function grid_slider(instance) {
     let obj = $(instance);
     let to=750;
     let from=200;
-    if($("input[name=" + obj.attr('data-target-to') + "]").val()>200){
-        to=$("input[name=" + obj.attr('data-target-to') + "]").val()
-    }
-    if($("input[name=" + obj.attr('data-target-from') + "]").val()<200){
-        from=$("input[name=" + obj.attr('data-target-from') + "]").val()
-    }
     let option = {
         'min': obj.attr('min'),
         'max': obj.attr('max'),
-        'from': from,
-        'to': to,
+        'from': 200,
+        'to': 700,
         'type': 'double',
         'step': obj.attr('step'),
         'prefix': obj.attr('prefix'),
@@ -24,8 +18,6 @@ function grid_slider(instance) {
         'hide_min_max': obj.attr('hide_min_max'),
         'grid': true,
         'onChange': function (data) {
-            $("input[name=" + obj.attr('data-target-from') + "]").val(data.from);
-            $("input[name=" + obj.attr('data-target-to') + "]").val(data.to);
         }
     }
     instance.ionRangeSlider(option);

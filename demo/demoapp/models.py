@@ -144,12 +144,13 @@ def validate_email(value):
 
 def validate_credit_card(value):
     position = value.split('_')
-    value=position[0]
+    value = position[0]
     if len(value) < 13:
         raise ValidationError(_('that card invalid'))
-    
+
     return value
-    
+
+
 class InputMask(models.Model):
 
     date = models.DateField()
@@ -163,13 +164,14 @@ class InputMask(models.Model):
 
     def __str__(self):
         return str(self.id)+' - '+self.email
-    
-    
+
+
 class DateRange(models.Model):
 
     date_range = models.CharField(max_length=25)
-    date_custom= models.CharField(max_length=25)
-    date_time=models.CharField(max_length=45) 
+    date_custom = models.CharField(max_length=25)
+    date_time = models.CharField(max_length=45)
+
 
 
 class TaggingModel(models.Model):
