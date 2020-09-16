@@ -176,4 +176,6 @@ class DateRange(models.Model):
 class gridSlider(models.Model):
     minimum= models.IntegerField()
     maximum= models.IntegerField()
+    datetime = models.DateTimeField()
+    age= models.IntegerField()
     
