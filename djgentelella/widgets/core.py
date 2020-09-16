@@ -40,6 +40,10 @@ class TextInput(Input):
     input_type = 'text'
     template_name = 'gentelella/widgets/text.html'
 
+class HiddenInput(Input):
+    input_type = 'hidden'
+    template_name = 'gentelella/widgets/text.html'
+
 
 def GridSlider(attrs={}):
     class GridSlider(Input):
