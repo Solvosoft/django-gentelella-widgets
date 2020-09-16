@@ -1,13 +1,18 @@
 function grid_slider(instance) {
-    let obj = $(instance);
+    let obj = $(instance[0]);
+
     let to = obj.attr('data-from_max');
+
     let from = obj.attr('data-from_min');
+
     if ($("input[name=" + obj.attr('data-target-to') + "]").val() > 200) {
         to = $("input[name=" + obj.attr('data-target-to') + "]").val()
     }
+
     if ($("input[name=" + obj.attr('data-target-from') + "]").val() > 200) {
         from = $("input[name=" + obj.attr('data-target-from') + "]").val()
     }
+
     let option = {
         'min': obj.attr('data-min'),
         'max': obj.attr('data-max'),
@@ -24,23 +29,45 @@ function grid_slider(instance) {
         'onChange': function (data) {
             $("input[name=" + obj.attr('data-target-from') + "]").val(data.from);
             $("input[name=" + obj.attr('data-target-to') + "]").val(data.to);
+            console.log(obj.attr('data-target-to'));
         }
     }
-    instance.ionRangeSlider(option);
+    return option;
+}
+function grid_slider_single(instance) {
+    let obj = $(instance[0]);
+
+
+    let from = obj.attr('data-from');
+
+    if ($("input[name=" + obj.attr('data-target-from') + "]").val() > 0) {
+        from = $("input[name=" + obj.attr('data-target-from') + "]").val()
+    }
+
+    let option = {
+        'min': obj.attr('data-min'),
+        'max': obj.attr('data-max'),
+        'from': from,
+        'type': 'single',
+        'prefix': obj.attr('data-prefix'),
+        'grid': true,
+        'onChange': function (data) {
+            $("input[name=" + obj.attr('data-target') + "]").val(data.from);
+        }
+    }
+    return option;
 }
 function date_grid_slider(instance) {
-    let obj = $(instance);
-    let to = obj.attr('data_max').split('-');
-    let from = obj.attr('data_min').split('-');
-    let x = obj.attr('data_from').split('-');
 
-    var lang = "en-US";
+    let obj = $(instance);
+    let input = $("input[name=" + obj.attr('data-target') + "]").val();
 
     function dateToTS(date) {
         return date.valueOf();
     }
 
     function tsToDate(ts) {
+        var lang = "en-US";
         var d = new Date(ts);
 
         return d.toLocaleDateString(lang, {
@@ -56,15 +83,16 @@ function date_grid_slider(instance) {
     }
 
     instance.ionRangeSlider({
-        skin: "flat",
         type: "single",
-        min: dateToTS(new Date(from[0], from[1]-1, from[2])),
-        max: dateToTS(new Date(to[0], to[1]-1, to[2])),
-        to:dateToTS(new Date(from[0], from[1]-1, from[2])),
-        from: dateToTS(new Date(x[0], x[1]-1, x[2])),
+        hide_min_max: false,
+        min: dateToTS(new Date(obj.attr('data_min'))),
+        max: dateToTS(new Date(obj.attr('data_max'))),
+        from: dateToTS(new Date(input != undefined ? input : obj.attr('data_from'))),
         prettify: tsToDate,
-        onChange: function(data){
-            console.log(data.from);
+        onChange: function (data) {
+            var day = new Date(data.from);
+            day = day.getFullYear() + "-" + (day.getMonth() + 1) + "-" + day.getDate() + " " + day.getHours() + ":" + day.getMinutes()
+            $("input[name=" + obj.attr('data-target') + "]").val(day);
         }
     })
 }
@@ -96,10 +124,13 @@ document.gtwidgets = {
     },
 
     GridSlider: function (instance) {
-        grid_slider(instance);
+        instance.ionRangeSlider(grid_slider(instance));
     },
     DateGridSlider: function (instance) {
         date_grid_slider(instance);
+    },
+    SingleGridSlider: function (instance) {
+        instance.ionRangeSlider(grid_slider_single(instance));
     },
     DateRangeInputCustom: function (instance) {
         instance.daterangepicker(load_date_range_custom(instance));
