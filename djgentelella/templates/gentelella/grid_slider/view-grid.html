@@ -22,6 +22,7 @@
                 <th>Max Value</th>
                 <th>Min Value</th>
                 <th>Date Time</th>
+                <th>Ages</th>
                 <th>Edit</th>
             </tr>
         </thead>
@@ -31,6 +32,7 @@
                 <td>{{obj.maximum}}</td>
                 <td>{{obj.minimum}}</td>
                 <td>{{obj.datetime}}</td>
+                <td>{{obj.age}}</td>
                 <td><a href="{% url 'grid-slider-edit' obj.id %}" class="btn btn-warning text-white">+</a></td>
             </tr>
             {% endfor %}
