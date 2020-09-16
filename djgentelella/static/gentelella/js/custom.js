@@ -499,7 +499,6 @@ function init_input_text(){
 $(document).ready(function() {
     init_sidebar();
     init_input_text();
-    load_daterangepicker();
     $(".gencrud").listcrudrest();
     gt_find_initialize($('body'));
 
