@@ -72,6 +72,19 @@ def DateGridSlider(attrs={}):
             super().__init__(attrs)
     return DateGridSlider
 
+def SingleGridSlider(attrs={}):
+    class SingleGridSlider(Input):
+        input_type = 'text'
+        template_name = 'gentelella/widgets/input.html'
+        extra_attrs = attrs.copy()
+
+        def __init__(self, attrs=None, extraskwargs=True):
+            attrs = update_kwargs(attrs, self.__class__.__name__)
+            if self.extra_attrs:
+                attrs.update(self.extra_attrs)
+            super().__init__(attrs)
+    return SingleGridSlider
+
 
 class NumberInput(Input):
     input_type = 'number'
