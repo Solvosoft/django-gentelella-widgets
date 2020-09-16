@@ -10,7 +10,7 @@ function load_date_range(instance) {
         let days = $(instance).val().split('-');
         options = {
             "startDate": days[0],
-            "endDate": da[1],
+            "endDate": days[1],
             'locale': {
                 format: 'DD/MM/YYYY',
             }
@@ -40,9 +40,9 @@ function load_datetime_range(instance) {
             }
         }
     }
-    return dates;
+    return options;
 }
-function load_dat_ranges_custom(instance) {
+function load_date_range_custom(instance) {
     var options = {
         startDate: moment().startOf('hour'),
         endDate: moment().startOf('hour').add(32, 'hour'),
