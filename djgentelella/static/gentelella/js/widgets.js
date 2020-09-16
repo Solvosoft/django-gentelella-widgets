@@ -38,10 +38,10 @@ function grid_slider_single(instance) {
     let obj = $(instance[0]);
 
 
-    let from = obj.attr('data-from');
+    let from = obj.attr('data_from');
 
-    if ($("input[name=" + obj.attr('data-target-from') + "]").val() > 0) {
-        from = $("input[name=" + obj.attr('data-target-from') + "]").val()
+    if ($("input[name=" + obj.attr('data-target') + "]").val() > 0) {
+        from = $("input[name=" + obj.attr('data-target') + "]").val()
     }
 
     let option = {
