@@ -174,8 +174,6 @@ class DateRange(models.Model):
 
 
 class gridSlider(models.Model):
-    prevent_dragging = models.CharField(max_length=20)
-    pre_defined_steps = models.CharField(max_length=20)
-    default_min_and_max = models.CharField(max_length=20)
-    minimum_and_maximum_values = models.CharField(max_length=20)
-    hours = models.CharField(max_length=20)
+    minimum= models.IntegerField()
+    maximum= models.IntegerField()
+    

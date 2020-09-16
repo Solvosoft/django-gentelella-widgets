@@ -3,16 +3,16 @@ from demoapp import models
 from djgentelella.forms.forms import GTForm
 from djgentelella.widgets import core as widget
 
-attrs = {'min': '0',
-         'max': '1000',
-         'step': 2,
-         'grid': 'true',
-         'from_fixed': 'false',
-         'prefix': "$",
-         'to_fixed': 'false',
-         'to_max': 750,
-         'from_min': 200,
-         'hide_min_max': 'true',
+attrs = {'data-min': '0',
+         'data-max': '1000',
+         'data-step': 2,
+         'data-grid': 'true',
+         'data-from_fixed': 'false',
+         'data-prefix': "$",
+         'data-to_fixed': 'false',
+         'data-to_max': 750,
+         'data-from_min': 200,
+         'data-hide_min_max': 'true',
          'data-target-from': 'minimum',
          'data-target-to': 'maximum',
          }
@@ -21,14 +21,15 @@ attrs = {'min': '0',
 class gridSliderForm(forms.ModelForm, GTForm):
 
     slider = forms.CharField(widget=widget.GridSlider(attrs))
+    timer = forms.CharField(widget=widget.DateGridSlider({'data_min': '2020-09-12',
+                                                          'data_max': '2020-12-12',
+                                                          'data_from': '2020-11-12',
+                                                          }))
 
     class Meta:
         model = models.gridSlider
         fields = '__all__'
         widgets = {
-            'prevent_dragging': widget.GridSlider(attrs),
-            'pre_defined_steps':widget.GridSlider(attrs),
-            'default_min_and_max':widget.GridSlider(attrs),
-            'minimum_and_maximum_values':widget.GridSlider(attrs),
-            'hours':widget.DateGridSlider({}),
+            'minimum': widget.HiddenInput,
+            'maximum': widget.HiddenInput
         }
