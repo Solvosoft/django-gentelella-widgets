@@ -274,7 +274,10 @@ document.gtwidgets = {
 function gt_find_initialize(instance) {
     var widgets = Object.keys(document.gtwidgets);
     widgets.forEach((widgetname) => {
-        document.gtwidgets[widgetname](instance.find('[data-widget="' + widgetname + '"]'));
+        var elems = instance.find('[data-widget="'+widgetname+'"]');
+        if(elems.length>0){
+            document.gtwidgets[widgetname](elems);
+        }
     });
     var autocomplete = instance.find('[data-widget="AutocompleteSelectMultiple"],[data-widget="AutocompleteSelect"]');
     if (autocomplete.length > 0) {
@@ -285,7 +288,6 @@ function gt_find_initialize(instance) {
 }
 
 $(document).ready(function () {
-
     $(".formset").each(function (index, elem) {
         document.formset.push(gtformSetManager($(elem)));
     });

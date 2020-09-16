@@ -11,11 +11,11 @@ import sys
 register = template.Library()
 
 @register.simple_tag(takes_context=True)
-def get_settings(context,  name, **kwargs):
+def get_settings(context,  name, default='', **kwargs):
     settings=get_settings_utils(name)
     if settings:
         return mark_safe(settings)
-    return ""
+    return default
 
 @register.simple_tag
 def get_random_uuid():
