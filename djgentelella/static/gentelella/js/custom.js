@@ -501,8 +501,6 @@ $(document).ready(function() {
     init_input_text();
     $(".gencrud").listcrudrest();
     gt_find_initialize($('body'));
-
-
 });
 
 $(document).ready(function () {
