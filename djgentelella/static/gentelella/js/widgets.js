@@ -1,30 +1,40 @@
 function grid_slider(instance) {
     let obj = $(instance);
-    let to=750;
-    let from=200;
+    let to = obj.attr('data-from_max');
+    let from = obj.attr('data-from_min');
+    if ($("input[name=" + obj.attr('data-target-to') + "]").val() > 200) {
+        to = $("input[name=" + obj.attr('data-target-to') + "]").val()
+    }
+    if ($("input[name=" + obj.attr('data-target-from') + "]").val() > 200) {
+        from = $("input[name=" + obj.attr('data-target-from') + "]").val()
+    }
     let option = {
-        'min': obj.attr('min'),
-        'max': obj.attr('max'),
-        'from': 200,
-        'to': 700,
+        'min': obj.attr('data-min'),
+        'max': obj.attr('data-max'),
+        'from': from,
+        'to': to,
         'type': 'double',
-        'step': obj.attr('step'),
-        'prefix': obj.attr('prefix'),
-        'from_fixed': obj.attr('from_fixed') === 'true',
-        'to_fixed': obj.attr('to_fixed') === 'true',
-        'from_min': obj.attr('from_min'),
-        'from_max': obj.attr('to_max'),
-        'to_max': obj.attr('to_max'),
-        'hide_min_max': obj.attr('hide_min_max'),
+        'step': obj.attr('data-step'),
+        'prefix': obj.attr('data-prefix'),
+        'from_fixed': obj.attr('data-from_fixed') === 'true',
+        'to_fixed': obj.attr('data-to_fixed') === 'true',
+        'to_max': obj.attr('data-to_max'),
+        'hide_min_max': obj.attr('data-hide_min_max'),
         'grid': true,
         'onChange': function (data) {
+            $("input[name=" + obj.attr('data-target-from') + "]").val(data.from);
+            $("input[name=" + obj.attr('data-target-to') + "]").val(data.to);
         }
     }
     instance.ionRangeSlider(option);
 }
 function date_grid_slider(instance) {
+    let obj = $(instance);
+    let to = obj.attr('data_max').split('-');
+    let from = obj.attr('data_min').split('-');
+    let x = obj.attr('data_from').split('-');
+
     var lang = "en-US";
-    var year = 2018;
 
     function dateToTS(date) {
         return date.valueOf();
@@ -48,11 +58,14 @@ function date_grid_slider(instance) {
     instance.ionRangeSlider({
         skin: "flat",
         type: "single",
-        min: dateToTS(new Date(year, 10, 1)),
-        max: dateToTS(new Date(year, 11, 1)),
-        from: dateToTS(new Date(year, 10, 8)),
-        to: dateToTS(new Date(year, 10, 23)),
-        prettify: tsToDate
+        min: dateToTS(new Date(from[0], from[1]-1, from[2])),
+        max: dateToTS(new Date(to[0], to[1]-1, to[2])),
+        to:dateToTS(new Date(from[0], from[1]-1, from[2])),
+        from: dateToTS(new Date(x[0], x[1]-1, x[2])),
+        prettify: tsToDate,
+        onChange: function(data){
+            console.log(data.from);
+        }
     })
 }
 document.formset = [];
