@@ -31,7 +31,7 @@ class gridSliderForm(forms.ModelForm, GTForm):
     
     grid_ages = forms.CharField(widget=widget.SingleGridSlider(attrs={'data-min': '0',
                                                                      'data-max': '100',
-                                                                     'data_from': '20',
+                                                                     'data-from': '20',
                                                                      'data-prefix':' ',
                                                                      'data-target': 'age',
                                                                      }))

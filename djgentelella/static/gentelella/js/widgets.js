@@ -35,14 +35,13 @@ function grid_slider(instance) {
     return option;
 }
 function grid_slider_single(instance) {
-    let obj = $(instance);
+    let obj = $(instance[0]);
 
 
-    let from = obj.attr('data_from');
+    let from = obj.attr('data-from');
 
-    if ($("input[name=" + obj.attr('data-target') + "]").val() > 0) {
-        
-        from = $("input[name=" + obj.attr('data-target') + "]").val();
+    if ($("input[name=" + obj.attr('data-target-from') + "]").val() > 0) {
+        from = $("input[name=" + obj.attr('data-target-from') + "]").val()
     }
 
     let option = {
@@ -54,7 +53,6 @@ function grid_slider_single(instance) {
         'grid': true,
         'onChange': function (data) {
             $("input[name=" + obj.attr('data-target') + "]").val(data.from);
-            console.log($("input[name=" + obj.attr('data-target') + "]").val());
         }
     }
     return option;
@@ -89,7 +87,7 @@ function date_grid_slider(instance) {
         hide_min_max: false,
         min: dateToTS(new Date(obj.attr('data_min'))),
         max: dateToTS(new Date(obj.attr('data_max'))),
-        from: dateToTS(new Date(input.length>0? input : obj.attr('data_from'))),
+        from: dateToTS(new Date(input != undefined ? input : obj.attr('data_from'))),
         prettify: tsToDate,
         onChange: function (data) {
             var day = new Date(data.from);
