@@ -496,13 +496,11 @@ function init_input_text() {
    $('input[maxlength]').maxlength();
 };
 
-$(document).ready(function () {
+$(document).ready(function() {
     init_sidebar();
     init_input_text();
     $(".gencrud").listcrudrest();
     gt_find_initialize($('body'));
-
-
 });
 
 $(document).ready(function () {
