@@ -54,8 +54,8 @@ class SplitDateMulti(MultiWidget):
         day, month, year = super().value_from_datadict(data, files, name)
         return '{}-{}-{}'.format(year, month, day)
     
-class PhoneNumberMultiInput(MultiWidget):
-    template_name = "gentelella/widgets/phonenumber.html"
+class PhoneNumberMultiWidget(MultiWidget):
+    template_name = "gentelella/widgets/phonenumber_multiwidget.html"
   
     def __init__(self, attrs=None):
         numbers = [(number, (number)) for number in range(1, 1000)]
@@ -64,7 +64,7 @@ class PhoneNumberMultiInput(MultiWidget):
            Select(attrs=attrs, choices=numbers),
            TextInput(attrs=attrs),
         )
-        super(PhoneNumberMultiInput, self).__init__(widget, attrs)
+        super(PhoneNumberMultiWidget, self).__init__(widget, attrs)
 
     def decompress(self, value):
         if value:

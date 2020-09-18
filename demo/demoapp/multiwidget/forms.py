@@ -5,7 +5,7 @@ from djgentelella.widgets import core as widget
 
 
 
-class ContactForm(forms.ModelForm, GTForm):
+class ExampleForm(forms.ModelForm, GTForm):
 
     class Meta:
         model = models.Multiwidget
