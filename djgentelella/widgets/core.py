@@ -5,11 +5,13 @@ from django.forms import (PasswordInput as DJPasswordInput, FileInput as DJFileI
                           SplitHiddenDateTimeWidget as DJSplitHiddenDateTimeWidget,
                           CheckboxSelectMultiple as DJCheckboxSelectMultiple, SelectMultiple as DJSelectMultiple,
                           SelectDateWidget as DJSelectDateWidget, SplitDateTimeWidget as DJSplitDateTimeWidget,
-                          MultiWidget as DJMultiWidget)
+                          MultiWidget)
 from django.forms.widgets import Input as DJInput
 from django.forms import widgets
+from datetime import date,datetime
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
+
 
 def update_kwargs(attrs, widget, base_class='form-control '):
     if attrs is not None:
@@ -24,23 +26,64 @@ def update_kwargs(attrs, widget, base_class='form-control '):
     attrs['data-widget'] = widget
     return attrs
 
-class PhoneNumberWidget(DJMultiWidget):
+class SplitDateMulti(MultiWidget):
+    
+    template_name = "gentelella/widgets/splitdate.html"
+
     def __init__(self, attrs=None):
-        numbers = [(number, (number)) for number in range(1, 200)]
-        
-        wgt = (
-            widgets.Select(attrs=attrs, choices=numbers),
-            widgets.TextInput(attrs=attrs),
+        days = [(day, day) for day in range(1, 32)]
+        months = [(month, month) for month in range(1, 13)]
+        years = [(year, year) for year in range(1950, datetime.now().year+50)]
+     
+        widgets = [
+            Select(attrs=attrs, choices=days),
+            Select(attrs=attrs, choices=months),
+            Select(attrs=attrs, choices=years),
+        ]
+        super().__init__(widgets, attrs)
+
+    def decompress(self, value):
+        if isinstance(value, date):
+            return [value.day, value.month, value.year]
+        elif isinstance(value, str):
+            year, month, day = value.split('-')
+            return [day, month, year]
+        return [None, None, None]
+
+    def value_from_datadict(self, data, files, name):
+        day, month, year = super().value_from_datadict(data, files, name)
+        return '{}-{}-{}'.format(year, month, day)
+    
+class PhoneNumberMultiInput(MultiWidget):
+    template_name = "gentelella/widgets/phonenumber.html"
+  
+    def __init__(self, attrs=None):
+        numbers = [(number, (number)) for number in range(1, 1000)]
+
+        widget = (
+           Select(attrs=attrs, choices=numbers),
+           TextInput(attrs=attrs),
         )
-        super(PhoneNumberWidget, self).__init__(wgt, attrs)
+        super(PhoneNumberMultiInput, self).__init__(widget, attrs)
 
     def decompress(self, value):
         if value:
             number=value
-            return value.split("'")
+            return value.split("-")
         return [None, None]
 
-
+    
+    def value_from_datadict(self, data, files, name):
+        datelist = [
+            widget.value_from_datadict(data, files, name + '_%s' % i)
+            for i, widget in enumerate(self.widgets)]
+        try:
+            data=datelist[0]+"-"+datelist[1]
+            print(data)
+        except ValueError:
+            return ''
+        else:
+            return data
 
 class Input(DJInput):
     """

@@ -37,7 +37,8 @@ urlpatterns = [
         path('gridslider/',grid.AddGrid.as_view(), name='grid-slider-add'),
         path('gridslider/list',grid.ListGrid.as_view(), name='grid-slider-list'),
         path('gridslider/<int:pk>',grid.UpdateGrid.as_view(), name='grid-slider-edit'),
-        path('multiwidget/',multi.multi.as_view(), name='multi-add'),
-        path('multiwidget/<int:pk>',multi.umulti.as_view(), name='multi-edit'),
-
+        path('multiwidget/',multi.InsertMultiwidget.as_view(), name='multiwidget-add'),
+        path('multiwidget/<int:pk>',multi.UpdateMultiwidget.as_view(), name='multiwidget-edit'),
+        path('multiwidget/list',multi.listMultiwidget.as_view(), name='multiwidget-list'),
+  
 ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()
