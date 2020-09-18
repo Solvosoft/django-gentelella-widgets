@@ -114,13 +114,7 @@ document.gtwidgets = {
         });
     },
     DateRangeInput: function (instance) {
-        instance.daterangepicker({
-            startDate: moment().startOf('hour'),
-            endDate: moment().startOf('hour').add(32, 'hour'),
-            locale: {
-                format: 'DD/MM/YYYY',
-            }
-        });
+        instance.daterangepicker(load_date_range(instance));
     },
 
     GridSlider: function (instance) {
@@ -133,32 +127,11 @@ document.gtwidgets = {
         instance.ionRangeSlider(grid_slider_single(instance));
     },
     DateRangeInputCustom: function (instance) {
-        instance.daterangepicker({
-            startDate: moment().startOf('hour'),
-            endDate: moment().startOf('hour').add(32, 'hour'),
-            ranges: {
-                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-                'Next Week': [moment(), moment().add(7, 'days')],
-                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-                'This Month': [moment().startOf('month'), moment().endOf('month')],
-                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-            },
-            locale: {
-                format: 'DD/MM/YYYY',
-            }
-        });
+        instance.daterangepicker(load_date_range_custom(instance));
     },
 
     DateRangeTimeInput: function (instance) {
-        instance.daterangepicker({
-            timePicker: true,
-            timePicker24Hour: true,
-            startDate: moment().startOf('hour'),
-            endDate: moment().startOf('hour').add(32, 'hour'),
-            locale: {
-                format: 'DD/MM/YYYY HH:mm A'
-            }
-        });
+        instance.daterangepicker(load_datetime_range(instance));
     },
     TreeSelectWithAdd: function (instance) {
         instance.select2({ templateResult: decore_select2 });
@@ -274,8 +247,8 @@ document.gtwidgets = {
 function gt_find_initialize(instance) {
     var widgets = Object.keys(document.gtwidgets);
     widgets.forEach((widgetname) => {
-        var elems = instance.find('[data-widget="'+widgetname+'"]');
-        if(elems.length>0){
+        var elems = instance.find('[data-widget="' + widgetname + '"]');
+        if (elems.length > 0) {
             document.gtwidgets[widgetname](elems);
         }
     });
