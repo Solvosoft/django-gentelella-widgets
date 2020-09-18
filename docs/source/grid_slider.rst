@@ -1,12 +1,17 @@
 ==================================================================
-Usage of GridSlider and DateGridSlider widgets
+Usage of GridSlider, DateGridSlider and SingleGridSlider widgets
 ==================================================================
+.. image:: _static/GridSlider.png
+.. image:: _static/GridSlider.gif
 
 *GridSlider+
-It is similar to range input with minimum and maximum value. 
+It is similar to range input, but this use two pointer represent the min and max value. 
+
+*SingleGridSlider*
+It is similar to *GridSlider*, but this only can use a pointer. 
 
 *DateGridSlider*
-It is similar to *GridSlider*, but this only receive values type date in format('yyyy/mm/dd'). 
+It is similar to *SingleGridSlider*, but this only receive values type date in format('yyyy/mm/dd'). 
 
 You can uses this widget in a * CharField *, * IntegerField * and *DateTime*
 
@@ -35,6 +40,13 @@ About the DateGridSlider need to add:
  - data-max: this atribute receives the max value,in addition can be use with values type date in format ('YYYY / MM / DD').
  - data_from: This defined the default initial value and only date values.
 
+About the SingleGridSlider need to add:
+ - data-min: this atribute receives the min value,in addition can be use with values type date in format ('YYYY / MM / DD').
+ - data-max: this atribute receives the max value,in addition can be use with values type date in format ('YYYY / MM / DD').
+ - data_from: This defined the default initial value and only date values.
+ - data-target: this receive the name of one field of the model and that field represent the minimum value of the grid slider. 
+ - data-target_from: this atribute receive simbols. 
+
 -----------------
 Forms.py
 -----------------
@@ -61,13 +73,22 @@ class gridSliderForm(forms.ModelForm, GTForm):
                                                                         'data_max': '2020-12-12',
                                                                         'data_from': '2020-11-12',
                                                                         }))
-    class Meta:
-            model = models.gridSlider
-            fields = '__all__'
-            widgets = {
-                'minimum': widget.HiddenInput,
-                'maximum': widget.HiddenInput,
-                'datetime': widget.HiddenInput, 
-            }
+    
+    grid_ages = forms.CharField(widget=widget.SingleGridSlider(attrs={'data-min': '0',
+                                                                      'data-max': '100',
+                                                                      'data_from': '20',
+                                                                      'data-prefix': ' ',
+                                                                      'data-target': 'age',
+                                                                      }))
 
-As you can see in the previous code you can make the fields of the model can be hidden for dont show in the view or any type.
+    class Meta:
+        model = models.gridSlider
+        fields = '__all__'
+        widgets = {
+            'minimum': widget.HiddenInput,
+            'maximum': widget.HiddenInput,
+            'datetime': widget.HiddenInput,
+            'age': widget.HiddenInput
+        }
+
+As you can see in the previous code you can make the fields of the model can be hidden or any type.
