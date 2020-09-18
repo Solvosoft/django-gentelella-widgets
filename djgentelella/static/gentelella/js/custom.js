@@ -493,10 +493,11 @@ function init_validator() {
 };
 
 function init_input_text() {
-   $('input[maxlength]').maxlength();
+    $('input[maxlength]').maxlength();
 };
 
-$(document).ready(function() {
+
+$(document).ready(function () {
     init_sidebar();
     init_input_text();
     $(".gencrud").listcrudrest();
