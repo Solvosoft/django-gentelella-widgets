@@ -178,4 +178,6 @@ class gridSlider(models.Model):
     maximum= models.IntegerField()
     datetime = models.DateTimeField()
     age= models.IntegerField()
-    
+
+class Contact(models.Model):
+    number=models.CharField(max_length=20)

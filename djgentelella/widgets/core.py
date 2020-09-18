@@ -4,11 +4,12 @@ from django.forms import (PasswordInput as DJPasswordInput, FileInput as DJFileI
                           TimeInput as DJTimeInput, CheckboxInput as DJCheckboxInput, Select as DJSelect,
                           SplitHiddenDateTimeWidget as DJSplitHiddenDateTimeWidget,
                           CheckboxSelectMultiple as DJCheckboxSelectMultiple, SelectMultiple as DJSelectMultiple,
-                          SelectDateWidget as DJSelectDateWidget, SplitDateTimeWidget as DJSplitDateTimeWidget)
+                          SelectDateWidget as DJSelectDateWidget, SplitDateTimeWidget as DJSplitDateTimeWidget,
+                          MultiWidget as DJMultiWidget)
 from django.forms.widgets import Input as DJInput
+from django.forms import widgets
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
-
 
 def update_kwargs(attrs, widget, base_class='form-control '):
     if attrs is not None:
@@ -22,6 +23,23 @@ def update_kwargs(attrs, widget, base_class='form-control '):
         attrs.update({'class': base_class})
     attrs['data-widget'] = widget
     return attrs
+
+class PhoneNumberWidget(DJMultiWidget):
+    def __init__(self, attrs=None):
+        numbers = [(number, (number)) for number in range(1, 200)]
+        
+        wgt = (
+            widgets.Select(attrs=attrs, choices=numbers),
+            widgets.TextInput(attrs=attrs),
+        )
+        super(PhoneNumberWidget, self).__init__(wgt, attrs)
+
+    def decompress(self, value):
+        if value:
+            number=value
+            return value.split("'")
+        return [None, None]
+
 
 
 class Input(DJInput):

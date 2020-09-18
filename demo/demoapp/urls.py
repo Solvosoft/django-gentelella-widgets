@@ -9,6 +9,7 @@ from .views import knobView
 from .input_masks import views as input_mask
 from .date_range import views as date_ranges
 from .grid_slider import views as grid
+from .multiwidget import views as multi
 
 pclss = Personclass()
 countryclss = Countryclass()
@@ -36,5 +37,7 @@ urlpatterns = [
         path('gridslider/',grid.AddGrid.as_view(), name='grid-slider-add'),
         path('gridslider/list',grid.ListGrid.as_view(), name='grid-slider-list'),
         path('gridslider/<int:pk>',grid.UpdateGrid.as_view(), name='grid-slider-edit'),
+        path('multiwidget/',multi.multi.as_view(), name='multi-add'),
+        path('multiwidget/<int:pk>',multi.umulti.as_view(), name='multi-edit'),
 
 ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()
