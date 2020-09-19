@@ -3,6 +3,8 @@ Django Gentelella widgets
 
 This app helps you to integrate Django apps with `Gentelella <https://colorlib.com/polygon/gentelella/index.html>`_ building extra widgets for forms and speciall methods to render forms in templates.
 
+See `Documentation <https://django-gentelella-widgets.readthedocs.io/>`_
+
 Installation
 ________________
 
