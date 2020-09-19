@@ -171,6 +171,8 @@ class DateRange(models.Model):
     date_custom= models.CharField(max_length=25)
     date_time=models.CharField(max_length=45) 
 
-    
-    
-    
+
+class TaggingModel(models.Model):
+    text_list = models.CharField(max_length=500, null=True, blank=True)
+    email_list = models.CharField(max_length=500, null=True, blank=True)
+    area_list = models.TextField(null=True, blank=True)
