@@ -1,8 +1,7 @@
-======================
 NumberKnobInput widget
-======================
+^^^^^^^^^^^^^^^^^^^^^^^
 
-.. image:: _static/knob.png
+.. image:: ../_static/knob.png
    :align: center
 
 It is a kind of selector to input numerical values.
@@ -10,7 +9,8 @@ You can add this widget in a *IntegerField* or *FloatField.*
 
 .. code:: python
 
-   class FooModelForm(CustomForm, forms.ModelForm):
+   from djgentelella.forms.forms import GTForm
+   class FooModelForm(GTForm, forms.ModelForm):
        class Meta:
            model = Foo
            fields = (

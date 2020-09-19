@@ -1,6 +1,5 @@
-===============
 Pallete widget
-===============
+^^^^^^^^^^^^^^^^
 
 It is a kind of helper, that is located at the bottom left-hand side corner, with a mail icon.
 This widget is used to add a description for each input field in the different displayed forms
@@ -11,7 +10,7 @@ as a question mark, when we hit the show button in the helper modal.
 
 We can see, add, modify, and delete descriptions for each field.
 
-.. image:: _static/pallete.gif
+.. image:: ../_static/pallete.gif
 
 **How to add this widget ??**
 
