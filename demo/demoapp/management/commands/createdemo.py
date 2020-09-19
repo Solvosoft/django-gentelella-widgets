@@ -62,9 +62,21 @@ class Command(BaseCommand):
             icon='fa fa-build',
             only_icon=False
         )
-        item = MenuItem.objects.create(
+        dashboard = MenuItem.objects.create(
             parent=item,
             title='Dashboard',
+            url_name='#',
+            category='sidebar',  # sidebar, sidebarfooter,
+            is_reversed=False,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='',
+            only_icon=False
+        )
+        item = MenuItem.objects.create(
+            parent=item,
+            title='Crud / notifications',
             url_name='#',
             category='sidebar',  # sidebar, sidebarfooter,
             is_reversed=False,
@@ -149,6 +161,18 @@ class Command(BaseCommand):
             only_icon = False
         )
 
+        chart=MenuItem.objects.create(
+            parent = dashboard,
+            title = 'Charts',
+            url_name ='chartjs_view',
+            category = 'sidebar',  #sidebar, sidebarfooter,
+            is_reversed = True,
+            reversed_kwargs = None,
+            reversed_args = None,
+            is_widget = False,
+            icon = 'fa fa-line-chart',
+            only_icon = False
+        )
         noti=MenuItem.objects.create(
             parent = item,
             title = 'Create notification',
@@ -201,15 +225,15 @@ class Command(BaseCommand):
             only_icon = False
         )
         MenuItem.objects.create(
-            parent = item,
-            title = 'Dashboard widgets',
+            parent = dashboard,
+            title = 'Element widgets',
             url_name ='dashboard',
             category = 'sidebar',  #sidebar, sidebarfooter,
             is_reversed = True,
             reversed_kwargs = None,
             reversed_args = None,
             is_widget = False,
-            icon = 'fa fa-power-off',
+            icon = 'fa fa-table',
             only_icon = False
         )
         item = MenuItem.objects.create(
