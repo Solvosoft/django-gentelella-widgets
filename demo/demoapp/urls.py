@@ -4,6 +4,7 @@ from django.urls import path, include
 from demoapp.cruds import Personclass, Countryclass, MenuItemclass
 from demoapp.views import create_notification_view, color_widget_view
 from .autocomplete import views as autocompleteviews
+from .chartjs import chart_js_view
 from .formset import add_formset, add_model_formset
 from .views import knobView
 from .input_masks import views as input_mask
@@ -32,5 +33,6 @@ urlpatterns = [
         path('daterange/',date_ranges.CreateDate.as_view(), name='date-range-add'),
         path('daterange/<int:pk>',date_ranges.UpdateDate.as_view(), name='date-range-edit'),
         path('daterange/list',date_ranges.ListDate.as_view(), name='date-range-list'),
+        path('chartjs', chart_js_view, name='chartjs_view'),
 
 ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()

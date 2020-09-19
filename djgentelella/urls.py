@@ -37,16 +37,22 @@ auth_urls = [
     ), name="password_reset_complete")
 ]
 
-from .groute import routes
-from django.conf import settings
-for x in settings.INSTALLED_APPS:
+
+def import_module_app_gt(app, name):
     try:
-        __import__(x+'.gtselects')
-    except:
+        __import__(app + '.' + name)
+    except ModuleNotFoundError as e:
         pass
 
+
+from .groute import routes
+from django.conf import settings
+for app in settings.INSTALLED_APPS:
+    import_module_app_gt(app, 'gtcharts')
+    import_module_app_gt(app, 'gtselects')
+
 base_urlpatterns = [
-    url('gtselects/', include(routes.urls)),
+    url('gtapis/', include(routes.urls)),
     path('djgentelella/upload/', ChunkedUploadView.as_view(), name='upload_file_view'),
     path('djgentelella/upload/done/', ChunkedUploadCompleteView.as_view(), name='upload_file_done'),
     url('help/(?P<pk>\d+)?', HelperWidgetView.as_view({'get': 'list', 'post': 'create', 'put': 'update', 'delete': 'destroy'}),
