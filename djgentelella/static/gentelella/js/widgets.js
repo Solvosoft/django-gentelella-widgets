@@ -131,6 +131,13 @@ document.gtwidgets = {
     InlinePickerColor: function (instance) {
         instance.parent('.color-input-field-inline-picker').css("display", "inline-block").colorpicker({ container: true, inline: true });
     },
+    TaggingInput: function(instance){
+        instance.tagify();
+    },
+    EmailTaggingInput: function(instance){
+        instance.tagify({pattern: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+});
+    },
     DJGraph: function (instance) {
         instance.gentelella_chart();
     }

@@ -9,6 +9,7 @@ from .formset import add_formset, add_model_formset
 from .views import knobView
 from .input_masks import views as input_mask
 from .date_range import views as date_ranges
+from .tagging import views as tagging
 
 pclss = Personclass()
 countryclss = Countryclass()
@@ -34,5 +35,8 @@ urlpatterns = [
         path('daterange/<int:pk>',date_ranges.UpdateDate.as_view(), name='date-range-edit'),
         path('daterange/list',date_ranges.ListDate.as_view(), name='date-range-list'),
         path('chartjs', chart_js_view, name='chartjs_view'),
+        path('tagging/', tagging.InsertTagging.as_view(), name='input_tagging-add'),
+        path('tagging/<int:pk>', tagging.EditTagging.as_view(), name='input_tagging-edit'),
+        path('tagging/list', tagging.ListTagging.as_view(), name='input_tagging-list'),
 
 ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()

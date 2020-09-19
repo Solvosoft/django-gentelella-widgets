@@ -4407,3 +4407,7 @@ h4.revision {
 .hp-90{
     height: 90%!important;
 }
+
+.tagifyinputform {
+    min-height: 1.2em;
+}

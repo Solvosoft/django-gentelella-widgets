@@ -121,7 +121,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-home',
+            icon='fa fa-eyedropper',
             only_icon=False
         )
         MenuItem.objects.create(
@@ -133,7 +133,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-home',
+            icon='fa fa-diamond',
             only_icon=False
         )
         inputmask = MenuItem.objects.create(
@@ -145,7 +145,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-home',
+            icon='fa fa-cutlery',
             only_icon=False
         )
         daterange = MenuItem.objects.create(
@@ -157,10 +157,21 @@ class Command(BaseCommand):
             reversed_kwargs = None,
             reversed_args = None,
             is_widget = False,
-            icon = 'fa fa-home',
+            icon = 'fa fa-balance-scale',
             only_icon = False
         )
-
+        tagging = MenuItem.objects.create(
+            parent = cwidget,
+            title = 'Tagging',
+            url_name ='input_tagging-list',
+            category = 'sidebar',
+            is_reversed = True,
+            reversed_kwargs = None,
+            reversed_args = None,
+            is_widget = False,
+            icon = 'fa fa-deaf',
+            only_icon = False
+        )
         chart=MenuItem.objects.create(
             parent = dashboard,
             title = 'Charts',

@@ -176,6 +176,11 @@ class Command(BaseCommand):
             ],
             'bootstrap-tree': [
                 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-treeview/1.2.0/bootstrap-treeview.min.js'
+            ],
+            'tagify': [
+                'https://cdnjs.cloudflare.com/ajax/libs/tagify/3.18.1/tagify.min.js',
+                'https://cdnjs.cloudflare.com/ajax/libs/tagify/3.18.1/jQuery.tagify.min.js',
+                'https://cdnjs.cloudflare.com/ajax/libs/tagify/3.18.1/tagify.min.css'
             ]
         }
         if not os.path.exists(basepath / 'flags'):
