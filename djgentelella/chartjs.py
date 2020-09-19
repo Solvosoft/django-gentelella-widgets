@@ -1,6 +1,7 @@
 from rest_framework import serializers, viewsets
 from rest_framework.response import Response
 
+
 class DataSetSerializer(serializers.Serializer):
     label = serializers.CharField()
     backgroundColor = serializers.CharField(required=False)
@@ -12,15 +13,16 @@ class DataSetSerializer(serializers.Serializer):
     steppedLine = serializers.CharField(required=False)
     type = serializers.CharField(required=False)
 
+
 class DataPieSetSerializer(serializers.Serializer):
     label = serializers.CharField()
     backgroundColor = serializers.ListField(child=serializers.CharField(required=False))
     data = serializers.ListField(child=serializers.IntegerField())
     fill = serializers.BooleanField(default=False, required=False)
 
-    #borderWidth = serializers.IntegerField(default=0, required=False)
-    #stack = serializers.CharField(required=False)
-    #steppedLine = serializers.CharField(required=False)
+    # borderWidth = serializers.IntegerField(default=0, required=False)
+    # stack = serializers.CharField(required=False)
+    # steppedLine = serializers.CharField(required=False)
 
 
 class ScatterItemSerializer(serializers.Serializer):
@@ -42,7 +44,7 @@ class DataScatterSetSerializer(serializers.Serializer):
 
 class DataSerializer(serializers.Serializer):
     labels = serializers.ListField(child=serializers.CharField())
-    datasets = serializers.ListField(child=DataSetSerializer() )
+    datasets = serializers.ListField(child=DataSetSerializer())
 
 
 class TitleSerializer(serializers.Serializer):
@@ -85,7 +87,6 @@ class ScaleSerializer(serializers.Serializer):
     time = serializers.DictField(child=serializers.CharField(), required=False)
 
 
-
 class OptionScaleSerializer(serializers.Serializer):
     xAxes = serializers.ListField(child=ScaleSerializer(), required=False)
     yAxes = serializers.ListField(child=ScaleSerializer(), required=False)
@@ -98,9 +99,11 @@ class RectangleSerialize(serializers.Serializer):
 class ElementsSerialize(serializers.Serializer):
     rectangle = RectangleSerialize()
 
+
 class AnimationSerialize(serializers.Serializer):
     animateScale = serializers.BooleanField(required=False)
     animateRotate: serializers.BooleanField(required=False)
+
 
 class OptionsSerializer(serializers.Serializer):
     responsive = serializers.BooleanField(default=True, required=False)
@@ -118,23 +121,28 @@ class ChartSerializer(serializers.Serializer):
     data = DataSerializer(required=True)
     options = OptionsSerializer(required=True)
 
+
 class DataPieSerializer(serializers.Serializer):
     labels = serializers.ListField(child=serializers.CharField())
-    datasets = serializers.ListField(child=DataPieSetSerializer() )
+    datasets = serializers.ListField(child=DataPieSetSerializer())
+
 
 class PieSerializer(serializers.Serializer):
     type = serializers.CharField(required=True)
     data = DataPieSerializer(required=True)
     options = OptionsSerializer(required=True)
 
+
 class DataScatterSerializer(serializers.Serializer):
     labels = serializers.ListField(child=serializers.CharField())
-    datasets = serializers.ListField(child=DataScatterSetSerializer() )
+    datasets = serializers.ListField(child=DataScatterSetSerializer())
+
 
 class ScatterSerializer(serializers.Serializer):
     type = serializers.CharField(required=True)
     data = DataScatterSerializer(required=True)
     options = OptionsSerializer(required=True)
+
 
 class BaseChartGetter(viewsets.ViewSet):
     serializer_class = ChartSerializer
@@ -143,8 +151,8 @@ class BaseChartGetter(viewsets.ViewSet):
         options = ['responsive', 'legend', 'title', 'tooltips', 'hover', 'scales', 'elements', 'animation']
         dev = {}
         for option in options:
-            if hasattr(self, 'get_'+option):
-                dev[option] = getattr(self, 'get_'+option)()
+            if hasattr(self, 'get_' + option):
+                dev[option] = getattr(self, 'get_' + option)()
         return dev
 
     def get_type(self):
@@ -206,7 +214,7 @@ class StackedBarChart(BaseChartGetter):
         return 'bar'
 
     def get_tooltips(self):
-        return {'mode': 'index', 'intersect': False }
+        return {'mode': 'index', 'intersect': False}
 
     def get_responsive(self):
         return True
@@ -220,7 +228,7 @@ class LineChart(BaseChartGetter):
         return 'line'
 
     def get_tooltips(self):
-        return {'mode': 'index', 'intersect': False }
+        return {'mode': 'index', 'intersect': False}
 
     def get_responsive(self):
         return True
@@ -229,7 +237,7 @@ class LineChart(BaseChartGetter):
     #     return {'xAxes': [{'stacked': True, }], 'yAxes': [{'stacked': True}] }
 
     def get_hover(self):
-        return {'mode': 'nearest', 'intersect': True }
+        return {'mode': 'nearest', 'intersect': True}
 
 
 class PieChart(BaseChartGetter):
@@ -252,7 +260,7 @@ class DoughnutChart(BaseChartGetter):
         return True
 
     def get_legend(self):
-        return {'position': 'top',}
+        return {'position': 'top', }
 
     def get_animation(self):
         return {'animateScale': True, 'animateRotate': True}

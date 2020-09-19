@@ -1,6 +1,5 @@
-==================================================================
-Usage of AutoCompleteSelect and AutocompleteSelectMultiple widgets
-==================================================================
+AutoCompleteSelect and AutocompleteSelectMultiple widgets
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 2 requirements must be achieved to use these widgets
 
@@ -14,7 +13,7 @@ Defining Lookups for usage in widgets
 -------------------------------------
 An example on how a lookup must be defined:
 
-.. code-block:: python
+.. code:: python
 
     from djgentelella.groute import register_lookups
     from djgentelella.views.select2autocomplete import BaseSelect2View
@@ -48,12 +47,11 @@ Usage in forms.py
 
 In model based form:
 
-.. code-block:: python
-
+.. code:: python
 
     from djgentelella.widgets.selects import AutocompleteSelect, AutocompleteSelectMultiple
-
-    class PeopleGroupForm(CustomForm, forms.ModelForm):
+    from djgentelella.forms.forms import GTForm
+    class PeopleGroupForm(GTForm, forms.ModelForm):
         class Meta:
             model = models.PeopleGroup
             fields = '__all__'

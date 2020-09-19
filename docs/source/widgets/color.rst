@@ -1,6 +1,5 @@
-================
 Color widget
-================
+^^^^^^^^^^^^^^^^^^^
 
 How to implement it??
 
@@ -11,8 +10,8 @@ You can add this widget in the input field of a form in the following way:
 .. code:: python
 
    from djgentelella.widgets.color import StyleColorInput, DefaultColorInput, HorizontalBarColorInput, VerticalBarColorInput, InlinePickerColor
-
-   class ColorWidgetsForm(CustomForm, forms.ModelForm):
+   from djgentelella.forms.forms import GTForm
+   class ColorWidgetsForm(GTForm, forms.ModelForm):
        defaultColorInput = forms.CharField(widget=DefaultColorInput)
        styleColorInput = forms.CharField(widget=StyleColorInput(attrs={"value": "#0014bb", "id": "c2"}))
 
@@ -29,5 +28,5 @@ The color can be remembered after refresh the page.
 
 Exist four types of color widget: **DefaultColorInput, StyleColorInput, HorizontalBarColorInput, VerticalBarColorInput**
 
-.. image:: _static/color.gif
+.. image:: ../_static/color.gif
 

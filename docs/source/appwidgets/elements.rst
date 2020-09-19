@@ -1,6 +1,5 @@
-==================
 Elements Object
-==================
+^^^^^^^^^^^^^^^^^
 
 This object is used to display an indicator with different labels, icons and values.
 
@@ -32,7 +31,7 @@ then you must implement all methods.
        def get_bottom_icon_text(self):
            return "20%"
 
-.. image:: _static/member-stats-element.png
+.. image:: ../_static/member-stats-element.png
 
 .. code:: python
 
@@ -59,7 +58,7 @@ then you must implement all methods.
        def get_bottom_icon(self):
            return "fa fa-sort-asc"
 
-.. image:: _static/clock-time-element.png
+.. image:: ../_static/clock-time-element.png
 
 .. code:: python
 
@@ -73,7 +72,7 @@ then you must implement all methods.
        def get_subtitle(self):
            return "Lorem ipsum psdea itgum rixt."
 
-.. image:: _static/signups-box.png
+.. image:: ../_static/signups-box.png
 
 Exist a **StatsCountList** class used to display **StartsElement** in a row, and many elements as we want
 
@@ -82,7 +81,7 @@ Exist a **StatsCountList** class used to display **StartsElement** in a row, and
    class StatsCountListExample(StatsCountList):
        stats_views = [ClockTime, MemberStats, ClockTime, ClockTime]
 
-.. image:: _static/stats-count-list-example.png
+.. image:: ../_static/stats-count-list-example.png
 
 Exist a **BoxStatsCountList** class for the same purpose but to display **BoxTileElement**
 
@@ -91,4 +90,4 @@ Exist a **BoxStatsCountList** class for the same purpose but to display **BoxTil
    class BoxTileElementExample(BoxStatsCountList):
        stats_views = [SignupsBox, SignupsBox, SignupsBox,SignupsBox ]
 
-.. image:: _static/box-tile-element-example.png
+.. image:: ../_static/box-tile-element-example.png

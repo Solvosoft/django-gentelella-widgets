@@ -1,6 +1,5 @@
-======================
 Notifications app
-======================
+^^^^^^^^^^^^^^^^^^^
 
 How to install it ??
 
@@ -14,8 +13,10 @@ Then to use notification you must use create_notification function.
 
 .. automodule:: djgentelella.notification.create_notification
    :members:
+   :noindex:
 
 You can also add a widget to handle notifications from navbar.
 
 .. automodule:: djgentelella.notification.widgets
    :members:
+   :noindex:
