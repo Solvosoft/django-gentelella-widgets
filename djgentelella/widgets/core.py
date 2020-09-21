@@ -79,7 +79,6 @@ class PhoneNumberMultiWidget(MultiWidget):
             for i, widget in enumerate(self.widgets)]
         try:
             data=datelist[0]+"-"+datelist[1]
-            print(data)
         except ValueError:
             return ''
         else:

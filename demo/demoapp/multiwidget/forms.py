@@ -11,6 +11,6 @@ class ExampleForm(forms.ModelForm, GTForm):
         model = models.Multiwidget
         fields = '__all__'
         widgets = {
-            'phone_number': widget.PhoneNumberMultiInput,       
+            'phone_number': widget.PhoneNumberMultiWidget,       
             'date':widget.SplitDateMulti
              }

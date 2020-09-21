@@ -148,10 +148,22 @@ class Command(BaseCommand):
             icon = 'fa fa-home',
             only_icon = False
         )
-        daterange = MenuItem.objects.create(
+        gridslider = MenuItem.objects.create(
             parent = cwidget,
             title = 'Grid Slider',
             url_name ='grid-slider-list',
+            category = 'sidebar',
+            is_reversed = True,
+            reversed_kwargs = None,
+            reversed_args = None,
+            is_widget = False,
+            icon = 'fa fa-home',
+            only_icon = False
+        )
+        multiwidget = MenuItem.objects.create(
+            parent = cwidget,
+            title = 'MultiWidget',
+            url_name ='multiwidget-list',
             category = 'sidebar',
             is_reversed = True,
             reversed_kwargs = None,
