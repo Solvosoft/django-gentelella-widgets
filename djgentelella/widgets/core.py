@@ -29,7 +29,7 @@ def update_kwargs(attrs, widget, base_class='form-control '):
     return attrs
 
 
-class SplitDateMulti(MultiWidget):
+class SplitDateMultiWidget(MultiWidget):
 
     template_name = "gentelella/widgets/splitdate.html"
 

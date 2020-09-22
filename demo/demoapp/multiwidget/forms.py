@@ -13,5 +13,5 @@ class ExampleForm(forms.ModelForm, GTForm):
         widgets = {
             'phone_number': widget.PhoneNumberMultiWidget,       
             'passport':widget.PassportWidget,
-            'date':widget.SplitDateMulti
+            'date':widget.SplitDateMultiWidget
              }
