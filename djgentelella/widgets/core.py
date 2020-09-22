@@ -8,7 +8,9 @@ from django.forms import (PasswordInput as DJPasswordInput, FileInput as DJFileI
                           MultiWidget)
 from django.forms.widgets import Input as DJInput
 from django.forms import widgets
-from datetime import date,datetime
+from django.utils.formats import get_format
+from . import countries
+from datetime import date, datetime
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
 
@@ -26,15 +28,16 @@ def update_kwargs(attrs, widget, base_class='form-control '):
     attrs['data-widget'] = widget
     return attrs
 
+
 class SplitDateMulti(MultiWidget):
-    
+
     template_name = "gentelella/widgets/splitdate.html"
 
     def __init__(self, attrs=None):
         days = [(day, day) for day in range(1, 32)]
         months = [(month, month) for month in range(1, 13)]
         years = [(year, year) for year in range(1950, datetime.now().year+50)]
-     
+
         widgets = [
             Select(attrs=attrs, choices=days),
             Select(attrs=attrs, choices=months),
@@ -53,37 +56,68 @@ class SplitDateMulti(MultiWidget):
     def value_from_datadict(self, data, files, name):
         day, month, year = super().value_from_datadict(data, files, name)
         return '{}-{}-{}'.format(year, month, day)
-    
+
+
+
 class PhoneNumberMultiWidget(MultiWidget):
     template_name = "gentelella/widgets/phonenumber_multiwidget.html"
-  
+
     def __init__(self, attrs=None):
-        numbers = [(number, (number)) for number in range(1, 1000)]
+        numbers = [('('+str(number)+')', '+('+str(number)+')') for number in range(1, 1000)]
 
         widget = (
-           Select(attrs=attrs, choices=numbers),
-           TextInput(attrs=attrs),
+            Select(attrs=attrs, choices=numbers),
+            TextInput(attrs=attrs),
         )
         super(PhoneNumberMultiWidget, self).__init__(widget, attrs)
 
     def decompress(self, value):
         if value:
-            number=value
-            return value.split("-")
+            number = value
+            return value.split(" ")
         return [None, None]
 
-    
+       
     def value_from_datadict(self, data, files, name):
-        datelist = [
+        datalist = [
             widget.value_from_datadict(data, files, name + '_%s' % i)
             for i, widget in enumerate(self.widgets)]
         try:
-            data=datelist[0]+"-"+datelist[1]
+            data = datalist[0]+" "+datalist[1]
         except ValueError:
             return ''
         else:
             return data
+    
+class PassportWidget(MultiWidget):
+    template_name = "gentelella/widgets/phonenumber_multiwidget.html"
+    def __init__(self, attrs=None):
+        list_countries = [(countrie['name']+'('+countrie['code']+')', countrie['name']+'('+countrie['code']+')') for countrie in countries.list_countries()]
 
+        widget = (
+            Select(attrs=attrs, choices=list_countries),
+            TextInput(attrs=attrs),
+        )
+        super(PassportWidget, self).__init__(widget, attrs)
+
+    def decompress(self, value):
+        if value:
+            number = value
+            return value.split(" ")
+        return [None, None]
+
+    def value_from_datadict(self, data, files, name):
+        datalist = [
+            widget.value_from_datadict(data, files, name + '_%s' % i)
+            for i, widget in enumerate(self.widgets)]
+        print(type(datalist[0]))
+        try:
+            data = datalist[0]+" "+datalist[1]
+        except ValueError:
+            return ''
+        else:
+            return data
+    
 class Input(DJInput):
     """
     Base class for all <input> widgets.
@@ -99,6 +133,7 @@ class Input(DJInput):
 class TextInput(Input):
     input_type = 'text'
     template_name = 'gentelella/widgets/text.html'
+
 
 class HiddenInput(Input):
     input_type = 'hidden'
@@ -131,6 +166,7 @@ def DateGridSlider(attrs={}):
                 attrs.update(self.extra_attrs)
             super().__init__(attrs)
     return DateGridSlider
+
 
 def SingleGridSlider(attrs={}):
     class SingleGridSlider(Input):
@@ -292,7 +328,7 @@ class DateTimeInput(DJDateTimeInput):
 
 
 class TimeInput(DJTimeInput):
-    format_key = 'TIME_INPUT_FORMATS'
+    format_key = get_format('TIME_INPUT_FORMATS')
     template_name = 'gentelella/widgets/time.html'
 
     def __init__(self, attrs=None, format=None):
@@ -331,7 +367,7 @@ class Select(DJSelect):
     add_id_index = False
     checked_attribute = {'selected': True}
     option_inherits_attrs = False
-
+    
     def __init__(self, attrs=None, choices=(), extraskwargs=True):
         if extraskwargs:
             attrs = update_kwargs(
@@ -581,3 +617,5 @@ class PhoneNumberMaskInput(TextInput):
         attrs = update_kwargs(attrs, self.__class__.__name__)
 
         super().__init__(attrs)
+
+

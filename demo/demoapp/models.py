@@ -180,5 +180,6 @@ class gridSlider(models.Model):
     age= models.IntegerField()
 
 class Multiwidget(models.Model):
-    phone_number=models.CharField(max_length=14, validators=[validate_inputs])
+    phone_number=models.CharField(max_length=25)
+    passport=models.CharField(max_length=50)
     date= models.DateField()

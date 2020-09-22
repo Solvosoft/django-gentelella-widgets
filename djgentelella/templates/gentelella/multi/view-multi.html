@@ -20,6 +20,7 @@
         <thead class="thead-light">
             <tr>
                 <th>Phone</th>
+                <th>Passport</th>
                 <th>Date</th>
                 <th>Edit</th>
             </tr>
@@ -28,6 +29,7 @@
             {% for obj in object_list %}
             <tr>
                 <td>{{obj.phone_number}}</td>
+                <td>{{obj.passport}}</td>
                 <td>{{obj.date | date:"d/m/Y"}}</td>
                 <td><a href="{% url 'multiwidget-edit' obj.id %}" class="btn btn-warning text-white">+</a></td>
             </tr>
