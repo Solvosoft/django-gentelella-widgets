@@ -103,16 +103,16 @@ class PassportWidget(MultiWidget):
     def decompress(self, value):
         if value:
             number = value
-            return value.split(" ")
+            return value.split(".")
         return [None, None]
-
+ 
     def value_from_datadict(self, data, files, name):
         datalist = [
             widget.value_from_datadict(data, files, name + '_%s' % i)
             for i, widget in enumerate(self.widgets)]
         print(type(datalist[0]))
         try:
-            data = datalist[0]+" "+datalist[1]
+            data = datalist[0]+"."+datalist[1]
         except ValueError:
             return ''
         else:
