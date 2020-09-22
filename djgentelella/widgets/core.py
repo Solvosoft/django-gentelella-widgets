@@ -110,7 +110,6 @@ class PassportWidget(MultiWidget):
         datalist = [
             widget.value_from_datadict(data, files, name + '_%s' % i)
             for i, widget in enumerate(self.widgets)]
-        print(type(datalist[0]))
         try:
             data = datalist[0]+"."+datalist[1]
         except ValueError:
