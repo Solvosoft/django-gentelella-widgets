@@ -11,7 +11,7 @@ from .input_masks import views as input_mask
 from .date_range import views as date_ranges
 from .tagging import views as tagging
 from .wysiwyg import views as wysiwyg
-from .wysiwyg import froala
+from .wysiwyg import upload
 
 pclss = Personclass()
 countryclss = Countryclass()
@@ -43,8 +43,8 @@ urlpatterns = [
         path('wysiwyg/', wysiwyg.InsertWysiwyg.as_view(), name='wysiwyg-add'),
         path('wysiwyg/list', wysiwyg.ListWysiwyg.as_view(), name='wysiwyg-list'),
         path('wysiwyg/<int:pk>', wysiwyg.EditWysiwyg.as_view(), name='wysiwyg-edit'),
-        url(r"^upload_image$", froala.image_upload, name="upload_image"),
-        url(r"^upload_video$", froala.video_upload, name="upload_video"),
-        url(r"^upload_doc$", froala.file_upload, name="upload_file"),
+        url(r"^upload_image$", upload.image_upload, name="upload_image"),
+        url(r"^upload_video$", upload.video_upload, name="upload_video"),
+        url(r"^upload_file$", upload.file_upload, name="upload_file"),
 
 ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()

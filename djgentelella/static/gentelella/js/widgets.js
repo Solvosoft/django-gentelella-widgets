@@ -129,14 +129,19 @@ document.gtwidgets = {
         instance.colorpicker({ format: 'rgb' });
     },
     TextareaWysiwyg: function (instance) {
-        new FroalaEditor(".froala-editor", {
+
+       // instance.froalaEditor({}) esto es con la v2 funciona con la forma habitual de trabajo la vista no es bonita
+       
+       // doc v3 este genera una instancia lo cual hay que ingresar la clase, id o data-widget. 
+       new FroalaEditor("[data-widget=TextareaWysiwyg]", {
             imageUploadURL: '/upload_image',
             imageUploadParams: { "csrfmiddlewaretoken": getCookie("csrftoken") },
             fileUploadURL: "/upload_file",
             fileUploadParams: { "csrfmiddlewaretoken": getCookie("csrftoken") },
             fileUploadMethod: 'POST',
             videoUploadURL: '/upload_video',
-            videoUploadParams: { "csrfmiddlewaretoken": getCookie("csrftoken") }}); 
+            videoUploadParams: { "csrfmiddlewaretoken": getCookie("csrftoken") },
+        });
     },
     InlinePickerColor: function (instance) {
         instance.parent('.color-input-field-inline-picker').css("display", "inline-block").colorpicker({ container: true, inline: true });
