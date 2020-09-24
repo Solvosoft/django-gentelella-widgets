@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'demoapp',
     'djgentelella.blog',
     'markitup',
+    'froala_editor',
 ]
 
 MIDDLEWARE = [
@@ -130,7 +131,6 @@ DATETIME_INPUT_FORMATS = [
     '%Y-%m-%d %H:%M %p',
     '%d/%m/%y %H:%M %p'
 ]
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
@@ -138,8 +138,8 @@ STATIC_URL = os.getenv('STATIC_URL', '/static/')
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 MEDIA_URL = os.getenv('MEDIA_URL', '/media/')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
-
-
+FROALA_UPLOAD_PATH =os.path.join(MEDIA_ROOT, 'uploads/froala_editor/')
+FROALA_JS_COOKIE= True
 EMAIL_HOST = 'localhost'
 EMAIL_PORT = '1025'
 
