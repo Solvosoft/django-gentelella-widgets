@@ -128,15 +128,23 @@ document.gtwidgets = {
     VerticalBarColorInput: function (instance) {
         instance.colorpicker({ format: 'rgb' });
     },
+    TextareaWysiwyg: function (instance) {
+        new FroalaEditor("[data-widget=TextareaWysiwyg]", {
+            imageUploadURL: instance.attr('data-option-image'), imageUploadParams: { "csrfmiddlewaretoken": getCookie("csrftoken") },
+            fileUploadURL: instance.attr('data-option-file'),fileUploadParams: { "csrfmiddlewaretoken": getCookie("csrftoken") },
+            videoUploadURL: instance.attr('data-option-file'), videoUploadParams: { "csrfmiddlewaretoken": getCookie("csrftoken") },
+        });
+    },
     InlinePickerColor: function (instance) {
         instance.parent('.color-input-field-inline-picker').css("display", "inline-block").colorpicker({ container: true, inline: true });
     },
-    TaggingInput: function(instance){
+    TaggingInput: function (instance) {
         instance.tagify();
     },
-    EmailTaggingInput: function(instance){
-        instance.tagify({pattern: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-});
+    EmailTaggingInput: function (instance) {
+        instance.tagify({
+            pattern: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+        });
     },
     DJGraph: function (instance) {
         instance.gentelella_chart();
