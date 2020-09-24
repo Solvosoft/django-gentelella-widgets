@@ -44,7 +44,6 @@ INSTALLED_APPS = [
     'demoapp',
     'djgentelella.blog',
     'markitup',
-    'froala_editor',
 ]
 
 MIDDLEWARE = [
@@ -139,7 +138,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 MEDIA_URL = os.getenv('MEDIA_URL', '/media/')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 FROALA_UPLOAD_PATH =os.path.join(MEDIA_ROOT, 'uploads/froala_editor/')
-FROALA_JS_COOKIE= True
+
 EMAIL_HOST = 'localhost'
 EMAIL_PORT = '1025'
 

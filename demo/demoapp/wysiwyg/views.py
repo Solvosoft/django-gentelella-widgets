@@ -3,7 +3,6 @@ from django.urls import reverse_lazy
 from .forms import WysiwygForm
 from demoapp.models import WysiwygModel
 from datetime import datetime
-
 from django.views.generic import CreateView, ListView, UpdateView
 
 
