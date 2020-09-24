@@ -176,3 +176,6 @@ class TaggingModel(models.Model):
     text_list = models.CharField(max_length=500, null=True, blank=True)
     email_list = models.CharField(max_length=500, null=True, blank=True)
     area_list = models.TextField(null=True, blank=True)
+    
+class WysiwygModel(models.Model):
+    information= models.TextField() 
