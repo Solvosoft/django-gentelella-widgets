@@ -4411,3 +4411,26 @@ h4.revision {
 .tagifyinputform {
     min-height: 1.2em;
 }
+.gtradio{
+    display: block;
+    width: 100%;
+    min-height: 34px;
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.42857143;
+    color: #555;
+    background-color: #fff;
+    background-image: none;
+    border: 0px solid #ccc;
+}
+.rlabel{
+    padding-right: 15px;
+    padding-top: 5px;
+}
+
+.gtradiohorizontal{
+
+}
+.gtradiovertical{
+
+}
