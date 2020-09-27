@@ -22,7 +22,12 @@ document.gtwidgets = {
     DateRangeInputCustom: function (instance) {
         instance.daterangepicker(load_date_range_custom(instance));
     },
-
+    RadioVerticalSelect: function (instance) {
+        instance.find('input').iCheck({radioClass: 'iradio_flat-green'});
+    },
+    RadioHorizontalSelect: function (instance) {
+        instance.find('input').iCheck({radioClass: 'iradio_flat-green'});
+    },
     DateRangeTimeInput: function (instance) {
         instance.daterangepicker(load_datetime_range(instance));
     },

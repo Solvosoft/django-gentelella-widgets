@@ -52,22 +52,6 @@ class NumberInput(Input):
         super().__init__(attrs, extraskwargs=extraskwargs)
 
 
-"""
-class NumberKnobInput(Input):
-    input_type = 'number'
-    template_name = 'gentelella/widgets/number.html'
-    # min_value y max_value
-    def __init__(self, attrs=None, extraskwargs=True):
-        if extraskwargs:
-            attrs = update_kwargs(attrs, self.__class__.__name__, base_class='')
-        if 'max_value' in attrs:
-            attrs['data-max'] = attrs['max_value']
-        if 'min_value' in attrs:
-            attrs['data-min'] = attrs['min_value']
-        super().__init__(attrs, extraskwargs=extraskwargs)
-"""
-
-
 class EmailInput(Input):
     input_type = 'email'
     template_name = 'gentelella/widgets/email.html'
@@ -133,17 +117,6 @@ class Textarea(DJTextarea):
             attrs = update_kwargs(attrs, self.__class__.__name__,
                                   base_class='resizable_textarea form-control')
         attrs['rows'] = '3'
-        super().__init__(attrs)
-
-
-class TextareaWysiwyg(DJTextarea):
-    template_name = 'gentelella/widgets/wysiwyg.html'
-
-    def __init__(self, attrs=None, extraskwargs=True):
-        if extraskwargs:
-            attrs = update_kwargs(attrs, self.__class__.__name__,
-                                  base_class='form-control')
-
         super().__init__(attrs)
 
 
@@ -247,21 +220,6 @@ class SelectWithAdd(Select):
         super().__init__(attrs,  choices=choices, extraskwargs=False)
 
 
-class SelectTail(DJSelect):
-    input_type = 'select'
-    template_name = 'gentelella/widgets/select.html'
-    option_template_name = 'gentelella/widgets/select_option.html'
-    add_id_index = False
-    checked_attribute = {'selected': True}
-    option_inherits_attrs = False
-
-    def __init__(self, attrs=None, choices=(), extraskwargs=True):
-        if extraskwargs:
-            attrs = update_kwargs(
-                attrs, self.__class__.__name__, base_class='select2_single form-control ')
-        super().__init__(attrs,  choices=choices)
-
-
 class SelectMultiple(DJSelectMultiple):
     allow_multiple_selected = True
 
@@ -285,26 +243,33 @@ class SelectMultipleAdd(SelectMultiple):
             attrs, choices=choices, extraskwargs=False)
 
 
-class SelectMultipleTail(DJSelectMultiple):
-    allow_multiple_selected = True
-
-    def __init__(self, attrs=None, choices=(), extraskwargs=True):
-        if extraskwargs:
-            attrs = update_kwargs(attrs, self.__class__.__name__,
-                                  base_class='form-control ')
-        super().__init__(attrs, choices=choices)
-
-
-class RadioSelect(Select):
+class RadioHorizontalSelect(Select):
     input_type = 'radio'
     template_name = 'gentelella/widgets/radio.html'
     option_template_name = 'gentelella/widgets/attrs.html'
 
     def __init__(self, attrs=None, choices=(), extraskwargs=True):
         if extraskwargs:
-            attrs = update_kwargs(attrs, self.__class__.__name__)
-        super().__init__(attrs, choices=choices, extraskwargs=extraskwargs)
+            attrs = update_kwargs(attrs, self.__class__.__name__, 'gtradio')
+        super().__init__(attrs, choices=choices, extraskwargs=False)
 
+
+class RadioVerticalSelect(Select):
+    input_type = 'radio'
+    template_name = 'gentelella/widgets/radio.html'
+    option_template_name = 'gentelella/widgets/attrs.html'
+
+    def __init__(self, attrs=None, choices=(), extraskwargs=True):
+        if extraskwargs:
+            attrs = update_kwargs(attrs, self.__class__.__name__, 'gtradio')
+        super().__init__(attrs, choices=choices, extraskwargs=False)
+
+    def get_context(self, name, value, attrs):
+        context = super(RadioVerticalSelect, self).get_context(name, value, attrs)
+        context['widget']['br'] = True
+        return context
+
+RadioSelect = RadioHorizontalSelect
 
 class NullBooleanSelect(RadioSelect):
 

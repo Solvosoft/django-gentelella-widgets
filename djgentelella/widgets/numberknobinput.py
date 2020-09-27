@@ -5,11 +5,6 @@ class NumberKnobInput(Input):
     input_type = 'number'
     template_name = 'gentelella/widgets/number_knob_input.html'
 
-    class Media:
-        js = (
-            'gentelella/vendors/jquery-knob/jquery.knob.min.js',
-        )
-
     def __init__(self, attrs=None):
         self.attrs = {} if attrs is None else attrs.copy()
         self.attrs["data-widget"]=self.__class__.__name__

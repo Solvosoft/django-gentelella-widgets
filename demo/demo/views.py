@@ -50,11 +50,16 @@ class ExampleForm(CustomForm):
    #      ('marzo,abril', 'Marzo,Abril')
    #  ), widget=genwidgets.SelectMultiple)
    #
-   #  your_radio = forms.ChoiceField(choices=(
-   #      ('enero', 'Enero'),
-   #      ('febrero', 'Febrero'),
-   #      ('marzo,abril', 'Marzo,Abril')
-   #  ), widget=genwidgets.RadioSelect)
+
+    your_radio = forms.ChoiceField(choices=(
+        ('enero', 'Enero'),
+        ('febrero', 'Febrero'),
+        ('marzo,abril', 'Marzo,Abril')
+    ), widget=genwidgets.RadioHorizontalSelect)
+    your_radio_vertical = forms.ChoiceField(choices=(
+        ('enero', 'Enero'), ('febrero', 'Febrero'),
+        ('marzo', 'Marzo'), ('abril','Abril')
+    ), widget=genwidgets.RadioVerticalSelect)
    #
    #  your_checkbox = forms.ChoiceField(choices=(
    #      ('enero', 'Enero'),
