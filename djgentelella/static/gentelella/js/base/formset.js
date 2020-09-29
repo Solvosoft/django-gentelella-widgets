@@ -130,10 +130,10 @@ function gtformSetManager(instance) {
             return this.MIN_NUM_FORMS == -1 || this.TOTAL_FORMS > this.MIN_NUM_FORMS;
         },
         loadManagementForm: function(){
-            this.TOTAL_FORMS = this.formsetControl.find('input[name="'+this.prefix+'-TOTAL_FORMS"]').val();
-            this.INITIAL_FORMS = this.formsetControl.find('input[name="'+this.prefix+'-INITIAL_FORMS"]').val();
-            this.MIN_NUM_FORMS = this.formsetControl.find('input[name="'+this.prefix+'-MIN_NUM_FORMS"]').val();
-            this.MAX_NUM_FORMS = this.formsetControl.find('input[name="'+this.prefix+'-MAX_NUM_FORMS"]').val();
+            this.TOTAL_FORMS = parseInt(this.formsetControl.find('input[name="'+this.prefix+'-TOTAL_FORMS"]').val());
+            this.INITIAL_FORMS = parseInt(this.formsetControl.find('input[name="'+this.prefix+'-INITIAL_FORMS"]').val());
+            this.MIN_NUM_FORMS = parseInt(this.formsetControl.find('input[name="'+this.prefix+'-MIN_NUM_FORMS"]').val());
+            this.MAX_NUM_FORMS = parseInt(this.formsetControl.find('input[name="'+this.prefix+'-MAX_NUM_FORMS"]').val());
         },
         updateManagementForm: function(){
             this.formsetControl.find('input[name="'+this.prefix+'-TOTAL_FORMS"]').val(this.TOTAL_FORMS);
