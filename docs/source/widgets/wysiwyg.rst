@@ -10,21 +10,22 @@ You need to add in the settings file a attribute with the name *FROALA_UPLOAD_PA
 
 ..code:: python
 
-FROALA_UPLOAD_PATH =os.path.join(MEDIA_ROOT, 'uploads/froala_editor/')
+    FROALA_UPLOAD_PATH =os.path.join(MEDIA_ROOT, 'uploads/froala_editor/')
 
 Example for use the widget:
+
 .. code:: python
 
-from djgentelella.forms.forms import GTForm
-from djgentelella.widgets import wysiwyg as widget
+    from djgentelella.forms.forms import GTForm
+    from djgentelella.widgets import wysiwyg as widget
 
-class WysiwygForm(forms.ModelForm,GTForm):
+    class WysiwygForm(forms.ModelForm,GTForm):
 
-  class Meta():
-    model=WysiwygModel
-    fields='__all__'
-    widgets={
-      'information': widget.TextareaWysiwyg,
-    }
+      class Meta():
+        model=WysiwygModel
+        fields='__all__'
+        widgets={
+          'information': widget.TextareaWysiwyg,
+        }
 
 ..note:: To Upload files in the server, you with need to login.

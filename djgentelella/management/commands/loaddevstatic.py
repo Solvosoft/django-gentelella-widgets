@@ -183,8 +183,8 @@ class Command(BaseCommand):
                 'https://cdnjs.cloudflare.com/ajax/libs/tagify/3.18.1/tagify.min.css'
             ],
             'froala-wysiwyg':[
-                'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/3.2.2/css/froala_editor.pkgd.min.css'
-                'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/3.2.2/css/froala_editor.pkgd.min.css'
+                'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/3.2.2/css/froala_editor.pkgd.min.css',
+                'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/3.2.2/js/froala_editor.pkgd.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/3.2.2/js/third_party/image_tui.min.js'
             ]
         }
