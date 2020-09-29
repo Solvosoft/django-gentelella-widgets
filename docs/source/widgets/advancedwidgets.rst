@@ -7,3 +7,4 @@ Advanced Widgets
 .. include:: inputmask.rst
 .. include:: daterange.rst
 .. include:: autocomplete.rst
+.. include:: wysiwyg.rst
