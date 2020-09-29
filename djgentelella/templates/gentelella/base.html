@@ -32,6 +32,8 @@
         <link href="{% static 'vendors/tail.select/tail.select-default.min.css' %}" rel="stylesheet">
         <link href="{% static 'vendors/flag-icon-css/flag-icon.min.css' %}" rel="stylesheet">
         <link href="{% static 'vendors/tagify/tagify.min.css' %}" rel="stylesheet">
+        <link href="{% static 'vendors/froala-wysiwyg/froala_editor.pkgd.min.css' %}" rel="stylesheet">
+
         {% get_define 'use_chartjs' as use_chartjs %}
         {% if use_chartjs %}
         <link href="{% static 'vendors/chartjs/Chart.min.css' %}" rel="stylesheet">
@@ -150,6 +152,8 @@
         <script src="{% static 'vendors/fileupload/spark-md5.min.js' %}"></script>
         <script src="{% static 'vendors/tagify/tagify.min.js' %}"></script>
         <script src="{% static 'vendors/tagify/jQuery.tagify.min.js' %}"></script>
+        <script src="{% static 'vendors/froala-wysiwyg/froala_editor.pkgd.min.js' %}"></script>
+        <script src="{% static 'vendors/froala-wysiwyg/image_tui.min.js' %}"></script>
         {% get_define 'use_datatables' as use_datatables %}
         {% if use_datatables %}
         <script src="{% static 'vendors/datatables/jquery.dataTables.min.js' %}"></script>

@@ -6,7 +6,7 @@ from django.forms import (PasswordInput as DJPasswordInput, FileInput as DJFileI
                           CheckboxSelectMultiple as DJCheckboxSelectMultiple, SelectMultiple as DJSelectMultiple,
                           SelectDateWidget as DJSelectDateWidget, SplitDateTimeWidget as DJSplitDateTimeWidget)
 from django.forms.widgets import Input as DJInput
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy,reverse
 from django.utils.translation import gettext as _
 
 
