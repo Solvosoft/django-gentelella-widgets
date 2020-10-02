@@ -82,7 +82,7 @@ class ExampleForm(CustomForm):
    #      super().__init__(*args, **kwargs)
 
     your_phone = forms.CharField(widget=genwidgets.PhoneNumberMaskInput)
-    your_boolean = forms.BooleanField(widget=genwidgets.YesNoInput)
+    your_boolean = forms.BooleanField(widget=genwidgets.YesNoInput(attrs={'rel': ['#id_your_radio_vertical' ,'your_datemask', 'you_emailmask']}))
     your_datemask = forms.DateField(widget=genwidgets.DateMaskInput)
     your_datetimeMask  = forms.DateTimeField(widget=genwidgets.DateTimeMaskInput)
     you_emailmask = forms.EmailField(widget=genwidgets.EmailMaskInput)

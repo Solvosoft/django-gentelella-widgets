@@ -184,10 +184,14 @@ class YesNoInput(DJCheckboxInput):
     input_type = 'checkbox'
     template_name = 'gentelella/widgets/checkyesno.html'
 
-    def __init__(self, attrs=None):
+    def __init__(self, attrs=None, shparent='.form-group'):
         attrs = update_kwargs(
-            attrs, self.__class__.__name__, base_class='js-switch')
+            attrs, self.__class__.__name__, base_class='')
 
+        if 'rel' in attrs:
+            rel = attrs.pop('rel')
+            attrs['data-rel'] = ';'.join(rel)
+        attrs['data-shparent'] = shparent
         super().__init__(attrs)
         self.format = format or None
 
