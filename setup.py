@@ -27,7 +27,7 @@ README = open(os.path.join(os.path.dirname(__file__), 'Readme.rst')).read()
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 
-version = '0.0.7'
+version = '0.0.8'
 
 setup(
     author='Luis Zarate Montero',
