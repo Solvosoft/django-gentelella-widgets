@@ -18,7 +18,8 @@ class Command(BaseCommand):
             'helper_widget.js',
             'autocompleteSelect2.js',
             'select2_wrap.js',
-            'dateranges.js'
+            'dateranges.js',
+            'booleanFields.js'
         ]
         jquery_plugins = [
             'notifications.js',
