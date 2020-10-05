@@ -30,7 +30,7 @@ In Meta class:
             }
 
 
-Make sure you model has the `is_public` field and djgentelella will be the dirty work.
+Make sure you model has the `is_public` field and djgentelella will do the dirty work.
 
 As a Form field:
 
