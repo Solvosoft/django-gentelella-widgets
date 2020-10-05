@@ -8,3 +8,4 @@ Advanced Widgets
 .. include:: daterange.rst
 .. include:: autocomplete.rst
 .. include:: wysiwyg.rst
+.. include:: yesnoinput.rst
