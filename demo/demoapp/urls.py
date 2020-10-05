@@ -6,7 +6,7 @@ from demoapp.views import create_notification_view, color_widget_view
 from .autocomplete import views as autocompleteviews
 from .chartjs import chart_js_view
 from .formset import add_formset, add_model_formset
-from .views import knobView
+from .views import knobView, YesNoInputView
 from .input_masks import views as input_mask
 from .date_range import views as date_ranges
 from .tagging import views as tagging
@@ -42,5 +42,6 @@ urlpatterns = [
         path('wysiwyg/', wysiwyg.InsertWysiwyg.as_view(), name='wysiwyg-add'),
         path('wysiwyg/list', wysiwyg.ListWysiwyg.as_view(), name='wysiwyg-list'),
         path('wysiwyg/<int:pk>', wysiwyg.EditWysiwyg.as_view(), name='wysiwyg-edit'),
+        path('yesnoinput/', YesNoInputView.as_view(), name='yes-no-input-add'),
  
 ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()

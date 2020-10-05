@@ -1,9 +1,12 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
-
+from django.urls import reverse_lazy
 from djgentelella.notification import create_notification
-from .forms import FooModelForm, ColorWidgetsForm, SimpleColorForm
+from .forms import FooModelForm, ColorWidgetsForm, SimpleColorForm,\
+    YesNoInputAddForm
+from django.views.generic import CreateView, ListView, UpdateView
+from .models import YesNoInput
 
 
 @login_required
@@ -44,3 +47,9 @@ def color_widget_view(request):
         form.save()
     return render(request, 'index-color.html', {'form': form,
                                                 "form_widgets": form_widgets})
+
+class YesNoInputView(CreateView):
+    model = YesNoInput
+    form_class = YesNoInputAddForm
+    template_name = 'yesnoinput.html'
+    success_url = reverse_lazy('yes-no-input-add')

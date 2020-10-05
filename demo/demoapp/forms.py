@@ -2,10 +2,11 @@ from django import forms
 from djgentelella.forms.forms import GTForm
 from djgentelella.widgets.core import DateTimeInput, DateInput, TextInput, NumberInput
 from djgentelella.widgets.selects import AutocompleteSelect
-from .models import Foo, Person, Comunity
+from .models import Foo, Person, Comunity, YesNoInput
 from djgentelella.widgets import numberknobinput as knobwidget
 from djgentelella.widgets.color import StyleColorInput, DefaultColorInput, HorizontalBarColorInput, VerticalBarColorInput, InlinePickerColor
 from demoapp.models import Colors
+from djgentelella.widgets import core as genwidgets
 
 
 class FooModelForm(GTForm, forms.ModelForm):
@@ -91,3 +92,21 @@ class CityForm(GTForm, forms.ModelForm):
     class Meta:
         model = Comunity
         fields ='__all__'
+
+class YesNoInputAddForm(GTForm, forms.ModelForm):
+    has_copies = forms.BooleanField(widget=genwidgets.YesNoInput(
+        attrs={'rel': ['copy_number']}))
+    has_meta = forms.BooleanField(widget=genwidgets.YesNoInput(
+        attrs={'rel': ['#id_year','editorial']}))
+    display_publish = forms.BooleanField(widget=genwidgets.YesNoInput(
+        attrs={'rel': ['#display_publish_info']}, shparent='.x_panel'))
+    class Meta:
+        model = YesNoInput
+        fields = '__all__'
+        widgets = {
+            'name': genwidgets.TextInput,
+            'is_public': genwidgets.YesNoInput,
+            'copy_number': genwidgets.NumberInput,
+            'year': genwidgets.NumberInput,
+            'editorial': genwidgets.TextInput
+        }
