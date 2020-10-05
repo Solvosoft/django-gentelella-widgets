@@ -16,8 +16,10 @@ document.gtwidgets = {
         });
     },
     YesNoInput: function (instance) {
-        var switchery = new Switchery(instance[0], {color: '#26B99A'});
-        showHideRelatedFormFields(instance);
+        instance.each(function (index, element){
+             switchery = new Switchery(element, {color: '#26B99A'});
+             showHideRelatedFormFields($(element));
+        });
     },
     DateRangeInput: function (instance) {
         instance.daterangepicker(load_date_range(instance));
