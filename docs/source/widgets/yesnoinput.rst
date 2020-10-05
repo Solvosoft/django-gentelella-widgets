@@ -86,7 +86,7 @@ To this example we will use two ways to related input fields, using field_name a
     from djgentelella.widgets import core as genwidgets
     from djgentelella.forms.forms import GTForm
     from demoapp import models
-    class YesNoInputForms(forms.ModelForm, GTForm):
+    class YesNoInputForm(forms.ModelForm, GTForm):
         has_meta = forms.BooleanField(widget=genwidgets.YesNoInput(
             attrs={'rel': ['#id_year','editorial', '.other_elements']}))
         class Meta:
@@ -115,7 +115,7 @@ To this example we will use two ways to related input fields, using field_name a
     from djgentelella.forms.forms import GTForm
     from demoapp import models
     
-    class YesNoInputForms(forms.ModelForm, GTForm):
+    class YesNoInputForm(forms.ModelForm, GTForm):
         display_publish = forms.BooleanField(widget=genwidgets.YesNoInput(
             attrs={'rel': ['#display_publish_info']}, shparent='.x_panel'))
         class Meta:
