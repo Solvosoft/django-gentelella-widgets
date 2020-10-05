@@ -4,8 +4,9 @@ YesNoInput widget
 This widget try to implement repetitive configurations in yes/no input options,
 it can be integrated in its basic behavior with minimal configurations.
 
-Simple YesNoInput
------------------
+---------------------
+ Simple YesNoInput 
+---------------------
 
 .. image:: ../_static/01-simple-yesnoinput.gif
 
@@ -46,6 +47,7 @@ As a Form field:
 
 In this example is_public can be an extra field that is not related with the model class in Meta.
 
+-------------------
 Related YesNoInput
 -------------------
 
@@ -69,6 +71,7 @@ Because it has extra configurations you should declare it in the form as a field
 
 In **rel** you can pass an **id**, **field_name** or **class** which is the element or elements that will be show or hide depending of the YesNoInput state.
 
+----------------------------
 Multiple Related YesNoInput
 ----------------------------
 
@@ -95,6 +98,7 @@ As you can see here we define three rel types:
  - the field_name which can be a field from your model.
  - and the elements class that we want to display/show.
 
+--------------------------------------------------
 External related elements with different shparent
 --------------------------------------------------
 
