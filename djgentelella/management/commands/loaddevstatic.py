@@ -175,7 +175,8 @@ class Command(BaseCommand):
                 'https://colorlib.com/polygon/vendors/mjolnic-bootstrap-colorpicker/dist/img/bootstrap-colorpicker/saturation-horizontal.png',
             ],
             'bootstrap-tree': [
-                'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-treeview/1.2.0/bootstrap-treeview.min.js'
+                'https://github.com/patternfly/patternfly-bootstrap-treeview/raw/master/dist/bootstrap-treeview.min.js',
+                'https://raw.githubusercontent.com/patternfly/patternfly-bootstrap-treeview/master/dist/bootstrap-treeview.min.css'
             ],
             'tagify': [
                 'https://cdnjs.cloudflare.com/ajax/libs/tagify/3.18.1/tagify.min.js',
