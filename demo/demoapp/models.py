@@ -179,3 +179,13 @@ class TaggingModel(models.Model):
     
 class WysiwygModel(models.Model):
     information= models.TextField() 
+
+class YesNoInput(models.Model):
+    name = models.CharField(max_length=100, null=True, blank=True)
+    is_public = models.BooleanField(default=False)
+    has_copies = models.BooleanField(default=False)
+    copy_number = models.IntegerField(default=0)
+    has_meta = models.BooleanField(default=False)
+    year = models.IntegerField(default=2020) 
+    editorial = models.CharField(max_length=250, default='')
+    display_publish = models.BooleanField(default=False)
