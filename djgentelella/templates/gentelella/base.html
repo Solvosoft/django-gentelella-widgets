@@ -21,9 +21,8 @@
       {% block stylesheets %}
         <!-- Bootstrap -->
         <link href="{% static 'vendors/bootstrap/bootstrap.min.css' %}" rel="stylesheet">
-        <link href="{% static 'vendors/font-awesome/font-awesome.min.css' %}" rel="stylesheet">
-        <link href="{% static 'vendors/bootstrap-daterangepicker/daterangepicker.min.css' %}" rel="stylesheet">
-        <link href="{% static 'vendors/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css' %}" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.6.3/css/all.min.css" integrity="sha512-f2MWjotY+JCWDlE0+QAshlykvZUtIm35A6RHwfYZPdxKgLJpL8B+VVxjpHJwZDsZaWdyHVhlIHoblFYGkmrbhg==" crossorigin="anonymous" />        <link href="{% static 'vendors/bootstrap-daterangepicker/daterangepicker.min.css' %}" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.6.3/css/v4-shims.min.css" integrity="sha512-C0NVv/OWyALdLPWTy8xkAhnZXo5xa1YzzF0u/MgYmEv6KHfTk8g+g6QO51H6BJXTrXaogitmwY+6W4wHQTV+ew==" crossorigin="anonymous" />   <link href="{% static 'vendors/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css' %}" rel="stylesheet">
         <link href="{% static 'vendors/select2/select2.min.css' %}" rel="stylesheet"/>
         <link href="{% static 'vendors/switchery/switchery.min.css'%}" rel="stylesheet"/>
         <link href="{% static 'vendors/iCheck/green.css' %}" rel="stylesheet">
@@ -51,6 +50,7 @@
     {% block extra_css %} {% endblock %}
     <!-- jQuery -->
     <script src="{% static 'vendors/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'vendors/bootstrap/popper.min.js' %}"></script>
     <!-- Bootstrap -->
     <script src="{% static 'vendors/bootstrap/bootstrap.min.js' %}"></script>
     <script>
@@ -75,7 +75,7 @@
 
   <body class="{% block body_class %}nav-md {% endblock body_class %}">
     {% block body %}
-      <div class="container body">
+      <div class="body">
         <div class="main_container">
 
           {% block sidebar %}
@@ -154,7 +154,6 @@
         <script src="{% static 'vendors/tagify/jQuery.tagify.min.js' %}"></script>
         <script src="{% static 'vendors/froala-wysiwyg/froala_editor.pkgd.min.js' %}"></script>
         <script src="{% static 'vendors/froala-wysiwyg/image_tui.min.js' %}"></script>
-        {% get_define 'use_datatables' as use_datatables %}
         {% if use_datatables %}
         <script src="{% static 'vendors/datatables/jquery.dataTables.min.js' %}"></script>
         <script src="{% static 'vendors/datatables/dataTables.bootstrap.min.js' %}"></script>

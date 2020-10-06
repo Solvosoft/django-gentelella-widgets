@@ -2,14 +2,13 @@
 {% load i18n %}
 
 {% block content %}
-    <div class="x_panel">
-        <h2>YesNoInput Widget</h2>
-        <div class="x_title"></div>
-        <div class="x_content">
+    <div class="card">
+        <div class="card-body">
+            <div class="card-title titles"><h2>YesNoInput Widget</h2></div>
             <form method="post" action="">
                 {% csrf_token %}
                 {{ form.as_horizontal }}
-                <div class="pull-right">
+                <div class="float-right">
                     <button class="btn btn-success" type="submit" name="savebtn" value="save">{% trans 'Save' %}</button>
                     <button id="btn_from_template" class="btn btn-warning" type="submit" >{% trans 'Publish' %}</button>
                 </div>

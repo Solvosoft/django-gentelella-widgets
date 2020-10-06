@@ -3,25 +3,29 @@
 {% block content %}
 
 <div class="row">
-    <div class="col-xs-12 col-sm-12 col-md-12">
+    <div class="col-12 col-sm-12 col-md-12">
 
 
-        <div class="x_panel">
-            <div class="x_title">
-                <h2>Wysiwyg</h2>
-                <ul class="nav navbar-right panel_toolbox">
-                    <li><a href="{% url 'wysiwyg-add' %}" class="collapse-link"><i class="fa fa-plus green"
-                                                                                 style="font-size: 2em"></i></a>
-                    </li>
-
-                </ul>
-                <div class="clearfix"></div>
+        <div class="card">
+            <div class="card-body">
+            <div class="card-title titles">
+                <div class="clearfix pb-2">
+                    <div class="float-left">
+                        <h2>Wysiwyg</h2>                        
+                    </div>
+                    <div class="float-right text-center">
+                        <ul class="nav navbar-right panel_toolbox">
+                            <li><a href="{% url 'wysiwyg-add' %}" class="collapse-link"><i class="fa fa-plus green"
+                                                                                         style="font-size: 2em"></i></a>
+                            </li>
+                        </ul>                                
+                    </div>
+                </div>
             </div>
-            <div class="x_content">
                 <div>
                     <ul class="to_do">
                         {% for obj in object_list %}
-                        <li>{{obj.id}} <a class="btn btn-xs btn-info pull-right" href="{% url 'wysiwyg-edit' obj.pk %}"><i
+                        <li>{{obj.id}} <a class="btn btn-sm btn-info float-right" href="{% url 'wysiwyg-edit' obj.pk %}"><i
                                 class="fa fa-edit"></i></a></li>
                         {% endfor %}
                     </ul>

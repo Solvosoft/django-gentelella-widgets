@@ -12,6 +12,7 @@ def update_widget_list(context, widget_list):
             context['request'].widget_list += widget_list
         else:
             setattr(context['request'], 'widget_list',  widget_list)
+
 def validate_menu_item(item, context):
     user = context['context']['request'].user
     if not item.permission.exists():
@@ -31,11 +32,10 @@ def render_item(item, env={}, widget_list=[]):
     a_class=""
     icon=""
     if item.level > 0:
-        dropdown = "dropdown-submenu pull-left"
+        dropdown = "dropdown-submenu float-left"
         if not children:
             dropdown =  ""
     dev = '<li id="i_%d" role="presentation" class="%s imenu%d" >'%(item.pk, dropdown, item.pk)
-
     if item.icon:
         icon = format_html('<i class="{}"></i>', item.icon)
     if children and item.level == 0:
@@ -47,6 +47,7 @@ def render_item(item, env={}, widget_list=[]):
         wdcontext.update(env)
         widget = get_menu_widget(item.url_name, context=wdcontext)
         dev += widget.render()
+    
         widget_list.append(widget)
 
     else:
@@ -74,6 +75,7 @@ def top_menu(context,  *args, **kwargs):
     for item in menues:
         dev += render_item(item, env=environment, widget_list=widget_list)
     update_widget_list(context, widget_list)
+    
     return mark_safe(dev)
 
 
@@ -90,12 +92,12 @@ def render_sidebar_item(item, father_pos=0, env={}, widget_list=[]):
     if not item.level:
         dev = '<div id="%s" class ="menu_section" ><h3>%s %s</h3>'%(
             'sb'+str(item.id), icon, get_title(item))
+        #Los grandes
     else:
-        dev = '<li %s>'%('class="sub_menu"' if item.level == 2 else '' )
+        dev = '<li %s>'%('class="sub_menu"' if item.level == 2 else '' ) 
         dev += """<a id="%s" href="%s" >%s %s %s</a> """%(
             'sb'+str(item.id), get_link(item, env),  icon, get_title(item),
-        '<span class="fa fa-chevron-down"></span>' if children else '')
-
+        '<span class="fas fa-chevron-down"></span>' if children else '')
     if children:
         dev += '<ul class="%s">' % ("nav side-menu" if not item.level and not father_pos else "nav child_menu")
         for i, node in enumerate(item.children.all()):
