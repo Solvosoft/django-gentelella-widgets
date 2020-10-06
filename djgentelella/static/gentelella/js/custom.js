@@ -166,6 +166,7 @@ $(document).ready(function () {
         }
 
         $ICON.toggleClass('fa-chevron-up fa-chevron-down');
+
     });
 
     $('.close-link').click(function () {

@@ -35,10 +35,10 @@ class Command(BaseCommand):
 
         libs = {
             'bootstrap': [
-                'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css',
-                'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css.map',
-                'https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js',
-
+              'https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css',
+              'https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css.map',
+              'https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/js/bootstrap.min.js',
+              'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js'
             ],
             'fonts': [
                 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/fonts/glyphicons-halflings-regular.eot',

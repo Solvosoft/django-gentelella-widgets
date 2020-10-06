@@ -146,25 +146,25 @@ html , body{
 .left_col {
     background: #2A3F54
 }
-.nav-sm .container.body .col-md-3.left_col {
+.nav-sm .body .col-md-3.left_col {
     min-height: 100%;
     width: 70px;
     padding: 0;
     z-index: 9999;
     position: absolute
 }
-.nav-sm .container.body .col-md-3.left_col.menu_fixed {
+.nav-sm .body .col-md-3.left_col.menu_fixed {
     position: fixed;
     height: 100%
 }
-.nav-sm .container.body .col-md-3.left_col .mCSB_container,
-.nav-sm .container.body .col-md-3.left_col .mCustomScrollBox {
+.nav-sm .body .col-md-3.left_col .mCSB_container,
+.nav-sm .body .col-md-3.left_col .mCustomScrollBox {
     overflow: visible
 }
 .nav-sm .hidden-small {
     visibility: hidden
 }
-.nav-sm .container.body .right_col {
+.nav-sm .body .right_col {
     padding: 10px 20px;
     margin-left: 70px;
     z-index: 2
@@ -177,7 +177,7 @@ html , body{
 }
 .nav-sm .navbar.nav_title a i {
     font-size: 27px;
-    margin: 13px 0 0 3px
+    margin: 5px 0 0 3px
 }
 .site_title i {
     border: 1px solid #EAEAEA;
@@ -302,6 +302,7 @@ html , body{
     float: right;
     text-align: center;
     margin-top: 5px;
+    margin-left: 20px;
     font-size: 10px;
     min-width: inherit;
     color: #C4CFDA
@@ -333,7 +334,7 @@ html , body{
         position: static
     }
 }
-.nav-md .container.body .col-md-3.left_col {
+.nav-md .body .col-md-3.left_col {
     min-height: 100%;
     width: 230px;
     padding: 0;
@@ -342,34 +343,35 @@ html , body{
     display: flex;
     z-index: 1
 }
-.nav-md .container.body .col-md-3.left_col.menu_fixed {
+.nav-md .body .col-md-3.left_col.menu_fixed {
     height: 100%;
     position: fixed
 }
-body .container.body .right_col {
+body .body .right_col {
     background: #F7F7F7
 }
-.nav-md .container.body .right_col {
+.nav-md .body .right_col {
     padding: 10px 20px 0;
     margin-left: 230px
 }
 .nav_title {
     width: 230px;
+    padding: 0;
     float: left;
     background: #2A3F54;
     border-radius: 0;
     height: 57px
 }
 @media (max-width: 991px) {
-    .nav-md .container.body .right_col,
-    .nav-md .container.body .top_nav {
+    .nav-md .body .right_col,
+    .nav-md .body .top_nav {
         width: 100%;
         margin: 0
     }
-    .nav-md .container.body .col-md-3.left_col {
+    .nav-md .body .col-md-3.left_col {
         display: none
     }
-    .nav-md .container.body .right_col {
+    .nav-md .body .right_col {
         width: 100%;
         padding-right: 0
     }
@@ -683,10 +685,12 @@ a:focus {
     width: 70%;
     float: right
 }
+.top_nav .navbar-right a {
+    float: right
+}
 .top_nav .navbar-right li {
     display: inline-block;
-    float: right;
-    position: static
+    position: static;
 }
 @media (min-width: 480px) {
     .top_nav .navbar-right li {
@@ -739,7 +743,7 @@ a:focus {
     background-color: rgba(255, 255, 255, 0.06)
 }
 .nav.child_menu li {
-    padding-left: 36px
+    padding-left: 36px;
 }
 .nav-md ul.nav.child_menu li:before {
     background: #425668;
@@ -761,6 +765,9 @@ a:focus {
     left: 27px;
     position: absolute;
     top: 0
+}
+.nav-md ul li{
+    width: 100%;
 }
 .nav.side-menu>li>a,
 .nav.child_menu>li>a {
@@ -861,7 +868,6 @@ a:focus {
 .toggle {
     float: left;
     margin: 0;
-    padding-top: 16px;
     width: 70px
 }
 .toggle a {
@@ -910,6 +916,13 @@ footer {
 }
 .nav-sm footer {
     margin-left: 70px
+}
+.view_notifications{
+    
+    display: flex;
+    justify-content: center;
+    width: 350px;
+    
 }
 .footer_fixed footer {
     position: fixed;
@@ -1541,8 +1554,13 @@ ul.msg_list li a .message {
     line-height: 13px;
     padding: 2px 6px;
     position: absolute;
-    right: 2px;
-    top: 8px
+    border-radius: 100%;
+    margin-right: 30px;
+}
+.info-number i{
+    position: relative;
+    z-index: 9;
+
 }
 ul.to_do {
     padding: 0

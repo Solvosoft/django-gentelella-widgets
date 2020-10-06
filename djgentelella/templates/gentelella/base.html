@@ -51,6 +51,7 @@
     {% block extra_css %} {% endblock %}
     <!-- jQuery -->
     <script src="{% static 'vendors/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'vendors/bootstrap/popper.min.js' %}"></script>
     <!-- Bootstrap -->
     <script src="{% static 'vendors/bootstrap/bootstrap.min.js' %}"></script>
     <script>
@@ -75,7 +76,7 @@
 
   <body class="{% block body_class %}nav-md {% endblock body_class %}">
     {% block body %}
-      <div class="container body">
+      <div class="body">
         <div class="main_container">
 
           {% block sidebar %}
