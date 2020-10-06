@@ -688,6 +688,9 @@ a:focus {
 .top_nav .navbar-right a {
     float: right
 }
+.top_nav .navbar-right a {
+    float: right
+}
 .top_nav .navbar-right li {
     display: inline-block;
     position: static;
@@ -891,6 +894,8 @@ a:focus {
     float: left;
     cursor: pointer
 }
+.panel_toolbox:hover {
+background-color: white !important;}
 .panel_toolbox>li>a {
     padding: 5px;
     color: #C5C7CB;
@@ -924,6 +929,16 @@ footer {
     width: 350px;
     
 }
+.titles{
+    border-bottom: 2px solid #E6E9ED;
+}
+
+@media (max-width: 578px) {
+    .view_notifications {
+        width: 200px;
+    }
+}
+
 .footer_fixed footer {
     position: fixed;
     left: 0px;

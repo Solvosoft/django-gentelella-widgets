@@ -57,7 +57,6 @@ class PalleteWidget:
             'divref': "content_%s"%self.context['id'],
             'icon': self.context['item'].icon
         }
-
         return """
             <a id="%(id)s" title="%(title)s" aria-controls="divref" data-toggle="collapse" aria-expanded="false" data-target="%(link)s" href="%(link)s">
       <span class="%(icon)s" aria-hidden="true"></span></a>
