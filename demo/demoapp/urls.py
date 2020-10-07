@@ -11,6 +11,8 @@ from .input_masks import views as input_mask
 from .date_range import views as date_ranges
 from .tagging import views as tagging
 from .wysiwyg import views as wysiwyg
+from .grid_slider import views as grid
+
 
 pclss = Personclass()
 countryclss = Countryclass()
@@ -43,5 +45,7 @@ urlpatterns = [
         path('wysiwyg/list', wysiwyg.ListWysiwyg.as_view(), name='wysiwyg-list'),
         path('wysiwyg/<int:pk>', wysiwyg.EditWysiwyg.as_view(), name='wysiwyg-edit'),
         path('yesnoinput/', YesNoInputView.as_view(), name='yes-no-input-add'),
- 
+        path('gridslider/',grid.AddGrid.as_view(), name='grid-slider-add'),
+        path('gridslider/list',grid.ListGrid.as_view(), name='grid-slider-list'),
+        path('gridslider/<int:pk>',grid.UpdateGrid.as_view(), name='grid-slider-edit'),
 ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()
