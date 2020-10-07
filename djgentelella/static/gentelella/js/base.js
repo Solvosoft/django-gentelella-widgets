@@ -453,11 +453,13 @@ $.fn.select2related = function(action, relatedobjs=[]) {
                         type: 'GET',
                         dataType: 'json',
                         data: function (params) {
-                              return {
+                              var dev= {
                                 selected: get_selected_values($(parent.relatedobjs[x]['id']).find(':selected')),
                                 term: params.term,
                                 page: params.page || 1
-                              }
+                              };
+                              $(parent.relatedobjs[x]['id']).trigger('relautocompletedata', dev);
+                              return dev;
                         },
                       }
                 });
@@ -472,12 +474,14 @@ $.fn.select2related = function(action, relatedobjs=[]) {
                     type: 'GET',
                     dataType: 'json',
                     data: function (params) {
-                      return {
+                      var dev = {
                         relfield: get_selected_values($(parent.relatedobjs[x-1]['id']).find(':selected')),
                         selected: get_selected_values($(parent.relatedobjs[x]['id']).find(':selected')),
                         term: params.term,
                         page: params.page || 1
                       }
+                      $(parent.relatedobjs[x]['id']).trigger('relautocompletedata', dev);
+                      return dev;
                     },
                   }
                 });
