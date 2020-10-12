@@ -417,6 +417,9 @@ body .container.body .right_col {
 .dark {
     color: #34495E
 }
+.orange {
+    color: #f5822c
+}
 .border-blue {
     border-color: #3498DB !important
 }
@@ -435,6 +438,10 @@ body .container.body .right_col {
 .border-dark {
     border-color: #34495E !important
 }
+.border-orange {
+    border-color: #f5822c !important
+}
+
 .bg-white {
     background: #fff !important;
     border: 1px solid #fff !important;
@@ -4428,9 +4435,7 @@ h4.revision {
     padding-top: 5px;
 }
 
-.gtradiohorizontal{
-
-}
-.gtradiovertical{
-
+.s-2{
+    font-size: 1.5em;
+    margin: 0em 1em;
 }
