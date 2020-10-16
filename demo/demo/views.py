@@ -50,11 +50,16 @@ class ExampleForm(CustomForm):
    #      ('marzo,abril', 'Marzo,Abril')
    #  ), widget=genwidgets.SelectMultiple)
    #
-   #  your_radio = forms.ChoiceField(choices=(
-   #      ('enero', 'Enero'),
-   #      ('febrero', 'Febrero'),
-   #      ('marzo,abril', 'Marzo,Abril')
-   #  ), widget=genwidgets.RadioSelect)
+
+    your_radio = forms.ChoiceField(choices=(
+        ('enero', 'Enero'),
+        ('febrero', 'Febrero'),
+        ('marzo,abril', 'Marzo,Abril')
+    ), widget=genwidgets.RadioHorizontalSelect)
+    your_radio_vertical = forms.ChoiceField(choices=(
+        ('enero', 'Enero'), ('febrero', 'Febrero'),
+        ('marzo', 'Marzo'), ('abril','Abril')
+    ), widget=genwidgets.RadioVerticalSelect)
    #
    #  your_checkbox = forms.ChoiceField(choices=(
    #      ('enero', 'Enero'),
@@ -77,11 +82,10 @@ class ExampleForm(CustomForm):
    #      super().__init__(*args, **kwargs)
 
     your_phone = forms.CharField(widget=genwidgets.PhoneNumberMaskInput)
-    your_boolean = forms.BooleanField(widget=genwidgets.YesNoInput)
+    your_boolean = forms.BooleanField(widget=genwidgets.YesNoInput(attrs={'rel': ['#id_your_radio_vertical' ,'your_datemask', 'you_emailmask']}))
     your_datemask = forms.DateField(widget=genwidgets.DateMaskInput)
     your_datetimeMask  = forms.DateTimeField(widget=genwidgets.DateTimeMaskInput)
     you_emailmask = forms.EmailField(widget=genwidgets.EmailMaskInput)
-
     #your_daterangeinput = forms.CharField(widget=genwidgets.DateRangeInput)
     # your_knobinput = forms.IntegerField(widget=genwidgets.NumberKnobInput(
     #    attrs={ 'max_value':300, 'min_value': 200,

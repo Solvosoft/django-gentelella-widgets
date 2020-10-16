@@ -1,5 +1,5 @@
 {% extends template_father %}
-{% load i18n %}
+{% load i18n static %}
 
 {% block title %}{% if blocks.title %}{{ blocks.page_description }}{% else %}{% trans "Create new" %} {{ model_verbose_name_plural|lower }}{% endif %}{% endblock %}
 {% block page_name %}{{ blocks.page_name|default:model_verbose_name_plural }}{% endblock %}
@@ -26,3 +26,4 @@
 
 </div>
 {% endblock %}
+

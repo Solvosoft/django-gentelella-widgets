@@ -1,4 +1,8 @@
 <div>
-<div class="color-input-field-inline-picker"></div>
+<div class="color-input-field-inline-picker">
+   {% with id=widget.attrs.id %}
+  {% include "gentelella/widgets/input.html" %}
+{% endwith %}
+</div>
 </div>
 

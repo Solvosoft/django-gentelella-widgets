@@ -7,20 +7,17 @@ Welcome to Django gentelella widgets's documentation!
 =====================================================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    :caption: Contents:
 
    introduction
    demo
-   notifications
-   pallete
-   blog
-   elements
-   knob
-   color
    templates
    forms
-   widgets
+   widgets/widgets
+   widgets/advancedwidgets
+   appwidgets/appwidgets
+   blog
    crud
    contents
 

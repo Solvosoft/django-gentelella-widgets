@@ -31,6 +31,9 @@
         <link href="{% static 'vendors/nprogress/nprogress.min.css' %}" rel="stylesheet">
         <link href="{% static 'vendors/tail.select/tail.select-default.min.css' %}" rel="stylesheet">
         <link href="{% static 'vendors/flag-icon-css/flag-icon.min.css' %}" rel="stylesheet">
+        <link href="{% static 'vendors/tagify/tagify.min.css' %}" rel="stylesheet">
+        <link href="{% static 'vendors/froala-wysiwyg/froala_editor.pkgd.min.css' %}" rel="stylesheet">
+
         {% get_define 'use_chartjs' as use_chartjs %}
         {% if use_chartjs %}
         <link href="{% static 'vendors/chartjs/Chart.min.css' %}" rel="stylesheet">
@@ -124,6 +127,7 @@
         <script src="{% static 'vendors/nprogress/nprogress.min.js' %}"></script>
         <script src="{% static 'vendors/bootstrap-progressbar/bootstrap-progressbar.min.js' %}"></script>
         <script src="{% static 'vendors/iCheck/icheck.min.js' %}"></script>
+        <script src="{% static 'vendors/interact/interact.min.js' %}"></script>
 
 
         <script src="{% static 'vendors/bootstrap-daterangepicker/daterangepicker.min.js' %}"></script>
@@ -139,8 +143,6 @@
         <!-- Autosize -->
         <script src="{% static 'vendors/autosize/autosize.min.js' %}"></script>
         <script src="{% static 'vendors/bootstrap-maxlength/bootstrap-maxlength.min.js' %}"></script>
-        <script src="{% static 'vendors/tail.select/tail.select-full.min.js' %}"></script>
-
         <script src="{% static 'vendors/fileupload/jquery.ui.widget.min.js' %}"></script>
         <!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
         <script src="{% static 'vendors/fileupload/jquery.iframe-transport.min.js' %}"></script>
@@ -148,6 +150,10 @@
         <script src="{% static 'vendors/fileupload/jquery.fileupload.min.js' %}"></script>
         <!-- Calculate md5 -->
         <script src="{% static 'vendors/fileupload/spark-md5.min.js' %}"></script>
+        <script src="{% static 'vendors/tagify/tagify.min.js' %}"></script>
+        <script src="{% static 'vendors/tagify/jQuery.tagify.min.js' %}"></script>
+        <script src="{% static 'vendors/froala-wysiwyg/froala_editor.pkgd.min.js' %}"></script>
+        <script src="{% static 'vendors/froala-wysiwyg/image_tui.min.js' %}"></script>
         {% get_define 'use_datatables' as use_datatables %}
         {% if use_datatables %}
         <script src="{% static 'vendors/datatables/jquery.dataTables.min.js' %}"></script>
@@ -166,15 +172,11 @@
 
 
       <!-- Custom Theme Scripts -->
-      <script src="{% static 'gentelella/js/fileupload.widget.js' %}"></script>
-      <script src="{% static 'gentelella/js/custom.widgets.js' %}"></script>
-      <script src="{% static 'gentelella/js/custom.js' %}"></script>
-
-
-          {% render_menu_js_widget %}
+      <script src="{% static 'gentelella/js/base.js' %}?v={% get_version %}"></script>
+      <script src="{% static 'gentelella/js/widgets.js' %}?v={% get_version %}"></script>
+      <script src="{% static 'gentelella/js/custom.js' %}?v={% get_version %}"></script>
+      {% render_menu_js_widget %}
       {% endblock %}
-
-
 
 
     {% endblock body %}
