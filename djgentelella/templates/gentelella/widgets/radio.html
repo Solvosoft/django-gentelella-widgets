@@ -1,11 +1,11 @@
 {% with id=widget.attrs.id %}
-<div {% if id %} id="{{ id }}"{% endif %} {% if widget.attrs.class %}class="{{ widget.attrs.class }} "{% endif %}>
+<div {% if id %} id="{{ id }}"{% endif %}  {% include "gentelella/widgets/attrs.html" %}>
     {% for group, options, index in widget.optgroups %}
     {% if group %}{{group}}{% endif %}
     {% for option in options %}
-    {{ option.label }}:
-    <input {% if id %} id="{{ id }}_{{ option.index }}"{% endif %}  name="{{ option.name }}" type="{{option.type}}" value="{{option.value}}" class="flat"
+    <input {% if id %} id="{{ id }}_{{ option.index }}"{% endif %}  name="{{ option.name }}" type="{{option.type}}" value="{{option.value}}"
     {% if option.selected %}checked{%endif%}  {% include option.template_name with widget=option %} />
+    <span class="rlabel">{{ option.label }}</span>{% if widget.br %}<br>{% endif %}
     {% endfor %}
     {% endfor %}
 

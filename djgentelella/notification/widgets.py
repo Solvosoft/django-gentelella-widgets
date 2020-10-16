@@ -45,10 +45,7 @@ class NotificationMenu:
         return render_to_string('gentelella/menu/notificacion.html', context=self.context)
 
     def render_js(self):
-        data = {'js_script': static.static('gentelella/js/notifications.js')}
-        return """
-         <script src="%(js_script)s"> </script>
-        """%data
+        return """<script > $('.notificationmenu').notificationWidget(); </script>"""
 
     def render_content(self):
         return ""

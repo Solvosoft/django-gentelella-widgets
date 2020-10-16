@@ -1,5 +1,5 @@
 {% extends template_father %}
-{% load i18n %}
+{% load i18n static %}
 {% load crud_tags %}
 
 {% block title %}{% if blocks.title %}{{ blocks.page_description }}{% else %}{% trans "Update" %} {{ model_verbose_name_plural|lower }}{% endif %}{% endblock %}
@@ -34,7 +34,7 @@
                     <div class="panel-body">
                         <div id="{{inline.name}}_father">
                             {% if 'list' in inline.views_available %}
-                            <div data-refresh-url="{% crud_inline_url form.instance inline.model 'list' namespace %}" id="{{inline.name}}_myList">
+                            <div data-refresh-url="{% crud_inline_url form.instance inline.model 'list' namespace %}" id="{{inline.name}}_myList" style="overflow: auto">
 
                                 <a id="{{inline.name}}_btn" data-replace-inner="#{{inline.name}}_myList"
                                     data-ajax="" data-success="function(){}"
@@ -74,3 +74,7 @@
 </div>
 {% endblock %}
 
+ {% block js %}
+    <script src="{% static 'django_ajax/js/jquery.ajax.min.js' %}"></script>
+    <script src="{% static 'django_ajax/js/jquery.ajax-plugin.min.js' %}"></script>
+{% endblock %}

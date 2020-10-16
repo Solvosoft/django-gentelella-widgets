@@ -76,16 +76,16 @@
 {% if paginate_position == 'Up' or paginate_position == 'Both' %}
     {% include paginate_template %}
 {% endif %}
-    <div class="table-responsive">
+    <div class="" style="overflow:auto;clear: both;">
     <table id="datatable" class="table table-responsive table-bordered table-hover">
     {% if object_list %}
         <thead>
-            {% block thead %}
+            {% block thead %}<tr>
             {% for field, field_name in fields.items %}
             <th class="th-field-{{ field|lower }} th-fieldtype-{{ field_name.1|lower }}">{{ field_name.0 }}</th>
             {% endfor %}
             <th>{% trans "Actions" %}</th>
-            {% endblock thead %}
+            </tr>{% endblock thead %}
         </thead>
         <tbody>
           {% block tbody %}

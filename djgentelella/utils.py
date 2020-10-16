@@ -26,3 +26,7 @@ def set_settings(key, value):
         instance.save()
     else:
         GentelellaSettings.objects.create(key=key, value=value)
+
+
+def clean_cache(keys):
+    _cache = cache.delete_many(keys)

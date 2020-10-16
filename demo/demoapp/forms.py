@@ -1,11 +1,15 @@
 from django import forms
-from djgentelella.forms.forms import CustomForm
-from .models import Foo
+from djgentelella.forms.forms import GTForm
+from djgentelella.widgets.core import DateTimeInput, DateInput, TextInput, NumberInput
+from djgentelella.widgets.selects import AutocompleteSelect
+from .models import Foo, Person, Comunity, YesNoInput
 from djgentelella.widgets import numberknobinput as knobwidget
 from djgentelella.widgets.color import StyleColorInput, DefaultColorInput, HorizontalBarColorInput, VerticalBarColorInput, InlinePickerColor
 from demoapp.models import Colors
+from djgentelella.widgets import core as genwidgets
 
-class FooModelForm(CustomForm, forms.ModelForm):
+
+class FooModelForm(GTForm, forms.ModelForm):
     class Meta:
         model = Foo
         fields = ('number_of_eyes', 
@@ -22,7 +26,8 @@ class FooModelForm(CustomForm, forms.ModelForm):
             'age': knobwidget.NumberKnobInput()
         }
 
-class FooBasicForm(CustomForm, forms.Form):
+
+class FooBasicForm(GTForm, forms.Form):
     """creates a basic form with three widgets using different attrs"""
     age = forms.IntegerField(
             widget=knobwidget.NumberKnobInput(attrs={}), initial=15)
@@ -38,7 +43,7 @@ class FooBasicForm(CustomForm, forms.Form):
                                                   "data-max":50}))
 
 
-class ColorWidgetsForm(CustomForm, forms.ModelForm):
+class ColorWidgetsForm(GTForm, forms.ModelForm):
     color = forms.CharField(widget=DefaultColorInput)
     color2 = forms.CharField(widget=StyleColorInput(attrs={"value": "#0014bb", "id": "c2"}))
 
@@ -51,7 +56,7 @@ class ColorWidgetsForm(CustomForm, forms.ModelForm):
         }
 
 
-class SimpleColorForm(CustomForm, forms.Form):
+class SimpleColorForm(GTForm, forms.Form):
     default_input = forms.CharField(
         widget=DefaultColorInput
     )
@@ -67,3 +72,41 @@ class SimpleColorForm(CustomForm, forms.Form):
     inline_picker = forms.CharField(
          widget=InlinePickerColor
     )
+
+
+class PersonForm(GTForm, forms.ModelForm):
+    class Meta:
+        model = Person
+        fields = '__all__'
+        widgets = {
+            'country': AutocompleteSelect('countrybasename'),
+            'last_time': DateTimeInput,
+            'born_date': DateInput,
+            'name': TextInput,
+            'num_children': NumberInput,
+
+        }
+        
+        
+class CityForm(GTForm, forms.ModelForm):
+    class Meta:
+        model = Comunity
+        fields ='__all__'
+
+class YesNoInputAddForm(GTForm, forms.ModelForm):
+    has_copies = forms.BooleanField(widget=genwidgets.YesNoInput(
+        attrs={'rel': ['copy_number']}))
+    has_meta = forms.BooleanField(widget=genwidgets.YesNoInput(
+        attrs={'rel': ['#id_year','editorial']}))
+    display_publish = forms.BooleanField(widget=genwidgets.YesNoInput(
+        attrs={'rel': ['#display_publish_info']}, shparent='.x_panel'))
+    class Meta:
+        model = YesNoInput
+        fields = '__all__'
+        widgets = {
+            'name': genwidgets.TextInput,
+            'is_public': genwidgets.YesNoInput,
+            'copy_number': genwidgets.NumberInput,
+            'year': genwidgets.NumberInput,
+            'editorial': genwidgets.TextInput
+        }

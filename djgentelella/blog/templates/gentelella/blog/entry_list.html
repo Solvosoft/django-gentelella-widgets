@@ -86,7 +86,7 @@
         <div class="x_content">
 <ul class="to_do">
     {% for category in categories %}
-    <li> <a class="{% if category.pk == cat %}green{%endif%}" href="{{catparams}}{{appendi}}cat={{category.pk}}"> {{category}} </a></li>
+    <li> <a class="{% if category.pk == cat %}green{%endif%}" href="{{catparams}}cat={{category.pk}}"> {{category}} </a></li>
     {% endfor %}
 </ul>
         </div>
