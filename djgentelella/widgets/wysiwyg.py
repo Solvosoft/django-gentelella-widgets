@@ -1,8 +1,6 @@
 from django.forms import Textarea
-from django.urls import reverse_lazy, NoReverseMatch
-import json
+from django.urls import reverse_lazy
 from djgentelella.widgets.core import update_kwargs
-from django.conf import settings
 
 
 class TextareaWysiwyg(Textarea):

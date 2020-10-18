@@ -174,6 +174,10 @@ class Command(BaseCommand):
                 'https://colorlib.com/polygon/vendors/mjolnic-bootstrap-colorpicker/dist/img/bootstrap-colorpicker/hue-horizontal.png',
                 'https://colorlib.com/polygon/vendors/mjolnic-bootstrap-colorpicker/dist/img/bootstrap-colorpicker/saturation-horizontal.png',
             ],
+            'grid-slider': [
+                'https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/js/ion.rangeSlider.min.js',
+                'https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/css/ion.rangeSlider.min.css'
+            ],
             'bootstrap-tree': [
                 'https://github.com/patternfly/patternfly-bootstrap-treeview/raw/master/dist/bootstrap-treeview.min.js',
                 'https://raw.githubusercontent.com/patternfly/patternfly-bootstrap-treeview/master/dist/bootstrap-treeview.min.css'

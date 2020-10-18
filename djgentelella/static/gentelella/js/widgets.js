@@ -159,7 +159,16 @@ document.gtwidgets = {
     },
     DJGraph: function (instance) {
         instance.gentelella_chart();
-    }
+    },
+    GridSlider: function (instance) {
+        instance.ionRangeSlider(grid_slider(instance));
+    },
+    DateGridSlider: function (instance) {
+        date_grid_slider(instance);
+    },
+    SingleGridSlider: function (instance) {
+        instance.ionRangeSlider(grid_slider_single(instance));
+    },
 
 }
 

@@ -189,3 +189,10 @@ class YesNoInput(models.Model):
     year = models.IntegerField(default=2020) 
     editorial = models.CharField(max_length=250, default='')
     display_publish = models.BooleanField(default=False)
+    
+class gridSlider(models.Model):
+    minimum= models.IntegerField()
+    maximum= models.IntegerField()
+    datetime = models.DateTimeField()
+    age= models.IntegerField()
+    
