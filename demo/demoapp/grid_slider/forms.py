@@ -21,7 +21,7 @@ class gridSliderForm(forms.ModelForm, GTForm):
                                                                   }
                                                            ))
 
-    grid_timer = forms.CharField(widget=widget.DateGridSlider(attrs={'data_min': '2020-09-12 00:00',
+    grid_datetime = forms.CharField(widget=widget.DateGridSlider(attrs={'data_min': '2020-09-12 00:00',
                                                                      'data_max': '2020-12-12 24:00',
                                                                      'data_from': '2020-11-12 00:00',
                                                                      'data-target': 'datetime',
