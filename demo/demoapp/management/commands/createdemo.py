@@ -172,6 +172,18 @@ class Command(BaseCommand):
             icon='fa fa-deaf',
             only_icon=False
         )
+        grid_slider = MenuItem.objects.create(
+            parent=cwidget,
+            title='Grid Slider',
+            url_name='grid-slider-list',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-deaf',
+            only_icon=False
+        )
         Wysiwyg = MenuItem.objects.create(
             parent=cwidget,
             title='Wysiwyg',
