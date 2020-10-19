@@ -79,19 +79,10 @@ function load_date_range_custom(instance,format='DD/MM/YYYY') {
 
 function grid_slider(instance) {
     let obj = $(instance[0]);
-
-    let to = obj.attr('data-from_max');
-
-    let from = obj.attr('data-from_min');
-
-    if ($("input[name=" + obj.attr('data-target-to') + "]").val() > 200) {
-        to = $("input[name=" + obj.attr('data-target-to') + "]").val()
-    }
-
-    if ($("input[name=" + obj.attr('data-target-from') + "]").val() > 200) {
-        from = $("input[name=" + obj.attr('data-target-from') + "]").val()
-    }
-
+    let to =$("input[name=" + obj.attr('data-target-to') + "]").val();
+    to=to==0?obj.attr('data-from_max'):to;
+    let from =$("input[name=" + obj.attr('data-target-from') + "]").val();
+    from=from==0? obj.attr('data-from_min'):from;
     let option = {
         'min': obj.attr('data-min'),
         'max': obj.attr('data-max'),
@@ -119,12 +110,7 @@ function grid_slider(instance) {
 function grid_slider_single(instance) {
     let obj = $(instance[0]);
 
-
     let from = obj.attr('data_from');
-
-    if ($("input[name=" + obj.attr('data-target') + "]").val() > 0) {
-        from = $("input[name=" + obj.attr('data-target') + "]").val()
-    }
 
     let option = {
         'min': obj.attr('data-min'),

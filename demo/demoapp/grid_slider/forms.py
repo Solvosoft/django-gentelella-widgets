@@ -38,6 +38,5 @@ class gridSliderForm(forms.ModelForm, GTForm):
                                                    'data-max': '100',
                                                    'data_from': '20',
                                                    'data-prefix': ' ',
-                                                   'data-target': 'age',
                                                    })
         }

@@ -5,7 +5,7 @@ Usage of GridSlider, DateGridSlider and SingleGridSlider widgets
 .. image:: _static/GridSlider.gif
 
 *GridSlider+
-It is similar to range input, but this use two pointer represent the min and max value. 
+It is similar to range input, but this use two pointer represent the min and max value . 
 
 *SingleGridSlider*
 It is similar to *GridSlider*, but this only can use a pointer. 
@@ -13,7 +13,7 @@ It is similar to *GridSlider*, but this only can use a pointer.
 *DateGridSlider*
 It is similar to *SingleGridSlider*, but this only receive values type date in format('yyyy/mm/dd' hh:mm:ss), but this widget the value return in miliseconds, that's why it is recommended to use in **CharField** and then convert to backend. 
 
-You can uses this widget in a * CharField *, * IntegerField * and *DateTime*
+You can uses this widget in a  * IntegerField * and *DateTime*
 
 ---------------
 How to used it?
@@ -91,4 +91,4 @@ class gridSliderForm(forms.ModelForm, GTForm):
                                                     })
         }
 
-As you can see in the previous code you can make the fields of the model can be hidden or any type.
+As you can see in the previous code you can make the fields of the class Meta to be hidden.

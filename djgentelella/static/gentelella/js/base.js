@@ -1148,16 +1148,15 @@ function load_date_range_custom(instance,format='DD/MM/YYYY') {
 
 function grid_slider(instance) {
     let obj = $(instance[0]);
-
     let to = obj.attr('data-from_max');
 
     let from = obj.attr('data-from_min');
 
-    if ($("input[name=" + obj.attr('data-target-to') + "]").val() > 200) {
+    if ($("input[name=" + obj.attr('data-target-to') + "]").val() > 0) {
         to = $("input[name=" + obj.attr('data-target-to') + "]").val()
     }
 
-    if ($("input[name=" + obj.attr('data-target-from') + "]").val() > 200) {
+    if ($("input[name=" + obj.attr('data-target-from') + "]").val() > 0) {
         from = $("input[name=" + obj.attr('data-target-from') + "]").val()
     }
 

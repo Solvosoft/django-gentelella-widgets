@@ -191,8 +191,8 @@ class YesNoInput(models.Model):
     display_publish = models.BooleanField(default=False)
     
 class gridSlider(models.Model):
-    minimum= models.IntegerField()
-    maximum= models.IntegerField()
+    minimum= models.IntegerField(default=0)
+    maximum= models.IntegerField(default=0)
     datetime = models.DateTimeField()
     age= models.IntegerField()
     
