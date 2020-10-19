@@ -172,6 +172,19 @@ class Command(BaseCommand):
             icon='fa fa-deaf',
             only_icon=False
         )
+
+        multiwidget = MenuItem.objects.create(
+            parent=cwidget,
+            title='Multiwidget',
+            url_name='multiwidget-list',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-deaf',
+            only_icon=False
+        )
         Wysiwyg = MenuItem.objects.create(
             parent=cwidget,
             title='Wysiwyg',

@@ -189,3 +189,8 @@ class YesNoInput(models.Model):
     year = models.IntegerField(default=2020) 
     editorial = models.CharField(max_length=250, default='')
     display_publish = models.BooleanField(default=False)
+
+class Multiwidget(models.Model):
+    phone_number=models.CharField(max_length=25)
+    passport=models.CharField(max_length=50)
+    date= models.DateField()

@@ -11,7 +11,7 @@ from .input_masks import views as input_mask
 from .date_range import views as date_ranges
 from .tagging import views as tagging
 from .wysiwyg import views as wysiwyg
-
+from .multiwidget import views as multiwidget
 pclss = Personclass()
 countryclss = Countryclass()
 menuclss = MenuItemclass()
@@ -43,5 +43,8 @@ urlpatterns = [
         path('wysiwyg/list', wysiwyg.ListWysiwyg.as_view(), name='wysiwyg-list'),
         path('wysiwyg/<int:pk>', wysiwyg.EditWysiwyg.as_view(), name='wysiwyg-edit'),
         path('yesnoinput/', YesNoInputView.as_view(), name='yes-no-input-add'),
- 
+        path('multiwidget/',multiwidget.InsertMultiwidget.as_view(), name='multiwidget-add'),
+        path('multiwidget/<int:pk>',multiwidget.UpdateMultiwidget.as_view(), name='multiwidget-edit'),
+        path('multiwidget/list',multiwidget.listMultiwidget.as_view(), name='multiwidget-list'),
+  
 ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()
