@@ -2,7 +2,7 @@ from django import forms
 from demoapp import models
 from djgentelella.forms.forms import GTForm
 from djgentelella.widgets import gridslider as widget
-from djgentelella.widgets import core 
+
 
 class gridSliderForm(forms.ModelForm, GTForm):
 
@@ -21,22 +21,23 @@ class gridSliderForm(forms.ModelForm, GTForm):
                                                                   }
                                                            ))
 
-    grid_datetime = forms.CharField(widget=widget.DateGridSlider(attrs={'data_min': '2020-09-12 00:00',
-                                                                     'data_max': '2020-12-12 24:00',
-                                                                     'data_from': '2020-11-12 00:00',
-                                                                     'data-target': 'datetime',
-                                                                     }))
 
     class Meta:
         model = models.gridSlider
         fields = '__all__'
         widgets = {
-            'minimum': core.HiddenInput,
-            'maximum': core.HiddenInput,
-            'datetime': core.HiddenInput,
+            'minimum': widget.HiddenInput,
+            'maximum': widget.HiddenInput,
+            'datetime': widget.DateGridSlider(attrs={'data_min': '2020-09-12 00:00',
+                                                     'data_max': '2020-12-12 24:00',
+                                                     'data_from': '2020-11-12 00:00',
+                                                     'data-target': 'datetime',
+                                                                        }),
             'age':  widget.SingleGridSlider(attrs={'data-min': '0',
                                                    'data-max': '100',
                                                    'data_from': '20',
                                                    'data-prefix': ' ',
+                                                   'data-target': 'age',
+
                                                    })
         }

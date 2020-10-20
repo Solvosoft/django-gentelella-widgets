@@ -78,7 +78,7 @@ function load_date_range_custom(instance,format='DD/MM/YYYY') {
 }
 
 function grid_slider(instance) {
-    let obj = $(instance[0]);
+    let obj = $(instance);
     let to =$("input[name=" + obj.attr('data-target-to') + "]").val();
     to=to==0?obj.attr('data-from_max'):to;
     let from =$("input[name=" + obj.attr('data-target-from') + "]").val();
@@ -108,14 +108,13 @@ function grid_slider(instance) {
     return option;
 }
 function grid_slider_single(instance) {
-    let obj = $(instance[0]);
+    let obj = $(instance);
 
-    let from = obj.attr('data_from');
-
+    let from =$("input[name=" + obj.attr('data-target') + "]").val();
     let option = {
         'min': obj.attr('data-min'),
         'max': obj.attr('data-max'),
-        'from': from,
+        'from': from!=0?from:obj.attr('data_from'),
         'type': 'single',
         'prefix': obj.attr('data-prefix'),
         'grid': true,
@@ -155,16 +154,5 @@ function date_grid_slider(instance) {
         max: dateToTS(new Date(obj.attr('data_max'))),
         from: dateToTS(new Date(input != undefined ? input : obj.attr('data_from'))),
         prettify: tsToDate,
-        onChange: function (data) {
-            var day = new Date(data.from);
-            day = day.getFullYear() + "-" + (day.getMonth() + 1) + "-" + day.getDate() + " " + day.getHours() + ":" + day.getMinutes()
-            $("input[name=" + obj.attr('data-target') + "]").val(day);
-        },
-        onStart: function(data){
-            var day = new Date(data.from);
-            day = day.getFullYear() + "-" + (day.getMonth() + 1) + "-" + day.getDate() + " " + day.getHours() + ":" + day.getMinutes()
-            $("input[name=" + obj.attr('data-target') + "]").val(day);
-            
-        }
     })
 }
