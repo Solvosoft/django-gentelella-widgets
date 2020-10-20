@@ -121,7 +121,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fas fa-eyedropper',
+            icon='fas fa-eye-dropper',
             only_icon=False
         )
         MenuItem.objects.create(
@@ -133,7 +133,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fas fa-germ',
+            icon='fas fa-gem',
             only_icon=False
         )
         inputmask = MenuItem.objects.create(
@@ -145,7 +145,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fas fa-cutlery',
+            icon='fas fa-utensils',
             only_icon=False
         )
         daterange = MenuItem.objects.create(
@@ -193,7 +193,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fas fa-line-chart',
+            icon='fas fa-chart-line',
             only_icon=False
         )
         noti = MenuItem.objects.create(

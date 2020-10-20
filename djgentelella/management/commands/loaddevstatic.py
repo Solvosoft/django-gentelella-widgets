@@ -161,8 +161,10 @@ class Command(BaseCommand):
             ],
 
             'bootstrap-colorpicker': [
-                'https://colorlib.com/polygon/vendors/mjolnic-bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css',
-                'https://colorlib.com/polygon/vendors/mjolnic-bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min.js'
+                'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/3.2.0/css/bootstrap-colorpicker.min.css',
+                'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/3.2.0/js/bootstrap-colorpicker.min.js',
+                'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/3.2.0/css/bootstrap-colorpicker.min.css.map',
+                'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/3.2.0/js/bootstrap-colorpicker.min.js.map'
             ],
             "img/": [],
             "img/bootstrap-colorpicker": [
