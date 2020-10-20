@@ -217,6 +217,7 @@ html , body{
     width: 100% !important;
     margin-bottom: 5px
 }
+
 .nav-sm ul.nav.child_menu {
     left: 100%;
     position: absolute;
@@ -298,16 +299,16 @@ html , body{
     margin-bottom: 10px;
     float: left
 }
-.main_menu span.fa {
+.main_menu span.fas {
     float: right;
     text-align: center;
     margin-top: 5px;
-    margin-left: 20px;
     font-size: 10px;
     min-width: inherit;
     color: #C4CFDA
 }
-.active a span.fa {
+
+.active a span.fas {
     text-align: right !important;
     margin-right: 4px
 }
@@ -776,6 +777,15 @@ a:focus {
 .nav.child_menu>li>a {
     color: #E7E7E7;
     font-weight: 500
+}
+.nav.side-menu>li>a>i,
+.nav.child_menu>li>a>i {
+    font-size: 15px;
+    padding-right: 10px;
+}
+.menu_section>h3>i{
+    font-size: 15px;
+    padding-right: 10px;
 }
 .nav.child_menu li li:hover,
 .nav.child_menu li li.active {

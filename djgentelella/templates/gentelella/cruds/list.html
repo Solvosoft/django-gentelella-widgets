@@ -85,8 +85,8 @@
             {% if paginate_position == 'Up' or paginate_position == 'Both' %}
             {% include paginate_template %}
             {% endif %}
-            <div class="" style="overflow:auto;clear: both;">
-                <table id="datatable" class="table table-responsive table-bordered table-hover">
+            <div class="table-responsive" style="overflow:auto;clear: both;">
+                <table id="datatable" class="table table-bordered table-hover text-center">
                     {% if object_list %}
                     <thead>
                         {% block thead %}<tr>

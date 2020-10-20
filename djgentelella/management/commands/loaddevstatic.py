@@ -55,8 +55,8 @@ class Command(BaseCommand):
                 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/fontawesome-webfont.woff2',
             ],
             'font-awesome': [
-                'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css',
-                'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css.map'
+                'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.6.3/css/all.min.css',
+                'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.6.3/css/v4-shims.min.css'
             ],
             'bootstrap-daterangepicker': [
                 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/2.1.24/daterangepicker.min.js',

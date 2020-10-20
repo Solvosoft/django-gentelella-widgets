@@ -97,7 +97,7 @@ def render_sidebar_item(item, father_pos=0, env={}, widget_list=[]):
         dev = '<li %s>'%('class="sub_menu"' if item.level == 2 else '' ) 
         dev += """<a id="%s" href="%s" >%s %s %s</a> """%(
             'sb'+str(item.id), get_link(item, env),  icon, get_title(item),
-        '<span class="fa fa-chevron-down"></span>' if children else '')
+        '<span class="fas fa-chevron-down"></span>' if children else '')
     if children:
         dev += '<ul class="%s">' % ("nav side-menu" if not item.level and not father_pos else "nav child_menu")
         for i, node in enumerate(item.children.all()):
