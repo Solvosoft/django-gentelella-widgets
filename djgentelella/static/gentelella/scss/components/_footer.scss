@@ -1,0 +1,16 @@
+@mixin footer($x, $y, $display) {
+  background: $white;
+  padding: $x $y;
+  display: $display;
+}
+@mixin media($max) {
+  @media (min-width: $max) {
+    @content;
+  }
+}
+footer {
+  @include footer(15px, 20px, block);
+  @include media(992px) {
+    margin-left: 230px;
+  }
+}

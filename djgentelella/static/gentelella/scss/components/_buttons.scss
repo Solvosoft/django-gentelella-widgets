@@ -1,0 +1,22 @@
+@mixin buttons($bg,$color,$border,$decoration) {
+    background:$bg;
+    border: $border;
+    color: $color;
+    text-decoration:$decoration;    
+}
+
+@mixin buttons-hover($bg,$color,$border,$decoration) {
+    background:$bg;
+    border: $border;
+    color: $color;
+    text-decoration:$decoration;    
+}
+
+.btn-success{
+    @include buttons(#26b99a,#fff,1px solid #169f85,none);
+    & :hover{
+        @include buttons-hover(#449d44,#fff,1px solid #398439,none);
+ 
+    }
+    
+}

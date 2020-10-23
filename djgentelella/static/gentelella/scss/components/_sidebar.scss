@@ -1,0 +1,146 @@
+.left_col {
+    background: $bg-sidebar;
+}
+.nav_title {
+    width: 230px;
+    float: left;
+    background: $bg-sidebar;
+    border-radius: 0;
+    height: 57px;
+}
+.site_title{
+  i {
+    border: 1px solid #eaeaea;
+    padding: 5px 6px;
+    border-radius: 50%;
+}
+}
+.sidebar-footer {
+    bottom: 0px;
+    clear: both;
+    display: block;
+    padding: 5px 0 0 0;
+    position: fixed;
+    width: 230px;
+    z-index: 999;
+    background: $bg-sidebar-footer;
+}
+.sidebar-footer {
+    a {
+        padding: 7px 0 3px;
+        text-align: center;
+        width: 25%;
+        font-size: 17px;
+        display: block;
+        float: left;
+        cursor: pointer;
+        background: $bg-sidebar-button;
+    }
+}
+.sidebar-footer {
+    a {
+        &:hover {
+            background: #425567;
+        }
+    }
+}
+.nav_title {
+    width: 230px;
+    float: left;
+    background: #2a3f54;
+    border-radius: 0;
+    height: 57px;
+}
+.nav-sm {
+    .nav.child_menu {
+        li.active {
+            border-right: 5px solid #1abb9c;
+        }
+    }
+}
+
+.nav.side-menu > {
+    li {
+        &.current-page,
+        &.active {
+            border-right: 5px solid $border-nav-color !important;
+        }
+    }
+}
+.nav {
+    &.side-menu > {
+        li > {
+            a {
+                &:hover {
+                    color: $color-side-menu-hover !important;
+                }
+            }
+        }
+    }
+}
+.sidebar-header {
+    border-bottom: 0;
+    margin-top: 46px;
+    &:first-of-type {
+        margin-top: 0;
+    }
+}
+.nav-md {
+    ul {
+        &.nav {
+            &.child_menu {
+                li {
+                    &:before {
+                        background: #425668;
+                        bottom: auto;
+                        content: "";
+                        height: 8px;
+                        left: 23px;
+                        margin-top: 15px;
+                        position: absolute;
+                        right: auto;
+                        width: 8px;
+                        z-index: 1;
+                        border-radius: 50%;
+                    }
+                }
+            }
+        }
+    }
+}
+.nav-md {
+    ul {
+        &.nav {
+            &.child_menu {
+                li {
+                    &:after {
+                        border-left: 1px solid #425668;
+                        bottom: 0;
+                        content: "";
+                        left: 27px;
+                        position: absolute;
+                        top: 0;
+                    }
+                }
+            }
+        }
+    }
+}
+.nav {
+    &.child_menu {
+        li {
+            &:hover,
+            &.active {
+                background-color: rgba(255, 255, 255, 0.06);
+            }
+        }
+    }
+}
+
+.nav {
+    li {
+        &.current-page {
+            background: rgba(255, 255, 255, 0.05);
+        }
+    }
+}

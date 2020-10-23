@@ -1,0 +1,102 @@
+@import "components/colors";
+
+$theme: false !default;
+@if $theme {
+  $bg-sidebar-footer: #527191;
+  $bg-sidebar: #88898a;
+  $sidebar-button: #9fabb8;
+  $sidebar-color: red;
+  $border-nav-color: #1abb9c;
+}
+@import "components/sidebar";
+@import "components/content";
+@import "components/footer";
+@import "components/buttons";
+
+.border-blue {
+  border-color: $blue !important;
+}
+.border-purple {
+  border-color: $purple !important;
+}
+.border-green {
+  border-color: $green !important;
+}
+.border-aero {
+  border-color: $aero !important;
+}
+.border-red {
+  border-color: $red !important;
+}
+.border-dark {
+  border-color: $dark !important;
+}
+.border-orange {
+  border-color: $orange !important;
+}
+
+.bg-white {
+  background: $white !important;
+  border: 1px solid white !important;
+  color: $light-gray;
+}
+.bg-green {
+  background: $green !important;
+  border: 1px solid $green !important;
+  color: $white;
+}
+.bg-red {
+  background: $red !important;
+  border: 1px solid $red !important;
+  color: $white;
+}
+.bg-blue {
+  background: $blue !important;
+  border: 1px solid $blue !important;
+  color: $white;
+}
+.bg-orange {
+  background: #f39c12 !important;
+  border: 1px solid #f39c12 !important;
+  color: $white;
+}
+.bg-purple {
+  background: $purple !important;
+  border: 1px solid $purple !important;
+  color: $white;
+}
+.bg-blue-sky {
+  background: $sky-blue !important;
+  border: 1px solid $sky-blue !important;
+  color: $white;
+}
+
+.x_title {
+  border-bottom: 2px solid #e6e9ed;
+  padding: 1px 5px 6px;
+  margin-bottom: 10px;
+  .filter {
+    width: 40%;
+    float: right;
+  }
+  span {
+    color: #bdbdbd;
+  }
+  h2 {
+    margin: 5px 0 6px;
+    float: left;
+    display: block;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap small {
+      margin-left: 10px;
+    }
+  }
+}
+
+@mixin nav($color) {
+  color: $color;
+}
+.nav {
+  @include nav(#515356);
+}
