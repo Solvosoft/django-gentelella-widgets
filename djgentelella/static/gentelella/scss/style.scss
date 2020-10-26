@@ -1,12 +1,18 @@
-@import "components/colors";
+@import "components/variable";
+
 
 $theme: false !default;
 @if $theme {
-  $bg-sidebar-footer: #527191;
-  $bg-sidebar: #88898a;
+  $bg-sidebar-footer: #2a3f54;
+  $bg-sidebar: #1f354b;
+  $bg-body:#2a3f54;
   $sidebar-button: #9fabb8;
-  $sidebar-color: red;
+  $bg-footer:rgb(48, 46, 46);
+  $bg-right-content:rgb(66, 61, 61);
+  $bg-nav_menu:rgb(66, 61, 61);
+  $border-nav_menu:rgb(10, 9, 9);
   $border-nav-color: #1abb9c;
+
 }
 @import "components/sidebar";
 @import "components/content";
@@ -56,8 +62,8 @@ $theme: false !default;
   color: $white;
 }
 .bg-orange {
-  background: #f39c12 !important;
-  border: 1px solid #f39c12 !important;
+  background: $orange !important;
+  border: 1px solid $orange !important;
   color: $white;
 }
 .bg-purple {

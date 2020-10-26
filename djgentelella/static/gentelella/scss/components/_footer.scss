@@ -1,5 +1,5 @@
-@mixin footer($x, $y, $display) {
-  background: $white;
+@mixin footer($x, $y, $bg, $display) {
+  background: $bg;
   padding: $x $y;
   display: $display;
 }
@@ -9,7 +9,7 @@
   }
 }
 footer {
-  @include footer(15px, 20px, block);
+  @include footer(15px, 20px, $bg-footer, block);
   @include media(992px) {
     margin-left: 230px;
   }

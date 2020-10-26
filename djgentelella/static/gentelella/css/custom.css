@@ -139,7 +139,7 @@ body {
 .calendar-exibit .calendar-table {
     padding: 0 0 4px 0;
 }
-/*.left_col {
+.left_col {
     background: #2A3F54
 }
 
@@ -153,11 +153,11 @@ body {
 .nav-sm .container.body .col-md-3.left_col.menu_fixed {
     position: fixed;
     height: 100%;
-}*/
-/*.nav-sm .container.body .col-md-3.left_col .mCSB_container,
+}
+.nav-sm .container.body .col-md-3.left_col .mCSB_container,
 .nav-sm .container.body .col-md-3.left_col .mCustomScrollBox {
     overflow: visible;
-}*/
+}
 .nav-sm .hidden-small {
     visibility: hidden;
 }
@@ -317,7 +317,7 @@ body {
 .nav-sm li li span.fa {
     display: inline-block;
 }
-/*
+
 .nav_menu {
     float: left;
     background: #ededed;
@@ -331,8 +331,8 @@ body {
         position: static;
     }
 }
-*/
-/*nav-md .container.body .col-md-3.left_col {
+
+.nav-md .container.body .col-md-3.left_col {
     min-height: 100%;
     width: 230px;
     padding: 0;
@@ -375,7 +375,7 @@ body .container.body .right_col {
     .right_col {
         padding: 10px !important;
     }
-}*/
+}
 @media (max-width: 1200px) {
     .x_title h2 {
         width: 62%;
@@ -637,13 +637,13 @@ table.no-margin .progress {
     padding-right: 10px;
     padding-left: 10px;
 }
-/*.row {
+.row {
     margin-right: -10px;
     margin-left: -10px;
-}*/
-/*.grid_slider .col-md-6 {
+}
+.grid_slider .col-md-6 {
     padding: 0 40px;
-}*/
+}
 h1,
 .h1,
 h2,
@@ -730,10 +730,10 @@ a:focus {
 .nav.side-menu > li > a {
     margin-bottom: 6px;
 }
-/*
+
 .nav.side-menu > li > a:hover {
     color: #f2f5f7 !important;
-}*/
+}
 .nav.side-menu > li > a:hover,
 .nav > li > a:focus {
     text-decoration: none;
@@ -742,15 +742,15 @@ a:focus {
 .nav.child_menu {
     display: none;
 }
-/*
+
 .nav.child_menu li:hover,
 .nav.child_menu li.active {
     background-color: rgba(255, 255, 255, 0.06);
-}*/
+}
 .nav.child_menu li {
     padding-left: 36px;
 }
-/*.nav-md ul.nav.child_menu li:before {
+.nav-md ul.nav.child_menu li:before {
     background: #425668;
     bottom: auto;
     content: "";
@@ -770,7 +770,7 @@ a:focus {
     left: 27px;
     position: absolute;
     top: 0;
-}*/
+}
 .nav.side-menu > li > a,
 .nav.child_menu > li > a {
     color: #e7e7e7;
@@ -789,13 +789,12 @@ a:focus {
     display: block;
     padding: 13px 15px 12px;
 }
-/*.nav.side-menu > li.current-page,
+.nav.side-menu > li.current-page,
 .nav.side-menu > li.active {
     border-right: 5px solid #1abb9c;
-}*/
-/*.nav li.current-page {
+}.nav li.current-page {
     background: rgba(255, 255, 255, 0.05);
-}*/
+}
 .nav li li li.current-page {
     background: none;
 }
