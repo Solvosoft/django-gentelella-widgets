@@ -5,7 +5,8 @@ from demoapp.models import WysiwygModel
 from datetime import datetime
 from django.views.generic import CreateView, ListView, UpdateView
 
-
+def drag_drop(request):
+    return render(request, 'editor.html',{})
 class InsertWysiwyg(CreateView):
     model = WysiwygModel
     form_class = WysiwygForm

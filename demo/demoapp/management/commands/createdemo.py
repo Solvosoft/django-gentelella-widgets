@@ -333,6 +333,19 @@ class Command(BaseCommand):
             only_icon=False
         )
 
+        MenuItem.objects.create(
+            parent=item,
+            title='Editor',
+            url_name='editor',
+            category='sidebar',  # sidebar, sidebarfooter,
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-power-off',
+            only_icon=False
+        )
+
     def create_countries(self):
         models.Country.objects.all().delete()
         data = [

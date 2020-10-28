@@ -187,6 +187,20 @@ class Command(BaseCommand):
                 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/3.2.2/css/froala_editor.pkgd.min.css',
                 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/3.2.2/js/froala_editor.pkgd.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/3.2.2/js/third_party/image_tui.min.js'
+            ],
+            'bulma':[
+                "https://cdn.jsdelivr.net/npm/bulma-accordion@2.0.1/dist/css/bulma-accordion.min.css",
+                "https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css",
+                "https://cdn.jsdelivr.net/npm/bulma-accordion@2.0.1/dist/js/bulma-accordion.min.js"
+            ],
+            'jquery-ui':[
+                "https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+            ],
+            'tinymce':[
+                "https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.5.1/tinymce.min.js",
+                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.5.1/jquery.tinymce.min.js',
+                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.5.1/skins/ui/oxide-dark/skin.min.css',
+                
             ]
         }
         if not os.path.exists(basepath / 'flags'):
