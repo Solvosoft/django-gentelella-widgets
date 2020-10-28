@@ -1,0 +1,192 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="{% static 'vendors/font-awesome/font-awesome.min.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma-accordion@2.0.1/dist/css/bulma-accordion.min.css">
+    <title>Document</title>
+</head>
+
+<style>
+    .cols{
+        border-color: lightslategray;
+        border: 1px solid;
+    }
+</style>
+<body>
+
+
+    <div class="columns">
+        <div class='column is-9 is-narrow'>
+            <div class="card">
+                <div class="card-content">
+                    <div class="drag container" style="height: 1000px; background-color: aquamarine;">
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class='column is-3'>
+            <div class="card">
+                <div class="card-content">
+                    <div class="card-title">
+                        <h2 class="pb-2"> Blocks </h2>
+                    </div>
+                    <section class="accordions">
+                        <article class="accordion is-active">
+                            <div class="accordion-header">
+                                <p>Headers</p>
+                                <button class="toggle" aria-label="toggle"></button>
+
+                            </div>
+                            <div class="accordion-body">
+                                <div class="accordion-content">
+                                    <div class=" columns is-align-items-center">
+                                        <div class="column is-one-third">
+                                            <span id="nav-1" class="bb button is-small">Drag</span>
+                                        </div>
+                                        <div class="column">
+                                            <p class="has-text-right">Navbar</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                        <article class="accordion">
+                            <div class="accordion-header">
+                                <p>Columns</p>
+                                <button class="toggle" aria-label="toggle"></button>
+                            </div>
+                            <div class="accordion-body">
+                                <div class="accordion-content">
+                                    <div class="columns is-align-items-center">
+                                        <div class="column is-one-third">
+                                            <span id="col-8-4" class="bb button is-small">Drag</span>
+                                        </div>
+                                        <div class="column">
+                                            <p class="has-text-right">Col 8-4</p>
+                                        </div>
+                                    </div>
+                                    <div class=" columns is-align-items-center">
+                                        <div class="column is-one-third">
+                                            <span id="col-6-6" class="bb button is-small">Drag</span>
+                                        </div>
+                                        <div class="column">
+                                            <p class="has-text-right">Col 6-6</p>
+                                        </div>
+                                    </div>
+                                </div>
+                        </article>
+                        <article class="accordion">
+                            <div class="accordion-header">
+                                <p>Text</p>
+                                <button class="toggle" aria-label="toggle"></button>
+                            </div>
+                            <div class="accordion-body">
+                                <div class="accordion-content">
+                                    <div class=" columns is-align-items-center">
+                                        <div class="column is-one-third">
+                                            <span id="text" class="bb button is-small">Drag</span>
+                                        </div>
+                                        <div class="column">
+                                            <p class="has-text-right">Paragraph</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    </section>
+
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'vendors/jquery/jquery.min.js' %}"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bulma-accordion@2.0.1/dist/js/bulma-accordion.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+        integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
+    <script src="https://kit.fontawesome.com/2c36e9b7b1.js" crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function () {
+            var accordions = bulmaAccordion.attach();
+
+       
+            $(".bb").draggable({
+                helper: "clone",
+                cursor: "move",
+            });
+
+            $(".drag, .cols").droppable({
+                accept: ".bb",
+                drop: function (event, ui) {
+                    if (!ui.draggable.hasClass("dropped"))
+                        $(this).append(xx(ui.draggable[0].id));
+                }
+            }).sortable({
+                placeholder: "sort-placer",
+                cursor: "move",
+                helper: function (evt, ui) {
+                    console.log($(this));
+
+                    return $(ui).clone().appendTo($(this)).show();
+
+                }
+            });
+        });
+   
+
+        function xx(options) {
+            let result = "";
+            switch (options) {
+                case 'nav-1':
+                    result = navbar()
+                    break;
+                case 'col-8-4':
+                    result = grid([8, 4]);
+                    break;
+                case 'col-6-6':
+                    result = grid([6, 6]);
+                    break;
+                case 'text':
+                    result = paragraph();
+                    break;
+                default:
+                    break;
+            }
+            return result;
+        }
+        function navbar() {
+            return `<nav class="navbar is-primary" role="navigation" aria-label="main navigation"><div class="navbar-brand">
+    <a class="navbar-item" href="https://bulma.io"><img src="https://bulma.io/images/bulma-logo.png" width="112" height="28">
+    </a><a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+      <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span></a>
+  </div><div id="navbarBasicExample" class="navbar-menu"><div class="navbar-start">
+      <a class="navbar-item">Home</a><a class="navbar-item">Documentation</a>
+      <div class="navbar-item has-dropdown is-hoverable"><a class="navbar-link">More</a><div></nav>`;
+        }
+        function grid(sizes) {
+            a = `<div class="columns has-background-white">`;
+            for (let i = 0; i < sizes.length; i++) {
+                a += `<div class="column is-${sizes[i]} cols ui-droppable ui-sortable" style="height: 300px;"></div> `
+            }
+            a += `</div>`;
+            return a;
+        }
+
+        function paragraph() {
+            return `<div><p contenteditable="true"onclick='$(this).focus();'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime tempora vitae itaque quod iure, nobis culpa totam, voluptatem voluptates necessitatibus molestiae. Nostrum sit vel magni omnis nisi dicta incidunt ipsam?</p></div>`;
+        }
+    </script>
+</body>
+
+</html>
