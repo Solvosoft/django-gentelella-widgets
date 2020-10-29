@@ -43,5 +43,6 @@ urlpatterns = [
         path('wysiwyg/list', wysiwyg.ListWysiwyg.as_view(), name='wysiwyg-list'),
         path('wysiwyg/<int:pk>', wysiwyg.EditWysiwyg.as_view(), name='wysiwyg-edit'),
         path('yesnoinput/', YesNoInputView.as_view(), name='yes-no-input-add'),
+        path('editor/', wysiwyg.drag_drop, name='editor'),
  
 ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()

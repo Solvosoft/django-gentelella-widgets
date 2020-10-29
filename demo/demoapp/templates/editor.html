@@ -7,31 +7,67 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="{% static 'vendors/font-awesome/font-awesome.min.css' %}" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma-accordion@2.0.1/dist/css/bulma-accordion.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+
     <title>Document</title>
 </head>
 
 <style>
-    .cols{
-        border-color: lightslategray;
-        border: 1px solid;
+    .ui-sortable-handle {
+        z-index: 1;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        background-color: rgb(58, 58, 226);
+    }
+
+    .cols {
+        padding: 10px;
+        margin-top: 5px;
+    }
+
+    .cols .column {
+        padding: 10px;
+    }
+
+    .parag {
+        padding: 10px;
+    }
+    .drag{
+        overflow-y: auto;
     }
 </style>
+
 <body>
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+            <a class="navbar-item" href="https://bulma.io">
+                <img src="https://bulma.io/images/bulma-logo.png" width="112" height="28">
+            </a>
 
+            <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false"
+                data-target="navbarBasicExample">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
+        </div>
 
-    <div class="columns">
-        <div class='column is-9 is-narrow'>
-            <div class="card">
-                <div class="card-content">
-                    <div class="drag container" style="height: 1000px; background-color: aquamarine;">
-                    </div>
-
+        <div class="navbar-end">
+            <div class="navbar-item">
+                <div class="buttons">
+                    <a id="files" class="button is-primary is-hidden">
+                        <strong>Download</strong>
+                    </a>
                 </div>
             </div>
         </div>
-
+        </div>
+    </nav>
+    <div class="columns pt-5 pl-3 pr-3">
         <div class='column is-3'>
             <div class="card">
                 <div class="card-content">
@@ -81,6 +117,14 @@
                                             <p class="has-text-right">Col 6-6</p>
                                         </div>
                                     </div>
+                                    <div class=" columns is-align-items-center">
+                                        <div class="column is-one-third">
+                                            <span id="col-4-4-4" class="bb button is-small">Drag</span>
+                                        </div>
+                                        <div class="column">
+                                            <p class="has-text-right">Col 4-4-4</p>
+                                        </div>
+                                    </div>
                                 </div>
                         </article>
                         <article class="accordion">
@@ -102,10 +146,11 @@
                             </div>
                         </article>
                     </section>
-
                 </div>
-
-
+            </div>
+        </div>
+        <div class='column is-9 has-background-blue'>
+            <div class="drag has-background-primary" style="height: 500px;">
             </div>
         </div>
     </div>
@@ -120,30 +165,55 @@
         $(document).ready(function () {
             var accordions = bulmaAccordion.attach();
 
-       
+
             $(".bb").draggable({
                 helper: "clone",
-                cursor: "move",
+                cursor: "pointer",
+                zIndex: 101,
+
             });
 
-            $(".drag, .cols").droppable({
+
+
+            $(".drag").droppable({
                 accept: ".bb",
                 drop: function (event, ui) {
-                    if (!ui.draggable.hasClass("dropped"))
-                        $(this).append(xx(ui.draggable[0].id));
+                    $(this).append(xx(ui.draggable[0].id));
+                    viewDownload();
                 }
             }).sortable({
                 placeholder: "sort-placer",
                 cursor: "move",
                 helper: function (evt, ui) {
-                    console.log($(this));
-
                     return $(ui).clone().appendTo($(this)).show();
 
                 }
             });
+            $("#files").click(function () {
+                var blob = new Blob([exportpdf()], { type: "text/plain;charset=utf-8" });
+                descargarArchivo(blob, "xxx.html");
+            });
+
+            function descargarArchivo(contenidoEnBlob, nombreArchivo) {
+                var reader = new FileReader();
+                reader.onload = function (event) {
+                    var save = document.createElement('a');
+                    save.href = event.target.result;
+                    save.target = '_blank';
+                    save.download = nombreArchivo;
+                    var clicEvent = new MouseEvent('click', {
+                        'view': window,
+                        'bubbles': true,
+                        'cancelable': true
+                    });
+                    save.dispatchEvent(clicEvent);
+                    (window.URL || window.webkitURL).revokeObjectURL(save.href);
+                };
+                reader.readAsDataURL(contenidoEnBlob);
+            };
+
         });
-   
+
 
         function xx(options) {
             let result = "";
@@ -156,6 +226,9 @@
                     break;
                 case 'col-6-6':
                     result = grid([6, 6]);
+                    break;
+                case 'col-4-4-4':
+                    result = grid([4, 4,4]);
                     break;
                 case 'text':
                     result = paragraph();
@@ -175,16 +248,50 @@
       <div class="navbar-item has-dropdown is-hoverable"><a class="navbar-link">More</a><div></nav>`;
         }
         function grid(sizes) {
-            a = `<div class="columns has-background-white">`;
+            a = `<div class="container"> <div class="columns ui-sortable-handle is-centered is-vcentered cols has-background-white">`;
             for (let i = 0; i < sizes.length; i++) {
-                a += `<div class="column is-${sizes[i]} cols ui-droppable ui-sortable" style="height: 300px;"></div> `
+                a += `<div class="column is-${sizes[i]}  ui-droppable ui-sortable  p-3">
+                    <p contenteditable="true" onclick='$(this).focus();'>   Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatum, non dolorum eveniet cupiditate quia voluptatem sunt a repellat fugit? Quaerat quae facilis dignissimos aliquam necessitatibus deserunt, explicabo soluta suscipit? Mollitia?</p></div> `
             }
-            a += `</div>`;
+            a += `</div> </div>`;
             return a;
         }
 
         function paragraph() {
-            return `<div><p contenteditable="true"onclick='$(this).focus();'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime tempora vitae itaque quod iure, nobis culpa totam, voluptatem voluptates necessitatibus molestiae. Nostrum sit vel magni omnis nisi dicta incidunt ipsam?</p></div>`;
+            return `<div class="container p-3 has-background-white"><p contenteditable="true"onclick='$(this).focus();'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime tempora vitae itaque quod iure, nobis culpa totam, voluptatem voluptates necessitatibus molestiae. Nostrum sit vel magni omnis nisi dicta incidunt ipsam?</p></div>`;
+        }
+
+        function viewDownload() {
+            $("#files").removeClass("is-hidden");
+        }
+
+        function exportpdf() {
+            data = ` <!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="{% static 'vendors/font-awesome/font-awesome.min.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma-accordion@2.0.1/dist/css/bulma-accordion.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+
+    <title>Document</title>
+</head>
+<style>
+    .cols{
+        padding: 10px;
+        margin-top: 5px;
+    }
+    .parag{
+        padding: 10px;
+    }
+    </style>
+<body>`+ $('.drag').html();
+            data += `</body>
+
+</html>`;
+            return data;
         }
     </script>
 </body>
