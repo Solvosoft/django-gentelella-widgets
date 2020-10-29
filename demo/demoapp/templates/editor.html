@@ -36,7 +36,8 @@
     .parag {
         padding: 10px;
     }
-    .drag{
+
+    .drag {
         overflow-y: auto;
     }
 </style>
@@ -178,11 +179,10 @@
             $(".drag").droppable({
                 accept: ".bb",
                 drop: function (event, ui) {
-                    $(this).append(xx(ui.draggable[0].id));
+                    $(this).append(components(ui.draggable[0].id));
                     viewDownload();
                 }
             }).sortable({
-                placeholder: "sort-placer",
                 cursor: "move",
                 helper: function (evt, ui) {
                     return $(ui).clone().appendTo($(this)).show();
@@ -190,17 +190,17 @@
                 }
             });
             $("#files").click(function () {
-                var blob = new Blob([exportpdf()], { type: "text/plain;charset=utf-8" });
-                descargarArchivo(blob, "xxx.html");
+                var pages = new Blob([exportpdf()], { type: "text/plain;charset=utf-8" });
+                downloadpages(pages, "example.html");
             });
 
-            function descargarArchivo(contenidoEnBlob, nombreArchivo) {
+            function  downloadpages(content, filename) {
                 var reader = new FileReader();
                 reader.onload = function (event) {
                     var save = document.createElement('a');
                     save.href = event.target.result;
                     save.target = '_blank';
-                    save.download = nombreArchivo;
+                    save.download = filename;
                     var clicEvent = new MouseEvent('click', {
                         'view': window,
                         'bubbles': true,
@@ -209,13 +209,13 @@
                     save.dispatchEvent(clicEvent);
                     (window.URL || window.webkitURL).revokeObjectURL(save.href);
                 };
-                reader.readAsDataURL(contenidoEnBlob);
+                reader.readAsDataURL(content);
             };
 
         });
 
 
-        function xx(options) {
+        function components(options) {
             let result = "";
             switch (options) {
                 case 'nav-1':
@@ -228,7 +228,7 @@
                     result = grid([6, 6]);
                     break;
                 case 'col-4-4-4':
-                    result = grid([4, 4,4]);
+                    result = grid([4, 4, 4]);
                     break;
                 case 'text':
                     result = paragraph();
