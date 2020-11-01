@@ -1,7 +1,32 @@
 $(document).ready(function () {
     var accordions = bulmaAccordion.attach();
+    viewDownload();
 
 
+    $(".drag, .column").sortable({
+        connectWith: '.column',
+        opacity: 0.35,
+        receive: function (e, ui) {
+            console.log(ui.helper.remove());
+            $(this).append(components(ui.item.attr('id')));
+            
+        }
+    });
+
+    /* drag and drop rows */
+    $(".bb").draggable({
+        helper: "clone",
+        connectToSortable: ".drag",
+
+        stop: function (e, ui) {
+            $('.drag .column').sortable({
+                opacity: 0.35,
+                connectWith: '.column'
+            });
+        }
+    });
+
+/*
     $(".bb").draggable({
         helper: "clone",
         cursor: "pointer",
@@ -15,7 +40,6 @@ $(document).ready(function () {
         accept: ".bb",
         drop: function (event, ui) {
             $(this).append(components(ui.draggable[0].id));
-            viewDownload();
         }
     }).sortable({
         cursor: "move",
@@ -24,7 +48,7 @@ $(document).ready(function () {
 
         }
     });
-    $("#files").click(function () {
+  */  $("#files").click(function () {
         var pages = new Blob([exportpdf()], { type: "text/plain;charset=utf-8" });
         downloadpages(pages, "example.html");
     });
@@ -83,17 +107,17 @@ function navbar() {
 <div class="navbar-item has-dropdown is-hoverable"><a class="navbar-link">More</a><div></nav>`;
 }
 function grid(sizes) {
-    a = `<div class="container"> <div class="columns ui-sortable-handle is-centered is-vcentered cols has-background-white">`;
+    a = `<div class="columns is-centered is-vcentered cols has-background-white">`;
     for (let i = 0; i < sizes.length; i++) {
-        a += `<div class="column is-${sizes[i]}  ui-droppable ui-sortable  p-3">
+        a += `<div class="column is-${sizes[i]} ">
             <p contenteditable="true" onclick='$(this).focus();'>   Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatum, non dolorum eveniet cupiditate quia voluptatem sunt a repellat fugit? Quaerat quae facilis dignissimos aliquam necessitatibus deserunt, explicabo soluta suscipit? Mollitia?</p></div> `
     }
-    a += `</div> </div>`;
+    a += `</div>`;
     return a;
 }
 
 function paragraph() {
-    return `<div class="container p-3 has-background-white"><p contenteditable="true"onclick='$(this).focus();'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime tempora vitae itaque quod iure, nobis culpa totam, voluptatem voluptates necessitatibus molestiae. Nostrum sit vel magni omnis nisi dicta incidunt ipsam?</p></div>`;
+    return `<div class="has-background-white"><p contenteditable="true"onclick='$(this).focus();'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime tempora vitae itaque quod iure, nobis culpa totam, voluptatem voluptates necessitatibus molestiae. Nostrum sit vel magni omnis nisi dicta incidunt ipsam?</p></div>`;
 }
 
 function viewDownload() {
