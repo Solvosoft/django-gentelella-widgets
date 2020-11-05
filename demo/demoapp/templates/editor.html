@@ -24,21 +24,44 @@
         background-color: rgb(58, 58, 226);
     }
 
-    .cols {
-        padding: 10px;
-        margin-top: 5px;
+    .columns .cols {
+        padding: 25px;
     }
 
-    .cols .column {
-        padding: 10px;
+    .row {
+        padding: 20px;
+        margin: 0;
+        position: relative;
     }
 
     .parag {
-        padding: 10px;
+        padding: 20px;
+        margin: 0;
+        position: relative;
     }
 
     .drag {
         overflow-y: auto;
+    }
+
+    .b_delete {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        border: none;
+        opacity: 0.2;
+    }
+
+    .cols {
+        border: 1px solid black;
+    }
+
+    .op {
+        border: 2px dotted lightblue;
+    }
+    .level{
+        z-index: 3;
+        margin-top: 15px;
     }
 </style>
 
@@ -73,7 +96,7 @@
             <div class="card">
                 <div class="card-content">
                     <div class="card-title">
-                        <h2 class="pb-2"> Blocks </h2>
+                        <h2 class="pb-2"> Bloques </h2>
                     </div>
                     <section class="accordions">
                         <article class="accordion is-active">
@@ -104,31 +127,41 @@
                                 <div class="accordion-content">
                                     <div class="columns is-align-items-center">
                                         <div class="column is-one-third">
-                                            <span id="col-8-4" class="bb button is-small">Drag</span>
+                                            <span class="bb btn-grid button is-small">Drag</span>
                                         </div>
                                         <div class="column">
-                                            <p class="has-text-right">Col 8-4</p>
+                                            <input class="input grids" type="text" placeholder="Text input" value="8 4">
                                         </div>
                                     </div>
                                     <div class=" columns is-align-items-center">
                                         <div class="column is-one-third">
-                                            <span id="col-6-6" class="bb button is-small">Drag</span>
+                                            <span class="bb btn-grid button is-small">Drag</span>
                                         </div>
                                         <div class="column">
-                                            <p class="has-text-right">Col 6-6</p>
+                                            <input class="input grids" type="text" placeholder="Text input" value="6 6">
+                                        </div>
+                                    </div>
+
+                                    <div class=" columns is-align-items-center">
+                                        <div class="column is-one-third">
+                                            <span class="bb btn-grid button is-small">Drag</span>
+                                        </div>
+                                        <div class="column">
+                                            <input class="input grids" type="text" placeholder="Text input" value="4 4 4">
                                         </div>
                                     </div>
                                     <div class=" columns is-align-items-center">
                                         <div class="column is-one-third">
-                                            <span id="col-4-4-4" class="bb button is-small">Drag</span>
+                                            <span class="bb btn-grid button is-small" style="display: none;">Drag</span>
                                         </div>
                                         <div class="column">
-                                            <p class="has-text-right">Col 4-4-4</p>
+                                            <input class="input grids" type="text" placeholder="Text input">
                                         </div>
                                     </div>
+
                                 </div>
                         </article>
-                        
+
                         <article class="accordion">
                             <div class="accordion-header">
                                 <p>Text</p>
