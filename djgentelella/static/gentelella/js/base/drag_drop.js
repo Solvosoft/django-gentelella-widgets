@@ -87,7 +87,7 @@ $(document).ready(function () {
 });
 
 function cleanAling(data) {
-    var component = data.parent().parent().parent().parent().parent().parent().parent().find('p');
+    var component = data.parent().parent().parent().parent().parent().parent().find('p');
     var list = ['has-text-centered', 'has-text-right', 'has-text-left'];
     list.forEach(element => {
         console.log(element);
