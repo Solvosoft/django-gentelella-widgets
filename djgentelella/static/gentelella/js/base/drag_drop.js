@@ -1,27 +1,33 @@
 $(document).ready(function () {
     var accordions = bulmaAccordion.attach();
-    viewDownload();
     init_editor();
     let i = 0;
     $('.grids').keyup(function (e) {
         grid($(this));
     });
+    $('#view').click(function(e){
+        preview('none','white');
+        
+    });
 
+    $('#edit').click(function(e){
+        edit_content('block','#4a4a4a');
+    });
     $(".drag").sortable({
         connectWith: '.column',
-        handle: '.bb'
+        handle: '.move'
     });
 
 
     $(".sidebar").draggable({
         helper: "clone",
         connectToSortable: ".drag, .column",
-        handle: '.bb',
+        handle: '.move',
         stop: function (e, ui) {
             cleandrag($(ui.helper));
             $('.drag, .drag .column').sortable({
                 connectWith: '.drag, .column',
-                handle: '.bb',
+                handle: '.move',
 
                 over: function () {
                     $(this).addClass('op');
@@ -36,12 +42,12 @@ $(document).ready(function () {
     $(".components").draggable({
         helper: "clone",
         connectToSortable: ".drag",
-        handle: '.bb',
+        handle: '.move',
         stop: function (e, ui) {
             cleancomponent($(ui.helper));
             $('.drag, .drag .column').sortable({
                 connectWith: '.column',
-                handle: '.bb',
+                handle: '.move',
 
                 over: function () {
                     $(this).addClass('op');
@@ -72,34 +78,25 @@ $(document).ready(function () {
             inline: true,
             toolbar: false,
             skin: 'oxide-dark',
-            plugins: [
-                'autolink',
-                'codesample',
-                'link',
-                'lists',
-                'hr',
-                'hr pagebreak',
-                'media',
-                'quickbars',
+            plugins: ['autolink','codesample','link','lists','media','quickbars',
                 "advlist autolink lists link image charmap print preview anchor",
                 "searchreplace visualblocks code fullscreen",
                 "insertdatetime media table paste imagetools wordcount",
+                "autoresize","hr",
             ],
-            quickbars_selection_toolbar: 'bold italic underline | undo redo | fontselect fontsizeselect | forecolor backcolor | alignleft aligncenter alignright alignfull |numlist bullist| hr| link image',
+            quickbars_selection_toolbar: 'bold italic underline | undo redo | fontselect fontsizeselect | forecolor backcolor | alignleft aligncenter alignright alignfull |numlist bullist| link image|autoresize|hr',
         });
     }
     function cleandrag(component) {
         component.removeAttr('style');
-        component.css('padding', '5px');
         component.find('.b_delete').css('display', 'inline-block');
         component.find('.coll').removeAttr('style');
-        component.css('padding-bottom', '10px')
+        component.css('padding-bottom', '20px');
         component.find('input').remove();
     }
 
     function cleancomponent(component) {
         component.removeAttr('style');
-        component.css('padding', '10px');
         component.find('.b_delete').css('display', 'inline-block');
         component.find('.content').removeAttr('style');
         component.find('label').remove();
@@ -107,7 +104,7 @@ $(document).ready(function () {
 
     $("#files").click(function () {
         var pages = new Blob([exportpdf()], { type: "text/plain;charset=utf-8" });
-        downloadpages(pages, "example.html");
+        downloadpages(pages, "Document.html");
     });
     btn_actions();
 
@@ -142,9 +139,9 @@ function validate_grids(data) {
         }
     });
     if (acum == 12) {
-        data.parent().find('.bb').css('display', 'inline-block');
+        data.parent().find('.move').css({'display':'inline-block','line-height':'30px'});
     } else {
-        data.parent().find('.bb').css('display', 'none');
+        data.parent().find('.move').css('display', 'none');
     }
     return cols;
 }
@@ -154,10 +151,11 @@ function btn_actions() {
         $(this).parent().remove();
     });
 }
-function datas() {
+function pages() {
     x = $('.drag').clone();
     x.find('.b_delete').remove()
-    x.find('.bb').remove()
+    x.find('.move').remove()
+    x.find('div').removeClass('coll')
     x.find('.editor').removeAttr('contenteditable style onclick spellcheck');
 
     return x;
@@ -172,11 +170,21 @@ function grid(sizes) {
     sizes.parent().find('.coll').html(a);
 }
 
-
-function viewDownload() {
-    $("#files").removeClass("is-hidden");
+function preview(display,color){
+    $('.menu-side').css('display',display);
+    $('#main-content').css('display',display);
+    let x= document.createElement('div');  
+    $(x).addClass('view');
+    $(x).append(pages().html());
+    $('.main').append(x);
+    $('body').css('background-color',color);
 }
-
+function edit_content(display, color){
+    $('.menu-side').css('display',display);
+    $('#main-content').css('display',display);
+    $('.main').find('.view').remove();
+    $('body').css('background-color',color);
+}
 function exportpdf() {
     data = ` <!DOCTYPE html>
 <html lang="en">
@@ -186,20 +194,8 @@ function exportpdf() {
 <meta name="viewport" content="width=device-width, initial-scale=1.0"><link href="{% static 'vendors/font-awesome/font-awesome.min.css' %}" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma-accordion@2.0.1/dist/css/bulma-accordion.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css"><title>Document</title>
-</head><style>
-.columns .cols{
-    padding: 25px;
-}
-.parag{
-padding: 10px;
-}
-.b_delete{
-    display:none !important;
-}
-</style>
-<body>`+ datas().html();
-    data += `</body>
-
-</html>`;
+</head>
+<style></style>
+<body>`+ pages().html()+`</body></html>`;
     return data;
 }
