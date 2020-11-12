@@ -9,16 +9,32 @@
     <link href="{% static 'vendors/font-awesome/font-awesome.min.css' %}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma-accordion@2.0.1/dist/css/bulma-accordion.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
-
-    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/froala-editor@3.1.0/css/froala_editor.pkgd.min.css" rel="stylesheet"
+        type="text/css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.5.1/skins/ui/oxide-dark/skin.min.css" integrity="sha512-s0Nn9wzkPNE5FQvmlCmiE539gAt0kkTKmS1FuAsHeOecVbQMDlKbpxi+IhJBpjOfxVELvUbeb7tMju2JujtEpw==" crossorigin="anonymous" />    <link rel="stylesheet" href="{% static 'gentelella/js/base/content.inline.min.css' %}">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.5.1/skins/ui/oxide/content.inline.min.css" integrity="sha512-nnUCsTjv3AwUN/rjF2EAS0ypd0rTtJo1M11p0GP5xYNia33xaqaigE3gs30W90vTO2GckWJRv+ZdwWNjbTDMyg==" crossorigin="anonymous" />
+        <title>Document</title>
 </head>
 
 <style>
-    .ui-sortable-handle {
-        z-index: 1;
-        margin: 0;
-        padding: 0;
+    .options .sidebar {
+        position: relative;
+        padding: 10px;
     }
+
+    .options .sidebar .bb {
+        display: block;
+        position: absolute;
+        top: -1;
+        right: 0;
+    }
+
+    .options .sidebar input {
+        width: 100px;
+        position: relative;
+
+    }
+ 
 
     body {
         background-color: rgb(58, 58, 226);
@@ -28,28 +44,22 @@
         padding: 25px;
     }
 
-    .row {
-        padding: 20px;
+    .coll {
+        background-color: white;
+        padding: 0;
         margin: 0;
-        position: relative;
     }
 
-    .parag {
-        padding: 20px;
-        margin: 0;
-        position: relative;
+    .coll .column {
+        border: 1px solid black;
+        padding: 25px;
     }
+
+
 
     .drag {
         overflow-y: auto;
-    }
-
-    .b_delete {
-        position: absolute;
-        top: 5px;
-        right: 5px;
-        border: none;
-        opacity: 0.2;
+        background-color: rgba(248, 244, 244, 0.966);
     }
 
     .cols {
@@ -59,7 +69,8 @@
     .op {
         border: 2px dotted lightblue;
     }
-    .level{
+
+    .level {
         z-index: 3;
         margin-top: 15px;
     }
@@ -96,66 +107,64 @@
             <div class="card">
                 <div class="card-content">
                     <div class="card-title">
-                        <h2 class="pb-2"> Bloques </h2>
+                        <h2 class="pb-2"> Blocks </h2>
                     </div>
                     <section class="accordions">
                         <article class="accordion is-active">
-                            <div class="accordion-header">
-                                <p>Headers</p>
-                                <button class="toggle" aria-label="toggle"></button>
-
-                            </div>
-                            <div class="accordion-body">
-                                <div class="accordion-content">
-                                    <div class=" columns is-align-items-center">
-                                        <div class="column is-one-third">
-                                            <span id="nav-1" class="bb button is-small">Drag</span>
-                                        </div>
-                                        <div class="column">
-                                            <p class="has-text-right">Navbar</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </article>
-                        <article class="accordion">
                             <div class="accordion-header">
                                 <p>Columns</p>
                                 <button class="toggle" aria-label="toggle"></button>
                             </div>
                             <div class="accordion-body">
-                                <div class="accordion-content">
-                                    <div class="columns is-align-items-center">
-                                        <div class="column is-one-third">
-                                            <span class="bb btn-grid button is-small">Drag</span>
-                                        </div>
-                                        <div class="column">
-                                            <input class="input grids" type="text" placeholder="Text input" value="8 4">
+                                <div class="accordion-content options">
+                                    <div class="sidebar">
+                                        <span class="bb button is-small"><i class="fas fa-arrows-alt"></i></span>
+                                        <span class="b_delete button is-small is-danger"
+                                            style="display: none;"><i class="far fa-trash-alt"></i></span>
+                                        <input class="input grids" type="text" placeholder="Text input" value="8 4">
+                                        <div class="columns coll" style="display: none;">
+                                            <div class="column is-8">
+                                            </div>
+                                            <div class="column is-4">
+                                            </div>
+
                                         </div>
                                     </div>
-                                    <div class=" columns is-align-items-center">
-                                        <div class="column is-one-third">
-                                            <span class="bb btn-grid button is-small">Drag</span>
-                                        </div>
-                                        <div class="column">
-                                            <input class="input grids" type="text" placeholder="Text input" value="6 6">
+                                    <div class="sidebar">
+                                        <span class="bb button is-small"><i class="fas fa-arrows-alt"></i></span>
+                                        <span class="b_delete button is-small is-danger"
+                                            style="display: none;"><i class="far fa-trash-alt"></i></span>
+                                        <input class="input grids" type="text" placeholder="Text input" value="6 6">
+                                        <div class="columns coll" style="display: none;">
+                                            <div class="column is-6">
+                                            </div>
+                                            <div class="column is-6">
+                                            </div>
+
                                         </div>
                                     </div>
 
-                                    <div class=" columns is-align-items-center">
-                                        <div class="column is-one-third">
-                                            <span class="bb btn-grid button is-small">Drag</span>
-                                        </div>
-                                        <div class="column">
-                                            <input class="input grids" type="text" placeholder="Text input" value="4 4 4">
+                                    <div class="sidebar">
+                                        <span class="bb btn-grid button is-small"><i class="fas fa-arrows-alt"></i></span>
+                                        <span class="b_delete btn-grid button is-small is-danger"
+                                            style="display: none;"><i class="far fa-trash-alt"></i></span>
+                                        <input class="input grids" type="text" placeholder="Text input" value="4 4 4">
+                                        <div class="columns coll" style="display: none;">
+                                            <div class="column is-4">
+                                            </div>
+                                            <div class="column is-4">
+                                            </div>
+                                            <div class="column is-4">
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class=" columns is-align-items-center">
-                                        <div class="column is-one-third">
-                                            <span class="bb btn-grid button is-small" style="display: none;">Drag</span>
-                                        </div>
-                                        <div class="column">
-                                            <input class="input grids" type="text" placeholder="Text input">
+                                    <div class="sidebar">
+                                        <span class="bb btn-grid button is-small"><i class="fas fa-arrows-alt"></i></span>
+                                        <span class="b_delete btn-grid button is-small is-danger"
+                                            style="display: none;"><i class="far fa-trash-alt"></i></span>
+                                        <input class="input grids" type="text" placeholder="Text input" value="">
+                                        <div class="columns coll" style="display: none;">
+
                                         </div>
                                     </div>
 
@@ -169,34 +178,64 @@
                             </div>
                             <div class="accordion-body">
                                 <div class="accordion-content">
-                                    <div class=" columns is-align-items-center">
-                                        <div class="column is-one-third">
-                                            <span id="text" class="bb button is-small">Drag</span>
+
+
+                                    <div class="components">
+                                        <span class="bb button is-small"><i class="fas fa-arrows-alt"></i></span>
+                                        <span class="b_delete button is-small is-danger"
+                                            style="display: none;"><i class="far fa-trash-alt"></i> </span>
+                                        <label>Paragraph</label>
+                                        <div class="content" style="display: none;">
+                                            <div class="editor">
+                                                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime
+                                                    tempora vitae itaque quod iure, nobis culpa totam</p>
+                                            </div>
                                         </div>
-                                        <div class="column">
-                                            <p class="has-text-right">Paragraph</p>
+                                    </div>
+                                    <div class="components">
+                                        <span class="bb button is-small"><i class="fas fa-arrows-alt"></i></span>
+                                        <span class="b_delete button is-small is-danger"
+                                            style="display: none;"><i class="far fa-trash-alt"></i> </span>
+                                        <label>IMG</label>
+                                        <div class="content" style="display: none;">
+                                            <div class="editor">
+                                          <img src="https://sm.ign.com/t/ign_latam/screenshot/default/vegeta-anos-tiene_rgb2.1200.jpg" alt="">  
+                                        </div>
+                                        </div>
+                                    </div>
+                                    <div class="components">
+                                        <span class="bb button is-small"><i class="fas fa-arrows-alt"></i></span>
+                                        <span class="b_delete button is-small is-danger"
+                                            style="display: none;"><i class="far fa-trash-alt"></i> </span>
+                                        <label>Separator</label>
+                                        <div class="content" style="display: none;">
+                                            <div class="editor">
+                                          <hr>  
+                                        </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
                         </article>
                     </section>
                 </div>
             </div>
         </div>
-        <div class='column is-9 has-background-blue'>
-            <div class="drag has-background-primary" style="height: 500px;">
-            </div>
+        <div class='column is-9'>
+            <div class="drag" style="height: 1000px;"></div>
         </div>
     </div>
 
-    <script src="{% static 'vendors/jquery/jquery.min.js' %}"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/bulma-accordion@2.0.1/dist/js/bulma-accordion.min.js"></script>
+    <script src="{% static 'vendors/jquery/jquery.min.js' %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.5.1/tinymce.min.js" integrity="sha512-rCSG4Ab3y6N79xYzoaCqt9gMHR0T9US5O5iBuB25LtIQ1Hsv3jKjREwEMeud8q7KRgPtxhmJesa1c9pl6upZvg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.5.1/jquery.tinymce.min.js" integrity="sha512-0+DXihLxnogmlHWg1hVntlqMiGthwA02YWrzGnOi+yNyoD3IA4yDBzxvm+EwTCZeUM4zNy3deF9CbQqQBQx2Yg==" crossorigin="anonymous"></script>
+    <script src="{% static 'gentelella/js/base/tinymce-all.js' %}"></script>
+     <script src="https://cdn.jsdelivr.net/npm/bulma-accordion@2.0.1/dist/js/bulma-accordion.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
         integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
     <script src="https://kit.fontawesome.com/2c36e9b7b1.js" crossorigin="anonymous"></script>
     <script src="{% static 'gentelella/js/base/drag_drop.js' %}"></script>
+
 </body>
 
 </html>
