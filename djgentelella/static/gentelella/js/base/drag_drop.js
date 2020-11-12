@@ -28,13 +28,6 @@ $(document).ready(function () {
             $('.drag, .drag .column').sortable({
                 connectWith: '.drag, .column',
                 handle: '.move',
-
-                over: function () {
-                    $(this).addClass('op');
-                },
-                out: function () {
-                    $(this).removeClass('op');
-                }
             });
         }
     });
@@ -48,13 +41,6 @@ $(document).ready(function () {
             $('.drag, .drag .column').sortable({
                 connectWith: '.column',
                 handle: '.move',
-
-                over: function () {
-                    $(this).addClass('op');
-                },
-                out: function () {
-                    $(this).removeClass('op');
-                }
             });
         }
     });
@@ -71,37 +57,8 @@ $(document).ready(function () {
 
     });
 
-    function init_editor(id) {
-        tinymce.init({
-            selector: '#' + id,
-            menubar: false,
-            inline: true,
-            toolbar: false,
-            skin: 'oxide-dark',
-            plugins: ['autolink','codesample','link','lists','media','quickbars',
-                "advlist autolink lists link image charmap print preview anchor",
-                "searchreplace visualblocks code fullscreen",
-                "insertdatetime media table paste imagetools wordcount",
-                "autoresize","hr",
-            ],
-            quickbars_selection_toolbar: 'bold italic underline | undo redo | fontselect fontsizeselect | forecolor backcolor | alignleft aligncenter alignright alignfull |numlist bullist| link image|autoresize|hr',
-        });
-    }
-    function cleandrag(component) {
-        component.removeAttr('style');
-        component.find('.b_delete').css('display', 'inline-block');
-        component.find('.coll').removeAttr('style');
-        component.css('padding-bottom', '20px');
-        component.find('input').remove();
-    }
-
-    function cleancomponent(component) {
-        component.removeAttr('style');
-        component.find('.b_delete').css('display', 'inline-block');
-        component.find('.content').removeAttr('style');
-        component.find('label').remove();
-    }
-
+   
+  
     $("#files").click(function () {
         var pages = new Blob([exportpdf()], { type: "text/plain;charset=utf-8" });
         downloadpages(pages, "Document.html");
@@ -111,6 +68,36 @@ $(document).ready(function () {
 
 });
 
+function init_editor(id) {
+    tinymce.init({
+        selector: '#' + id,
+        menubar: false,
+        inline: true,
+        toolbar: false,
+        skin: 'oxide-dark',
+        plugins: ['autolink','codesample','link','lists','media','quickbars',
+            "advlist autolink lists link image charmap print preview anchor",
+            "searchreplace visualblocks code fullscreen",
+            "insertdatetime media table paste imagetools wordcount",
+            "autoresize","hr",
+        ],
+        quickbars_selection_toolbar: 'bold italic underline | undo redo | fontselect fontsizeselect | forecolor backcolor | alignleft aligncenter alignright alignfull |numlist bullist| link image|autoresize|hr',
+    });
+}
+function cleandrag(component) {
+    component.removeAttr('style');
+    component.find('.b_delete').css('display', 'inline-block');
+    component.find('.coll').removeAttr('style');
+    component.css('padding-bottom', '20px');
+    component.find('input').remove();
+}
+
+function cleancomponent(component) {
+    component.removeAttr('style');
+    component.find('.b_delete').css('display', 'inline-block');
+    component.find('.content').removeAttr('style');
+    component.find('label').remove();
+}
 
 function downloadpages(content, filename) {
     var reader = new FileReader();
