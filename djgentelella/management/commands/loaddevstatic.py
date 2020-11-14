@@ -130,11 +130,6 @@ class Command(BaseCommand):
             'bootstrap-maxlength': [
                 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-maxlength/1.9.0/bootstrap-maxlength.min.js'
             ],
-            'tail.select': [
-                'https://cdn.jsdelivr.net/npm/tail.select@0.5.15/css/bootstrap3/tail.select-default.min.css',
-                'https://cdn.jsdelivr.net/npm/tail.select@0.5.15/css/bootstrap3/tail.select-default.min.map',
-                'https://cdn.jsdelivr.net/npm/tail.select@0.5.15/js/tail.select-full.min.js',
-            ],
             'flag-icon-css': [
                 'https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.4.6/css/flag-icon.min.css',
             ],
@@ -182,6 +177,10 @@ class Command(BaseCommand):
                 'https://cdnjs.cloudflare.com/ajax/libs/tagify/3.18.1/tagify.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/tagify/3.18.1/jQuery.tagify.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/tagify/3.18.1/tagify.min.css'
+            ],
+            'sweetalert2': [
+                'https://cdn.jsdelivr.net/npm/sweetalert2@10.10.0/dist/sweetalert2.all.min.js',
+                'https://cdn.jsdelivr.net/npm/sweetalert2@10.10.0/dist/sweetalert2.min.css'
             ],
             'froala-wysiwyg':[
                 'https://cdnjs.cloudflare.com/ajax/libs/froala-editor/3.2.2/css/froala_editor.pkgd.min.css',
