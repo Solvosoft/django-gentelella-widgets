@@ -1,32 +1,43 @@
 $(document).ready(function () {
-    var accordions = bulmaAccordion.attach();
+    bulmaAccordion.attach();
+
+    var $toggle = $('#nav-toggle');
+    var $menu = $('#nav-menu');
+
+    $toggle.click(function () {
+        $(this).toggleClass('is-active');
+        $menu.toggleClass('is-active');
+    });
+
     init_editor();
+
     let i = 0;
     $('.grids').keyup(function (e) {
         grid($(this));
     });
-    $('#view').click(function(e){
-        preview('none','white');
-        
-    });
+    //botones de arriba
+    $('#view').click(function (e) {
+        preview('none', 'white');
 
-    $('#edit').click(function(e){
-        edit_content('block','#4a4a4a');
     });
+    $('#edit').click(function (e) {
+        edit_content('block', '#4a4a4a');
+    });
+    //mover componentes
     $(".drag").sortable({
         connectWith: '.column',
         handle: '.move'
     });
 
-
+    //jalar grids
     $(".sidebar").draggable({
         helper: "clone",
         connectToSortable: ".drag, .column",
         handle: '.move',
         stop: function (e, ui) {
             cleandrag($(ui.helper));
-            $('.drag, .drag .column').sortable({
-                connectWith: '.drag, .column',
+            $('.drag, .drag .column').sortable({ //movimiento interno de grid
+                connectWith: '.drag, .column', //que lugares desplazarse
                 handle: '.move',
             });
         }
@@ -50,15 +61,15 @@ $(document).ready(function () {
             if ($(ui.draggable).find('.editor').length) {
                 $(ui.draggable).find('.editor').attr('onClick', '$(this).focus()');
                 $(ui.draggable).find('.editor').attr('id', 'mc' + i);
-                init_editor('mc' + i);
                 i++;
+                init_editor();
             }
         }
 
     });
 
-   
-  
+
+
     $("#files").click(function () {
         var pages = new Blob([exportpdf()], { type: "text/plain;charset=utf-8" });
         downloadpages(pages, "Document.html");
@@ -68,18 +79,17 @@ $(document).ready(function () {
 
 });
 
-function init_editor(id) {
-    tinymce.init({
-        selector: '#' + id,
+function init_editor() {
+    $('.editor').tinymce({
         menubar: false,
         inline: true,
         toolbar: false,
         skin: 'oxide-dark',
-        plugins: ['autolink','codesample','link','lists','media','quickbars',
+        plugins: ['autolink', 'codesample', 'link', 'lists', 'media', 'quickbars',
             "advlist autolink lists link image charmap print preview anchor",
             "searchreplace visualblocks code fullscreen",
-            "insertdatetime media table paste imagetools wordcount",
-            "autoresize","hr",
+            "insertdatetime media table paste imagetools wordcount" ,
+            "autoresize", "hr",
         ],
         quickbars_selection_toolbar: 'bold italic underline | undo redo | fontselect fontsizeselect | forecolor backcolor | alignleft aligncenter alignright alignfull |numlist bullist| link image|autoresize|hr',
     });
@@ -87,6 +97,7 @@ function init_editor(id) {
 function cleandrag(component) {
     component.removeAttr('style');
     component.find('.b_delete').css('display', 'inline-block');
+    component.find('.move').css('line-height', '20px');
     component.find('.coll').removeAttr('style');
     component.css('padding-bottom', '20px');
     component.find('input').remove();
@@ -126,7 +137,7 @@ function validate_grids(data) {
         }
     });
     if (acum == 12) {
-        data.parent().find('.move').css({'display':'inline-block','line-height':'30px'});
+        data.parent().find('.move').css({ 'display': 'inline-block', 'line-height': '30px' });
     } else {
         data.parent().find('.move').css('display', 'none');
     }
@@ -144,7 +155,6 @@ function pages() {
     x.find('.move').remove()
     x.find('div').removeClass('coll')
     x.find('.editor').removeAttr('contenteditable style onclick spellcheck');
-
     return x;
 }
 function grid(sizes) {
@@ -157,20 +167,20 @@ function grid(sizes) {
     sizes.parent().find('.coll').html(a);
 }
 
-function preview(display,color){
-    $('.menu-side').css('display',display);
-    $('#main-content').css('display',display);
-    let x= document.createElement('div');  
-    $(x).addClass('view');
+function preview(display, color) {
+    $('.menu-side').css('display', display);
+    $('#main-content').css('display', display);
+    let x = document.createElement('div');
+    $(x).addClass('view container');
     $(x).append(pages().html());
     $('.main').append(x);
-    $('body').css('background-color',color);
+    $('body').css('background-color', color);
 }
-function edit_content(display, color){
-    $('.menu-side').css('display',display);
-    $('#main-content').css('display',display);
+function edit_content(display, color) {
+    $('.menu-side').css('display', display);
+    $('#main-content').css('display', display);
     $('.main').find('.view').remove();
-    $('body').css('background-color',color);
+    $('body').css('background-color', color);
 }
 function exportpdf() {
     data = ` <!DOCTYPE html>
@@ -183,6 +193,6 @@ function exportpdf() {
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css"><title>Document</title>
 </head>
 <style></style>
-<body>`+ pages().html()+`</body></html>`;
+<body><div class="container">`+ pages().html() + `</div></body></html>`;
     return data;
 }
