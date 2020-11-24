@@ -839,6 +839,10 @@ a:focus {
     padding: 10px 15px;
     color: #34495E !important
 }
+.wysiwyg{
+    overflow:scroll; 
+    max-height:500px;
+}
 .nav>li>a:hover,
 .nav>li>a:focus {
     background-color: transparent
