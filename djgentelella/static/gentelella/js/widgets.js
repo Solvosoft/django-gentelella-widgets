@@ -16,9 +16,9 @@ document.gtwidgets = {
         });
     },
     YesNoInput: function (instance) {
-        instance.each(function (index, element){
-             switchery = new Switchery(element, {color: '#26B99A'});
-             showHideRelatedFormFields($(element));
+        instance.each(function (index, element) {
+            switchery = new Switchery(element, { color: '#26B99A' });
+            showHideRelatedFormFields($(element));
         });
     },
     DateRangeInput: function (instance) {
@@ -29,10 +29,10 @@ document.gtwidgets = {
         instance.daterangepicker(load_date_range_custom(instance));
     },
     RadioVerticalSelect: function (instance) {
-        instance.find('input').iCheck({radioClass: 'iradio_flat-green'});
+        instance.find('input').iCheck({ radioClass: 'iradio_flat-green' });
     },
     RadioHorizontalSelect: function (instance) {
-        instance.find('input').iCheck({radioClass: 'iradio_flat-green'});
+        instance.find('input').iCheck({ radioClass: 'iradio_flat-green' });
     },
     DateRangeTimeInput: function (instance) {
         instance.daterangepicker(load_datetime_range(instance));
@@ -140,11 +140,25 @@ document.gtwidgets = {
         instance.colorpicker({ format: 'rgb' });
     },
     TextareaWysiwyg: function (instance) {
-        new FroalaEditor("[data-widget=TextareaWysiwyg]", {
-            imageUploadURL: instance.attr('data-option-image'), imageUploadParams: { "csrfmiddlewaretoken": getCookie("csrftoken") },
-            fileUploadURL: instance.attr('data-option-file'),fileUploadParams: { "csrfmiddlewaretoken": getCookie("csrftoken") },
-            videoUploadURL: instance.attr('data-option-file'), videoUploadParams: { "csrfmiddlewaretoken": getCookie("csrftoken") },
+       
+
+        instance.summernote({
+            tabsize: 2,
+            toolbar: [
+                ['style', ['style']],['font', ['bold', 'underline','italic', 'clear']],
+                ['color', ['forecolor','backcolor']],['fontname',['fontname']],
+                ['fontsize', ['fontsize']],['height', ['height']],
+                ['para', ['ul', 'ol', 'paragraph']],['table', ['table']],
+                ['insert', ['link', 'picture', 'video']], ['view', ['fullscreen', 'codeview', 'help']],
+            ],            
+            callbacks: {
+                onImageUpload: function(files, editor, welEditable) {
+                    uploadFile(instance.attr('data-option-image'),files[0], this);
+                }
+            }
         });
+      
+    
     },
     InlinePickerColor: function (instance) {
         instance.parent('.color-input-field-inline-picker').css("display", "inline-block").colorpicker({ container: true, inline: true });
