@@ -3,14 +3,14 @@ TextareaWysiwyg widget
 
 .. image:: ../_static/wysiwyg.png
 
-This widget approach used froala-editor js for save in html format the information.
+This widget approach used Tinymce-editor js for save in html format the information(text, images, link, tables, videos).
 You can add this widget only in a *TextField*.
 
-You need to add in the settings file a attribute with the name *FROALA_UPLOAD_PATH* , this field contain a directory to save the upload files.
+You need to add in the settings file a attribute with the name *Tinymce_UPLOAD_PATH* , this field contain a directory to save the upload files.
 
 ..code:: python
 
-    FROALA_UPLOAD_PATH =os.path.join(MEDIA_ROOT, 'uploads/froala_editor/')
+    TINYMCE_UPLOAD_PATH =os.path.join(MEDIA_ROOT, 'tinymce/')
 
 Example for use the widget:
 
@@ -29,3 +29,5 @@ Example for use the widget:
         }
 
 ..note:: To Upload files in the server, you with need to login.
+ Example to upload images:
+ .. image:: ../_static/uploadImages.gif
