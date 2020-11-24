@@ -8,6 +8,7 @@ from djgentelella.notification.base import NotificacionAPIView, NotificationList
 from djgentelella.widgets.helper import HelperWidgetView
 from .wysiwyg import views as wysiwyg_get
 from django.contrib.auth.decorators import login_required
+from django.conf.urls.static import static
 
 auth_urls = [
     path('accounts/login/',
@@ -43,9 +44,7 @@ auth_urls = [
 ]
 
 wysiwyg_urls = [
-    url("^upload_image$", login_required(wysiwyg_get.image_upload), name="upload_image"),
-    url("^upload_video$", login_required(wysiwyg_get.video_upload), name="upload_video"),
-    url("^upload_file$", login_required(wysiwyg_get.file_upload), name="upload_file"),
+    url("^upload_image$", wysiwyg_get.image_upload, name="upload_image"),
 ]
 
 
@@ -74,3 +73,4 @@ base_urlpatterns = [
 ]
 
 urlpatterns = auth_urls + base_urlpatterns + wysiwyg_urls
+

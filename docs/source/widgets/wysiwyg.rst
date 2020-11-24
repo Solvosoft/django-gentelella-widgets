@@ -3,14 +3,14 @@ TextareaWysiwyg widget
 
 .. image:: ../_static/wysiwyg.png
 
-This widget approach used froala-editor js for save in html format the information.
+This widget approach used summernote-editor js for save in html format the information.
 You can add this widget only in a *TextField*.
 
-You need to add in the settings file a attribute with the name *FROALA_UPLOAD_PATH* , this field contain a directory to save the upload files.
+You need to add in the settings file a attribute with the name *SUMMERNOTE_UPLOAD_PATH* , this field contain a directory to save the upload files.
 
 ..code:: python
 
-    FROALA_UPLOAD_PATH =os.path.join(MEDIA_ROOT, 'uploads/froala_editor/')
+    SUMMERNOTE_UPLOAD_PATH =os.path.join(MEDIA_ROOT, 'summernote')
 
 Example for use the widget:
 
