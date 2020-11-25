@@ -44,7 +44,7 @@ auth_urls = [
 ]
 
 wysiwyg_urls = [
-    url("^upload_image$", login_required(wysiwyg_get.image_upload), name="upload_image"),
+    url("^upload_image$", wysiwyg_get.image_upload, name="upload_image"),
 ]
 
 
