@@ -11,7 +11,7 @@ class TextareaWysiwyg(Textarea):
     def __init__(self, attrs=None, extraskwargs=True):
         if extraskwargs:
 
-            attrs = update_kwargs(attrs, self.__class__.__name__, base_class='froala-editor form-control')
+            attrs = update_kwargs(attrs, self.__class__.__name__, base_class='wysiwyg form-control')
         attrs['data-option-image']=reverse_lazy('upload_image')
         attrs['data-option-video']=reverse_lazy('upload_video')
         super().__init__(attrs)
