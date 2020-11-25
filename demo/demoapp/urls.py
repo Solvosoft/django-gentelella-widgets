@@ -11,6 +11,7 @@ from .input_masks import views as input_mask
 from .date_range import views as date_ranges
 from .tagging import views as tagging
 from .wysiwyg import views as wysiwyg
+from .editorTinymce import views as tinymce
 
 pclss = Personclass()
 countryclss = Countryclass()
@@ -42,6 +43,9 @@ urlpatterns = [
         path('wysiwyg/', wysiwyg.InsertWysiwyg.as_view(), name='wysiwyg-add'),
         path('wysiwyg/list', wysiwyg.ListWysiwyg.as_view(), name='wysiwyg-list'),
         path('wysiwyg/<int:pk>', wysiwyg.EditWysiwyg.as_view(), name='wysiwyg-edit'),
+        path('tinymce/', tinymce.InsertTinymce.as_view(), name='tinymce-add'),
+        path('tinymce/list', tinymce.ListTinymce.as_view(), name='tinymce-list'),
+        path('tinymce/<int:pk>', tinymce.EditTinymce.as_view(), name='tinymce-edit'),
         path('yesnoinput/', YesNoInputView.as_view(), name='yes-no-input-add'),
  
 ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()

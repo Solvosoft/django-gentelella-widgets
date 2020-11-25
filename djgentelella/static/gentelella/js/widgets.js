@@ -140,6 +140,10 @@ document.gtwidgets = {
         instance.colorpicker({ format: 'rgb' });
     },
     TextareaWysiwyg: function (instance) {
+
+    },
+
+    EditorTinymce: function (instance) {
         $(instance).removeAttr('required');
         instance.tinymce({
             menubar: false,
@@ -164,6 +168,7 @@ document.gtwidgets = {
 
 
     },
+
     InlinePickerColor: function (instance) {
         instance.parent('.color-input-field-inline-picker').css("display", "inline-block").colorpicker({ container: true, inline: true });
     },
