@@ -1180,6 +1180,7 @@ function showHideRelatedFormFields(instance){
 }
 
 function uploadFile(url_pages,file, editor) {
+
     data = new FormData();
     data.append("file", file);
     $.ajax({
