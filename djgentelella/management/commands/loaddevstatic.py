@@ -183,10 +183,16 @@ class Command(BaseCommand):
                 'https://cdnjs.cloudflare.com/ajax/libs/tagify/3.18.1/jQuery.tagify.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/tagify/3.18.1/tagify.min.css'
             ],
+            'sweetalert2': [
+                'https://cdn.jsdelivr.net/npm/sweetalert2@10.10.0/dist/sweetalert2.all.min.js',
+                'https://cdn.jsdelivr.net/npm/sweetalert2@10.10.0/dist/sweetalert2.min.css'
+            ],
             'summernote':[
                 'https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js',
                 'https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css'
             ]
+
+
         }
         if not os.path.exists(basepath / 'flags'):
             os.mkdir(basepath / 'flags')
