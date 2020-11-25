@@ -17,7 +17,6 @@ def image_upload(request):
     link= path[path.index("/media/"):len(path)]
     return HttpResponse(json.dumps({'link': link}), content_type="application/json")
 
-@csrf_exempt 
 def video_upload(request):
    path = default_storage.url(upload(request, '/videos'))
    link= path[path.index("/media/"):len(path)]
