@@ -768,7 +768,7 @@ a:focus {
     content: "";
     left: 27px;
     position: absolute;
-    top: 0
+    top: 45px;
 }
 .nav-md ul li{
     width: 100%;
@@ -910,6 +910,9 @@ background-color: white !important;}
     padding: 5px;
     color: #C5C7CB;
     font-size: 14px
+}
+.colorpicker-input-addon{
+    padding: 10px;
 }
 .panel_toolbox>li>a:hover {
     background: #F5F7FA
@@ -4387,6 +4390,7 @@ h4.revision {
 
 .nohidden span.fa {
     display: block;
+    padding: 4px;
 }
 
 @media only screen and (max-width: 991px) {

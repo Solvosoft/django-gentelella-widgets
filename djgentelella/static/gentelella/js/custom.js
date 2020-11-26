@@ -151,9 +151,9 @@ var randNum = function () {
 // Panel toolbox
 $(document).ready(function () {
     $('.collapse-link').on('click', function () {
-        var $BOX_PANEL = $(this).closest('.x_panel'),
+        var $BOX_PANEL = $(this).closest('.card'),
             $ICON = $(this).find('i'),
-            $BOX_CONTENT = $BOX_PANEL.find('.x_content');
+            $BOX_CONTENT = $BOX_PANEL.find('.card-body');
 
         // fix for some div with hardcoded fix class
         if ($BOX_PANEL.attr('style')) {
@@ -165,7 +165,7 @@ $(document).ready(function () {
             $BOX_PANEL.css('height', 'auto');
         }
 
-        $ICON.toggleClass('fa-chevron-up fa-chevron-down');
+        $ICON.toggleClass('fa fa-plus fas fa-chevron-down');
 
     });
 
