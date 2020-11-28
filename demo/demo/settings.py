@@ -126,9 +126,10 @@ DATE_INPUT_FORMATS=[
 DATE_FORMAT= ['%d/%m/%Y',]
 
 DATETIME_INPUT_FORMATS = [
-    '%m/%d/%Y %H:%M %p',
-    '%Y-%m-%d %H:%M %p',
-    '%d/%m/%y %H:%M %p'
+    '%m/%d/%Y %H:%M',
+    '%d/%m/%Y %H:%M',
+    '%Y-%m-%d %H:%M',
+    '%d/%m/%y %H:%M'
 ]
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
