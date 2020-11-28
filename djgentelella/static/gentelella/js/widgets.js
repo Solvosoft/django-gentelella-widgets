@@ -47,10 +47,12 @@ document.gtwidgets = {
         instance.select2({ templateResult: decore_select2 });
     },
     DateTimeInput: function (instance) {
-        instance.datetimepicker();
+        instance.datetimepicker({
+             format : "YYYY-MM-DD HH:mm"
+        });
     },
     TimeInput: function (instance) {
-        instance.datetimepicker({ format: 'LT' });
+        instance.datetimepicker({ format: 'HH:mm' });
     },
     DateInput: function (instance) {
         instance.datetimepicker({ format: "DD/MM/YYYY" });
@@ -76,7 +78,8 @@ document.gtwidgets = {
         instance.inputmask("99/99/9999", { "placeholder": "dd/mm/yyyy" });
     },
     DateTimeMaskInput: function (instance) {
-        instance.inputmask("99/99/9999 99:99:99", { "placeholder": "dd/mm/yyyy HH:mm:ss" });
+        instance.inputmask("99/99/9999 99:99", { "placeholder": "dd/mm/yyyy HH:mm",
+         format: "YYYY-MM-DD HH:mm"});
     },
     EmailMaskInput: function (instance) {
         instance.inputmask({
