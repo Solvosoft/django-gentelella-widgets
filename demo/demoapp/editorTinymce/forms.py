@@ -10,6 +10,7 @@ class EditorTinymce(forms.ModelForm,GTForm):
     fields='__all__'
     widgets={
       'information': widget.EditorTinymce,
+      'extra_information': widget.EditorTinymce,
     }
 
     
