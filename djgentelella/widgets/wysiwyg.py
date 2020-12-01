@@ -12,6 +12,6 @@ class TextareaWysiwyg(Textarea):
         if extraskwargs:
 
             attrs = update_kwargs(attrs, self.__class__.__name__, base_class='wysiwyg form-control')
-        attrs['data-option-image']=reverse_lazy('upload_image')
-        attrs['data-option-video']=reverse_lazy('upload_video')
+        attrs['data-option-image']=reverse_lazy('tinymce_upload_image')
+        attrs['data-option-video']=reverse_lazy('tinymce_upload_video')
         super().__init__(attrs)
