@@ -46,6 +46,7 @@ urlpatterns = [
         path('tinymce/', tinymce.InsertTinymce.as_view(), name='tinymce-add'),
         path('tinymce/list', tinymce.ListTinymce.as_view(), name='tinymce-list'),
         path('tinymce/<int:pk>', tinymce.EditTinymce.as_view(), name='tinymce-edit'),
+        path('tinymce_show/<int:pk>', tinymce.DetailTinymce.as_view(), name='tinymce-show'),
         path('yesnoinput/', YesNoInputView.as_view(), name='yes-no-input-add'),
  
 ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()

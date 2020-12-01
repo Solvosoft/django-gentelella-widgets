@@ -21,8 +21,15 @@
                 <div>
                     <ul class="to_do">
                         {% for obj in object_list %}
-                        <li>{{obj.id}} <a class="btn btn-xs btn-info pull-right" href="{% url 'tinymce-edit' obj.pk %}"><i
-                                class="fa fa-edit"></i></a></li>
+                            <li>
+                                {{obj.id}} 
+                                <a class="btn btn-xs btn-info pull-right" href="{% url 'tinymce-edit' obj.pk %}">
+                                    <i class="fa fa-edit"></i>
+                                </a>
+                                <a class="btn btn-xs btn-info pull-right" href="{% url 'tinymce-show' obj.pk %}">
+                                    <i class="fa fa-eye"></i>
+                                </a>
+                            </li>
                         {% endfor %}
                     </ul>
                 </div>
