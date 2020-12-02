@@ -833,6 +833,13 @@ a:focus {
 .nav.navbar-nav>li>a {
     color: #515356 !important
 }
+.wysiwyg{
+    overflow:scroll;
+    max-height:500px;
+}
+.note-modal-footer .note-btn{
+    margin-top: -10PX;
+}
 .nav.top_menu>li>a {
     position: relative;
     display: block;
