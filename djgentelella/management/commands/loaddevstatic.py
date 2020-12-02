@@ -130,9 +130,6 @@ class Command(BaseCommand):
             'moment': [
                 'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment-with-locales.min.js'
             ],
-            'bootstrap-wysiwyg': [
-                'https://raw.githubusercontent.com/steveathon/bootstrap-wysiwyg/1.0.4/js/bootstrap-wysiwyg.min.js',
-            ],
             'parsleyjs': [
                 'https://cdnjs.cloudflare.com/ajax/libs/parsley.js/2.3.13/parsley.min.js'
             ],
