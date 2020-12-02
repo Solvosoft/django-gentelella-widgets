@@ -178,6 +178,7 @@ class TaggingModel(models.Model):
 
 class WysiwygModel(models.Model):
     information = models.TextField()
+    extra_information = models.TextField()
 
 
 class YesNoInput(models.Model):
