@@ -35,6 +35,7 @@ class NotificacionAPIView( mixins.RetrieveModelMixin,
 class NotificationList(ListView):
     model = Notification
     template_name = 'gentelella/menu/notification_list.html'
+
     def get_queryset(self):
         queryset = super(NotificationList, self).get_queryset()
         queryset = queryset.filter(user=self.request.user).order_by('state', 'creation_date')
