@@ -187,6 +187,10 @@ class Command(BaseCommand):
                 'https://cdnjs.cloudflare.com/ajax/libs/tagify/3.18.1/jQuery.tagify.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/tagify/3.18.1/tagify.min.css'
             ],
+            'grid-slider': [
+                'https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/js/ion.rangeSlider.min.js',
+                'https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/css/ion.rangeSlider.min.css'
+            ],
             'sweetalert2': [
                 'https://cdn.jsdelivr.net/npm/sweetalert2@10.10.0/dist/sweetalert2.all.min.js',
                 'https://cdn.jsdelivr.net/npm/sweetalert2@10.10.0/dist/sweetalert2.min.css'
