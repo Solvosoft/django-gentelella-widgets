@@ -117,6 +117,9 @@ class Command(BaseCommand):
                 'https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.map'
             ],
+            'jquery-ui': [
+                'https://code.jquery.com/ui/1.11.3/themes/smoothness/jquery-ui.css'
+            ],
             'jquery-knob': [
                 'https://cdnjs.cloudflare.com/ajax/libs/jQuery-Knob/1.2.13/jquery.knob.min.js',
             ],
