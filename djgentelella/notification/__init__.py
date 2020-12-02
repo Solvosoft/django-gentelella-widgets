@@ -9,11 +9,13 @@ from django.utils.translation import ugettext_lazy as _
 from django.conf import  settings as djsettings
 message_type_default = list(dict(Notification.MESSAGE_TYPE).keys())
 
+
 def get_site_url(request, name, **kwargs):
     rev_kwargs = kwargs['kwargs'] if 'kwargs' else {}
     rev_args = kwargs['args'] if 'args' else []
 
     return request.build_absolute_uri(reverse(name, args=rev_args, kwargs=rev_kwargs))
+
 
 def create_notification(description, user, message_type, category=None, link=None,
                         link_prop=None, request=None, send_email=False,

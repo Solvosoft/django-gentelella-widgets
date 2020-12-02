@@ -20,6 +20,8 @@ class Command(BaseCommand):
             'select2_wrap.js',
             'dateranges_gridslider.js',
             'booleanFields.js'
+            'booleanFields.js',
+            'editorTinymce.js'
         ]
         jquery_plugins = [
             'notifications.js',

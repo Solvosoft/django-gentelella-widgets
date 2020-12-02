@@ -21,6 +21,7 @@
       {% block stylesheets %}
         <!-- Bootstrap -->
         <link href="{% static 'vendors/bootstrap/bootstrap.min.css' %}" rel="stylesheet">
+        <link href="{% static 'vendors/jquery-ui/jquery-ui.css' %}" rel="stylesheet">
         <link href="{% static 'vendors/font-awesome/font-awesome.min.css' %}" rel="stylesheet">
         <link href="{% static 'vendors/bootstrap-daterangepicker/daterangepicker.min.css' %}" rel="stylesheet">
         <link href="{% static 'vendors/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css' %}" rel="stylesheet">
@@ -29,11 +30,11 @@
         <link href="{% static 'vendors/iCheck/green.css' %}" rel="stylesheet">
         <link href="{% static 'vendors/bootstrap-progressbar/bootstrap-progressbar-3.3.4.min.css' %}" rel="stylesheet">
         <link href="{% static 'vendors/nprogress/nprogress.min.css' %}" rel="stylesheet">
-        <link href="{% static 'vendors/tail.select/tail.select-default.min.css' %}" rel="stylesheet">
         <link href="{% static 'vendors/flag-icon-css/flag-icon.min.css' %}" rel="stylesheet">
         <link href="{% static 'vendors/tagify/tagify.min.css' %}" rel="stylesheet">
-        <link href="{% static 'vendors/froala-wysiwyg/froala_editor.pkgd.min.css' %}" rel="stylesheet">
         <link href="{% static 'vendors/grid-slider/ion.rangeSlider.min.css' %}" rel="stylesheet">
+        <link href="{% static 'vendors/tinymce/skin.min.css' %}" rel="stylesheet" />
+
         {% get_define 'use_chartjs' as use_chartjs %}
         {% if use_chartjs %}
         <link href="{% static 'vendors/chartjs/Chart.min.css' %}" rel="stylesheet">
@@ -130,13 +131,10 @@
         <script src="{% static 'vendors/interact/interact.min.js' %}"></script>
         <script src="{% static 'vendors/bootstrap-daterangepicker/daterangepicker.min.js' %}"></script>
         <script src="{% static 'vendors/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js' %}"></script>
-        <!-- bootstrap-wysiwyg -->
-        <script src="{% static 'vendors/bootstrap-wysiwyg/bootstrap-wysiwyg.min.js' %}"></script>
         <!-- Switchery -->
         <script src="{% static 'vendors/switchery/switchery.min.js' %}"></script>
         <!-- Select2 -->
         <script src="{% static 'vendors/select2/select2.min.js' %}"></script>
-        <!-- Parsley -->
         <script src="{% static 'vendors/parsleyjs/parsley.min.js' %}"></script>
         <!-- Autosize -->
         <script src="{% static 'vendors/autosize/autosize.min.js' %}"></script>
@@ -153,9 +151,10 @@
         <script src="{% static 'vendors/fileupload/spark-md5.min.js' %}"></script>
         <script src="{% static 'vendors/tagify/tagify.min.js' %}"></script>
         <script src="{% static 'vendors/tagify/jQuery.tagify.min.js' %}"></script>
-        <script src="{% static 'vendors/froala-wysiwyg/froala_editor.pkgd.min.js' %}"></script>
-        <script src="{% static 'vendors/froala-wysiwyg/image_tui.min.js' %}"></script>
-        {% get_define 'use_datatables' as use_datatables %}
+        <script src="{% static 'vendors/tinymce/tinymce.min.js' %}"></script>
+        <script src="{% static 'vendors/tinymce/jquery.tinymce.min.js' %}"></script>
+        <script src="{% static 'vendors/tinymce/tinymce-all.js' %}"></script>
+            {% get_define 'use_datatables' as use_datatables %}
         {% if use_datatables %}
         <script src="{% static 'vendors/datatables/jquery.dataTables.min.js' %}"></script>
         <script src="{% static 'vendors/datatables/dataTables.bootstrap.min.js' %}"></script>
