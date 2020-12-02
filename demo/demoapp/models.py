@@ -178,7 +178,8 @@ class TaggingModel(models.Model):
     area_list = models.TextField(null=True, blank=True)
     
 class WysiwygModel(models.Model):
-    information= models.TextField() 
+    information= models.TextField()
+    extra_information = models.TextField()
 
 class YesNoInput(models.Model):
     name = models.CharField(max_length=100, null=True, blank=True)

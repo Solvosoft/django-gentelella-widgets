@@ -8,6 +8,7 @@ from djgentelella.notification.base import NotificacionAPIView, NotificationList
 from djgentelella.widgets.helper import HelperWidgetView
 from .wysiwyg import views as wysiwyg_get
 from django.contrib.auth.decorators import login_required
+from .editorTinymce import views as tinymce
 
 auth_urls = [
     path('accounts/login/',
@@ -41,11 +42,12 @@ auth_urls = [
         template_name='gentelella/registration/password_reset_done.html'
     ), name="password_reset_complete")
 ]
-
+tinymce_urls=[
+    url("^u_image$", login_required(tinymce.image_upload), name="tinymce_upload_image"),
+    url("^u_video$", login_required(tinymce.video_upload), name="tinymce_upload_video"),
+]
 wysiwyg_urls = [
     url("^upload_image$", login_required(wysiwyg_get.image_upload), name="upload_image"),
-    url("^upload_video$", login_required(wysiwyg_get.video_upload), name="upload_video"),
-    url("^upload_file$", login_required(wysiwyg_get.file_upload), name="upload_file"),
 ]
 
 
@@ -73,4 +75,4 @@ base_urlpatterns = [
     url('^notification/list/$', NotificationList.as_view(), name="notification_list")
 ]
 
-urlpatterns = auth_urls + base_urlpatterns + wysiwyg_urls
+urlpatterns = auth_urls + base_urlpatterns+ tinymce_urls + wysiwyg_urls
