@@ -138,7 +138,7 @@ STATIC_URL = os.getenv('STATIC_URL', '/static/')
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 MEDIA_URL = os.getenv('MEDIA_URL', '/media/')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
-FROALA_UPLOAD_PATH =os.path.join(MEDIA_ROOT, 'uploads/froala_editor/')
+TINYMCE_UPLOAD_PATH =os.path.join(MEDIA_ROOT, 'tinymce')
 
 EMAIL_HOST = 'localhost'
 EMAIL_PORT = '1025'
