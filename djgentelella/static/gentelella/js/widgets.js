@@ -25,6 +25,15 @@ document.gtwidgets = {
         instance.daterangepicker(load_date_range(instance));
     },
 
+    GridSlider: function (instance) {
+        instance.ionRangeSlider(grid_slider(instance));
+    },
+    DateGridSlider: function (instance) {
+        date_grid_slider(instance);
+    },
+    SingleGridSlider: function (instance) {
+        instance.ionRangeSlider(grid_slider_single(instance));
+    },
     DateRangeInputCustom: function (instance) {
         instance.daterangepicker(load_date_range_custom(instance));
     },
