@@ -194,9 +194,12 @@ class Command(BaseCommand):
             'tinymce': [
                 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.5.1/tinymce.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.5.1/jquery.tinymce.min.js',
+            ],
+            'summernote': [
+                'https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js',
+                'https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css'
             ]
         }
-
         compressed = {
             'tinymce': {
                 'tinymce-all.js': [

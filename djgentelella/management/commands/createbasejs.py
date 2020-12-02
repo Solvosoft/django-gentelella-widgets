@@ -1,6 +1,5 @@
 from django.core.management import BaseCommand
 from django.contrib.staticfiles import finders
-import os
 from pathlib import Path
 
 
@@ -20,7 +19,8 @@ class Command(BaseCommand):
             'select2_wrap.js',
             'dateranges.js',
             'booleanFields.js',
-            'editorTinymce.js'
+            'editorTinymce.js',
+            'wysiwyg.js'
         ]
         jquery_plugins = [
             'notifications.js',
