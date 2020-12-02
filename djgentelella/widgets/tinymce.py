@@ -5,8 +5,8 @@ from djgentelella.widgets.core import update_kwargs
 from django.conf import settings
 
 
-class TextareaWysiwyg(Textarea):
-    template_name = 'gentelella/widgets/wysiwygtwo.html'
+class EditorTinymce(Textarea):
+    template_name = 'gentelella/widgets/wysiwyg.html'
 
     def __init__(self, attrs=None, extraskwargs=True):
         if extraskwargs:
