@@ -42,11 +42,13 @@ Configure your settings
     DATE_INPUT_FORMATS=[
         '%Y-%m-%d', '%d/%m/%Y', '%d/%m/%y'
     ]
+    DATE_FORMAT= ['%d/%m/%Y',]
 
     DATETIME_INPUT_FORMATS = [
-        '%m/%d/%Y %H:%M %p',
-        '%Y-%m-%d %H:%M %p',
-        '%d/%m/%y %H:%M %p'
+        '%m/%d/%Y %H:%M',
+        '%d/%m/%Y %H:%M',
+        '%Y-%m-%d %H:%M',
+        '%d/%m/%y %H:%M'
     ]
  
 .. note:: Date format on Django uses localization and depends on USE_L10N, but we can not configure yet JS date widgets to change based on Django representation so USE_L10N need to be false.
