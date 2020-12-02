@@ -21,6 +21,7 @@
       {% block stylesheets %}
         <!-- Bootstrap -->
         <link href="{% static 'vendors/bootstrap/bootstrap.min.css' %}" rel="stylesheet">
+        <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.3/themes/smoothness/jquery-ui.css">
         <link href="{% static 'vendors/font-awesome/font-awesome.min.css' %}" rel="stylesheet">
         <link href="{% static 'vendors/bootstrap-daterangepicker/daterangepicker.min.css' %}" rel="stylesheet">
         <link href="{% static 'vendors/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css' %}" rel="stylesheet">
@@ -32,8 +33,7 @@
         <link href="{% static 'vendors/tail.select/tail.select-default.min.css' %}" rel="stylesheet">
         <link href="{% static 'vendors/flag-icon-css/flag-icon.min.css' %}" rel="stylesheet">
         <link href="{% static 'vendors/tagify/tagify.min.css' %}" rel="stylesheet">
-        <link href="{% static 'vendors/froala-wysiwyg/froala_editor.pkgd.min.css' %}" rel="stylesheet">
-        <link href="{% static 'vendors/sweetalert2/sweetalert2.min.css' %}" rel="stylesheet">
+        <link rel="stylesheet" href="{% static 'vendors/tinymce/skin.min.css' %}" />
 
         {% get_define 'use_chartjs' as use_chartjs %}
         {% if use_chartjs %}
@@ -129,8 +129,7 @@
         <script src="{% static 'vendors/bootstrap-progressbar/bootstrap-progressbar.min.js' %}"></script>
         <script src="{% static 'vendors/iCheck/icheck.min.js' %}"></script>
         <script src="{% static 'vendors/interact/interact.min.js' %}"></script>
-
-
+        
         <script src="{% static 'vendors/bootstrap-daterangepicker/daterangepicker.min.js' %}"></script>
         <script src="{% static 'vendors/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js' %}"></script>
         <!-- bootstrap-wysiwyg -->
@@ -146,6 +145,9 @@
         <script src="{% static 'vendors/bootstrap-maxlength/bootstrap-maxlength.min.js' %}"></script>
         <script src="{% static 'vendors/fileupload/jquery.ui.widget.min.js' %}"></script>
         <!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
+        <!-- Grid Slider Plugin-->
+        <script src="{% static 'vendors/grid-slider/ion.rangeSlider.min.js' %}"></script>
+
         <script src="{% static 'vendors/fileupload/jquery.iframe-transport.min.js' %}"></script>
         <!-- The basic File Upload plugin -->
         <script src="{% static 'vendors/fileupload/jquery.fileupload.min.js' %}"></script>
@@ -153,10 +155,12 @@
         <script src="{% static 'vendors/fileupload/spark-md5.min.js' %}"></script>
         <script src="{% static 'vendors/tagify/tagify.min.js' %}"></script>
         <script src="{% static 'vendors/tagify/jQuery.tagify.min.js' %}"></script>
-        <script src="{% static 'vendors/froala-wysiwyg/froala_editor.pkgd.min.js' %}"></script>
-        <script src="{% static 'vendors/froala-wysiwyg/image_tui.min.js' %}"></script>
-        <script src="{% static 'vendors/sweetalert2/sweetalert2.all.min.js' %}"></script>
-        {% get_define 'use_datatables' as use_datatables %}
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.5.1/tinymce.min.js"
+        integrity="sha512-rCSG4Ab3y6N79xYzoaCqt9gMHR0T9US5O5iBuB25LtIQ1Hsv3jKjREwEMeud8q7KRgPtxhmJesa1c9pl6upZvg=="
+        crossorigin="anonymous"></script>
+        <script src="{% static 'vendors/tinymce/jquery.tinymce.min.js'%}"></script>
+        <script src="{% static 'vendors/tinymce/tinymce-all.js'%}"></script>
+            {% get_define 'use_datatables' as use_datatables %}
         {% if use_datatables %}
         <script src="{% static 'vendors/datatables/jquery.dataTables.min.js' %}"></script>
         <script src="{% static 'vendors/datatables/dataTables.bootstrap.min.js' %}"></script>
