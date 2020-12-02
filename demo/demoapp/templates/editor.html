@@ -9,7 +9,7 @@
     <link href="{% static 'vendors/font-awesome/font-awesome.min.css' %}" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'vendors/bulma/bulma-accordion.min.css' %}">
     <link rel="stylesheet" href="{% static 'vendors/bulma/bulma.min.css' %}">
-    <link rel="stylesheet" href="{% static 'vendors/tinymce/skin.min.css' %}"/>
+    <link rel="stylesheet" href="{% static 'vendors/tinymce/skin.min.css' %}" />
     <link href="{% static 'gentelella/css/editor.css' %}" rel="stylesheet">
     <title>EditorPDF</title>
 </head>
@@ -31,6 +31,7 @@
                 <span aria-hidden="true"></span>
             </a>
         </div>
+
         <div id="nav-menu" class="navbar-menu">
 
             <div class="navbar-end">
@@ -56,34 +57,54 @@
                         </a>
                     </div>
                 </div>
+                <div class="navbar-item">
+                    <div class="buttons">
+                        <a id="view" class="button is-info">
+                            <strong><i class="fas fa-eye"></i></strong>
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
     <div class="main">
         <div class="menu-side">
 
-            <h2 class="pb-2"> Blocks </h2>
+            <h2 class="pb-2  has-text-white has-text-centered">Blocks</h2>
             <div class="accordions">
                 <article class="accordion is-active">
                     <div class="accordion-header">
-                        <p>Grids</p>
+                        <p><strong>Grids</strong></p>
                         <button class="toggle" aria-label="toggle"></button>
                     </div>
                     <div class="accordion-body">
                         <div class="accordion-content options">
                             <div class="sidebar">
+                                <div>
                                 <span class="move button is-small"><i class="fas fa-arrows-alt"></i></span>
                                 <span class="b_delete button is-small is-danger" style="display: none;"><i
                                         class="far fa-trash-alt"></i></span>
+                                <span class="dropdown responsive" style="display: none;">
+                                    <div class="dropdown-trigger">
+                                        <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">
+                                            <span>OP</span>
+                                            <span class="icon is-small">
+                                                <i class="fas fa-angle-down" aria-hidden="true"></i>
+                                            </span>
+                                        </button>
+                                    </div>
+                                    <div class="dropdown-menu"role="menu">
+                        
+                                    </div>
+                                </span>
                                 <input class="input grids" type="text" placeholder="Text input" value="8 4">
                                 <div class="columns coll" style="display: none;">
-                                    <div class="column is-8">
-                                        <pdf:nextframe name="" />
+                                    <div class="column is-half-desktop">
                                     </div>
-                                    <div class="column is-4">
-                                        <pdf:nextframe name="" />
+                                    <div class="column is-half-desktop">
                                     </div>
                                 </div>
+                            </div>
                             </div>
                             <div class="sidebar">
                                 <span class="move button is-small"><i class="fas fa-arrows-alt"></i></span>
@@ -113,21 +134,11 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="sidebar">
-                                <span class="move btn-grid button is-small"><i class="fas fa-arrows-alt"></i></span>
-                                <span class="b_delete btn-grid button is-small is-danger" style="display: none;"><i
-                                        class="far fa-trash-alt"></i></span>
-                                <input class="input grids" type="text" placeholder="Text input" value="">
-                                <div class="columns coll" style="display: none;">
-
-                                </div>
-                            </div>
-
                         </div>
                 </article>
                 <article class="accordion">
                     <div class="accordion-header">
-                        <p>Components</p>
+                        <p><strong>Components</strong></p>
                         <button class="toggle" aria-label="toggle"></button>
                     </div>
                     <div class="accordion-body">
@@ -139,8 +150,7 @@
                                 <label>Paragraph</label>
                                 <div class="content" style="display: none;">
                                     <div class="editor">
-                                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime
-                                            tempora vitae itaque quod iure, nobis culpa totam</p>
+                                        <p>Insert Text</p>
                                     </div>
                                 </div>
                             </div>
@@ -197,36 +207,6 @@
                                                             title="2016–17 UEFA Champions League">Champions League group
                                                             stage</a></td>
                                                 </tr>
-                                                <tr>
-                                                    <th>2</th>
-                                                    <td><a href="https://en.wikipedia.org/wiki/Arsenal_F.C."
-                                                            title="Arsenal F.C.">Arsenal</a></td>
-                                                    <td>38</td>
-                                                    <td>Qualification for the <a
-                                                            href="https://en.wikipedia.org/wiki/2016%E2%80%9317_UEFA_Champions_League#Group_stage"
-                                                            title="2016–17 UEFA Champions League">Champions League group
-                                                            stage</a></td>
-                                                </tr>
-                                                <tr>
-                                                    <th>4</th>
-                                                    <td><a href="https://en.wikipedia.org/wiki/Manchester_City_F.C."
-                                                            title="Manchester City F.C.">Manchester City</a></td>
-                                                    <td>38</td>
-                                                    <td>Qualification for the <a
-                                                            href="https://en.wikipedia.org/wiki/2016%E2%80%9317_UEFA_Champions_League#Play-off_round"
-                                                            title="2016–17 UEFA Champions League">Champions League
-                                                            play-off round</a></td>
-                                                </tr>
-                                                <tr>
-                                                    <th>5</th>
-                                                    <td><a href="https://en.wikipedia.org/wiki/Manchester_United_F.C."
-                                                            title="Manchester United F.C.">Manchester United</a></td>
-                                                    <td>38</td>
-                                                    <td>Qualification for the <a
-                                                            href="https://en.wikipedia.org/wiki/2016%E2%80%9317_UEFA_Europa_League#Group_stage"
-                                                            title="2016–17 UEFA Europa League">Europa League group
-                                                            stage</a></td>
-                                                </tr>
                                             </tbody>
                                         </table>
 
@@ -244,8 +224,8 @@
     <script src="{% static 'vendors/jquery/jquery.min.js' %}"></script>
     <script src="{% static 'vendors/bulma/bulma-accordion.min.js' %} "></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.5.1/tinymce.min.js"
-    integrity="sha512-rCSG4Ab3y6N79xYzoaCqt9gMHR0T9US5O5iBuB25LtIQ1Hsv3jKjREwEMeud8q7KRgPtxhmJesa1c9pl6upZvg=="
-    crossorigin="anonymous"></script>
+        integrity="sha512-rCSG4Ab3y6N79xYzoaCqt9gMHR0T9US5O5iBuB25LtIQ1Hsv3jKjREwEMeud8q7KRgPtxhmJesa1c9pl6upZvg=="
+        crossorigin="anonymous"></script>
     <script src="{% static 'vendors/tinymce/jquery.tinymce.min.js' %}"></script>
     <script src="{% static 'vendors/jquery-ui/jquery-ui.min.js' %}"></script>
     <script src="https://kit.fontawesome.com/2c36e9b7b1.js" crossorigin="anonymous"></script>
