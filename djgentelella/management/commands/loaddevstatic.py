@@ -195,18 +195,47 @@ class Command(BaseCommand):
                 'https://cdn.jsdelivr.net/npm/sweetalert2@10.10.0/dist/sweetalert2.all.min.js',
                 'https://cdn.jsdelivr.net/npm/sweetalert2@10.10.0/dist/sweetalert2.min.css'
             ],
+            'summernote': [
+                'https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js',
+                'https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css'
+            ],
             'tinymce': [
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.5.1/tinymce.min.js',
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.5.1/jquery.tinymce.min.js',
+                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/tinymce.min.js',
+                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/jquery.tinymce.min.js',
             ],
             'tinymce/themes/silver': [
                 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/themes/silver/theme.min.js'
             ],
-            'summernote': [
-                'https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js',
-                'https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css'
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/tinymce.min.js',
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/jquery.tinymce.min.js'
+            'tinymce/themes/mobile/': [
+                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/themes/mobile/theme.min.js'
+            ],
+            'tinymce/skins/content/dark/': [
+                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/content/dark/content.min.css',
+            ],
+            'tinymce/skins/content/default/': [
+                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/content/default/content.min.css',
+            ],
+            'tinymce/skins/content/document': [
+                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/content/document/content.min.css',
+            ],
+            'tinymce/skins/content/writer': [
+                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/content/writer/content.min.css',
+            ],
+            'tinymce/skins/ui/oxide-dark/': [
+                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide-dark/content.inline.min.css',
+                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide-dark/content.min.css',
+                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide-dark/content.mobile.min.css',
+                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide-dark/skin.min.css',
+                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide-dark/skin.mobile.min.css',
+                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide-dark/skin.shadowdom.min.css',
+            ],
+            'tinymce/skins/ui/oxide/': [
+                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide/content.inline.min.css',
+                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide/content.min.css',
+                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide/content.mobile.min.css',
+                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide/skin.min.css',
+                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide/skin.mobile.min.css',
+                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide/skin.shadowdom.min.css',
             ],
         }
         compressed = {
