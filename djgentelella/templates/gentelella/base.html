@@ -33,6 +33,7 @@
         <link href="{% static 'vendors/flag-icon-css/flag-icon.min.css' %}" rel="stylesheet">
         <link href="{% static 'vendors/tagify/tagify.min.css' %}" rel="stylesheet">
         <link href="{% static 'vendors/tinymce/skin.min.css' %}" rel="stylesheet" />
+        <link href="{% static 'vendors/sweetalert2/sweetalert2.min.css' %}" rel="stylesheet" />
 
         {% get_define 'use_chartjs' as use_chartjs %}
         {% if use_chartjs %}
@@ -154,6 +155,7 @@
         <script src="{% static 'vendors/tinymce/tinymce.min.js' %}"></script>
         <script src="{% static 'vendors/tinymce/jquery.tinymce.min.js' %}"></script>
         <script src="{% static 'vendors/tinymce/tinymce-all.js' %}"></script>
+        <script src="{% static 'vendors/sweetalert2/sweetalert2.all.min.js' %}"></script>
             {% get_define 'use_datatables' as use_datatables %}
         {% if use_datatables %}
         <script src="{% static 'vendors/datatables/jquery.dataTables.min.js' %}"></script>
