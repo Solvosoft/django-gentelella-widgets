@@ -52,10 +52,12 @@ def render_item(item, env={}, widget_list=[]):
     else:
         dev += format_html("""<a id="{}" href="{}" %s >{} {} </a> """%a_class,
                       'tm_'+str(item.id), get_link(item, env),  icon, get_title(item) )
+    if item.children.first():
+        dev += '<ul class="dropdown-menu " id="m_%d"  aria-labelledby="navbarDropdown" role="menu">'%(
+            item.pk)
     for node in item.children.all():
-        dev += '<ul class="dropdown-menu " id="m_%d_%d"  aria-labelledby="navbarDropdown" role="menu">'%(
-            item.pk, node.pk)
         dev += render_item(node, env=env, widget_list=widget_list)
+    if item.children.first():
         dev += '</ul>'
     dev += '</li>'
     return dev
