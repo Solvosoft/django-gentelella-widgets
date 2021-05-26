@@ -114,9 +114,9 @@ document.gtwidgets = {
         });
     },
     YesNoInput: function (instance) {
-        instance.each(function (index, element){
-             switchery = new Switchery(element, {color: '#26B99A'});
-             showHideRelatedFormFields($(element));
+        instance.each(function (index, element) {
+            switchery = new Switchery(element, { color: '#26B99A' });
+            showHideRelatedFormFields($(element));
         });
     },
     DateRangeInput: function (instance) {
@@ -136,10 +136,10 @@ document.gtwidgets = {
         instance.daterangepicker(load_date_range_custom(instance));
     },
     RadioVerticalSelect: function (instance) {
-        instance.find('input').iCheck({radioClass: 'iradio_flat-green'});
+        instance.find('input').iCheck({ radioClass: 'iradio_flat-green' });
     },
     RadioHorizontalSelect: function (instance) {
-        instance.find('input').iCheck({radioClass: 'iradio_flat-green'});
+        instance.find('input').iCheck({ radioClass: 'iradio_flat-green' });
     },
     DateRangeTimeInput: function (instance) {
         instance.daterangepicker(load_datetime_range(instance));
@@ -154,13 +154,13 @@ document.gtwidgets = {
         instance.select2({ templateResult: decore_select2 });
     },
     DateTimeInput: function (instance) {
-        instance.datetimepicker();
+        instance.datetimepicker({format : instance.data('format') });// "YYYY-MM-DD HH:mm"
     },
     TimeInput: function (instance) {
-        instance.datetimepicker({ format: 'LT' });
+        instance.datetimepicker({format: instance.data('format') }); // 'HH:mm'
     },
     DateInput: function (instance) {
-        instance.datetimepicker({ format: "DD/MM/YYYY" });
+        instance.datetimepicker({format: instance.data('format')  }); //"DD/MM/YYYY"
     },
     Textarea: function (instance) {
         autosize(instance);
@@ -183,7 +183,8 @@ document.gtwidgets = {
         instance.inputmask("99/99/9999", { "placeholder": "dd/mm/yyyy" });
     },
     DateTimeMaskInput: function (instance) {
-        instance.inputmask("99/99/9999 99:99:99", { "placeholder": "dd/mm/yyyy HH:mm:ss" });
+        instance.inputmask("99/99/9999 99:99", { "placeholder": "dd/mm/yyyy HH:mm",
+         format: "YYYY-MM-DD HH:mm"});
     },
     EmailMaskInput: function (instance) {
         instance.inputmask({
@@ -247,12 +248,35 @@ document.gtwidgets = {
         instance.colorpicker({ format: 'rgb' });
     },
     TextareaWysiwyg: function (instance) {
-        new FroalaEditor("[data-widget=TextareaWysiwyg]", {
-            imageUploadURL: instance.attr('data-option-image'), imageUploadParams: { "csrfmiddlewaretoken": getCookie("csrftoken") },
-            fileUploadURL: instance.attr('data-option-file'),fileUploadParams: { "csrfmiddlewaretoken": getCookie("csrftoken") },
-            videoUploadURL: instance.attr('data-option-file'), videoUploadParams: { "csrfmiddlewaretoken": getCookie("csrftoken") },
-        });
+
     },
+
+    EditorTinymce: function (instance) {
+        $(instance).removeAttr('required');
+        instance.tinymce({
+            menubar: false,
+            toolbar: 'undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist checklist | forecolor backcolor casechange permanentpen formatpainter removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media pageembed template link anchor codesample | a11ycheck ltr rtl | showcomments addcomment',
+            plugins: ['autolink', 'codesample', 'link', 'lists', 'media', 'quickbars', "advlist autolink lists link image charmap print preview anchor",
+                "searchreplace visualblocks code fullscreen","insertdatetime media table paste imagetools wordcount",
+                "autoresize", "hr", "image",
+            ],
+            quickbars_insert_toolbar: 'quicktable | hr pagebreak',
+            file_picker_callback: function (callback, value, meta) {
+                var input = document.createElement('input');
+                input.setAttribute('type', 'file');
+                input.setAttribute('accept', 'image/*');
+                input.onchange = function () {
+                    var file = this.files[0];
+                    upload_files(callback, meta, file, instance.attr('data-option-image'), 
+                    instance.attr('data-option-video'));
+                };
+                input.click();
+            },
+        });
+
+
+    },
+
     InlinePickerColor: function (instance) {
         instance.parent('.color-input-field-inline-picker').css("display", "inline-block").colorpicker({ container: true, inline: true });
     },
