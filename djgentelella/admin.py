@@ -32,4 +32,4 @@ admin.site.register(Help)
 admin.site.register(PermissionsCategoryManagement)
 admin.site.register(GentelellaSettings, GentelellaSettingsAdmin)
 admin.site.register(Notification, NotificationAdmin)
-admin.site.register(PermissionsCategoryManagement)
+

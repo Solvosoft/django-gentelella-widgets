@@ -10,8 +10,10 @@
     <ul class="nav navbar-nav navbar-right">
         {% top_menu  %}
      {% if request.user.is_superuser %}
-    <li><a class="btn" id="" title="Add Permission" data-toggle="modal" data-target="#permission_modal" data-parameter="{% get_page_name request %}"><i class="fa fa-plus"></i></a></li>
+        {% get_urlname_action as urlnameactions %}
+    <li><a class="btn" id="" title="Add Permission" data-toggle="modal" data-target="#permission_modal" data-parameter="{% get_page_name urlnameactions %}"><i class="fa fa-plus"></i></a></li>
        {% endif %}
+
     </ul>
 
 </div>

@@ -1,5 +1,6 @@
-{% load static %}
+{% load static i18n %}
 {% load  gentelellamenu gtsettings footer %}
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -114,6 +115,9 @@
 
             <footer>
               {% include "gentelella/app/footer.html" %}
+              {% if request.user.is_superuser %}
+                {% include 'gentelella/blocks/permissions_management.html' %}
+              {% endif %}
             </footer>
 
           {% endblock footer %}
@@ -178,6 +182,19 @@
       <script src="{% static 'gentelella/js/base.js' %}?v={% get_version %}"></script>
       <script src="{% static 'gentelella/js/widgets.js' %}?v={% get_version %}"></script>
       <script src="{% static 'gentelella/js/custom.js' %}?v={% get_version %}"></script>
+      {% if request.user.is_superuser %}
+        <script>
+        var permission_context = {
+            'select_user_url': "{% url 'userbase-list' %}",
+            'select_group_url': "{% url 'groupbase-list' %}",
+            'user_placeholder': "{% trans 'Select an User' %}",
+            'group_placeholder': "{% trans 'Select a Group' %}",
+            'user_label': "{% trans 'User' %}",
+            'group_label': "{% trans 'Group' %}"
+        }
+        </script>
+      <script src="{% static 'gentelella/js/permissionmanagement.js' %}?v={% get_version %}"></script>
+      {% endif %}
       {% render_menu_js_widget %}
       {% endblock %}
 

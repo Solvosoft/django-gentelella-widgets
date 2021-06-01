@@ -1,4 +1,4 @@
-from django.http import JsonResponse
+from django.http import JsonResponse, Http404
 from django.template.loader import render_to_string
 from django.contrib.auth.models import Group, User, Permission
 from djgentelella.models import PermissionsCategoryManagement
@@ -11,7 +11,8 @@ def get_permission_list(request):
     categories = {}
 
     q = request.GET.get('q')
-
+    if not q:
+        raise Http404
     permissions_list = PermissionsCategoryManagement.objects.filter(url_name__in=q.split(',')).\
         values('category', 'permission', 'name')
 
