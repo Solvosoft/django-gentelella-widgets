@@ -54,4 +54,5 @@ urlpatterns = [
         path('gridslider/list',grid.ListGrid.as_view(), name='grid-slider-list'),
         path('gridslider/<int:pk>',grid.UpdateGrid.as_view(), name='grid-slider-edit'),
         path('permissionsmanagement/list', views.get_permission_list, name="permissionsmanagement-list"),
+        path('permissionsmanagement/save', views.save_permcategorymanagement, name="permcategorymanagement-save"),
 ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()

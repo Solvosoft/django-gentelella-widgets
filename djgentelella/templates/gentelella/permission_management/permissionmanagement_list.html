@@ -4,7 +4,7 @@
 
   <div id="demo{{key}}" class="collapse">
     {% for item in value %}
-      <div class="icheckbox_flat-green" style="margin-left: 5%;"><input type="checkbox"><ins class="iCheck-helper"></ins></div> {{item.name}}
+      <div class="icheckbox_flat-green" style="margin-left: 5%;"><input type="checkbox" name="permission" value="{{item.id}}"><ins class="iCheck-helper"></ins></div> {{item.name}}
       {% endfor %}
   </div>
 
