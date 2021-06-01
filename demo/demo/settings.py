@@ -139,6 +139,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 MEDIA_URL = os.getenv('MEDIA_URL', '/media/')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 TINYMCE_UPLOAD_PATH =os.path.join(MEDIA_ROOT, 'tinymce')
+SUMMERNOTE_UPLOAD_PATH =os.path.join(MEDIA_ROOT, 'summernote')
 
 EMAIL_HOST = 'localhost'
 EMAIL_PORT = '1025'

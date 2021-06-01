@@ -10,6 +10,7 @@ from .wysiwyg import views as wysiwyg_get
 from django.contrib.auth.decorators import login_required
 from .editorTinymce import views as tinymce
 
+
 auth_urls = [
     path('accounts/login/',
          auth_views.LoginView.as_view(
@@ -76,3 +77,4 @@ base_urlpatterns = [
 ]
 
 urlpatterns = auth_urls + base_urlpatterns+ tinymce_urls + wysiwyg_urls
+
