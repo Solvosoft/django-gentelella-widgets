@@ -3,6 +3,7 @@ from django.urls import path, include
 
 from demoapp.cruds import Personclass, Countryclass, MenuItemclass
 from demoapp.views import create_notification_view, color_widget_view
+from djgentelella.permission_management import views
 from .autocomplete import views as autocompleteviews
 from .chartjs import chart_js_view
 from .formset import add_formset, add_model_formset
@@ -52,4 +53,5 @@ urlpatterns = [
         path('gridslider/',grid.AddGrid.as_view(), name='grid-slider-add'),
         path('gridslider/list',grid.ListGrid.as_view(), name='grid-slider-list'),
         path('gridslider/<int:pk>',grid.UpdateGrid.as_view(), name='grid-slider-edit'),
+        path('permissionsmanagement/list', views.get_permission_list, name="permissionsmanagement-list"),
 ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()
