@@ -1,8 +1,11 @@
+import json
+
+from djgentelella.settings import Group, User
 from django.http import JsonResponse, Http404
 from django.template.loader import render_to_string
-from django.contrib.auth.models import Group, User, Permission
+
 from djgentelella.models import PermissionsCategoryManagement
-import json
+from djgentelella.permission_management.forms import PermCategoryManagementForm
 
 
 def get_permission_list(request):
@@ -28,9 +31,15 @@ def get_permission_list(request):
     return JsonResponse(response)
 
 
+
 def save_permcategorymanagement(request):
 
     response = {}
+
+    form = PermCategoryManagementForm(request.POST)
+
+    if form.is_valid():
+        pass
 
     return JsonResponse(response)
 
