@@ -14,4 +14,3 @@ class DateRangeForms(forms.ModelForm, GTForm):
             'date_custom': widget.DateRangeInputCustom,
             'date_time': widget.DateRangeTimeInput,
         }
-
