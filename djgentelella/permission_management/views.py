@@ -1,15 +1,15 @@
 from django.http import JsonResponse
 from django.template.loader import render_to_string
-
-from models import PermissionsCategoryManagement
-
+from djgentelella.models import PermissionsCategoryManagement
 
 def get_permission_list(request):
 
     response ={}
     categories = {}
 
-    permissions_list = PermissionsCategoryManagement.objects.filter(url_name__in=request.GET.get('q').split(',')).\
+    q = request.GET.get('q')
+
+    permissions_list = PermissionsCategoryManagement.objects.filter(url_name__in=q.split(',')).\
         values('category', 'permission', 'name')
 
     for perm in permissions_list:
@@ -20,5 +20,5 @@ def get_permission_list(request):
         categories[perm['category']].append({'id': perm['permission'],
                                              'name': perm['name']})
 
-    response['result'] = render_to_string('permissionmanagement_list.html', {'categories': categories})
+    response['result'] = render_to_string('gentelella/permission_management/permissionmanagement_list.html', {'categories': categories})
     return JsonResponse(response)

@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'chunked_upload',
     'demoapp',
     'djgentelella.blog',
+    'djgentelella.permission_management',
     'markitup',
 ]
 
