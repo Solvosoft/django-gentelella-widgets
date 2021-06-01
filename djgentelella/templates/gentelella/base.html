@@ -1,4 +1,4 @@
-{% load static %}
+{% load static i18n %}
 {% load  gentelellamenu gtsettings %}
 <!DOCTYPE html>
 <html lang="en">
@@ -112,6 +112,9 @@
 
             <footer>
               {% include "gentelella/app/footer.html" %}
+              {% if request.user.is_superuser %}
+                {% include 'gentelella/blocks/permissions_management.html' %}
+              {% endif %}
             </footer>
 
           {% endblock footer %}
@@ -175,6 +178,44 @@
       <script src="{% static 'gentelella/js/base.js' %}?v={% get_version %}"></script>
       <script src="{% static 'gentelella/js/widgets.js' %}?v={% get_version %}"></script>
       <script src="{% static 'gentelella/js/custom.js' %}?v={% get_version %}"></script>
+      {% if request.user.is_superuser %}
+        <script>
+          $(document).ready(function(){ 
+              $('#select_user').select2({
+                  ajax: {
+                    url: "{% url 'userbase-list' %}",
+                    dataType: 'json',
+                  },
+                  width: '100%',
+                  placeholder: "{% trans 'Select an User' %}",
+              });
+              $('#select_group').select2({
+                  ajax: {
+                    url: "{% url 'groupbase-list' %}",
+                    dataType: 'json',
+                  },
+                  width: '100%',
+                  placeholder: "{% trans 'Select a Group' %}",
+              });
+              $('.btn-toggle').click(function() {
+                $(this).find('.btn').toggleClass('active');  
+                if ($(this).find('.btn-primary').size()>0) {
+                  $(this).find('.btn').toggleClass('btn-primary');
+                }
+                $(this).find('.btn').toggleClass('btn-default'); 
+              });
+              $("#group_container").hide();
+              $('#btn_user').click(function(){
+                  $("#user_container").show();
+                  $("#group_container").hide();
+              });
+              $("#btn_group").click(function(){
+                $("#group_container").show();
+                $("#user_container").hide();
+              })
+          })
+        </script>
+      {% endif %}
       {% render_menu_js_widget %}
       {% endblock %}
 

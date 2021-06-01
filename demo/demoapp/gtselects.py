@@ -2,6 +2,8 @@
 from djgentelella.groute import register_lookups
 from djgentelella.views.select2autocomplete import BaseSelect2View
 from demoapp import models
+from django.contrib.auth.models import User, Group
+
 
 @register_lookups(prefix="person", basename="personbasename")
 class PersonGModelLookup(BaseSelect2View):
@@ -49,3 +51,15 @@ class ELookup(BaseSelect2View):
     model = models.E
     fields = ['display']
     ref_field='d'
+
+
+@register_lookups(prefix="userbase", basename="userbase")
+class User(BaseSelect2View):
+    model = User
+    fields = ['username']
+
+
+@register_lookups(prefix="groupbase", basename="groupbase")
+class Group(BaseSelect2View):
+    model = Group
+    fields = ['name']
