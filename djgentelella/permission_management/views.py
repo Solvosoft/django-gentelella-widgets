@@ -28,6 +28,13 @@ def get_permission_list(request):
     return JsonResponse(response)
 
 
+def save_permcategorymanagement(request):
+
+    response = {}
+
+    return JsonResponse(response)
+
+
 
 def get_groups(request):
     response = {'result': False}
