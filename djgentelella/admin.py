@@ -4,7 +4,7 @@ from django.contrib import admin
 from mptt.admin import DraggableMPTTAdmin
 from djgentelella.models import MenuItem, Help, GentelellaSettings, Notification
 from djgentelella.utils import clean_cache
-
+from djgentelella.models import PermissionsCategoryManagement
 
 class MenuAdmin(DraggableMPTTAdmin):
     filter_horizontal = ['permission']
@@ -30,3 +30,4 @@ admin.site.register(MenuItem, MenuAdmin)
 admin.site.register(Help)
 admin.site.register(GentelellaSettings, GentelellaSettingsAdmin)
 admin.site.register(Notification, NotificationAdmin)
+admin.site.register(PermissionsCategoryManagement)

@@ -1,7 +1,8 @@
 from django.http import JsonResponse
 from django.template.loader import render_to_string
-from django.contrib.auth.models import Group, User
+from django.contrib.auth.models import Group, User, Permission
 from djgentelella.models import PermissionsCategoryManagement
+import json
 
 
 def get_permission_list(request):
@@ -25,16 +26,11 @@ def get_permission_list(request):
 
 
 def get_groups(request):
-
-    group = ''
-
-    user = ''
-
     response = {}
 
     perms = request.POST.getlist('permissions')
 
-    if request.POST['option'] == 2:
+    if int(request.POST['option']) == 2:
 
         group = Group.objects.filter(pk=request.GET['group']).first()
 
@@ -54,3 +50,39 @@ def get_groups(request):
         response['result'] = user
 
     return JsonResponse(response)
+
+
+def get_permissions(request):
+
+    if int(request.GET.get('option')) == 2:
+        return get_group_permissions(request.POST.get('group'))
+    else:
+        return get_user_permissions(request.POST.get('user'))
+
+
+def get_group_permissions(pk):
+    group = Group.objects.filter(pk=pk).first()
+    perms = []
+
+    if group is not None:
+
+        for perm in group.permissions.all():
+            perms.append({'id': perm.pk, 'name': perm.name, 'codename': perm.codename})
+
+        response = json.dumps(perms)
+
+    return JsonResponse(response, safe=False)
+
+
+def get_user_permissions(pk):
+    perms = []
+    user = User.objects.filter(pk=pk).first()
+
+    if user is not None:
+
+        for perm in user.user_permissions.all():
+            perms.append({'id': perm.pk, 'name': perm.name, 'codename': perm.codename})
+
+        response = json.dumps(perms)
+
+        return JsonResponse(response, safe=False)
