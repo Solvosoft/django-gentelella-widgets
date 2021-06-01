@@ -1,17 +1,17 @@
 <div class="nav_menu">
-  {% load  gentelellamenu %}
-
+  {% load  gentelellamenu gtsettings footer %}
+  {% block pre_head %}
+    {% define_true  "modal_js" %}
+{% endblock %}
     <div class="nav toggle">
       <a id="menu_toggle"><i class="fa fa-bars"></i></a>
     </div>
 
     <ul class="nav navbar-nav navbar-right">
-
-
-
         {% top_menu  %}
-
-
+     {% if request.user.is_superuser %}
+    <li><a class="btn" id="" title="Add Permission" data-toggle="modal" data-target="#permission_modal" data-parameter="{% get_page_name request %}"><i class="fa fa-plus"></i></a></li>
+       {% endif %}
     </ul>
 
 </div>

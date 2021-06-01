@@ -56,15 +56,13 @@ document.gtwidgets = {
         instance.select2({ templateResult: decore_select2 });
     },
     DateTimeInput: function (instance) {
-        instance.datetimepicker({
-             format : "YYYY-MM-DD HH:mm"
-        });
+        instance.datetimepicker({format : instance.data('format') });// "YYYY-MM-DD HH:mm"
     },
     TimeInput: function (instance) {
-        instance.datetimepicker({ format: 'HH:mm' });
+        instance.datetimepicker({format: instance.data('format') }); // 'HH:mm'
     },
     DateInput: function (instance) {
-        instance.datetimepicker({ format: "DD/MM/YYYY" });
+        instance.datetimepicker({format: instance.data('format')  }); //"DD/MM/YYYY"
     },
     Textarea: function (instance) {
         autosize(instance);
