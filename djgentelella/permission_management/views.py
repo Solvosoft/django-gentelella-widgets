@@ -26,7 +26,7 @@ def get_permission_list(request):
 
 
 def get_groups(request):
-    response = {}
+    response = {'result': False}
 
     perms = request.POST.getlist('permissions')
 
@@ -39,15 +39,17 @@ def get_groups(request):
             for perm in perms:
                 group.permissions.add(perm)
 
-        response['result']=group
+        response['result'] = True
+
     else:
+
         user = User.objects.filter(pk=request.GET['user']).first()
 
         if user is not None:
-            user.permissions.clear()
+            user.user_permissions.clear()
             for perm in perms:
-                user.permissions.add(perm)
-        response['result'] = user
+                user.user_permissions.add(perm)
+        response['result'] = True
 
     return JsonResponse(response)
 

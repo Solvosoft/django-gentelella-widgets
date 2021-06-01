@@ -47,4 +47,3 @@ def get_define(context, val):
         value = settings.DEFAULT_JS_IMPORTS[val]
     value = getattr(context['request'], val, value)
     return value
-
