@@ -2,7 +2,7 @@
 from djgentelella.groute import register_lookups
 from djgentelella.views.select2autocomplete import BaseSelect2View
 from demoapp import models
-from django.contrib.auth.models import User, Group
+from djgentelella.settings import Group, User
 
 
 @register_lookups(prefix="person", basename="personbasename")
