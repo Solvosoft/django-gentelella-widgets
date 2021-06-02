@@ -1,5 +1,5 @@
 from django import forms
-from forms.forms import GTForm
+from djgentelella.forms.forms import GTForm
 from djgentelella.settings import Group, User
 from djgentelella.models import PermissionsCategoryManagement
 

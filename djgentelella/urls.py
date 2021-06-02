@@ -80,5 +80,5 @@ base_urlpatterns = [
 permission_management_urls = [
     path('permission/management/<int:pk>', permissions.get_permissions, name="permission_view_list"),
 ]
-urlpatterns = auth_urls + base_urlpatterns+ tinymce_urls + wysiwyg_urls
+urlpatterns = auth_urls + base_urlpatterns+ tinymce_urls + wysiwyg_urls + permission_management_urls
 
