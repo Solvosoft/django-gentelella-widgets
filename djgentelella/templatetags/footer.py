@@ -1,6 +1,5 @@
 from django import template
-from djgentelella.models import PermissionsCategoryManagement
-from django.urls import resolve, reverse
+from django.urls import reverse
 
 register = template.Library()
 
