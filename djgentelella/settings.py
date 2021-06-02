@@ -9,11 +9,19 @@ NOTIFICATION_DEFAULT_TEMPLATE = getattr(settings, 'NOTIFICATION_DEFAULT_TEMPLATE
 
 DEFAULT_JS_IMPORTS = getattr(settings, 'DEFAULT_JS_IMPORTS', {})
 
+DEFAULT_GROUP_MODEL_BASE = 'GT_GROUP_MODEL'
+
+DEFAULT_USER_MODEL_BASE = 'GT_USER_MODEL'
+
+DEFAULT_GROUP_MODEL = 'auth.Group'
+
+DEFAULT_USER_MODEL = 'auth.User'
+
 GROUP_MODEL_BASE = getattr(
-    settings, 'GT_GROUP_MODEL', 'auth.Group')
+    settings, DEFAULT_GROUP_MODEL_BASE, DEFAULT_GROUP_MODEL)
 
 USER_MODEL_BASE = getattr(
-    settings, 'GT_USER_MODEL', 'auth.User')
+    settings, DEFAULT_USER_MODEL_BASE, DEFAULT_USER_MODEL)
 
 
 aux_group = ContentType.objects.get(app_label=GROUP_MODEL_BASE.split('.')[0], model=GROUP_MODEL_BASE.split('.')[1].lower())
