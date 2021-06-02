@@ -1,2 +1,5 @@
 {% extends 'gentelella/index.html' %}
-
+{% load urlname_tags %}
+{% block pre_head %}
+  {% define_urlname_action 'knobwidgets' %}
+{% endblock %}
