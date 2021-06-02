@@ -93,11 +93,13 @@ def get_group_permissions(pk):
             perms.append({'id': perm.pk, 'name': perm.name, 'codename': perm.codename})
 
         response['result'] = perms
+
     return JsonResponse(response, safe=False)
 
 
 def get_user_permissions(pk):
     perms = []
+    response = {}
     user = User.objects.filter(pk=pk).first()
     response = {}
 
@@ -107,4 +109,5 @@ def get_user_permissions(pk):
             perms.append({'id': perm.pk, 'name': perm.name, 'codename': perm.codename})
 
         response['result'] = perms
+
         return JsonResponse(response, safe=False)
