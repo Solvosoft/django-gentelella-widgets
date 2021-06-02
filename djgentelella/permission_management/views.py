@@ -96,12 +96,10 @@ def check_permissions(perm_list, perm_item):
     return result
 
 
-def get_group_permissions(pk,q):
+def get_group_permissions(pk,permission_list):
     group = Group.objects.filter(pk=pk).first()
     perms = []
     response = {}
-    permission_list = PermissionsCategoryManagement.objects.filter(url_name__in=q.split(',')). \
-        values('category', 'permission', 'name')
     if group is not None:
 
         for perm in group.permissions.all():
