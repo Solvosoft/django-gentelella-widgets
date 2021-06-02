@@ -5,11 +5,11 @@
     </div>
 
     <ul class="nav navbar-nav navbar-right">
-        {% top_menu  %}
-     {% if request.user.is_superuser %}
+      {% top_menu  %}
+      {% if request.user.is_superuser %}
         {% get_urlname_action as urlnameactions %}
-    <li><a class="btn" id="" title="Add Permission" data-toggle="modal" data-target="#permission_modal" data-parameter="{% get_page_name urlnameactions %}" data-urlname="{{urlnameactions}}"><i class="fa fa-plus"></i></a></li>
-       {% endif %}
+        <li><a class="btn" id="btn_perms" title="Add Permission" data-toggle="modal" data-target="#permission_modal" data-parameter="{% get_page_name urlnameactions %}" data-urlname="{{urlnameactions}}"><i class="fa fa-plus"></i></a></li>
+      {% endif %}
 
     </ul>
 

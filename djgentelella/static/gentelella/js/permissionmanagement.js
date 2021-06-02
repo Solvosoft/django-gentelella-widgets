@@ -1,59 +1,102 @@
+ option = 0;
+ get_permissions = ""
  $(document).ready(function(){
     $('#select_user').select2({
-        ajax: {
-            url: permission_context.select_user_url,
-                dataType: 'json',
-                 },
-                 width: '100%',
-                 placeholder:   permission_context.user_placeholder ,
-             });
+      ajax: {
+        url: permission_context.select_user_url,
+        dataType: 'json',
+      },
+      width: '100%',
+      placeholder:   permission_context.user_placeholder ,
+    });
     $('#select_group').select2({
-        ajax: {
-            url: permission_context.select_group_url,
-                dataType: 'json',
-                 },
-                 width: '100%',
-                 placeholder: permission_context.group_placeholder,
-             });
+      ajax: {
+        url: permission_context.select_group_url,
+        dataType: 'json',
+      },
+      width: '100%',
+      placeholder: permission_context.group_placeholder,
+    });
     $('.btn-toggle').click(function() {
-        $(this).find('.btn').toggleClass('active');
-            if ($(this).find('.btn-primary').size()>0) {
-                $(this).find('.btn').toggleClass('btn-primary');
-            }
-            $(this).find('.btn').toggleClass('btn-default');
+      $(this).find('.btn').toggleClass('active');
+      if ($(this).find('.btn-primary').size()>0) {
+          $(this).find('.btn').toggleClass('btn-primary');
+        }
+      $(this).find('.btn').toggleClass('btn-default');
      });
     $("#group_container").hide();
     $('#btn_user').click(function(){
         $("#user_container").show();
         $("#group_container").hide();
-        url = permission_context.get_permissions.replace('/0','/2')
-        permission_context.get_permissions = url
+        option = 0
     });
 
     $("#btn_group").click(function(){
         $("#group_container").show();
         $("#user_container").hide();
-        url = permission_context.get_permissions.replace('/2','/0')
-        permission_context.get_permissions = url
-    })
-
-
-function addevent_check_permission(){
-
-    Array.from($('input[type="checkbox"][name="permission"]')).forEach(function(checkbox){
-
-        checkbox.addEventListener('click', function() {
-
-            if($(this).parent().hasClass('checked')){
-                $(this).parent().removeClass('checked');
-            }else{
-                $(this).parent().addClass('checked');
-            }
-
-        });
+        option = 2
     });
 
-}
+
+    $('#select_user').on('select2:select', function (evt) {
+      url = permission_context.get_permissions.replace(/\/(\d+)$/, "/"+evt.params.data.id)
+      permission_context.get_permissions = url
+      get_permissions_url = permission_context.get_permissions+"?option="+option+"&q="+$('#btn_perms').data("urlname");
+      $.ajax({
+        url: get_permissions_url,
+        method: 'GET',
+        dataType: "json",
+        success: function(data){
+          var checkboxes = $('input[type="checkbox"][name="permission"]');
+          if(data['result'].length>0){
+            checkboxchecked = checkboxes.filter(':checked');
+            checkboxchecked.iCheck('uncheck');
+            data['result'].forEach(function(i){
+              console.log(i)
+              $('input[type="checkbox"][value="'+i.id+'"]').iCheck('check');
+            });
+          }else{
+            checkboxchecked = checkboxes.filter(':checked');
+            checkboxchecked.iCheck('uncheck');
+          }
+        },
+        error: function(xhr, ajaxOptions, thrownError){
+          if(xhr.status==404) {
+            console.log("Data not found")
+          }
+        }
+      });
+    });
+
+    $('#select_group').on('select2:select', function (evt) {
+      url = permission_context.get_permissions.replace(/\/(\d+)$/, "/"+evt.params.data.id)
+      permission_context.get_permissions = url
+      get_permissions_url = permission_context.get_permissions+"?option="+option+"&q="+$('#btn_perms').data("urlname");
+      $.ajax({
+        url: get_permissions_url,
+        method: 'GET',
+        dataType: "json",
+        success: function(data){
+          var checkboxes = $('input[type="checkbox"][name="permission"]');
+          if(data['result'].length>0){
+            checkboxchecked = checkboxes.filter(':checked');
+            checkboxchecked.iCheck('uncheck');
+            data['result'].forEach(function(i){
+              console.log(i)
+              $('input[type="checkbox"][value="'+i.id+'"]').iCheck('check');
+            });
+          }else{
+            checkboxchecked = checkboxes.filter(':checked');
+            checkboxchecked.iCheck('uncheck');
+          }
+        },
+        error: function(xhr, ajaxOptions, thrownError){
+          if(xhr.status==404) {
+            console.log("Data not found")
+          }
+        }
+      });
+    });
 
 function update_categorieicon_collapsed(){
 
@@ -98,7 +141,11 @@ function update_categorieicon_collapsed(){
             result = permission_context.not_found_permissions_label;
           }
           $('#permissionbody').html(result);
-          addevent_check_permission();
+          $('input[type="checkbox"][name="permission"]').iCheck({
+            checkboxClass: 'icheckbox_flat-green',
+            radioClass: 'iradio_flat-green',
+            increaseArea: '20%' // optional
+          });
           update_categorieicon_collapsed();
         },
         error: function(xhr, ajaxOptions, thrownError){

@@ -5,7 +5,7 @@
   <div id="category{{key}}" class="collapse">
     {% for item in value %}
       <div class="row" style="margin-left: 12%;">
-        <p><div class="icheckbox_flat-green"><input type="checkbox" class="flat" name="permission" value="{{item.id}}" style="position: absolute; opacity: 0;"><ins class="iCheck-helper"></ins></div> {{item.name}}</p>
+        <p><input type="checkbox" class="flat" name="permission" value="{{item.id}}" style="position: absolute; opacity: 0;"> {{item.name}}</p>
       </div>
         {% endfor %}
   </div>
