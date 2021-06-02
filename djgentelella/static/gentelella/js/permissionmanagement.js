@@ -177,8 +177,8 @@ function update_categorieicon_collapsed(){
       Swal.fire({
         position: 'top-end',
         icon: 'success',
-        title: 'Your work has been saved',
-        showConfirmButton: false,
+        title: 'Se han guardado exitosamente los permisos.',
+        showConfirmButton: true,
         timer: 3000,
       });      
     }else{
@@ -188,6 +188,7 @@ function update_categorieicon_collapsed(){
         title: 'Error al guardar',
         text: 'No ha seleccionado una opción valida',
         timer: 3000,
+        showConfirmButton: true,
       });
     }
   })
