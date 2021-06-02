@@ -26,11 +26,15 @@
     $('#btn_user').click(function(){
         $("#user_container").show();
         $("#group_container").hide();
+        url = permission_context.get_permissions.replace('/0','/2')
+        permission_context.get_permissions = url
     });
 
     $("#btn_group").click(function(){
         $("#group_container").show();
         $("#user_container").hide();
+        url = permission_context.get_permissions.replace('/2','/0')
+        permission_context.get_permissions = url
     })
 
 
@@ -87,12 +91,22 @@ function update_categorieicon_collapsed(){
       $.ajax({
         url: urltarget,
         method: 'GET',
-        dataType: "json"
-      }).done(function(data) {
-          $('#permissionbody').html(data['result']);
+        dataType: "json",
+        success: function(data){
+          result = data['result'];
+          if (result == "" ){
+            result = permission_context.not_found_permissions_label;
+          }
+          $('#permissionbody').html(result);
           addevent_check_permission();
           update_categorieicon_collapsed();
-    })
+        },
+        error: function(xhr, ajaxOptions, thrownError){
+          if(xhr.status==404) {
+            $('#permissionbody').html(permission_context.not_found_permissions_label);
+          }
+        }
+      });
 
     });
 
