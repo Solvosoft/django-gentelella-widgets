@@ -92,19 +92,18 @@ def get_group_permissions(pk):
             perms.append({'id': perm.pk, 'name': perm.name, 'codename': perm.codename})
 
         response['result'] = perms
-
     return JsonResponse(response)
 
 
 def get_user_permissions(pk):
     perms = []
-    response = {}
     user = User.objects.filter(pk=pk).first()
+    response = {}
+
     if user is not None:
 
         for perm in user.user_permissions.all():
             perms.append({'id': perm.pk, 'name': perm.name, 'codename': perm.codename})
 
         response['result'] = perms
-
         return JsonResponse(response)
