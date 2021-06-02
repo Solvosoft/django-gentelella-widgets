@@ -45,7 +45,7 @@ def save_permcategorymanagement(request):
 
 
 
-def get_groups(request):
+def save_permsgroup_user(request):
     response = {'result': False}
 
     perms = request.POST.getlist('permissions')
@@ -85,24 +85,26 @@ def get_permissions(request, pk):
 def get_group_permissions(pk):
     group = Group.objects.filter(pk=pk).first()
     perms = []
+    response = {}
 
     if group is not None:
 
         for perm in group.permissions.all():
             perms.append({'id': perm.pk, 'name': perm.name, 'codename': perm.codename})
 
-        response = json.dumps(perms)
-
+        response['result'] = perms
     return JsonResponse(response, safe=False)
 
 
 def get_user_permissions(pk):
     perms = []
     user = User.objects.filter(pk=pk).first()
+    response = {}
+
     if user is not None:
 
         for perm in user.user_permissions.all():
             perms.append({'id': perm.pk, 'name': perm.name, 'codename': perm.codename})
 
-        response = json.dumps(perms)
+        response['result'] = perms
         return JsonResponse(response, safe=False)

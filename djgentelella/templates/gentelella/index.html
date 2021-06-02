@@ -1,7 +1,11 @@
 {% extends 'gentelella/base_site.html' %}
 
 {% block content %}
-
+{% load footer %}
+{% block pre_head %}
+  {% define_urlname_action 'patitourl' %}
+  {% define_urlname_action 'patito2url' %}
+{% endblock %}
 <div class="row">
 <div class='col-xs-12 col-sm-12 col-md-12'>
      <div class="x_panel gencrud">
