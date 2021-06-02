@@ -1,5 +1,4 @@
  $(document).ready(function(){
- console.log(permission_context)
     $('#select_user').select2({
         ajax: {
             url: permission_context.select_user_url,
@@ -48,6 +47,4 @@ $('#permission_modal').on('show.bs.modal', function (e) {
   });
 
 })
-
-
-          })
+})
