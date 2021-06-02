@@ -1,6 +1,7 @@
- option = 0;
- get_permissions = ""
- $(document).ready(function(){
+selected_user_or_group = false;
+option = 0;
+get_permissions = "";
+$(document).ready(function(){
     $('#select_user').select2({
       ajax: {
         url: permission_context.select_user_url,
@@ -26,6 +27,7 @@
      });
     $("#group_container").hide();
     $('#btn_user').click(function(){
+        selected_user_or_group = false;
         $("#user_container").show();
         $("#group_container").hide();
         var checkboxes = $('input[type="checkbox"][name="permission"]');
@@ -38,6 +40,7 @@
 
     $("#btn_group").click(function(){
         $("#group_container").show();
+        selected_user_or_group = false;
         $("#user_container").hide();
         var checkboxes = $('input[type="checkbox"][name="permission"]');
         checkboxchecked = checkboxes.filter(':checked');
@@ -49,6 +52,7 @@
 
 
     $('#select_user').on('select2:select', function (evt) {
+      selected_user_or_group = true;
       url = permission_context.get_permissions.replace(/\/(\d+)$/, "/"+evt.params.data.id)
       permission_context.get_permissions = url
       get_permissions_url = permission_context.get_permissions+"?option="+option+"&q="+$('#btn_perms').data("urlname");
@@ -72,13 +76,14 @@
         },
         error: function(xhr, ajaxOptions, thrownError){
           if(xhr.status==404) {
-            console.log("Data not found")
+            //Do something here
           }
         }
       });
     });
 
     $('#select_group').on('select2:select', function (evt) {
+      selected_user_or_group = true;
       url = permission_context.get_permissions.replace(/\/(\d+)$/, "/"+evt.params.data.id)
       permission_context.get_permissions = url
       get_permissions_url = permission_context.get_permissions+"?option="+option+"&q="+$('#btn_perms').data("urlname");
@@ -102,7 +107,7 @@
         },
         error: function(xhr, ajaxOptions, thrownError){
           if(xhr.status==404) {
-            console.log("Data not found")
+            //Do something here
           }
         }
       });
@@ -166,5 +171,25 @@ function update_categorieicon_collapsed(){
       });
 
     });
+
+  $("#btn_savepermissions").click(function(){
+    if(selected_user_or_group){
+      Swal.fire({
+        position: 'top-end',
+        icon: 'success',
+        title: 'Your work has been saved',
+        showConfirmButton: false,
+        timer: 3000,
+      });      
+    }else{
+      Swal.fire({
+        position: 'top-end',
+        icon: 'error',
+        title: 'Error al guardar',
+        text: 'No ha seleccionado una opción valida',
+        timer: 3000,
+      });
+    }
+  })
 
 });
