@@ -33,19 +33,66 @@
               })
 
 
+function addevent_check_permission(){
 
-$('#permission_modal').on('show.bs.modal', function (e) {
-  var urltarget = $(e.relatedTarget).data('parameter');
+    Array.from($('input[type="checkbox"][name="permission"]')).forEach(function(checkbox){
 
-  $.ajax({
-    url: urltarget,
-    method: 'GET',
-    dataType: "json"
-  }).done(function(data) {
-      $('#permissionbody').html(data['result']);
-  });
+        checkbox.addEventListener('click', function() {
 
-})
+            if($(this).parent().hasClass('checked')){
+                $(this).parent().removeClass('checked');
+            }else{
+                $(this).parent().addClass('checked');
+            }
+
+        });
+    });
+
+}
+
+function update_categorieicon_collapsed(){
+
+    Array.from($('a.categories')).forEach(function(categorie){
+
+        categorie.addEventListener('click', function() {
+
+            var icon = null;
+
+            if($(this).children()){
+                icon = $(this).children()[0];
+            }
+
+             if($($(this).data('target')).is(":visible") == true){
+                if(icon){
+                    $(icon).removeClass('fa fa-minus');
+                    $(icon).addClass('fa fa-plus');
+                }
+            }else{
+                if(icon){
+                    $(icon).removeClass('fa fa-plus');
+                    $(icon).addClass('fa fa-minus');
+                }
+            }
+
+        });
+    });
+
+}
 
 
-          })
+    $('#permission_modal').on('show.bs.modal', function (e) {
+      var urltarget = $(e.relatedTarget).data('parameter');
+
+      $.ajax({
+        url: urltarget,
+        method: 'GET',
+        dataType: "json"
+      }).done(function(data) {
+          $('#permissionbody').html(data['result']);
+          addevent_check_permission();
+          update_categorieicon_collapsed();
+    })
+
+    });
+
+});
