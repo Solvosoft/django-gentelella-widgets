@@ -1,6 +1,8 @@
 selected_user_or_group = false;
 option = 0;
 get_permissions = "";
+group_id = 0;
+user_id = 0;
 $(document).ready(function(){
     $('#select_user').select2({
       ajax: {
@@ -53,7 +55,8 @@ $(document).ready(function(){
 
     $('#select_user').on('select2:select', function (evt) {
       selected_user_or_group = true;
-      url = permission_context.get_permissions.replace(/\/(\d+)$/, "/"+evt.params.data.id)
+      user_id = evt.params.data.id
+      url = permission_context.get_permissions.replace(/\/(\d+)$/, "/"+user_id)
       permission_context.get_permissions = url
       get_permissions_url = permission_context.get_permissions+"?option="+option+"&q="+$('#btn_perms').data("urlname");
       $.ajax({
@@ -66,7 +69,6 @@ $(document).ready(function(){
             checkboxchecked = checkboxes.filter(':checked');
             checkboxchecked.iCheck('uncheck');
             data['result'].forEach(function(i){
-              console.log(i)
               $('input[type="checkbox"][value="'+i.id+'"]').iCheck('check');
             });
           }else{
@@ -84,7 +86,8 @@ $(document).ready(function(){
 
     $('#select_group').on('select2:select', function (evt) {
       selected_user_or_group = true;
-      url = permission_context.get_permissions.replace(/\/(\d+)$/, "/"+evt.params.data.id)
+      group_id = evt.params.data.id
+      url = permission_context.get_permissions.replace(/\/(\d+)$/, "/"+group_id)
       permission_context.get_permissions = url
       get_permissions_url = permission_context.get_permissions+"?option="+option+"&q="+$('#btn_perms').data("urlname");
       $.ajax({
@@ -97,7 +100,6 @@ $(document).ready(function(){
             checkboxchecked = checkboxes.filter(':checked');
             checkboxchecked.iCheck('uncheck');
             data['result'].forEach(function(i){
-              console.log(i)
               $('input[type="checkbox"][value="'+i.id+'"]').iCheck('check');
             });
           }else{
@@ -142,7 +144,6 @@ function update_categorieicon_collapsed(){
 
 }
 
-
     $('#permission_modal').on('show.bs.modal', function (e) {
       var urltarget = $(e.relatedTarget).data('parameter');
 
@@ -174,6 +175,34 @@ function update_categorieicon_collapsed(){
 
   $("#btn_savepermissions").click(function(){
     if(selected_user_or_group){
+      permsurl_save = permission_context.save_permissions+"?urlname="+$('#btn_perms').data("urlname")
+      selected = []
+      inputs_selected = $('input[type="checkbox"][name="permission"]').filter(":checked");
+      console.log(inputs_selected.length);
+      for(i=0; i < inputs_selected.length; i++){
+        selected.push($(inputs_selected[i]).val());
+      }
+      save_option = option==2 ? 2 : 1
+      if(save_option == 2){
+        data_save = {"type": save_option, "group": group_id, "permissions": selected};
+      }else{
+        data_save =  {"type": save_option, "user": user_id, "permissions": selected};
+      }
+      $.ajax({
+        url: permsurl_save,
+        method: "POST",
+        dataType: "json",
+        data: data_save,
+        headers: {'X-CSRFToken': getCookie('csrftoken') },
+        success: function(data){
+          console.log(data)
+        },
+        error: function(xhr, ajaxOptions, thrownError){
+          if(xhr.status==404) {
+            console.log("Error here");
+          }
+        }
+      });
       Swal.fire({
         position: 'top-end',
         icon: 'success',
