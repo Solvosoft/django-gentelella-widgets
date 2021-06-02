@@ -2,7 +2,7 @@ from django import forms
 from djgentelella.forms.forms import GTForm
 from djgentelella.settings import Group, User
 from djgentelella.models import PermissionsCategoryManagement
-from settings import USER_MODEL_BASE, GROUP_MODEL_BASE
+from djgentelella.settings import USER_MODEL_BASE, GROUP_MODEL_BASE
 
 
 class PermCategoryManagementForm(GTForm, forms.Form):
