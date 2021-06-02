@@ -5,7 +5,6 @@ register = template.Library()
 
 @register.simple_tag
 def get_page_name(val):
-    #url = resolve(request.path_info).url_name
     url = reverse('permissionsmanagement-list')
     return url+'?q='+val
 
@@ -19,4 +18,8 @@ def define_urlname_action(context, val):
 @register.simple_tag(takes_context=True)
 def get_urlname_action(context):
     value = getattr(context['request'], 'urlnamecontext', [])
-    return ",".join(value)
+    result = ''
+    if value:
+        result = ",".join(value)
+
+    return result
