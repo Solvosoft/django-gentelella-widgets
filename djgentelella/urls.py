@@ -9,6 +9,7 @@ from djgentelella.widgets.helper import HelperWidgetView
 from .wysiwyg import views as wysiwyg_get
 from django.contrib.auth.decorators import login_required
 from .editorTinymce import views as tinymce
+from djgentelella.permission_management import views as permissions
 
 
 auth_urls = [
@@ -76,5 +77,8 @@ base_urlpatterns = [
     url('^notification/list/$', NotificationList.as_view(), name="notification_list")
 ]
 
+permission_management_urls = [
+    path('permission/management/<int:pk>', permissions.get_permissions, name="permission_view_list"),
+]
 urlpatterns = auth_urls + base_urlpatterns+ tinymce_urls + wysiwyg_urls
 
