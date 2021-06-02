@@ -28,12 +28,22 @@
     $('#btn_user').click(function(){
         $("#user_container").show();
         $("#group_container").hide();
+        var checkboxes = $('input[type="checkbox"][name="permission"]');
+        checkboxchecked = checkboxes.filter(':checked');
+        checkboxchecked.iCheck('uncheck');
+        $("#select_user").empty().trigger('change')
+        $("#select_group").empty().trigger('change')
         option = 0
     });
 
     $("#btn_group").click(function(){
         $("#group_container").show();
         $("#user_container").hide();
+        var checkboxes = $('input[type="checkbox"][name="permission"]');
+        checkboxchecked = checkboxes.filter(':checked');
+        checkboxchecked.iCheck('uncheck');
+        $("#select_user").empty().trigger('change')
+        $("#select_group").empty().trigger('change')
         option = 2
     });
 
