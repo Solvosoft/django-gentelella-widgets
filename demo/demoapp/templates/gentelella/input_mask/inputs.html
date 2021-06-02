@@ -1,6 +1,12 @@
 {% extends 'gentelella/base_site.html' %}
 
+{% load urlname_tags %}
+
 {% block content %}
+
+{% block pre_head %}
+    {% define_urlname_action 'input-mask-add'%}
+{% endblock %}
 
 <div class="row">
     <div class='col-xs-12 col-sm-12 col-md-12 col-lg-6'>

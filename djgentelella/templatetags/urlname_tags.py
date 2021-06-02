@@ -24,4 +24,5 @@ def get_urlname_action(context):
     result = ''
     if value:
         result = ",".join(value)
+
     return result

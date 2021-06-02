@@ -1,7 +1,12 @@
 {% extends 'gentelella/base_site.html' %}
-{% load i18n %}
+{% load i18n urlname_tags %}
 
 {% block content %}
+
+{% block pre_head %}
+  {% define_urlname_action 'entrycreate' %}
+{% endblock %}
+
 <div class="x_panel " xmlns="http://www.w3.org/1999/html">
     <div class="x_title"></div>
         <div class="x_content">
