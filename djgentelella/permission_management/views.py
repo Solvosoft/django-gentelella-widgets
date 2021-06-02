@@ -74,12 +74,12 @@ def get_groups(request):
     return JsonResponse(response)
 
 
-def get_permissions(request):
+def get_permissions(request, pk):
 
     if int(request.GET.get('option')) == 2:
-        return get_group_permissions(request.POST.get('group'))
+        return get_group_permissions(pk)
     else:
-        return get_user_permissions(request.POST.get('user'))
+        return get_user_permissions(pk)
 
 
 def get_group_permissions(pk):
