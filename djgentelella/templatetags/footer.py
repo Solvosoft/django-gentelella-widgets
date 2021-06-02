@@ -21,4 +21,9 @@ def define_urlname_action(context, val):
 @register.simple_tag(takes_context=True)
 def get_urlname_action(context):
     value = getattr(context['request'], 'urlnamecontext', [])
-    return ",".join(value)
+    result=''
+    if value:
+        print(value)
+
+        result=",".join(value)
+    return result
