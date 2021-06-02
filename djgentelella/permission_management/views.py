@@ -75,30 +75,45 @@ def save_permsgroup_user(request):
 
 
 def get_permissions(request, pk):
+    q = request.GET.get('q')
+
+    if not q:
+        raise Http404
+    permission_list = PermissionsCategoryManagement.objects.filter(url_name__in=q.split(',')). \
+        values('category', 'permission', 'name')
 
     if int(request.GET.get('option')) == 2:
-        return get_group_permissions(pk)
+        return get_group_permissions(pk,permission_list)
     else:
-        return get_user_permissions(pk)
+        return get_user_permissions(pk,permission_list)
 
 
-def get_group_permissions(pk):
+def check_permissions(perm_list, perm_item):
+    result = False
+    for perm in perm_list:
+        if perm['permission'] == perm_item.pk:
+            return True
+    return result
+
+
+def get_group_permissions(pk,q):
     group = Group.objects.filter(pk=pk).first()
     perms = []
     response = {}
-
+    permission_list = PermissionsCategoryManagement.objects.filter(url_name__in=q.split(',')). \
+        values('category', 'permission', 'name')
     if group is not None:
 
         for perm in group.permissions.all():
-            perms.append({'id': perm.pk, 'name': perm.name, 'codename': perm.codename})
+            if check_permissions(permission_list,perm):
+                perms.append({'id': perm.pk, 'name': perm.name, 'codename': perm.codename})
 
         response['result'] = perms
-
     return JsonResponse(response)
 
 
 
-def get_user_permissions(pk):
+def get_user_permissions(pk,permission_list):
     perms = []
     user = User.objects.filter(pk=pk).first()
     response = {}
@@ -106,7 +121,8 @@ def get_user_permissions(pk):
     if user is not None:
 
         for perm in user.user_permissions.all():
-            perms.append({'id': perm.pk, 'name': perm.name, 'codename': perm.codename})
+            if check_permissions(permission_list, perm):
+                perms.append({'id': perm.pk, 'name': perm.name, 'codename': perm.codename})
 
         response['result'] = perms
 
