@@ -1,11 +1,13 @@
 {% for key, value in categories.items %}
 
-   <a class="btn" data-toggle="collapse" data-target="#demo{{key}}"><i class="fa fa-plus"></i></a> <strong>{{key}}</strong>
+   <a class="btn categories" data-toggle="collapse" data-target="#category{{key}}"><i class="fa fa-plus"></i></a> <strong>{{key}}</strong>
 
-  <div id="demo{{key}}" class="collapse">
+  <div id="category{{key}}" class="collapse">
     {% for item in value %}
-      <div class="icheckbox_flat-green" style="margin-left: 5%;"><input type="checkbox" name="permission" value="{{item.id}}"><ins class="iCheck-helper"></ins></div> {{item.name}}
-      {% endfor %}
+      <div class="row" style="margin-left: 12%;">
+        <p><div class="icheckbox_flat-green"><input type="checkbox" class="flat" name="permission" value="{{item.id}}" style="position: absolute; opacity: 0;"><ins class="iCheck-helper"></ins></div> {{item.name}}</p>
+      </div>
+        {% endfor %}
   </div>
 
 {% endfor %}
