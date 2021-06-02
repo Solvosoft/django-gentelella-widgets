@@ -1,6 +1,9 @@
 {% extends 'gentelella/index.html' %}
-
+{% load urlname_tags %}
 {% block content %}
+{% block pre_head %}
+{% define_urlname_action 'colorwidgets' %}
+{% endblock %}
 
 <div class="row">
     <div class="col-md-6">

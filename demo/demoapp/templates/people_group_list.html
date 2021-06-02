@@ -1,7 +1,11 @@
 {% extends 'gentelella/base.html' %}
-
+{% load urlname_tags %}
 {% block content %}
-
+{% block pre_head %}
+{% define_urlname_action 'pgroup-add'%}
+{% define_urlname_action 'pgroup-edit'%}
+{% define_urlname_action 'pgroup-list'%}
+{% endblock%}
 
 
 <div class="x_panel">

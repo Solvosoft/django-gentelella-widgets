@@ -10,7 +10,7 @@ from djgentelella.permission_management.forms import PermCategoryManagementForm
 
 def get_permission_list(request):
 
-    response ={}
+    response = {}
     categories = {}
 
     q = request.GET.get('q')
