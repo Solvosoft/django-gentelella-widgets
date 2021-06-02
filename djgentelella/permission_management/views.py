@@ -10,7 +10,7 @@ from djgentelella.permission_management.forms import PermCategoryManagementForm
 
 def get_permission_list(request):
 
-    response ={}
+    response = {}
     categories = {}
 
     q = request.GET.get('q')
@@ -94,12 +94,12 @@ def get_group_permissions(pk):
 
         response['result'] = perms
 
-    return JsonResponse(response, safe=False)
+    return JsonResponse(response)
+
 
 
 def get_user_permissions(pk):
     perms = []
-    response = {}
     user = User.objects.filter(pk=pk).first()
     response = {}
 
@@ -110,4 +110,5 @@ def get_user_permissions(pk):
 
         response['result'] = perms
 
-        return JsonResponse(response, safe=False)
+        return JsonResponse(response)
+
