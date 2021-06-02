@@ -1,11 +1,14 @@
 import json
 
+from django.contrib.auth.models import Permission
+
 from djgentelella.settings import Group, User
 from django.http import JsonResponse, Http404
 from django.template.loader import render_to_string
 
 from djgentelella.models import PermissionsCategoryManagement
 from djgentelella.permission_management.forms import PermCategoryManagementForm
+
 
 
 def get_permission_list(request):
@@ -31,15 +34,56 @@ def get_permission_list(request):
     return JsonResponse(response)
 
 
+def management_permissions(item, item_type, permissions, permission_list):
+
+    if item_type == 1:
+
+        for perm in permission_list:
+            if perm in item.user_permissions.all() and not perm in permissions:
+                item.user_permissions.remove(perm)
+            elif not perm in item.user_permissions.all() and perm in permissions:
+                item.user_permissions.add(perm)
+    else:
+        for perm in permission_list:
+            if perm in item.permissions.all() and not perm in permissions:
+                item.permissions.remove(perm)
+            elif not perm in item.permissions.all() and perm in permissions:
+                item.permissions.add(perm)
+
 
 def save_permcategorymanagement(request):
 
-    response = {}
-
+    response = {'result': 'error'}
+    urlname = request.GET.get('urlname', '')
     form = PermCategoryManagementForm(request.POST)
 
-    if form.is_valid():
-        pass
+    if urlname:
+
+        permissions_pk = list(PermissionsCategoryManagement.objects.filter(url_name__in=urlname.split(',')).values_list('permission', flat=True))
+        permissions_list = Permission.objects.filter(pk__in=permissions_pk)
+
+        if request.user.is_superuser:
+
+            if form.is_valid():
+
+                item_type = form['type']
+                user = form['user']
+                group = form['group']
+                permissions = form['permissions']
+
+                if item_type:
+                    if item_type == 1:
+                        management_permissions(user, item_type, permissions, permissions_list)
+                    else:
+                        management_permissions(group, item_type, permissions, permissions_list)
+                    response['result'] = 'ok'
+            else:
+                response['message'] = 'Form data has errors, please try again'
+                response['errors'] = form.errors
+        else:
+            response['message'] = "User isn't a super user"
+    else:
+        response['message'] = "Permissions don't exists"
 
     return JsonResponse(response)
 
