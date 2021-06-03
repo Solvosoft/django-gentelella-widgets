@@ -40,6 +40,7 @@ def save_permcategorymanagement(request):
 def get_permissions(request, pk):
     form = FilterPermCategoryForm(request.GET)
     if form.is_valid():
+
         instance = ObjManager.get_class(request, form)
         try:
             response = {'result':  instance.get_django_permissions(pk=pk)}
