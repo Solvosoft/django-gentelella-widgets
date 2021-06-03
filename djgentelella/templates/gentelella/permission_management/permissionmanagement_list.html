@@ -2,12 +2,12 @@
 
    <a class="btn categories" data-toggle="collapse" data-target="#category{{key}}"><i class="fa fa-plus"></i></a> <strong>{{key}}</strong>
 
-  <div id="category{{key}}" class="collapse">
+  <div id="category{{key}}" class="collapse" style="width:100%">
     {% for item in value %}
       <div class="row" style="margin-left: 12%;">
         <p><input type="checkbox" class="flat" name="permission" value="{{item.id}}" style="position: absolute; opacity: 0;"> {{item.name}}</p>
       </div>
         {% endfor %}
   </div>
-  <br>
+<br>
 {% endfor %}
