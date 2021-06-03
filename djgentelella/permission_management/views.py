@@ -4,6 +4,7 @@ from django.template.loader import render_to_string
 
 from djgentelella.permission_management.forms import PermCategoryManagementForm, FilterPermCategoryForm
 from djgentelella.permission_management.objinterface import ObjManager
+from djgentelella.settings import User
 
 
 @login_required
@@ -40,6 +41,10 @@ def get_permissions(request, pk):
     form = FilterPermCategoryForm(request.GET)
     if form.is_valid():
         instance = ObjManager.get_class(request, form)
-        response = {'result':  instance.get_django_permissions(pk=pk)}
+        try:
+            response = {'result':  instance.get_django_permissions(pk=pk)}
+        except :
+            # algo
+            pass
         return JsonResponse(response)
     raise Http404
