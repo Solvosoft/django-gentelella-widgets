@@ -178,7 +178,6 @@ function update_categorieicon_collapsed(){
       permsurl_save = permission_context.save_permissions+"?urlname="+$('#btn_perms').data("urlname")
       selected = []
       inputs_selected = $('input[type="checkbox"][name="permission"]').filter(":checked");
-      console.log(inputs_selected.length);
       for(i=0; i < inputs_selected.length; i++){
         selected.push($(inputs_selected[i]).val());
       }
