@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-05-14 03:47+0000\n"
-"PO-Revision-Date: 2021-06-03 16:06-0600\n"
+"PO-Revision-Date: 2021-06-03 16:23-0600\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: es\n"
@@ -500,6 +500,6 @@ msgstr "Seleccione a un Usuario"
 msgid "Select a Group"
 msgstr "Seleccione un grupo"
 
-#: templates/gentelella/app/top_navigation.html:11
+#: ../templates/gentelella/app/top_navigation.html:11
 msgid "Add Permission"
 msgstr "Agregar Permisos"
