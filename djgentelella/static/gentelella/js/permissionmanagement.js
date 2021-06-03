@@ -193,6 +193,7 @@ function update_categorieicon_collapsed(){
         method: "POST",
         dataType: "json",
         data: data_save,
+        traditional: true,
         headers: {'X-CSRFToken': getCookie('csrftoken') },
         success: function(data){
           console.log(data)

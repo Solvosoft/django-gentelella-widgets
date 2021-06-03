@@ -1,7 +1,7 @@
 from django import forms
 from djgentelella.forms.forms import GTForm
 from djgentelella.settings import Group, User
-from djgentelella.models import PermissionsCategoryManagement
+from django.contrib.auth.models import Permission
 from djgentelella.settings import USER_MODEL_BASE, GROUP_MODEL_BASE
 
 
@@ -9,7 +9,7 @@ class PermCategoryManagementForm(GTForm, forms.Form):
     type = forms.ChoiceField(choices=((1, 'User'), (2, 'Group')), required=True)
     user = forms.ModelChoiceField(queryset=User.objects.all(), required=False)
     group = forms.ModelChoiceField(queryset=Group.objects.all(), required=False)
-    permissions = forms.ModelMultipleChoiceField(queryset=PermissionsCategoryManagement.objects.all(), required=False)
+    permissions = forms.ModelMultipleChoiceField(queryset=Permission.objects.all(), required=False)
 
     def clean_user(self):
         type = self.cleaned_data.get("type")
