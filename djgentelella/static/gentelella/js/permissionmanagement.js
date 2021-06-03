@@ -3,6 +3,19 @@ option = 1;
 get_permissions = "";
 group_id = 0;
 user_id = 0;
+
+const Toast = Swal.mixin({
+  toast: true,
+  position: 'top-end',
+  showConfirmButton: false,
+  timer: 3000,
+  timerProgressBar: true,
+  didOpen: (toast) => {
+    toast.addEventListener('mouseenter', Swal.stopTimer)
+    toast.addEventListener('mouseleave', Swal.resumeTimer)
+  }
+});
+
 $(document).ready(function(){
     $('#select_user').select2({
       ajax: {
@@ -172,91 +185,65 @@ function update_categorieicon_collapsed(){
     });
 
   $("#btn_savepermissions").click(function(){
-    if(selected_user_or_group){
-      permsurl_save = permission_context.save_permissions
-      selected = []
-      inputs_selected = $('input[type="checkbox"][name="permission"]').filter(":checked");
-      for(i=0; i < inputs_selected.length; i++){
-        selected.push($(inputs_selected[i]).val());
-      }
-      data_save = {
-        "option": option,
-        "permissions": selected,
-        "urlname": $('#btn_perms').data("urlname"),
-      };
-      if(option == 2){
-        data_save['group'] = group_id;
-      }else{
-        data_save['user'] = user_id;
-      }
-      $.ajax({
-        url: permsurl_save,
-        method: "POST",
-        dataType: "json",
-        data: data_save,
-        traditional: true,
-        headers: {'X-CSRFToken': getCookie('csrftoken') },
-        success: function(data){
-          const Toast = Swal.mixin({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true,
-            didOpen: (toast) => {
-              toast.addEventListener('mouseenter', Swal.stopTimer)
-              toast.addEventListener('mouseleave', Swal.resumeTimer)
-            }
-          });
-
-          var checkboxes = $('input[type="checkbox"][name="permission"]');
-          checkboxchecked = checkboxes.filter(':checked');
-          checkboxchecked.iCheck('uncheck');
-          $("#select_user").empty().trigger('change')
-          $("#select_group").empty().trigger('change')
-          Toast.fire({
-            icon: 'success',
-            title: 'Se han guardado exitosamente los permisos.'
-          });
-          $('#permission_modal').modal('hide');
-        },
-        error: function(xhr, ajaxOptions, thrownError){
-          const Toast = Swal.mixin({
-              toast: true,
-              position: 'top-end',
-              showConfirmButton: false,
-              timer: 3000,
-              timerProgressBar: true,
-              didOpen: (toast) => {
-                  toast.addEventListener('mouseenter', Swal.stopTimer)
-                  toast.addEventListener('mouseleave', Swal.resumeTimer)
-              }
-          });
-
-          Toast.fire({
-              icon: 'error',
-              title: 'Ha ocurrido un error al guardar.'
-          });
+    if($('#btn_perms').data("urlname")!=""){
+      if(selected_user_or_group){
+        permsurl_save = permission_context.save_permissions
+        selected = []
+        inputs_selected = $('input[type="checkbox"][name="permission"]').filter(":checked");
+        for(i=0; i < inputs_selected.length; i++){
+          selected.push($(inputs_selected[i]).val());
         }
-      });      
-    }else{
-      const Toast = Swal.mixin({
-          toast: true,
-          position: 'top-end',
-          showConfirmButton: false,
-          timer: 3000,
-          timerProgressBar: true,
-          didOpen: (toast) => {
-              toast.addEventListener('mouseenter', Swal.stopTimer)
-              toast.addEventListener('mouseleave', Swal.resumeTimer)
-          }
-      });
+        data_save = {
+          "option": option,
+          "permissions": selected,
+          "urlname": $('#btn_perms').data("urlname"),
+        };
+        if(option == 2){
+          data_save['group'] = group_id;
+        }else{
+          data_save['user'] = user_id;
+        }
+        $.ajax({
+          url: permsurl_save,
+          method: "POST",
+          dataType: "json",
+          data: data_save,
+          traditional: true,
+          headers: {'X-CSRFToken': getCookie('csrftoken') },
+          success: function(data){
 
+            var checkboxes = $('input[type="checkbox"][name="permission"]');
+            checkboxchecked = checkboxes.filter(':checked');
+            checkboxchecked.iCheck('uncheck');
+            $("#select_user").empty().trigger('change')
+            $("#select_group").empty().trigger('change')
+            Toast.fire({
+              icon: 'success',
+              title: 'Se han guardado exitosamente los permisos.'
+            });
+            $('#permission_modal').modal('hide');
+          },
+          error: function(xhr, ajaxOptions, thrownError){
+
+            Toast.fire({
+                icon: 'error',
+                title: 'Ha ocurrido un error al guardar.'
+            });
+          }
+        });      
+      }else{
+
+        Toast.fire({
+            icon: 'error',
+            title: 'No ha seleccionado una opción valida'
+        });
+      }
+    }else{
       Toast.fire({
           icon: 'error',
-          title: 'No ha seleccionado una opción valida'
+          title: 'This view has not permissions associated'
       });
     }
-  })
+    });
 
 });
