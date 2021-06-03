@@ -17,7 +17,10 @@ def get_permission_list(request):
         categories=instance.get_permission_list()
         response['result'] = render_to_string('gentelella/permission_management/permissionmanagement_list.html', {'categories': categories})
         return JsonResponse(response)
-    raise Http404
+    else:
+        response['message'] = 'Form data has errors, please try again'
+        response['errors'] = form.errors
+    return JsonResponse(response)
 
 
 @login_required
