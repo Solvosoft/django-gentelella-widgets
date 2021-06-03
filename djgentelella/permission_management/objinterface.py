@@ -2,7 +2,25 @@ from djgentelella.models import PermissionsCategoryManagement
 from djgentelella.settings import Group, User
 
 
-class PMUser:
+class PMBase:
+
+    def get_permission_list(self):
+        categories = {}
+        q = self.form.cleaned_data['urlname']
+        permissions_list = PermissionsCategoryManagement.objects.filter(url_name__in=q.split(',')). \
+            values('category', 'permission', 'name')
+
+        for perm in permissions_list:
+            if perm['category'] not in categories:
+                categories[perm['category']] = []
+
+            categories[perm['category']].append({'id': perm['permission'],
+                                                 'name': perm['name']})
+        return categories
+
+
+class PMUser(PMBase):
+    
     def __init__(self, request, form):
         self.form = form
         self.request = request
@@ -21,20 +39,6 @@ class PMUser:
                 perms.append({'id': perm['permission'], 'name': perm['permission__name'],
                               'codename': perm['permission__codename']})
         return perms
-
-    def get_permission_list(self):
-        categories = {}
-        q = self.form.cleaned_data['urlname']
-        permissions_list = PermissionsCategoryManagement.objects.filter(url_name__in=q.split(',')). \
-            values('category', 'permission', 'name')
-
-        for perm in permissions_list:
-            if perm['category'] not in categories:
-                categories[perm['category']] = []
-
-            categories[perm['category']].append({'id': perm['permission'],
-                                                 'name': perm['name']})
-        return categories
 
     def update_permission(self):
         user = self.form.cleaned_data['user']
@@ -55,7 +59,7 @@ class PMUser:
             user.user_permissions.add(*add_permission) # ? list(Permission.objects.filter(pk__in=add_permission))
 
 
-class PMGroup:
+class PMGroup(PMBase):
 
     def __init__(self, request, form):
         self.form = form
@@ -75,20 +79,6 @@ class PMGroup:
                 perms.append({'id': perm['permission'], 'name': perm['permission__name'],
                               'codename': perm['permission__codename']})
         return perms
-
-    def get_permission_list(self):
-        categories = {}
-        q = self.form.cleaned_data['urlname']
-        permissions_list = PermissionsCategoryManagement.objects.filter(url_name__in=q.split(',')). \
-            values('category', 'permission', 'name')
-
-        for perm in permissions_list:
-            if perm['category'] not in categories:
-                categories[perm['category']] = []
-
-            categories[perm['category']].append({'id': perm['permission'],
-                                                 'name': perm['name']})
-        return categories
 
     def update_permission(self):
         group = self.form.cleaned_data['group']
