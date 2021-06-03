@@ -180,7 +180,7 @@ function update_categorieicon_collapsed(){
         title: 'Your work has been saved',
         showConfirmButton: false,
         timer: 3000,
-      });      
+      });
     }else{
       Swal.fire({
         position: 'top-end',
