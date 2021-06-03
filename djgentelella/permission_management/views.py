@@ -70,9 +70,6 @@ def save_permcategorymanagement(request):
                 user = form.cleaned_data['user']
                 group = form.cleaned_data['group']
                 permissions = form.cleaned_data['permissions']
-                print(request.POST)
-                print(permissions)
-
                 if item_type:
                     if item_type == 1:
                         management_permissions(user, item_type, permissions, permissions_list)

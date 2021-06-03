@@ -196,20 +196,24 @@ function update_categorieicon_collapsed(){
         traditional: true,
         headers: {'X-CSRFToken': getCookie('csrftoken') },
         success: function(data){
-          console.log(data)
+          Swal.fire({
+            position: 'top-end',
+            icon: 'success',
+            title: 'Se han guardado exitosamente los permisos.',
+            showConfirmButton: true,
+            timer: 3000,
+          });
         },
         error: function(xhr, ajaxOptions, thrownError){
-          if(xhr.status==404) {
-            console.log("Error here");
-          }
+          Swal.fire({
+            position: 'top-end',
+            icon: 'error',
+            title: 'Error al guardar',
+            text: 'Ha ocurrido un error al guardar.',
+            timer: 3000,
+            showConfirmButton: true,
+          });
         }
-      });
-      Swal.fire({
-        position: 'top-end',
-        icon: 'success',
-        title: 'Se han guardado exitosamente los permisos.',
-        showConfirmButton: true,
-        timer: 3000,
       });      
     }else{
       Swal.fire({
