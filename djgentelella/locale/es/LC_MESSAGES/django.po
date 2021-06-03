@@ -480,3 +480,7 @@ msgstr "Sí"
 #: widgets/core.py:293
 msgid "Unknown"
 msgstr "Desconocido"
+
+#: templates/gentelella/blocks/permissions_management.html:10
+msgid "Permission Management"
+msgstr "Gestion de Permisos"

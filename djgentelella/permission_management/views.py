@@ -45,9 +45,8 @@ def get_permissions(request, pk):
         instance = ObjManager.get_class(request, form)
         try:
             response = {'result':  instance.get_django_permissions(pk=pk)}
-        except :
-            # algo
-            pass
+        except User.DoesNotExist:
+            raise Http404
     else:
         response['message'] = 'Form data has errors, please try again'
         response['errors'] = form.errors
