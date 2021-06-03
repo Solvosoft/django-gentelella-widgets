@@ -1,5 +1,6 @@
-{% load static %}
-{% load  gentelellamenu gtsettings %}
+{% load static i18n %}
+{% load  gentelellamenu gtsettings urlname_tags %}
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -20,6 +21,7 @@
 
       {% block stylesheets %}
         <!-- Bootstrap -->
+
         <link href="{% static 'vendors/bootstrap/bootstrap.min.css' %}" rel="stylesheet">
         <link href="{% static 'vendors/jquery-ui/jquery-ui.css' %}" rel="stylesheet">
         <link href="{% static 'vendors/font-awesome/font-awesome.min.css' %}" rel="stylesheet">
@@ -113,6 +115,9 @@
 
             <footer>
               {% include "gentelella/app/footer.html" %}
+              {% if request.user.is_superuser %}
+                {% include 'gentelella/blocks/permissions_management.html' %}
+              {% endif %}
             </footer>
 
           {% endblock footer %}
@@ -177,6 +182,23 @@
       <script src="{% static 'gentelella/js/base.js' %}?v={% get_version %}"></script>
       <script src="{% static 'gentelella/js/widgets.js' %}?v={% get_version %}"></script>
       <script src="{% static 'gentelella/js/custom.js' %}?v={% get_version %}"></script>
+      {% if request.user.is_superuser %}
+        <script>
+        var permission_context = {
+            'select_user_url': "{% url 'userbase-list' %}",
+            'select_group_url': "{% url 'groupbase-list' %}",
+            'user_placeholder': "{% trans 'Select an User' %}",
+            'group_placeholder': "{% trans 'Select a Group' %}",
+            'get_permissions': "{% url 'permission_view_list' pk=0 %}",
+            'save_permissions': "{% url 'permcategorymanagement-save' %}",
+            'user_label': "{% trans 'User' %}",
+            'group_label': "{% trans 'Group' %}",
+            'not_found_permissions_label': "{% trans 'This view has not permissions associated.' %}" 
+        };
+
+        </script>
+      <script src="{% static 'gentelella/js/permissionmanagement.js' %}?v={% get_version %}"></script>
+      {% endif %}
       {% render_menu_js_widget %}
       {% endblock %}
 

@@ -1,16 +1,15 @@
 <div class="nav_menu">
-  {% load  gentelellamenu %}
-
+  {% load  gentelellamenu gtsettings urlname_tags %}
     <div class="nav toggle">
       <a id="menu_toggle"><i class="fa fa-bars"></i></a>
     </div>
 
     <ul class="nav navbar-nav navbar-right">
-
-
-
-        {% top_menu  %}
-
+      {% top_menu  %}
+      {% if request.user.is_superuser %}
+        {% get_urlname_action as urlnameactions %}
+        <li><a class="btn" id="btn_perms" title="Add Permission" data-toggle="modal" data-target="#permission_modal" data-parameter="{% get_page_name urlnameactions %}" data-urlname="{{urlnameactions}}"><i class="fa fa-plus"></i></a></li>
+      {% endif %}
 
     </ul>
 
