@@ -18,7 +18,6 @@ class Command(BaseCommand):
             'autocompleteSelect2.js',
             'select2_wrap.js',
             'dateranges_gridslider.js',
-            'booleanFields.js'
             'booleanFields.js',
             'editorTinymce.js',
             'wysiwyg.js'
