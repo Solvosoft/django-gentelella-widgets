@@ -183,9 +183,9 @@ function update_categorieicon_collapsed(){
       }
       save_option = option==2 ? 2 : 1
       if(save_option == 2){
-        data_save = {"type": save_option, "group": group_id, "permissions": selected,"option":2, "urlname":$('#btn_perms').data("urlname")};
+        data_save = {"type": save_option, "group": group_id, "permissions": selected,"option":option, "urlname":$('#btn_perms').data("urlname")};
       }else{
-        data_save =  {"type": save_option, "user": user_id, "permissions": selected,"option":1, "urlname":$('#btn_perms').data("urlname")};
+        data_save =  {"type": save_option, "user": user_id, "permissions": selected,"option":option, "urlname":$('#btn_perms').data("urlname")};
       }
       $.ajax({
         url: permsurl_save,
