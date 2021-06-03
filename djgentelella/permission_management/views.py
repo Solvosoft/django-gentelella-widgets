@@ -39,6 +39,7 @@ def save_permcategorymanagement(request):
 @user_passes_test(lambda u: u.is_superuser )
 def get_permissions(request, pk):
     form = FilterPermCategoryForm(request.GET)
+    response = {}
     if form.is_valid():
         instance = ObjManager.get_class(request, form)
         try:
@@ -46,5 +47,7 @@ def get_permissions(request, pk):
         except :
             # algo
             pass
-        return JsonResponse(response)
-    raise Http404
+    else:
+        response['message'] = 'Form data has errors, please try again'
+        response['errors'] = form.errors
+    return JsonResponse(response)
