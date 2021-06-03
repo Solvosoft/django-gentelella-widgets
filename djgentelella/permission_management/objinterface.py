@@ -39,19 +39,19 @@ class PMUser:
     def update_permission(self):
         user = self.form.cleaned_data['user']
         old_user_permission = set(map(lambda x: x["id"], self.get_django_permissions(user.pk)))
-        set_permission_list = set(self.form.cleaned_data['permissions'].values('pk', flat=True))
+        set_permission_list = set(self.form.cleaned_data['permissions'])
 
         remove_permission = old_user_permission - set_permission_list
         add_permission = set_permission_list - old_user_permission
         # Check empty fields and clean permissions ?
 
         if hasattr(user, 'gt_rm_permission'):
-            user.gt_rm_permission(remove_permission)
+            user.gt_rm_permission(*remove_permission)
         else:
-            user.user_permissions.remove(remove_permission)
+            user.user_permissions.remove(*remove_permission)
 
         if hasattr(user, 'gt_add_permission'):
-            user.gt_add_permission(add_permission)
+            user.gt_add_permission(*add_permission)
         else:
             user.user_permissions.add(*add_permission) # ? list(Permission.objects.filter(pk__in=add_permission))
 
@@ -94,19 +94,19 @@ class PMGroup:
     def update_permission(self):
         group = self.form.cleaned_data['group']
         old_user_permission = set(map(lambda x: x["id"], self.get_django_permissions(group.pk)))
-        set_permission_list = set(self.form.cleaned_data['permissions'].values('pk', flat=True))
+        set_permission_list = set(self.form.cleaned_data['permissions'])
 
         remove_permission = old_user_permission - set_permission_list
         add_permission = set_permission_list - old_user_permission
         # Check empty fields and clean permissions ?
 
         if hasattr(group, 'gt_rm_permission'):
-            group.gt_rm_permission(remove_permission)
+            group.gt_rm_permission(*remove_permission)
         else:
-            group.permissions.remove(remove_permission)
+            group.permissions.remove(*remove_permission)
 
         if hasattr(group, 'gt_add_permission'):
-            group.gt_add_permission(add_permission)
+            group.gt_add_permission(*add_permission)
         else:
             group.permissions.add(*add_permission) # ? Permission.objects.filter(pk__in=add_permission)
 
