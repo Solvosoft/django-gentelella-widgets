@@ -39,7 +39,7 @@ class PMUser:
     def update_permission(self):
         user = self.form.cleaned_data['user']
         old_user_permission = set(map(lambda x: x["id"], self.get_django_permissions(user.pk)))
-        set_permission_list = set(self.form.cleaned_data['permissions'])
+        set_permission_list = set(self.form.cleaned_data['permissions'].values_list('pk', flat=True))
 
         remove_permission = old_user_permission - set_permission_list
         add_permission = set_permission_list - old_user_permission
@@ -93,7 +93,7 @@ class PMGroup:
     def update_permission(self):
         group = self.form.cleaned_data['group']
         old_user_permission = set(map(lambda x: x["id"], self.get_django_permissions(group.pk)))
-        set_permission_list = set(self.form.cleaned_data['permissions'])
+        set_permission_list = set(self.form.cleaned_data['permissions'].values_list('pk', flat=True))
         remove_permission = old_user_permission - set_permission_list
         add_permission = set_permission_list - old_user_permission
         # Check empty fields and clean permissions ?
