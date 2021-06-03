@@ -1,8 +1,14 @@
 {% extends 'gentelella/base.html' %}
 
+{% load urlname_tags %}
+
 {% block content %}
 
-
+{% block pre_head %}
+    {% define_urlname_action 'date-range-add'%}
+    {% define_urlname_action 'date-range-list'%}
+    {% define_urlname_action 'date-range-edit'%}
+{% endblock %}
 
 <div class="x_panel">
     <div class="x_title">
