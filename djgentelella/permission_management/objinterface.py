@@ -113,8 +113,8 @@ class PMGroup:
 
 class ObjManager:
     @staticmethod
-    def get_class(cls, request, form):
-        if form.clean_data['option'] == 1:
+    def get_class(request, form):
+        if form.cleaned_data['option'] == '1':
             return PMUser(request, form)
-        elif form.clean_data['option'] == 2:
+        elif form.cleaned_data['option'] == '2':
             return PMGroup(request, form)
