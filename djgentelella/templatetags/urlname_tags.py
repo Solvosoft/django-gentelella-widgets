@@ -1,5 +1,6 @@
 from django import template
 from django.urls import reverse
+from django.utils.http import urlencode
 
 register = template.Library()
 
@@ -7,7 +8,12 @@ register = template.Library()
 @register.simple_tag
 def get_page_name(val):
     url = reverse('permissionsmanagement-list')
-    return url+'?q='+val
+    parameters = {
+        'urlname': val,
+        'option': 1
+    }
+    p = urlencode(parameters)
+    return url+'?'+p
 
 
 @register.simple_tag(takes_context=True)
