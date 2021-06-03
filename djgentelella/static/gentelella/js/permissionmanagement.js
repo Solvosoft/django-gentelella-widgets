@@ -195,33 +195,59 @@ function update_categorieicon_collapsed(){
         traditional: true,
         headers: {'X-CSRFToken': getCookie('csrftoken') },
         success: function(data){
-          Swal.fire({
+          const Toast = Swal.mixin({
+            toast: true,
             position: 'top-end',
-            icon: 'success',
-            title: 'Se han guardado exitosamente los permisos.',
-            showConfirmButton: true,
+            showConfirmButton: false,
             timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+              toast.addEventListener('mouseenter', Swal.stopTimer)
+              toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
           });
+
+          Toast.fire({
+            icon: 'success',
+            title: 'Se han guardado exitosamente los permisos.'
+          });
+          $('#permission_modal').modal('hide');
         },
         error: function(xhr, ajaxOptions, thrownError){
-          Swal.fire({
-            position: 'top-end',
-            icon: 'error',
-            title: 'Error al guardar',
-            text: 'Ha ocurrido un error al guardar.',
-            timer: 3000,
-            showConfirmButton: true,
+          const Toast = Swal.mixin({
+              toast: true,
+              position: 'top-end',
+              showConfirmButton: false,
+              timer: 3000,
+              timerProgressBar: true,
+              didOpen: (toast) => {
+                  toast.addEventListener('mouseenter', Swal.stopTimer)
+                  toast.addEventListener('mouseleave', Swal.resumeTimer)
+              }
+          });
+
+          Toast.fire({
+              icon: 'error',
+              title: 'Ha ocurrido un error al guardar.'
           });
         }
       });      
     }else{
-      Swal.fire({
-        position: 'top-end',
-        icon: 'error',
-        title: 'Error al guardar',
-        text: 'No ha seleccionado una opción valida',
-        timer: 3000,
-        showConfirmButton: true,
+      const Toast = Swal.mixin({
+          toast: true,
+          position: 'top-end',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+          didOpen: (toast) => {
+              toast.addEventListener('mouseenter', Swal.stopTimer)
+              toast.addEventListener('mouseleave', Swal.resumeTimer)
+          }
+      });
+
+      Toast.fire({
+          icon: 'error',
+          title: 'No ha seleccionado una opción valida'
       });
     }
   })
