@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-05-14 03:47+0000\n"
-"PO-Revision-Date: 2021-06-03 13:43-0600\n"
+"PO-Revision-Date: 2021-06-03 16:06-0600\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: es\n"
@@ -67,8 +67,7 @@ msgstr "Descripción"
 msgid "Link"
 msgstr "Enlace"
 
-#: models.py:72
-#: templates/gentelella/base.html:197
+#: models.py:72 templates/gentelella/base.html:197
 #: templates/gentelella/blocks/permissions_management.html:17
 msgid "User"
 msgstr "Usuario"
