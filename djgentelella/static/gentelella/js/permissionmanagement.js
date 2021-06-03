@@ -207,6 +207,11 @@ function update_categorieicon_collapsed(){
             }
           });
 
+          var checkboxes = $('input[type="checkbox"][name="permission"]');
+          checkboxchecked = checkboxes.filter(':checked');
+          checkboxchecked.iCheck('uncheck');
+          $("#select_user").empty().trigger('change')
+          $("#select_group").empty().trigger('change')
           Toast.fire({
             icon: 'success',
             title: 'Se han guardado exitosamente los permisos.'

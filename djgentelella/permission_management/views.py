@@ -50,10 +50,10 @@ def update_permission_default_user_model(item, permissions, permission_list):
 
 def update_permission_default_group_model(item, permissions, permission_list):
     for perm in permission_list:
-        if perm in item.user_permissions.all() and not perm in permissions:
-            item.user_permissions.remove(perm)
-        elif not perm in item.user_permissions.all() and perm in permissions:
-            item.user_permissions.add(perm)
+        if perm in item.permissions.all() and not perm in permissions:
+            item.permissions.remove(perm)
+        elif not perm in item.permissions.all() and perm in permissions:
+            item.permissions.add(perm)
 
 def management_permissions(item, item_type, permissions, permission_list):
 
@@ -159,8 +159,11 @@ def get_group_permissions(pk,permission_list):
     perms = []
     response = {}
     if group is not None:
-
-        for perm in group.permissions.all():
+        if hasattr(group, 'gt_get_permission'):
+            permission = group.gt_get_permission.all()
+        else:
+            permission = group.permissions.all()
+        for perm in permission:
             if check_permissions(permission_list,perm):
                 perms.append({'id': perm.pk, 'name': perm.name, 'codename': perm.codename})
 
@@ -173,10 +176,12 @@ def get_user_permissions(pk,permission_list):
     perms = []
     user = User.objects.filter(pk=pk).first()
     response = {}
-
     if user is not None:
-
-        for perm in user.user_permissions.all():
+        if hasattr(user, 'gt_get_permission'):
+            permission = user.gt_get_permission.all()
+        else:
+            permission = user.user_permissions.all()
+        for perm in permission:
             if check_permissions(permission_list, perm):
                 perms.append({'id': perm.pk, 'name': perm.name, 'codename': perm.codename})
 
