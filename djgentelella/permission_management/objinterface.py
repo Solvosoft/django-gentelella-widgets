@@ -44,7 +44,6 @@ class PMUser:
         remove_permission = old_user_permission - set_permission_list
         add_permission = set_permission_list - old_user_permission
         # Check empty fields and clean permissions ?
-
         if hasattr(user, 'gt_rm_permission'):
             user.gt_rm_permission(*remove_permission)
         else:
@@ -95,11 +94,9 @@ class PMGroup:
         group = self.form.cleaned_data['group']
         old_user_permission = set(map(lambda x: x["id"], self.get_django_permissions(group.pk)))
         set_permission_list = set(self.form.cleaned_data['permissions'])
-
         remove_permission = old_user_permission - set_permission_list
         add_permission = set_permission_list - old_user_permission
         # Check empty fields and clean permissions ?
-
         if hasattr(group, 'gt_rm_permission'):
             group.gt_rm_permission(*remove_permission)
         else:
