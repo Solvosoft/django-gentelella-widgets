@@ -183,21 +183,24 @@
       <script src="{% static 'gentelella/js/widgets.js' %}?v={% get_version %}"></script>
       <script src="{% static 'gentelella/js/custom.js' %}?v={% get_version %}"></script>
       {% if request.user.is_superuser %}
-        <script>
-        var permission_context = {
-            'select_user_url': "{% url 'userbase-list' %}",
-            'select_group_url': "{% url 'groupbase-list' %}",
-            'user_placeholder': "{% trans 'Select an User' %}",
-            'group_placeholder': "{% trans 'Select a Group' %}",
-            'get_permissions': "{% url 'permission_view_list' pk=0 %}",
-            'save_permissions': "{% url 'permcategorymanagement-save' %}",
-            'user_label': "{% trans 'User' %}",
-            'group_label': "{% trans 'Group' %}",
-            'not_found_permissions_label': "{% trans 'This view has not permissions associated.' %}" 
-        };
+        {% get_urlname_action as urlnameactions %}
+        {% if urlnameactions %}
+          <script>
+          var permission_context = {
+              'select_user_url': "{% url 'userbase-list' %}",
+              'select_group_url': "{% url 'groupbase-list' %}",
+              'user_placeholder': "{% trans 'Select an User' %}",
+              'group_placeholder': "{% trans 'Select a Group' %}",
+              'get_permissions': "{% url 'permission_view_list' pk=0 %}",
+              'save_permissions': "{% url 'permcategorymanagement-save' %}",
+              'user_label': "{% trans 'User' %}",
+              'group_label': "{% trans 'Group' %}",
+              'not_found_permissions_label': "{% trans 'This view has not permissions associated.' %}" 
+          };
 
-        </script>
-      <script src="{% static 'gentelella/js/permissionmanagement.js' %}?v={% get_version %}"></script>
+          </script>
+          <script src="{% static 'gentelella/js/permissionmanagement.js' %}?v={% get_version %}"></script>
+        {% endif %}
       {% endif %}
       {% render_menu_js_widget %}
       {% endblock %}
