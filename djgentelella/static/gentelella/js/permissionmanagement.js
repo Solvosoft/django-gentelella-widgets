@@ -1,5 +1,5 @@
 selected_user_or_group = false;
-option = 0;
+option = 1;
 get_permissions = "";
 group_id = 0;
 user_id = 0;
@@ -37,7 +37,7 @@ $(document).ready(function(){
         checkboxchecked.iCheck('uncheck');
         $("#select_user").empty().trigger('change')
         $("#select_group").empty().trigger('change')
-        option = 0
+        option = 1
     });
 
     $("#btn_group").click(function(){
@@ -56,9 +56,8 @@ $(document).ready(function(){
     $('#select_user').on('select2:select', function (evt) {
       selected_user_or_group = true;
       user_id = evt.params.data.id
-      url = permission_context.get_permissions.replace(/\/(\d+)$/, "/"+user_id)
-      permission_context.get_permissions = url
-      get_permissions_url = permission_context.get_permissions+"?option="+option+"&q="+$('#btn_perms').data("urlname");
+      url = permission_context.get_permissions.replace("/0", "/"+user_id)
+      get_permissions_url = url+"?option="+option+"&urlname="+encodeURIComponent($('#btn_perms').data("urlname"));
       $.ajax({
         url: get_permissions_url,
         method: 'GET',
@@ -87,9 +86,8 @@ $(document).ready(function(){
     $('#select_group').on('select2:select', function (evt) {
       selected_user_or_group = true;
       group_id = evt.params.data.id
-      url = permission_context.get_permissions.replace(/\/(\d+)$/, "/"+group_id)
-      permission_context.get_permissions = url
-      get_permissions_url = permission_context.get_permissions+"?option="+option+"&q="+$('#btn_perms').data("urlname");
+      url = permission_context.get_permissions.replace("/0", "/"+group_id)
+      get_permissions_url = url+"?option="+option+"&urlname="+encodeURIComponent($('#btn_perms').data("urlname"));
       $.ajax({
         url: get_permissions_url,
         method: 'GET',
@@ -175,17 +173,21 @@ function update_categorieicon_collapsed(){
 
   $("#btn_savepermissions").click(function(){
     if(selected_user_or_group){
-      permsurl_save = permission_context.save_permissions+"?urlname="+$('#btn_perms').data("urlname")
+      permsurl_save = permission_context.save_permissions
       selected = []
       inputs_selected = $('input[type="checkbox"][name="permission"]').filter(":checked");
       for(i=0; i < inputs_selected.length; i++){
         selected.push($(inputs_selected[i]).val());
       }
-      save_option = option==2 ? 2 : 1
-      if(save_option == 2){
-        data_save = {"type": save_option, "group": group_id, "permissions": selected};
+      data_save = {
+        "option": option,
+        "permissions": selected,
+        "urlname": $('#btn_perms').data("urlname"),
+      };
+      if(option == 2){
+        data_save['group'] = group_id;
       }else{
-        data_save =  {"type": save_option, "user": user_id, "permissions": selected};
+        data_save['user'] = user_id;
       }
       $.ajax({
         url: permsurl_save,
