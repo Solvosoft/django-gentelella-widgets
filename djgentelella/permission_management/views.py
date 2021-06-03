@@ -34,21 +34,36 @@ def get_permission_list(request):
     return JsonResponse(response)
 
 
+def update_permission_gt_model(item, permissions, permission_list):
+    for perm in permission_list:
+        if perm in item.gt_get_permission.all() and not perm in permissions:
+            item.gt_get_permission.remove(perm)
+        elif not perm in item.gt_get_permission.all() and perm in permissions:
+            item.gt_get_permission.add(perm)
+
+def update_permission_default_user_model(item, permissions, permission_list):
+    for perm in permission_list:
+        if perm in item.user_permissions.all() and not perm in permissions:
+            item.user_permissions.remove(perm)
+        elif not perm in item.user_permissions.all() and perm in permissions:
+            item.user_permissions.add(perm)
+
+def update_permission_default_group_model(item, permissions, permission_list):
+    for perm in permission_list:
+        if perm in item.permissions.all() and not perm in permissions:
+            item.permissions.remove(perm)
+        elif not perm in item.permissions.all() and perm in permissions:
+            item.permissions.add(perm)
+
 def management_permissions(item, item_type, permissions, permission_list):
 
-    if item_type == 1:
-
-        for perm in permission_list:
-            if perm in item.user_permissions.all() and not perm in permissions:
-                item.user_permissions.remove(perm)
-            elif not perm in item.user_permissions.all() and perm in permissions:
-                item.user_permissions.add(perm)
+    if hasattr(item, 'gt_get_permission'):
+        update_permission_gt_model(item, permissions, permission_list)
     else:
-        for perm in permission_list:
-            if perm in item.permissions.all() and not perm in permissions:
-                item.permissions.remove(perm)
-            elif not perm in item.permissions.all() and perm in permissions:
-                item.permissions.add(perm)
+        if item_type == 1:
+            update_permission_default_user_model(item, permissions, permission_list)
+        else:
+            update_permission_default_group_model(item, permissions, permission_list)
 
 
 def save_permcategorymanagement(request):
@@ -66,11 +81,10 @@ def save_permcategorymanagement(request):
 
             if form.is_valid():
 
-                item_type = form['type']
-                user = form['user']
-                group = form['group']
-                permissions = form['permissions']
-
+                item_type = int(form.cleaned_data['type'])
+                user = form.cleaned_data['user']
+                group = form.cleaned_data['group']
+                permissions = form.cleaned_data['permissions']
                 if item_type:
                     if item_type == 1:
                         management_permissions(user, item_type, permissions, permissions_list)
@@ -145,8 +159,11 @@ def get_group_permissions(pk,permission_list):
     perms = []
     response = {}
     if group is not None:
-
-        for perm in group.permissions.all():
+        if hasattr(group, 'gt_get_permission'):
+            permission = group.gt_get_permission.all()
+        else:
+            permission = group.permissions.all()
+        for perm in permission:
             if check_permissions(permission_list,perm):
                 perms.append({'id': perm.pk, 'name': perm.name, 'codename': perm.codename})
 
@@ -159,10 +176,12 @@ def get_user_permissions(pk,permission_list):
     perms = []
     user = User.objects.filter(pk=pk).first()
     response = {}
-
     if user is not None:
-
-        for perm in user.user_permissions.all():
+        if hasattr(user, 'gt_get_permission'):
+            permission = user.gt_get_permission.all()
+        else:
+            permission = user.user_permissions.all()
+        for perm in permission:
             if check_permissions(permission_list, perm):
                 perms.append({'id': perm.pk, 'name': perm.name, 'codename': perm.codename})
 
