@@ -175,7 +175,6 @@ function update_categorieicon_collapsed(){
 
   $("#btn_savepermissions").click(function(){
     if(selected_user_or_group){
-<<<<<<< HEAD
       Swal.fire({
         position: 'top-end',
         icon: 'success',
