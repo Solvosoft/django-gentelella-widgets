@@ -411,10 +411,9 @@ class EmailMaskInput(TextInput):
     template_name = 'gentelella/widgets/email_input_mask.html'
 
     def __init__(self, attrs=None):
-        attrs = update_kwargs(attrs, self.__class__.__name__)
-
+        if attrs != None:
+            attrs = update_kwargs(attrs, self.__class__.__name__)
         super().__init__(attrs)
-
 
 class DateRangeTimeInput(DJDateTimeInput):
     format_key = 'DATETIME_INPUT_FORMATS'
@@ -446,7 +445,8 @@ class SerialNumberMaskInput(TextInput):
     template_name='gentelella/widgets/input_mask.html'
     
     def __init__(self, attrs=None, format=None):
-        attrs = update_kwargs(attrs, self.__class__.__name__)
+        if attrs != None:
+            attrs = update_kwargs(attrs, self.__class__.__name__)
         super().__init__(attrs)
 
 
@@ -455,7 +455,8 @@ class TaxIDMaskInput(TextInput):
     template_name='gentelella/widgets/input_mask.html'
     
     def __init__(self, attrs=None, format=None):
-        attrs = update_kwargs(attrs, self.__class__.__name__)
+        if attrs != None:
+            attrs = update_kwargs(attrs, self.__class__.__name__)
         super().__init__(attrs)
         
 class CreditCardMaskInput(TextInput):
@@ -463,7 +464,8 @@ class CreditCardMaskInput(TextInput):
     template_name='gentelella/widgets/input_mask.html'
     
     def __init__(self, attrs=None, format=None):
-        attrs = update_kwargs(attrs, self.__class__.__name__)
+        if attrs != None:
+            attrs = update_kwargs(attrs, self.__class__.__name__)
         super().__init__(attrs)
         
 class PhoneNumberTwoDigitMaskInput(TextInput):
@@ -477,10 +479,11 @@ class PhoneNumberTwoDigitMaskInput(TextInput):
 
 class PhoneNumberMaskInput(TextInput):
     input_type = 'text'
-    template_name = 'gentelella/widgets/phone_number_input_mask.html'
+    template_name = 'gentelella/widgets/input_mask.html'
 
     def __init__(self, attrs=None):
-        attrs = update_kwargs(attrs, self.__class__.__name__)
+        if attrs != None:
+            attrs = update_kwargs(attrs, self.__class__.__name__)
 
         super().__init__(attrs)
 

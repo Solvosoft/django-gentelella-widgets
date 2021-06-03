@@ -1,1 +1,2 @@
-{% include "gentelella/widgets/wysiwyg.html" %}
+<textarea style="overflow:scroll; max-height:300px" name="{{ widget.name }}"{% include "gentelella/widgets/attrs.html" %}>
+    {% if widget.value %}{{ widget.value }}{% endif %}</textarea>
