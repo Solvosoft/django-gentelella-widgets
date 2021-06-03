@@ -79,6 +79,9 @@ base_urlpatterns = [
 
 permission_management_urls = [
     path('permission/management/<int:pk>', permissions.get_permissions, name="permission_view_list"),
+    path('permissionsmanagement/list', permissions.get_permission_list, name="permissionsmanagement-list"),
+    path('permissionsmanagement/save', permissions.save_permcategorymanagement, name="permcategorymanagement-save"),
+
 ]
 urlpatterns = auth_urls + base_urlpatterns+ tinymce_urls + wysiwyg_urls + permission_management_urls
 
