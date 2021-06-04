@@ -95,23 +95,3 @@ class PermissionsCategoryManagement(models.Model):
 
     def __str__(self):
         return "%s %s"%(self.category, self.url_name)
-
-
-class Employee(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    username = models.CharField(max_length=100)
-
-    @property
-    def gt_get_permission(self):
-        return self.user.user_permissions
-
-    @property
-    def gt_rm_permission(self):
-        return self.user.user_permissions
-
-    @property
-    def gt_add_permission(self):
-        return self.user.user_permissions
-
-    def __str__(self):
-        return self.username
