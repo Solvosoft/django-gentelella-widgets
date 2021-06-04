@@ -22,14 +22,14 @@ def validate_context(val):
     return perms
 
 @register.simple_tag
-def get_or_create_permission_context(val, application, perms_code, names, category):
+def get_or_create_permission_context(val, app, perms_code, names, category):
     permissions = []
-    for urlname, app, codename, name in zip(val.split(','),application.split(','), perms_code.split(','), names.split(',')):
+    for urlname, codename, name in zip(val.split(','), perms_code.split(','), names.split(',')):
         permissions.append({'urlname':urlname, 'app': app, 'codename':codename, 'name': name}) 
     for instance in permissions:
         pk_perm = Permission.objects.filter(
             codename=instance['codename'],
-            content_type__app_label=instance['app'])
+            content_type__app_label=app)
         if pk_perm.exists():
             PermissionsCategoryManagement.objects.get_or_create(
                 url_name=instance['urlname'], permission=pk_perm.first(),

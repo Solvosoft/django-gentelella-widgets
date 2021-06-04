@@ -2,8 +2,8 @@
 {% load urlname_tags %}
 {% block content %}
 {% block pre_head %}
-{% get_or_create_permission_context 'pgroup-add' 'demoapp' 'add_group' 'Agregar grupo' 'Grupo' %}
-{% get_or_create_permission_context 'abcde-edit' 'demoapp' 'change_abcde' 'Editar abcd' 'Abcd' %}
+{% get_or_create_permission_context 'pgroup-add,pgroup-edit' 'demoapp' 'add_peoplegroup,change_peoplegroup' 'Add group,Edit group' 'Group' %}
+{% get_or_create_permission_context 'abcde-edit,abcde-add' 'demoapp' 'change_abcde,add_abcde' 'Edit abcd,Add abcde' 'Abcd' %}
 {% define_urlname_action 'pgroup-add'%}
 {% define_urlname_action 'pgroup-edit'%}
 {% define_urlname_action 'abcde-add'%}
