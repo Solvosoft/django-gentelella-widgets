@@ -30,7 +30,7 @@ class PMUser(PMBase):
         q = self.form.cleaned_data['urlname']
         user = User.objects.get(pk=pk)
         if hasattr(user, 'gt_get_permission'):
-            permission = user.gt_get_permission().all()
+            permission = user.gt_get_permission.all()
         else:
             permission = user.user_permissions.all()
         permission_list = PermissionsCategoryManagement.objects.filter(url_name__in=q.split(','))
@@ -49,12 +49,12 @@ class PMUser(PMBase):
         add_permission = set_permission_list - old_user_permission
         # Check empty fields and clean permissions ?
         if hasattr(user, 'gt_rm_permission'):
-            user.gt_rm_permission(*remove_permission)
+            user.gt_rm_permission.remove(*remove_permission)
         else:
             user.user_permissions.remove(*remove_permission)
 
         if hasattr(user, 'gt_add_permission'):
-            user.gt_add_permission(*add_permission)
+            user.gt_add_permission.add(*add_permission)
         else:
             user.user_permissions.add(*add_permission) # ? list(Permission.objects.filter(pk__in=add_permission))
 
