@@ -90,7 +90,8 @@ $(document).ready(function(){
         },
         error: function(xhr, ajaxOptions, thrownError){
           if(xhr.status==404) {
-            //Do something here
+            object = (option == 2)?permission_context.group_label:permission_context.user_label;
+            message = permission_context.not_found_object+ " " + object.lower()
           }
         }
       });
@@ -120,7 +121,8 @@ $(document).ready(function(){
         },
         error: function(xhr, ajaxOptions, thrownError){
           if(xhr.status==404) {
-            //Do something here
+            object = (option == 2)?permission_context.group_label:permission_context.user_label;
+            message = permission_context.not_found_object+ " " + object.lower()
           }
         }
       });
@@ -214,6 +216,13 @@ function update_categorieicon_collapsed(){
           headers: {'X-CSRFToken': getCookie('csrftoken') },
           success: function(data){
 
+            if(data.result=='error'){
+              Toast.fire({
+                icon: 'error',
+                title: permission_context.validation_error
+              });
+              return;
+            }
             var checkboxes = $('input[type="checkbox"][name="permission"]');
             checkboxchecked = checkboxes.filter(':checked');
             checkboxchecked.iCheck('uncheck');
@@ -227,10 +236,14 @@ function update_categorieicon_collapsed(){
              $('#permission_modal').modal('hide');
           },
           error: function(xhr, ajaxOptions, thrownError){
-
+            message = permission_context.error
+            if(xhr.status==404){
+              object = (option == 2)?permission_context.group_label:permission_context.user_label;
+              message = permission_context.not_found_object+ " " + object.lower()
+            }
             Toast.fire({
                 icon: 'error',
-                title: permission_context.error
+                title: message,
             });
           }
         });      
