@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-05-14 03:47+0000\n"
-"PO-Revision-Date: 2021-06-03 16:23-0600\n"
+"PO-Revision-Date: 2021-06-03 18:10-0600\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: es\n"
@@ -488,8 +488,8 @@ msgstr "Guardar"
 msgid "Permission Type"
 msgstr "Tipo de Permiso"
 
-#: templates/gentelella/base.html:196
-msgid "This view has not permissions associated"
+#: templates/gentelella/base.html:198
+msgid "This view has not permissions associated."
 msgstr "Esta vista no tiene permisos asociados"
 
 #: templates/gentelella/base.html:190
@@ -503,3 +503,15 @@ msgstr "Seleccione un grupo"
 #: ../templates/gentelella/app/top_navigation.html:11
 msgid "Add Permission"
 msgstr "Agregar Permisos"
+
+#: templates/gentelella/base.html:199
+msgid "You have not selected a valid option."
+msgstr "No ha seleccionado una opción valida"
+
+#: templates/gentelella/base.html:200
+msgid "Permission have been successfully saved."
+msgstr "Se han guardado exitosamente los permisos."
+
+#: templates/gentelella/base.html:201
+msgid "An error occurred while saving."
+msgstr "Ha ocurrido un error al guardar."
