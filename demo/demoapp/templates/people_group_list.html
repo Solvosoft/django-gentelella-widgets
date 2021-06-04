@@ -1,12 +1,14 @@
 {% extends 'gentelella/base.html' %}
 {% load urlname_tags %}
-{% block content %}
+
 {% block pre_head %}
+{% get_or_create_permission_context 'pgroup-edit,pgroup-add,pgroup-list' 'demoapp' 'change_peoplegroup,add_peoplegroup,view_peoplegroup' 'Edit group,Create group,List groups' 'Group' %}
 {% define_urlname_action 'pgroup-add'%}
 {% define_urlname_action 'pgroup-edit'%}
 {% define_urlname_action 'pgroup-list'%}
 {% endblock%}
 
+{% block content %}
 
 <div class="x_panel">
     <div class="x_title">
