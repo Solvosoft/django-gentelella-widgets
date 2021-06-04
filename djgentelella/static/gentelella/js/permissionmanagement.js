@@ -221,7 +221,7 @@ function update_categorieicon_collapsed(){
             $("#select_group").empty().trigger('change')
             Toast.fire({
               icon: 'success',
-              title: 'Se han guardado exitosamente los permisos.'
+              title: permission_context.save_messages
             });
             $('#permission_modal').modal('hide');
           },
@@ -229,7 +229,7 @@ function update_categorieicon_collapsed(){
 
             Toast.fire({
                 icon: 'error',
-                title: 'Ha ocurrido un error al guardar.'
+                title: permission_context.error
             });
           }
         });      
@@ -237,13 +237,13 @@ function update_categorieicon_collapsed(){
 
         Toast.fire({
             icon: 'error',
-            title: 'No ha seleccionado una opción valida'
+            title: permission_context.not_select_valid_option
         });
       }
     }else{
       Toast.fire({
           icon: 'error',
-          title: 'This view has not permissions associated'
+          title: permission_context.not_found_permissions_label
       });
     }
     });
