@@ -194,11 +194,13 @@
               'get_permissions': "{% url 'permission_view_list' pk=0 %}",
               'save_permissions': "{% url 'permcategorymanagement-save' %}",
               'user_label': "{% trans 'User' %}",
+              'validation_error': "{% trans 'There are fields with invalid options' %}",
+              'not_found_object': "{% trans 'Not found' %}",
               'group_label': "{% trans 'Group' %}",
               'not_found_permissions_label': "{% trans 'This view has not permissions associated.' %}",
               'not_select_valid_option': "{% trans 'You have not selected a valid option.' %}",
               'save_messages': "{% trans 'Permission have been successfully saved.' %}",
-              'error': "{% trans 'An error occurred while saving.' %}"
+              'error': "{% trans 'An error occurred while saving.' %}",
           };
 
           </script>
