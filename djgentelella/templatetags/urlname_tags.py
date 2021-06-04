@@ -1,7 +1,7 @@
 from django import template
-from django.urls import reverse
+from django.urls import reverse, resolve
 from django.utils.http import urlencode
-
+from djgentelella.models import PermissionsCategoryManagement
 register = template.Library()
 
 
@@ -15,6 +15,10 @@ def get_page_name(val):
     p = urlencode(parameters)
     return url+'?'+p
 
+@register.simple_tag
+def validate_context(val):
+    perms=PermissionsCategoryManagement.objects.filter(url_name__in=val.split(','))
+    return perms
 
 @register.simple_tag(takes_context=True)
 def define_urlname_action(context, val):
