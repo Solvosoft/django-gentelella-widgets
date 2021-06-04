@@ -4,7 +4,7 @@ from django.template.loader import render_to_string
 
 from djgentelella.permission_management.forms import PermCategoryManagementForm, FilterPermCategoryForm
 from djgentelella.permission_management.objinterface import ObjManager
-from djgentelella.settings import User
+from djgentelella.settings import Group, User
 
 
 @login_required
@@ -48,7 +48,7 @@ def get_permissions(request, pk):
         instance = ObjManager.get_class(request, form)
         try:
             response = {'result':  instance.get_django_permissions(pk=pk)}
-        except User.DoesNotExist:
+        except User.DoesNotExist or Group.DoesNotExist:
             raise Http404
     else:
         response['message'] = 'Form data has errors, please try again'

@@ -91,3 +91,7 @@ demo/db.sqlite3
 venv/
 .idea/
 djgentelella/static/vendors/
+
+#ignore vscode settins
+.vscode/
+demo/media
