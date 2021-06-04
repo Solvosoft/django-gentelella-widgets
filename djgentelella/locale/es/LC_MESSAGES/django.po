@@ -477,6 +477,7 @@ msgid "Permission Management"
 msgstr "Gestion de Permisos"
 
 #: templates/gentelella/blocks/permissions_management.html:18
+#: templates/gentelella/base.html:201
 msgid "Group"
 msgstr "Grupo"
 
@@ -487,10 +488,6 @@ msgstr "Guardar"
 #: templates/gentelella/blocks/permissions_management.html:15
 msgid "Permission Type"
 msgstr "Tipo de Permiso"
-
-#: templates/gentelella/base.html:198
-msgid "This view has not permissions associated."
-msgstr "Esta vista no tiene permisos asociados"
 
 #: templates/gentelella/base.html:190
 msgid "Select an User"
@@ -504,14 +501,27 @@ msgstr "Seleccione un grupo"
 msgid "Add Permission"
 msgstr "Agregar Permisos"
 
+#: templates/gentelella/base.html:197
+msgid "There are fields with invalid options"
+msgstr "Hay campos con opciones no válidas"
+
+#: templates/gentelella/base.html:198
+msgid "Not found"
+msgstr "No se encontró"
+
 #: templates/gentelella/base.html:199
 msgid "You have not selected a valid option."
 msgstr "No ha seleccionado una opción valida"
 
 #: templates/gentelella/base.html:200
+msgid "This view has not permissions associated."
+msgstr "Esta vista no tiene permisos asociados"
+
+#: templates/gentelella/base.html:202
 msgid "Permission have been successfully saved."
 msgstr "Se han guardado exitosamente los permisos."
 
-#: templates/gentelella/base.html:201
+#: templates/gentelella/base.html:203
 msgid "An error occurred while saving."
 msgstr "Ha ocurrido un error al guardar."
+
