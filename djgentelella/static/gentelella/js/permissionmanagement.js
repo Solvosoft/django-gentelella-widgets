@@ -204,7 +204,7 @@ function update_categorieicon_collapsed(){
         }else{
           data_save['user'] = user_id;
         }
-        
+
         $.ajax({
           url: permsurl_save,
           method: "POST",
@@ -223,7 +223,8 @@ function update_categorieicon_collapsed(){
               icon: 'success',
               title: permission_context.save_messages
             });
-            $('#permission_modal').modal('hide');
+             selected_user_or_group = false;
+             $('#permission_modal').modal('hide');
           },
           error: function(xhr, ajaxOptions, thrownError){
 
