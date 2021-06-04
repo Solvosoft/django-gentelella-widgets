@@ -172,18 +172,6 @@ class Command(BaseCommand):
             icon='fa fa-deaf',
             only_icon=False
         )
-        Wysiwyg = MenuItem.objects.create(
-            parent=cwidget,
-            title='Wysiwyg',
-            url_name='wysiwyg-list',
-            category='sidebar',
-            is_reversed=True,
-            reversed_kwargs=None,
-            reversed_args=None,
-            is_widget=False,
-            icon='fa fa-deaf',
-            only_icon=False
-        )
         Tinymce = MenuItem.objects.create(
             parent=cwidget,
             title='Tinymce Editor',
