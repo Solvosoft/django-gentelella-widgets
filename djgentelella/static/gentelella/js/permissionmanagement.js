@@ -66,42 +66,16 @@ $(document).ready(function(){
     });
 
 
-    $('#select_user').on('select2:select', function (evt) {
+    $('#select_user, #select_group').on('select2:select', function (evt) {
       selected_user_or_group = true;
-      user_id = evt.params.data.id
-      url = permission_context.get_permissions.replace("/0", "/"+user_id)
-      get_permissions_url = url+"?option="+option+"&urlname="+encodeURIComponent($('#btn_perms').data("urlname"));
-      $.ajax({
-        url: get_permissions_url,
-        method: 'GET',
-        dataType: "json",
-        success: function(data){
-          var checkboxes = $('input[type="checkbox"][name="permission"]');
-          if(data['result'].length>0){
-            checkboxchecked = checkboxes.filter(':checked');
-            checkboxchecked.iCheck('uncheck');
-            data['result'].forEach(function(i){
-              $('input[type="checkbox"][value="'+i.id+'"]').iCheck('check');
-            });
-          }else{
-            checkboxchecked = checkboxes.filter(':checked');
-            checkboxchecked.iCheck('uncheck');
-          }
-        },
-        error: function(xhr, ajaxOptions, thrownError){
-          if(xhr.status==404) {
-            object = (option == 2)?permission_context.group_label:permission_context.user_label;
-            message = permission_context.not_found_object+ " " + object.lower()
-          }
-        }
-      });
-    });
-
-    $('#select_group').on('select2:select', function (evt) {
-      selected_user_or_group = true;
-      group_id = evt.params.data.id
-      url = permission_context.get_permissions.replace("/0", "/"+group_id)
-      get_permissions_url = url+"?option="+option+"&urlname="+encodeURIComponent($('#btn_perms').data("urlname"));
+      if(option == 1){
+        user_id = evt.params.data.id;
+      }else{
+        group_id = evt.params.data.id;
+      }
+      url = permission_context.get_permissions.replace("/0", "/"+evt.params.data.id);
+      urlname = encodeURIComponent($('#btn_perms').data("urlname"));
+      get_permissions_url = url+"?option="+option+"&urlname="+urlname;
       $.ajax({
         url: get_permissions_url,
         method: 'GET',

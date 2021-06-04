@@ -1,4 +1,5 @@
 from django import template
+from django.contrib.auth.models import Permission
 from django.urls import reverse, resolve
 from django.utils.http import urlencode
 from djgentelella.models import PermissionsCategoryManagement
@@ -19,6 +20,24 @@ def get_page_name(val):
 def validate_context(val):
     perms=PermissionsCategoryManagement.objects.filter(url_name__in=val.split(','))
     return perms
+
+@register.simple_tag
+def get_or_create_permission_context(val, application, perms_code, names, category):
+    permissions = []
+    for urlname, app, codename, name in zip(val.split(','),application.split(','), perms_code.split(','), names.split(',')):
+        permissions.append({'urlname':urlname, 'app': app, 'codename':codename, 'name': name}) 
+    for instance in permissions:
+        pk_perm = Permission.objects.filter(
+            codename=instance['codename'],
+            content_type__app_label=instance['app'])
+        if pk_perm.exists():
+            PermissionsCategoryManagement.objects.get_or_create(
+                url_name=instance['urlname'], permission=pk_perm.first(),
+                defaults={
+                    'name': instance['name'],
+                    'category': category,
+                })
+    return ""
 
 @register.simple_tag(takes_context=True)
 def define_urlname_action(context, val):
