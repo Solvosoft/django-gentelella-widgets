@@ -30,7 +30,7 @@
                <img src="{{ entry.feature_image.url }}"   alt="{% trans 'Preview image for' %} {{ entry.title }}" class="imginside" />
 
         {% endif %}
-        <p class="blog-post-meta">{{ entry.published_timestamp|date:"DATE_FORMAT" }}{% if entry.author %} by {{ entry.author }}{% endif %}</p>
+        <p class="blog-post-meta">{{ entry.published_timestamp|date:"d/m/Y" }}{% if entry.author %} by {{ entry.author }}{% endif %}</p>
             {% if draft %}
             {{ entry.content }}
             {% else %}
