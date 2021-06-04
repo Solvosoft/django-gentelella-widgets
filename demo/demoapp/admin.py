@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import WithCatalog, Catalog, OneCatalog, Country, Person, Colors, Foo, Comunity
+from .models import WithCatalog, Catalog, OneCatalog, Country, Person, Colors, Foo, Comunity, Employee
 
 admin.site.register(Country)
 admin.site.register(Catalog)
@@ -9,3 +9,4 @@ admin.site.register(Person)
 admin.site.register(Colors)
 admin.site.register(Foo)
 admin.site.register(Comunity)
+admin.site.register(Employee)
