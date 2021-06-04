@@ -94,4 +94,4 @@ class PermissionsCategoryManagement(models.Model):
 
 
     def __str__(self):
-        return "%s %s"%(self.category, self.url_name)
+        return "%s ½s.%s"%(self.category, self.url_name)
