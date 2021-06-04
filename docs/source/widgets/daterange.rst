@@ -2,6 +2,7 @@ DateRange widget
 ^^^^^^^^^^^^^^^^^^^
 
 .. image:: ../_static/DateRange.png
+
 .. image:: ../_static/Date-range-input.gif
  
 

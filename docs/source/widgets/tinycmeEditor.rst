@@ -16,18 +16,19 @@ Example for use the widget:
 
 .. code:: python
 
-   from djgentelella.forms.forms import GTForm
-   from djgentelella.widgets import tinymce as widget
+    from djgentelella.forms.forms import GTForm
+    from djgentelella.widgets import tinymce as widget
 
     class EditorTinymce(forms.ModelForm,GTForm):
-
 
       class Meta():
         model=WysiwygModel
         fields='__all__'
         widgets={
           'information': widget.EditorTinymce,
+          'extra_information': widget.EditorTinymce,
         }
+
 
 ..note:: To Upload files in the server, you with need to login.
  Example to upload images:
