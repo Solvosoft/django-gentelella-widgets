@@ -2,6 +2,7 @@ from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.models import User
 
 # Create your models here.
 from djgentelella.fields.catalog import GTForeignKey, GTManyToManyField, GTOneToOneField
@@ -197,3 +198,23 @@ class gridSlider(models.Model):
     maximum = models.IntegerField()
     datetime = models.DateTimeField()
     age = models.IntegerField()
+
+
+class Employee(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    username = models.CharField(max_length=100)
+
+    @property
+    def gt_get_permission(self):
+        return self.user.user_permissions
+
+    @property
+    def gt_rm_permission(self):
+        return self.user.user_permissions
+
+    @property
+    def gt_add_permission(self):
+        return self.user.user_permissions
+
+    def __str__(self):
+        return self.username
