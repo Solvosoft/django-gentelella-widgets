@@ -204,16 +204,10 @@ class Employee(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     username = models.CharField(max_length=100)
 
+    #username also can be a @property to user.username.
+
     @property
     def gt_get_permission(self):
-        return self.user.user_permissions
-
-    @property
-    def gt_rm_permission(self):
-        return self.user.user_permissions
-
-    @property
-    def gt_add_permission(self):
         return self.user.user_permissions
 
     def __str__(self):
