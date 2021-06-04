@@ -2,7 +2,7 @@ from django.contrib import admin
 
 # Register your models here.
 from mptt.admin import DraggableMPTTAdmin
-from djgentelella.models import MenuItem, Help, GentelellaSettings, Notification
+from djgentelella.models import MenuItem, Help, GentelellaSettings, Notification, Employee
 from djgentelella.utils import clean_cache
 from djgentelella.models import PermissionsCategoryManagement
 
@@ -32,4 +32,5 @@ admin.site.register(Help)
 admin.site.register(PermissionsCategoryManagement)
 admin.site.register(GentelellaSettings, GentelellaSettingsAdmin)
 admin.site.register(Notification, NotificationAdmin)
+admin.site.register(Employee)
 
