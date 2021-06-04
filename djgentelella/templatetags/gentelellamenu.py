@@ -50,10 +50,11 @@ def render_item(item, env={}, widget_list=[], ariabylabel=''):
         widget_list.append(widget)
 
     else:
-        dev += format_html("""<a id="{}" href="{}" %s >{} {} </a> """%a_class,
-                      'tm_'+str(item.id), get_link(item, env),  icon, get_title(item) )
+        dev += format_html("""<a id="{}" href="{}" title="{}" %s >{} {} </a> """%a_class,
+                      'tm_'+str(item.id), get_link(item, env),get_title(item), icon, get_title(item))
     ariabylabel = 'tm_'+str(item.id)
     children = item.children.exists()
+
     if children:
         dev += '<ul class="dropdown-menu " id="m_%d"  aria-labelledby="%s" role="menu">' % (
             item.pk, ariabylabel)
