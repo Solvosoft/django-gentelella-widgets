@@ -9,6 +9,8 @@ from djgentelella.widgets.helper import HelperWidgetView
 from .wysiwyg import views as wysiwyg_get
 from django.contrib.auth.decorators import login_required
 from .editorTinymce import views as tinymce
+from djgentelella.permission_management import views as permissions
+
 
 auth_urls = [
     path('accounts/login/',
@@ -46,9 +48,7 @@ tinymce_urls=[
     url("^u_image$", login_required(tinymce.image_upload), name="tinymce_upload_image"),
     url("^u_video$", login_required(tinymce.video_upload), name="tinymce_upload_video"),
 ]
-wysiwyg_urls = [
-    url("^upload_image$", login_required(wysiwyg_get.image_upload), name="upload_image"),
-]
+
 
 
 def import_module_app_gt(app, name):
@@ -75,4 +75,11 @@ base_urlpatterns = [
     url('^notification/list/$', NotificationList.as_view(), name="notification_list")
 ]
 
-urlpatterns = auth_urls + base_urlpatterns+ tinymce_urls + wysiwyg_urls
+permission_management_urls = [
+    path('permissionsmanagement/<int:pk>', permissions.get_permissions, name="permission_view_list"),
+    path('permissionsmanagement/list', permissions.get_permission_list, name="permissionsmanagement-list"),
+    path('permissionsmanagement/save', permissions.save_permcategorymanagement, name="permcategorymanagement-save"),
+
+]
+urlpatterns = auth_urls + base_urlpatterns+ tinymce_urls + permission_management_urls
+

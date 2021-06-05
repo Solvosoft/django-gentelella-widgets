@@ -1,6 +1,12 @@
 {% extends 'gentelella/base.html' %}
-
+{% load urlname_tags %}
 {% block content %}
+{% block pre_head %}
+{% define_urlname_action 'abcde-add'%}
+{% define_urlname_action 'abcde-edit'%}
+{% define_urlname_action 'abcde-list'%}
+{% endblock%}
+
 
 <div class="row">
     <div class="col-xs-12 col-sm-12 col-md-12">

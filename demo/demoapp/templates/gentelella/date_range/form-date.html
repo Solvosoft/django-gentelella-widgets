@@ -1,6 +1,13 @@
 {% extends 'gentelella/base_site.html' %}
 
+{% load urlname_tags %}
+
 {% block content %}
+
+{% block pre_head %}
+    {% define_urlname_action 'date-range-add'%}
+    {% define_urlname_action 'date-range-edit'%}
+{% endblock %}
 
 <div class="row">
     <div class='col-xs-12 col-sm-12 col-md-12 col-lg-6'>
@@ -14,18 +21,19 @@
                 <form action="" method="POST">
                     {% csrf_token %}
                     {{form.as_inline}}
-        <a class="btn btn-primary" href="{% url 'date-range-add' %}">Cancel</a>
-        <input class="btn btn-success" type="submit" value="Save" />
-        </form>
+                    <a class="btn btn-primary" href="{% url 'date-range-add' %}">Cancel</a>
+                    <input class="btn btn-success" type="submit" value="Save" />
+                </form>
+
+            </div>
+        </div>
+
 
     </div>
 </div>
 
 
-</div>
-</div>
-
-
 {% endblock %}
 {% block js %}
+
 {{ form.media }} {% endblock %}
