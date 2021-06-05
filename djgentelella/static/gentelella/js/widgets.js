@@ -25,6 +25,15 @@ document.gtwidgets = {
         instance.daterangepicker(load_date_range(instance));
     },
 
+    GridSlider: function (instance) {
+        instance.ionRangeSlider(grid_slider(instance));
+    },
+    DateGridSlider: function (instance) {
+        date_grid_slider(instance);
+    },
+    SingleGridSlider: function (instance) {
+        instance.ionRangeSlider(grid_slider_single(instance));
+    },
     DateRangeInputCustom: function (instance) {
         instance.daterangepicker(load_date_range_custom(instance));
     },
@@ -141,7 +150,23 @@ document.gtwidgets = {
         instance.colorpicker({ format: 'rgb' });
     },
     TextareaWysiwyg: function (instance) {
+        instance.summernote({
+            tabsize: 2,
+            placeholder: 'Write Something here...',
+            toolbar: [
+                ['style', ['style']],['font', ['bold', 'underline','italic', 'clear']],
+                ['color', ['forecolor','backcolor']],['fontname',['fontname']],
+                ['fontsize', ['fontsize']],['height', ['height']],
+                ['para', ['ul', 'ol', 'paragraph']],['table', ['table']],
+                ['insert', ['link', 'picture', 'video']], ['view', ['fullscreen', 'codeview', 'help']],
+            ],
 
+            callbacks: {
+                onImageUpload: function(files, editor, welEditable) {
+                    uploadFile(instance.attr('data-option-image'),files[0], this);
+                }
+            }
+        });
     },
 
     EditorTinymce: function (instance) {
@@ -166,8 +191,6 @@ document.gtwidgets = {
                 input.click();
             },
         });
-
-
     },
 
     InlinePickerColor: function (instance) {

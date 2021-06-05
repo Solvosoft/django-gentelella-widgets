@@ -1,9 +1,10 @@
-from django.http import HttpResponse
-from django.conf import settings
-from django.views.decorators.csrf import csrf_exempt
-from django.core.files.storage import default_storage
 import os
-import json
+
+from django.conf import settings
+from django.core.files.storage import default_storage
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
 
 def upload(request, folder):
     if 'file' in request.FILES:
@@ -12,11 +13,10 @@ def upload(request, folder):
         path = default_storage.save(os.path.join(
             upload_to+folder, the_file.name), the_file)
         return path
+
 @csrf_exempt
 def image_upload(request):
-    path = default_storage.url(upload(request, '/images'))
-    link= path[path.index("/media/"):len(path)]
-    return HttpResponse(json.dumps({'link': link}), content_type="application/json")
-
-
+    path = upload(request, '/images')
+    link=path.replace(settings.MEDIA_ROOT, settings.MEDIA_URL)
+    return JsonResponse({'link': link})
 

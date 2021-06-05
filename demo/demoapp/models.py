@@ -2,7 +2,7 @@ from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
-
+from django.contrib.auth.models import User
 
 # Create your models here.
 from djgentelella.fields.catalog import GTForeignKey, GTManyToManyField, GTOneToOneField
@@ -31,7 +31,7 @@ class Catalog(models.Model):
     description = models.CharField(max_length=500)
 
     def __str__(self):
-        return self.key + " - "+self.description
+        return self.key + " - " + self.description
 
 
 class WithCatalog(models.Model):
@@ -133,7 +133,7 @@ class ABCDE(models.Model):
 def validate_inputs(value):
     if value.find('_') != -1:
         raise ValidationError(
-            _('%(value)s need more digits'), params={'value': value},)
+            _('%(value)s need more digits'), params={'value': value}, )
 
 
 def validate_email(value):
@@ -144,14 +144,14 @@ def validate_email(value):
 
 def validate_credit_card(value):
     position = value.split('_')
-    value=position[0]
+    value = position[0]
     if len(value) < 13:
         raise ValidationError(_('that card invalid'))
-    
-    return value
-    
-class InputMask(models.Model):
 
+    return value
+
+
+class InputMask(models.Model):
     date = models.DateField()
     phone = models.CharField(max_length=14, validators=[validate_inputs])
     serial_number = models.CharField(
@@ -162,24 +162,25 @@ class InputMask(models.Model):
     email = models.EmailField(validators=[validate_email])
 
     def __str__(self):
-        return str(self.id)+' - '+self.email
-    
-    
-class DateRange(models.Model):
+        return str(self.id) + ' - ' + self.email
 
+
+class DateRange(models.Model):
     date_range = models.CharField(max_length=25)
-    date_custom= models.CharField(max_length=25)
-    date_time=models.CharField(max_length=45) 
+    date_custom = models.CharField(max_length=25)
+    date_time = models.CharField(max_length=45)
 
 
 class TaggingModel(models.Model):
     text_list = models.CharField(max_length=500, null=True, blank=True)
     email_list = models.CharField(max_length=500, null=True, blank=True)
     area_list = models.TextField(null=True, blank=True)
-    
+
+
 class WysiwygModel(models.Model):
-    information= models.TextField()
+    information = models.TextField()
     extra_information = models.TextField()
+
 
 class YesNoInput(models.Model):
     name = models.CharField(max_length=100, null=True, blank=True)
@@ -187,6 +188,27 @@ class YesNoInput(models.Model):
     has_copies = models.BooleanField(default=False)
     copy_number = models.IntegerField(default=0)
     has_meta = models.BooleanField(default=False)
-    year = models.IntegerField(default=2020) 
+    year = models.IntegerField(default=2020)
     editorial = models.CharField(max_length=250, default='')
     display_publish = models.BooleanField(default=False)
+
+
+class gridSlider(models.Model):
+    minimum = models.IntegerField()
+    maximum = models.IntegerField()
+    datetime = models.DateTimeField()
+    age = models.IntegerField()
+
+
+class Employee(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    username = models.CharField(max_length=100)
+
+    #username also can be a @property to user.username.
+
+    @property
+    def gt_get_permission(self):
+        return self.user.user_permissions
+
+    def __str__(self):
+        return self.username
