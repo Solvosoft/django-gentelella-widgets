@@ -1,7 +1,7 @@
 Usage of GridSlider, DateGridSlider and SingleGridSlider Widgets
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-.. image:: _static/GridSlider.png
-.. image:: _static/GridSlider.gif
+.. image:: ../_static/GridSlider.png
+.. image:: ../_static/GridSlider.gif
 
 *GridSlider*
 It is similar to range input, but this use two pointer represent the min and max value. 
