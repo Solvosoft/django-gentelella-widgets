@@ -1,24 +1,30 @@
 from django.shortcuts import render
 from django.urls import reverse_lazy
-from .forms import WysiwygForm
+from .forms import EditorTinymce
 from demoapp.models import WysiwygModel
 from datetime import datetime
-from django.views.generic import CreateView, ListView, UpdateView
+from django.views.generic import CreateView, ListView, UpdateView, DetailView
 
 
-class InsertWysiwyg(CreateView):
+class InsertTinymce(CreateView):
     model = WysiwygModel
-    form_class = WysiwygForm
-    template_name = 'gentelella/wysiwyg/inputs.html'
-    success_url = reverse_lazy('wysiwyg-list')
+    form_class = EditorTinymce
+    template_name = 'gentelella/editorTinymce/inputs.html'
+    success_url = reverse_lazy('tinymce-list')
 
-class ListWysiwyg(ListView):
+class ListTinymce(ListView):
     model = WysiwygModel
-    template_name = 'gentelella/wysiwyg/list_info.html'
+    template_name = 'gentelella/editorTinymce/list_info.html'
 
 
-class EditWysiwyg(UpdateView):
+class EditTinymce(UpdateView):
     model = WysiwygModel
-    form_class = WysiwygForm
-    template_name = 'gentelella/wysiwyg/inputs.html'
-    success_url = reverse_lazy('wysiwyg-list')
+    form_class = EditorTinymce
+    template_name = 'gentelella/editorTinymce/inputs.html'
+    success_url = reverse_lazy('tinymce-list')
+
+
+class DetailTinymce(DetailView):
+    model = WysiwygModel
+    template_name = 'gentelella/editorTinymce/show.html'
+    success_url = reverse_lazy('tinymce-list')

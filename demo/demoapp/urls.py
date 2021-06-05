@@ -11,9 +11,8 @@ from .views import knobView, YesNoInputView
 from .input_masks import views as input_mask
 from .date_range import views as date_ranges
 from .tagging import views as tagging
-from .wysiwyg import views as wysiwyg
+from .wysiwyg import views as tinymce
 from .grid_slider import views as grid
-from .editorTinymce import views as tinymce
 
 pclss = Personclass()
 countryclss = Countryclass()
@@ -42,9 +41,6 @@ urlpatterns = [
         path('tagging/', tagging.InsertTagging.as_view(), name='input_tagging-add'),
         path('tagging/<int:pk>', tagging.EditTagging.as_view(), name='input_tagging-edit'),
         path('tagging/list', tagging.ListTagging.as_view(), name='input_tagging-list'),
-        path('wysiwyg/', wysiwyg.InsertWysiwyg.as_view(), name='wysiwyg-add'),
-        path('wysiwyg/list', wysiwyg.ListWysiwyg.as_view(), name='wysiwyg-list'),
-        path('wysiwyg/<int:pk>', wysiwyg.EditWysiwyg.as_view(), name='wysiwyg-edit'),
         path('tinymce/', tinymce.InsertTinymce.as_view(), name='tinymce-add'),
         path('tinymce/list', tinymce.ListTinymce.as_view(), name='tinymce-list'),
         path('tinymce/<int:pk>', tinymce.EditTinymce.as_view(), name='tinymce-edit'),
