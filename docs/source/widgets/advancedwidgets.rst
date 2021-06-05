@@ -9,3 +9,4 @@ Advanced Widgets
 .. include:: autocomplete.rst
 .. include:: tinycmeEditor.rst
 .. include:: yesnoinput.rst
+.. include:: grid_slider.rst
