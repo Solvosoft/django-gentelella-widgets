@@ -169,7 +169,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-deaf',
+            icon='fa fa-superpowers',
             only_icon=False
         )
         Tinymce = MenuItem.objects.create(
@@ -181,7 +181,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-deaf',
+            icon='fa fa-sticky-note',
             only_icon=False
         )
         chart = MenuItem.objects.create(
