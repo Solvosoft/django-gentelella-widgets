@@ -1,10 +1,9 @@
-==================================================================
-Usage of GridSlider, DateGridSlider and SingleGridSlider widgets
-==================================================================
-.. image:: _static/GridSlider.png
-.. image:: _static/GridSlider.gif
+Usage of GridSlider, DateGridSlider and SingleGridSlider Widgets
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. image:: ../_static/GridSlider.png
+.. image:: ../_static/GridSlider.gif
 
-*GridSlider+
+*GridSlider*
 It is similar to range input, but this use two pointer represent the min and max value. 
 
 *SingleGridSlider*
@@ -54,8 +53,8 @@ Forms.py
 In model based form:
 
 .. code-block:: python
-class gridSliderForm(forms.ModelForm, GTForm):
 
+    class gridSliderForm(forms.ModelForm, GTForm):
     grid_slider = forms.CharField(widget=widget.GridSlider(attrs={'data-min': '0',
                                                                   'data-max': '1000',
                                                                   'data-step': 2,
