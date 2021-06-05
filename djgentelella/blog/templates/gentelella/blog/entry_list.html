@@ -1,10 +1,15 @@
 {% extends 'gentelella/base_site.html' %}
-{% load blog_tags i18n static %}
+{% load blog_tags i18n static urlname_tags %}
 
 {% block content %}
+{% block pre_head %}
+  {% define_urlname_action 'entrylist' %}
+  {% define_urlname_action 'entrycreate' %}
+  {% define_urlname_action 'entry_update' %}
+{% endblock %}
 
 <div class="row">
-  <div class="col-md-9 col-ms-12">
+  <div class="col-md-9 col-sm-12">
 
 <div class="x_panel " xmlns="http://www.w3.org/1999/html">
     <div class="x_title">
@@ -37,16 +42,21 @@
          <div class="media-body">
              <h4 class="media-heading"><a href="{{ entry.get_absolute_url }}">{{entry.title}}</a></h4>
 <div class="pull-right">
-    <div >{% if entry.author %} {% trans 'by' %} {{ entry.author|authordisplay }}{% else %}{% trans 'Anonymous' %}{% endif %}</div>
-    <span class="time">{{ entry.published_timestamp|date:"DATE_FORMAT" }}</span>
-
-        {% if request.user == entry.author %}
+    <div>{% if entry.author %} {% trans 'by' %} {{ entry.author|authordisplay }}{% else %}{% trans 'Anonymous' %}{% endif %}
+          {% if request.user == entry.author %}
         <a class="btn btn-success btn-mx" href="{{ entry.get_absolute_url }}?preview=True" title="{% trans 'This show the last version of the entry (it\'s not necesary the last published entry)' %}">{% trans 'preview' %}</a>
         {% endif %}
         {% if perms.blog.change_entry %}
             <a class="btn btn-success btn-mx" href="{% url 'blog:entry_update' entry.pk %}">{% trans 'Update' %}</a>
         {% endif %}
+    {% if perms.blog.delete_entry %}
+            <a class="btn btn-danger btn-mx" href="{% url 'blog:entry_delete' entry.pk %}">{% trans 'Delete' %}</a>
+        {% endif %}</div>
+
+    <span class="time">{{ entry.published_timestamp|date:"d/m/Y" }}</span>
 </div>
+             <br>
+             <br>
              {% if entry.preview_content %}
                 {{ entry.preview_content }}
             {% else %}
@@ -67,8 +77,8 @@
         </div>
 </div>
  </div>
-  <div class="col-md-3 col-ms-12">
-{% if perms.blog.add_entry %}
+  <div class="col-md-3 col-sm-12">
+{% if perms.blog.add_entry %}x
  <div class="x_panel " xmlns="http://www.w3.org/1999/html">
 
         <div class="x_content">

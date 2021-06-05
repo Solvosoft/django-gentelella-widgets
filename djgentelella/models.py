@@ -117,3 +117,15 @@ class GTDbField(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class PermissionsCategoryManagement(models.Model):
+
+    name = models.CharField(max_length=150, verbose_name=_('Name'))
+    category = models.CharField(max_length=50, verbose_name=_('Category'))
+    url_name = models.CharField(max_length=50, verbose_name=_('Url Name'))
+    permission = models.ForeignKey(Permission, on_delete=models.CASCADE, null=False, blank=False, verbose_name=_('Permission'))
+
+
+    def __str__(self):
+        return "%s ½s.%s"%(self.category, self.url_name)

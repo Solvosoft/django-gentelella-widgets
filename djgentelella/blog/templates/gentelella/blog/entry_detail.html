@@ -1,7 +1,11 @@
 {% extends 'gentelella/base_site.html' %}
-{% load i18n %}
+{% load i18n urlname_tags %}
 
 {% block content %}
+{% block pre_head %}
+  {% define_urlname_action 'entry_delete' %}
+  {% define_urlname_action 'entry_update' %}
+{% endblock %}
 <div class="x_panel " xmlns="http://www.w3.org/1999/html">
     <div class="x_title"><h2>{{ entry.title }}
         {% if not entry.is_published %}<small> <span class="badge"> {% trans 'Draf' %}</span></small>{% endif %}
@@ -26,7 +30,7 @@
                <img src="{{ entry.feature_image.url }}"   alt="{% trans 'Preview image for' %} {{ entry.title }}" class="imginside" />
 
         {% endif %}
-        <p class="blog-post-meta">{{ entry.published_timestamp|date:"DATE_FORMAT" }}{% if entry.author %} by {{ entry.author }}{% endif %}</p>
+        <p class="blog-post-meta">{{ entry.published_timestamp|date:"d/m/Y" }}{% if entry.author %} by {{ entry.author }}{% endif %}</p>
             {% if draft %}
             {{ entry.content }}
             {% else %}

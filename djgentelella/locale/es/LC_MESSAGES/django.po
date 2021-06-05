@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-05-14 03:47+0000\n"
-"PO-Revision-Date: 2020-05-14 15:39-0600\n"
+"PO-Revision-Date: 2021-06-03 18:10-0600\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: es\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 2.2.1\n"
+"X-Generator: Poedit 2.4.3\n"
 
 #: cruds/base.py:642
 #, python-format
@@ -67,7 +67,8 @@ msgstr "Descripción"
 msgid "Link"
 msgstr "Enlace"
 
-#: models.py:72
+#: models.py:72 templates/gentelella/base.html:197
+#: templates/gentelella/blocks/permissions_management.html:17
 msgid "User"
 msgstr "Usuario"
 
@@ -255,6 +256,8 @@ msgstr "Ayuda"
 #: templates/gentelella/menu/palette_modal.html:45
 #: templates/gentelella/widgets/addselect.html:21
 #: templates/gentelella/widgets/addtreeselect.html:25
+#: templates/gentelella/blocks/permissions_management.html:17
+#: templates/gentelella/blocks/permissions_management.html:37
 msgid "Close"
 msgstr "Cerrar"
 
@@ -314,8 +317,7 @@ msgstr "Iniciar sesión"
 
 #: templates/gentelella/registration/login.html:22
 msgid "Your username and password didn't match. Please try again."
-msgstr ""
-"Nombre de usuario o contraseña no concuerdan. Por favor intente de nuevo"
+msgstr "Nombre de usuario o contraseña no concuerdan. Por favor intente de nuevo"
 
 #: templates/gentelella/registration/login.html:27
 msgid ""
@@ -323,8 +325,7 @@ msgid ""
 "                        please login with an account that has access."
 msgstr ""
 "Su cuenta no tiene permisos de acceso para ver esta página. Para proceder,\n"
-"                        por favor inicie sesión con otra cuenta con permisos "
-"suficientes."
+"                        por favor inicie sesión con otra cuenta con permisos suficientes."
 
 #: templates/gentelella/registration/login.html:30
 msgid "Please login to see this page."
@@ -369,20 +370,15 @@ msgstr "Bienvenida"
 
 #: templates/gentelella/registration/new_user.html:8
 msgid "This email was sent because someone create an user with your email in "
-msgstr ""
-"Este correo fue enviado porque alguien creó un usuario con su correo en "
+msgstr "Este correo fue enviado porque alguien creó un usuario con su correo en "
 
 #: templates/gentelella/registration/new_user.html:10
 msgid "Your username is: "
 msgstr "Su usuario de ingreso es: "
 
 #: templates/gentelella/registration/new_user.html:11
-msgid ""
-"for security reason password was create randomly and it is not provided "
-"here, please use this link"
-msgstr ""
-"por razones de seguridad la contraseña fue creada aleatoriamente y no está "
-"agregada en este correo, por favor use el siguiente link  "
+msgid "for security reason password was create randomly and it is not provided here, please use this link"
+msgstr "por razones de seguridad la contraseña fue creada aleatoriamente y no está agregada en este correo, por favor use el siguiente link  "
 
 #: templates/gentelella/registration/new_user.html:13
 msgid "to regenerate new password and login on platform"
@@ -431,13 +427,9 @@ msgstr "Aquí"
 
 #: templates/gentelella/registration/password_reset_email.html:13
 msgid ""
-"This email was send because someone try to reset your password, if you "
-"didn't request a reset, please delete this email and do not more actions\n"
+"This email was send because someone try to reset your password, if you didn't request a reset, please delete this email and do not more actions\n"
 "    "
-msgstr ""
-"Este correo fue enviado por que alguien, posiblemente usted trató de "
-"reiniciar la contraseña. Si no ha hecho la petición de reinicio, por favor "
-"elimine este correo y no realice ninguna otra acción"
+msgstr "Este correo fue enviado por que alguien, posiblemente usted trató de reiniciar la contraseña. Si no ha hecho la petición de reinicio, por favor elimine este correo y no realice ninguna otra acción"
 
 #: templates/gentelella/registration/password_reset_form.html:15
 msgid "Reset password"
@@ -466,8 +458,7 @@ msgstr "Registro está cerrado"
 
 #: templates/gentelella/registration/registration_complete.html:12
 msgid "You are now registered. Activation email sent."
-msgstr ""
-"Usted fue registrado adecuadamente. Un correo de activación ha sido enviado"
+msgstr "Usted fue registrado adecuadamente. Un correo de activación ha sido enviado"
 
 #: templates/gentelella/widgets/checkyesno.html:2 widgets/core.py:295
 msgid "No"
@@ -480,3 +471,57 @@ msgstr "Sí"
 #: widgets/core.py:293
 msgid "Unknown"
 msgstr "Desconocido"
+
+#: templates/gentelella/blocks/permissions_management.html:10
+msgid "Permission Management"
+msgstr "Gestion de Permisos"
+
+#: templates/gentelella/blocks/permissions_management.html:18
+#: templates/gentelella/base.html:201
+msgid "Group"
+msgstr "Grupo"
+
+#: templates/gentelella/blocks/permissions_management.html:39
+msgid "Save"
+msgstr "Guardar"
+
+#: templates/gentelella/blocks/permissions_management.html:15
+msgid "Permission Type"
+msgstr "Tipo de Permiso"
+
+#: templates/gentelella/base.html:190
+msgid "Select an User"
+msgstr "Seleccione a un Usuario"
+
+#: templates/gentelella/base.html:191
+msgid "Select a Group"
+msgstr "Seleccione un grupo"
+
+#: ../templates/gentelella/app/top_navigation.html:11
+msgid "Add Permission"
+msgstr "Agregar Permisos"
+
+#: templates/gentelella/base.html:197
+msgid "There are fields with invalid options"
+msgstr "Hay campos con opciones no válidas"
+
+#: templates/gentelella/base.html:198
+msgid "Not found"
+msgstr "No se encontró"
+
+#: templates/gentelella/base.html:199
+msgid "You have not selected a valid option."
+msgstr "No ha seleccionado una opción valida"
+
+#: templates/gentelella/base.html:200
+msgid "This view has not permissions associated."
+msgstr "Esta vista no tiene permisos asociados"
+
+#: templates/gentelella/base.html:202
+msgid "Permission have been successfully saved."
+msgstr "Se han guardado exitosamente los permisos."
+
+#: templates/gentelella/base.html:203
+msgid "An error occurred while saving."
+msgstr "Ha ocurrido un error al guardar."
+
