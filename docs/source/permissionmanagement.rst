@@ -1,6 +1,6 @@
-===============
+======================
 Permission Management
-===============
+======================
 
 This feature allow as to manage permissions per view, so we can asociate an 
 specific url name with an specific permission codename and permission category.
