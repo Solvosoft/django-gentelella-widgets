@@ -151,6 +151,16 @@ There are several widgets implemented this is a list of what you can use
 - Formset implementation
 - Remote select2 views.
 
+Run the demo
+---------------
+
+.. code:: bash
+
+    cd demo
+    python manage.py migrate
+    python manage.py createdemo
+    python manage.py demomenu
+    python manage.py createsuperuser
 
 And More see demo app.
 

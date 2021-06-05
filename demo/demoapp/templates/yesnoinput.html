@@ -1,7 +1,11 @@
 {% extends 'gentelella/base_site.html' %}
-{% load i18n %}
+{% load i18n urlname_tags %}
 
 {% block content %}
+{% block pre_head %}
+    {% define_urlname_action 'yes-no-input-add'%}
+{% endblock %}
+
     <div class="x_panel">
         <h2>YesNoInput Widget</h2>
         <div class="x_title"></div>
