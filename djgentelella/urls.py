@@ -6,9 +6,8 @@ from django.urls import path, include
 from django.contrib.auth import views as auth_views
 from djgentelella.notification.base import NotificacionAPIView, NotificationList
 from djgentelella.widgets.helper import HelperWidgetView
-from .wysiwyg import views as wysiwyg_get
 from django.contrib.auth.decorators import login_required
-from .editorTinymce import views as tinymce
+from djgentelella.wysiwyg import views as tinymce
 from djgentelella.permission_management import views as permissions
 
 
