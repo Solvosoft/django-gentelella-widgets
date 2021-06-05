@@ -42,6 +42,51 @@ class TextInput(Input):
     input_type = 'text'
     template_name = 'gentelella/widgets/text.html'
 
+class HiddenInput(Input):
+    input_type = 'hidden'
+    template_name = 'gentelella/widgets/text.html'
+
+
+def GridSlider(attrs={}):
+    class GridSlider(Input):
+        input_type = 'text'
+        template_name = 'gentelella/widgets/input.html'
+        extra_attrs = attrs.copy()
+
+        def __init__(self, attrs=None, extraskwargs=True):
+            attrs = update_kwargs(attrs, self.__class__.__name__)
+            if self.extra_attrs:
+                attrs.update(self.extra_attrs)
+            super().__init__(attrs)
+    return GridSlider
+
+
+def DateGridSlider(attrs={}):
+    class DateGridSlider(Input):
+        input_type = 'text'
+        template_name = 'gentelella/widgets/input.html'
+        extra_attrs = attrs.copy()
+
+        def __init__(self, attrs=None, extraskwargs=True):
+            attrs = update_kwargs(attrs, self.__class__.__name__)
+            if self.extra_attrs:
+                attrs.update(self.extra_attrs)
+            super().__init__(attrs)
+    return DateGridSlider
+
+def SingleGridSlider(attrs={}):
+    class SingleGridSlider(Input):
+        input_type = 'text'
+        template_name = 'gentelella/widgets/input.html'
+        extra_attrs = attrs.copy()
+
+        def __init__(self, attrs=None, extraskwargs=True):
+            attrs = update_kwargs(attrs, self.__class__.__name__)
+            if self.extra_attrs:
+                attrs.update(self.extra_attrs)
+            super().__init__(attrs)
+    return SingleGridSlider
+
 
 class NumberInput(Input):
     input_type = 'number'
@@ -449,6 +494,7 @@ class DateRangeInput(DJDateInput):
         attrs = update_kwargs(attrs, self.__class__.__name__)
         super().__init__(attrs, format=format)
 
+
 class DateRangeInputCustom(DJDateInput):
     format_key = 'DATE_INPUT_FORMATS'
     template_name = 'gentelella/widgets/daterange.html'
@@ -457,30 +503,33 @@ class DateRangeInputCustom(DJDateInput):
         attrs = update_kwargs(attrs, self.__class__.__name__)
         super().__init__(attrs, format=format)
 
+
 class SerialNumberMaskInput(TextInput):
-    input_type='text'
-    template_name='gentelella/widgets/input_mask.html'
-    
+    input_type = 'text'
+    template_name = 'gentelella/widgets/input_mask.html'
+
     def __init__(self, attrs=None, format=None):
         attrs = update_kwargs(attrs, self.__class__.__name__)
         super().__init__(attrs)
 
 
 class TaxIDMaskInput(TextInput):
-    input_type='text'
-    template_name='gentelella/widgets/input_mask.html'
-    
+    input_type = 'text'
+    template_name = 'gentelella/widgets/input_mask.html'
+
     def __init__(self, attrs=None, format=None):
         attrs = update_kwargs(attrs, self.__class__.__name__)
         super().__init__(attrs)
-        
+
+
 class CreditCardMaskInput(TextInput):
-    input_type='text'
-    template_name='gentelella/widgets/input_mask.html'
-    
+    input_type = 'text'
+    template_name = 'gentelella/widgets/input_mask.html'
+
     def __init__(self, attrs=None, format=None):
         attrs = update_kwargs(attrs, self.__class__.__name__)
         super().__init__(attrs)
+
 
 class PhoneNumberTwoDigitMaskInput(TextInput):
     input_type = 'text'
@@ -491,6 +540,7 @@ class PhoneNumberTwoDigitMaskInput(TextInput):
 
         super().__init__(attrs)
 
+
 class PhoneNumberMaskInput(TextInput):
     input_type = 'text'
     template_name = 'gentelella/widgets/phone_number_input_mask.html'
@@ -499,4 +549,3 @@ class PhoneNumberMaskInput(TextInput):
         attrs = update_kwargs(attrs, self.__class__.__name__)
 
         super().__init__(attrs)
-

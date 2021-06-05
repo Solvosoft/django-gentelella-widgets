@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'chunked_upload',
     'demoapp',
     'djgentelella.blog',
+    'djgentelella.permission_management',
     'markitup',
 ]
 
@@ -110,7 +111,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es'
 
 TIME_ZONE = 'UTC'
 
@@ -139,6 +140,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 MEDIA_URL = os.getenv('MEDIA_URL', '/media/')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 TINYMCE_UPLOAD_PATH =os.path.join(MEDIA_ROOT, 'tinymce')
+SUMMERNOTE_UPLOAD_PATH =os.path.join(MEDIA_ROOT, 'summernote')
 
 EMAIL_HOST = 'localhost'
 EMAIL_PORT = '1025'

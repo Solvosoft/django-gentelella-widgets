@@ -187,13 +187,21 @@ class Command(BaseCommand):
                 'https://cdnjs.cloudflare.com/ajax/libs/tagify/3.18.1/jQuery.tagify.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/tagify/3.18.1/tagify.min.css'
             ],
+            'grid-slider': [
+                'https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/js/ion.rangeSlider.min.js',
+                'https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/css/ion.rangeSlider.min.css'
+            ],
             'sweetalert2': [
                 'https://cdn.jsdelivr.net/npm/sweetalert2@10.10.0/dist/sweetalert2.all.min.js',
                 'https://cdn.jsdelivr.net/npm/sweetalert2@10.10.0/dist/sweetalert2.min.css'
             ],
+            'summernote': [
+                'https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js',
+                'https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css'
+            ],
             'tinymce': [
                 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/tinymce.min.js',
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/jquery.tinymce.min.js'
+                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/jquery.tinymce.min.js',
             ],
             'tinymce/themes/silver': [
                 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/themes/silver/theme.min.js'
@@ -230,7 +238,6 @@ class Command(BaseCommand):
                 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide/skin.shadowdom.min.css',
             ],
         }
-
         compressed = {
             'tinymce': {
                 'tinymce-all.js': [

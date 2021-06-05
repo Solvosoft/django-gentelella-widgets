@@ -171,19 +171,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-deaf',
-            only_icon=False
-        )
-        Wysiwyg = MenuItem.objects.create(
-            parent=cwidget,
-            title='Wysiwyg',
-            url_name='wysiwyg-list',
-            category='sidebar',
-            is_reversed=True,
-            reversed_kwargs=None,
-            reversed_args=None,
-            is_widget=False,
-            icon='fa fa-deaf',
+            icon='fa fa-superpowers',
             only_icon=False
         )
         Tinymce = MenuItem.objects.create(
@@ -195,7 +183,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-deaf',
+            icon='fa fa-sticky-note',
             only_icon=False
         )
         chart = MenuItem.objects.create(
@@ -220,8 +208,34 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-power-off',
+            only_icon=False)
+
+        daterange = MenuItem.objects.create(
+            parent=cwidget,
+            title='Grid Slider',
+            url_name='grid-slider-list',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-home',
             only_icon=False
         )
+
+        noti = MenuItem.objects.create(
+            parent=item,
+            title='Create notification',
+            url_name='/create/notification',
+            category='sidebar',  # sidebar, sidebarfooter,
+            is_reversed=False,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-power-off',
+            only_icon=False
+        )
+
         MenuItem.objects.create(
             parent=item,
             title='Create notification email',
@@ -375,7 +389,7 @@ class Command(BaseCommand):
     def create_comunities(self):
         models.Comunity.objects.all().delete()
         for x in range(10):
-            models.Comunity.objects.create(name="Comunity "+str(x))
+            models.Comunity.objects.create(name="Comunity " + str(x))
 
     def abcde(self):
         models.A.objects.all().delete()
@@ -383,15 +397,15 @@ class Command(BaseCommand):
         bid = cid = did = eid = 0
 
         for a in range(1, 11):
-            al.append(models.A(display="A "+str(a), id=a))
+            al.append(models.A(display="A " + str(a), id=a))
             for b in range(1, 11):
                 bid += 1
                 bl.append(models.B(display="B %d a(%d)" %
-                                   (b, a), id=bid, a_id=a))
+                                           (b, a), id=bid, a_id=a))
                 for c in range(1, 6):
                     cid += 1
                     cl.append(models.C(display="C %d b(%d) a(%d)" %
-                                       (c, b, a), id=cid, b_id=bid))
+                                               (c, b, a), id=cid, b_id=bid))
                     for d in range(1, 5):
                         did += 1
                         dl.append(models.D(display="D %d c(%d) b(%d) a(%d)" % (

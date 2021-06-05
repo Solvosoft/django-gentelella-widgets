@@ -3,17 +3,19 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
 from demoapp.cruds import Personclass, Countryclass, MenuItemclass
-from demoapp.views import create_notification_view, color_widget_view, person_reltable_view
+from demoapp.views import create_notification_view, color_widget_view
+from demoapp.views import person_reltable_view
 from . import api
 from .autocomplete import views as autocompleteviews
 from .chartjs import chart_js_view
-from .formset import add_formset, add_model_formset
-from .views import knobView, YesNoInputView
-from .input_masks import views as input_mask
 from .date_range import views as date_ranges
-from .tagging import views as tagging
-from .wysiwyg import views as wysiwyg
 from .editorTinymce import views as tinymce
+from .formset import add_formset, add_model_formset
+from .grid_slider import views as grid
+from .input_masks import views as input_mask
+from .tagging import views as tagging
+from .views import knobView, YesNoInputView
+from .wysiwyg import views as wysiwyg
 
 pclss = Personclass()
 countryclss = Countryclass()
@@ -51,10 +53,12 @@ urlpatterns = [
         path('tinymce_show/<int:pk>', tinymce.DetailTinymce.as_view(), name='tinymce-show'),
         path('yesnoinput/', YesNoInputView.as_view(), name='yes-no-input-add'),
         path('datables/', person_reltable_view, name='abcde-edit'),
- 
+        path('gridslider/', grid.AddGrid.as_view(), name='grid-slider-add'),
+        path('gridslider/list', grid.ListGrid.as_view(), name='grid-slider-list'),
+        path('gridslider/<int:pk>', grid.UpdateGrid.as_view(), name='grid-slider-edit'),
 ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()
+
 router = DefaultRouter()
 router.register('persontable', api.PersonViewSet, 'api-persontable')
 
 urlpatterns += router.get_urls()
-
