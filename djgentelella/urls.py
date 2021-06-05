@@ -48,9 +48,7 @@ tinymce_urls=[
     url("^u_image$", login_required(tinymce.image_upload), name="tinymce_upload_image"),
     url("^u_video$", login_required(tinymce.video_upload), name="tinymce_upload_video"),
 ]
-wysiwyg_urls = [
-    url("^upload_image$", login_required(wysiwyg_get.image_upload), name="upload_image"),
-]
+
 
 
 def import_module_app_gt(app, name):
@@ -83,5 +81,5 @@ permission_management_urls = [
     path('permissionsmanagement/save', permissions.save_permcategorymanagement, name="permcategorymanagement-save"),
 
 ]
-urlpatterns = auth_urls + base_urlpatterns+ tinymce_urls + wysiwyg_urls + permission_management_urls
+urlpatterns = auth_urls + base_urlpatterns+ tinymce_urls + permission_management_urls
 
