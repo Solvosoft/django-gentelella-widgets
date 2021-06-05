@@ -1,7 +1,7 @@
 {% load mptt_tags gentelellamenu gtsettings %}
 <div class="left_col scroll-view">
   <div class="navbar nav_title" style="border: 0;">
-    <a href="index.html" class="site_title"><i class="{% get_settings 'sidebar_icon' 'fa fa-spinner' %}"></i> <span>{% get_settings 'sidebar_title' 'My Site' %}</span></a>
+    <a href="{% url 'home' %}" class="site_title"><i class="{% get_settings 'sidebar_icon' 'fa fa-spinner' %}"></i> <span>{% get_settings 'sidebar_title' 'My Site' %}</span></a>
   </div>
 
   <div class="clearfix"></div>

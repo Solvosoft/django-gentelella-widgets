@@ -2,10 +2,11 @@ DateRange widget
 ^^^^^^^^^^^^^^^^^^^
 
 .. image:: ../_static/DateRange.png
+
 .. image:: ../_static/Date-range-input.gif
  
 
-It is a calendar  to select  range between dates .
+It is a calendar to select range between dates .
 You can uses this widget in a * CharField * and * TextField *
 
 .. code:: python

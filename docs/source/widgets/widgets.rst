@@ -37,4 +37,11 @@ Django Gentelella use MTPP for tree database representations
 .. automodule:: djgentelella.widgets.trees
    :members:
 
+Tinymce widgets
+^^^^^^^^^^^^^^^^^^^
+Available widget is:
+
+.. automodule:: djgentelella.widgets.tinymce
+   :members:
+
 

@@ -1,8 +1,14 @@
 {% extends 'gentelella/base.html' %}
 
+{% load urlname_tags %}
+
 {% block content %}
 
-
+{% block pre_head %}
+    {% define_urlname_action 'input-mask-list'%}
+    {% define_urlname_action 'input-mask-add'%}
+    {% define_urlname_action 'input-mask-edit'%}
+{% endblock %}
 
 <div class="x_panel">
     <div class="x_title">
