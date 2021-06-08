@@ -46,7 +46,8 @@ setup(
         'djangoajax>=3.2',
         'django-markitup>=4.0.0',
         'markdown',
-        'Pillow'
+        'Pillow',
+        'djangorestframework==3.11.2'
     ],
     packages=find_packages(exclude=["demo", 'doc']),
     include_package_data=True,
