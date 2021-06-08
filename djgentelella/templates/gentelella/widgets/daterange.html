@@ -1,8 +1,6 @@
 <div class="input-group date">
-      {% with id=widget.attrs.id %}
-      {% include "gentelella/widgets/input.html" %}
+      {% with id=widget.attrs.id %} {% include "gentelella/widgets/input.html" %}{% endwith %}
       <span class="input-group-addon">
             <span class="glyphicon glyphicon-calendar"></span>
       </span>
 </div>
-{% endwith %}
