@@ -121,7 +121,9 @@ document.gtwidgets = {
     FileInput: function (instance) {
         instance.fileuploadwidget();
     },
-
+    FileChunkedUpload: function (instance) {
+        instance.fileuploadwidget();
+    },
     GTAutocompleteSelect: function (instance) {
         build_select2_init(instance);
     },
