@@ -2,7 +2,7 @@
 {% load static i18n gtsettings %}
 
 {% block extra_css %}
-    <link href="{% static 'vendors/datatables/dataTables.bootstrap.min.css' %}" />
+    <link href="{% static 'vendors/datatables/dataTables.bootstrap.min.css' %}?v={% get_version %}" />
 {% endblock  %}
 
 {% block content %}
@@ -50,8 +50,8 @@
     {% endblock content %}
 {% block javascripts %}
 {{ block.super }}
-    <script src="{% static 'vendors/datatables/jquery.dataTables.min.js' %}"></script>
-    <script src="{% static 'vendors/datatables/dataTables.bootstrap.min.js' %}"></script>
+    <script src="{% static 'vendors/datatables/jquery.dataTables.min.js' %}?v={% get_version %}"></script>
+    <script src="{% static 'vendors/datatables/dataTables.bootstrap.min.js' %}?v={% get_version %}"></script>
 <script>
 (function(){
     $("#notificationtable").DataTable({

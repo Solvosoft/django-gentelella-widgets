@@ -1,15 +1,15 @@
 from django import forms
-from demoapp.models import WysiwygModel 
+from demoapp.models import WysiwygModel
 from djgentelella.forms.forms import GTForm
-from djgentelella.widgets import wysiwyg as widget
+from djgentelella.widgets import tinymce as widget
 
-class WysiwygForm(forms.ModelForm,GTForm):
 
-  class Meta():
-    model=WysiwygModel
-    fields='__all__'
-    widgets={
-      'information': widget.TextareaWysiwyg,
-    }
+class EditorTinymce(forms.ModelForm, GTForm):
+    class Meta():
+        model = WysiwygModel
+        fields = '__all__'
+        widgets = {
+            'information': widget.EditorTinymce,
+            'extra_information': widget.EditorTinymce,
+        }
 
-    

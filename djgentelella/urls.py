@@ -6,9 +6,8 @@ from django.urls import path, include
 from django.contrib.auth import views as auth_views
 from djgentelella.notification.base import NotificacionAPIView, NotificationList
 from djgentelella.widgets.helper import HelperWidgetView
-from .wysiwyg import views as wysiwyg_get
 from django.contrib.auth.decorators import login_required
-from .editorTinymce import views as tinymce
+from djgentelella.wysiwyg import views as wysiwyg
 from djgentelella.permission_management import views as permissions
 
 
@@ -44,9 +43,9 @@ auth_urls = [
         template_name='gentelella/registration/password_reset_done.html'
     ), name="password_reset_complete")
 ]
-tinymce_urls=[
-    url("^u_image$", login_required(tinymce.image_upload), name="tinymce_upload_image"),
-    url("^u_video$", login_required(tinymce.video_upload), name="tinymce_upload_video"),
+wysiwyg_urls=[
+    url("^u_image$", login_required(wysiwyg.image_upload), name="tinymce_upload_image"),
+    url("^u_video$", login_required(wysiwyg.video_upload), name="tinymce_upload_video"),
 ]
 
 
@@ -81,5 +80,5 @@ permission_management_urls = [
     path('permissionsmanagement/save', permissions.save_permcategorymanagement, name="permcategorymanagement-save"),
 
 ]
-urlpatterns = auth_urls + base_urlpatterns+ tinymce_urls + permission_management_urls
+urlpatterns = auth_urls + base_urlpatterns+ wysiwyg_urls + permission_management_urls
 

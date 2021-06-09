@@ -10,9 +10,12 @@ document.gtwidgets = {
         instance.select2({ templateResult: decore_select2 });
     },
     CheckboxInput: function (instance) {
+
+        var checkklass = instance.data('checkboxclass') || 'icheckbox_flat-green';
+        var radioklass  = instance.data('radioclass') || 'iradio_flat-green';
         instance.iCheck({
-            checkboxClass: 'icheckbox_flat-green',
-            radioClass: 'iradio_flat-green'
+            checkboxClass: checkklass,
+            radioClass: radioklass
         });
     },
     YesNoInput: function (instance) {
@@ -121,7 +124,9 @@ document.gtwidgets = {
     FileInput: function (instance) {
         instance.fileuploadwidget();
     },
-
+    FileChunkedUpload: function (instance) {
+        instance.fileuploadwidget();
+    },
     GTAutocompleteSelect: function (instance) {
         build_select2_init(instance);
     },
@@ -150,22 +155,26 @@ document.gtwidgets = {
         instance.colorpicker({ format: 'rgb' });
     },
     TextareaWysiwyg: function (instance) {
-        instance.summernote({
-            tabsize: 2,
-            placeholder: 'Write Something here...',
-            toolbar: [
-                ['style', ['style']],['font', ['bold', 'underline','italic', 'clear']],
-                ['color', ['forecolor','backcolor']],['fontname',['fontname']],
-                ['fontsize', ['fontsize']],['height', ['height']],
-                ['para', ['ul', 'ol', 'paragraph']],['table', ['table']],
-                ['insert', ['link', 'picture', 'video']], ['view', ['fullscreen', 'codeview', 'help']],
+        $(instance).removeAttr('required');
+        instance.tinymce({
+            menubar: false,
+            toolbar: 'undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist checklist | forecolor backcolor casechange permanentpen formatpainter removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media pageembed template link anchor codesample | a11ycheck ltr rtl | showcomments addcomment',
+            plugins: ['autolink', 'codesample', 'link', 'lists', 'media', 'quickbars', "advlist autolink lists link image charmap print preview anchor",
+                "searchreplace visualblocks code fullscreen","insertdatetime media table paste imagetools wordcount",
+                "autoresize", "hr", "image",
             ],
-
-            callbacks: {
-                onImageUpload: function(files, editor, welEditable) {
-                    uploadFile(instance.attr('data-option-image'),files[0], this);
-                }
-            }
+            quickbars_insert_toolbar: 'quicktable | hr pagebreak',
+            file_picker_callback: function (callback, value, meta) {
+                var input = document.createElement('input');
+                input.setAttribute('type', 'file');
+                input.setAttribute('accept', 'image/*');
+                input.onchange = function () {
+                    var file = this.files[0];
+                    upload_files(callback, meta, file, instance.attr('data-option-image'),
+                    instance.attr('data-option-video'));
+                };
+                input.click();
+            },
         });
     },
 

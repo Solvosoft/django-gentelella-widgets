@@ -366,13 +366,23 @@ $.fn.fileuploadwidget = function(){
                 url_done = $this.data('done'),
                 input_token = $this.data('inputtoken'),
                 fileshow = $parentdiv.find('.fileshow'),
-                uploadfilecontent = $parentdiv.find('.uploadfilecontent');
+                uploadfilecontent = $parentdiv.find('.uploadfilecontent'),
+                removecheck = $this.closest('.fileupload').find('input[data-widget="CheckboxInput"]');
 
            $this.attr("required", false);
            div_message.hide();
            fileshow.on('click', function(){
                 uploadfilecontent.toggle();
                 div_message.toggle();
+           });
+           removecheck.on('ifToggled', function(event){
+               if(this.checked){
+                    $parentdiv.find('input[name="'+input_token+'"]').val("0");
+               }else{
+                 if( $parentdiv.find('input[name="'+input_token+'"]').val() == "0"){
+                    $parentdiv.find('input[name="'+input_token+'"]').val("");
+                 }
+               }
            });
            $this.fileupload({
               url: upload_url,
@@ -1077,13 +1087,8 @@ function load_date_range(instance, format='DD/MM/YYYY') {
     };
     if ($(instance).val().length > 0) {
         let days = $(instance).val().split('-');
-        options = {
-            "startDate": days[0],
-            "endDate": days[1],
-            'locale': {
-                format: format,
-            }
-        }
+        options["startDate"] =  days[0];
+        options["endDate"] = days[1];
     }
     return options;
 }
