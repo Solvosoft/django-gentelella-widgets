@@ -28,11 +28,8 @@
             {% for obj in object_list %}
             <tr>
                 <td>{{obj.name}}</td>
-            {% if obj.fileexample %}
                 <td><a href="{{obj.fileexample.url}}" target="_blank"> {{obj.fileexample.url}} </a></td>
-            {% else %}
-                <td></td>
-            {% endif %}
+
                 <td><a href="{% url 'chunkeduploaditem-edit' obj.id %}" class="btn btn-warning text-white">edit</a></td>
             </tr>
             {% endfor %}

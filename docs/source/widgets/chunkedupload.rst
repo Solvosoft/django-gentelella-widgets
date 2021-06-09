@@ -1,7 +1,7 @@
 ChunkedUpload widget
 ^^^^^^^^^^^^^^^^^^^^
 
-.. image:: ../_static/chunkedupload.png
+.. image:: ../_static/chunkedupload.gif
 
 This widget approach used django-chunked-upload app for save the files to the respective directory.
 You can add this widget only in a *FileField*.
@@ -41,6 +41,3 @@ As a Form field:
             fields = '__all__'
 
 Make sure your model has the `fileexample` or the name of the field do you using to save file in your model.
-
-.. note:: If you send a null value using this widget, do you has to validate when need to see the value for example:
-
