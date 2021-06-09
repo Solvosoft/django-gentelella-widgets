@@ -10,6 +10,7 @@ from django.utils.timezone import now
 from djgentelella.forms.forms import CustomForm
 from djgentelella.widgets import core as genwidgets
 from djgentelella.widgets import numberknobinput as knobwidget
+from djgentelella.widgets.files import FileChunkedUpload
 
 
 class ExampleForm(CustomForm):
@@ -21,6 +22,7 @@ class ExampleForm(CustomForm):
     your_pass = forms.CharField(widget=genwidgets.PasswordInput)
 
     your_file = forms.FileField(widget=genwidgets.FileInput)
+    your_trunk = forms.FileField(widget=FileChunkedUpload)
     your_area = forms.CharField(widget=genwidgets.Textarea, max_length = 50)
     your_date = forms.DateField(widget=genwidgets.DateInput)
     your_datetime = forms.DateTimeField(widget=genwidgets.DateTimeInput)

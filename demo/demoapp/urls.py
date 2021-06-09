@@ -9,13 +9,13 @@ from . import api
 from .autocomplete import views as autocompleteviews
 from .chartjs import chart_js_view
 from .date_range import views as date_ranges
-from .editorTinymce import views as tinymce
+from .filechunckedupload import views as chunckedupload
 from .formset import add_formset, add_model_formset
 from .grid_slider import views as grid
 from .input_masks import views as input_mask
 from .tagging import views as tagging
 from .views import knobView, YesNoInputView
-from .wysiwyg import views as wysiwyg
+from .wysiwyg import views as tinymce
 
 pclss = Personclass()
 countryclss = Countryclass()
@@ -44,19 +44,22 @@ urlpatterns = [
         path('tagging/', tagging.InsertTagging.as_view(), name='input_tagging-add'),
         path('tagging/<int:pk>', tagging.EditTagging.as_view(), name='input_tagging-edit'),
         path('tagging/list', tagging.ListTagging.as_view(), name='input_tagging-list'),
-        path('wysiwyg/', wysiwyg.InsertWysiwyg.as_view(), name='wysiwyg-add'),
-        path('wysiwyg/list', wysiwyg.ListWysiwyg.as_view(), name='wysiwyg-list'),
-        path('wysiwyg/<int:pk>', wysiwyg.EditWysiwyg.as_view(), name='wysiwyg-edit'),
         path('tinymce/', tinymce.InsertTinymce.as_view(), name='tinymce-add'),
         path('tinymce/list', tinymce.ListTinymce.as_view(), name='tinymce-list'),
         path('tinymce/<int:pk>', tinymce.EditTinymce.as_view(), name='tinymce-edit'),
         path('tinymce_show/<int:pk>', tinymce.DetailTinymce.as_view(), name='tinymce-show'),
         path('yesnoinput/', YesNoInputView.as_view(), name='yes-no-input-add'),
         path('datables/', person_reltable_view, name='abcde-edit'),
-        path('gridslider/', grid.AddGrid.as_view(), name='grid-slider-add'),
-        path('gridslider/list', grid.ListGrid.as_view(), name='grid-slider-list'),
-        path('gridslider/<int:pk>', grid.UpdateGrid.as_view(), name='grid-slider-edit'),
+        path('gridslider/',grid.AddGrid.as_view(), name='grid-slider-add'),
+        path('gridslider/list',grid.ListGrid.as_view(), name='grid-slider-list'),
+        path('gridslider/<int:pk>',grid.UpdateGrid.as_view(), name='grid-slider-edit'),
+        path('chunkedupload/', chunckedupload.Addchunkedupload.as_view(), name='chunkeduploaditem-add'),
+        path('chunkedupload/list', chunckedupload.Listchunkedupload.as_view(), name='chunkeduploaditem-list'),
+        path('chunkedupload/<int:pk>', chunckedupload.Updatechunkedupload.as_view(), name='chunkeduploaditem-edit'),
+
+
 ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()
+
 
 router = DefaultRouter()
 router.register('persontable', api.PersonViewSet, 'api-persontable')
