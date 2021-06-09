@@ -221,6 +221,19 @@ class Command(BaseCommand):
             only_icon=False
         )
 
+        chunckedupload = MenuItem.objects.create(
+            parent=cwidget,
+            title='ChunckedUpload',
+            url_name='chunkeduploaditem-list',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-download',
+            only_icon=False
+        )
+
         noti = MenuItem.objects.create(
             parent=item,
             title='Create notification',
