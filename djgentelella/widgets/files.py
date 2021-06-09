@@ -22,11 +22,13 @@ class FileChunkedUpload(FileInput):
 
     def format_value(self, value):
         """File input never renders a value."""
-        return
+        return value
 
     def value_from_datadict(self, data, files, name):
         dev = None
         token = data.get(name)
+        if token == '0':
+            return False
         tmpupload = ChunkedUpload.objects.filter(upload_id=token).first()
         if tmpupload:
             dev = tmpupload.get_uploaded_file()

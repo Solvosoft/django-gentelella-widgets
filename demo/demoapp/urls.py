@@ -13,6 +13,7 @@ from .date_range import views as date_ranges
 from .tagging import views as tagging
 from .wysiwyg import views as tinymce
 from .grid_slider import views as grid
+from .filechunckedupload import views as chunckedupload
 
 pclss = Personclass()
 countryclss = Countryclass()
@@ -49,4 +50,9 @@ urlpatterns = [
         path('gridslider/',grid.AddGrid.as_view(), name='grid-slider-add'),
         path('gridslider/list',grid.ListGrid.as_view(), name='grid-slider-list'),
         path('gridslider/<int:pk>',grid.UpdateGrid.as_view(), name='grid-slider-edit'),
+        path('chunkedupload/', chunckedupload.Addchunkedupload.as_view(), name='chunkeduploaditem-add'),
+        path('chunkedupload/list', chunckedupload.Listchunkedupload.as_view(), name='chunkeduploaditem-list'),
+        path('chunkedupload/<int:pk>', chunckedupload.Updatechunkedupload.as_view(), name='chunkeduploaditem-edit'),
+
+
 ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()

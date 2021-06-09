@@ -10,9 +10,12 @@ document.gtwidgets = {
         instance.select2({ templateResult: decore_select2 });
     },
     CheckboxInput: function (instance) {
+
+        var checkklass = instance.data('checkboxclass') || 'icheckbox_flat-green';
+        var radioklass  = instance.data('radioclass') || 'iradio_flat-green';
         instance.iCheck({
-            checkboxClass: 'icheckbox_flat-green',
-            radioClass: 'iradio_flat-green'
+            checkboxClass: checkklass,
+            radioClass: radioklass
         });
     },
     YesNoInput: function (instance) {
