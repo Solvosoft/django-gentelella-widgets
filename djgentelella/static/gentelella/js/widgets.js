@@ -25,7 +25,10 @@ document.gtwidgets = {
         });
     },
     DateRangeInput: function (instance) {
-        instance.daterangepicker(load_date_range(instance));
+        instance = $(instance);
+        instance.daterangepicker(load_date_range(instance), (from_date, to_date) => {
+            instance.val(from_date.format('DD/MM/YYYY') + ' - ' + to_date.format('DD/MM/YYYY'));
+        });
     },
 
     GridSlider: function (instance) {
@@ -48,15 +51,6 @@ document.gtwidgets = {
     },
     DateRangeTimeInput: function (instance) {
         instance.daterangepicker(load_datetime_range(instance));
-    },
-    TreeSelectWithAdd: function (instance) {
-        instance.select2({ templateResult: decore_select2 });
-    },
-    TreeSelectMultiple: function (instance) {
-        instance.select2({ templateResult: decore_select2 });
-    },
-    TreeSelectMultipleWithAdd: function (instance) {
-        instance.select2({ templateResult: decore_select2 });
     },
     DateTimeInput: function (instance) {
         instance.datetimepicker({format : instance.data('format') });// "YYYY-MM-DD HH:mm"
@@ -117,9 +111,12 @@ document.gtwidgets = {
     },
     TreeSelectMultipleWithAdd: function (instance) {
         instance.addselectwidget();
+        instance.select2({ templateResult: decore_select2 });
     },
     TreeSelectWithAdd: function (instance) {
         instance.addselectwidget();
+        instance.select2({ templateResult: decore_select2 });
+
     },
     FileInput: function (instance) {
         instance.fileuploadwidget();

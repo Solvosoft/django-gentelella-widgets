@@ -1,23 +1,18 @@
 function load_date_range(instance, format='DD/MM/YYYY') {
     var options = {
-        'startDate': moment().startOf('hour'),
-        'endDate': moment().startOf('hour').add(32, 'hour'),
-        'locale': {
+        'autoUpdateInput': false,
+         'locale': {
             format: format,
         }
     };
     if ($(instance).val().length > 0) {
         let days = $(instance).val().split('-');
-        options = {
-            "startDate": days[0],
-            "endDate": days[1],
-            'locale': {
-                format: format,
-            }
-        }
+        options["startDate"] =  days[0];
+        options["endDate"] = days[1];
     }
     return options;
 }
+
 function load_datetime_range(instance, format='DD/MM/YYYY HH:mm A') {
     var options = {
         'timePicker': true,
@@ -42,6 +37,7 @@ function load_datetime_range(instance, format='DD/MM/YYYY HH:mm A') {
     }
     return options;
 }
+
 function load_date_range_custom(instance, format='DD/MM/YYYY') {
     var options = {
         startDate: moment().startOf('hour'),
@@ -76,6 +72,7 @@ function load_date_range_custom(instance, format='DD/MM/YYYY') {
     }
     return options;
 }
+
 function grid_slider(instance) {
     let obj = $(instance[0]);
 
