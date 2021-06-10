@@ -25,7 +25,10 @@ document.gtwidgets = {
         });
     },
     DateRangeInput: function (instance) {
-        instance.daterangepicker(load_date_range(instance));
+        instance = $(instance);
+        instance.daterangepicker(load_date_range(instance), (from_date, to_date) => {
+            instance.val(from_date.format('DD/MM/YYYY') + ' - ' + to_date.format('DD/MM/YYYY'));
+        });
     },
 
     GridSlider: function (instance) {
