@@ -7,6 +7,7 @@ Advanced Widgets
 .. include:: inputmask.rst
 .. include:: daterange.rst
 .. include:: autocomplete.rst
-.. include:: tinycmeEditor.rst
+.. include:: wysiwyg.rst
 .. include:: yesnoinput.rst
 .. include:: grid_slider.rst
+.. include:: chunkedupload.rst
