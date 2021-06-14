@@ -205,9 +205,8 @@ $.fn.listcrudrest = function(){
         list.find('input').iCheck({
             checkboxClass: 'icheckbox_flat-green',
             radioClass: 'iradio_flat-green'
-
         });
-       list.html(html);
+        list.html(html);
     }
     $(btn).on('click', function(){
         $(form).closest('.x_content').find('.alert').remove();
