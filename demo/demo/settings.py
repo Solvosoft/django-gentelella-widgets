@@ -148,7 +148,7 @@ EMAIL_PORT = '1025'
 MARKITUP_FILTER = ('markdown.markdown', {'safe_mode': True})
 MARKITUP_SET = 'markitup/sets/markdown/'
 JQUERY_URL = None
-
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 # DEFAULT_JS_IMPORTS = {
 #     'use_bootstraptree': True

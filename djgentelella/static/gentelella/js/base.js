@@ -201,11 +201,12 @@ $.fn.listcrudrest = function(){
             html += template.replace('__ID__', result[x].id).replace(
             '__DESCRIPTION__', result[x].name);
         }
-        list.html(html);
+
         list.find('input').iCheck({
             checkboxClass: 'icheckbox_flat-green',
             radioClass: 'iradio_flat-green'
         });
+        list.html(html);
     }
     $(btn).on('click', function(){
         $(form).closest('.x_content').find('.alert').remove();
@@ -1079,9 +1080,8 @@ function decore_select2 (data) {
 
 function load_date_range(instance, format='DD/MM/YYYY') {
     var options = {
-        'startDate': moment().startOf('hour'),
-        'endDate': moment().startOf('hour').add(32, 'hour'),
-        'locale': {
+        'autoUpdateInput': false,
+         'locale': {
             format: format,
         }
     };
@@ -1092,6 +1092,7 @@ function load_date_range(instance, format='DD/MM/YYYY') {
     }
     return options;
 }
+
 function load_datetime_range(instance, format='DD/MM/YYYY HH:mm A') {
     var options = {
         'timePicker': true,
@@ -1116,6 +1117,7 @@ function load_datetime_range(instance, format='DD/MM/YYYY HH:mm A') {
     }
     return options;
 }
+
 function load_date_range_custom(instance, format='DD/MM/YYYY') {
     var options = {
         startDate: moment().startOf('hour'),
@@ -1150,6 +1152,7 @@ function load_date_range_custom(instance, format='DD/MM/YYYY') {
     }
     return options;
 }
+
 function grid_slider(instance) {
     let obj = $(instance[0]);
 

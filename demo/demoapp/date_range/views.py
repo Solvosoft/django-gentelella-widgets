@@ -28,5 +28,4 @@ class UpdateDate(UpdateView):
     success_url = reverse_lazy('date-range-list')
     
     def form_valid(self, form):
-        print(self.request.POST)
         return super().form_valid(form)

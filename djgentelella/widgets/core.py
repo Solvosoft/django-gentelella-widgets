@@ -493,6 +493,7 @@ class DateRangeInput(DJDateInput):
     def __init__(self, attrs=None, format=None):
         attrs = update_kwargs(attrs, self.__class__.__name__)
         attrs['autocomplete'] = 'off'
+        attrs['data-format'] = 'DD/MM/YYYY'
         super().__init__(attrs, format=format)
 
 
