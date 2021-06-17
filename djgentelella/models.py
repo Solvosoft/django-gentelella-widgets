@@ -1,8 +1,8 @@
 from django.contrib.auth.models import Permission, User
 from django.db import models
-from mptt.models import MPTTModel, TreeForeignKey
 # Create your models here.
 from django.utils.translation import ugettext_lazy as _
+from mptt.models import MPTTModel, TreeForeignKey
 
 
 class GentelellaSettings(models.Model):
@@ -17,9 +17,8 @@ class GentelellaSettings(models.Model):
         return self.key
 
 
-
 class MenuItem(MPTTModel):
-    #name = models.SlugField(max_length=50, unique=True)
+    # name = models.SlugField(max_length=50, unique=True)
     parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
     title = models.CharField(max_length=500)
     permission = models.ManyToManyField(Permission, blank=True)
@@ -36,12 +35,12 @@ class MenuItem(MPTTModel):
     icon = models.CharField(max_length=50, null=True, blank=True)
     only_icon = models.BooleanField(default=False)
 
-
     def __str__(self):
         return self.title
 
     class MPTTMeta:
         order_insertion_by = ['-id']
+
 
 class Help(models.Model):
     id_view = models.CharField(max_length=50,
@@ -56,10 +55,10 @@ class Help(models.Model):
 
 
 class Notification(models.Model):
-    STATE = [('visible',_('Visible')),
-               ('hide', _('Hidden'))]
+    STATE = [('visible', _('Visible')),
+             ('hide', _('Hidden'))]
 
-    MESSAGE_TYPE=(
+    MESSAGE_TYPE = (
         ('default', _('Default')),
         ('info', _('Information')),
         ('success', _('Success')),
@@ -83,6 +82,41 @@ class Notification(models.Model):
     class Meta:
         ordering = ['-creation_date']
 
+
+REPRESENTATION_LIST = [
+    ('as_table', 'As Table'),
+    ('as_p', 'As P'),
+    ('as_ul', 'As ul'),
+    ('as_inline', 'As Inline'),
+    ('as_horizontal', 'As Horizontal'),
+    ('as_plain', 'As Plain'),
+]
+
+
+class GTDbForm(models.Model):
+    token = models.CharField(max_length=50, unique=True)
+    prefix = models.CharField(max_length=50, null=True, blank=True)
+    representation_list = models.CharField(choices=REPRESENTATION_LIST, max_length=50, default='as_table')
+    template_name = models.CharField(max_length=100, default='default')
+
+    def __str__(self):
+        return str(self.token)
+
+
+class GTDbField(models.Model):
+    form = models.ForeignKey(GTDbForm, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    label = models.CharField(max_length=100, null=True, blank=True)
+    required = models.BooleanField(default=True)
+    label_suffix = models.CharField(max_length=100, null=True, blank=True)
+    help_text = models.CharField(max_length=500, null=True, blank=True)
+    disabled = models.BooleanField(default=False)
+    extra_attr = models.JSONField(blank=True, null=True)
+    extra_kwarg = models.JSONField(blank=True, null=True)
+    order = models.IntegerField(default=0)
+
+    def __str__(self):
+        return self.name
 
 
 class PermissionsCategoryManagement(models.Model):

@@ -2,7 +2,7 @@ from django.contrib import admin
 
 # Register your models here.
 from mptt.admin import DraggableMPTTAdmin
-from djgentelella.models import MenuItem, Help, GentelellaSettings, Notification
+from djgentelella.models import MenuItem, Help, GentelellaSettings, Notification, GTDbForm, GTDbField
 from djgentelella.utils import clean_cache
 from djgentelella.models import PermissionsCategoryManagement
 
@@ -27,9 +27,19 @@ class NotificationAdmin(admin.ModelAdmin):
     list_display = ['description', 'state', 'message_type']
     list_editable = ['state']
 
+
+class GTDbFieldInline(admin.TabularInline):
+    model = GTDbField
+    extra = 0
+
+class GTDbFormAdmin(admin.ModelAdmin):
+    inlines = [GTDbFieldInline]
+
+
 admin.site.register(MenuItem, MenuAdmin)
 admin.site.register(Help)
 admin.site.register(PermissionsCategoryManagement)
 admin.site.register(GentelellaSettings, GentelellaSettingsAdmin)
 admin.site.register(Notification, NotificationAdmin)
+admin.site.register(GTDbForm, GTDbFormAdmin)
 
