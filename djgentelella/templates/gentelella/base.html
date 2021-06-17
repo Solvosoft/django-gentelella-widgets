@@ -115,11 +115,11 @@
 
             <footer>
               {% include "gentelella/app/footer.html" %}
+
+            </footer>
               {% if request.user.is_superuser %}
                 {% include 'gentelella/blocks/permissions_management.html' %}
               {% endif %}
-            </footer>
-
           {% endblock footer %}
         </div>
       </div>
