@@ -49,8 +49,9 @@
 
 
     {% endblock stylesheets %}
-      <!-- Custom Theme Style -->
-      <link href="{% static 'gentelella/css/custom.css' %}?v={% get_version %}" rel="stylesheet">
+
+      {% get_settings 'site_theme' as theme %}
+      <link href="{% static theme %}?v={% get_version %}" rel="stylesheet">
     {% endblock head %}
     {% block extra_css %} {% endblock %}
     <!-- jQuery -->
