@@ -216,12 +216,12 @@ document.gtwidgets = {
         instance.gentelella_chart();
     },
 
-        NullBooleanSelect: function(instance){
-	instance.iCheck({
+    NullBooleanSelect: function(instance){
+	    instance.iCheck({
             checkboxClass: 'icheckbox_flat-green',
             radioClass: 'iradio_flat-green'
         });
-        },
+     },
 
 }
 
