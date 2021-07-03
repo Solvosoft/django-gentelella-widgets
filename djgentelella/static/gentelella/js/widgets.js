@@ -24,6 +24,14 @@ document.gtwidgets = {
             showHideRelatedFormFields($(element));
         });
     },
+    NullBooleanSelect: function(instance){
+        var checkklass = instance.data('checkboxclass') || 'icheckbox_flat-green';
+        var radioklass  = instance.data('radioclass') || 'iradio_flat-green';
+        instance.iCheck({
+            checkboxClass: checkklass,
+            radioClass: radioklass
+        });
+    },
     DateRangeInput: function (instance) {
         format = instance.attr('data-format')
         instance.each((i,element)=>{
