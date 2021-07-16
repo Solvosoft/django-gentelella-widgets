@@ -158,7 +158,10 @@ class Command(BaseCommand):
             'interact': [
                 'https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js'
             ],
-
+            'timeline': [
+                "https://cdn.knightlab.com/libs/timeline3/latest/css/timeline.css",
+                "https://cdn.knightlab.com/libs/timeline3/latest/js/timeline.js"
+            ],
             'chartjs': [
                 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.css'
