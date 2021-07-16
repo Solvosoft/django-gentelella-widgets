@@ -222,6 +222,9 @@ document.gtwidgets = {
     },
     DJGraph: function (instance) {
         instance.gentelella_chart();
+    },
+    UrlTimeLineInput: function (instance) {
+        var timeline = new TL.Timeline(instance.attr('id'), instance.data('url'));
     }
 
 }

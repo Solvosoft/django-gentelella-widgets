@@ -60,6 +60,7 @@ def import_module_app_gt(app, name):
 for app in settings.INSTALLED_APPS:
     import_module_app_gt(app, 'gtcharts')
     import_module_app_gt(app, 'gtselects')
+    import_module_app_gt(app, 'gttimeline')
 
 base_urlpatterns = [
     url('gtapis/', include(routes.urls)),

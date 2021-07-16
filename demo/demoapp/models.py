@@ -217,3 +217,4 @@ class Employee(models.Model):
 class ChunkedUploadItem(models.Model):
     name = models.CharField(max_length=100)
     fileexample = models.FileField(upload_to='filedemo')
+
