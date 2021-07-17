@@ -6,6 +6,7 @@ Advanced Widgets
 .. include:: color.rst
 .. include:: inputmask.rst
 .. include:: daterange.rst
+.. include:: timeline.rst
 .. include:: autocomplete.rst
 .. include:: wysiwyg.rst
 .. include:: yesnoinput.rst
