@@ -224,7 +224,21 @@ document.gtwidgets = {
         instance.gentelella_chart();
     },
     UrlTimeLineInput: function (instance) {
-        var timeline = new TL.Timeline(instance.attr('id'), instance.data('url'));
+        var instanceid = instance.attr('id');
+        var dataoptions = $(id_timeline).data();
+        var keys = Object.keys(dataoptions);
+        var options = {}
+        for (var x=0; x<keys.length; x++){
+            if(keys[x].startsWith('option_')){
+                 options[keys[x].replace('option_', '')] = dataoptions[keys[x]]
+            }
+        }
+        var timeline = new TL.Timeline(instanceid, instance.data('url'), options);
+        window.addEventListener('resize', function() {
+            var embed = document.getElementById(instanceid);
+            embed.style.height = getComputedStyle(document.body).height;
+            timeline.updateDisplay();
+        })
     }
 
 }
