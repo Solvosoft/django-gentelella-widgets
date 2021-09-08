@@ -26,7 +26,7 @@ README = open(os.path.join(os.path.dirname(__file__), 'Readme.rst')).read()
 # allow setup.py to be run from any path
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
-version = '0.2.7'
+version = '0.2.8'
 
 setup(
     author='Luis Zarate Montero',
