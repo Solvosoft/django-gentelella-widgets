@@ -1,5 +1,6 @@
 from django import forms
 from djgentelella.forms.forms import GTForm
+from djgentelella.widgets.calendar import CalendarInput
 from djgentelella.widgets.core import DateTimeInput, DateInput, TextInput, NumberInput
 from djgentelella.widgets.selects import AutocompleteSelect
 from .models import Foo, Person, Comunity, YesNoInput
@@ -86,7 +87,6 @@ class PersonForm(GTForm, forms.ModelForm):
             'num_children': NumberInput,
 
         }
-        
         
 class CityForm(GTForm, forms.ModelForm):
     class Meta:
