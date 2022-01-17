@@ -5,19 +5,25 @@ from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.utils.timezone import now
+from rest_framework import serializers
 
-
+from demoapp.models import Event
 from djgentelella.forms.forms import CustomForm
 from djgentelella.widgets import core as genwidgets
 from djgentelella.widgets import numberknobinput as knobwidget
+from djgentelella.widgets.calendar import CalendarInput
 from djgentelella.widgets.files import FileChunkedUpload
 from djgentelella.widgets.timeline import UrlTimeLineInput
 
 
 class ExampleForm(CustomForm):
     timeline = forms.CharField(widget=UrlTimeLineInput(
-        attrs={"data-url": reverse_lazy('exampletimeline-list'), 'style': "height: 500px;",
-                         "data-option_language": 'es'}))
+        attrs={
+            "data-url": reverse_lazy('exampletimeline-list'),
+            'style': "height: 500px;",
+            "data-option_language": 'es'
+        }
+    ))
 
     your_name = forms.CharField(label='Your name', max_length=100, widget=genwidgets.TextInput)
     your_age = forms.IntegerField(widget=genwidgets.NumberInput(attrs={'min_value':2, 'max_value': 8}) )
@@ -128,6 +134,12 @@ class ExampleForm(CustomForm):
     your_age = forms.IntegerField(
         widget=knobwidget.NumberKnobInput(attrs={"value": 5, "data-min":1, "data-max":10})
     )
+    calendar = forms.CharField(
+        widget=CalendarInput(
+            calendar_attrs={"initialView": "timeGridWeek"},
+            events=Event.objects.all()
+        )
+    )
 
 
 def home(request):
@@ -163,3 +175,9 @@ def add_view_select(request):
         """
     }
     return JsonResponse(data)
+
+
+def get_events(request):
+    events = Event.objects.all()
+    events_json = serializers.serialize('json', events)
+    return HttpResponse(events_json, content_type='application/json')

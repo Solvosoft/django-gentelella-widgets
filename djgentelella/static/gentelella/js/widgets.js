@@ -239,6 +239,13 @@ document.gtwidgets = {
             embed.style.height = getComputedStyle(document.body).height;
             timeline.updateDisplay();
         })
+    },
+    CalendarInput: function (instance) {
+        var instanceid = instance.attr('id');
+        var calendarEl = document.getElementById(instanceid);
+        calendar_options.events = events
+        var calendar = new FullCalendar.Calendar(calendarEl, calendar_options);
+        calendar.render();
     }
 
 }
