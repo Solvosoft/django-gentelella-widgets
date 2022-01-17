@@ -84,6 +84,7 @@ class BaseTimelineView(ViewSet):
 
     def get_serializer(self, data):
         return self.serializer(data)
+
     def list(self, request, format=None):
         self.request = request
         response = {

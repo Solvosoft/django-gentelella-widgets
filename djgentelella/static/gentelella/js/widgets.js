@@ -239,6 +239,26 @@ document.gtwidgets = {
             embed.style.height = getComputedStyle(document.body).height;
             timeline.updateDisplay();
         })
+    },
+    StoryMapInput: function (instance) {
+        var instanceid = instance.attr('id');
+        var dataoptions = $(id_storymap).data();
+        var keys = Object.keys(dataoptions);
+        var options = {}
+        var storymap = null
+        for (var x=0; x<keys.length; x++){
+            if(keys[x].startsWith('option_')){
+                 options[keys[x].replace('option_', '')] = dataoptions[keys[x]]
+            }
+        }
+        if (options['storymap']['map_as_image'] == true) {
+            storymap = new VCO.StoryMap(instanceid, instance.data('url'), options);
+        } else {
+            storymap = new KLStoryMap.StoryMap(instanceid, instance.data('url'), options);
+        }
+        window.onresize = function(event) {
+            storymap.updateDisplay();
+        }
     }
 
 }

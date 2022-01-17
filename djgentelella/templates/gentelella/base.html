@@ -48,6 +48,11 @@
           <link href="{% static 'vendors/datatables/dataTables.bootstrap.min.css' %}?v={% get_version %}" rel="stylesheet" />
         {% endif %}
 
+        {% get_define 'use_storymapjs' as use_storymapjs %}
+        {% if use_storymapjs %}
+            <link href="{% static 'vendors/storymapjs/storymap.css' %}?v={% get_version %}" rel="stylesheet" />
+        {% endif %}
+
 
     {% endblock stylesheets %}
 
@@ -179,6 +184,11 @@
         {% get_define 'use_bootstraptree' as use_bootstraptree %}
         {% if use_bootstraptree %}
             <script src="{% static 'vendors/bootstrap-tree/bootstrap-treeview.min.js' %}?v={% get_version %}"></script>
+        {% endif %}
+
+        {% get_define 'use_storymapjs' as use_storymapjs %}
+        {% if use_storymapjs %}
+            <script src="{% static 'vendors/storymapjs/storymap-min.js' %}?v={% get_version %}"></script>
         {% endif %}
 
 
