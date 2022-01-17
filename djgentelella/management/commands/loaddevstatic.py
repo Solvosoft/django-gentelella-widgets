@@ -166,6 +166,10 @@ class Command(BaseCommand):
                 "https://cdn.knightlab.com/libs/timeline3/latest/css/icons/tl-icons.svg",
             ],
             'timeline/js': ["https://cdn.knightlab.com/libs/timeline3/latest/js/timeline.js"],
+            'storymapjs': [
+                "https://cdn.knightlab.com/libs/storymapjs/0.8.6/js/storymap-min.js",
+                "https://cdn.knightlab.com/libs/storymapjs/0.8.6/css/storymap.css",
+            ],
             'chartjs': [
                 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.css'
