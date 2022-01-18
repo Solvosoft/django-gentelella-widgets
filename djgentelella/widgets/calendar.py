@@ -10,7 +10,7 @@ class CalendarInput(TextInput):
     def __init__(self, attrs=None, calendar_attrs=None, events=None):
         self.events = events
         self.calendar_attrs = calendar_attrs
-        attrs = update_kwargs(attrs, self.__class__.__name__, None)
+        attrs = update_kwargs(attrs, self.__class__.__name__, "")
         super(CalendarInput, self).__init__(attrs=attrs, extraskwargs=False)
 
     def get_context(self, name, value, attrs):
