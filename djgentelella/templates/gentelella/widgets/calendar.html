@@ -1,5 +1,5 @@
-<div {% include "gentelella/widgets/attrs.html" %} ></div>
+<div {% include "gentelella/widgets/attrs.html" %} name="{{widget.name}}" ></div>
 <script>
-    var calendar_options = {{ options|safe }} // need to be unique with widget name
-    var events = {{ events|safe }}
+    var calendar_options{{widget.name}} = {{ options|safe }}; // need to be unique with widget name
+    var events{{widget.name}} = {{ events|safe }};
 </script>

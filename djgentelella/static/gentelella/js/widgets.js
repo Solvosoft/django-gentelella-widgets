@@ -241,8 +241,11 @@ document.gtwidgets = {
         })
     },
     CalendarInput: function (instance) {
-        var instanceid = instance.attr('id');
-        var calendarEl = document.getElementById(instanceid);
+        var instance_id = instance.attr('id');
+        var instance_name = instance.attr('name');
+        var calendarEl = document.getElementById(instance_id);
+        events = window['events' + instance_name]
+        calendar_options = window['calendar_options' + instance_name]
         calendar_options.events = events
         var calendar = new FullCalendar.Calendar(calendarEl, calendar_options);
         calendar.render();
