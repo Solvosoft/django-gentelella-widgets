@@ -38,6 +38,7 @@
         <link href="{% static 'vendors/tinymce/skin.min.css' %}?v={% get_version %}" rel="stylesheet" />
         <link href="{% static 'vendors/sweetalert2/sweetalert2.min.css' %}?v={% get_version %}" rel="stylesheet" />
         <link href="{% static 'vendors/timeline/css/timeline.css' %}?v={% get_version %}" rel="stylesheet" />
+        <link href="{% static 'vendors/storymapjs/storymap.css' %}?v={% get_version %}" rel="stylesheet" />
 
         {% get_define 'use_chartjs' as use_chartjs %}
         {% if use_chartjs %}
@@ -46,11 +47,6 @@
         {% get_define 'use_datatables' as use_datatables %}
         {% if use_datatables %}
           <link href="{% static 'vendors/datatables/dataTables.bootstrap.min.css' %}?v={% get_version %}" rel="stylesheet" />
-        {% endif %}
-
-        {% get_define 'use_storymapjs' as use_storymapjs %}
-        {% if use_storymapjs %}
-            <link href="{% static 'vendors/storymapjs/storymap.css' %}?v={% get_version %}" rel="stylesheet" />
         {% endif %}
 
 
@@ -169,6 +165,7 @@
         <script src="{% static 'vendors/tinymce/tinymce-all.js' %}?v={% get_version %}"></script>
         <script src="{% static 'vendors/sweetalert2/sweetalert2.all.min.js' %}?v={% get_version %}"></script>
         <script src="{% static 'vendors/timeline/js/timeline.js' %}?v={% get_version %}"></script>
+        <script src="{% static 'vendors/storymapjs/storymap-min.js' %}?v={% get_version %}"></script>
             {% get_define 'use_datatables' as use_datatables %}
         {% if use_datatables %}
         <script src="{% static 'vendors/datatables/jquery.dataTables.min.js' %}?v={% get_version %}"></script>
@@ -184,11 +181,6 @@
         {% get_define 'use_bootstraptree' as use_bootstraptree %}
         {% if use_bootstraptree %}
             <script src="{% static 'vendors/bootstrap-tree/bootstrap-treeview.min.js' %}?v={% get_version %}"></script>
-        {% endif %}
-
-        {% get_define 'use_storymapjs' as use_storymapjs %}
-        {% if use_storymapjs %}
-            <script src="{% static 'vendors/storymapjs/storymap-min.js' %}?v={% get_version %}"></script>
         {% endif %}
 
 
