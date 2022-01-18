@@ -12,9 +12,13 @@ from djgentelella.widgets import core as genwidgets
 from djgentelella.widgets import numberknobinput as knobwidget
 from djgentelella.widgets.files import FileChunkedUpload
 from djgentelella.widgets.timeline import UrlTimeLineInput
+from djgentelella.widgets.storymap import GigaPixelStoryMapInput
 
 
 class ExampleForm(CustomForm):
+    storymap = forms.CharField(widget=GigaPixelStoryMapInput(
+        attrs={"data-url": reverse_lazy('examplestorymapgp-list'), 'style': "height: 500px;"}))
+
     timeline = forms.CharField(widget=UrlTimeLineInput(
         attrs={"data-url": reverse_lazy('exampletimeline-list'), 'style': "height: 500px;",
                          "data-option_language": 'es'}))

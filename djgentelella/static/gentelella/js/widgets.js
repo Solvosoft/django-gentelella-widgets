@@ -240,7 +240,7 @@ document.gtwidgets = {
             timeline.updateDisplay();
         })
     },
-    StoryMapInput: function (instance) {
+    GigaPixelStoryMapInput: function (instance) {
         var instanceid = instance.attr('id');
         var dataoptions = $(id_storymap).data();
         var keys = Object.keys(dataoptions);
@@ -251,14 +251,15 @@ document.gtwidgets = {
                  options[keys[x].replace('option_', '')] = dataoptions[keys[x]]
             }
         }
-        if (options['storymap']['map_as_image'] == true) {
-            storymap = new VCO.StoryMap(instanceid, instance.data('url'), options);
-        } else {
-            storymap = new KLStoryMap.StoryMap(instanceid, instance.data('url'), options);
-        }
-        window.onresize = function(event) {
+
+        storymap = new VCO.StoryMap(instanceid, instance.data('url'), options);
+
+        window.addEventListener('resize', function() {
+            var embed = document.getElementById(instanceid);
+            embed.style.height = getComputedStyle(document.body).height;
             storymap.updateDisplay();
-        }
+        })
+
     }
 
 }
