@@ -9,7 +9,7 @@ from djgentelella.widgets.helper import HelperWidgetView
 from django.contrib.auth.decorators import login_required
 from djgentelella.wysiwyg import views as wysiwyg
 from djgentelella.permission_management import views as permissions
-
+from .views.storyline import StorylineBuilder
 
 auth_urls = [
     path('accounts/login/',
@@ -61,6 +61,7 @@ for app in settings.INSTALLED_APPS:
     import_module_app_gt(app, 'gtcharts')
     import_module_app_gt(app, 'gtselects')
     import_module_app_gt(app, 'gttimeline')
+    import_module_app_gt(app, 'gtstoryline')
 
 base_urlpatterns = [
     url('gtapis/', include(routes.urls)),
@@ -83,3 +84,7 @@ permission_management_urls = [
 ]
 urlpatterns = auth_urls + base_urlpatterns+ wysiwyg_urls + permission_management_urls
 
+# storyline
+
+new_storyline = StorylineBuilder()
+urlpatterns += new_storyline.urls() # modification with include !!

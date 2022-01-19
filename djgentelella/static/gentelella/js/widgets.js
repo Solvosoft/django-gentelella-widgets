@@ -239,8 +239,22 @@ document.gtwidgets = {
             embed.style.height = getComputedStyle(document.body).height;
             timeline.updateDisplay();
         })
-    }
+    },
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    UrlStoryLineInput: function (instance) {
+        var instanceid = instance.attr('id');
+        var dataoptions = $(id_storyline).data();
+        url = instance.data('url');
 
+        $.ajax({
+            method: "GET",
+            url: instance.data('url'),
+            dataType: "json",
+        }).done(function(msg){
+            var storyline = new Storyline(instanceid, msg);
+        });
+    },
+    ////////////////////////////////////////////////////////////////////////////////////////////
 }
 
 function gt_find_initialize(instance) {

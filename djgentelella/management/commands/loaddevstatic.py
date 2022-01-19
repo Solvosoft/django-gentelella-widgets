@@ -244,6 +244,10 @@ class Command(BaseCommand):
                 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide/skin.mobile.min.css',
                 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide/skin.shadowdom.min.css',
             ],
+            'storylinejs': [
+                'https://cdn.knightlab.com/libs/storyline/1.1.0/css/storyline.css',
+                'https://cdn.knightlab.com/libs/storyline/1.1.0/js/storyline.js',
+            ]
         }
         compressed = {
             'tinymce': {
