@@ -11,6 +11,7 @@ from djgentelella.forms.forms import CustomForm
 from djgentelella.widgets import core as genwidgets
 from djgentelella.widgets import numberknobinput as knobwidget
 from djgentelella.widgets.files import FileChunkedUpload
+from djgentelella.widgets.storyline import UrlStoryLineInput
 from djgentelella.widgets.timeline import UrlTimeLineInput
 
 
@@ -18,6 +19,9 @@ class ExampleForm(CustomForm):
     timeline = forms.CharField(widget=UrlTimeLineInput(
         attrs={"data-url": reverse_lazy('exampletimeline-list'), 'style': "height: 500px;",
                          "data-option_language": 'es'}))
+
+    storyline = forms.CharField(widget=UrlStoryLineInput(
+        attrs={"data-url": reverse_lazy('gtExampleoptions'), 'style': "height: 500px;"}))
 
     your_name = forms.CharField(label='Your name', max_length=100, widget=genwidgets.TextInput)
     your_age = forms.IntegerField(widget=genwidgets.NumberInput(attrs={'min_value':2, 'max_value': 8}) )
