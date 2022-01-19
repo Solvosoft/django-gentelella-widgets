@@ -52,7 +52,7 @@ class StoryMapGPSerializer(serializers.Serializer):
     map_type = serializers.CharField(default='zoomify')
     map_as_image = serializers.BooleanField(required=True)
     map_background_color = serializers.CharField(required=False)
-    zoomify = ZoomifySerializer()
+    zoomify = ZoomifySerializer(required=False)
     slides = SlideSerializer(many=True)
 
 

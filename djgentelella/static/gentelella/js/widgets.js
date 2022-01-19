@@ -233,7 +233,7 @@ document.gtwidgets = {
                  options[keys[x].replace('option_', '')] = dataoptions[keys[x]]
             }
         }
-        var timeline = new TL.Timeline(instanceid, instance.data('url'), options);
+        timeline = new TL.Timeline(instanceid, instance.data('url'), options);
         window.addEventListener('resize', function() {
             var embed = document.getElementById(instanceid);
             embed.style.height = getComputedStyle(document.body).height;
@@ -245,21 +245,38 @@ document.gtwidgets = {
         var dataoptions = $(id_storymap).data();
         var keys = Object.keys(dataoptions);
         var options = {}
-        var storymap = null
         for (var x=0; x<keys.length; x++){
             if(keys[x].startsWith('option_')){
                  options[keys[x].replace('option_', '')] = dataoptions[keys[x]]
             }
         }
 
-        storymap = new VCO.StoryMap(instanceid, instance.data('url'), options);
+        gigapixel_storymap = new VCO.StoryMap(instanceid, instance.data('url'), options);
 
         window.addEventListener('resize', function() {
             var embed = document.getElementById(instanceid);
             embed.style.height = getComputedStyle(document.body).height;
-            storymap.updateDisplay();
-        })
+            gigapixel_storymap.updateDisplay();
+        });
+    },
+    MapBasedStoryMapInput: function (instance) {
+        var instanceid = instance.attr('id');
+        var dataoptions = $(id_storymap).data();
+        var keys = Object.keys(dataoptions);
+        var options = {}
+        for (var x=0; x<keys.length; x++){
+            if(keys[x].startsWith('option_')){
+                 options[keys[x].replace('option_', '')] = dataoptions[keys[x]]
+            }
+        }
 
+        mapbased_storymap = new KLStoryMap.StoryMap(instanceid, instance.data('url'), options);
+
+        window.addEventListener('resize', function() {
+            var embed = document.getElementById(instanceid);
+            embed.style.height = getComputedStyle(document.body).height;
+            mapbased_storymap.updateDisplay();
+        });
     }
 
 }
