@@ -50,22 +50,9 @@ class StorylineBuilder:
                    "y_axis_label": "temperature"
                },
                  "slider": {
-           "start_at_card": 0,
-           "title_column_name": "Title",
-           "text_column_name": "Text",
-           "cards": [
-               {
-                   "display_date": "1980",
-                   "title": "0: Global Temperature change",
-                   "text": "Based on NASA data, this chart shows average annual temperature difference from a baseline computed over the years 1951-1980. See https://climate.nasa.gov/vital-signs/global-temperature/ for more information.",
-                   "row_number": 2
-               },
-               {
-                   "title": "Car Manufacturing Takes Off",
-                   "text": "Here come the cars.",
-                   "row_number": 3
-               }
-           ]
+           "start_at_card": "1",
+           "title_column_name": "title",
+           "text_column_name": "text",
          }}
 
     name = "gtExample"
@@ -92,17 +79,37 @@ class StorylineBuilder:
 
     def get_headers(self):
         return [
-            "year","temperature"
+            "year","temperature","title","text"
         ]
 
     def get_rows(self):
-        rows = {"1980": 35,"1990":60,"2000":25,"2010":32}
-        for key, value in rows.items():
-            yield [key,value]
-
+        data = [
+            ["1980","35","hola","bingo"],
+            ["1990", "35", "hola2", "bingo2"],
+            ["2000", "35", "hola3", "bingo3"]
+        ]
+        for key in data:
+            yield key
 
     def urls(self):
         return [
             path('stoptions', self.get_options, name=self.name+"options"),
             path('stcsv', self.get_csv, name=self.name + "csv"),
         ]
+
+
+
+
+#"cards": [
+#               {
+#                   "display_date": "1980",
+#                   "title": "0: Global Temperature change",
+#                   "text": "Based on NASA data, this chart shows average annual temperature difference from a baseline computed over the years 1951-1980. See https://climate.nasa.gov/vital-signs/global-temperature/ for more information.",
+#                   "row_number": 2
+#               },
+#               {
+#                   "title": "Car Manufacturing Takes Off",
+#                   "text": "Here come the cars.",
+#                   "row_number": 3
+#               }
+#           ]
