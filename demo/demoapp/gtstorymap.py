@@ -11,7 +11,7 @@ class GigaPixelStoryMapExample(BaseStoryMapGPView):
         return 1000
 
     def get_font_css(self):
-        return ''
+        return 'stock:opensans-gentiumbook'
 
     def get_calculate_zoom(self):
         return False
@@ -21,17 +21,21 @@ class GigaPixelStoryMapExample(BaseStoryMapGPView):
             'language': 'en',
             'map_type': 'zoomify',
             'map_as_image': True,
-            'map_background_color': '#000000',
+            'map_background_color': '',
             'calculate_zoom': False,
             'zoomify': {
-                'path': '',
-                'width': 400,
-                'height': 400,
-                'tolerance': 0.8
+                'path': 'http://gigapixel.knightlab.com/seurat/',
+                'width': 30000,
+                'height': 19970,
+                'tolerance': 0.9
             },
             'slides': [
                 {
                     'type': 'overview',
+                    'location': {
+                        'icon': 'http://maps.gstatic.com/intl/en_us/mapfiles/ms/micons/blue-pushpin.png',
+                        'line': True,
+                    },
                     'text': {
                         'headline': 'HEADLINE EXAMPLE',
                         'text': 'GigaPixel-StoryMap example'
@@ -39,8 +43,10 @@ class GigaPixelStoryMapExample(BaseStoryMapGPView):
                 },
                 {
                     'location': {
-                        'lat': 1000.0,
-                        'lon': 500.0
+                        'icon': 'http://maps.gstatic.com/intl/en_us/mapfiles/ms/micons/blue-pushpin.png',
+                        'line': True,
+                        'lat': 75.71,
+                        'lon': -132.18
                     },
                     'text': {
                         'headline': 'FIRST PAGE',
@@ -54,8 +60,10 @@ class GigaPixelStoryMapExample(BaseStoryMapGPView):
                 },
                 {
                     'location': {
-                        'lat': 800.0,
-                        'lon': 300.0
+                        'icon': 'http://maps.gstatic.com/intl/en_us/mapfiles/ms/micons/blue-pushpin.png',
+                        'line': True,
+                        'lat': 77.62,
+                        'lon': -20.47
                     },
                     'text': {
                         'headline': 'FIRST PAGE',
@@ -100,9 +108,10 @@ class MapBasedStoryMapExample(BaseStoryMapMBView):
                     }
                 },
                 {
+                    'type': '',
                     'location': {
-                        'lat': 2000.0,
-                        'lon': 5000.0
+                        'lat': 37.2,
+                        'lon': -122.3
                     },
                     'text': {
                         'headline': 'FIRST PAGE',

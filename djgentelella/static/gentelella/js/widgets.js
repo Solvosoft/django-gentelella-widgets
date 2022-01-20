@@ -242,16 +242,11 @@ document.gtwidgets = {
     },
     GigaPixelStoryMapInput: function (instance) {
         var instanceid = instance.attr('id');
-        var dataoptions = $(id_storymap).data();
-        var keys = Object.keys(dataoptions);
-        var options = {}
-        for (var x=0; x<keys.length; x++){
-            if(keys[x].startsWith('option_')){
-                 options[keys[x].replace('option_', '')] = dataoptions[keys[x]]
-            }
-        }
+        var storymap_obj = document.getElementById(instanceid);
+        var instancename = instance.attr('name');
 
-        gigapixel_storymap = new VCO.StoryMap(instanceid, instance.data('url'), options);
+
+        gigapixel_storymap = new VCO.StoryMap(storymap_obj, instance.data('url'));
 
         window.addEventListener('resize', function() {
             var embed = document.getElementById(instanceid);
@@ -261,16 +256,11 @@ document.gtwidgets = {
     },
     MapBasedStoryMapInput: function (instance) {
         var instanceid = instance.attr('id');
-        var dataoptions = $(id_storymap).data();
-        var keys = Object.keys(dataoptions);
-        var options = {}
-        for (var x=0; x<keys.length; x++){
-            if(keys[x].startsWith('option_')){
-                 options[keys[x].replace('option_', '')] = dataoptions[keys[x]]
-            }
-        }
+        var storymap_obj = document.getElementById(instanceid);
+        var instancename = instance.attr('name');
 
-        mapbased_storymap = new KLStoryMap.StoryMap(instanceid, instance.data('url'), options);
+        var mapbased_storymap = new KLStoryMap.StoryMap(storymap_obj, instance.data('url'));
+
 
         window.addEventListener('resize', function() {
             var embed = document.getElementById(instanceid);

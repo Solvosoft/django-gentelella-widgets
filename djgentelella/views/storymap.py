@@ -8,8 +8,10 @@ class TypeSerializer(serializers.Serializer):
 
 
 class LocationSerializer(serializers.Serializer):
-    lat = serializers.DecimalField(max_digits=8, decimal_places=4)
-    lon = serializers.DecimalField(max_digits=8, decimal_places=4)
+    icon = serializers.CharField(required=False)
+    line = serializers.BooleanField(required=False)
+    lat = serializers.DecimalField(max_digits=8, decimal_places=4, required=False)
+    lon = serializers.DecimalField(max_digits=8, decimal_places=4, required=False)
 
 
 class TextSerializer(serializers.Serializer):

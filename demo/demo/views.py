@@ -16,10 +16,10 @@ from djgentelella.widgets.storymap import GigaPixelStoryMapInput, MapBasedStoryM
 
 
 class ExampleForm(CustomForm):
-    storymap = forms.CharField(widget=MapBasedStoryMapInput(
+    '''storymap = forms.CharField(widget=MapBasedStoryMapInput(
         attrs={"data-url": reverse_lazy('examplestorymapmb-list'), 'style': "height: 500px;"}))
-
-    gigapixel_storymap = forms.CharField(widget=GigaPixelStoryMapInput(
+    '''
+    storymap = forms.CharField(widget=GigaPixelStoryMapInput(
         attrs={"data-url": reverse_lazy('examplestorymapgp-list'), 'style': "height: 500px;"}))
 
     timeline = forms.CharField(widget=UrlTimeLineInput(
