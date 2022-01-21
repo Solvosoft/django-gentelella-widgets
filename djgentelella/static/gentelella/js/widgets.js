@@ -19,7 +19,6 @@ document.gtwidgets = {
         });
     },
     YesNoInput: function (instance) {
-        console.log(instance);
         instance.each(function (index, element) {
             switchery = new Switchery(element, { color: '#26B99A' });
             showHideRelatedFormFields($(element));
@@ -242,22 +241,16 @@ document.gtwidgets = {
         })
     },
     CalendarInput: function (instance) {
-        instance.each(function (index, element) {
-            console.log(element);
-            var calendarEl = document.getElementById(element.id);
-            var element_name = element.getAttribute('name');
-            events = window['events' + element_name];
-            calendar_options = window['calendar_options' + element_name];
-            calendar_options.events = events;
-            var calendar = new FullCalendar.Calendar(calendarEl, calendar_options);
-            calendar.render();
-            $("form").each(function (index, elem) {
-                elem.addEventListener('submit', function (event) {
-                    $('#events-input-src').val(JSON.stringify(calendar.getEvents()));
-                });
-            });
-        });
+        var instance_id = instance.attr('id');
+        var instance_name = instance.attr('name');
+        var calendarEl = document.getElementById(instance_id);
+        events = window['events' + instance_name]
+        calendar_options = window['calendar_options' + instance_name]
+        calendar_options.events = events
+        var calendar = new FullCalendar.Calendar(calendarEl, calendar_options);
+        calendar.render();
     }
+
 }
 
 function gt_find_initialize(instance) {
@@ -272,11 +265,12 @@ function gt_find_initialize(instance) {
     if (autocomplete.length > 0) {
         document.gtwidgets['GTAutocompleteSelect'](autocomplete);
     }
+
+
 }
 
 $(document).ready(function () {
     $(".formset").each(function (index, elem) {
         document.formset.push(gtformSetManager($(elem)));
     });
-
 });
