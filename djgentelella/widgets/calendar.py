@@ -15,8 +15,8 @@ class CalendarInput(TextInput):
 
     def get_context(self, name, value, attrs):
         events = EventSerializer(self.events, many=True).data
+        self.is_required = False
         context = super().get_context(name, value, attrs=attrs)
         context['options'] = self.calendar_attrs
         context['events'] = json.dumps(events)
         return context
-
