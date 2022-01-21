@@ -219,7 +219,13 @@ class ChunkedUploadItem(models.Model):
     fileexample = models.FileField(upload_to='filedemo')
 
 
+class Calendar(models.Model):
+    title = models.CharField(max_length=255)
+    options = models.JSONField(null=True, blank=True)
+
+
 class Event(models.Model):
+    calendar = models.ForeignKey(to=Calendar, on_delete=models.CASCADE)
     title = models.CharField(max_length=255,null=True,blank=True)
     start = models.DateTimeField(null=True,blank=True)
     end = models.DateTimeField(null=True,blank=True)
