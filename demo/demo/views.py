@@ -17,11 +17,27 @@ from djgentelella.widgets.timeline import UrlTimeLineInput
 
 class ExampleForm(CustomForm):
     timeline = forms.CharField(widget=UrlTimeLineInput(
-        attrs={"data-url": reverse_lazy('exampletimeline-list'), 'style': "height: 500px;width: 400px;",
-                         "data-option_language": 'es'}))
+        attrs={"data-url": reverse_lazy('exampletimeline-list'), 'style': "height: 650px;",
+        'frameborder':"0", "data-option_language": 'es'}))
 
     storyline = forms.CharField(widget=UrlStoryLineInput(
-        attrs={"data-url": reverse_lazy('gtExampleoptions'), 'style': "height: 500px;"}))
+        attrs={"data-url": reverse_lazy('gtExampleoptions'),"height": 568, "width": 600},
+        csv="year,temperature,title,text\r\n1980,35,hola,bingo\r\n1990,35,hola2,bingo2\r\n2000,35,hola3,bingo3",
+        options={
+            "data": {
+                "datetime_column_name": "year",
+                "datetime_format": "%Y",
+                "data_column_name": "temperature"},
+            "chart": {
+                "datetime_format": "%Y",
+                "y_axis_label": "temperature"
+            },
+            "slider": {
+                "start_at_card": "1",
+                "title_column_name": "title",
+                "text_column_name": "text",
+            }},
+    ))
 
     your_name = forms.CharField(label='Your name', max_length=100, widget=genwidgets.TextInput)
     your_age = forms.IntegerField(widget=genwidgets.NumberInput(attrs={'min_value':2, 'max_value': 8}) )

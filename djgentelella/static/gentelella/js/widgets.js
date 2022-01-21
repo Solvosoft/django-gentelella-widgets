@@ -240,22 +240,24 @@ document.gtwidgets = {
             timeline.updateDisplay();
         })
     },
-    ////////////////////////////////////////////////////////////////////////////////////////////////
+
     UrlStoryLineInput: function (instance) {
         var instanceid = instance.attr('id');
+        var instance_name = instance.attr('name');
         var dataoptions = $(id_storyline).data();
+        csv_data = window['csv'+ instance_name]
+        options = window['options'+ instance_name]
         url = instance.data('url');
 
         $.ajax({
             method: "GET",
             url: instance.data('url'),
             dataType: "json",
+            data: {"options": JSON.stringify(options), "csv": JSON.stringify(csv_data)},
         }).done(function(msg){
             var storyline = new Storyline(instanceid, msg);
         });
     },
-    ////////////////////////////////////////////////////////////////////////////////////////////
-}
 
 function gt_find_initialize(instance) {
     var widgets = Object.keys(document.gtwidgets);
