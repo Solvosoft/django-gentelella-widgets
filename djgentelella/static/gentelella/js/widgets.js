@@ -201,7 +201,7 @@ document.gtwidgets = {
                 input.setAttribute('accept', 'image/*');
                 input.onchange = function () {
                     var file = this.files[0];
-                    upload_files(callback, meta, file, instance.attr('data-option-image'), 
+                    upload_files(callback, meta, file, instance.attr('data-option-image'),
                     instance.attr('data-option-video'));
                 };
                 input.click();
@@ -242,22 +242,25 @@ document.gtwidgets = {
     },
 
     UrlStoryLineInput: function (instance) {
-        var instanceid = instance.attr('id');
-        var instance_name = instance.attr('name');
-        var dataoptions = $(id_storyline).data();
-        csv_data = window['csv'+ instance_name]
-        options = window['options'+ instance_name]
-        url = instance.data('url');
+        instance.each(function (index, element) {
+            var instance_element = document.getElementById(element.id).id;
+            var instance_name = document.getElementById(element.id).attributes['name'].value;
+            var dataoptions = $(instance_element).data();
+            csv_data = window['csv'+ instance_name]
+            options = window['options'+ instance_name]
+            url = instance.data('url');
 
-        $.ajax({
-            method: "GET",
-            url: instance.data('url'),
-            dataType: "json",
-            data: {"options": JSON.stringify(options), "csv": JSON.stringify(csv_data)},
-        }).done(function(msg){
-            var storyline = new Storyline(instanceid, msg);
+            $.ajax({
+                method: "GET",
+                url: instance.data('url'),
+                dataType: "json",
+                data: {"options": JSON.stringify(options), "csv": csv_data},
+            }).done(function(msg){
+                window.storyline = new Storyline(instance_element, msg);
+            });
         });
     },
+}
 
 function gt_find_initialize(instance) {
     var widgets = Object.keys(document.gtwidgets);
