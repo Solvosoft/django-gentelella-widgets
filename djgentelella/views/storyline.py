@@ -9,12 +9,12 @@ class StorylineBuilder:
 
     options = {}
 
-    name = "gtExample"
+    name = "storyline"
 
     def get_options(self, request):
         request_options = request.GET.get('options')
         options = json.loads(request_options)
-        request_csv = request.GET.get('csv').replace("\"","")
+        request_csv = request.GET.get('csv')
         self.options.update(options)
         options['data']['url'] = reverse(self.name+"csv", args=[request_csv])
 
