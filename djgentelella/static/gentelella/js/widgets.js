@@ -241,31 +241,53 @@ document.gtwidgets = {
         })
     },
     GigaPixelStoryMapInput: function (instance) {
-        var instanceid = instance.attr('id');
-        var storymap_obj = document.getElementById(instanceid);
-        var instancename = instance.attr('name');
+        instance.each(function(index, element) {
+            var instanceid = document.getElementById(element.id).id;
+            var data_url = element.getAttribute('data-url');
 
 
-        gigapixel_storymap = new VCO.StoryMap(storymap_obj, instance.data('url'));
+            var storymap = new VCO.StoryMap(instanceid, data_url, {
+                map_type:                "zoomify",
+                map_background_color:    "#333",
+                map_as_image:            true,
+                calculate_zoom:      false,
+                zoomify: {
+                    path:               "http://cdn.verite.co/maps/zoomify/seurat/",
+                    width:              30000,
+                    height:             19970,
+                    tolerance:          0.9,
+                    attribution:        "<a href='http://www.google.com/culturalinstitute/asset-viewer/a-sunday-on-la-grande-jatte-1884/twGyqq52R-lYpA?projectId=art-project' target='_blank'>Google Art Project</a>"
+                    }
+                });
 
-        window.addEventListener('resize', function() {
-            var embed = document.getElementById(instanceid);
-            embed.style.height = getComputedStyle(document.body).height;
-            gigapixel_storymap.updateDisplay();
+            var e = $(window).height(),
+            t = $(`#${instanceid}`);
+            t.height(e - 20);
+
+            $(window).resize(function() {
+                e = $(window).height();
+                t.height(e - 20);
+                storymap.updateDisplay();
+            })
         });
+
     },
     MapBasedStoryMapInput: function (instance) {
-        var instanceid = instance.attr('id');
-        var storymap_obj = document.getElementById(instanceid);
-        var instancename = instance.attr('name');
+        instance.each(function(index, element) {
+            var instanceid = document.getElementById(element.id).id;
+            var data_url = element.getAttribute('data-url');
 
-        var mapbased_storymap = new KLStoryMap.StoryMap(storymap_obj, instance.data('url'));
+            var storymap = new KLStoryMap.StoryMap(instanceid, data_url);
 
+            var e = $(window).height(),
+            t = $(`#${instanceid}`);
+            t.height(e - 20);
 
-        window.addEventListener('resize', function() {
-            var embed = document.getElementById(instanceid);
-            embed.style.height = getComputedStyle(document.body).height;
-            mapbased_storymap.updateDisplay();
+            $(window).resize(function() {
+                e = $(window).height();
+                t.height(e - 20);
+                storymap.updateDisplay();
+            })
         });
     }
 
