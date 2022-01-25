@@ -19,6 +19,7 @@ from djgentelella.widgets.timeline import UrlTimeLineInput
 class ExampleForm(CustomForm):
 
     calendar = forms.CharField(
+        required=False,
         widget=CalendarInput(
             calendar_attrs={'initialView': 'timeGridWeek'},
             events=Event.objects.all()
@@ -26,6 +27,7 @@ class ExampleForm(CustomForm):
     )
 
     calendar2 = forms.CharField(
+        required=False,
         widget=CalendarInput(
             calendar_attrs={},
             events=Event.objects.all()
@@ -37,8 +39,12 @@ def home(request):
     form = ExampleForm()
     if request.method == 'POST':
         form = ExampleForm(request.POST)
+        print(form.is_valid())
+        print(form.cleaned_data)
         if form.is_valid():
-            print(form.cleaned_data['events'])
+            print(form.cleaned_data['calendar'])
+        else:
+            print("form not valid")
     return render(request, 'gentelella/index.html', {'form': form})
 
 
