@@ -1,3 +1,6 @@
+import json
+
+from django.http import JsonResponse
 from rest_framework import serializers
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
@@ -7,8 +10,15 @@ class TypeSerializer(serializers.Serializer):
     type = serializers.CharField(default='overview')
 
 
+class BackgroundSerializer(serializers.Serializer):
+    url = serializers.CharField(required=False)
+    color = serializers.CharField(required=False)
+    opacity = serializers.IntegerField(required=False)
+
+
 class LocationSerializer(serializers.Serializer):
-    icon = serializers.CharField(required=False)
+    name = serializers.CharField(required=False)
+    zoom = serializers.IntegerField(required=False)
     line = serializers.BooleanField(required=False)
     lat = serializers.DecimalField(max_digits=8, decimal_places=4, required=False)
     lon = serializers.DecimalField(max_digits=8, decimal_places=4, required=False)
@@ -20,19 +30,22 @@ class TextSerializer(serializers.Serializer):
 
 
 class MediaSerializer(serializers.Serializer):
-    url = serializers.URLField()
+    url = serializers.CharField(required=False)
     caption = serializers.CharField(required=False)
     credit = serializers.CharField(required=False)
 
 
 class SlideSerializer(serializers.Serializer):
     type = TypeSerializer(required=False)
+    date = serializers.CharField(required=False)
     location = LocationSerializer(required=False)
+    background = BackgroundSerializer(required=False)
     text = TextSerializer(required=False)
     media = MediaSerializer(required=False)
 
 
 class ZoomifySerializer(serializers.Serializer):
+    attribution = serializers.CharField(required=False)
     path = serializers.CharField(required=True)
     width = serializers.IntegerField(required=True)
     height = serializers.IntegerField(required=True)
@@ -41,85 +54,55 @@ class ZoomifySerializer(serializers.Serializer):
 
 class StoryMapMBSerializer(serializers.Serializer):
     """ Map based story map"""
-    language = serializers.CharField(required=True)
-    map_type = serializers.CharField(required=True)
-    map_as_image = serializers.BooleanField(required=True)
+    language = serializers.CharField(required=False)
+    map_type = serializers.CharField(required=False)
+    map_as_image = serializers.BooleanField(required=False)
     map_subdomains = serializers.CharField(required=False)
     slides = SlideSerializer(many=True)
 
 
 class StoryMapGPSerializer(serializers.Serializer):
     """ Giga pixel story map"""
-    language = serializers.CharField(required=True)
+    language = serializers.CharField(required=False)
     map_type = serializers.CharField(default='zoomify')
-    map_as_image = serializers.BooleanField(required=True)
+    map_as_image = serializers.BooleanField(required=False)
     map_background_color = serializers.CharField(required=False)
-    zoomify = ZoomifySerializer(required=False)
+    zoomify = ZoomifySerializer(required=True)
     slides = SlideSerializer(many=True)
 
 
 class GStoryMapMBSerializer(serializers.Serializer):
-    width = serializers.IntegerField(required=True)
-    height = serializers.IntegerField(required=True)
-    font_css = serializers.CharField(required=False)
-    calculate_zoom = serializers.BooleanField(default=True)
+    """ Map based story map"""
     storymap = StoryMapMBSerializer()
 
 
 class GStoryMapGPSerializer(serializers.Serializer):
-    width = serializers.IntegerField(required=True)
-    height = serializers.IntegerField(required=True)
+    """ Giga pixel story map"""
     font_css = serializers.CharField(required=False)
-    calculate_zoom = serializers.BooleanField(default=True)
     storymap = StoryMapGPSerializer()
-
-
-class BaseStoryMapGPView(ViewSet):
-    serializer = GStoryMapGPSerializer
-
-    def get_width(self):
-        pass
-
-    def get_height(self):
-        pass
-
-    def get_font_css(self):
-        pass
-
-    def get_calculate_zoom(self):
-        pass
-
-    def get_storymap(self):
-        pass
-
-    def get_serializer(self, data):
-        return self.serializer(data)
-
-    def list(self, request, format=None):
-        self.request = request
-        response = {
-            'width': self.get_width(),
-            'height': self.get_height(),
-            'font_css': self.get_font_css(),
-            'calculated_zoom': self.get_calculate_zoom(),
-            'storymap': self.get_storymap()
-        }
-        return Response(self.get_serializer(response).data)
 
 
 class BaseStoryMapMBView(ViewSet):
     serializer = GStoryMapMBSerializer
 
-    def get_width(self):
+    def get_storymap(self):
         pass
 
-    def get_height(self):
-        pass
+    def get_serializer(self, data):
+        return self.serializer(data)
+
+    def list(self, request, format=None):
+        self.request = request
+        response = {
+            "storymap": self.get_storymap()
+        }
+        return JsonResponse(response)
+
+
+class BaseStoryMapGPView(ViewSet):
+    serializer = GStoryMapGPSerializer
 
     def get_font_css(self):
-        pass
-
-    def get_calculate_zoom(self):
         pass
 
     def get_storymap(self):
@@ -131,10 +114,8 @@ class BaseStoryMapMBView(ViewSet):
     def list(self, request, format=None):
         self.request = request
         response = {
-            'width': self.get_width(),
-            'height': self.get_height(),
-            'font_css': self.get_font_css(),
-            'calculated_zoom': self.get_calculate_zoom(),
-            'storymap': self.get_storymap()
+            "font_css": self.get_font_css(),
+            "storymap": self.get_storymap()
         }
-        return Response(self.get_serializer(response).data)
+
+        return JsonResponse(response)

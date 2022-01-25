@@ -1,13 +1,13 @@
 from .core import TextInput, update_kwargs
 
 
-class GigaPixelStoryMapInput(TextInput):
-    template_name = 'gentelella/widgets/storymap_gigapixel.html'
+class MapBasedStoryMapInput(TextInput):
+    template_name = 'gentelella/widgets/storymap_mapbased.html'
 
     def __init__(self, attrs=None):
         attrs = update_kwargs(attrs, self.__class__.__name__,
                               base_class='form-control')
-        super(GigaPixelStoryMapInput, self).__init__(attrs=attrs, extraskwargs=False)
+        super(MapBasedStoryMapInput, self).__init__(attrs=attrs, extraskwargs=False)
 
     def render(self, name, value, attrs=None, renderer=None):
         self.value = value
@@ -23,13 +23,13 @@ class GigaPixelStoryMapInput(TextInput):
         return attrs
 
 
-class MapBasedStoryMapInput(TextInput):
-    template_name = 'gentelella/widgets/storymap_mapbased.html'
+class GigaPixelStoryMapInput(TextInput):
+    template_name = 'gentelella/widgets/storymap_gigapixel.html'
 
     def __init__(self, attrs=None):
         attrs = update_kwargs(attrs, self.__class__.__name__,
                               base_class='form-control')
-        super(MapBasedStoryMapInput, self).__init__(attrs=attrs, extraskwargs=False)
+        super(GigaPixelStoryMapInput, self).__init__(attrs=attrs, extraskwargs=False)
 
     def render(self, name, value, attrs=None, renderer=None):
         self.value = value
