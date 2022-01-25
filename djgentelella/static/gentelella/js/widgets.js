@@ -245,7 +245,7 @@ document.gtwidgets = {
         instance.each(function (index, element) {
             var instance_element = document.getElementById(element.id).id;
             var instance_name = document.getElementById(element.id).attributes['name'].value;
-            var dataoptions = $(instance_element).data();
+            var widget_width = document.getElementById(element.id).attributes['width'].value;
             csv_data = window['csv'+ instance_name]
             options = window['options'+ instance_name]
             url = instance.data('url');
@@ -255,8 +255,14 @@ document.gtwidgets = {
                 url: instance.data('url'),
                 dataType: "json",
                 data: {"options": JSON.stringify(options), "csv": csv_data},
-            }).done(function(msg){
+                error: function(e) {
+                    console.log(e);
+                    $(element).html('<div>'+e.responseText+'</div>');
+                },
+            }).done(function(msg, jqXHR){
+                console.log(jqXHR);
                 window.storyline = new Storyline(instance_element, msg);
+                window.storyline.resetWidth(widget_width, 'scroll');
             });
         });
     },
