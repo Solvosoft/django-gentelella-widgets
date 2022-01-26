@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 from django.http import HttpResponse, JsonResponse
 from django.urls import path, reverse
-from rest_framework.serializers import Serializer
+from rest_framework.viewsets import ViewSet
 
 
 class DataSerializer(serializers.Serializer):
@@ -32,30 +32,22 @@ class SliderSerializer(serializers.Serializer):
     cards = CardSerializer(many=True, required=False)  #needs to check if cards work
 
 
-class StorylineBuilder:
+class StorylineBuilder(ViewSet):
 
     options = {}
+    csv = []
     name = "storyline"
+    line_jump = "\n"
+    delimit = ","
 
-    def validate_csv(self, csv_data):
-        csv_data = csv_data.splitlines()
-        try:
-            reader = csv.reader(csv_data)
-            parsed_lines = list(reader)
-            title_len = len(parsed_lines[0])
-            for index, row in enumerate(parsed_lines):
-                if len(row) > title_len:
-                    return False, "defined {} columns, but found {} columns in line {}".format(title_len, len(row),
-                                                                                               index + 1)
-            return True, "CSV is correct"
-        except:
-            return False, "CSV format is incorrect"
+    def create_options(self):
+        # overriden method to create options
+        pass
 
-
-
-    def get_options(self, request):
-        request_options = request.GET.get('options')
-        options = json.loads(request_options)
+    def list(self, request):
+        # this view only retrieve the options from the overriden self.create_options in gtstoryline, validates them
+        # and add the url to get_csv() view
+        options = self.create_options()
         data_info = options['data']
         chart_info = options['chart']
         slider_info = options['slider']
@@ -65,15 +57,9 @@ class StorylineBuilder:
         if data_val.is_valid():
             if chart_val.is_valid():
                 if slider_val.is_valid():
-                    request_csv = request.GET.get('csv')
-                    # validate CSV
-                    val_csv, msg_csv = self.validate_csv(request_csv)
-                    if val_csv:
-                        self.options.update(options)
-                        options['data']['url'] = reverse(self.name+"csv", args=[request_csv])
-                        return JsonResponse(self.options)
-                    else:
-                        return JsonResponse(msg_csv, status=400)
+                    self.options.update(options)
+                    options['data']['url'] = reverse(StorylineBuilder.name+"csv") # this one is the url to get to get_csv() view
+                    return JsonResponse(self.options)
                 else:
                     return JsonResponse(slider_val.errors, status=400)
             else:
@@ -81,24 +67,40 @@ class StorylineBuilder:
         else:
             return JsonResponse(data_val.errors, status=400)
 
-    def get_csv(self, request, **kwargs):
-        csv_data = kwargs['request_csv'].replace("\\r\\n","\r\n").splitlines()
-        response = HttpResponse(
-            content_type='text/csv',
-            headers={'Content-Disposition': 'attachment; filename="data.csv"'})
+    def create_csv(self):
+        # overriden method to create csv
+        pass
 
-        reader = csv.reader(csv_data)
-        parsed_lines = list(reader)
-        writer = csv.writer(response)
-        for row in parsed_lines:
-            mod_row = list(row)
-            writer.writerow(row)
+    def get_csv(self, request):
+        # this branch only needs to retrieve the csv from the overrriden method self.create_csv()
+        # then it validates the info and creates the response for storyline
+        csv_data = self.create_csv()
+        try:
+            # from here and on still needs to be checked, code havent compiled after this line
+            reader = csv.reader(csv_data)
+            parsed_lines = list(reader)
+            title_len = len(parsed_lines[0])
+            response = HttpResponse(
+                content_type='text/csv',
+                headers={'Content-Disposition': 'attachment; filename="data.csv"'})
+            writer = csv.writer(response)
+            for index, row in enumerate(parsed_lines):
+                if len(row) < title_len:
+                    parsed_lines[index] = row.ljust(title_len - len(row), ",")
+                elif len(row) > title_len:
+                    raise ValueError("defined {} columns, but found {} columns in line {}".format(title_len, len(row),
+                                                                                                  index + 1))
+                writer.writerow(row)
+                return response
+        except ValueError as e:
+            return JsonResponse(e, status=400)
 
-        return response
     def urls(self):
+        # the url to get_csv(), not sure if this one is the one needed or should be handled differently
+        # (similarly as the list view)
         return [
-            path('stoptions', self.get_options, name=self.name+"options"),
-            path('stcsv/<str:request_csv>', self.get_csv, name=self.name + "csv"),
+            # path('stoptions', self.get_options, name=self.name+"options"),
+            path('stcsv', self.get_csv, name=StorylineBuilder.name + "csv"),
         ]
 
 
