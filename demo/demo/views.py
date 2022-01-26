@@ -22,22 +22,7 @@ class ExampleForm(CustomForm):
         'frameborder':"0", "data-option_language": 'es'}))
 
     storyline = forms.CharField(widget=UrlStoryLineInput(
-        attrs={"data-url": reverse_lazy('storylineoptions'),"height": 568, "width": 1112, 'style': "height: 650px; 'width': 100%"},
-        csv='date,income,title,text,,\r\n1984-01-01,48720,,,,\r\n1985-01-01,49631,,,,\r\n1986-01-01,51388,,,,\r\n1987-01-01,52032,,,,\r\n1988-01-01,52432,,,,\r\n1989-01-01,53367,Reagan Boom Boom,"Two major underlying factors lead to a weakening U.S. economy—restrictive moves from the Federal Reserve designed to curb inflation, and a depreciating real estate market.",,\r\n1990-01-01,52684,Hello Downturn My Old Friend,"It’s all over in July, the last month of this period’s economic expansion. When Iraq invades Kuwait in August, oil prices skyrocket, and consumer confidence tanks. We head into a recession.",,\r\n1991-01-01,51145,,,,\r\n1992-01-01,50725,,,,\r\n1993-01-01,50478,Internet FTW,"Okay, technically the internet isn’t acting alone. Alongside this technology boon, the housing market starts to recover, due in part to lower interest rates and energy prices. People start making and spending money again.",,\r\n1994-01-01,51065,,,,\r\n1995-01-01,52664,,,,\r\n1996-01-01,53407,,,,\r\n1997-01-01,54506,,,,\r\n1998-01-01,56510,,,,view\r\n1999-01-01,57909,"Internet, You Have Failed Me","What’s the sound of countless investors sneaking away from Silicon Valley? A dot-com bubble burst. Investors see no path to revenue, dot-coms shut their doors, and the economy slumps. Goodbye, pets.com.",,\r\n2000-01-01,57790,,,,\r\n2001-01-01,56531,,,,\r\n2002-01-01,55871,,,,\r\n2003-01-01,55823,,,,\r\n2004-01-01,55629,,,,\r\n2005-01-01,56224,,,,\r\n2006-01-01,56663,,,,\r\n2007-01-01,57423,,,,\r\n2008-01-01,55376,"Housing Market, You Have REALLY Failed Me","A bubble bursts anew. This time the housing market is the culprit—shady banking practices lead to the subprime mortgage crisis, which combined with a market correction, causes the economy to tank.",,\r\n2009-01-01,54988,,,,\r\n2010-01-01,53568,,,,\r\n2011-01-01,52751,,,,\r\n2012-01-01,52666,Is it safe to come out yet?,"After a few years of economic recovery but general (understandable) wariness, consumers start to emerge from their bunkers. Economic indicators like employment rate and (trigger warning) housing prices see an uptick.",,\r\n2013-01-01,54525,,,,\r\n2014-01-01,53718,,,,\r\n2015-01-01,56516,,,,',
-        options={
-            "data": {
-                "datetime_column_name": "date",
-                "datetime_format": "%Y-%m-%d",
-                "data_column_name": "income"},
-            "chart": {
-                "datetime_format": "%Y",
-                "y_axis_label": "Income"
-            },
-            "slider": {
-                "start_at_card": "1",
-                "title_column_name": "title",
-                "text_column_name": "text",
-            }},
+        attrs={"data-url": reverse_lazy('examplestoryline-list'),"height": 568, "width": 1112},
     ))
 
     your_name = forms.CharField(label='Your name', max_length=100, widget=genwidgets.TextInput)
