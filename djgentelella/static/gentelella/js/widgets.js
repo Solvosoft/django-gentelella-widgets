@@ -244,21 +244,9 @@ document.gtwidgets = {
         instance.each(function(index, element) {
             var instanceid = document.getElementById(element.id).id;
             var data_url = element.getAttribute('data-url');
+            var storymap_options = element.getAttribute('storymap_options');
 
-
-            var storymap = new VCO.StoryMap(instanceid, data_url, {
-                map_type:                "zoomify",
-                map_background_color:    "#333",
-                map_as_image:            true,
-                calculate_zoom:      false,
-                zoomify: {
-                    path:               "http://cdn.verite.co/maps/zoomify/seurat/",
-                    width:              30000,
-                    height:             19970,
-                    tolerance:          0.9,
-                    attribution:        "<a href='http://www.google.com/culturalinstitute/asset-viewer/a-sunday-on-la-grande-jatte-1884/twGyqq52R-lYpA?projectId=art-project' target='_blank'>Google Art Project</a>"
-                    }
-                });
+            var storymap = new VCO.StoryMap(instanceid, data_url, storymap_options);
 
             var e = $(window).height(),
             t = $(`#${instanceid}`);
