@@ -1,3 +1,4 @@
+import json
 import time
 from datetime import date, timedelta, datetime
 
@@ -6,9 +7,11 @@ from rest_framework import serializers
 
 from django import forms
 from django.test import TestCase
+from django.db import models
 
 # Create your tests here.
 from selenium.webdriver.common.by import By
+
 from selenium.webdriver.firefox.webdriver import WebDriver
 
 from demoapp.models import Event, Calendar
@@ -19,22 +22,21 @@ from djgentelella.widgets.calendar import CalendarInput
 class CalendarWidgetTest(TestCase):
 
     def setUp(self):
-
         self.events = [
             {
                 'title': 'Event 1',
-                'start': datetime.now(),
-                'end': datetime.now() + timedelta(minutes=30)
+                'start': datetime.strftime(datetime.now(), "%Y-%m-%d %H:%M:%S.%f"),
+                'end': datetime.strftime(datetime.now() + timedelta(minutes=30), "%Y-%m-%d %H:%M:%S.%f")
             },
             {
                 'title': 'Event 2',
-                'start': datetime.now() + timedelta(days=1),
-                'end': datetime.now() + timedelta(days=1, minutes=30)
+                'start': datetime.strftime(datetime.now() + timedelta(days=1), "%Y-%m-%d %H:%M:%S.%f"),
+                'end': datetime.strftime(datetime.now() + timedelta(days=1, minutes=30), "%Y-%m-%d %H:%M:%S.%f")
             },
             {
                 'title': 'Event 3',
-                'start': datetime.now() + timedelta(days=2),
-                'end': datetime.now() + timedelta(days=2, minutes=30)
+                'start': datetime.strftime(datetime.now() + timedelta(days=2), "%Y-%m-%d %H:%M:%S.%f"),
+                'end': datetime.strftime(datetime.now() + timedelta(days=2, minutes=30), "%Y-%m-%d %H:%M:%S.%f")
             },
         ]
 
@@ -98,6 +100,22 @@ class CalendarWidgetTest(TestCase):
         with self.assertRaisesMessage(serializers.ValidationError, "Empty event parameter."):
             calendar.widget.events_to_json(calendar.widget.events)
 
+    def test_JSONField_events(self):
+        calendar = Calendar.objects.create(
+            title='CalendarTest',
+            events={
+                'events': self.events,
+            }
+        )
+        calendarWidget = forms.CharField(
+            widget=CalendarInput(
+                calendar_attrs={},
+                events=calendar.events['events']
+            )
+        )
+        self.assertEquals(calendarWidget.widget.events, self.events)
+
+
 class CalendarWidgetFormSeleniumTest(StaticLiveServerTestCase):
     @classmethod
     def setUpClass(cls):
@@ -108,9 +126,12 @@ class CalendarWidgetFormSeleniumTest(StaticLiveServerTestCase):
     def setUp(self):
         self.calendar = Calendar.objects.create(title='Calendar 1', options={})
         self.events = [
-                Event(calendar=self.calendar, title='Event 1', start=date.today(), end=date.today() + timedelta(minutes=30)),
-                Event(calendar=self.calendar, title='Event 2', start=date.today() + timedelta(days=1), end=date.today() + timedelta(minutes=30)),
-                Event(calendar=self.calendar, title='Event 3', start=date.today() + timedelta(days=2), end=date.today() + timedelta(minutes=30))
+            Event(calendar=self.calendar, title='Event 1', start=date.today(),
+                  end=date.today() + timedelta(minutes=30)),
+            Event(calendar=self.calendar, title='Event 2', start=date.today() + timedelta(days=1),
+                  end=date.today() + timedelta(minutes=30)),
+            Event(calendar=self.calendar, title='Event 3', start=date.today() + timedelta(days=2),
+                  end=date.today() + timedelta(minutes=30))
         ]
         Event.objects.bulk_create(self.events)
 
@@ -120,8 +141,6 @@ class CalendarWidgetFormSeleniumTest(StaticLiveServerTestCase):
 
     def test_events_showing(self):
         self.selenium.get(self.live_server_url)
-        time.sleep(2)
         assert 'Event 1' in self.selenium.page_source
         assert 'Event 2' in self.selenium.page_source
         assert 'Event 3' in self.selenium.page_source
-
