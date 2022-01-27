@@ -30,5 +30,5 @@ try:
 
     aux_user = ContentType.objects.get(app_label=USER_MODEL_BASE.split('.')[0], model=USER_MODEL_BASE.split('.')[1].lower())
     User = aux_user.model_class()
-except OperationalError as e:
+except Exception as e:
     from django.contrib.auth.models import User, Group
