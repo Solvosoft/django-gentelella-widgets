@@ -63,6 +63,7 @@ for app in settings.INSTALLED_APPS:
     import_module_app_gt(app, 'gtselects')
     import_module_app_gt(app, 'gttimeline')
     import_module_app_gt(app, 'gtstoryline')
+    import_module_app_gt(app, 'gtstoryline2')
 
 base_urlpatterns = [
     url('gtapis/', include(routes.urls)),

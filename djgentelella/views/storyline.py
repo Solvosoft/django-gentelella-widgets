@@ -1,5 +1,7 @@
 import csv
 import json
+from itertools import repeat
+
 from rest_framework import serializers
 
 from django.http import HttpResponse, JsonResponse
@@ -32,9 +34,9 @@ class SliderSerializer(serializers.Serializer):
     cards = CardSerializer(many=True, required=False)  #needs to check if cards work
 
 class OptionsSerializer(serializers.Serializer):
-    data = DataSerializer
-    chart = ChartSerializer
-    slider = SliderSerializer
+    data = DataSerializer(required=True)
+    chart = ChartSerializer(required=True)
+    slider = SliderSerializer(required=True)
 
 
 class StorylineBuilder(ViewSet):
@@ -55,14 +57,15 @@ class StorylineBuilder(ViewSet):
         options = self.create_options()
         url_name = request.GET.get('url_name')
         options_serializer = OptionsSerializer(data=options)
-        if options_serializer.is_valid():
+        try:
+            options_serializer.is_valid(raise_exception=True)
             self.csv = self.create_csv()
             self.options.update(options)
             pk = None
             options['data']['url'] = reverse_lazy(url_name+'-detail', args=[pk])
             return JsonResponse(self.options)
-        else:
-            return JsonResponse(options_serializer.errors, status=400)
+        except Exception as e:
+            return JsonResponse(e, status=400)
 
     def create_csv(self):
         # overriden method to create csv
@@ -72,6 +75,7 @@ class StorylineBuilder(ViewSet):
         # this view only retrieves the csv from the overrriden method self.create_csv()
         # then it validates the info and creates the response for storyline
         csv_data = self.create_csv()
+
         try:
             reader = csv.reader(csv_data)
             parsed_lines = list(reader)
@@ -84,14 +88,15 @@ class StorylineBuilder(ViewSet):
                 if len(row) < title_len:
                     if len(row) < 2:
                         raise Exception("Less than two columns defined in line {}".format(index+1))
-                    row.append(",")
+                    for i in range(len(row), title_len):
+                        row.append(",")
                 elif len(row) > title_len:
                     raise Exception("defined {} columns, but found {} columns in line {}".format(title_len, len(row),
                                                                                                   index + 1))
                 writer.writerow(row)
             return response
         except Exception as e:
-            return HttpResponse(e, status=400, reason=e)
+            return HttpResponse(status=400, reason=e)
 
 
 
