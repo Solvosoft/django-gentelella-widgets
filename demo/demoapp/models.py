@@ -222,6 +222,7 @@ class ChunkedUploadItem(models.Model):
 class Calendar(models.Model):
     title = models.CharField(max_length=255)
     options = models.JSONField(null=True, blank=True)
+    events = models.JSONField(null=True, blank=True)
 
 
 class Event(models.Model):
