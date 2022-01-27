@@ -246,11 +246,13 @@ document.gtwidgets = {
             var instance_element = document.getElementById(element.id).id;
             var widget_width = document.getElementById(element.id).attributes['width'].value;
             url = instance.data('url');
+            url_name = instance.data('url_name');
 
             $.ajax({
                 method: "GET",
                 url: instance.data('url'),
                 dataType: "json",
+                data: {"url_name": url_name},
                 error: function(e) {
                     console.log(e);
                     $(element).html('<div>'+e.responseText+'</div>');

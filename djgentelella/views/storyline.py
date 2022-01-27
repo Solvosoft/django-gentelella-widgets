@@ -3,7 +3,7 @@ import json
 from rest_framework import serializers
 
 from django.http import HttpResponse, JsonResponse
-from django.urls import path, reverse
+from django.urls import path, reverse, reverse_lazy
 from rest_framework.viewsets import ViewSet
 
 
@@ -31,6 +31,11 @@ class SliderSerializer(serializers.Serializer):
     text_column_name = serializers.CharField(required=True)
     cards = CardSerializer(many=True, required=False)  #needs to check if cards work
 
+class OptionsSerializer(serializers.Serializer):
+    data = DataSerializer
+    chart = ChartSerializer
+    slider = SliderSerializer
+
 
 class StorylineBuilder(ViewSet):
 
@@ -45,38 +50,29 @@ class StorylineBuilder(ViewSet):
         pass
 
     def list(self, request):
-        # this view only retrieve the options from the overriden self.create_options in gtstoryline, validates them
+        # this view only retrieves the options from the overridden self.create_options in gtstoryline, validates them
         # and add the url to get_csv() view
         options = self.create_options()
-        data_info = options['data']
-        chart_info = options['chart']
-        slider_info = options['slider']
-        data_val = DataSerializer(data=data_info)
-        chart_val = ChartSerializer(data=chart_info)
-        slider_val = SliderSerializer(data=slider_info)
-        if data_val.is_valid():
-            if chart_val.is_valid():
-                if slider_val.is_valid():
-                    self.options.update(options)
-                    options['data']['url'] = reverse(StorylineBuilder.name+"csv") # this one is the url to get to get_csv() view
-                    return JsonResponse(self.options)
-                else:
-                    return JsonResponse(slider_val.errors, status=400)
-            else:
-                return JsonResponse(chart_val.errors, status=400)
+        url_name = request.GET.get('url_name')
+        options_serializer = OptionsSerializer(data=options)
+        if options_serializer.is_valid():
+            self.csv = self.create_csv()
+            self.options.update(options)
+            pk = None
+            options['data']['url'] = reverse_lazy(url_name+'-detail', args=[pk])
+            return JsonResponse(self.options)
         else:
-            return JsonResponse(data_val.errors, status=400)
+            return JsonResponse(options_serializer.errors, status=400)
 
     def create_csv(self):
         # overriden method to create csv
         pass
 
-    def get_csv(self, request):
-        # this branch only needs to retrieve the csv from the overrriden method self.create_csv()
+    def retrieve(self, request, pk=None):
+        # this view only retrieves the csv from the overrriden method self.create_csv()
         # then it validates the info and creates the response for storyline
         csv_data = self.create_csv()
         try:
-            # from here and on still needs to be checked, code havent compiled after this line
             reader = csv.reader(csv_data)
             parsed_lines = list(reader)
             title_len = len(parsed_lines[0])
@@ -86,22 +82,16 @@ class StorylineBuilder(ViewSet):
             writer = csv.writer(response)
             for index, row in enumerate(parsed_lines):
                 if len(row) < title_len:
-                    parsed_lines[index] = row.ljust(title_len - len(row), ",")
+                    if len(row) < 2:
+                        raise Exception("Less than two columns defined in line {}".format(index+1))
+                    row.append(",")
                 elif len(row) > title_len:
-                    raise ValueError("defined {} columns, but found {} columns in line {}".format(title_len, len(row),
+                    raise Exception("defined {} columns, but found {} columns in line {}".format(title_len, len(row),
                                                                                                   index + 1))
                 writer.writerow(row)
-                return response
-        except ValueError as e:
-            return JsonResponse(e, status=400)
-
-    def urls(self):
-        # the url to get_csv(), not sure if this one is the one needed or should be handled differently
-        # (similarly as the list view)
-        return [
-            # path('stoptions', self.get_options, name=self.name+"options"),
-            path('stcsv', self.get_csv, name=StorylineBuilder.name + "csv"),
-        ]
+            return response
+        except Exception as e:
+            return HttpResponse(e, status=400, reason=e)
 
 
 

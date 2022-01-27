@@ -1,4 +1,5 @@
 from django.conf import settings
+
 from .groute import routes
 from chunked_upload.views import ChunkedUploadView, ChunkedUploadCompleteView
 from django.conf.urls import url
@@ -83,8 +84,3 @@ permission_management_urls = [
 
 ]
 urlpatterns = auth_urls + base_urlpatterns+ wysiwyg_urls + permission_management_urls
-
-# storyline
-
-new_storyline = StorylineBuilder()
-urlpatterns += new_storyline.urls() # modification with include !!
