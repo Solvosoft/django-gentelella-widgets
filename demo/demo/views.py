@@ -31,8 +31,7 @@ class ExampleForm(CustomForm):
         }
     }
     gigapixel_storymap = forms.CharField(widget=GigaPixelStoryMapInput(
-        attrs={"data-url": reverse_lazy('examplestorymapgp-list'),
-               "storymap_options": json.dumps(gigapixel_storymap_options)}))
+        attrs={"data-url": reverse_lazy('examplestorymapgp-list'), "storymap_options": gigapixel_storymap_options}))
 
     timeline = forms.CharField(widget=UrlTimeLineInput(
         attrs={"data-url": reverse_lazy('exampletimeline-list'), 'style': "height: 500px;",
