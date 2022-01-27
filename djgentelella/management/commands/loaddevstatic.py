@@ -302,7 +302,7 @@ class Command(BaseCommand):
         }
 
         if not os.path.exists(basepath / 'flags'):
-            os.mkdir(basepath / 'flags')
+            (basepath / 'flags').mkdir(parents=True)
         for lib in libs:
             currentbasepath = basepath / lib
             if not os.path.exists(currentbasepath):
