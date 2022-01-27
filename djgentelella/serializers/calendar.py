@@ -1,9 +1,26 @@
 from rest_framework import serializers
+from rest_framework.utils.serializer_helpers import BindingDict
 
 
 class EventSerializer(serializers.Serializer):
+
+    def __init__(self, data):
+        fields = BindingDict(self)
+        for key, value in self.get_fields().items():
+            fields[key] = value
+        if data:
+            set1 = set(data[0].keys())
+            set2 = set(fields)
+            is_subset = set1.issubset(set2)
+            if not is_subset:
+                raise serializers.ValidationError("Serializer data is not accepted.")
+        else:
+            raise serializers.ValidationError("Empty event parameter.")
+        super().__init__(self)
+
     id = serializers.CharField(max_length=255, required=False)
     groupId = serializers.CharField(max_length=255, required=False)
+    allDay = serializers.BooleanField(required=False)
     start = serializers.DateTimeField(required=False)
     end = serializers.DateTimeField(required=False)
     daysOfWeek = serializers.ListField(
@@ -46,6 +63,18 @@ class EventSerializer(serializers.Serializer):
     borderColor = serializers.CharField(max_length=255, required=False)
     textColor = serializers.CharField(max_length=255, required=False)
     extendedProps = serializers.JSONField(required=False)
+
+    def validate(self, data):
+        """
+        Check that start is before end.
+        """
+        validation_values = {'start', 'end'}
+        if data:
+            if validation_values.issubset(set(data.keys())):
+                if data['start'] > data['end']:
+                    raise serializers.ValidationError("Event end date must occur after start date")
+        return data
+
 
 
 

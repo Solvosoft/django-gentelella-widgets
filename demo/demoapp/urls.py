@@ -1,7 +1,6 @@
 from django.conf.urls import url
 from django.urls import path, include
 
-from demo.views import get_events
 from demoapp.cruds import Personclass, Countryclass, MenuItemclass
 from demoapp.views import create_notification_view, color_widget_view
 from djgentelella.permission_management import views

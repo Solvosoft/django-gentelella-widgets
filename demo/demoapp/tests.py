@@ -1,16 +1,18 @@
-from datetime import date, timedelta
+import time
+from datetime import date, timedelta, datetime
 
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-from selenium import webdriver
+from rest_framework import serializers
 
 from django import forms
-from django.test import TestCase, LiveServerTestCase
+from django.test import TestCase
 
 # Create your tests here.
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.webdriver import WebDriver
 
 from demoapp.models import Event, Calendar
+from djgentelella.serializers.calendar import EventSerializer
 from djgentelella.widgets.calendar import CalendarInput
 
 
@@ -21,18 +23,18 @@ class CalendarWidgetTest(TestCase):
         self.events = [
             {
                 'title': 'Event 1',
-                'start': date.today(),
-                'end': date.today() + timedelta(minutes=30)
+                'start': datetime.now(),
+                'end': datetime.now() + timedelta(minutes=30)
             },
             {
                 'title': 'Event 2',
-                'start': date.today() + timedelta(days=1),
-                'end': date.today() + timedelta(days=1, minutes=30)
+                'start': datetime.now() + timedelta(days=1),
+                'end': datetime.now() + timedelta(days=1, minutes=30)
             },
             {
                 'title': 'Event 3',
-                'start': date.today() + timedelta(days=2),
-                'end': date.today() + timedelta(days=2, minutes=30)
+                'start': datetime.now() + timedelta(days=2),
+                'end': datetime.now() + timedelta(days=2, minutes=30)
             },
         ]
 
@@ -51,6 +53,50 @@ class CalendarWidgetTest(TestCase):
     def test_calendar_attrs(self):
         self.assertDictEqual(self.calendarWidget.widget.calendar_attrs, {'initialView': 'timeGridWeek'})
 
+    def test_wrong_field_names(self):
+        wrong_fields_event = [
+            {
+                'name': 'Event 4',
+                'startDate': datetime.now(),
+                'endDate': datetime.now() + timedelta(days=1)
+            }
+        ]
+        calendar = forms.CharField(
+            widget=CalendarInput(
+                calendar_attrs={},
+                events=wrong_fields_event
+            )
+        )
+        with self.assertRaisesMessage(serializers.ValidationError, "Serializer data is not accepted."):
+            calendar.widget.events_to_json(calendar.widget.events)
+
+    def test_past_end_date(self):
+        wrong_date_event = [
+            {
+                'title': 'Event 4',
+                'start': datetime.now() + timedelta(days=1),
+                'end': datetime.now()
+            }
+        ]
+        calendar = forms.CharField(
+            widget=CalendarInput(
+                calendar_attrs={},
+                events=wrong_date_event
+            )
+        )
+        with self.assertRaisesMessage(serializers.ValidationError, "Event end date must occur after start date"):
+            calendar.widget.events_to_json(calendar.widget.events)
+
+    def test_empty_events(self):
+        empty_event = {}
+        calendar = forms.CharField(
+            widget=CalendarInput(
+                calendar_attrs={},
+                events=empty_event
+            )
+        )
+        with self.assertRaisesMessage(serializers.ValidationError, "Empty event parameter."):
+            calendar.widget.events_to_json(calendar.widget.events)
 
 class CalendarWidgetFormSeleniumTest(StaticLiveServerTestCase):
     @classmethod
@@ -74,9 +120,8 @@ class CalendarWidgetFormSeleniumTest(StaticLiveServerTestCase):
 
     def test_events_showing(self):
         self.selenium.get(self.live_server_url)
+        time.sleep(2)
         assert 'Event 1' in self.selenium.page_source
         assert 'Event 2' in self.selenium.page_source
         assert 'Event 3' in self.selenium.page_source
-        # xpath
-
 

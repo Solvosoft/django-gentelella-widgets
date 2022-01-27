@@ -26,6 +26,7 @@ In model based form:
     class PeopleLineForm(GTForm, forms.ModelForm):
         calendar = forms.CharField(
             widget=CalendarInput(
+                required=False,
                 calendar_attrs={'initialView': 'listWeek'},
                 events=Event.objects.all()
             )
@@ -37,6 +38,7 @@ In model based form:
 
 As noticed in above example, you can create a model with the event fields and pass a
 queryset as the **events** parameter.
+Also, you need to set the required=False for the Field because the widget handle its data internally.
 
 In the future, the calendar will be able to return a list of events on form submit.
 
