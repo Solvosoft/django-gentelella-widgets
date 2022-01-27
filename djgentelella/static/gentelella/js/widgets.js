@@ -19,7 +19,6 @@ document.gtwidgets = {
         });
     },
     YesNoInput: function (instance) {
-        console.log(instance);
         instance.each(function (index, element) {
             switchery = new Switchery(element, { color: '#26B99A' });
             showHideRelatedFormFields($(element));
