@@ -245,16 +245,14 @@ document.gtwidgets = {
         instance.each(function (index, element) {
             var instance_element = document.getElementById(element.id).id;
             var widget_width = document.getElementById(element.id).attributes['width'].value;
-            url = instance.data('url');
-            url_name = instance.data('url_name');
-
+            url = document.getElementById(element.id).attributes['data-url'].value;;
+            url_name = document.getElementById(element.id).attributes['data-url_name'].value;
             $.ajax({
                 method: "GET",
-                url: instance.data('url'),
+                url: url,
                 dataType: "json",
                 data: {"url_name": url_name},
                 error: function(e) {
-                    console.log(e);
                     $(element).html('<div>'+e.responseText+'</div>');
                 },
             }).done(function(msg){
