@@ -6,7 +6,7 @@ from djgentelella.views.storyline import StorylineBuilder
 class StorylineExample(StorylineBuilder):
 
     def create_options(self):
-        options= {
+        options = {
             "data": {
                 "datetime_column_name": "date",
                 "datetime_format": "%Y-%m-%d",

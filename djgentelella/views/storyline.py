@@ -65,17 +65,16 @@ class StorylineBuilder(ViewSet):
             options['data']['url'] = reverse_lazy(url_name+'-detail', args=[pk])
             return JsonResponse(self.options)
         except Exception as e:
-            return JsonResponse(e, status=400)
+            return JsonResponse(e.detail, status=400)
 
     def create_csv(self):
         # overriden method to create csv
         pass
 
     def retrieve(self, request, pk=None):
-        # this view only retrieves the csv from the overrriden method self.create_csv()
+        # this view only retrieves the csv from the overriden method self.create_csv()
         # then it validates the info and creates the response for storyline
         csv_data = self.create_csv()
-
         try:
             reader = csv.reader(csv_data)
             parsed_lines = list(reader)
