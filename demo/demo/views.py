@@ -26,11 +26,6 @@ class ExampleForm(CustomForm):
                "data-url_name": 'examplestoryline'},
     ))
 
-    storyline2 = forms.CharField(widget=UrlStoryLineInput(
-        attrs={"data-url": reverse_lazy('examplestoryline2-list'), "height": 568, "width": 1112,
-               "data-url_name": 'examplestoryline2'},
-    ))
-
     your_name = forms.CharField(label='Your name', max_length=100, widget=genwidgets.TextInput)
     your_age = forms.IntegerField(widget=genwidgets.NumberInput(attrs={'min_value':2, 'max_value': 8}) )
     your_email = forms.EmailField(widget=genwidgets.EmailInput)
