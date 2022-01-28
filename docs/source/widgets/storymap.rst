@@ -34,13 +34,13 @@ In model based form:
 
 .. code:: python
 
-    from djgentelella.widgets.timeline import GigaPixelStoryMapInput
+    from djgentelella.widgets.storymap import GigaPixelStoryMapInput
     from djgentelella.forms.forms import GTForm
     from django.urls import reverse_lazy
-    class PeopleLineForm(GTForm, forms.ModelForm):
+    class ExampleForm(GTForm, forms.ModelForm):
         timeline = forms.CharField(widget=GigaPixelStoryMapInput(
                 attrs={"data-url": reverse_lazy('examplestorymapgp-list'),
-                        'style': "height: 500px;"
+                    "storymap_options": gigapixel_storymap_options
                 }), required=False)
         class Meta:
             model = models.MyModel
