@@ -68,10 +68,14 @@ class EventSerializer(serializers.Serializer):
         """
         Check that start is before end.
         """
-        validation_values = {'start', 'end'}
+        date_values = {'start', 'end'}
+        time_values = {'startTime', 'endTime'}
         if data:
-            if validation_values.issubset(set(data.keys())):
+            if date_values.issubset(set(data.keys())):
                 if data['start'] > data['end']:
+                    raise serializers.ValidationError("Event end date must occur after start date")
+            if time_values.issubset(set(data.keys())):
+                if data['startTime'] > data['endTime']:
                     raise serializers.ValidationError("Event end date must occur after start date")
         return data
 
