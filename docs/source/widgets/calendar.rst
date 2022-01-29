@@ -11,7 +11,7 @@ The widget has these three parameters:
 
 - **attrs**: Dict withe the attributes of the HTML element of the widget.
 - **calendar_attrs**: Dict with the settings the calendar object.
-- **events**: Queryset or dict with the events data to render in the calendar.
+- **events**: List of objects with the events proper data to render in the calendar.
 
 --------------------
 Usage in forms.py
@@ -28,7 +28,7 @@ In model based form:
             widget=CalendarInput(
                 required=False,
                 calendar_attrs={'initialView': 'listWeek'},
-                events=Event.objects.all()
+                events=Event.objects.all().values()
             )
         )
         class Meta:
@@ -37,8 +37,8 @@ In model based form:
 
 
 As noticed in above example, you can create a model with the event fields and pass a
-queryset as the **events** parameter.
-Also, you need to set the required=False for the Field because the widget handle its data internally.
+queryset as the **events** parameter, you need to apply the values() function
+to pass it as a list of dictionaries.
 
 In the future, the calendar will be able to return a list of events on form submit.
 

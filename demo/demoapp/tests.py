@@ -3,10 +3,12 @@ import time
 from datetime import date, timedelta, datetime
 
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from django.forms import formset_factory
+from django.template import Template, Context
 from rest_framework import serializers
 
 from django import forms
-from django.test import TestCase
+from django.test import TestCase, RequestFactory
 from django.db import models
 
 # Create your tests here.
@@ -14,7 +16,9 @@ from selenium.webdriver.common.by import By
 
 from selenium.webdriver.firefox.webdriver import WebDriver
 
+from demoapp.forms import CalendarForm, CalendarModelform
 from demoapp.models import Event, Calendar
+from djgentelella.forms.forms import GTForm
 from djgentelella.serializers.calendar import EventSerializer
 from djgentelella.widgets.calendar import CalendarInput
 
@@ -115,6 +119,49 @@ class CalendarWidgetTest(TestCase):
         )
         self.assertEquals(calendarWidget.widget.events, self.events)
 
+class FormCalendarWidgetTest(TestCase):
+
+    def setUp(self):
+        self.calendar = Calendar.objects.create(title='Calendar 1', options={})
+        self.events = Event.objects.create(
+            calendar=self.calendar,
+            title='Event 1',
+            start=date.today(),
+            end=date.today() + timedelta(minutes=30)
+        )
+        self.factory = RequestFactory()
+        self.form = CalendarForm()
+        self.modelForm = CalendarModelform()
+
+    def render(self, msg, context={}):
+        template = Template(msg)
+        context = Context(context)
+        return template.render(context)
+
+    def test_widget_id_form(self):
+        calendar_id = self.render('{{form.calendar.id_for_label}}', {'form': self.form})
+        self.assertEquals(calendar_id, 'id_calendar')
+
+    def test_events_src_input(self):
+        calendar_name = self.render('{{form.calendar.html_name}}', {'form': self.form})
+        self.assertEquals(calendar_name, 'calendar')
+
+    def test_widget_name_form(self):
+        calendar_input = self.render('{{form}}', {'form': self.form})
+        self.assertIn('name="calendar_display"', calendar_input)
+
+    def test_widget_not_required(self):
+        self.form.fields['calendar'].required = True
+        calendar_required = self.render('{{form.calendar.required}}', {'form': self.form})
+        self.assertFalse(calendar_required)
+
+    def test_widget_formset(self):
+        CalendarFormSet = formset_factory(CalendarForm, extra=2)
+        formset = CalendarFormSet()
+        for formIndex in range(len(formset)):
+            calendar_name = self.render('{{form}}', {'form': formset[formIndex]})
+            self.assertIn(f'name="form-{formIndex}-calendar_display"', calendar_name)
+
 
 class CalendarWidgetFormSeleniumTest(StaticLiveServerTestCase):
     @classmethod
@@ -140,7 +187,14 @@ class CalendarWidgetFormSeleniumTest(StaticLiveServerTestCase):
         cls.selenium.quit()
 
     def test_events_showing(self):
-        self.selenium.get(self.live_server_url)
+        self.selenium.get(self.live_server_url + '/calendar_view')
         assert 'Event 1' in self.selenium.page_source
         assert 'Event 2' in self.selenium.page_source
         assert 'Event 3' in self.selenium.page_source
+
+    def test_events_save(self):
+        self.selenium.get(self.live_server_url + '/calendar_view')
+        self.selenium.find_element(By.ID, 'id_title').send_keys('CalendarTest')
+        self.selenium.find_element(By.XPATH, '//button[type="submit"]').click()
+        assert self.events in Calendar.objects.last().events
+

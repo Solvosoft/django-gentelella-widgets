@@ -130,12 +130,11 @@ class ExampleForm(CustomForm):
     your_age = forms.IntegerField(
         widget=knobwidget.NumberKnobInput(attrs={"value": 5, "data-min": 1, "data-max": 10})
     )
-    events = Event.objects.all().values('title', 'start', 'end')
     calendar = forms.CharField(
         required=False,
         widget=CalendarInput(
             calendar_attrs={'initialView': 'timeGridWeek'},
-            events=events
+            events=Event.objects.all().values('title', 'start', 'end')
         )
     )
 

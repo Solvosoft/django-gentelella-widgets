@@ -15,6 +15,13 @@ class CalendarInput(TextInput):
         attrs = update_kwargs(attrs, self.__class__.__name__, "")
         super(CalendarInput, self).__init__(attrs=attrs, extraskwargs=False)
 
+    def build_attrs(self, base_attrs, extra_attrs=None):
+        if extra_attrs is not None:
+            if 'required' in extra_attrs:
+                extra_attrs.pop('required')
+        attrs = super(CalendarInput, self).build_attrs(base_attrs, extra_attrs=extra_attrs)
+        return attrs
+
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs=attrs)
         context['events'] = self.events_to_json(self.events)
