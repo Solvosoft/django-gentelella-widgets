@@ -16,6 +16,12 @@ class MapBasedStoryMapInput(TextInput):
 
     def build_attrs(self, base_attrs, extra_attrs=None):
         """Build an attribute dictionary."""
+        if extra_attrs is not None:
+            if 'required' in extra_attrs:
+                extra_attrs.pop('required')
+            elif 'disabled' in extra_attrs:
+                extra_attrs.pop('disabled')
+
         attrs = super().build_attrs(base_attrs, extra_attrs=extra_attrs)
         if self.value is not None:
             attrs['data-url'] = self.value
