@@ -5,7 +5,7 @@ from itertools import repeat
 from rest_framework import serializers
 
 from django.http import HttpResponse, JsonResponse
-from django.urls import path, reverse, reverse_lazy
+from django.urls import path, reverse, reverse_lazy, NoReverseMatch
 from rest_framework.viewsets import ViewSet
 
 
@@ -42,7 +42,6 @@ class OptionsSerializer(serializers.Serializer):
 class StorylineBuilder(ViewSet):
 
     options = {}
-    csv = []
     name = "storyline"
     line_jump = "\n"
     delimit = ","
@@ -56,44 +55,69 @@ class StorylineBuilder(ViewSet):
         # and add the url to get_csv() view
         options = self.create_options()
         url_name = request.GET.get('url_name')
+        print(url_name)
         options_serializer = OptionsSerializer(data=options)
         try:
             options_serializer.is_valid(raise_exception=True)
-            self.csv = self.create_csv()
             self.options.update(options)
             pk = None
-            options['data']['url'] = reverse_lazy(url_name+'-detail', args=[pk])
+            options['data']['url'] = reverse(url_name+'-detail', args=[pk])
             return JsonResponse(self.options)
+        except NoReverseMatch as e:
+            resp = {"error": e.args[0]}
+            return JsonResponse(resp, status=400)
+        except TypeError as e:
+            resp = {"error": e.args[0]}
+            return JsonResponse(resp, status=400)
         except Exception as e:
-            return JsonResponse(e.detail, status=400)
+            return JsonResponse(e, status=400)
+
 
     def create_csv(self):
         # overriden method to create csv
         pass
 
+    def validate_csv(self):
+        csv_data = self.create_csv()
+        reader = csv.reader(csv_data)
+        parsed_lines = list(reader)
+        title_len = len(parsed_lines[0])
+        valid = True
+        finished = False
+        exception = ""
+        while valid and not finished:
+            for index, row in enumerate(parsed_lines):
+                if len(row) < 2:
+                    exception = "Less than two columns defined in line {}".format(index + 1)
+                    valid = False
+                elif len(row) > title_len:
+                    exception = "defined {} columns, but found {} columns in line {}".format(title_len, len(row), index + 1)
+                    valid = False
+            finished = True
+        return valid, exception
+
     def retrieve(self, request, pk=None):
         # this view only retrieves the csv from the overriden method self.create_csv()
         # then it validates the info and creates the response for storyline
-        csv_data = self.create_csv()
         try:
-            reader = csv.reader(csv_data)
-            parsed_lines = list(reader)
-            title_len = len(parsed_lines[0])
-            response = HttpResponse(
-                content_type='text/csv',
-                headers={'Content-Disposition': 'attachment; filename="data.csv"'})
-            writer = csv.writer(response)
-            for index, row in enumerate(parsed_lines):
-                if len(row) < title_len:
-                    if len(row) < 2:
-                        raise Exception("Less than two columns defined in line {}".format(index+1))
-                    for i in range(len(row), title_len):
-                        row.append(",")
-                elif len(row) > title_len:
-                    raise Exception("defined {} columns, but found {} columns in line {}".format(title_len, len(row),
-                                                                                                  index + 1))
-                writer.writerow(row)
-            return response
+            valid, csv_data = self.validate_csv()
+            if valid:
+                csv_data = self.create_csv()
+                reader = csv.reader(csv_data)
+                parsed_lines = list(reader)
+                title_len = len(parsed_lines[0])
+                response = HttpResponse(
+                    content_type='text/csv',
+                    headers={'Content-Disposition': 'attachment; filename="data.csv"'})
+                writer = csv.writer(response)
+                for index, row in enumerate(parsed_lines):
+                    if len(row) < title_len:
+                        for i in range(len(row), title_len):
+                            row.append(",")
+                    writer.writerow(row)
+                return response
+            else:
+                return HttpResponse(status=400, reason=csv_data)
         except Exception as e:
             return HttpResponse(status=400, reason=e)
 
