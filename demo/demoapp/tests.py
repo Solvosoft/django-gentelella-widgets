@@ -14,7 +14,7 @@ from django.db import models
 # Create your tests here.
 from selenium.webdriver.common.by import By
 
-from selenium.webdriver.firefox.webdriver import WebDriver
+from selenium.webdriver.chrome.webdriver import WebDriver
 
 from demoapp.forms import CalendarForm, CalendarModelform
 from demoapp.models import Event, Calendar
@@ -123,7 +123,7 @@ class FormCalendarWidgetTest(TestCase):
 
     def setUp(self):
         self.calendar = Calendar.objects.create(title='Calendar 1', options={})
-        self.events = Event.objects.create(
+        self.event = Event.objects.create(
             calendar=self.calendar,
             title='Event 1',
             start=date.today(),
@@ -154,6 +154,10 @@ class FormCalendarWidgetTest(TestCase):
         self.form.fields['calendar'].required = True
         calendar_required = self.render('{{form.calendar.required}}', {'form': self.form})
         self.assertFalse(calendar_required)
+
+    def test_widget_from_modelform(self):
+        events = self.render('{{form.events}}', {'form': self.modelForm})
+        self.assertIn('name="events_display"', events)
 
     def test_widget_formset(self):
         CalendarFormSet = formset_factory(CalendarForm, extra=2)
@@ -196,5 +200,5 @@ class CalendarWidgetFormSeleniumTest(StaticLiveServerTestCase):
         self.selenium.get(self.live_server_url + '/calendar_view')
         self.selenium.find_element(By.ID, 'id_title').send_keys('CalendarTest')
         self.selenium.find_element(By.XPATH, '//button[type="submit"]').click()
-        assert self.events in Calendar.objects.last().events
+        assert self.events == Calendar.objects.last().events
 
