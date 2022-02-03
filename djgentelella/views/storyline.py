@@ -47,12 +47,10 @@ class StorylineBuilder(ViewSet):
     delimit = ","
 
     def create_options(self):
-        # overriden method to create options
         pass
 
     def list(self, request):
-        # this view only retrieves the options from the overridden self.create_options in gtstoryline, validates them
-        # and add the url to get_csv() view
+
         options = self.create_options()
         url_name = request.GET.get('url_name')
         print(url_name)
@@ -72,9 +70,7 @@ class StorylineBuilder(ViewSet):
         except Exception as e:
             return JsonResponse(e, status=400)
 
-
     def create_csv(self):
-        # overriden method to create csv
         pass
 
     def validate_csv(self):
@@ -97,8 +93,7 @@ class StorylineBuilder(ViewSet):
         return valid, exception
 
     def retrieve(self, request, pk=None):
-        # this view only retrieves the csv from the overriden method self.create_csv()
-        # then it validates the info and creates the response for storyline
+
         try:
             valid, csv_data = self.validate_csv()
             if valid:
