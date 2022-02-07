@@ -24,7 +24,10 @@ class CalendarInput(TextInput):
 
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs=attrs)
-        context['events'] = self.events_to_json(self.events)
+        if self.events:
+            context['events'] = self.events_to_json(self.events)
+        else:
+            context['events'] = ''
         context['options'] = self.calendar_attrs
         return context
 

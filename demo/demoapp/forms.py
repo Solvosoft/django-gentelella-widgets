@@ -112,22 +112,3 @@ class YesNoInputAddForm(GTForm, forms.ModelForm):
         }
 
 
-class CalendarForm(GTForm, forms.Form):
-    calendar = forms.CharField(
-        widget=CalendarInput(
-            calendar_attrs={},
-            events=Event.objects.all().values('title', 'start', 'end')
-        )
-    )
-
-
-class CalendarModelform(GTForm, forms.ModelForm):
-    class Meta:
-        model = Calendar
-        fields = '__all__'
-        widgets = {
-            'events': CalendarInput(
-                calendar_attrs={},
-                events=Event.objects.all().values('title', 'start', 'end')
-            ),
-        }
