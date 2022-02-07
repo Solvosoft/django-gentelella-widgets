@@ -12,3 +12,5 @@ Advanced Widgets
 .. include:: yesnoinput.rst
 .. include:: grid_slider.rst
 .. include:: chunkedupload.rst
+.. include:: storymap.rst
+.. include:: calendar.rst
