@@ -233,7 +233,7 @@ document.gtwidgets = {
                  options[keys[x].replace('option_', '')] = dataoptions[keys[x]]
             }
         }
-        var timeline = new TL.Timeline(instanceid, instance.data('url'), options);
+        timeline = new TL.Timeline(instanceid, instance.data('url'), options);
         window.addEventListener('resize', function() {
             var embed = document.getElementById(instanceid);
             embed.style.height = getComputedStyle(document.body).height;
@@ -254,6 +254,12 @@ document.gtwidgets = {
                 $(`#${widget_name}_events-input-src`).val(JSON.stringify(calendar.getEvents()));
             });
         });
+    },
+    GigaPixelStoryMapInput: function (instance) {
+        build_gigapixel_storymap(instance);
+    },
+    MapBasedStoryMapInput: function (instance) {
+        build_mapbased_storymap(instance);
     }
 }
 
