@@ -112,6 +112,18 @@ class Command(BaseCommand):
             icon='fa fa-home',
             only_icon=False
         )
+        readonlywidget = MenuItem.objects.create(
+            parent=extrawidget,
+            title='ReadOnly Widgets',
+            url_name='#',
+            category='sidebar',  # sidebar, sidebarfooter,
+            is_reversed=False,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-list-alt',
+            only_icon=False
+        )
         MenuItem.objects.create(
             parent=cwidget,
             title='Knob Widgets',
@@ -184,6 +196,22 @@ class Command(BaseCommand):
             icon='fa fa-sticky-note',
             only_icon=False
         )
+
+        Calendar = MenuItem.objects.create(
+            parent=readonlywidget,
+            title='Calendar',
+            url_name='calendar_view',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-calendar',
+            only_icon=False
+        )
+
+
+
         chart = MenuItem.objects.create(
             parent=dashboard,
             title='Charts',

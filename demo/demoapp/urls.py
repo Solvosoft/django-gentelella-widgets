@@ -2,9 +2,10 @@ from django.conf.urls import url
 from django.urls import path, include
 
 from demoapp.cruds import Personclass, Countryclass, MenuItemclass
-from demoapp.views import create_notification_view, color_widget_view, calendar_view
+from demoapp.views import create_notification_view, color_widget_view
 from djgentelella.permission_management import views
 from .autocomplete import views as autocompleteviews
+from .calendar.views import calendar_view
 from .chartjs import chart_js_view
 from .formset import add_formset, add_model_formset
 from .views import knobView, YesNoInputView

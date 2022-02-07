@@ -143,8 +143,8 @@ def home(request):
     form = ExampleForm()
     if request.method == 'POST':
         form = ExampleForm(request.POST)
-        if form.is_valid():
-            print(form.cleaned_data)
+        form.is_valid()
+        #print(form.cleaned_data)
     return render(request, 'gentelella/index.html', {'form': form})
 
 
