@@ -210,7 +210,31 @@ class Command(BaseCommand):
             only_icon=False
         )
 
+        Gigapixel = MenuItem.objects.create(
+            parent=readonlywidget,
+            title='Gigapixel StoryMap',
+            url_name='gigapixel_view',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-map-marker',
+            only_icon=False
+        )
 
+        Mapbased = MenuItem.objects.create(
+            parent=readonlywidget,
+            title='Mapbased StoryMap',
+            url_name='mapbased_view',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-map',
+            only_icon=False
+        )
 
         chart = MenuItem.objects.create(
             parent=dashboard,
