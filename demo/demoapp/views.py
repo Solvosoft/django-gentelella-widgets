@@ -3,8 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from djgentelella.notification import create_notification
-from .forms import FooModelForm, ColorWidgetsForm, SimpleColorForm,\
-    YesNoInputAddForm
+from .forms import FooModelForm, ColorWidgetsForm, SimpleColorForm, \
+    YesNoInputAddForm, CalendarModelform
 from django.views.generic import CreateView, ListView, UpdateView
 from .models import YesNoInput
 
@@ -38,6 +38,7 @@ def knobView(request):
             
     return render(request, 'knobs-form.html', {'form': form})
 
+
 def color_widget_view(request):
     form_widgets = SimpleColorForm()
     form = ColorWidgetsForm()
@@ -48,8 +49,17 @@ def color_widget_view(request):
     return render(request, 'index-color.html', {'form': form,
                                                 "form_widgets": form_widgets})
 
+
 class YesNoInputView(CreateView):
     model = YesNoInput
     form_class = YesNoInputAddForm
     template_name = 'yesnoinput.html'
     success_url = reverse_lazy('yes-no-input-add')
+
+def calendar_view(request):
+    form = CalendarModelform()
+    if request.method == 'POST':
+        form = CalendarModelform(request.POST)
+        if form.is_valid():
+            form.save()
+    return render(request, 'gentelella/index.html', {'form': form})

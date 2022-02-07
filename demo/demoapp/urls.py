@@ -2,7 +2,7 @@ from django.conf.urls import url
 from django.urls import path, include
 
 from demoapp.cruds import Personclass, Countryclass, MenuItemclass
-from demoapp.views import create_notification_view, color_widget_view
+from demoapp.views import create_notification_view, color_widget_view, calendar_view
 from djgentelella.permission_management import views
 from .autocomplete import views as autocompleteviews
 from .chartjs import chart_js_view
@@ -53,6 +53,5 @@ urlpatterns = [
         path('chunkedupload/', chunckedupload.Addchunkedupload.as_view(), name='chunkeduploaditem-add'),
         path('chunkedupload/list', chunckedupload.Listchunkedupload.as_view(), name='chunkeduploaditem-list'),
         path('chunkedupload/<int:pk>', chunckedupload.Updatechunkedupload.as_view(), name='chunkeduploaditem-edit'),
-
-
-] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()
+        path('calendar_view', calendar_view, name="calendar_view")
+              ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()
