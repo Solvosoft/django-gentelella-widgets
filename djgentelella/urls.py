@@ -10,7 +10,7 @@ from djgentelella.widgets.helper import HelperWidgetView
 from django.contrib.auth.decorators import login_required
 from djgentelella.wysiwyg import views as wysiwyg
 from djgentelella.permission_management import views as permissions
-from .views.storyline import StorylineBuilder
+
 
 auth_urls = [
     path('accounts/login/',
@@ -64,7 +64,6 @@ for app in settings.INSTALLED_APPS:
     import_module_app_gt(app, 'gttimeline')
     import_module_app_gt(app, 'gtstorymap')
     import_module_app_gt(app, 'gtstoryline')
-    import_module_app_gt(app, 'gtstoryline2')
 
 
 base_urlpatterns = [
