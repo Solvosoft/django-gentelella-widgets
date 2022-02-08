@@ -242,19 +242,7 @@ document.gtwidgets = {
     },
 
     CalendarInput: function (instance) {
-        instance.each(function (index, element) {
-            var calendarEl = document.getElementById(element.id);
-            var element_name = element.getAttribute('name')
-            var widget_name = element_name.substring(0, element_name.length-8);
-            events = window['events' + widget_name];
-            calendar_options = window['calendar_options' + widget_name];
-            calendar_options.events = events;
-            var calendar = new FullCalendar.Calendar(calendarEl, calendar_options);
-            calendar.render();
-            $(element).closest("form").on("submit", function (event) {
-                $(`#${widget_name}_events-input-src`).val(JSON.stringify(calendar.getEvents()));
-            });
-        });
+        build_calendar(instance);
     },
     GigaPixelStoryMapInput: function (instance) {
         build_gigapixel_storymap(instance);
@@ -264,24 +252,7 @@ document.gtwidgets = {
     },
 
     UrlStoryLineInput: function (instance) {
-        instance.each(function (index, element) {
-            var instance_element = document.getElementById(element.id).id;
-            var widget_width = document.getElementById(element.id).attributes['width'].value;
-            url = document.getElementById(element.id).attributes['data-url'].value;;
-            url_name = document.getElementById(element.id).attributes['data-url_name'].value;
-            $.ajax({
-                method: "GET",
-                url: url,
-                dataType: "json",
-                data: {"url_name": url_name},
-                error: function(e) {
-                    $(element).html('<div>'+e.responseText+'</div>');
-                },
-            }).done(function(msg){
-                window.storyline = new Storyline(instance_element, msg);
-                window.storyline.resetWidth(widget_width, 'scroll');
-            });
-        });
+        build_storyline(instance)
     }
 }
 

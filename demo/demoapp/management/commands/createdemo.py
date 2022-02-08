@@ -236,6 +236,20 @@ class Command(BaseCommand):
             only_icon=False
         )
 
+        StoryLine = MenuItem.objects.create(
+            parent=readonlywidget,
+            title='StoryLine',
+            url_name='storyline_view',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-vine',
+            only_icon=False
+        )
+
+
         chart = MenuItem.objects.create(
             parent=dashboard,
             title='Charts',

@@ -9,6 +9,7 @@ from .autocomplete import views as autocompleteviews
 from .calendar.views import calendar_view
 from .chartjs import chart_js_view
 from .formset import add_formset, add_model_formset
+from .storyLine.views import storyline_view
 from .storymap.views import gigapixel_view, mapbased_view
 from .views import knobView, YesNoInputView
 from .input_masks import views as input_mask
@@ -59,4 +60,5 @@ urlpatterns = [
         path('calendar_view', calendar_view, name="calendar_view"),
         path('gigapixel_view', gigapixel_view, name="gigapixel_view"),
         path('mapbased_view', mapbased_view, name="mapbased_view"),
+        path('storyline_view', storyline_view, name="storyline_view"),
               ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()

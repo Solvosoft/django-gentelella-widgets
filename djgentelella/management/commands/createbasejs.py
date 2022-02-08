@@ -23,6 +23,8 @@ class Command(BaseCommand):
             'wysiwyg.js',
             'gigapixel_storymap.js',
             'mapbased_storymap.js',
+            'storyline.js',
+            'calendar.js'
         ]
         jquery_plugins = [
             'notifications.js',
