@@ -201,7 +201,7 @@ document.gtwidgets = {
                 input.setAttribute('accept', 'image/*');
                 input.onchange = function () {
                     var file = this.files[0];
-                    upload_files(callback, meta, file, instance.attr('data-option-image'), 
+                    upload_files(callback, meta, file, instance.attr('data-option-image'),
                     instance.attr('data-option-video'));
                 };
                 input.click();
@@ -240,6 +240,7 @@ document.gtwidgets = {
             timeline.updateDisplay();
         })
     },
+
     CalendarInput: function (instance) {
         instance.each(function (index, element) {
             var calendarEl = document.getElementById(element.id);
@@ -260,6 +261,27 @@ document.gtwidgets = {
     },
     MapBasedStoryMapInput: function (instance) {
         build_mapbased_storymap(instance);
+    },
+
+    UrlStoryLineInput: function (instance) {
+        instance.each(function (index, element) {
+            var instance_element = document.getElementById(element.id).id;
+            var widget_width = document.getElementById(element.id).attributes['width'].value;
+            url = document.getElementById(element.id).attributes['data-url'].value;;
+            url_name = document.getElementById(element.id).attributes['data-url_name'].value;
+            $.ajax({
+                method: "GET",
+                url: url,
+                dataType: "json",
+                data: {"url_name": url_name},
+                error: function(e) {
+                    $(element).html('<div>'+e.responseText+'</div>');
+                },
+            }).done(function(msg){
+                window.storyline = new Storyline(instance_element, msg);
+                window.storyline.resetWidth(widget_width, 'scroll');
+            });
+        });
     }
 }
 

@@ -40,6 +40,7 @@
         <link href="{% static 'vendors/timeline/css/timeline.css' %}?v={% get_version %}" rel="stylesheet" />
         <link href="{% static 'vendors/fullcalendar/main.min.css' %}?v={% get_version %}" rel="stylesheet" />
         <link href="{% static 'vendors/storymapjs/storymap.css' %}?v={% get_version %}" rel="stylesheet" />
+        <link href="{% static 'vendors/storylinejs/storyline.css' %}?v={% get_version %}" rel="stylesheet" />
 
         {% get_define 'use_chartjs' as use_chartjs %}
         {% if use_chartjs %}
@@ -168,6 +169,7 @@
         <script src="{% static 'vendors/timeline/js/timeline.js' %}?v={% get_version %}"></script>
         <script src="{% static 'vendors/fullcalendar/main.min.js' %}?v={% get_version %}"></script>
         <script src="{% static 'vendors/storymapjs/storymap.js' %}?v={% get_version %}"></script>
+        <script src="{% static 'vendors/storylinejs/storyline.js' %}?v={% get_version %}"></script>
 
             {% get_define 'use_datatables' as use_datatables %}
         {% if use_datatables %}

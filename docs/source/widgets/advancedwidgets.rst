@@ -14,3 +14,4 @@ Advanced Widgets
 .. include:: chunkedupload.rst
 .. include:: storymap.rst
 .. include:: calendar.rst
+.. include:: storyline.rst
