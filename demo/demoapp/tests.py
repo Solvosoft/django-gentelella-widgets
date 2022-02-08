@@ -201,25 +201,30 @@ class CalendarWidgetFormSeleniumTest(StaticLiveServerTestCase):
 
 
 class StoryMapWithSeleniumTestCase(StaticLiveServerTestCase):
+    """ Storymaps tests using Selenium"""
 
     @classmethod
     def setUpClass(cls):
+        """ Set up class for Selenium tests """
         cls.selenium = WebDriver()
         cls.selenium.implicitly_wait(10)
         super(StoryMapWithSeleniumTestCase, cls).setUpClass()
 
     @classmethod
     def tearDownClass(cls):
+        """ Tear Down class for Selenium tests """
         super(StoryMapWithSeleniumTestCase, cls).tearDownClass()
         cls.selenium.quit()
 
     def test_display_storymaps(self):
+        """ Display both Gigapixel and MapBased storymaps """
         self.selenium.get(self.live_server_url)
-        # Find storymap obj
+
         assert 'mapbased_storymap' in self.selenium.page_source
         assert 'gigapixel_storymap' in self.selenium.page_source
 
     def test_slides_title_data(self):
+        """ Test Storymaps main titles from the first slide data """
         self.selenium.get(self.live_server_url)
 
         response = self.selenium.find_element(By.CSS_SELECTOR, 'body').text
@@ -228,8 +233,10 @@ class StoryMapWithSeleniumTestCase(StaticLiveServerTestCase):
 
 
 class StoryMapFormWidgetTest(TestCase):
+    """ Storymaps widgets functionality inside Forms"""
 
     def setUp(self):
+        """ Set up method for the tests """
         class StoryMapFormClass(forms.Form):
             gp_storymap = forms.CharField(widget=GigaPixelStoryMapInput, required=False)
             mb_storymap = forms.CharField(widget=MapBasedStoryMapInput, disabled=True)
@@ -237,44 +244,53 @@ class StoryMapFormWidgetTest(TestCase):
         self.form = StoryMapFormClass()
 
     def render(self, msg, context={}):
+        """ Render method for the template """
         template = Template(msg)
         context = Context(context)
         return template.render(context)
 
     def test_widget_id_form(self):
+        """ Test both gigapixel and mapbased storymaps id's inside the form """
         gp_storymap_id = self.render('{{form.gp_storymap.id_for_label}}', {'form': self.form})
         mb_storymap_id = self.render('{{form.mb_storymap.id_for_label}}', {'form': self.form})
         self.assertEqual(gp_storymap_id, 'id_gp_storymap')
         self.assertEqual(mb_storymap_id, 'id_mb_storymap')
 
     def test_widget_name_form(self):
+        """ Test both gigapixel and mapbased storymaps names inside the form """
         gp_storymap_name = self.render('{{form.gp_storymap.html_name}}', {'form': self.form})
         mb_storymap_name = self.render('{{form.mb_storymap.html_name}}', {'form': self.form})
         self.assertEqual(gp_storymap_name, 'gp_storymap')
         self.assertEqual(mb_storymap_name, 'mb_storymap')
 
     def test_form_field_id(self):
+        """ Test form id's widgets related to both of the storymaps types """
         storymap = self.render('{{form}}', {'form': self.form})
         self.assertIn('id="id_gp_storymap"', storymap)
         self.assertIn('id="id_mb_storymap"', storymap)
 
     def test_form_field_data_widget(self):
+        """ Test form data widgets related to both of the storymaps types """
         storymap = self.render('{{form}}', {'form': self.form})
         self.assertIn('data-widget="GigaPixelStoryMapInput"', storymap)
         self.assertIn('data-widget="MapBasedStoryMapInput"', storymap)
 
     def test_widget_required_false(self):
+        """ Test extra attr required field for the gigapixel storymap widget """
         required = self.render('{{form.gp_storymap.required}}', {'form': self.form})
         self.assertFalse(required)
 
     def test_widget_disabled_true(self):
+        """ Test extra attr disabled field for the mapbased storymap widget """
         disabled = self.render('{{form.mb_storymap.disabled}}', {'form': self.form})
         self.assertFalse(disabled)
 
 
 class MapBasedStoryMapWidgetTestCase(TestCase):
+    """ MapBased storymap widget tests """
 
     def setUp(self):
+        """ Set up method for the tests """
         self.factory = RequestFactory()
         self.mapbased_view = BaseStoryMapMBView()
         self.storymap = forms.CharField(widget=MapBasedStoryMapInput(
@@ -283,20 +299,18 @@ class MapBasedStoryMapWidgetTestCase(TestCase):
         self.url = reverse('examplestorymapmb-list')
 
     def test_assert_response_valid_data(self):
+        """ Test response valid data from the Gtstorymap example"""
         request = self.factory.get(self.url)
         response = self.mapbased_view.list(request)
 
         self.assertEqual(response.status_code, 200)
 
-    def test_assert_response_invalid_data(self):
-        request = self.factory.get(self.url)
-
-        response = self.mapbased_view.list(request)
-
 
 class GigaPixelStoryMapWidgetTestCase(TestCase):
+    """ GigaPixel storymap widget tests """
 
     def setUp(self):
+        """ Set up method for the tests """
         self.factory = RequestFactory()
         self.gigapixel_view = BaseStoryMapGPView()
 
@@ -318,66 +332,8 @@ class GigaPixelStoryMapWidgetTestCase(TestCase):
         }
 
     def test_assert_response_valid_data(self):
+        """ Test response valid data from the Gtstorymap example"""
         request = self.factory.get(self.url)
         response = self.gigapixel_view.list(request)
 
         self.assertEqual(response.status_code, 200)
-
-    def test_assert_response_invalid_data(self):
-        request = self.factory.get(self.url)
-
-        def get_font():
-            return 'stock:opensans-gentiumbook'
-
-        def get_storymap_body():
-            return {
-                "map_type": "zoomify",
-                "slides": [
-                    {
-                        "date": "",
-                        "location": {
-                            "icon": "http://maps.gstatic.com/intl/en_us/mapfiles/ms/micons/blue-pushpin.png",
-                            "line": True
-                        },
-                        "background": {
-                            "url": "http://gigapixel.knightlab.com/seurat/seurat_portrait.jpg",
-                            "color": "#000",
-                            "opacity": 50
-                        },
-                        "text": {
-                            "headline": "A Sunday on La Grande Jatte <br><small>Georges Seurat</small>",
-                            "text": "In his best-known and largest painting, Georges Seurat depicted people relaxing in a suburban park on an island in the Seine River called La Grande Jatte."
-                        },
-                        "type": "overview"
-                    },
-                    {
-                        "date": "",
-                        "location": {
-                            "icon": "http://maps.gstatic.com/intl/en_us/mapfiles/ms/micons/blue-pushpin.png",
-                            "lat": 75.71563324165896,
-                            "line": True,
-                            "lon": -132.1875,
-                            "zoom": 6
-                        },
-                        "text": {
-                            "headline": "Small Horizontal Brushstrokes",
-                            "text": "Work began in 1884. The artist worked on the painting in several campaigns, beginning in 1884 with a layer of small horizontal brushstrokes of complementary colors."
-                        }
-                    }
-                ],
-                "zoomify": {
-                    "attribution": "",
-                    "height": 19970,
-                    "path": "http://gigapixel.knightlab.com/seurat/",
-                    "tolerance": 0.9,
-                    "width": 30000
-                }
-            }
-
-        self.gigapixel_view.get_font_css = get_font
-        self.gigapixel_view.get_storymap = get_storymap_body
-
-        response = self.gigapixel_view.list('')
-        self.assertEqual(response.status_code, 200)
-
-
