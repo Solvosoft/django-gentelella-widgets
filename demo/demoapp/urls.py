@@ -1,12 +1,16 @@
 from django.conf.urls import url
+from django.shortcuts import render
 from django.urls import path, include
 
 from demoapp.cruds import Personclass, Countryclass, MenuItemclass
 from demoapp.views import create_notification_view, color_widget_view
 from djgentelella.permission_management import views
 from .autocomplete import views as autocompleteviews
+from .calendar.views import calendar_view
 from .chartjs import chart_js_view
 from .formset import add_formset, add_model_formset
+from .storyLine.views import storyline_view
+from .storymap.views import gigapixel_view, mapbased_view
 from .views import knobView, YesNoInputView
 from .input_masks import views as input_mask
 from .date_range import views as date_ranges
@@ -53,6 +57,8 @@ urlpatterns = [
         path('chunkedupload/', chunckedupload.Addchunkedupload.as_view(), name='chunkeduploaditem-add'),
         path('chunkedupload/list', chunckedupload.Listchunkedupload.as_view(), name='chunkeduploaditem-list'),
         path('chunkedupload/<int:pk>', chunckedupload.Updatechunkedupload.as_view(), name='chunkeduploaditem-edit'),
-
-
-] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()
+        path('calendar_view', calendar_view, name="calendar_view"),
+        path('gigapixel_view', gigapixel_view, name="gigapixel_view"),
+        path('mapbased_view', mapbased_view, name="mapbased_view"),
+        path('storyline_view', storyline_view, name="storyline_view"),
+              ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()

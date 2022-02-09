@@ -155,10 +155,26 @@ class Command(BaseCommand):
                 'https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.8.0/js/vendor/jquery.ui.widget.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/spark-md5/3.0.0/spark-md5.min.js',
             ],
+            'fullcalendar': [
+                'https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.css',
+                'https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js',
+                'https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/locales-all.min.js',
+            ],
             'interact': [
                 'https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js'
             ],
-
+            'timeline/': [],
+            'timeline/css': ["https://cdn.knightlab.com/libs/timeline3/latest/css/timeline.css"],
+            'timeline/css/icons/': [
+                "https://cdn.knightlab.com/libs/timeline3/latest/css/icons/tl-icons.eot",
+                "https://cdn.knightlab.com/libs/timeline3/latest/css/icons/tl-icons.ttf",
+                "https://cdn.knightlab.com/libs/timeline3/latest/css/icons/tl-icons.svg",
+            ],
+            'timeline/js': ["https://cdn.knightlab.com/libs/timeline3/latest/js/timeline.js"],
+            'storymapjs': [
+                "https://cdn.knightlab.com/libs/storymapjs/latest/js/storymap.js",
+                "https://cdn.knightlab.com/libs/storymapjs/latest/css/storymap.css",
+            ],
             'chartjs': [
                 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.css'
@@ -237,6 +253,10 @@ class Command(BaseCommand):
                 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide/skin.mobile.min.css',
                 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide/skin.shadowdom.min.css',
             ],
+            'storylinejs': [
+                'https://cdn.knightlab.com/libs/storyline/1.1.0/css/storyline.css',
+                'https://cdn.knightlab.com/libs/storyline/1.1.0/js/storyline.js',
+            ]
         }
         compressed = {
             'tinymce': {
@@ -295,7 +315,7 @@ class Command(BaseCommand):
         }
 
         if not os.path.exists(basepath / 'flags'):
-            os.mkdir(basepath / 'flags')
+            (basepath / 'flags').mkdir(parents=True)
         for lib in libs:
             currentbasepath = basepath / lib
             if not os.path.exists(currentbasepath):

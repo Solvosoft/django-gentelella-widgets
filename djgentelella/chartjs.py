@@ -85,6 +85,7 @@ class ScaleSerializer(serializers.Serializer):
     scaleLabel = scaleLabelSerializer(required=False)
     gridLines = gridLinesSerializer(required=False)
     time = serializers.DictField(child=serializers.CharField(), required=False)
+    ticks = serializers.DictField(child=serializers.CharField(), required=False)
 
 
 class OptionScaleSerializer(serializers.Serializer):
