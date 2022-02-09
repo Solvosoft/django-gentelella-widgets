@@ -1,60 +1,15 @@
-import json
-
 from django import forms
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
-from django.template.loader import render_to_string
-from django.urls import reverse_lazy
-from django.utils.timezone import now
-from rest_framework import serializers
 
-from demoapp.models import Event, Calendar
 from djgentelella.forms.forms import CustomForm
 from djgentelella.widgets import core as genwidgets
 from djgentelella.widgets import numberknobinput as knobwidget
-from djgentelella.widgets.calendar import CalendarInput
 from djgentelella.widgets.files import FileChunkedUpload
-from djgentelella.widgets.storyline import UrlStoryLineInput
-from djgentelella.widgets.timeline import UrlTimeLineInput
-from djgentelella.widgets.storymap import GigaPixelStoryMapInput, MapBasedStoryMapInput
 
 
 class ExampleForm(CustomForm):
-
-    gigapixel_storymap_options = {
-        "map_type": "zoomify",
-        "map_background_color": "#333",
-        "map_as_image": True,
-        "calculate_zoom": False,
-        "zoomify": {
-            "path": "http://cdn.verite.co/maps/zoomify/seurat/",
-            "width": 30000,
-            "height": 19970,
-            "tolerance": 0.9,
-            "attribution": "<a href='http://www.google.com/culturalinstitute/asset-viewer/a-sunday-on-la-grande-jatte-1884/twGyqq52R-lYpA?projectId=art-project' target='_blank'>Google Art Project</a>"
-        }
-    }
-    gigapixel_storymap = forms.CharField(widget=GigaPixelStoryMapInput(
-        attrs={"data-url": reverse_lazy('examplestorymapgp-list'), "storymap_options": gigapixel_storymap_options}))
-
-    timeline = forms.CharField(widget=UrlTimeLineInput(
-        attrs={"data-url": reverse_lazy('exampletimeline-list'), 'style': "height: 500px;",
-               "data-option_language": 'es'}))
-
-    mapbased_storymap = forms.CharField(widget=MapBasedStoryMapInput(
-        attrs={"data-url": reverse_lazy('examplestorymapmb-list')}))
-
-
-    timeline = forms.CharField(widget=UrlTimeLineInput(
-        attrs={"data-url": reverse_lazy('exampletimeline-list'), 'style': "height: 650px;",
-        'frameborder':"0", "data-option_language": 'es'}))
-
-    storyline = forms.CharField(widget=UrlStoryLineInput(
-        attrs={"data-url": reverse_lazy('examplestoryline-list'),"height": 568, "width": 1112,
-               "data-url_name": 'examplestoryline'},
-    ))
-
     your_name = forms.CharField(label='Your name', max_length=100, widget=genwidgets.TextInput)
     your_age = forms.IntegerField(widget=genwidgets.NumberInput(attrs={'min_value': 2, 'max_value': 8}))
     your_email = forms.EmailField(widget=genwidgets.EmailInput)
@@ -164,13 +119,6 @@ class ExampleForm(CustomForm):
     your_age = forms.IntegerField(
         widget=knobwidget.NumberKnobInput(attrs={"value": 5, "data-min": 1, "data-max": 10}))
 
-    calendar = forms.CharField(
-        required=False,
-        widget=CalendarInput(
-            calendar_attrs={'initialView': 'timeGridWeek'},
-            events=Event.objects.all().values('title', 'start', 'end')
-        )
-    )
 
 
 def home(request):
