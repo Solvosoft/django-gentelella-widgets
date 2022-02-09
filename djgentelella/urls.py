@@ -1,4 +1,5 @@
 from django.conf import settings
+
 from .groute import routes
 from chunked_upload.views import ChunkedUploadView, ChunkedUploadCompleteView
 from django.conf.urls import url
@@ -60,6 +61,10 @@ def import_module_app_gt(app, name):
 for app in settings.INSTALLED_APPS:
     import_module_app_gt(app, 'gtcharts')
     import_module_app_gt(app, 'gtselects')
+    import_module_app_gt(app, 'gttimeline')
+    import_module_app_gt(app, 'gtstorymap')
+    import_module_app_gt(app, 'gtstoryline')
+
 
 base_urlpatterns = [
     url('gtapis/', include(routes.urls)),
@@ -81,4 +86,3 @@ permission_management_urls = [
 
 ]
 urlpatterns = auth_urls + base_urlpatterns+ wysiwyg_urls + permission_management_urls
-

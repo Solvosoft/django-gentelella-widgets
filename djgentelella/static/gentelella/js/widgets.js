@@ -24,6 +24,14 @@ document.gtwidgets = {
             showHideRelatedFormFields($(element));
         });
     },
+    NullBooleanSelect: function(instance){
+        var checkklass = instance.data('checkboxclass') || 'icheckbox_flat-green';
+        var radioklass  = instance.data('radioclass') || 'iradio_flat-green';
+        instance.iCheck({
+            checkboxClass: checkklass,
+            radioClass: radioklass
+        });
+    },
     DateRangeInput: function (instance) {
         format = instance.attr('data-format')
         instance.each((i,element)=>{
@@ -193,7 +201,7 @@ document.gtwidgets = {
                 input.setAttribute('accept', 'image/*');
                 input.onchange = function () {
                     var file = this.files[0];
-                    upload_files(callback, meta, file, instance.attr('data-option-image'), 
+                    upload_files(callback, meta, file, instance.attr('data-option-image'),
                     instance.attr('data-option-video'));
                 };
                 input.click();
@@ -215,14 +223,42 @@ document.gtwidgets = {
     DJGraph: function (instance) {
         instance.gentelella_chart();
     },
-
     NullBooleanSelect: function(instance){
 	    instance.iCheck({
             checkboxClass: 'icheckbox_flat-green',
             radioClass: 'iradio_flat-green'
         });
      },
+    UrlTimeLineInput: function (instance) {
+        var instanceid = instance.attr('id');
+        var dataoptions = $(id_timeline).data();
+        var keys = Object.keys(dataoptions);
+        var options = {}
+        for (var x=0; x<keys.length; x++){
+            if(keys[x].startsWith('option_')){
+                 options[keys[x].replace('option_', '')] = dataoptions[keys[x]]
+            }
+        }
+        timeline = new TL.Timeline(instanceid, instance.data('url'), options);
+        window.addEventListener('resize', function() {
+            var embed = document.getElementById(instanceid);
+            embed.style.height = getComputedStyle(document.body).height;
+            timeline.updateDisplay();
+        })
+    },
 
+    CalendarInput: function (instance) {
+        build_calendar(instance);
+    },
+    GigaPixelStoryMapInput: function (instance) {
+        build_gigapixel_storymap(instance);
+    },
+    MapBasedStoryMapInput: function (instance) {
+        build_mapbased_storymap(instance);
+    },
+    UrlStoryLineInput: function (instance) {
+        build_storyline(instance)
+    }
 }
 
 function gt_find_initialize(instance) {
@@ -237,12 +273,11 @@ function gt_find_initialize(instance) {
     if (autocomplete.length > 0) {
         document.gtwidgets['GTAutocompleteSelect'](autocomplete);
     }
-
-
 }
 
 $(document).ready(function () {
     $(".formset").each(function (index, elem) {
         document.formset.push(gtformSetManager($(elem)));
     });
+
 });

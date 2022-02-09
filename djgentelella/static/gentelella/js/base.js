@@ -1339,3 +1339,83 @@ function uploadFile(url_pages,file, editor) {
         }
     });
 }
+
+function build_gigapixel_storymap(instance) {
+    instance.each(function(index, element) {
+        var instanceid = document.getElementById(element.id).id;
+        var data_url = element.getAttribute('data-url');
+        var storymap_options = element.getAttribute('storymap_options');
+
+        var storymap = new VCO.StoryMap(instanceid, data_url, storymap_options);
+
+        var e = $(window).height(),
+        t = $(`#${instanceid}`);
+        t.height(e - 20);
+
+        $(window).resize(function() {
+            e = $(window).height();
+            t.height(e - 20);
+            storymap.updateDisplay();
+        });
+    })
+}
+
+function build_mapbased_storymap(instance) {
+    instance.each(function(index, element) {
+        var instanceid = document.getElementById(element.id).id;
+        var data_url = element.getAttribute('data-url');
+
+        var storymap = new KLStoryMap.StoryMap(instanceid, data_url);
+
+        var e = $(window).height(),
+        t = $(`#${instanceid}`);
+        t.height(e - 20);
+
+        $(window).resize(function() {
+            e = $(window).height();
+            t.height(e - 20);
+            storymap.updateDisplay();
+        });
+    })
+}
+
+function build_storyline(instance){
+        instance.each(function (index, element) {
+            var instance_element = element.id;
+            if (element.attributes['width'] != undefined){
+                var widget_width = element.attributes['width'].value;
+            }else{
+                var widget_width = element.parentNode.offsetWidth-100;
+            }
+
+            url = element.attributes['data-url'].value;
+            $.ajax({
+                method: "GET",
+                url: url,
+                dataType: "json",
+                error: function(e) {
+                    $(element).html('<div>'+e.responseText+'</div>');
+                },
+            }).done(function(msg){
+                window.storyline = new Storyline(instance_element, msg);
+                window.storyline.resetWidth(widget_width, 'scroll');
+            });
+        });
+}
+
+
+function build_calendar(instance){
+    instance.each(function (index, element) {
+            var calendarEl = document.getElementById(element.id);
+            var element_name = element.getAttribute('name')
+            var widget_name = element_name.substring(0, element_name.length-8);
+            events = window['events' + widget_name];
+            calendar_options = window['calendar_options' + widget_name];
+            calendar_options.events = events;
+            var calendar = new FullCalendar.Calendar(calendarEl, calendar_options);
+            calendar.render();
+            $(element).closest("form").on("submit", function (event) {
+                $(`#${widget_name}_events-input-src`).val(JSON.stringify(calendar.getEvents()));
+            });
+        });
+}
