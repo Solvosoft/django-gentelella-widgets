@@ -14,6 +14,9 @@ class CalendarForm(GTForm, forms.Form):
     )
 
 
+def get_events():
+    return Event.objects.all().values('title', 'start', 'end')
+
 class CalendarModelform(GTForm, forms.ModelForm):
     class Meta:
         model = Calendar
@@ -21,6 +24,6 @@ class CalendarModelform(GTForm, forms.ModelForm):
         widgets = {
             'events': CalendarInput(
                 calendar_attrs={},
-                events=Event.objects.all().values('title', 'start', 'end')
+                events=get_events
             ),
         }
