@@ -124,8 +124,6 @@ class FormCalendarWidgetTest(TestCase):
         calendar_required = self.render('{{form.calendar.required}}', {'form': self.form})
         self.assertFalse(calendar_required)
 
-
-
     def test_widget_formset(self):
         CalendarFormSet = formset_factory(CalendarForm, extra=2)
         formset = CalendarFormSet()

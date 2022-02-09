@@ -1,6 +1,7 @@
 from django.core.exceptions import ImproperlyConfigured
 from django.template import Template, Context
 from django.test import TestCase
+from django.forms import formset_factory
 from djgentelella.views.storyline import OptionsSerializer
 from djgentelella.widgets.storyline import UrlStoryLineInput
 from django import forms
@@ -53,6 +54,15 @@ class UrlStorylineWidgetUnitTest(TestCase):
         self.assertNotIn("required", form)
         self.assertNotIn("disabled", form)
 
+    def test_check_datawidget(self):
+        """
+        check that data-widget is present in the form render
+        reason:  required prevent form submit and disabled can change css behaviour.
+        """
+        form = self.render('{{form}}', {'form': self.basicform})
+        self.assertIn('data-widget="UrlStoryLineInput"', form)
+
+
     def test_check_data_url_required(self):
         """
         Check exception when data-url not found on widget
@@ -63,6 +73,17 @@ class UrlStorylineWidgetUnitTest(TestCase):
             class InvalidForm(forms.Form):
                 storyline = forms.CharField(widget=UrlStoryLineInput)
                 storytwo = forms.CharField(widget=UrlStoryLineInput({"height": 20}))
+
+    def test_widget_formset(self):
+        storyLineFormSet = formset_factory(FormClass, extra=2)
+        formset = storyLineFormSet()
+        for formIndex in range(len(formset)):
+            form_str = self.render('{{form}}', {'form': formset[formIndex]})
+            self.assertIn(f'id_form-{formIndex}-storyline', form_str)
+            self.assertNotIn("required", form_str)
+            self.assertNotIn("disabled", form_str)
+            self.assertIn('data-widget="UrlStoryLineInput"', form_str)
+
 
 class SerializerCheckTest(TestCase):
     def setUp(self):
