@@ -24,7 +24,8 @@ class Command(BaseCommand):
             'gigapixel_storymap.js',
             'mapbased_storymap.js',
             'storyline.js',
-            'calendar.js'
+            'calendar.js',
+            'timeline.js'
         ]
         jquery_plugins = [
             'notifications.js',

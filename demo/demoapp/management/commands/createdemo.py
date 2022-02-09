@@ -248,6 +248,18 @@ class Command(BaseCommand):
             icon='fa fa-vine',
             only_icon=False
         )
+        TimeLine = MenuItem.objects.create(
+            parent=readonlywidget,
+            title='Timeline',
+            url_name='timeline_view',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-clock-o',
+            only_icon=False
+        )
 
 
         chart = MenuItem.objects.create(

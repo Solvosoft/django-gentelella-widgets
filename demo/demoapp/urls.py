@@ -11,6 +11,7 @@ from .chartjs import chart_js_view
 from .formset import add_formset, add_model_formset
 from .storyLine.views import storyline_view
 from .storymap.views import gigapixel_view, mapbased_view
+from .timeline.views import timeline_view
 from .views import knobView, YesNoInputView
 from .input_masks import views as input_mask
 from .date_range import views as date_ranges
@@ -61,4 +62,5 @@ urlpatterns = [
         path('gigapixel_view', gigapixel_view, name="gigapixel_view"),
         path('mapbased_view', mapbased_view, name="mapbased_view"),
         path('storyline_view', storyline_view, name="storyline_view"),
+        path('timeline_view', timeline_view, name="timeline_view"),
               ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()
