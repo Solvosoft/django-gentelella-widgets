@@ -18,10 +18,12 @@ def upload(request, folder):
 def image_upload(request):
     path = upload(request, 'images')
     link = path.replace(str(settings.MEDIA_ROOT), settings.MEDIA_URL).replace("//", "/")
+    link = "%s://%s%s%s" % (request.scheme, request.get_host(), settings.MEDIA_URL, link)
     return JsonResponse({'link': link})
 
 
 def video_upload(request):
     path = upload(request, 'videos')
     link = path.replace(str(settings.MEDIA_ROOT), settings.MEDIA_URL).replace("//", "/")
+    link = "%s://%s%s%s" % (request.scheme, request.get_host(), settings.MEDIA_URL, link)
     return JsonResponse({'link': link})
