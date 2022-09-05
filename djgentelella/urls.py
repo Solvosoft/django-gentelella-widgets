@@ -86,3 +86,5 @@ permission_management_urls = [
 
 ]
 urlpatterns = auth_urls + base_urlpatterns+ wysiwyg_urls + permission_management_urls
+
+

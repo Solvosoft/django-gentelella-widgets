@@ -1,19 +1,19 @@
-<div class="nav_menu">
+<div class="nav_menu navbar-expand-lg bg-light ">
   {% load i18n gentelellamenu gtsettings urlname_tags %}
     <div class="nav toggle">
       <a id="menu_toggle"><i class="fa fa-bars"></i></a>
     </div>
 
-    <ul class="nav navbar-nav navbar-right">
-      {% top_menu  %}
-      {% if request.user.is_superuser %}
+    <ul class="nav navbar-nav navbar-rigth">
+        {% top_menu  %}
+        {% if request.user.is_superuser %}
 
         {% get_urlname_action as urlnameactions %}
         {% validate_context urlnameactions as context %}
         {% if urlnameactions and context %}
           <li><a class="btn" id="btn_perms" title="{% trans 'Add Permission' %}" data-toggle="modal" data-target="#permission_modal" data-parameter="{% get_page_name urlnameactions %}" data-urlname="{{urlnameactions}}"><i class="fa fa-key" aria-hidden="true"></i></a></li>
         {% endif %}
-      {% endif %}
+        {% endif %}
 
     </ul>
 

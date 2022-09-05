@@ -1,4 +1,4 @@
-from demoapp.models import Event, Calendar
+from ..models import Event, Calendar
 from djgentelella.forms.forms import GTForm
 from django import forms
 
