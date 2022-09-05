@@ -1,6 +1,5 @@
 from django.conf import settings
-from django.utils.translation import ugettext_lazy as _
-from django.db.utils import  OperationalError
+from django.utils.translation import gettext_lazy as _
 
 NOTIFICATION_DEFAULT_SUBJECT = getattr(settings, 'NOTIFICATION_DEFAULT_SUBJECT',
                                      _('You have a new notification'))
