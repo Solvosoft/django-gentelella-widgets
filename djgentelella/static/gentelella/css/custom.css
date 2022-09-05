@@ -321,12 +321,20 @@ html , body{
     display: inline-block
 }
 .nav_menu {
-    float: left;
+
     background: #EDEDED;
     border-bottom: 1px solid #D9DEE4;
     margin-bottom: 10px;
     width: 100%;
-    position: relative
+    position: right
+}
+.nav_menu {
+
+    background: #EDEDED;
+    border-bottom: 1px solid #D9DEE4;
+    margin-bottom: 10px;
+    width: 100%;
+    position: right
 }
 @media (min-width: 480px) {
     .nav_menu {
@@ -811,6 +819,7 @@ a:focus {
     color: #ECF0F1 !important;
     margin-left: 0 !important;
     line-height: 32px
+    background-color: red
 }
 .site_title {
     text-overflow: ellipsis;
@@ -845,6 +854,7 @@ a:focus {
     display: block;
     padding: 10px 15px;
     color: #34495E !important
+
 }
 .wysiwyg{
     overflow:scroll; 

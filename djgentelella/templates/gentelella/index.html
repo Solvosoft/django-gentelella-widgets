@@ -11,27 +11,18 @@
 {% endblock%}
 
 
-<div class="row">
-<div class='col-xs-12 col-sm-12 col-md-12'>
-     <div class="x_panel gencrud">
-            <div class="x_title"><h2> A form </h2>
-           <div class="clearfix"></div>
-            </div>
-
-            <div class="x_content">
-                <form action="" method="POST">
+<div class="card">
+  <div class="card-header">
+   <h2 class="card-title">A Form</h2>
+  </div>
+  <div class="card-body">
+    <form action="" method="POST">
                     {% csrf_token %}
                     {{form.as_inline}}
-
-                    <input class="btn btn-success" type="submit"  value="Save"/>
+                <button type="submit" class="btn btn-outline-primary" value="Save">SAVE</button>
                 </form>
-
-            </div>
-        </div>
-
-
-</div>
+  </div>
 </div>
 
 {% endblock %}
-{% block js %} {{ form.media }} {% endblock %}
+{% block js %} {{ form.as_inline }} {% endblock %}

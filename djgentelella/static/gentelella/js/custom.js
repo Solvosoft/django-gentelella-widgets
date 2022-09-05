@@ -274,17 +274,19 @@ $(document).ready(function () {
 
 // NProgress
 if (typeof NProgress != 'undefined') {
+
     $(document).ready(function () {
         NProgress.start();
     });
-
-    $(window).load(function () {
+    $(window).on('load', function() {
         NProgress.done();
     });
-}
 
+
+}
+/**
 // hover and retain popover when on popover content
-var originalLeave = $.fn.popover.Constructor.prototype.leave;
+var originalLeave =$.fn.popover.Constructor.prototype.leave;
 $.fn.popover.Constructor.prototype.leave = function (obj) {
     var self = obj instanceof this.constructor ?
         obj : $(obj.currentTarget)[this.type](this.getDelegateOptions()).data('bs.' + this.type);
@@ -314,7 +316,7 @@ $('body').popover({
         hide: 400
     }
 });
-
+ **/
 function gd(year, month, day) {
     return new Date(year, month - 1, day).getTime();
 }
