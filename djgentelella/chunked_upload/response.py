@@ -1,6 +1,6 @@
 from django.http import HttpResponse
 
-from .settings import ENCODER, CONTENT_TYPE
+from djgentelella.settings import ENCODER, CONTENT_TYPE
 
 
 class Response(HttpResponse):
