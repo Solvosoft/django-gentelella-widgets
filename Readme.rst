@@ -174,3 +174,6 @@ ____________________________
     python manage.py createbasejs
 
 Remember update the package version before make deploy it on server.
+
+
+sudo apt install node-babel-cli npm webpack
