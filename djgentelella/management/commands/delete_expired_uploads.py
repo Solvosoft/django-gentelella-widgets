@@ -36,9 +36,9 @@ class Command(BaseCommand):
         for chunked_upload in qs:
             if interactive:
                 prompt = prompt_msg.format(obj=chunked_upload) + u' (y/n): '
-                answer = raw_input(prompt).lower()
+                answer = input(prompt).lower()
                 while answer not in ('y', 'n'):
-                    answer = raw_input(prompt).lower()
+                    answer = input(prompt).lower()
                 if answer == 'n':
                     continue
 
