@@ -7,7 +7,7 @@ from django.http import JsonResponse
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from . import models
 from .forms import EntryForm, CategoryForm
