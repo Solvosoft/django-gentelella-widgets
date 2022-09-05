@@ -27,7 +27,7 @@ def render_item(item, env={}, widget_list=[], ariabylabel=''):
         return ""
 
     children = item.children.exists()
-    dropdown = "nav-item dropdown"
+    dropdown = "dropdown-item dropdown"
     a_class=""
     icon=""
     if item.level > 0:
@@ -39,7 +39,7 @@ def render_item(item, env={}, widget_list=[], ariabylabel=''):
     if item.icon:
         icon = format_html('<i class="{}"></i>', item.icon)
     if children and item.level == 0:
-        a_class = 'class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"'
+        a_class = 'class="dropdown-toggle" data-bs-toggle="dropdown" role="button"  aria-expanded="false"'
     else:
         a_class = 'tabindex = "-1"'
     if item.is_widget:
@@ -60,9 +60,11 @@ def render_item(item, env={}, widget_list=[], ariabylabel=''):
             item.pk, ariabylabel)
     for node in item.children.all():
         dev += render_item(node, env=env, widget_list=widget_list)
+
     if children:
         dev += '</ul>'
     dev += '</li>'
+    print(dev,"termino")
     return dev
 
 register = template.Library()
