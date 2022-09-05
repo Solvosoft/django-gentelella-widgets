@@ -5,11 +5,11 @@ from django.shortcuts import get_object_or_404
 from django.core.files.base import ContentFile
 from django.utils import timezone
 
-from .settings import MAX_BYTES
-from .models import ChunkedUpload
+from djgentelella.settings import MAX_BYTES
+from djgentelella.models import ChunkedUpload
 from .response import Response
 from .constants import http_status, COMPLETE
-from .exceptions import ChunkedUploadError
+from djgentelella.exceptions import ChunkedUploadError
 
 
 def is_authenticated(user):
