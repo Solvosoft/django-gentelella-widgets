@@ -21,12 +21,11 @@
 
       {% block stylesheets %}
         <!-- Bootstrap -->
-
-
-        <link href="{% static 'vendors/jquery-ui/jquery-ui.css' %}?v={% get_version %}" rel="stylesheet">
-        <link href="{% static 'vendors/font-awesome/font-awesome.min.css' %}?v={% get_version %}" rel="stylesheet">
-        <link href="{% static 'vendors/bootstrap-daterangepicker/daterangepicker.min.css' %}?v={% get_version %}" rel="stylesheet">
-        <link href="{% static 'vendors/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css' %}?v={% get_version %}" rel="stylesheet">
+        <link href="{% static 'vendors/bootstrap/bootstrap.min.css' %}" rel="stylesheet">
+        <link href="{% static 'vendors/jquery-ui/jquery-ui.min.css' %}?v={% get_version %}" rel="stylesheet">
+        <link href="{% static 'vendors/font-awesome/fontawesome.min.css' %}" rel="stylesheet">
+        <link href="{% static 'vendors/bootstrap-daterangepicker/daterangepicker.min.css' %}" rel="stylesheet">
+        <link href="{% static 'vendors/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css' %}" rel="stylesheet">
         <link href="{% static 'vendors/select2/select2.min.css' %}?v={% get_version %}" rel="stylesheet"/>
         <link href="{% static 'vendors/switchery/switchery.min.css'%}?v={% get_version %}" rel="stylesheet"/>
         <link href="{% static 'vendors/iCheck/green.css' %}?v={% get_version %}" rel="stylesheet">
@@ -60,7 +59,8 @@
     {% block extra_css %} {% endblock %}
     <!-- jQuery -->
     <script src="{% static 'vendors/jquery/jquery.min.js' %}?v={% get_version %}"></script>
-
+    <!-- Bootstrap -->
+    <script src="{% static 'vendors/bootstrap/bootstrap.bundle.min.js' %}?v={% get_version %}"></script>
     <script>
       function getCookie(name) {
         var cookieValue = null;
@@ -95,7 +95,7 @@
           {% endblock sidebar %}
 
           {% block top_navigation %}
-            <div class="top_nav">
+            <div class="top_nav ">
               {% include "gentelella/app/top_navigation.html" %}
             </div>
           {% endblock top_navigation %}

@@ -146,25 +146,25 @@ html , body{
 .left_col {
     background: #2A3F54
 }
-.nav-sm .container.body .col-md-3.left_col {
+.nav-sm .body .col-md-3.left_col {
     min-height: 100%;
     width: 70px;
     padding: 0;
     z-index: 9999;
     position: absolute
 }
-.nav-sm .container.body .col-md-3.left_col.menu_fixed {
+.nav-sm .body .col-md-3.left_col.menu_fixed {
     position: fixed;
     height: 100%
 }
-.nav-sm .container.body .col-md-3.left_col .mCSB_container,
-.nav-sm .container.body .col-md-3.left_col .mCustomScrollBox {
+.nav-sm .body .col-md-3.left_col .mCSB_container,
+.nav-sm .body .col-md-3.left_col .mCustomScrollBox {
     overflow: visible
 }
 .nav-sm .hidden-small {
     visibility: hidden
 }
-.nav-sm .container.body .right_col {
+.nav-sm .body .right_col {
     padding: 10px 20px;
     margin-left: 70px;
     z-index: 2
@@ -177,7 +177,7 @@ html , body{
 }
 .nav-sm .navbar.nav_title a i {
     font-size: 27px;
-    margin: 13px 0 0 3px
+    margin: 5px 0 0 3px
 }
 .site_title i {
     border: 1px solid #EAEAEA;
@@ -321,12 +321,12 @@ html , body{
     display: inline-block
 }
 .nav_menu {
-
+    float:left
     background: #EDEDED;
     border-bottom: 1px solid #D9DEE4;
     margin-bottom: 10px;
     width: 100%;
-    position: right
+    position: relative
 }
 .nav_menu {
 
@@ -341,7 +341,7 @@ html , body{
         position: static
     }
 }
-.nav-md .container.body .col-md-3.left_col {
+.nav-md .body .col-md-3.left_col {
     min-height: 100%;
     width: 230px;
     padding: 0;
@@ -350,14 +350,14 @@ html , body{
     display: flex;
     z-index: 1
 }
-.nav-md .container.body .col-md-3.left_col.menu_fixed {
+.nav-md .body .col-md-3.left_col.menu_fixed {
     height: 100%;
     position: fixed
 }
-body .container.body .right_col {
+body .body .right_col {
     background: #F7F7F7
 }
-.nav-md .container.body .right_col {
+.nav-md .body .right_col {
     padding: 10px 20px 0;
     margin-left: 230px
 }
@@ -369,15 +369,15 @@ body .container.body .right_col {
     height: 57px
 }
 @media (max-width: 991px) {
-    .nav-md .container.body .right_col,
-    .nav-md .container.body .top_nav {
+    .nav-md .body .right_col,
+    .nav-md .body .top_nav {
         width: 100%;
         margin: 0
     }
-    .nav-md .container.body .col-md-3.left_col {
+    .nav-md .body .col-md-3.left_col {
         display: none
     }
-    .nav-md .container.body .right_col {
+    .nav-md .body .right_col {
         width: 100%;
         padding-right: 0
     }
@@ -385,7 +385,7 @@ body .container.body .right_col {
         padding: 10px !important
     }
 }
-@media (max-width: 1200px) {
+@media (max-width: 5200px) {
     .x_title h2 {
         width: 62%;
         font-size: 17px
@@ -698,10 +698,15 @@ a:focus {
     width: 70%;
     float: right
 }
+.top_nav .navbar-right a {
+    float: right
+}
+.top_nav .navbar-right a {
+    float:right
+}
 .top_nav .navbar-right li {
     display: inline-block;
-    float: right;
-    position: static
+    position: static;
 }
 @media (min-width: 480px) {
     .top_nav .navbar-right li {
@@ -3396,7 +3401,7 @@ ul.project_files li a i {
 .product_gallery a {
     width: 100px;
     height: 100px;
-    float: left;
+    float: left
     margin: 10px;
     border: 1px solid #e5e5e5
 }
@@ -3485,11 +3490,11 @@ a.hiddenanchor {
     float: left
 }
 .alignleft {
-    float: left;
+    float: left
     margin-right: 15px
 }
 .alignright {
-    float: right;
+    float: right
     margin-left: 15px
 }
 .clearfix:after,
@@ -3619,7 +3624,7 @@ form:after {
 }
 .login_content form input[type="submit"],
 #content form .submit {
-    float: left;
+    float: left
     margin-left: 38px
 }
 .button a {
@@ -3746,7 +3751,7 @@ fieldset {
     margin-right: -15px
 }
 .cropper .img-preview {
-    float: left;
+    float: left
     margin-right: 10px;
     margin-bottom: 10px;
     overflow: hidden
@@ -3941,7 +3946,7 @@ fieldset {
 }
 .wizard_verticle .stepContainer {
     width: 80%;
-    float: left;
+    float: left
     padding: 0 10px
 }
 .actionBar {
@@ -3963,7 +3968,7 @@ fieldset {
 }
 .wizard_verticle .wizard_content {
     width: 80%;
-    float: left;
+    float: left
     padding-left: 20px
 }
 .wizard_verticle ul.wizard_steps {
@@ -3971,7 +3976,7 @@ fieldset {
     list-style: none;
     position: relative;
     width: 20%;
-    float: left;
+    float:left
     margin: 0 0 20px
 }
 .wizard_verticle ul.wizard_steps li {
@@ -4062,7 +4067,7 @@ fieldset {
 }
 .progress_summary .more_info span {
     text-align: right;
-    float: right
+    float:right
 }
 .progress_summary .data span {
     text-align: right;
@@ -4073,11 +4078,11 @@ fieldset {
     width: 100%
 }
 .progress_title .left {
-    float: left;
+    float: right
     text-align: left
 }
 .progress_title .right {
-    float: right;
+    float: right
     text-align: right;
     font-weight: 300
 }
@@ -4133,7 +4138,7 @@ ul.verticle_bars li {
     position: fixed;
     margin: 15px;
     right: 0;
-    float: right;
+    float: right
     width: 400px;
     z-index: 4000;
     bottom: 0
@@ -4146,7 +4151,7 @@ ul.notifications {
     width: 100%
 }
 .notifications li {
-    float: right;
+    float:right
     margin: 3px;
     width: 36px;
     box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.3)
@@ -4174,7 +4179,7 @@ ul.notifications {
     font-weight: bold;
     text-transform: uppercase;
     width: 80%;
-    float: left;
+    float: left
     height: 20px;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -4183,7 +4188,7 @@ ul.notifications {
 .tabbed_notifications .close {
     padding: 5px;
     color: #E9EDEF;
-    float: right;
+    float:right
     opacity: 1
 }
 .fc-state-default {
