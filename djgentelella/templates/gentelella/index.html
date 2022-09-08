@@ -9,20 +9,20 @@
 {% define_urlname_action 'abcde-add'%}
 {% define_urlname_action 'abcde-edit'%}
 {% endblock%}
-
-
-<div class="card">
-  <div class="card-header">
-   <h2 class="card-title">A Form</h2>
-  </div>
-  <div class="card-body">
-    <form action="" method="POST">
+<div class="row">
+<div class='col-12 col-sm-12 col-md-12'>
+     <div class="card">
+            <div class="card-body">
+                <div class="card-title titles"><h2> A form </h2></div>
+                   <form action="" method="POST">
                     {% csrf_token %}
                     {{form.as_inline}}
-                <button type="submit" class="btn btn-outline-primary" value="Save">SAVE</button>
+                    <input class="btn btn-success" type="submit"  value="Save"/>
                 </form>
-  </div>
-</div>
 
+            </div>
+        </div>
+</div>
+</div>
 {% endblock %}
-{% block js %} {{ form.as_inline }} {% endblock %}
+{% block js %} {{ form.media }} {% endblock %}

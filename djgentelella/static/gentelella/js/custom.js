@@ -178,7 +178,7 @@ $(document).ready(function () {
 
 // Tooltip
 $(document).ready(function () {
-    $('[data-toggle="tooltip"]').tooltip({
+    $('[data-bs-toggle="tooltip"]').tooltip({
         container: 'body'
     });
 });
@@ -309,7 +309,7 @@ $.fn.popover.Constructor.prototype.leave = function (obj) {
 };
 
 $('body').popover({
-    selector: '[data-popover]',
+    selector: '[data-bs-popover]',
     trigger: 'click hover',
     delay: {
         show: 50,
@@ -396,7 +396,7 @@ function init_wysiwyg() {
         ],
             fontTarget = $('[title=Font]').siblings('.dropdown-menu');
         $.each(fonts, function (idx, fontName) {
-            fontTarget.append($('<li><a data-edit="fontName ' + fontName + '" style="font-family:\'' + fontName + '\'">' + fontName + '</a></li>'));
+            fontTarget.append($('<li><a data-bs-edit="fontName ' + fontName + '" style="font-family:\'' + fontName + '\'">' + fontName + '</a></li>'));
         });
         $('a[title]').tooltip({
             container: 'body'
@@ -412,7 +412,7 @@ function init_wysiwyg() {
                 $(this).change();
             });
 
-        $('[data-role=magic-overlay]').each(function () {
+        $('[data-bs-role=magic-overlay]').each(function () {
             var overlay = $(this),
                 target = $(overlay.data('target'));
             overlay.css('opacity', 0).css('position', 'absolute').offset(target.offset()).width(target.outerWidth()).height(target.outerHeight());
@@ -437,7 +437,7 @@ function init_wysiwyg() {
         } else {
             console.log("error uploading file", reason, detail);
         }
-        $('<div class="alert"> <button type="button" class="close" data-dismiss="alert">&times;</button>' +
+        $('<div class="alert"> <button type="button" class="close" data-bs-dismiss="alert">&times;</button>' +
             '<strong>File upload error</strong> ' + msg + ' </div>').prependTo('#alerts');
     }
 
@@ -445,7 +445,7 @@ function init_wysiwyg() {
         var id = $(this).attr('id'); //editor-one
 
         $(this).wysiwyg({
-            toolbarSelector: '[data-target="#' + id + '"]',
+            toolbarSelector: '[data-bs-target="#' + id + '"]',
             fileUploadError: showErrorAlert
         });
     });

@@ -1,7 +1,6 @@
 {% load static i18n %}
 {% load  gentelellamenu gtsettings urlname_tags %}
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
       {% block pre_head %}
@@ -21,11 +20,11 @@
 
       {% block stylesheets %}
         <!-- Bootstrap -->
-        <link href="{% static 'vendors/bootstrap/bootstrap.min.css' %}" rel="stylesheet">
+        <link href="{% static 'vendors/bootstrap/bootstrap.min.css' %}?v={% get_version %}" rel="stylesheet">
         <link href="{% static 'vendors/jquery-ui/jquery-ui.min.css' %}?v={% get_version %}" rel="stylesheet">
-        <link href="{% static 'vendors/font-awesome/fontawesome.min.css' %}" rel="stylesheet">
-        <link href="{% static 'vendors/bootstrap-daterangepicker/daterangepicker.min.css' %}" rel="stylesheet">
-        <link href="{% static 'vendors/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css' %}" rel="stylesheet">
+        <link href="{% static 'vendors/font-awesome/font-awesome.min.css' %}?v={% get_version %}" rel="stylesheet">
+        <link href="{% static 'vendors/bootstrap-daterangepicker/daterangepicker.min.css' %}?v={% get_version %}" rel="stylesheet">
+        <link href="{% static 'vendors/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css' %}?v={% get_version %}" rel="stylesheet">
         <link href="{% static 'vendors/select2/select2.min.css' %}?v={% get_version %}" rel="stylesheet"/>
         <link href="{% static 'vendors/switchery/switchery.min.css'%}?v={% get_version %}" rel="stylesheet"/>
         <link href="{% static 'vendors/iCheck/green.css' %}?v={% get_version %}" rel="stylesheet">
@@ -59,8 +58,10 @@
     {% block extra_css %} {% endblock %}
     <!-- jQuery -->
     <script src="{% static 'vendors/jquery/jquery.min.js' %}?v={% get_version %}"></script>
+    <script src="{% static 'vendors/bootstrap/popper.min.js' %}?v={% get_version %}"></script>
     <!-- Bootstrap -->
     <script src="{% static 'vendors/bootstrap/bootstrap.bundle.min.js' %}?v={% get_version %}"></script>
+    <script src="{% static 'vendors/bootstrap/popper.min.js' %}?v={% get_version %}"></script>
     <script>
       function getCookie(name) {
         var cookieValue = null;
@@ -83,7 +84,7 @@
 
   <body class="{% block body_class %}nav-md {% endblock body_class %}">
     {% block body %}
-      <div class="container body">
+      <div class="body">
         <div class="main_container">
 
           {% block sidebar %}
@@ -98,8 +99,8 @@
             <div class="top_nav ">
               {% include "gentelella/app/top_navigation.html" %}
             </div>
-          {% endblock top_navigation %}
-{% block content_wrapper %}
+            {% endblock top_navigation %}
+            {% block content_wrapper %}
           <div class="right_col" role="main">
           {% block messages %}
          {% if messages %}
@@ -114,8 +115,8 @@
               {% endblock content %}
             {% endblock content_block_wrap %}
           </div>
-{% endblock content_wrapper %}
-          {% block footer %}
+            {% endblock content_wrapper %}
+            {% block footer %}
 
             <footer>
               {% include "gentelella/app/footer.html" %}
@@ -189,7 +190,9 @@
 
 
       <!-- Custom Theme Scripts -->
-      <script src="{% static 'gentelella/js/gentelella-bundle.js' %}?v={% get_version %}"></script>
+      <script src="{% static 'gentelella/js/base.js' %}?v={% get_version %}"></script>
+      <script src="{% static 'gentelella/js/widgets.js' %}?v={% get_version %}"></script>
+      <script src="{% static 'gentelella/js/custom.js' %}?v={% get_version %}"></script>
       {% if request.user.is_superuser %}
         {% get_urlname_action as urlnameactions %}
         {% if urlnameactions %}
@@ -219,8 +222,8 @@
       {% endblock %}
 
 
-    {% endblock body %}
-    {% block js %}{% endblock %}
-  {% render_extra_html_menu %}
+      {% endblock body %}
+      {% block js %}{% endblock %}
+      {% render_extra_html_menu %}
   </body>
 </html>
