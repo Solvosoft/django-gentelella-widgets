@@ -22,12 +22,12 @@
       {% block stylesheets %}
         <!-- Bootstrap -->
 
-
-         <link href="{% static 'vendors/bootstrap/bootstrap.min.css' %}?v={% get_version %}" rel="stylesheet">
-        <!--<link href="{% static 'vendors/bootstrap/bootstrap.min.css' %}" rel="stylesheet">-->
+        <link href="{% static 'vendors/bootstrap/bootstrap.min.css' %}?v={% get_version %}" rel="stylesheet">
         <link href="{% static 'vendors/jquery-ui/jquery-ui.css' %}?v={% get_version %}" rel="stylesheet">
+        <link href="{% static 'vendors/font-awesome/font-awesome.min.css' %}?v={% get_version %}" rel="stylesheet">
+        <link href="{% static 'vendors/bootstrap-daterangepicker/daterangepicker.min.css' %}?v={% get_version %}" rel="stylesheet">
         <link href="{% static 'vendors/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css' %}?v={% get_version %}" rel="stylesheet">
-
+        <link href="{% static 'vendors/select2/select2.min.css' %}?v={% get_version %}" rel="stylesheet"/>
         <link href="{% static 'vendors/switchery/switchery.min.css'%}?v={% get_version %}" rel="stylesheet"/>
         <link href="{% static 'vendors/iCheck/green.css' %}?v={% get_version %}" rel="stylesheet">
         <link href="{% static 'vendors/bootstrap-progressbar/bootstrap-progressbar-3.3.4.min.css' %}?v={% get_version %}" rel="stylesheet">
@@ -61,10 +61,8 @@
     <!-- jQuery -->
     <script src="{% static 'vendors/jquery/jquery.min.js' %}?v={% get_version %}"></script>
     <!-- Bootstrap -->
-          <!--<script src="{% static 'vendors/bootstrap/popper.min.js' %}"></script>-->
-      <!--<script src="{% static 'vendors/bootstrap/bootstrap.min.js' %}"></script>-->
+      <script src="{% static 'vendors/bootstrap/popper.min.js' %}?v={% get_version %}"></script>
      <script src="{% static 'vendors/bootstrap/bootstrap.min.js' %}?v={% get_version %}"></script>
-
     <script>
       function getCookie(name) {
         var cookieValue = null;
@@ -87,7 +85,7 @@
 
   <body class="{% block body_class %}nav-md {% endblock body_class %}">
     {% block body %}
-      <div class="container body">
+      <div class="body">
         <div class="main_container">
 
           {% block sidebar %}
@@ -193,7 +191,9 @@
 
 
       <!-- Custom Theme Scripts -->
-      <script src="{% static 'gentelella/js/gentelella-bundle.js' %}?v={% get_version %}"></script>
+      <script src="{% static 'gentelella/js/base.js' %}?v={% get_version %}"></script>
+      <script src="{% static 'gentelella/js/widgets.js' %}?v={% get_version %}"></script>
+      <script src="{% static 'gentelella/js/custom.js' %}?v={% get_version %}"></script>
       {% if request.user.is_superuser %}
         {% get_urlname_action as urlnameactions %}
         {% if urlnameactions %}

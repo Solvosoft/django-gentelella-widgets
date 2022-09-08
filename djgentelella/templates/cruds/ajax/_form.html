@@ -22,6 +22,7 @@
     <div class="box-body row">
         <div class="col-md-12">
             {{ form  }}
+
         </div>
     </div>
 
@@ -33,6 +34,7 @@
                     onclick="$('#{{name}}_editList').html('');"
                     class="btn btn-danger"
                     data-dismiss="modal">{% icon_fa_tag "cancel" %} {% trans "Cancel" %}</a>
+
                 <button
                     id="{{name}}_{{object.pk}}_addedit_submit"
                     type="submit"

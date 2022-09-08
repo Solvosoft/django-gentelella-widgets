@@ -44,14 +44,10 @@ class Command(BaseCommand):
 
         libs = {
             'bootstrap': [
-                #'https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css',
-                #'https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.min.js',
-                #'https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.5/dist/umd/popper.min.js',
-                #'https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js',
-                'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css',
-                'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css.map',
-                'https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js',
-
+                'https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css',
+                'https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.min.js',
+                'https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.5/dist/umd/popper.min.js',
+                'https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js'
             ],
             'fonts': [
                 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/fonts/glyphicons-halflings-regular.eot',
@@ -118,8 +114,8 @@ class Command(BaseCommand):
                 'https://cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css',
             ],
             'jquery': [
-                'https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js',
-                'https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.map'
+                'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js',
+                'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.map'
             ],
             'jquery-ui': [
                 'https://code.jquery.com/ui/1.11.3/themes/smoothness/jquery-ui.css'

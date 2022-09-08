@@ -21,17 +21,18 @@ def validate_menu_item(item, context):
         return item
 
 
+
 def render_item(item, env={}, widget_list=[], ariabylabel=''):
     item = validate_menu_item(item, env)
     if not item:
         return ""
 
     children = item.children.exists()
-    dropdown = "dropdown-item dropdown"
+    dropdown = "nav-item dropdown "
     a_class=""
     icon=""
     if item.level > 0:
-        dropdown = "dropdown-submenu pull-left"
+        dropdown = "dropdown-submenu pull-left "
         if not children:
             dropdown =  ""
     dev = '<li id="i_%d" role="presentation" class="%s imenu%d" >'%(item.pk, dropdown, item.pk)
@@ -39,7 +40,7 @@ def render_item(item, env={}, widget_list=[], ariabylabel=''):
     if item.icon:
         icon = format_html('<i class="{}"></i>', item.icon)
     if children and item.level == 0:
-        a_class = 'class="dropdown-toggle" data-bs-toggle="dropdown" role="button"  aria-expanded="false"'
+        a_class = 'class="dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"'
     else:
         a_class = 'tabindex = "-1"'
     if item.is_widget:
@@ -60,11 +61,10 @@ def render_item(item, env={}, widget_list=[], ariabylabel=''):
             item.pk, ariabylabel)
     for node in item.children.all():
         dev += render_item(node, env=env, widget_list=widget_list)
-
     if children:
         dev += '</ul>'
     dev += '</li>'
-    print(dev,"termino")
+
     return dev
 
 register = template.Library()

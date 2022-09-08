@@ -7,20 +7,20 @@
 
 {% block content %}
 
-<div class="x_panel gencrud">
-<div class="x_title">
+<div class="card gencrud">
+    <div class="card-body">
+        <div class="card-title titles">
 
-<ul class="nav navbar-left panel_toolbox">
-        {% if crud_perms.list %}
-        <li><a href="{{ url_list }}{{getparams}}" title=" {% trans "Back to" %} {{ model_verbose_name_plural|lower }}">
-            <i class="fa fa-angle-double-left red"></i>
-        </a></li>
-        {% endif %}
-</ul>
-    <h2>{% trans "New" %} {{ model_verbose_name_plural|lower }}</h2>
-    <div class="clearfix"></div>
-</div>
-    <div class="x_content">
+            <ul class="nav navbar-left panel_toolbox">
+                {% if crud_perms.list %}
+                <li><a href="{{ url_list }}{{getparams}}" title=" {% trans "Back to" %} {{ model_verbose_name_plural|lower }}">
+                    <i class="fa fa-angle-double-left red"></i>
+                    </a></li>
+                {% endif %}
+            </ul>
+            <h2>{% trans "New" %} {{ model_verbose_name_plural|lower }}</h2>
+            <div class="clearfix"></div>
+        </div>
         {% include "gentelella/cruds/_form.html" with action='create' %}
     </div>
 
