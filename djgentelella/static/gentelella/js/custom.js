@@ -6,6 +6,9 @@
  *     // code here
  * });
  */
+
+
+
 (function ($, sr) {
     // debouncing function from John Hann
     // http://unscriptable.com/index.php/2009/03/20/debouncing-javascript-methods/
@@ -178,7 +181,7 @@ $(document).ready(function () {
 
 // Tooltip
 $(document).ready(function () {
-    $('[data-toggle="tooltip"]').tooltip({
+    $('[data-bs-toggle="tooltip"]').tooltip({
         container: 'body'
     });
 });
@@ -275,15 +278,18 @@ $(document).ready(function () {
 // NProgress
 if (typeof NProgress != 'undefined') {
     $(document).ready(function () {
+
         NProgress.start();
     });
 
-    $(window).load(function () {
+    $(window).on('load',function () {
+
         NProgress.done();
     });
 }
 
 // hover and retain popover when on popover content
+
 var originalLeave = $.fn.popover.Constructor.prototype.leave;
 $.fn.popover.Constructor.prototype.leave = function (obj) {
     var self = obj instanceof this.constructor ?
@@ -435,7 +441,7 @@ function init_wysiwyg() {
         } else {
             console.log("error uploading file", reason, detail);
         }
-        $('<div class="alert"> <button type="button" class="close" data-dismiss="alert">&times;</button>' +
+        $('<div class="alert"> <button type="button" class="close" data-bs-dismiss="alert">&times;</button>' +
             '<strong>File upload error</strong> ' + msg + ' </div>').prependTo('#alerts');
     }
 
@@ -443,7 +449,7 @@ function init_wysiwyg() {
         var id = $(this).attr('id'); //editor-one
 
         $(this).wysiwyg({
-            toolbarSelector: '[data-target="#' + id + '"]',
+            toolbarSelector: '[data-bs-target="#' + id + '"]',
             fileUploadError: showErrorAlert
         });
     });

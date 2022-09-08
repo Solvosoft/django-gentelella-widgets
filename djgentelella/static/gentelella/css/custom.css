@@ -15,6 +15,9 @@ html , body{
  height:100%;
  }
 
+
+
+
 .daterangepicker .ranges li {
     color: #73879C
 }
@@ -146,25 +149,25 @@ html , body{
 .left_col {
     background: #2A3F54
 }
-.nav-sm .container.body .col-md-3.left_col {
+.nav-sm .body .col-md-3.left_col {
     min-height: 100%;
     width: 70px;
     padding: 0;
     z-index: 9999;
     position: absolute
 }
-.nav-sm .container.body .col-md-3.left_col.menu_fixed {
+.nav-sm .body .col-md-3.left_col.menu_fixed {
     position: fixed;
     height: 100%
 }
-.nav-sm .container.body .col-md-3.left_col .mCSB_container,
-.nav-sm .container.body .col-md-3.left_col .mCustomScrollBox {
+.nav-sm .body .col-md-3.left_col .mCSB_container,
+.nav-sm .body .col-md-3.left_col .mCustomScrollBox {
     overflow: visible
 }
 .nav-sm .hidden-small {
     visibility: hidden
 }
-.nav-sm .container.body .right_col {
+.nav-sm .body .right_col {
     padding: 10px 20px;
     margin-left: 70px;
     z-index: 2
@@ -321,7 +324,7 @@ html , body{
     display: inline-block
 }
 .nav_menu {
-    float: left;
+
     background: #EDEDED;
     border-bottom: 1px solid #D9DEE4;
     margin-bottom: 10px;
@@ -333,7 +336,7 @@ html , body{
         position: static
     }
 }
-.nav-md .container.body .col-md-3.left_col {
+.nav-md .body .col-md-3.left_col {
     min-height: 100%;
     width: 230px;
     padding: 0;
@@ -342,14 +345,14 @@ html , body{
     display: flex;
     z-index: 1
 }
-.nav-md .container.body .col-md-3.left_col.menu_fixed {
+.nav-md .body .col-md-3.left_col.menu_fixed {
     height: 100%;
     position: fixed
 }
-body .container.body .right_col {
+body .body .right_col {
     background: #F7F7F7
 }
-.nav-md .container.body .right_col {
+.nav-md .body .right_col {
     padding: 10px 20px 0;
     margin-left: 230px
 }
@@ -361,15 +364,15 @@ body .container.body .right_col {
     height: 57px
 }
 @media (max-width: 991px) {
-    .nav-md .container.body .right_col,
-    .nav-md .container.body .top_nav {
+    .nav-md .body .right_col,
+    .nav-md .body .top_nav {
         width: 100%;
         margin: 0
     }
-    .nav-md .container.body .col-md-3.left_col {
+    .nav-md .body .col-md-3.left_col {
         display: none
     }
-    .nav-md .container.body .right_col {
+    .nav-md .body .right_col {
         width: 100%;
         padding-right: 0
     }
@@ -477,10 +480,7 @@ body .container.body .right_col {
     border: 1px solid #50C1CF !important;
     color: #fff
 }
-.container {
-    width: 100%;
-    padding: 0
-}
+
 .navbar-nav>li>a,
 .navbar-brand,
 .navbar-nav>li>a {
@@ -1558,9 +1558,9 @@ ul.msg_list li a .message {
     font-weight: normal;
     line-height: 13px;
     padding: 2px 6px;
-    position: absolute;
-    right: 2px;
-    top: 8px
+    position: relative;
+    right: 8px;
+    top: -13px
 }
 ul.to_do {
     padding: 0
@@ -4485,3 +4485,4 @@ input-group > .chunkedupload {
     margin: 0;
     opacity: 0;
 }
+

@@ -12,23 +12,21 @@
 
 
 <div class="row">
-<div class='col-sm-12 col-md-12 col-lg-12'>
-     <div class="card gencrud">
-            <div class="card-title"><h2> A form </h2>
-           <div class="clearfix"></div>
-            </div>
-
+<div class='col-12 col-sm-12 col-md-12 col-lg-12'>
+     <div class="card">
             <div class="card-body">
-                <form action="" method="POST">
+                <div class="card-title titles">
+                    <h2> A form </h2>
+                </div>
+                   <form action="" method="POST">
                     {% csrf_token %}
                     {{form.as_inline}}
-
                     <input class="btn btn-success" type="submit"  value="Save"/>
                 </form>
 
             </div>
-        </div>
 
+        </div>
 </div>
 </div>
 
