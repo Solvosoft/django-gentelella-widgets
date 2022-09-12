@@ -7,20 +7,23 @@
 {% block page_description %}{% if blocks.page_description %}{{ blocks.page_description }}{% else %}{% trans "Update" %} {{ model_verbose_name_plural|lower }}{% endif %}{% endblock %}
 
 {% block content %}
-<div class="x_panel gencrud">
-<div class="x_title">
-
-<ul class="nav navbar-left panel_toolbox">
+<div class="card gencrud">
+     <div class="card-body">
+<div class="card-title titles">
+  <div class="clearfix">
+<div class="float-start">
+    <ul class="nav navbar-left panel_toolbox">
         {% if crud_perms.list %}
         <li><a href="{{ url_list }}{{getparams}}" title=" {% trans "Back to" %} {{ model_verbose_name_plural|lower }}">
             <i class="fa fa-angle-double-left red"></i>
         </a></li>
         {% endif %}
 </ul>
-    <h2>{% trans "Update" %} {{ model_verbose_name_plural|lower }}</h2>
-    <div class="clearfix"></div>
 </div>
-    <div class="x_content">
+    <h2>{% trans "Update" %} {{ model_verbose_name_plural|lower }}</h2>
+  </div>
+</div>
+
         {% include "gentelella/cruds/_form.html" with action='update' %}
         {% if inlines%}
             <div class="box-body row">
@@ -47,7 +50,7 @@
                             </div>
                             {% endif %}
                             <div id="{{inline.name}}_editList"></div>
-                            <div class="text-right">
+                            <div class="text-end">
                                 {% if 'create' in inline.views_available %}
                                     <button class="btn btn-success"
                                         data-href="{% crud_inline_url form.instance inline.model 'create' namespace %}"
