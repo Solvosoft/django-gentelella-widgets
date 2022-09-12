@@ -279,16 +279,9 @@ $(document).ready(function () {
 if (typeof NProgress != 'undefined') {
 
     $(document).ready(function () {
-
         NProgress.start();
     });
-<<<<<<< HEAD
-
     $(window).on('load',function () {
-
-=======
-    $(window).on('load', function() {
->>>>>>> 55dc13acfd1d9127ec5ac9892c27dc2eec53019d
         NProgress.done();
     });
 
@@ -296,12 +289,7 @@ if (typeof NProgress != 'undefined') {
 }
 /**
 // hover and retain popover when on popover content
-<<<<<<< HEAD
-
 var originalLeave = $.fn.popover.Constructor.prototype.leave;
-=======
-var originalLeave =$.fn.popover.Constructor.prototype.leave;
->>>>>>> 55dc13acfd1d9127ec5ac9892c27dc2eec53019d
 $.fn.popover.Constructor.prototype.leave = function (obj) {
     var self = obj instanceof this.constructor ?
         obj : $(obj.currentTarget)[this.type](this.getDelegateOptions()).data('bs.' + this.type);
