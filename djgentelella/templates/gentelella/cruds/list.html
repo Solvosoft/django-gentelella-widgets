@@ -9,128 +9,134 @@
 
 {% block content %}
 
-<div class="x_panel gencrud">
-<div class="x_title">
-<h2>{% trans "List of" %} {{ model_verbose_name_plural|lower }}</h2>
-<ul class="nav navbar-right panel_toolbox">
-    {% if url_create %}
-        {% crud_url object "create" namespace as url %}
-        {% if url and 'create' in views_available and crud_perms.create %}
-        <li> <a   href="{{ url }}{{getparams}}" title="{% trans "Create new " %} {{ model_verbose_name|lower }}">
-              <i class="fa fa-plus green"></i>
-          </a> </li>
-          {%endif%}
-    {% endif %}
-</ul>
-    <div class="clearfix"></div>
-</div>
-    <div class="x_content">
+<div class="card gencrud">
+    <div class="card-body">
+        <div class="card-title titles">
+            <div class="clearfix">
+                <div class="float-start">
+                    <h2>{% trans "List of" %} {{ model_verbose_name_plural|lower }}</h2>
+                </div>
+                <div class="float-end">
+                    <ul class="nav navbar-right panel_toolbox">
+                        {% if url_create %}
+                        {% crud_url object "create" namespace as url %}
+                        {% if url and 'create' in views_available and crud_perms.create %}
+                        <li> <a   href="{{ url }}{{getparams}}" title="{% trans "Create new " %} {{ model_verbose_name|lower }}">
+                            <i class="fa fa-plus green"></i>
+                            </a> </li>
+                        {%endif%}
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
 
-  <div class="row create">
 
-    {% if search %}
-    <div class="col-lg-6 search">
-        <form action="" method="get">
-            <div class="input-group">
-                <input type="text" name="q" value="{{q}}" class="form-control" placeholder="{% trans 'Search for...' %}">
-                <span class="input-group-btn">
+        <div class="row create">
+
+            {% if search %}
+            <div class="col-lg-6 search">
+                <form action="" method="get">
+                    <div class="input-group">
+                        <input type="text" name="q" value="{{q}}" class="form-control" placeholder="{% trans 'Search for...' %}">
+                        <span class="input-group-btn">
                     <button class="btn btn-flat" type="submit">
                         <i class="fa fa-search"></i>
                     </button>
                 </span>
+                    </div>
+                </form>
             </div>
-        </form>
-    </div>
-    {% endif %}
-  </div>
+            {% endif %}
+        </div>
 
-{% if filters %}
+        {% if filters %}
 
-<div class="filters">
-    <div class="box box-warning collapsed-box">
-        <div class="box-header with-border">
-            <h3 class="box-title">{% trans 'Filters' %}</h3>
-            <div class="box-tools pull-right">
-                <button data-widget="collapse" class="btn btn-box-tool btn-success" type="button">
-                    <i class="fa fa-plus"></i>
-                </button>
+        <div class="filters">
+            <div class="box box-warning collapsed-box">
+                <div class="box-header with-border">
+                    <h3 class="box-title">{% trans 'Filters' %}</h3>
+                    <div class="box-tools pull-right">
+                        <button data-widget="collapse" class="btn btn-box-tool btn-success" type="button">
+                            <i class="fa fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="box-body" style="">
+                    <form action="" method="get">
+                        <table class="table">
+                            {% for filter in filters %}
+                            {{filter.render }}
+                            {% endfor %}
+                        </table>
+                        <input type="submit" class="btn btn-info filter" value="{% trans 'Filter' %}" />
+                        <a class="btn btn-warning" href="?"> {% trans 'Clean filter' %} </a>
+                    </form>
+                </div>
             </div>
         </div>
-        <div class="box-body" style="">
-            <form action="" method="get">
-                <table class="table">
-                    {% for filter in filters %}
-                    {{filter.render }}
+        {% endif%}
+
+
+        <div class="box-body">
+            {% if paginate_position == 'Up' or paginate_position == 'Both' %}
+            {% include paginate_template %}
+            {% endif %}
+            <div class="" style="overflow:auto;clear: both;">
+                <table id="datatable" class="table table-responsive table-bordered table-hover">
+                    {% if object_list %}
+                    <thead>
+                    {% block thead %}<tr>
+                        {% for field, field_name in fields.items %}
+                        <th class="th-field-{{ field|lower }} th-fieldtype-{{ field_name.1|lower }}">{{ field_name.0 }}</th>
+                        {% endfor %}
+                        <th>{% trans "Actions" %}</th>
+                    </tr>{% endblock thead %}
+                    </thead>
+                    <tbody>
+                    {% block tbody %}
+                    {% for object in object_list %}
+                    <tr>
+                        {% for field, field_name in fields.items %}
+                        <td class="td-field-{{ field|lower }} td-fieldtype-{{ field_name.1|lower }}">
+                            {% show_object_field object field field_name %}
+                        </td>
+                        {% endfor %}
+                        <td>
+                            {% block actions %}
+                            {% crud_url object "detail" namespace as url %}
+                            {% if url and 'detail' in views_available and crud_perms.detail %}
+                            <a href="{{ url }}{{getparams}}" title="{% trans 'Show' %}"> <i class="fa fa-eye gray"></i></a>
+                            {% endif %}
+                            {% crud_url object "update" namespace as url %}
+                            {% if url and 'update' in views_available and crud_perms.update %}
+                            <a href="{{ url }}{{getparams}}" title="{% trans 'Edit' %}"><i class="fa fa-edit blue"></i></a>
+                            {% endif %}
+                            {% crud_url object "delete" namespace as url %}
+                            {% if url and 'delete' in views_available and crud_perms.delete %}
+                            <a href="{{ url }}{{getparams}}" title="{% trans 'Delete' %}"><i class="fa fa-trash red"></i></a>
+                            {% endif %}
+                            {% endblock %}
+                        </td>
+                    </tr>
                     {% endfor %}
+                    {% endblock tbody %}
+                    </tbody>
+                    {% else %}
+                    <thead><th></th></thead>
+                    <tbody><tr><td>{% trans "No items yet." %}</td></tr></tbody>
+                    {% endif %}
                 </table>
-                <input type="submit" class="btn btn-info filter" value="{% trans 'Filter' %}" />
-                <a class="btn btn-warning" href="?"> {% trans 'Clean filter' %} </a>
-            </form>
+            </div>
+            {% if paginate_position == 'Bottom' or paginate_position == 'Both' %}
+            {% include paginate_template %}
+            {% endif %}
+
         </div>
+
+        <div class="box-footer"></div>
+
     </div>
-</div>
-{% endif%}
-
-
-<div class="box-body">
-{% if paginate_position == 'Up' or paginate_position == 'Both' %}
-    {% include paginate_template %}
-{% endif %}
-    <div class="" style="overflow:auto;clear: both;">
-    <table id="datatable" class="table table-responsive table-bordered table-hover">
-    {% if object_list %}
-        <thead>
-            {% block thead %}<tr>
-            {% for field, field_name in fields.items %}
-            <th class="th-field-{{ field|lower }} th-fieldtype-{{ field_name.1|lower }}">{{ field_name.0 }}</th>
-            {% endfor %}
-            <th>{% trans "Actions" %}</th>
-            </tr>{% endblock thead %}
-        </thead>
-        <tbody>
-          {% block tbody %}
-          {% for object in object_list %}
-            <tr>
-              {% for field, field_name in fields.items %}
-              <td class="td-field-{{ field|lower }} td-fieldtype-{{ field_name.1|lower }}">
-                {% show_object_field object field field_name %}
-              </td>
-              {% endfor %}
-              <td>
-                {% block actions %}
-                  {% crud_url object "detail" namespace as url %}
-                    {% if url and 'detail' in views_available and crud_perms.detail %}
-                    <a href="{{ url }}{{getparams}}" title="{% trans 'Show' %}"> <i class="fa fa-eye gray"></i></a>
-                    {% endif %}
-                    {% crud_url object "update" namespace as url %}
-                    {% if url and 'update' in views_available and crud_perms.update %}
-                    <a href="{{ url }}{{getparams}}" title="{% trans 'Edit' %}"><i class="fa fa-edit blue"></i></a>
-                    {% endif %}
-                    {% crud_url object "delete" namespace as url %}
-                    {% if url and 'delete' in views_available and crud_perms.delete %}
-                    <a href="{{ url }}{{getparams}}" title="{% trans 'Delete' %}"><i class="fa fa-trash red"></i></a>
-                    {% endif %}
-                {% endblock %}
-              </td>
-            </tr>
-          {% endfor %}
-          {% endblock tbody %}
-        </tbody>
-    {% else %}
-      <thead><th></th></thead>
-      <tbody><tr><td>{% trans "No items yet." %}</td></tr></tbody>
-    {% endif %}
-    </table>
-</div>
-    {% if paginate_position == 'Bottom' or paginate_position == 'Both' %}
-  {% include paginate_template %}
-{% endif %}
-
-</div>
-
-<div class="box-footer"></div>
-
-</div>
 
 </div>
 {% endblock content %}
