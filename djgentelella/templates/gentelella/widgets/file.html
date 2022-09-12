@@ -1,7 +1,9 @@
 {% load i18n %}
 <div class="fileupload">
 <div class="input-group">
-  <div   class="input-group-addon {{ widget.name }}_progress"><i class="fa fa-file"></i></div>
+  <div   class="input-group-prepend {{ widget.name }}_progress">
+    <span class="input-group-text"><i class="fa fa-file"></i></span>
+  </div>
   <div class="uploadfilecontent">
     <input type="{{ widget.type }}" data-inputtoken="{{ widget.name }}" data-process=".{{ widget.name }}_progress"  data-message=".{{ widget.name }}_messages"  name="{{ widget.name }}_widget" {% include "gentelella/widgets/attrs.html" %}>
   </div>
