@@ -22,11 +22,11 @@
       {% block stylesheets %}
         <!-- Bootstrap -->
 
-
-         <link href="{% static 'vendors/bootstrap/bootstrap.min.css' %}?v={% get_version %}" rel="stylesheet">
-        <!--<link href="{% static 'vendors/bootstrap/bootstrap.min.css' %}" rel="stylesheet">-->
-        <link href="{% static 'vendors/jquery-ui/jquery-ui.css' %}?v={% get_version %}" rel="stylesheet">
-        <link href="{% static 'vendors/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css' %}?v={% get_version %}" rel="stylesheet">
+        <link href="{% static 'vendors/bootstrap/bootstrap.min.css' %}?v={% get_version %}" rel="stylesheet">
+        <link href="{% static 'vendors/jquery-ui/jquery-ui.min.css' %}?v={% get_version %}" rel="stylesheet">
+        <link href="{% static 'vendors/font-awesome/fontawesome.min.css' %}?v={% get_version %}" rel="stylesheet">
+        <link href="{% static 'vendors/bootstrap-daterangepicker/daterangepicker.min.css' %}?v={% get_version %}" rel="stylesheet">
+        <link href="{% static 'vendors/select2/select2.min.css' %}?v={% get_version %}" rel="stylesheet"/>
 
         <link href="{% static 'vendors/switchery/switchery.min.css'%}?v={% get_version %}" rel="stylesheet"/>
         <link href="{% static 'vendors/iCheck/green.css' %}?v={% get_version %}" rel="stylesheet">
@@ -61,9 +61,11 @@
     <!-- jQuery -->
     <script src="{% static 'vendors/jquery/jquery.min.js' %}?v={% get_version %}"></script>
     <!-- Bootstrap -->
+
           <!--<script src="{% static 'vendors/bootstrap/popper.min.js' %}"></script>-->
       <!--<script src="{% static 'vendors/bootstrap/bootstrap.min.js' %}"></script>-->
      <script src="{% static 'vendors/bootstrap/bootstrap.min.js' %}?v={% get_version %}"></script>
+    <script src="{% static 'vendors/bootstrap/bootstrap.bundle.min.js' %}?v={% get_version %}"></script>
 
     <script>
       function getCookie(name) {
@@ -99,7 +101,7 @@
           {% endblock sidebar %}
 
           {% block top_navigation %}
-            <div class="top_nav">
+            <div class="top_nav ">
               {% include "gentelella/app/top_navigation.html" %}
             </div>
           {% endblock top_navigation %}

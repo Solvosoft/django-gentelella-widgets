@@ -277,20 +277,31 @@ $(document).ready(function () {
 
 // NProgress
 if (typeof NProgress != 'undefined') {
+
     $(document).ready(function () {
 
         NProgress.start();
     });
+<<<<<<< HEAD
 
     $(window).on('load',function () {
 
+=======
+    $(window).on('load', function() {
+>>>>>>> 55dc13acfd1d9127ec5ac9892c27dc2eec53019d
         NProgress.done();
     });
-}
 
+
+}
+/**
 // hover and retain popover when on popover content
+<<<<<<< HEAD
 
 var originalLeave = $.fn.popover.Constructor.prototype.leave;
+=======
+var originalLeave =$.fn.popover.Constructor.prototype.leave;
+>>>>>>> 55dc13acfd1d9127ec5ac9892c27dc2eec53019d
 $.fn.popover.Constructor.prototype.leave = function (obj) {
     var self = obj instanceof this.constructor ?
         obj : $(obj.currentTarget)[this.type](this.getDelegateOptions()).data('bs.' + this.type);
@@ -313,14 +324,14 @@ $.fn.popover.Constructor.prototype.leave = function (obj) {
 };
 
 $('body').popover({
-    selector: '[data-popover]',
+    selector: '[data-bs-popover]',
     trigger: 'click hover',
     delay: {
         show: 50,
         hide: 400
     }
 });
-
+ **/
 function gd(year, month, day) {
     return new Date(year, month - 1, day).getTime();
 }
@@ -400,7 +411,7 @@ function init_wysiwyg() {
         ],
             fontTarget = $('[title=Font]').siblings('.dropdown-menu');
         $.each(fonts, function (idx, fontName) {
-            fontTarget.append($('<li><a data-edit="fontName ' + fontName + '" style="font-family:\'' + fontName + '\'">' + fontName + '</a></li>'));
+            fontTarget.append($('<li><a data-bs-edit="fontName ' + fontName + '" style="font-family:\'' + fontName + '\'">' + fontName + '</a></li>'));
         });
         $('a[title]').tooltip({
             container: 'body'
@@ -416,7 +427,7 @@ function init_wysiwyg() {
                 $(this).change();
             });
 
-        $('[data-role=magic-overlay]').each(function () {
+        $('[data-bs-role=magic-overlay]').each(function () {
             var overlay = $(this),
                 target = $(overlay.data('target'));
             overlay.css('opacity', 0).css('position', 'absolute').offset(target.offset()).width(target.outerWidth()).height(target.outerHeight());
