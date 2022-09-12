@@ -1,7 +1,6 @@
 {% load static i18n %}
 {% load  gentelellamenu gtsettings urlname_tags %}
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
       {% block pre_head %}
@@ -24,6 +23,7 @@
 
         <link href="{% static 'vendors/bootstrap/bootstrap.min.css' %}?v={% get_version %}" rel="stylesheet">
         <link href="{% static 'vendors/jquery-ui/jquery-ui.css' %}?v={% get_version %}" rel="stylesheet">
+
         <link href="{% static 'vendors/font-awesome/font-awesome.min.css' %}?v={% get_version %}" rel="stylesheet">
         <link href="{% static 'vendors/bootstrap-daterangepicker/daterangepicker.min.css' %}?v={% get_version %}" rel="stylesheet">
         <link href="{% static 'vendors/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css' %}?v={% get_version %}" rel="stylesheet">
@@ -60,9 +60,12 @@
     {% block extra_css %} {% endblock %}
     <!-- jQuery -->
     <script src="{% static 'vendors/jquery/jquery.min.js' %}?v={% get_version %}"></script>
+    <script src="{% static 'vendors/bootstrap/popper.min.js' %}?v={% get_version %}"></script>
     <!-- Bootstrap -->
-      <script src="{% static 'vendors/bootstrap/popper.min.js' %}?v={% get_version %}"></script>
+
      <script src="{% static 'vendors/bootstrap/bootstrap.min.js' %}?v={% get_version %}"></script>
+    <script src="{% static 'vendors/bootstrap/bootstrap.bundle.min.js' %}?v={% get_version %}"></script>
+    <script src="{% static 'vendors/bootstrap/popper.min.js' %}?v={% get_version %}"></script>
     <script>
       function getCookie(name) {
         var cookieValue = null;
@@ -97,11 +100,11 @@
           {% endblock sidebar %}
 
           {% block top_navigation %}
-            <div class="top_nav">
+            <div class="top_nav ">
               {% include "gentelella/app/top_navigation.html" %}
             </div>
-          {% endblock top_navigation %}
-{% block content_wrapper %}
+            {% endblock top_navigation %}
+            {% block content_wrapper %}
           <div class="right_col" role="main">
           {% block messages %}
          {% if messages %}
@@ -116,8 +119,8 @@
               {% endblock content %}
             {% endblock content_block_wrap %}
           </div>
-{% endblock content_wrapper %}
-          {% block footer %}
+            {% endblock content_wrapper %}
+            {% block footer %}
 
             <footer>
               {% include "gentelella/app/footer.html" %}
@@ -223,8 +226,8 @@
       {% endblock %}
 
 
-    {% endblock body %}
-    {% block js %}{% endblock %}
-  {% render_extra_html_menu %}
+      {% endblock body %}
+      {% block js %}{% endblock %}
+      {% render_extra_html_menu %}
   </body>
 </html>
