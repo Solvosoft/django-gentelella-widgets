@@ -324,11 +324,7 @@ html , body{
     display: inline-block
 }
 .nav_menu {
-<<<<<<< HEAD
-
-=======
     float:left
->>>>>>> 55dc13acfd1d9127ec5ac9892c27dc2eec53019d
     background: #EDEDED;
     border-bottom: 1px solid #D9DEE4;
     margin-bottom: 10px;
