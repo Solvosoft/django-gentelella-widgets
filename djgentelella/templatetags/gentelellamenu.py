@@ -39,7 +39,7 @@ def render_item(item, env={}, widget_list=[], ariabylabel=''):
     if item.icon:
         icon = format_html('<i class="{}"></i>', item.icon)
     if children and item.level == 0:
-        a_class = 'class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"'
+        a_class = 'class="dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"'
     else:
         a_class = 'tabindex = "-1"'
     if item.is_widget:
