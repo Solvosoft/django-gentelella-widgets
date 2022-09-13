@@ -1,4 +1,5 @@
 {% load i18n %}
+
 <a id="{{id}}" data-lang="{{lang_code}}"  data-apiurl="{{ api_url }}" href="javascript:;" class="dropdown-toggle info-number notificationmenu" data-bs-toggle="dropdown" aria-expanded="false">
     <i class="{{ item.icon }}"></i>
     <span class=" badge bg-success notificacionnumero">0</span>
@@ -17,7 +18,6 @@
             <span class="time">$datedata</span>
             <span class="message text-center">$description</span>
         </a>
-
     </div>
 </div>
 <ul id="ddm_{{id}}" class="dropdown-menu list-unstyled msg_list gentelellamenu" role="menu" style="left:-150px !important">

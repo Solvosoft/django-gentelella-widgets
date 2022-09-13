@@ -1,27 +1,29 @@
 {% load i18n %}
 <div id="content_{{id}}" data-item-id="{{id}}" class="collapse col-md-3 resize-drag">
-    <div class="x_panel ">
+    <div class="card ">
+        <div class="card-body">
+            <div class="card-title titles">
+                <div class="clearfix">
+                    <div class="float-start">
+                        <h2>{% trans 'Help' %}</h2>
+                    </div>
+                    <div class="float-end">
+                        <ul class="nav navbar-right panel_toolbox">
+                            <li>
+                                <a href="#" id="show_help_{{id}}"><i class="fa fa-plus green"></i></a>
+                            </li>
+                            <li class="dropdown ">
+                                <a href="#" id="expand_{{id}}"><i class="fa fa-edit blue"></i></a>
 
-        <div class="x_title">
-            <h2>{% trans 'Help' %}</h2>
-            <ul class="nav navbar-right panel_toolbox">
-                <li>
-                    <a href="#" id="show_help_{{id}}"><i class="fa fa-plus green"></i></a>
-                </li>
-                <li class="dropdown ">
-                    <a href="#" id="expand_{{id}}"><i class="fa fa-edit blue"></i></a>
-
-                </li>
-                <li class="pull-right" id="editelemsbtn"><a aria-controls="content_{{id}}" data-toggle="collapse"
-                                          data-target="#content_{{id}}"
-                                          class="collapse" role="button" aria-expanded="false"><i
-                        class="fa fa-close red"></i></a>
-                </li>
-            </ul>
-            <div class="clearfix"></div>
-        </div>
+                            </li>
+                            <li class="float-end" id="editelemsbtn"><a aria-controls="content_{{id}}"
+                                    data-toggle="collapse" data-target="#content_{{id}}" class="collapse" role="button"
+                                    aria-expanded="false"><i class="fa fa-close red"></i></a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             </div>
-        <div class="x_content">
             <div class=" dashboard-widget-content" id="helper-body-container">
                 <ul id="helper-body" class="helper_list list-unstyled timeline widget">
                 </ul>
@@ -30,6 +32,5 @@
                 {% include 'gentelella/blocks/helper_prototype.html' %}
             </div>
         </div>
+    </div>
 </div>
-
-

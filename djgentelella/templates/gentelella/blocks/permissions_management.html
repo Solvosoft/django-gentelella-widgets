@@ -4,17 +4,16 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                   <h5 class="modal-title" id="permission_modal_label">{% trans 'Permission Management' %}</h5>
-                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                 </button>
-
+                <h5 class="modal-title" id="permission_modal_label">{% trans 'Permission Management' %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                </button>
             </div>
 
             <div class="modal-body">
                 <div class="row container">
                     <div class="col-md-5">
                         <h4>{% trans 'Permission Type' %}</h4>
-                        <div class="btn-group btn-toggle"> 
+                        <div class="btn-group btn-toggle">
                             <button id="btn_user" class="btn btn-primary active">{% trans 'User' %}</button>
                             <button id="btn_group" class="btn btn-secondary">{% trans 'Group' %}</button>
                         </div>
@@ -28,14 +27,16 @@
                         </div>
                     </div>
                     <div class="col-md-7" id="permissionbody" style="max-height:200px; overflow-y: auto;">
-                        
+
                     </div>
-                <div>
+                    <div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans 'Close' %}</button>
+                <button type="button" id="btn_savepermissions" class="btn btn-primary">{% trans 'Save' %}</button>
             </div>
         </div>
     </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans 'Close' %}</button>
-      <button type="button" id="btn_savepermissions" class="btn btn-primary">{% trans 'Save' %}</button>
-   </div>
 </div>
