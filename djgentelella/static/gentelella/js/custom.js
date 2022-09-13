@@ -277,15 +277,12 @@ $(document).ready(function () {
 
 // NProgress
 if (typeof NProgress != 'undefined') {
-
-    $(document).ready(function () {
         NProgress.start();
-    });
-    $(document).ready(function () {
-        NProgress.done();
-    });
-
-
+        NProgress.configure({ easing: 'ease', speed: 700 });
+        //Increment
+        $(document).ready(function(){
+            NProgress.done();
+        });
 }
 /**
 // hover and retain popover when on popover content
@@ -323,8 +320,6 @@ $('body').popover({
 function gd(year, month, day) {
     return new Date(year, month - 1, day).getTime();
 }
-
-
 
 /* STARRR */
 
