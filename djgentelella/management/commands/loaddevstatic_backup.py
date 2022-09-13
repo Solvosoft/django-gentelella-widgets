@@ -141,6 +141,7 @@ class Command(BaseCommand):
                 #'https://code.jquery.com/ui/1.11.3/themes/smoothness/jquery-ui.css'
             ],
             'jquery-knob': [
+
                 'https://cdnjs.cloudflare.com/ajax/libs/jQuery-Knob/1.2.13/jquery.knob.min.js',
             ],
             'inputmask': [
