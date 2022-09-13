@@ -17,14 +17,19 @@ class FooModelForm(GTForm, forms.ModelForm):
                   'speed_in_miles_per_hour',
                   'age')
         widgets = {
-            'number_of_eyes': knobwidget.NumberKnobInput(attrs={}),
+            'number_of_eyes': knobwidget.NumberKnobInput(attrs={
+                                                "value": 0
+            }),
             'speed_in_miles_per_hour': knobwidget.NumberKnobInput(
                                             attrs={
+                                                "value": 1,
                                                 "data-min": 1,
                                                 "data-step": 0.1,
                                                 "data-max": 50
                                             }),
-            'age': knobwidget.NumberKnobInput()
+            'age': knobwidget.NumberKnobInput(attrs={
+                                                "value": 0
+            })
         }
 
 

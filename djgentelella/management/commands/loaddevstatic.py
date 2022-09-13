@@ -171,12 +171,12 @@ class Command(BaseCommand):
             'flags/1x1': ['https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.4.6/flags/1x1/%s.svg' % flag for flag in FLAGS],
             'flags/4x3': ['https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.4.6/flags/4x3/%s.svg' % flag for flag in FLAGS],
             'datatables': [
-                #'https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/js/jquery.dataTables.min.js',
-                #'https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/js/dataTables.bootstrap.min.js',
-                #'https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/css/dataTables.bootstrap.min.css',
-                'https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js',
-                'https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap.min.js',
-                'https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap.min.css',
+                'https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/js/jquery.dataTables.min.js',
+                'https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/js/dataTables.bootstrap.min.js',
+                'https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/css/dataTables.bootstrap.min.css',
+                #'https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js',
+                #'https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap.min.js',
+                #'https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap.min.css',
             ],
             'fileupload': [
                 'https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.32.0/js/jquery.fileupload.min.js',
