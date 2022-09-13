@@ -281,7 +281,7 @@ if (typeof NProgress != 'undefined') {
     $(document).ready(function () {
         NProgress.start();
     });
-    $(window).on('load',function () {
+    $(document).ready(function () {
         NProgress.done();
     });
 
