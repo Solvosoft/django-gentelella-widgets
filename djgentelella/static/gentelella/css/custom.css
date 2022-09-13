@@ -167,6 +167,7 @@ html , body{
 .nav-sm .hidden-small {
     visibility: hidden
 }
+
 .nav-sm .body .right_col {
     padding: 10px 20px;
     margin-left: 70px;
@@ -4142,6 +4143,13 @@ ul.verticle_bars li {
     width: 400px;
     z-index: 4000;
     bottom: 0
+}
+.view_notifications{
+
+    display: flex;
+    justify-content: center;
+    width: 350px;
+
 }
 ul.notifications {
     float: right;
