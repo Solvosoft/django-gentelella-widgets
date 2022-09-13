@@ -167,6 +167,7 @@ html , body{
 .nav-sm .hidden-small {
     visibility: hidden
 }
+
 .nav-sm .body .right_col {
     padding: 10px 20px;
     margin-left: 70px;
