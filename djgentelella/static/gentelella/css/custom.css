@@ -325,21 +325,14 @@ html , body{
     display: inline-block
 }
 .nav_menu {
-    float:left
     background: #EDEDED;
     border-bottom: 1px solid #D9DEE4;
-    margin-bottom: 10px;
+    margin: 0 auto 0 auto;
     width: 100%;
-    position: relative
+    position: relative;
+    padding: 0;
 }
-.nav_menu {
 
-    background: #EDEDED;
-    border-bottom: 1px solid #D9DEE4;
-    margin-bottom: 10px;
-    width: 100%;
-    position: right
-}
 @media (min-width: 480px) {
     .nav_menu {
         position: static
@@ -372,6 +365,11 @@ body .body .right_col {
     border-radius: 0;
     height: 57px
 }
+
+.nav_top .navbar {
+  border-radius: initial;
+}
+
 @media (max-width: 991px) {
     .nav-md .body .right_col,
     .nav-md .body .top_nav {
@@ -739,7 +737,8 @@ a:focus {
 .nav.side-menu>li {
     position: relative;
     display: block;
-    cursor: pointer
+    cursor: pointer;
+    width: 100%;
 }
 .nav.side-menu>li>a {
     margin-bottom: 6px
@@ -894,17 +893,12 @@ a:focus {
 }
 .toggle {
     float: left;
-    margin: 0;
-    padding-top: 16px;
+    margin: auto 0 auto 0;
     width: 70px
 }
-.toggle a {
-    padding: 15px 15px 0;
-    margin: 0;
-    cursor: pointer
-}
+
 .toggle a i {
-    font-size: 26px
+    font-size: 2em;
 }
 .nav.child_menu>li>a {
     color: rgba(255, 255, 255, 0.75);
@@ -4512,4 +4506,8 @@ input-group > .chunkedupload {
 .titles{
 border-bottom:2px solid #E6E9ED;
 
+}
+
+.top_nav .navbar-nav .dropdown-menu {
+  position: absolute;
 }
