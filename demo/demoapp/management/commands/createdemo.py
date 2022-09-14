@@ -102,6 +102,42 @@ class Command(BaseCommand):
 
         cwidget = MenuItem.objects.create(
             parent=extrawidget,
+            title='Formset Widgets',
+            url_name='#',
+            category='sidebar',  # sidebar, sidebarfooter,
+            is_reversed=False,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-cab',
+            only_icon=False
+        )
+        c1widget = MenuItem.objects.create(
+            parent=cwidget,
+            title='Formset add',
+            url_name='add_formset',
+            category='sidebar',  # sidebar, sidebarfooter,
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-subway',
+            only_icon=False
+        )
+        c2widget = MenuItem.objects.create(
+            parent=cwidget,
+            title='Model Formset',
+            url_name='add_model_formset',
+            category='sidebar',  # sidebar, sidebarfooter,
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-plane',
+            only_icon=False
+        )
+        cwidget = MenuItem.objects.create(
+            parent=extrawidget,
             title='Form Widgets',
             url_name='#',
             category='sidebar',  # sidebar, sidebarfooter,
@@ -377,7 +413,7 @@ class Command(BaseCommand):
         item = MenuItem.objects.create(
             parent=None,
             title='Logout',
-            url_name='/logout',
+            url_name='/accounts/logout/', # DO manual
             category='sidebarfooter',  # sidebar, sidebarfooter,
             is_reversed=False,
             reversed_kwargs=None,

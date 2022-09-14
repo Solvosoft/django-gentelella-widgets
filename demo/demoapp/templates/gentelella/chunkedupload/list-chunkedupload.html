@@ -4,17 +4,16 @@
 
 <div class="card">
     <div class="card-body">
-    <div class="card-title titles">
+        <div class="card-title titles">
 
-        <h2>Chunked Upload Example</h2>
-        <ul class="nav navbar-right d-flex flex-row-reverse">
-            <li><a href="{% url 'chunkeduploaditem-add' %}" class="collapse-link"><i class="fa fa-plus green" style="font-size: 2em"></i></a>
-            </li>
+            <h2>Chunked Upload Example</h2>
+            <ul class="nav navbar-right d-flex flex-row-reverse">
+                <li><a href="{% url 'chunkeduploaditem-add' %}" class="collapse-link"><i class="fa fa-plus green" style="font-size: 2em"></i></a>
+                </li>
 
-        </ul>
+            </ul>
 
-    </div>
-
+        </div>
         <div>
             <table class="table table-light">
                 <thead class="thead-light">
@@ -28,7 +27,12 @@
                 {% for obj in object_list %}
                 <tr>
                     <td>{{obj.name}}</td>
-                    <td><a href="{{obj.fileexample.url}}" target="_blank"> {{obj.fileexample.url}} </a></td>
+                    <td>
+                        {% if obj.fileexample %}
+                        <a href="{{obj.fileexample.url}}" target="_blank"> {{obj.fileexample.url}} </a>
+                        {% else %}
+                        Sorry, not file uploaded
+                        {%endif%}</td>
 
                     <td><a href="{% url 'chunkeduploaditem-edit' obj.id %}" class="btn btn-warning text-white">edit</a></td>
                 </tr>

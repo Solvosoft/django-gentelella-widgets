@@ -12,7 +12,7 @@
             {% get_urlname_action as urlnameactions %}
             {% validate_context urlnameactions as context %}
             {% if urlnameactions and context %}
-            <li><a class="btn" id="btn_perms" title="{% trans 'Add Permission' %}" data-bs-toggle="modal" data-bs-target="#permission_modal" data-parameter="{% get_page_name urlnameactions %}" data-urlname="{{urlnameactions}}"><i class="fa fa-key" aria-hidden="true"></i></a></li>
+            <li><a id="btn_perms" title="{% trans 'Add Permission' %}" data-bs-toggle="modal" data-bs-target="#permission_modal" data-parameter="{% get_page_name urlnameactions %}" data-urlname="{{urlnameactions}}"><i class="fa fa-key" aria-hidden="true"></i></a></li>
             {% endif %}
             {% endif %}
 
