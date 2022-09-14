@@ -9,8 +9,8 @@
   <input type="hidden" name="{{ widget.name }}" value="" />
    <div class="input-group-text fileshow" ><i class="fa fa-eye"></i></div>
   {% if widget.value %}
-  <div id="download_{{ widget.name }}" class="input-group-text" >
-    <a href="{{widget.value.url}}" target="_blank"><i class="fa fa-download"></i></a>
+  <div id="download_{{ widget.name }}" class="input-group-text bg-danger" >
+    <a href="{{widget.value.url}}" target="_blank"><i class="fa fa-download text-light"></i></a>
   </div>
   {% endif %}
 </div>
