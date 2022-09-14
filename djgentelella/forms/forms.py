@@ -64,7 +64,7 @@ class GTFormSet(BaseFormSet, BaseFormset):
     def add_fields(self, form, index):
         super().add_fields(form, index)
         if self.can_delete:
-            form.fields[DELETION_FIELD_NAME].widget.attrs['class'] = 'hidden'
+            form.fields[DELETION_FIELD_NAME].widget.attrs['class'] = 'invisible'
             form.fields[DELETION_FIELD_NAME].label = ''
 
 
@@ -74,5 +74,5 @@ class GTBaseModelFormSet(BaseModelFormSet):
     def add_fields(self, form, index):
         super().add_fields(form, index)
         if self.can_delete:
-            form.fields[DELETION_FIELD_NAME].widget.attrs['class'] = 'hidden'
+            form.fields[DELETION_FIELD_NAME].widget.attrs['class'] = 'invisible'
             form.fields[DELETION_FIELD_NAME].label = ''
