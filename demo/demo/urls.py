@@ -19,7 +19,7 @@ from django.urls import path, include
 from djgentelella.urls import urlpatterns as djgentelellaurls
 from .dashboad import show_top_counts
 from .views import home, logeado, add_view_select
-from demoapp.urls import  urlpatterns as demourls
+from demoapp.urls import urlpatterns as demourls
 from django.conf.urls.static import static
 from django.conf import settings
 

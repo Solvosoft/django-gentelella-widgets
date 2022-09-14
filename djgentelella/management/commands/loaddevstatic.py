@@ -158,8 +158,8 @@ class Command(BaseCommand):
                 #'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-maxlength/1.9.0/bootstrap-maxlength.min.js'
             ],
             'flag-icon-css': [
-                #'https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css',
-                'https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.4.6/css/flag-icon.min.css',
+                'https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css',
+                #'https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.4.6/css/flag-icon.min.css',
             ],
             'flags/1x1': ['https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.4.6/flags/1x1/%s.svg' % flag for flag in FLAGS],
             'flags/4x3': ['https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.4.6/flags/4x3/%s.svg' % flag for flag in FLAGS],
@@ -195,6 +195,9 @@ class Command(BaseCommand):
             'storymapjs': [
                 "https://cdn.knightlab.com/libs/storymapjs/latest/js/storymap.js",
                 "https://cdn.knightlab.com/libs/storymapjs/latest/css/storymap.css",
+            ],
+            'css/icons/':[
+                'https://cdn.knightlab.com/libs/storymapjs/latest/css/icons/vco-icons.ttf'
             ],
             'chartjs': [
                 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js',
