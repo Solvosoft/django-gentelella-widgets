@@ -3,7 +3,7 @@
 {% block content %}
 <form method="post"> {% csrf_token %}
 <div class="row formset">
-    <div class="col-xs-12 col-sm-12 col-md-12 formlist">
+    <div class="col-sm-12 col-md-12 formlist">
 {% for form in formset %}
         {% include 'formset_form.html' %}
 {% endfor %}

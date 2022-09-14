@@ -47,7 +47,6 @@ class Command(BaseCommand):
                 'https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css',
                 'https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.min.js',
                 'https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.5/dist/umd/popper.min.js',
-                'https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js'
             ],
             'fonts': [
                 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/fonts/glyphicons-halflings-regular.eot',
@@ -69,12 +68,16 @@ class Command(BaseCommand):
                 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css.map'
             ],
             'bootstrap-daterangepicker': [
-
-                'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.0.5/daterangepicker.min.js',
-                'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.0.5/daterangepicker.min.css',
-                'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.0.5/daterangepicker.min.css.map',
-                'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.0.5/daterangepicker.min.js.map',
-                'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.0.5/moment.min.js'
+                'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.1/daterangepicker.min.js',
+                'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.1/daterangepicker.min.css',
+                'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.1/moment.min.js',
+                '',
+                '',
+                #'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.0.5/daterangepicker.min.js',
+                #'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.0.5/daterangepicker.min.css',
+                #'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.0.5/daterangepicker.min.css.map',
+                #'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.0.5/daterangepicker.min.js.map',
+                #'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.0.5/moment.min.js'
             ],
             'bootstrap-datetimepicker': [
                 #'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/6.0.1/css/tempus-dominus.min.css',
@@ -164,26 +167,18 @@ class Command(BaseCommand):
                 'https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/js/jquery.dataTables.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/js/dataTables.bootstrap.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/css/dataTables.bootstrap.min.css',
-                #'https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js',
-                #'https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap.min.js',
-                #'https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap.min.css',
+
             ],
             'fileupload': [
                 'https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.32.0/js/jquery.fileupload.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.32.0/js/jquery.iframe-transport.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.32.0/js/vendor/jquery.ui.widget.min.js',
-                #'https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.8.0/js/jquery.fileupload.min.js',
-                #'https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.8.0/js/jquery.iframe-transport.min.js',
-                #'https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.8.0/js/vendor/jquery.ui.widget.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/spark-md5/3.0.0/spark-md5.min.js',
             ],
             'fullcalendar': [
                 'https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js',
                 'https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales-all.js',
                 'https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css',
-                ##'https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.css',
-                ##'https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js',
-                ##'https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/locales-all.min.js',
             ],
             'interact': [
                 #'https://cdnjs.cloudflare.com/ajax/libs/interact.js/1.0.2/interact.min.js'
