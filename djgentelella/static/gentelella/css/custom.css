@@ -3246,7 +3246,7 @@ ul.project_files li a i {
     margin-bottom: -6px;
 }
 
-.input-group-btn .btn { margin-bottom:0; }
+.input-group-btn { margin: 0; }
 
 /*!
  * bootstrap-vertical-tabs - v1.2.1
@@ -4511,3 +4511,4 @@ border-bottom:2px solid #E6E9ED;
 .top_nav .navbar-nav .dropdown-menu {
   position: absolute;
 }
+
