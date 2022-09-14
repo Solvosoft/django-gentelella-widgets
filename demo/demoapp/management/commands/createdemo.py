@@ -413,7 +413,7 @@ class Command(BaseCommand):
         item = MenuItem.objects.create(
             parent=None,
             title='Logout',
-            url_name='/logout',
+            url_name='/accounts/logout/', # DO manual
             category='sidebarfooter',  # sidebar, sidebarfooter,
             is_reversed=False,
             reversed_kwargs=None,
