@@ -200,6 +200,9 @@ class Command(BaseCommand):
                 "https://cdn.knightlab.com/libs/storymapjs/latest/js/storymap.js",
                 "https://cdn.knightlab.com/libs/storymapjs/latest/css/storymap.css",
             ],
+            'css/icons/':[
+                'https://cdn.knightlab.com/libs/storymapjs/latest/css/icons/vco-icons.ttf'
+            ],
             'chartjs': [
                 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.css'
