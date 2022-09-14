@@ -6,15 +6,16 @@
 {% endblock %}
 
     <div class="row">
-        <div class="col-xs-12 col-sm-12 col-md-12">
-            <div class="x_panel">
-                <div class="x_title">
+        <div class=" col-sm-12 col-md-12">
+            <div class="card">
+                 <div class="card-body">
+                <div class="card-title titles">
                     <h2>Tinymce Detail</h2>
-                    <ul class="nav navbar-right panel_toolbox">
+                    <ul class="nav navbar-right d-flex flex-row-reverse">
                     </ul>
-                    <div class="clearfix"></div>
+                   
                 </div>
-                <div class="x_content">
+
                     <h1 class="green">Information</h1>
                     <div>{{object.information|safe}}</div>
                     <h1 class='green'>Extra information</h1>
