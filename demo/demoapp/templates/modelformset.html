@@ -3,13 +3,13 @@
 {% block content %}
 <form method="post"> {% csrf_token %}
 <div class="row formset">
-    <div class="col-sm-12 col-md-12 formlist">
+    <div class="col-sm-12 col-md-12 formlist" >
 {% for form in formset %}
         {% include 'formset_form.html' %}
 {% endfor %}
     </div>
 
-    <div class="hidden formsetcontrol"
+    <div class="hidden formsetcontrol "
          data-delete="{% if formset.can_delete %}1{% else %}0{% endif %}"
          data-order="{% if formset.can_order %}1{% else %}0{% endif %}"
          data-validate-min="{% if formset.validate_min %}1{% else %}0{% endif %}"
@@ -18,12 +18,13 @@
          >
          {{ formset.management_form }}
         {% spaceless %}
-        <div class="hidden formsettemplate">
+        <div class="hidden formsettemplate" >
             <!-- {% include 'formset_form.html' with form=formset.empty_form %} -->
         </div>
         {% endspaceless %}
     </div>
-
+      <div style="margin-top:20px">
+        </div>
     <button type="button" class="btn btn-success formsetadd" >Add </button>
     <button type="submit" class="btn btn-info pull-right" >Submit </button>
 </div>
