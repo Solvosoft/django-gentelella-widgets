@@ -1,9 +1,12 @@
+import requests
 from django.contrib import messages
 from django.forms import formset_factory, modelformset_factory
 from django.shortcuts import render
 
 from demoapp.forms import PersonForm, CityForm
 from demoapp.models import Person, Comunity
+
+import djgentelella.widgets.core
 from djgentelella.forms.forms import GTFormSet, GTBaseModelFormSet
 
 
@@ -27,5 +30,5 @@ def add_model_formset(request):
 
     if valid:
         fset = formset(queryset=Comunity.objects.all(), prefix='pff')
-   
+
     return render(request, 'modelformset.html', {'formset': fset})

@@ -63,7 +63,12 @@ document.gtwidgets = {
         instance.daterangepicker(load_datetime_range(instance));
     },
     DateTimeInput: function (instance) {
-        instance.datetimepicker({format : instance.data('format') });// "YYYY-MM-DD HH:mm"
+        instance.datetimepicker({format : instance.data('format'),
+              sideBySide: true, icons: {
+                  time: "fa fa-clock-o",
+                  up: "fa fa-arrow-up",
+                  down: "fa fa-arrow-down"
+              } });// "YYYY-MM-DD HH:mm"
     },
     TimeInput: function (instance) {
         instance.datetimepicker({format: instance.data('format') }); // 'HH:mm'

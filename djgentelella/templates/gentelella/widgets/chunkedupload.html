@@ -1,29 +1,29 @@
 {% load i18n %}
 <div class="fileupload">
-<div class="input-group flex-nowrap">
-  <div   class="input-group-text {{ widget.name }}_progress"><i class="fa fa-file"></i></div>
-  <div class="uploadfilecontent chunkedupload">
-    <input class="chunkedupload-input" type="{{ widget.type }}" data-inputtoken="{{ widget.name }}" data-process=".{{ widget.name }}_progress"  data-message=".{{ widget.name }}_messages"  name="{{ widget.name }}_widget" {% include "gentelella/widgets/attrs.html" %}>
-  </div>
-  <div   class="form-control {{ widget.name }}_messages" style="display:none;"></div>
-  <input type="hidden" name="{{ widget.name }}" value="" />
-   <div class="input-group-text fileshow" ><i class="fa fa-eye"></i></div>
-  {% if widget.value %}
-  <div id="download_{{ widget.name }}" class="input-group-text bg-danger" >
-    <a href="{{widget.value.url}}" target="_blank"><i class="fa fa-download text-light"></i></a>
-  </div>
-  {% endif %}
-</div>
+    <div class="input-group flex-nowrap">
+        <div   class="input-group-text {{ widget.name }}_progress"><i class="fa fa-file"></i></div>
+        <div class="uploadfilecontent chunkedupload">
+            <input class="chunkedupload-input" style="" type="{{ widget.type }}" data-inputtoken="{{ widget.name }}" data-process=".{{ widget.name }}_progress"  data-message=".{{ widget.name }}_messages"  name="{{ widget.name }}_widget" {% include "gentelella/widgets/attrs.html" %}>
+        </div>
+        <div   class="form-control {{ widget.name }}_messages" style="display:none;"></div>
+        <input type="hidden" name="{{ widget.name }}" value="" />
+        <div class="input-group-text fileshow" ><i class="fa fa-eye"></i></div>
+        {% if widget.value %}
+        <div id="download_{{ widget.name }}" class="input-group-text bg-danger" >
+            <a href="{{widget.value.url}}" target="_blank"><i class="fa fa-download text-light"></i></a>
+        </div>
+        {% endif %}
+    </div>
 
-{% if widget.value and not widget.required %}
-  <div class="checkbox">
-      <label class="">
-          <div class="icheckbox_flat-green checked" style="position: relative;">
-            <input type="checkbox" autocomplete="off" data-widget="CheckboxInput"  class="flat"  style="position: absolute; opacity: 0;">
-            <ins class="iCheck-helper"  ></ins></div>
-        {% trans 'Delete this file' %}
+    {% if widget.value and not widget.required %}
+    <div class="checkbox">
+        <label class="">
+            <div class="icheckbox_flat-green checked" style="position: relative;">
+                <input type="checkbox" autocomplete="off" data-widget="CheckboxInput"  class="flat"  style="position: absolute; opacity: 0;">
+                <ins class="iCheck-helper"  ></ins></div>
+            {% trans 'Delete this file' %}
 
-      </label>
-  </div>
-{% endif %}
+        </label>
+    </div>
+    {% endif %}
 </div>

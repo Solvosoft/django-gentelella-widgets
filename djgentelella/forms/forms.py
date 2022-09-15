@@ -35,7 +35,7 @@ class GTForm(forms.Form):
     def as_horizontal(self):
             "Return this form rendered as HTML <tr>s -- excluding the <table></table>."
             return self._html_output(
-                normal_row='<div class="form-group row"><span class="col-sm-3">%(label)s</span> <div class="col-sm-9 ">%(errors)s%(field)s%(help_text)s</div></div>',
+                normal_row='<div class="form-group row"><span class="col-sm-3">%(label)s</span> <div class="col-sm-9 " >%(errors)s%(field)s%(help_text)s</div></div>',
                 error_row='%s',
                 row_ender='</div>',
                 help_text_html=' <span class="helptext">%s</span>',
