@@ -776,11 +776,11 @@ a:focus {
 }
 .nav-md ul.nav.child_menu li:after {
     border-left: 1px solid #425668;
-    bottom: 0;
+    bottom: 20px;
     content: "";
     left: 27px;
     position: absolute;
-    top: 0
+    top: 70px;
 }
 .nav.side-menu>li>a,
 .nav.child_menu>li>a {
@@ -861,6 +861,7 @@ a:focus {
     color: #34495E !important
 
 }
+
 .wysiwyg{
     overflow:scroll; 
     max-height:500px;
@@ -4315,7 +4316,7 @@ table thead .checkbox.radio { margin-top:-7px;margin-top:-21px; }
 
 .dropdown-submenu.pull-left>.dropdown-menu {
   left: -100%;
-  margin-left: 10px;
+  margin-left: 0px;
 }
 
 .errorlist li{
@@ -4325,6 +4326,10 @@ table thead .checkbox.radio { margin-top:-7px;margin-top:-21px; }
 
 .djgentelella-file-input {
     height: calc(2.5em + 0.75rem + 2px);
+}
+
+.djgentelella-file-inputt {
+    height: calc(1.5em + 0.75rem + 1px);
 }
 
 

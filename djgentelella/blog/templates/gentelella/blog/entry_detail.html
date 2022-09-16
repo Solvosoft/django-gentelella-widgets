@@ -6,37 +6,40 @@
   {% define_urlname_action 'entry_delete' %}
   {% define_urlname_action 'entry_update' %}
 {% endblock %}
-<div class="x_panel " xmlns="http://www.w3.org/1999/html">
-    <div class="x_title"><h2>{{ entry.title }}
-        {% if not entry.is_published %}<small> <span class="badge"> {% trans 'Draf' %}</span></small>{% endif %}
-    </h2>
-    <ul class="nav navbar-right panel_toolbox ">
-        {% if request.user == entry.author %}
-        <li> <a class="close-link" href="{{ entry.get_absolute_url }}?preview=True" title="{% trans 'This show the last version of the entry (it\'s not necesary the last published entry)' %}"> <i class="fa fa-binoculars blue"></i></a></li>
-        {% endif %}
+<div class="card " xmlns="http://www.w3.org/1999/html">
+    <div class="card-body">
+        <div class="card-title titles">
+            <div class="clearfix">
+                <h2>{{ entry.title }}
+                    {% if not entry.is_published %}<small> <span class="badge"> {% trans 'Draf' %}</span></small>{% endif %}
+                </h2>
+                <ul class="nav navbar-right panel_toolbox " style="margin-top: -35px;">
+                    {% if request.user == entry.author %}
+                    <li> <a class="close-link" href="{{ entry.get_absolute_url }}?preview=True" title="{% trans 'This show the last version of the entry (it\'s not necesary the last published entry)' %}"> <i class="fa fa-binoculars blue"></i></a></li>
+                    {% endif %}
 
-        {% if perms.blog.change_entry %}
-        <li><a class="close-link" href="{% url 'blog:entry_update' entry.pk %}"><i class="fa fa-edit blue"></i></a></li>
-        {% endif %}
-        {% if perms.blog.delete_entry %}
-        <li><a class="close-link" href="{% url 'blog:entry_delete' entry.pk %}"><i class="fa fa-close red"></i></a></li>
-        {% endif %}
-    </ul>
-        <div class="clearfix"></div>
-    </div>
-        <div class="x_content">
+                    {% if perms.blog.change_entry %}
+                    <li><a class="close-link" href="{% url 'blog:entry_update' entry.pk %}"><i class="fa fa-edit blue"></i></a></li>
+                    {% endif %}
+                    {% if perms.blog.delete_entry %}
+                    <li><a class="close-link" href="{% url 'blog:entry_delete' entry.pk %}"><i class="fa fa-close red"></i></a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+
         {% if entry.feature_image %}
 
-               <img src="{{ entry.feature_image.url }}"   alt="{% trans 'Preview image for' %} {{ entry.title }}" class="imginside" />
+        <img src="{{ entry.feature_image.url }}"   alt="{% trans 'Preview image for' %} {{ entry.title }}" class="imginside" />
 
         {% endif %}
         <p class="blog-post-meta">{{ entry.published_timestamp|date:"d/m/Y" }}{% if entry.author %} by {{ entry.author }}{% endif %}</p>
-            {% if draft %}
-            {{ entry.content }}
-            {% else %}
-            {{ entry.published_content|safe }}
-            {% endif %}
-        </div>
+        {% if draft %}
+        {{ entry.content }}
+        {% else %}
+        {{ entry.published_content|safe }}
+        {% endif %}
+    </div>
 </div>
 
 {% endblock %}
