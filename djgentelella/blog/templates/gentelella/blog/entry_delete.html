@@ -7,7 +7,7 @@
   {% define_urlname_action 'entry_delete' %}
 {% endblock %}
 
-<div class="x_panel " xmlns="http://www.w3.org/1999/html">
+<div class="x_panel" xmlns="http://www.w3.org/1999/html">
     <div class="x_title">{% trans 'Deleting ' %} {{entry.title}}</div>
         <div class="x_content">
                 <form method="post" action="" enctype="multipart/form-data">{% csrf_token %}

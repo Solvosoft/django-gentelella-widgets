@@ -28,11 +28,11 @@ def render_item(item, env={}, widget_list=[], ariabylabel=''):
         return ""
 
     children = item.children.exists()
-    dropdown = "nav-item dropdown "
+    dropdown = "nav-item dropdown"
     a_class=""
     icon=""
     if item.level > 0:
-        dropdown = "dropdown-submenu pull-left "
+        dropdown = "dropdown-submenu  pull-left "
         if not children:
             dropdown =  ""
     dev = '<li id="i_%d" role="presentation" class="%s imenu%d" >'%(item.pk, dropdown, item.pk)
