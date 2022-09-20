@@ -97,6 +97,9 @@ class CityForm(GTForm, forms.ModelForm):
     class Meta:
         model = Comunity
         fields ='__all__'
+        widgets={
+            'name': genwidgets.TextInput
+        }
 
 class YesNoInputAddForm(GTForm, forms.ModelForm):
     has_copies = forms.BooleanField(widget=genwidgets.YesNoInput(
