@@ -25,7 +25,7 @@ class GTForm(forms.Form):
     def as_inline(self):
             "Return this form rendered as HTML <tr>s -- excluding the <table></table>."
             return self._html_output(
-                normal_row='<div class="mb-3"><span class="">%(label)s</span> %(errors)s%(field)s%(help_text)s</div>',
+                normal_row='<div class="mb-4"><span class="">%(label)s</span> %(errors)s%(field)s%(help_text)s</div>',
                 error_row='%s',
                 row_ender='</div>',
                 help_text_html=' <span class="helptext">%s</span>',
