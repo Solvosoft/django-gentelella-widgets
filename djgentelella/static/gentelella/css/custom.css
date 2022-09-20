@@ -861,6 +861,7 @@ a:focus {
     color: #34495E !important
 
 }
+
 .wysiwyg{
     overflow:scroll; 
     max-height:500px;
@@ -4315,7 +4316,7 @@ table thead .checkbox.radio { margin-top:-7px;margin-top:-21px; }
 
 .dropdown-submenu.pull-left>.dropdown-menu {
   left: -100%;
-  margin-left: 10px;
+  margin-left: 0px;
 }
 
 .errorlist li{
@@ -4326,8 +4327,9 @@ table thead .checkbox.radio { margin-top:-7px;margin-top:-21px; }
 .djgentelella-file-input {
     height: calc(2.5em + 0.75rem + 2px);
 }
+
 .djgentelella-file-inputt {
-    height: calc(2.5em + 0.75rem + 2px);
+    height: calc(1.5em + 0.75rem + 2px);
 }
 
 .l2 {

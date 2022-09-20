@@ -1,10 +1,13 @@
 <div class="input-group color-input-field">
-{% with id=widget.attrs.id %}
-      {% include "gentelella/widgets/input.html" %}
+    {% with id=widget.attrs.id %}
+    {% include "gentelella/widgets/input.html" %}
 
-<span class="input-group-addon">
-    <span class="input-group-text colorpicker-input-addon"><i></i></span>
-</span>
+    <span class="input-group-addon input-group-text" >
+    <span class="colorpicker-input-addon"><i></i></span>
+    </span>
 </div>
 {% endwith %}
 
+<!--
+<input type="color" value="#0014bb" class="form-control-color colorpicker-input-addon input-group-text">
+-->
