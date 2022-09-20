@@ -48,5 +48,5 @@ class InlinePickerColor(DefaultColorInput):
 
     def __init__(self, attrs=None):
         attrs = update_kwargs(attrs, self.__class__.__name__,
-                              base_class='hide input-group color-input-field-inline-picker')
+                              base_class='hide form-control input-group color-input-field-inline-picker')
         super(DefaultColorInput, self).__init__(attrs=attrs, extraskwargs=False)
