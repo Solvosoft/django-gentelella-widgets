@@ -14,7 +14,7 @@
         <div class="card-title titles">
             <div class="clearfix">
                 <div class="float-start">
-                    <ul class="nav navbar-left panel_toolbox">
+                    <ul class="nav navbar-left panel_toolbox" >
                         {% if url_list and 'list' in views_available and crud_perms.list %}
                         <li><a href="{{ url_list }}{{getparams}}" title=" {% trans "Back to" %} {{ model_verbose_name_plural|lower }}">
                             <i class="fa fa-angle-double-left red"></i>
@@ -24,7 +24,7 @@
                 </div>
                 <h2>{% trans "Detail of" %} {{ model_verbose_name_plural|lower }}</h2>
                 <div class="float-end">
-                    <ul class="nav navbar-right panel_toolbox">
+                    <ul class="nav navbar-right panel_toolbox" style="margin-top:-30px">
                         {% if url_update and 'update' in views_available and crud_perms.update %}
                         <li>
                             <a href="{{ url_update }}{{getparams}}" title="{% trans 'Edit' %}" > <i class="fa fa-edit blue"></i></a>

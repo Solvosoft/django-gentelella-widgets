@@ -12,7 +12,7 @@
 <div class="card-title titles">
   <div class="clearfix">
 <div class="float-start">
-    <ul class="nav navbar-left panel_toolbox">
+    <ul class="nav navbar-left panel_toolbox" style="margin-top:-5px" >
         {% if crud_perms.list %}
         <li><a href="{{ url_list }}{{getparams}}" title=" {% trans "Back to" %} {{ model_verbose_name_plural|lower }}">
             <i class="fa fa-angle-double-left red"></i>

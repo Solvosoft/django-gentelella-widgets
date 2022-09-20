@@ -3,7 +3,7 @@
 {% load crud_tags %}
 
 <div class="row">
-  <div class="col-xs-12">
+  <div class="col-sm-12">
     <table id="datatable" class="table table-bordered table-hover">
       {% if object_list %}
         <thead><tr>
@@ -32,7 +32,7 @@
                       <a data-ajax="" data-success="function(){}"
                         id="#{{ name }}_{{ object.pk }}_show"
                         data-replace-inner="#{{name}}_editList"
-                        href="{{ url }}" class="btn btn-success btn-xs"> {% icon_fa_tag "show" %} {% trans "Show" %}</a>
+                        href="{{ url }}" class="btn btn-success btn-sm"> {% icon_fa_tag "show" %} {% trans "Show" %}</a>
                     {% endif %}
 
                     {%  crud_inline_url base_model object 'update' namespace as url  %}
@@ -40,7 +40,7 @@
                       <a data-ajax="" data-success="function(){}"
                         id="#{{ name }}_{{ object.pk }}_edit"
                         data-replace-inner="#edit_modal_inner"
-                        href="{{ url }}" class="btn btn-success btn-xs">
+                        href="{{ url }}" class="btn btn-success btn-sm">
                         {% icon_fa_tag "edit" %} {% trans "Edit" %}</i></a>
                     {% endif %}
 
@@ -51,7 +51,7 @@
                         id="#{{ name }}_{{ object.pk }}_delete"
                         data-replace-inner="#delete_modal_inner"
                         href="{{ url }}"
-                        class="btn btn-danger btn-xs">
+                        class="btn btn-danger btn-sm">
                         {% icon_fa_tag "delete" %} {% trans "Delete" %}</i></a>
                     {% endif %}
                 </td>
