@@ -8,6 +8,7 @@ from demoapp.models import Person, Comunity
 
 import djgentelella.widgets.core
 from djgentelella.forms.forms import GTFormSet, GTBaseModelFormSet
+from djgentelella.widgets.core import Textarea
 
 
 def add_formset(request):
@@ -20,6 +21,7 @@ def add_formset(request):
 def add_model_formset(request):
     formset = modelformset_factory(Comunity, form=CityForm, formset=GTBaseModelFormSet,
                                    can_delete=True)
+
     valid=True
     if request.method == 'POST':
         fset = formset(request.POST, queryset=Comunity.objects.all(), prefix='pff')
@@ -27,8 +29,8 @@ def add_model_formset(request):
         if valid:
             r = fset.save()
             messages.success(request, "Formset saved successfully")
-
     if valid:
         fset = formset(queryset=Comunity.objects.all(), prefix='pff')
+
 
     return render(request, 'modelformset.html', {'formset': fset})
