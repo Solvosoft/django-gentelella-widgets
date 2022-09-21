@@ -4517,3 +4517,10 @@ border-bottom:2px solid #E6E9ED;
   position: absolute;
 }
 
+.scrollbar::webkit-scrollbar{
+    width:4px;
+}
+.scrollbar::webkit-scrollbar-thumb{
+    background:#196597;
+    border-radius:5px;
+}
