@@ -1,6 +1,6 @@
 {% load i18n %}
 <div class="input-group">
-  <div id="add_{{ widget.name }}_id" data-toggle="modal" data-target="#modal_{{ widget.name }}_id" class="input-group-addon gentelella_select_add">+</div>
+  <div id="add_{{ widget.name }}_id" data-toggle="modal" data-bs-target="#modal_{{ widget.name }}_id" class="input-group-addon gentelella_select_add"><i class="fa fa-plus"></i></div>
 <select name="{{ widget.name }}" data-modalname="#modal_{{ widget.name }}_id" {% include "gentelella/widgets/attrs.html" %} >
 {% for group_name, group_choices, group_index in widget.optgroups %}
 {% if group_name %}<optgroup label="{{ group_name }}">{% endif %}
@@ -15,14 +15,14 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         <p></p>
       </div>
       <div class="modal-body">
 
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">{% trans 'Close' %}</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans 'Close' %}</button>
         <button type="button" class="btn btn-primary btnsubmit">{% trans 'Submit' %}</button>
       </div>
     </div><!-- /.modal-content -->
