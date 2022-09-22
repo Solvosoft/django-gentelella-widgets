@@ -31,7 +31,7 @@
                 <div>
                     <ul class="to_do">
                         {% for obj in object_list %}
-                        <li>{{obj}} <a class="btn btn-sm btn-info float-end" href="{% url 'abcde-edit' obj.pk %}"><i
+                        <li>{{obj}} <a class="btn btn-sm btn-warning float-end" href="{% url 'abcde-edit' obj.pk %}"><i
                                 class="fa fa-edit"></i></a></li>
                         {% endfor %}
                     </ul>
