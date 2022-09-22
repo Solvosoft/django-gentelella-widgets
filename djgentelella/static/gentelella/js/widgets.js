@@ -71,7 +71,12 @@ document.gtwidgets = {
               } });// "YYYY-MM-DD HH:mm"
     },
     TimeInput: function (instance) {
-        instance.datetimepicker({format: instance.data('format') }); // 'HH:mm'
+         instance.datetimepicker({format : instance.data('format'),
+              sideBySide: true, icons: {
+                  time: "fa fa-clock-o",
+                  up: "fa fa-arrow-up",
+                  down: "fa fa-arrow-down"
+              } }); // 'HH:mm'
     },
     DateInput: function (instance) {
         instance.datetimepicker({format: instance.data('format')  }); //"DD/MM/YYYY"

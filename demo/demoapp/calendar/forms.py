@@ -1,7 +1,7 @@
 from ..models import Event, Calendar
 from djgentelella.forms.forms import GTForm
 from django import forms
-
+from djgentelella.widgets import core as genwidgets
 from djgentelella.widgets.calendar import CalendarInput
 
 
@@ -22,6 +22,8 @@ class CalendarModelform(GTForm, forms.ModelForm):
         model = Calendar
         fields = '__all__'
         widgets = {
+            'title': genwidgets.TextInput,
+            'options': genwidgets.Textarea,
             'events': CalendarInput(
                 calendar_attrs={},
                 events=get_events
