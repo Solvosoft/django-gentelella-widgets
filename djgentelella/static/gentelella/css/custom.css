@@ -1535,10 +1535,10 @@ ul.msg_list li a .message {
     box-shadow: none;
     display: none;
     float: left;
-    font-size: 12px;
-    left: 0;
+    font-size: 15px;
+    left: 0px;
     list-style: none outside none;
-    padding: 0;
+    padding: 5px 5px;
     position: absolute;
     text-shadow: none;
     top: 100%;
@@ -1546,6 +1546,7 @@ ul.msg_list li a .message {
     border: 1px solid #D9DEE4;
     border-top-left-radius: 0;
     border-top-right-radius: 0
+
 }
 .dropdown-menu>li>a {
     color: #5A738E
@@ -4315,7 +4316,7 @@ table thead .checkbox.radio { margin-top:-7px;margin-top:-21px; }
 }
 
 .dropdown-submenu.pull-left>.dropdown-menu {
-  left: -100%;
+  left: -128%;
   margin-left: 0px;
 }
 
@@ -4523,4 +4524,7 @@ border-bottom:2px solid #E6E9ED;
 .scrollbar::webkit-scrollbar-thumb{
     background:#196597;
     border-radius:5px;
+}
+.dropdown-menu li:hover{
+ background: #D9DEE4
 }
