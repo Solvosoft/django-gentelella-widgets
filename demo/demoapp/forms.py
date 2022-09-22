@@ -86,9 +86,9 @@ class PersonForm(GTForm, forms.ModelForm):
         fields = '__all__'
         widgets = {
             'country': AutocompleteSelect('countrybasename'),
-            'last_time': DateTimeInput,
-            'born_date': DateInput,
-            'name': TextInput,
+            'last_time': genwidgets.DateInput,
+            'born_date': genwidgets.DateInput,
+            'name': genwidgets.TextInput,
             'num_children': NumberInput,
 
         }
