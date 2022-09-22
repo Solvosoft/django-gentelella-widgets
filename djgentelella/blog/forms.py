@@ -25,3 +25,7 @@ class CategoryForm(CustomForm, forms.ModelForm):
     class Meta:
         model = models.Category
         fields = '__all__'
+        widgets ={
+            'name':genwidgets.TextInput
+        }
+

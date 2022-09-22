@@ -25,7 +25,7 @@
         <div>
             <ul class="to_do">
                 {% for obj in object_list %}
-                <li>{{obj}} <a class="btn btn-xs btn-info pull-right" href="{% url 'pgroup-edit' obj.pk %}"><i class="fa fa-edit"></i></a></li>
+                <li>{{obj}} <a class="btn btn-sm btn-info pull-right" href="{% url 'pgroup-edit' obj.pk %}"><i class="fa fa-edit"></i></a></li>
                 {% endfor %}
             </ul>
         </div>
