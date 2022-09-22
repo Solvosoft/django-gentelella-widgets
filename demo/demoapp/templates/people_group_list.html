@@ -25,11 +25,15 @@
         <div>
             <ul class="to_do">
                 {% for obj in object_list %}
-                <li>{{obj}} <a class="btn btn-sm btn-info pull-right" href="{% url 'pgroup-edit' obj.pk %}"><i class="fa fa-edit"></i></a></li>
-                {% endfor %}
-            </ul>
-        </div>
+                <li class="d-flex">
+                    <div class="p-2 flex-fill"> {{obj}} </div>
+                    <div class="p-2 flex-fill">
+                        <a class="btn btn-sm btn-outline-warning float-end" href="{% url 'pgroup-edit' obj.pk %}"><i class="fa fa-edit"></i></a></li>
+                    </div>
+        {% endfor %}
+        </ul>
     </div>
+</div>
 </div>
 
 
