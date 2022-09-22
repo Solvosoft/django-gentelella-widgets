@@ -6,7 +6,7 @@
             <a id="menu_toggle"><i class="fa fa-bars"></i></a>
         </div>
 
-        <ul class="nav navbar-nav  d-flex flex-row-reverse ">
+        <ul class="nav navbar-nav d-flex flex-row-reverse ">
             {% top_menu  %}
             {% if request.user.is_superuser %}
             {% get_urlname_action as urlnameactions %}
