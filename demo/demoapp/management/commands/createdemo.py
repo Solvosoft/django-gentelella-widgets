@@ -102,6 +102,42 @@ class Command(BaseCommand):
 
         cwidget = MenuItem.objects.create(
             parent=extrawidget,
+            title='Formset Widgets',
+            url_name='#',
+            category='sidebar',  # sidebar, sidebarfooter,
+            is_reversed=False,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-cab',
+            only_icon=False
+        )
+        c1widget = MenuItem.objects.create(
+            parent=cwidget,
+            title='Formset add',
+            url_name='add_formset',
+            category='sidebar',  # sidebar, sidebarfooter,
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-subway',
+            only_icon=False
+        )
+        c2widget = MenuItem.objects.create(
+            parent=cwidget,
+            title='Model Formset',
+            url_name='add_model_formset',
+            category='sidebar',  # sidebar, sidebarfooter,
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-plane',
+            only_icon=False
+        )
+        cwidget = MenuItem.objects.create(
+            parent=extrawidget,
             title='Form Widgets',
             url_name='#',
             category='sidebar',  # sidebar, sidebarfooter,
@@ -110,6 +146,18 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-home',
+            only_icon=False
+        )
+        readonlywidget = MenuItem.objects.create(
+            parent=extrawidget,
+            title='ReadOnly Widgets',
+            url_name='#',
+            category='sidebar',  # sidebar, sidebarfooter,
+            is_reversed=False,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-list-alt',
             only_icon=False
         )
         MenuItem.objects.create(
@@ -184,6 +232,72 @@ class Command(BaseCommand):
             icon='fa fa-sticky-note',
             only_icon=False
         )
+
+        Calendar = MenuItem.objects.create(
+            parent=readonlywidget,
+            title='Calendar',
+            url_name='calendar_view',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-calendar',
+            only_icon=False
+        )
+
+        Gigapixel = MenuItem.objects.create(
+            parent=readonlywidget,
+            title='Gigapixel StoryMap',
+            url_name='gigapixel_view',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-map-marker',
+            only_icon=False
+        )
+
+        Mapbased = MenuItem.objects.create(
+            parent=readonlywidget,
+            title='Mapbased StoryMap',
+            url_name='mapbased_view',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-map',
+            only_icon=False
+        )
+
+        StoryLine = MenuItem.objects.create(
+            parent=readonlywidget,
+            title='StoryLine',
+            url_name='storyline_view',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-vine',
+            only_icon=False
+        )
+        TimeLine = MenuItem.objects.create(
+            parent=readonlywidget,
+            title='Timeline',
+            url_name='timeline_view',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-clock-o',
+            only_icon=False
+        )
+
+
         chart = MenuItem.objects.create(
             parent=dashboard,
             title='Charts',
@@ -299,7 +413,7 @@ class Command(BaseCommand):
         item = MenuItem.objects.create(
             parent=None,
             title='Logout',
-            url_name='/logout',
+            url_name='/accounts/logout/', # DO manual
             category='sidebarfooter',  # sidebar, sidebarfooter,
             is_reversed=False,
             reversed_kwargs=None,

@@ -6,10 +6,12 @@
     {% define_urlname_action 'yes-no-input-add'%}
 {% endblock %}
 
-    <div class="x_panel">
-        <h2>YesNoInput Widget</h2>
-        <div class="x_title"></div>
-        <div class="x_content">
+    <div class="card">
+        <div class="card-body">
+        <div class="card-title titles">
+              <h2>YesNoInput Widget</h2>
+        </div>
+
             <form method="post" action="">
                 {% csrf_token %}
                 {{ form.as_horizontal }}
@@ -20,10 +22,11 @@
             </form>
         </div>
     </div>
-    <div class="x_panel">
-        <h2>Extra publish form</h2>
-        <div class="x_title"></div>
-        <div class="x_content">
+    <div class="card">
+        <div class="card-body">
+        <div class="card-title titles">
+            <h2>Extra publish form</h2>
+        </div>
             <h2 id="display_publish_info">Extra information to display when display publish is set</h2>
         </div>
     </div>

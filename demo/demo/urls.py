@@ -19,7 +19,7 @@ from django.urls import path, include
 from djgentelella.urls import urlpatterns as djgentelellaurls
 from .dashboad import show_top_counts
 from .views import home, logeado, add_view_select
-from demoapp.urls import  urlpatterns as demourls
+from demoapp.urls import urlpatterns as demourls
 from django.conf.urls.static import static
 from django.conf import settings
 
@@ -29,6 +29,6 @@ urlpatterns = djgentelellaurls + [
     path('logueado', logeado),
     path('dashboard', show_top_counts, name='dashboard'),
     path('add_view_select', add_view_select, name='add_view_select'),
-    path('blog/', include('djgentelella.blog.urls'))
+    path('blog/', include('djgentelella.blog.urls')),
 ] + demourls + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

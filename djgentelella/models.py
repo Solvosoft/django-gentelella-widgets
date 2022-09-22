@@ -1,8 +1,9 @@
 from django.contrib.auth.models import Permission, User
 from django.db import models
-# Create your models here.
-from django.utils.translation import ugettext_lazy as _
 from mptt.models import MPTTModel, TreeForeignKey
+from django.utils.translation import gettext_lazy as _
+from djgentelella.chunked_upload.models import AbstractChunkedUpload
+from django.conf import settings
 
 
 class GentelellaSettings(models.Model):
@@ -129,3 +130,21 @@ class PermissionsCategoryManagement(models.Model):
 
     def __str__(self):
         return "%s ½s.%s"%(self.category, self.url_name)
+
+# determine the "null" and "blank" properties of "user" field in the "ChunkedUpload" model
+DEFAULT_MODEL_USER_FIELD_NULL = getattr(settings, 'CHUNKED_UPLOAD_MODEL_USER_FIELD_NULL', True)
+DEFAULT_MODEL_USER_FIELD_BLANK = getattr(settings, 'CHUNKED_UPLOAD_MODEL_USER_FIELD_BLANK', True)
+
+
+class ChunkedUpload(AbstractChunkedUpload):
+    """
+    Default chunked upload model.
+    """
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='chunked_uploads',
+        null=DEFAULT_MODEL_USER_FIELD_NULL,
+        blank=DEFAULT_MODEL_USER_FIELD_BLANK
+    )
+

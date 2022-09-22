@@ -7,12 +7,11 @@
 
 <div class="row">
     <div class="col-md-6">
-        <div class="x_panel gencrud">
-            <div class="x_title"><h2>Colors Model form</h2>
-           <div class="clearfix"></div>
-            </div>
-
-            <div class="x_content">
+        <div class="card">
+            <div class="card-body">
+                <div class="card-title">
+                    <h2>Colors Model form</h2>
+                </div>
                 <form action="" method="POST">
                     {% csrf_token %}
                     {{form.as_inline}}
@@ -24,22 +23,24 @@
         </div>
     </div>
     <div class="col-md-6">
-        <div class="x_panel gencrud">
-            <div class="x_title"><h2>Colors simple form</h2>  <div class="clearfix"></div></div>
-            <div class="x_content"> {{form_widgets.as_plain }}</div>
+        <div class="card">
+            <div class="card-body">
+                <div class="card-title titles">
+                    <h2>Colors simple form</h2>
+
+                    {{form_widgets.as_plain }}
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 
 
-{% endblock %}
+    {% endblock %}
 
 {% block javascripts %}
     {{ block.super }}
     {{form.media}}
     {{form_widgets.media}}
 {% endblock %}
-
-
-

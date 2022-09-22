@@ -1,11 +1,13 @@
 AutoCompleteSelect and AutocompleteSelectMultiple widgets
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+.. image:: ../_static/autocomplete.png
+
 2 requirements must be achieved to use these widgets
 
 
-- Create a lookup channel based in the model we want to use as options in the widget.
-- Replace default widget in form with AutocompleteSelect or AutocompleteSelectMultiple.
+- Create a lookup channel in ``app/gtselects.py`` based in the model we want to use as options in the widget.
+- Replace default widget in form with ``AutocompleteSelect`` or ``AutocompleteSelectMultiple``.
 
 
 -------------------------------------
@@ -63,5 +65,5 @@ In model based form:
             }
 
 As noticed in above example, the last steps are:
- - Replace the default widget with AutocompleteSelect or AutocompleteSelectMultiple (this may vary depending of the kind of form used).
+ - Replace the default widget with ``AutocompleteSelect`` or ``AutocompleteSelectMultiple`` (this may vary depending of the kind of form used).
  - Send the basename we provided in the lookup class decorator (see previous example) to the widget and it's ready for usage!

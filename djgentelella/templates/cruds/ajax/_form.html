@@ -22,17 +22,19 @@
     <div class="box-body row">
         <div class="col-md-12">
             {{ form  }}
+
         </div>
     </div>
 
 
     <div class="box-footer">
         <div class="form-group">
-            <div class="controls text-right">
+            <div class="controls text-end">
                 <a href="javascript::void(0);"
                     onclick="$('#{{name}}_editList').html('');"
                     class="btn btn-danger"
-                    data-dismiss="modal">{% icon_fa_tag "cancel" %} {% trans "Cancel" %}</a>
+                    data-bs-dismiss="modal">{% icon_fa_tag "cancel" %} {% trans "Cancel" %}</a>
+
                 <button
                     id="{{name}}_{{object.pk}}_addedit_submit"
                     type="submit"

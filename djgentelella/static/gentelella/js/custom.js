@@ -6,6 +6,9 @@
  *     // code here
  * });
  */
+
+
+
 (function ($, sr) {
     // debouncing function from John Hann
     // http://unscriptable.com/index.php/2009/03/20/debouncing-javascript-methods/
@@ -178,7 +181,7 @@ $(document).ready(function () {
 
 // Tooltip
 $(document).ready(function () {
-    $('[data-toggle="tooltip"]').tooltip({
+    $('[data-bs-toggle="tooltip"]').tooltip({
         container: 'body'
     });
 });
@@ -274,15 +277,14 @@ $(document).ready(function () {
 
 // NProgress
 if (typeof NProgress != 'undefined') {
-    $(document).ready(function () {
         NProgress.start();
-    });
-
-    $(window).load(function () {
-        NProgress.done();
-    });
+        NProgress.configure({ easing: 'ease', speed: 700 });
+        //Increment
+        $(document).ready(function(){
+            NProgress.done();
+        });
 }
-
+/**
 // hover and retain popover when on popover content
 var originalLeave = $.fn.popover.Constructor.prototype.leave;
 $.fn.popover.Constructor.prototype.leave = function (obj) {
@@ -307,19 +309,17 @@ $.fn.popover.Constructor.prototype.leave = function (obj) {
 };
 
 $('body').popover({
-    selector: '[data-popover]',
+    selector: '[data-bs-popover]',
     trigger: 'click hover',
     delay: {
         show: 50,
         hide: 400
     }
 });
-
+ **/
 function gd(year, month, day) {
     return new Date(year, month - 1, day).getTime();
 }
-
-
 
 /* STARRR */
 
@@ -394,7 +394,7 @@ function init_wysiwyg() {
         ],
             fontTarget = $('[title=Font]').siblings('.dropdown-menu');
         $.each(fonts, function (idx, fontName) {
-            fontTarget.append($('<li><a data-edit="fontName ' + fontName + '" style="font-family:\'' + fontName + '\'">' + fontName + '</a></li>'));
+            fontTarget.append($('<li><a data-bs-edit="fontName ' + fontName + '" style="font-family:\'' + fontName + '\'">' + fontName + '</a></li>'));
         });
         $('a[title]').tooltip({
             container: 'body'
@@ -410,7 +410,7 @@ function init_wysiwyg() {
                 $(this).change();
             });
 
-        $('[data-role=magic-overlay]').each(function () {
+        $('[data-bs-role=magic-overlay]').each(function () {
             var overlay = $(this),
                 target = $(overlay.data('target'));
             overlay.css('opacity', 0).css('position', 'absolute').offset(target.offset()).width(target.outerWidth()).height(target.outerHeight());
@@ -435,7 +435,7 @@ function init_wysiwyg() {
         } else {
             console.log("error uploading file", reason, detail);
         }
-        $('<div class="alert"> <button type="button" class="close" data-dismiss="alert">&times;</button>' +
+        $('<div class="alert"> <button type="button" class="close" data-bs-dismiss="alert">&times;</button>' +
             '<strong>File upload error</strong> ' + msg + ' </div>').prependTo('#alerts');
     }
 
@@ -443,7 +443,7 @@ function init_wysiwyg() {
         var id = $(this).attr('id'); //editor-one
 
         $(this).wysiwyg({
-            toolbarSelector: '[data-target="#' + id + '"]',
+            toolbarSelector: '[data-bs-target="#' + id + '"]',
             fileUploadError: showErrorAlert
         });
     });

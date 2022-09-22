@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.core.mail import send_mail as django_send_email
 from djgentelella.models import Notification
 from djgentelella import settings
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.conf import  settings as djsettings
 message_type_default = list(dict(Notification.MESSAGE_TYPE).keys())
 

@@ -1,8 +1,9 @@
 from django import forms
 from djgentelella.forms.forms import GTForm
+from djgentelella.widgets.calendar import CalendarInput
 from djgentelella.widgets.core import DateTimeInput, DateInput, TextInput, NumberInput
 from djgentelella.widgets.selects import AutocompleteSelect
-from .models import Foo, Person, Comunity, YesNoInput
+from .models import Foo, Person, Comunity, YesNoInput, Event, Calendar
 from djgentelella.widgets import numberknobinput as knobwidget
 from djgentelella.widgets.color import StyleColorInput, DefaultColorInput, HorizontalBarColorInput, VerticalBarColorInput, InlinePickerColor
 from demoapp.models import Colors
@@ -16,14 +17,19 @@ class FooModelForm(GTForm, forms.ModelForm):
                   'speed_in_miles_per_hour',
                   'age')
         widgets = {
-            'number_of_eyes': knobwidget.NumberKnobInput(attrs={}),
+            'number_of_eyes': knobwidget.NumberKnobInput(attrs={
+                                                "value": 0
+            }),
             'speed_in_miles_per_hour': knobwidget.NumberKnobInput(
                                             attrs={
+                                                "value": 1,
                                                 "data-min": 1,
                                                 "data-step": 0.1,
                                                 "data-max": 50
                                             }),
-            'age': knobwidget.NumberKnobInput()
+            'age': knobwidget.NumberKnobInput(attrs={
+                                                "value": 0
+            })
         }
 
 
@@ -87,11 +93,13 @@ class PersonForm(GTForm, forms.ModelForm):
 
         }
         
-        
 class CityForm(GTForm, forms.ModelForm):
     class Meta:
         model = Comunity
         fields ='__all__'
+        widgets={
+            'name': genwidgets.TextInput
+        }
 
 class YesNoInputAddForm(GTForm, forms.ModelForm):
     has_copies = forms.BooleanField(widget=genwidgets.YesNoInput(
@@ -110,3 +118,5 @@ class YesNoInputAddForm(GTForm, forms.ModelForm):
             'year': genwidgets.NumberInput,
             'editorial': genwidgets.TextInput
         }
+
+

@@ -19,19 +19,21 @@ class BaseRepresentation:
             errors_on_separate_row=False)
 
     def as_inline(self):
+
         "Return this form rendered as HTML <tr>s -- excluding the <table></table>."
         return self._html_output(
-            normal_row='<div class="form-group"><span class="">%(label)s</span> %(errors)s%(field)s%(help_text)s</div>',
+            normal_row='<div class="mb-4"><span class="">%(label)s</span> %(errors)s%(field)s%(help_text)s</div>',
             error_row='%s',
             row_ender='</div>',
             help_text_html=' <span class="helptext">%s</span>',
             errors_on_separate_row=False,
         )
 
+
     def as_horizontal(self):
         "Return this form rendered as HTML <tr>s -- excluding the <table></table>."
         return self._html_output(
-            normal_row='<div class="form-group row"><span class="col-sm-3">%(label)s</span> <div class="col-sm-9 col-xs-12">%(errors)s%(field)s%(help_text)s</div></div>',
+            normal_row='<div class="form-group row"><span class="col-sm-3">%(label)s</span> <div class="col-sm-9 " >%(errors)s%(field)s%(help_text)s</div></div>',
             error_row='%s',
             row_ender='</div>',
             help_text_html=' <span class="helptext">%s</span>',
@@ -68,7 +70,7 @@ class GTFormSet(BaseFormSet, BaseFormset):
     def add_fields(self, form, index):
         super().add_fields(form, index)
         if self.can_delete:
-            form.fields[DELETION_FIELD_NAME].widget.attrs['class'] = 'hidden'
+            form.fields[DELETION_FIELD_NAME].widget.attrs['class'] = 'invisible'
             form.fields[DELETION_FIELD_NAME].label = ''
 
 
@@ -78,7 +80,7 @@ class GTBaseModelFormSet(BaseModelFormSet):
     def add_fields(self, form, index):
         super().add_fields(form, index)
         if self.can_delete:
-            form.fields[DELETION_FIELD_NAME].widget.attrs['class'] = 'hidden'
+            form.fields[DELETION_FIELD_NAME].widget.attrs['class'] = 'invisible'
             form.fields[DELETION_FIELD_NAME].label = ''
 
 

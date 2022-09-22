@@ -1,13 +1,15 @@
 {% load i18n gtsettings %}
 
-<div class="x_panel gencrud">
-<div class="x_title">
-<h2>{{ title }}</h2>
+<div class="card gencrud">
+<div class="card-title">
+    <div class="float-start">
+        <h2>{{ title }}</h2>
+    </div>
 <ul class="nav navbar-right panel_toolbox">
 <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
 </li>
 <li class="dropdown show">
-<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="true"><i class="fa fa-wrench"></i></a>
+<a href="#" class="dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="true"><i class="fa fa-wrench"></i></a>
 <div class="dropdown-menu " aria-labelledby="dropdownMenuButton" x-placement="bottom-start" >
 <button class="dropdown-item list-group-item gencruddel" data-href="{{ gencrud_delete_url }}"  >{% trans 'Delete' %}</button>
 </div>
@@ -15,15 +17,15 @@
 <li><a class="close-link"><i class="fa fa-close"></i></a>
 </li>
 </ul>
-<div class="clearfix"></div>
+
 </div>
-<div class="x_content" {% if is_hidden %}style="display: none;"{% endif%}>
+<div class="card-body" {% if is_hidden %}style="display: none;"{% endif%}>
     <div class="row">
         <form  name="{% if form_name %}{{form_name}}{% else %}{% get_random_uuid %}{% endif %}" class="crudlistform" action="{{gencrud_form_url}}" method="POST" onsubmit="return false;">
             {{ form.as_horizontal }}
             {% csrf_token %}
         </form>
-        <button class="btn btn-success pull-right additemcrudlist">+</button>
+        <button class="btn btn-success float-end additemcrudlist">+</button>
     </div>
     <hr>
 <div class="row">

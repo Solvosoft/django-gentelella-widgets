@@ -11,20 +11,21 @@
 <div class="row">
   <div class="col-md-9 col-sm-12">
 
-<div class="x_panel " xmlns="http://www.w3.org/1999/html">
-    <div class="x_title">
+<div class="card " xmlns="http://www.w3.org/1999/html">
+    <div class="card-body">
+    <div class="card-title titles">
         <form id='searchform' class="form-inline" method="get" action="" >
             <div class="form-group">
                 <div class="input-group">
                  <input type="text" class="form-control" value="{{q}}" name="q" id="q" aria-describedby="search">
-                 <div class="input-group-addon " id="searchbtn"><i class="fa fa-search green"></i></div>
+                 <div class="input-group-text "id="searchbtn"><i class="fa fa-search green"></i></div>
                 </div>
                 <input type="hidden" name="cat" value="{{cat}}" />
             </div>
         </form>
 
     </div>
-        <div class="x_content">
+
             <ul class="list-unstyled msg_list">
     {% for entry in entries %}
  <li style="list-style-type: none;">
@@ -79,21 +80,22 @@
  </div>
   <div class="col-md-3 col-sm-12">
 {% if perms.blog.add_entry %}
- <div class="x_panel " xmlns="http://www.w3.org/1999/html">
+ <div class="card " xmlns="http://www.w3.org/1999/html">
 
-        <div class="x_content">
+        <div class="card-body">
             <a class="btn btn-success" href="{% url 'blog:entrycreate' %}">{% trans 'New Post' %} </a>
         </div>
 </div>
 {% endif %}
-<div class="x_panel " xmlns="http://www.w3.org/1999/html">
-    <div class="x_title"><h2>{% trans 'Categories' %}</h2>
-        <ul class="nav navbar-right panel_toolbox ">
+<div class="card " xmlns="http://www.w3.org/1999/html">
+    <div class="card-body">
+    <div class="card-title titles"><h2>{% trans 'Categories' %}</h2>
+        <ul class="nav navbar-right d-flex flex-row-reverse">
             <li class="pull-right"><a class="close-link" href="{% url 'blog:entrylist' %}{{catparams}}"><i class="fa fa-close red"></i></a></li>
         </ul>
          <div class="clearfix"></div>
     </div>
-        <div class="x_content">
+
 <ul class="to_do">
     {% for category in categories %}
     <li> <a class="{% if category.pk == cat %}green{%endif%}" href="{{catparams}}cat={{category.pk}}"> {{category}} </a></li>
