@@ -34,7 +34,9 @@
                         Sorry, not file uploaded
                         {%endif%}</td>
 
-                    <td><a href="{% url 'chunkeduploaditem-edit' obj.id %}" class="btn btn-warning text-white">edit</a></td>
+                    <td><a href="{% url 'chunkeduploaditem-edit' obj.id %}" class="btn btn-warning text-white">
+                        <i class="fa fa-edit"></i>
+                    </a></td>
                 </tr>
                 {% endfor %}
                 </tbody>
