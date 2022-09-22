@@ -2,42 +2,46 @@
 
 {% block content %}
 
+<div class="card">
+    <div class="card-body">
+        <div class="card-title titles">
 
+            <h2>Chunked Upload Example</h2>
+            <ul class="nav navbar-right d-flex flex-row-reverse" style="margin-top:-40px">
+                <li><a href="{% url 'chunkeduploaditem-add' %}" class="collapse-link"><i class="fa fa-plus green" style="font-size: 2em"></i></a>
+                </li>
 
-<div class="x_panel">
-    <div class="x_title">
-        <h2>Chunked Upload Example</h2>
-        <ul class="nav navbar-right panel_toolbox">
-            <li><a href="{% url 'chunkeduploaditem-add' %}" class="collapse-link"><i class="fa fa-plus green" style="font-size: 2em"></i></a>
-            </li>
+            </ul>
 
-        </ul>
-        <div class="clearfix"></div>
-    </div>
-    <div class="x_content">
-<div>
-    <table class="table table-light">
-        <thead class="thead-light">
-            <tr>
-                <th>Name</th>
-                <th>File</th>
-                <th>Edit</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for obj in object_list %}
-            <tr>
-                <td>{{obj.name}}</td>
-                <td><a href="{{obj.fileexample.url}}" target="_blank"> {{obj.fileexample.url}} </a></td>
+        </div>
+        <div>
+            <table class="table table-light">
+                <thead class="thead-light">
+                <tr>
+                    <th>Name</th>
+                    <th>File</th>
+                    <th>Edit</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for obj in object_list %}
+                <tr>
+                    <td>{{obj.name}}</td>
+                    <td>
+                        {% if obj.fileexample %}
+                        <a href="{{obj.fileexample.url}}" target="_blank"> {{obj.fileexample.url}} </a>
+                        {% else %}
+                        Sorry, not file uploaded
+                        {%endif%}</td>
 
-                <td><a href="{% url 'chunkeduploaditem-edit' obj.id %}" class="btn btn-warning text-white">edit</a></td>
-            </tr>
-            {% endfor %}
-        </tbody>
+                    <td><a href="{% url 'chunkeduploaditem-edit' obj.id %}" class="btn btn-warning text-white">edit</a></td>
+                </tr>
+                {% endfor %}
+                </tbody>
 
-    </table>
+            </table>
 
-</div>
+        </div>
     </div>
 </div>
 

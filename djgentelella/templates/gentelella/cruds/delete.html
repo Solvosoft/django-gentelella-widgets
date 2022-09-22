@@ -3,35 +3,43 @@
 {% load crud_tags %}
 {% block content %}
 
-<div class="x_panel gencrud">
-<div class="x_title">
+<div class="card gencrud">
+    <div class="card-body">
+        <div class="card-title titles">
+            <div class="clearfix">
+                <div>
+                    <ul class="nav navbar-left panel_toolbox float-start" style="margin-top:-5px" >
+                        {% if url_list and 'list' in views_available and crud_perms.list %}
+                        <li><a href="{{ url_list }}{{getparams}}" title=" {% trans "Back to" %} {{ model_verbose_name_plural|lower }}">
+                            <i class="fa fa-angle-double-left red"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                    <h2>{% trans "Remove" %} {{ model_verbose_name_plural|lower }}</h2>
+                </div>
+                <div class="float-end">
+                    <ul class="nav navbar-right panel_toolbox" style="margin-top:-30px">
+                        {% if url_update and 'update' in views_available and crud_perms.update %}
+                        <li>
+                            <a href="{{ url_update }}{{getparams}}" title="{% trans 'Edit' %}" > <i class="fa fa-edit blue"></i></a>
+                        </li>
+                        {% endif %}
+                    </ul>
 
-<ul class="nav navbar-left panel_toolbox">
-        {% if url_list and 'list' in views_available and crud_perms.list %}
-        <li><a href="{{ url_list }}{{getparams}}" title=" {% trans "Back to" %} {{ model_verbose_name_plural|lower }}">
-            <i class="fa fa-angle-double-left red"></i>
-        </a></li>
-        {% endif %}
-</ul>
-    <h2>{% trans "Remove" %} {{ model_verbose_name_plural|lower }}</h2>
-<ul class="nav navbar-right panel_toolbox">
-            {% if url_update and 'update' in views_available and crud_perms.update %}
-            <li>
-                <a href="{{ url_update }}{{getparams}}" title="{% trans 'Edit' %}" > <i class="fa fa-edit blue"></i></a>
-            </li>
-            {% endif %}
-</ul>
-    <div class="clearfix"></div>
-</div>
-<div class="x_content">
-  <h1>{% trans "Remove" %} {{ object }}?</h1>
-  <form action="{{ url_delete }}{{getparams}}" method="POST">
-    {% csrf_token %}
+                </div>
+            </div>
 
-    <p>
-      <button type="submit" class="btn btn-danger">{% icon_fa_tag "delete" %} {% trans "Confirm remove" %}</button>
-    </p>
-  </form>
-</div>
+
+            <h1>{% trans "Remove" %} {{ object }}?</h1>
+            <form action="{{ url_delete }}{{getparams}}" method="POST">
+                {% csrf_token %}
+
+                <p>
+                    <button type="submit" class="btn btn-danger">{% icon_fa_tag "delete" %} {% trans "Confirm remove" %}</button>
+                </p>
+            </form>
+        </div>
+    </div>
 </div>
 {% endblock %}

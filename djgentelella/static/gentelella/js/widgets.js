@@ -24,6 +24,14 @@ document.gtwidgets = {
             showHideRelatedFormFields($(element));
         });
     },
+    NullBooleanSelect: function(instance){
+        var checkklass = instance.data('checkboxclass') || 'icheckbox_flat-green';
+        var radioklass  = instance.data('radioclass') || 'iradio_flat-green';
+        instance.iCheck({
+            checkboxClass: checkklass,
+            radioClass: radioklass
+        });
+    },
     DateRangeInput: function (instance) {
         format = instance.attr('data-format')
         instance.each((i,element)=>{
@@ -55,7 +63,12 @@ document.gtwidgets = {
         instance.daterangepicker(load_datetime_range(instance));
     },
     DateTimeInput: function (instance) {
-        instance.datetimepicker({format : instance.data('format') });// "YYYY-MM-DD HH:mm"
+        instance.datetimepicker({format : instance.data('format'),
+              sideBySide: true, icons: {
+                  time: "fa fa-clock-o",
+                  up: "fa fa-arrow-up",
+                  down: "fa fa-arrow-down"
+              } });// "YYYY-MM-DD HH:mm"
     },
     TimeInput: function (instance) {
         instance.datetimepicker({format: instance.data('format') }); // 'HH:mm'
@@ -193,7 +206,7 @@ document.gtwidgets = {
                 input.setAttribute('accept', 'image/*');
                 input.onchange = function () {
                     var file = this.files[0];
-                    upload_files(callback, meta, file, instance.attr('data-option-image'), 
+                    upload_files(callback, meta, file, instance.attr('data-option-image'),
                     instance.attr('data-option-video'));
                 };
                 input.click();
@@ -214,8 +227,29 @@ document.gtwidgets = {
     },
     DJGraph: function (instance) {
         instance.gentelella_chart();
-    }
+    },
+    NullBooleanSelect: function(instance){
+	    instance.iCheck({
+            checkboxClass: 'icheckbox_flat-green',
+            radioClass: 'iradio_flat-green'
+        });
+     },
+    UrlTimeLineInput: function (instance) {
+        build_timeline(instance);
+    },
 
+    CalendarInput: function (instance) {
+        build_calendar(instance);
+    },
+    GigaPixelStoryMapInput: function (instance) {
+        build_gigapixel_storymap(instance);
+    },
+    MapBasedStoryMapInput: function (instance) {
+        build_mapbased_storymap(instance);
+    },
+    UrlStoryLineInput: function (instance) {
+        build_storyline(instance)
+    }
 }
 
 function gt_find_initialize(instance) {
@@ -230,12 +264,11 @@ function gt_find_initialize(instance) {
     if (autocomplete.length > 0) {
         document.gtwidgets['GTAutocompleteSelect'](autocomplete);
     }
-
-
 }
 
 $(document).ready(function () {
     $(".formset").each(function (index, elem) {
         document.formset.push(gtformSetManager($(elem)));
     });
+
 });

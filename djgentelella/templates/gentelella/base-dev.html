@@ -1,0 +1,232 @@
+{% load static i18n %}
+{% load  gentelellamenu gtsettings urlname_tags %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+      {% block pre_head %}
+      {% endblock %}
+    {% block head %}
+        {% block meta-keywords %} {% endblock %}
+        {% block extrameta%} {% endblock %}
+      {% block meta %}
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <!-- Meta, title, CSS, favicons, etc. -->
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+      {% endblock meta %}
+
+      <title>{% block title %}{% get_settings 'site_title' %} {% endblock %}</title>
+
+      {% block stylesheets %}
+        <!-- Bootstrap -->
+
+        <link href="{% static 'vendors/bootstrap/bootstrap.min.css' %}?v={% get_version %}" rel="stylesheet">
+        <link href="{% static 'vendors/jquery-ui/jquery-ui.min.css' %}?v={% get_version %}" rel="stylesheet">
+        <link href="{% static 'vendors/font-awesome/fontawesome.min.css' %}?v={% get_version %}" rel="stylesheet">
+        <link href="{% static 'vendors/bootstrap-daterangepicker/daterangepicker.min.css' %}?v={% get_version %}" rel="stylesheet">
+        <link href="{% static 'vendors/select2/select2.min.css' %}?v={% get_version %}" rel="stylesheet"/>
+
+        <link href="{% static 'vendors/switchery/switchery.min.css'%}?v={% get_version %}" rel="stylesheet"/>
+        <link href="{% static 'vendors/iCheck/green.css' %}?v={% get_version %}" rel="stylesheet">
+        <link href="{% static 'vendors/bootstrap-progressbar/bootstrap-progressbar-3.3.4.min.css' %}?v={% get_version %}" rel="stylesheet">
+        <link href="{% static 'vendors/nprogress/nprogress.min.css' %}?v={% get_version %}" rel="stylesheet">
+        <link href="{% static 'vendors/flag-icon-css/flag-icon.min.css' %}?v={% get_version %}" rel="stylesheet">
+        <link href="{% static 'vendors/tagify/tagify.min.css' %}?v={% get_version %}" rel="stylesheet">
+        <link href="{% static 'vendors/grid-slider/ion.rangeSlider.min.css' %}?v={% get_version %}" rel="stylesheet">
+        <link href="{% static 'vendors/tinymce/skin.min.css' %}?v={% get_version %}" rel="stylesheet" />
+        <link href="{% static 'vendors/sweetalert2/sweetalert2.min.css' %}?v={% get_version %}" rel="stylesheet" />
+        <link href="{% static 'vendors/timeline/css/timeline.css' %}?v={% get_version %}" rel="stylesheet" />
+        <link href="{% static 'vendors/fullcalendar/main.min.css' %}?v={% get_version %}" rel="stylesheet" />
+        <link href="{% static 'vendors/storymapjs/storymap.css' %}?v={% get_version %}" rel="stylesheet" />
+        <link href="{% static 'vendors/storylinejs/storyline.css' %}?v={% get_version %}" rel="stylesheet" />
+
+        {% get_define 'use_chartjs' as use_chartjs %}
+        {% if use_chartjs %}
+        <link href="{% static 'vendors/chartjs/Chart.min.css' %}?v={% get_version %}" rel="stylesheet">
+        {% endif %}
+        {% get_define 'use_datatables' as use_datatables %}
+        {% if use_datatables %}
+          <link href="{% static 'vendors/datatables/dataTables.bootstrap.min.css' %}?v={% get_version %}" rel="stylesheet" />
+        {% endif %}
+
+
+    {% endblock stylesheets %}
+
+      {% get_settings 'site_theme' as theme %}
+      <link href="{% static theme %}?v={% get_version %}" rel="stylesheet">
+    {% endblock head %}
+    {% block extra_css %} {% endblock %}
+    <!-- jQuery -->
+    <script src="{% static 'vendors/jquery/jquery.min.js' %}?v={% get_version %}"></script>
+    <!-- Bootstrap -->
+
+          <!--<script src="{% static 'vendors/bootstrap/popper.min.js' %}"></script>-->
+      <!--<script src="{% static 'vendors/bootstrap/bootstrap.min.js' %}"></script>-->
+     <script src="{% static 'vendors/bootstrap/bootstrap.min.js' %}?v={% get_version %}"></script>
+    <script src="{% static 'vendors/bootstrap/bootstrap.bundle.min.js' %}?v={% get_version %}"></script>
+
+    <script>
+      function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    </script>
+  {% block extra_head %}{% endblock %}
+  </head>
+
+  <body class="{% block body_class %}nav-md {% endblock body_class %}">
+    {% block body %}
+      <div class="container body">
+        <div class="main_container">
+
+          {% block sidebar %}
+
+            <div class="col-md-3 left_col {% block sidebar_class %} {% endblock sidebar_class %}">
+               {% include "gentelella/app/sidebar.html" %}
+            </div>
+
+          {% endblock sidebar %}
+
+          {% block top_navigation %}
+            <div class="top_nav ">
+              {% include "gentelella/app/top_navigation.html" %}
+            </div>
+          {% endblock top_navigation %}
+{% block content_wrapper %}
+          <div class="right_col" role="main">
+          {% block messages %}
+         {% if messages %}
+            {% include "gentelella/app/messages.html" %}
+          {% endif %}
+          {% endblock %}
+            {% block breadcrumbs %}
+            {% endblock %}
+            {% block content_block_wrap %}
+              {% block content %}
+                <!-- {{ content }} -->
+              {% endblock content %}
+            {% endblock content_block_wrap %}
+          </div>
+{% endblock content_wrapper %}
+          {% block footer %}
+
+            <footer>
+              {% include "gentelella/app/footer.html" %}
+
+            </footer>
+              {% if request.user.is_superuser %}
+                {% include 'gentelella/blocks/permissions_management.html' %}
+              {% endif %}
+          {% endblock footer %}
+        </div>
+      </div>
+      <div class="jsmessage"></div>
+      {% render_external_widget %}
+      {% block javascripts %}
+
+        <script src="{% static 'vendors/moment/moment-with-locales.min.js' %}?v={% get_version %}"></script>
+        <script src="{% static 'vendors/jquery-knob/jquery.knob.min.js' %}?v={% get_version %}"></script>
+        <script src="{% static 'vendors/inputmask/inputmask.min.js' %}?v={% get_version %}"></script>
+        <script src="{% static 'vendors/inputmask/jquery.inputmask.min.js' %}?v={% get_version %}"></script>
+        <script src="{% static 'vendors/nprogress/nprogress.min.js' %}?v={% get_version %}"></script>
+        <script src="{% static 'vendors/bootstrap-progressbar/bootstrap-progressbar.min.js' %}?v={% get_version %}"></script>
+        <script src="{% static 'vendors/iCheck/icheck.min.js' %}?v={% get_version %}"></script>
+        <script src="{% static 'vendors/interact/interact.min.js' %}?v={% get_version %}"></script>
+        <script src="{% static 'vendors/bootstrap-daterangepicker/daterangepicker.min.js' %}?v={% get_version %}"></script>
+        <script src="{% static 'vendors/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js' %}?v={% get_version %}"></script>
+        <!-- Switchery -->
+        <script src="{% static 'vendors/switchery/switchery.min.js' %}?v={% get_version %}"></script>
+        <!-- Select2 -->
+        <script src="{% static 'vendors/select2/select2.min.js' %}?v={% get_version %}"></script>
+        <script src="{% static 'vendors/parsleyjs/parsley.min.js' %}?v={% get_version %}"></script>
+        <!-- Autosize -->
+        <script src="{% static 'vendors/autosize/autosize.min.js' %}?v={% get_version %}"></script>
+        <script src="{% static 'vendors/bootstrap-maxlength/bootstrap-maxlength.min.js' %}?v={% get_version %}"></script>
+        <script src="{% static 'vendors/fileupload/jquery.ui.widget.min.js' %}?v={% get_version %}"></script>
+        <!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
+        <!-- Grid Slider Plugin-->
+        <script src="{% static 'vendors/grid-slider/ion.rangeSlider.min.js' %}?v={% get_version %}"></script>
+
+        <script src="{% static 'vendors/fileupload/jquery.iframe-transport.min.js' %}?v={% get_version %}"></script>
+        <!-- The basic File Upload plugin -->
+        <script src="{% static 'vendors/fileupload/jquery.fileupload.min.js' %}?v={% get_version %}"></script>
+        <!-- Calculate md5 -->
+        <script src="{% static 'vendors/fileupload/spark-md5.min.js' %}?v={% get_version %}"></script>
+        <script src="{% static 'vendors/tagify/tagify.min.js' %}?v={% get_version %}"></script>
+        <script src="{% static 'vendors/tagify/jQuery.tagify.min.js' %}?v={% get_version %}"></script>
+        <script src="{% static 'vendors/tinymce/tinymce.min.js' %}?v={% get_version %}"></script>
+        <script src="{% static 'vendors/tinymce/jquery.tinymce.min.js' %}?v={% get_version %}"></script>
+        <script src="{% static 'vendors/tinymce/tinymce-all.js' %}?v={% get_version %}"></script>
+        <script src="{% static 'vendors/sweetalert2/sweetalert2.all.min.js' %}?v={% get_version %}"></script>
+        <script src="{% static 'vendors/timeline/js/timeline.js' %}?v={% get_version %}"></script>
+        <script src="{% static 'vendors/fullcalendar/main.min.js' %}?v={% get_version %}"></script>
+        <script src="{% static 'vendors/storymapjs/storymap.js' %}?v={% get_version %}"></script>
+        <script src="{% static 'vendors/storylinejs/storyline.js' %}?v={% get_version %}"></script>
+
+            {% get_define 'use_datatables' as use_datatables %}
+        {% if use_datatables %}
+        <script src="{% static 'vendors/datatables/jquery.dataTables.min.js' %}?v={% get_version %}"></script>
+        <script src="{% static 'vendors/datatables/dataTables.bootstrap.min.js' %}?v={% get_version %}"></script>
+        <script src="{% static 'gentelella/js/datatables.js'%}?v={% get_version %}"></script>
+        {% endif %}
+
+        {% get_define 'use_chartjs' as use_chartjs %}
+        {% if use_chartjs %}
+        <script src="{% static 'vendors/chartjs/Chart.min.js' %}?v={% get_version %}"></script>
+        {% endif %}
+
+        {% get_define 'use_bootstraptree' as use_bootstraptree %}
+        {% if use_bootstraptree %}
+            <script src="{% static 'vendors/bootstrap-tree/bootstrap-treeview.min.js' %}?v={% get_version %}"></script>
+        {% endif %}
+
+
+      <!-- Custom Theme Scripts -->
+      <script src="{% static 'gentelella/js/gentelella-bundle.js' %}?v={% get_version %}"></script>
+      {% if request.user.is_superuser %}
+        {% get_urlname_action as urlnameactions %}
+        {% if urlnameactions %}
+          <script>
+          var permission_context = {
+              'select_user_url': "{% url 'userbase-list' %}",
+              'select_group_url': "{% url 'groupbase-list' %}",
+              'user_placeholder': "{% trans 'Select an User' %}",
+              'group_placeholder': "{% trans 'Select a Group' %}",
+              'get_permissions': "{% url 'permission_view_list' pk=0 %}",
+              'save_permissions': "{% url 'permcategorymanagement-save' %}",
+              'user_label': "{% trans 'User' %}",
+              'validation_error': "{% trans 'There are fields with invalid options' %}",
+              'not_found_object': "{% trans 'Not found' %}",
+              'group_label': "{% trans 'Group' %}",
+              'not_found_permissions_label': "{% trans 'This view has not permissions associated.' %}",
+              'not_select_valid_option': "{% trans 'You have not selected a valid option.' %}",
+              'save_messages': "{% trans 'Permission have been successfully saved.' %}",
+              'error': "{% trans 'An error occurred while saving.' %}",
+          };
+
+          </script>
+          <script src="{% static 'gentelella/js/permissionmanagement.js' %}?v={% get_version %}"></script>
+        {% endif %}
+      {% endif %}
+      {% render_menu_js_widget %}
+      {% endblock %}
+
+
+    {% endblock body %}
+    {% block js %}{% endblock %}
+  {% render_extra_html_menu %}
+  </body>
+</html>

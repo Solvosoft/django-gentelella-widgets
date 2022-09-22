@@ -1,4 +1,3 @@
-from django.conf.urls import url
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
@@ -7,15 +6,21 @@ from demoapp.views import create_notification_view, color_widget_view
 from demoapp.views import person_reltable_view
 from . import api
 from .autocomplete import views as autocompleteviews
+from .calendar.views import calendar_view
 from .chartjs import chart_js_view
 from .date_range import views as date_ranges
 from .filechunckedupload import views as chunckedupload
 from .formset import add_formset, add_model_formset
 from .grid_slider import views as grid
 from .input_masks import views as input_mask
+from .storyLine.views import storyline_view
+from .storymap.views import gigapixel_view, mapbased_view
 from .tagging import views as tagging
+from .timeline.views import timeline_view
 from .views import knobView, YesNoInputView
 from .wysiwyg import views as tinymce
+from markitup.views import apply_filter
+
 
 pclss = Personclass()
 countryclss = Countryclass()
@@ -25,7 +30,7 @@ urlpatterns = [
         path('formset', add_formset, name='add_formset'),
         path('modelformset', add_model_formset, name='add_model_formset'),
         path('create/notification', create_notification_view),
-        url(r'^markitup/', include('markitup.urls')),
+        path('preview/', apply_filter, name='markitup_preview'),
         path('knobwidget/testform', knobView, name="knobwidgets"),
         path('colorwidgets', color_widget_view, name="colorwidgets"),
         path('pgroup/', autocompleteviews.PeopleGroupList.as_view(), name='pgroup-list'),
@@ -56,10 +61,12 @@ urlpatterns = [
         path('chunkedupload/', chunckedupload.Addchunkedupload.as_view(), name='chunkeduploaditem-add'),
         path('chunkedupload/list', chunckedupload.Listchunkedupload.as_view(), name='chunkeduploaditem-list'),
         path('chunkedupload/<int:pk>', chunckedupload.Updatechunkedupload.as_view(), name='chunkeduploaditem-edit'),
-
-
+        path('calendar_view', calendar_view, name="calendar_view"),
+        path('gigapixel_view', gigapixel_view, name="gigapixel_view"),
+        path('mapbased_view', mapbased_view, name="mapbased_view"),
+        path('storyline_view', storyline_view, name="storyline_view"),
+        path('timeline_view', timeline_view, name="timeline_view"),
 ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()
-
 
 router = DefaultRouter()
 router.register('persontable', api.PersonViewSet, 'api-persontable')

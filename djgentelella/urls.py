@@ -1,8 +1,9 @@
 from django.conf import settings
+
 from .groute import routes
-from chunked_upload.views import ChunkedUploadView, ChunkedUploadCompleteView
-from django.conf.urls import url
-from django.urls import path, include
+from djgentelella.chunked_upload.views import ChunkedUploadView, ChunkedUploadCompleteView
+
+from django.urls import path, include, re_path
 from django.contrib.auth import views as auth_views
 from djgentelella.notification.base import NotificacionAPIView, NotificationList
 from djgentelella.widgets.helper import HelperWidgetView
@@ -44,8 +45,8 @@ auth_urls = [
     ), name="password_reset_complete")
 ]
 wysiwyg_urls=[
-    url("^u_image$", login_required(wysiwyg.image_upload), name="tinymce_upload_image"),
-    url("^u_video$", login_required(wysiwyg.video_upload), name="tinymce_upload_video"),
+    re_path("^u_image$", login_required(wysiwyg.image_upload), name="tinymce_upload_image"),
+    re_path("^u_video$", login_required(wysiwyg.video_upload), name="tinymce_upload_video"),
 ]
 
 
@@ -60,18 +61,22 @@ def import_module_app_gt(app, name):
 for app in settings.INSTALLED_APPS:
     import_module_app_gt(app, 'gtcharts')
     import_module_app_gt(app, 'gtselects')
+    import_module_app_gt(app, 'gttimeline')
+    import_module_app_gt(app, 'gtstorymap')
+    import_module_app_gt(app, 'gtstoryline')
+
 
 base_urlpatterns = [
-    url('gtapis/', include(routes.urls)),
+    re_path('gtapis/', include(routes.urls)),
     path('djgentelella/upload/', ChunkedUploadView.as_view(),
          name='upload_file_view'),
     path('djgentelella/upload/done/',
          ChunkedUploadCompleteView.as_view(), name='upload_file_done'),
-    url('help/(?P<pk>\d+)?', HelperWidgetView.as_view({'get': 'list', 'post': 'create', 'put': 'update', 'delete': 'destroy'}),
+    re_path('help/(?P<pk>\d+)?', HelperWidgetView.as_view({'get': 'list', 'post': 'create', 'put': 'update', 'delete': 'destroy'}),
         name='help'),
-    url('^notification/(?P<pk>\d+)?$', NotificacionAPIView.as_view({'get': 'list', 'put': 'update', 'delete': 'destroy'}),
+    re_path('^notification/(?P<pk>\d+)?$', NotificacionAPIView.as_view({'get': 'list', 'put': 'update', 'delete': 'destroy'}),
         name="notifications"),
-    url('^notification/list/$', NotificationList.as_view(), name="notification_list")
+    re_path('^notification/list/$', NotificationList.as_view(), name="notification_list")
 ]
 
 permission_management_urls = [
@@ -81,4 +86,5 @@ permission_management_urls = [
 
 ]
 urlpatterns = auth_urls + base_urlpatterns+ wysiwyg_urls + permission_management_urls
+
 

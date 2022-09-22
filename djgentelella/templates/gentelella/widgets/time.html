@@ -1,8 +1,5 @@
 <div class='input-group date'  >
-{% with id=widget.attrs.id %}
-      {% include "gentelella/widgets/input.html" %}
- <span class="input-group-addon">
-                        <span class="glyphicon glyphicon-time"></span>
-                    </span>
+{% with id=widget.attrs.id %}{% include "gentelella/widgets/input.html" %}
+   <span class="input-group-text"><i class="fa fa-clock-o"></i></span>
 </div>
 {% endwith %}

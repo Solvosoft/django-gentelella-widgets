@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from djgentelella.notification import create_notification
-from .forms import FooModelForm, ColorWidgetsForm, SimpleColorForm,\
+from .forms import FooModelForm, ColorWidgetsForm, SimpleColorForm, \
     YesNoInputAddForm
 from django.views.generic import CreateView, ListView, UpdateView
 from .models import YesNoInput
@@ -24,10 +24,8 @@ def create_notification_view(request):
             link_prop={'args': [], 'kwargs': {'pk': 2}}, request=request)
 
     messages.success(request, 'A notification was created, check the widget')
-
-
-
     return redirect("/")
+
 
 def knobView(request):
     form = FooModelForm()
@@ -38,6 +36,7 @@ def knobView(request):
             form = FooModelForm()
             
     return render(request, 'knobs-form.html', {'form': form})
+
 
 def color_widget_view(request):
     form_widgets = SimpleColorForm()

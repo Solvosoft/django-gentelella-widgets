@@ -1,4 +1,4 @@
-from chunked_upload.models import ChunkedUpload
+from djgentelella.models import ChunkedUpload
 from django.forms import FileInput
 from django.urls import reverse_lazy
 

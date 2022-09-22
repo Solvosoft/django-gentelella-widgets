@@ -15,6 +15,9 @@ html , body{
  height:100%;
  }
 
+
+
+
 .daterangepicker .ranges li {
     color: #73879C
 }
@@ -146,25 +149,26 @@ html , body{
 .left_col {
     background: #2A3F54
 }
-.nav-sm .container.body .col-md-3.left_col {
+.nav-sm .body .col-md-3.left_col {
     min-height: 100%;
     width: 70px;
     padding: 0;
     z-index: 9999;
     position: absolute
 }
-.nav-sm .container.body .col-md-3.left_col.menu_fixed {
+.nav-sm .body .col-md-3.left_col.menu_fixed {
     position: fixed;
     height: 100%
 }
-.nav-sm .container.body .col-md-3.left_col .mCSB_container,
-.nav-sm .container.body .col-md-3.left_col .mCustomScrollBox {
+.nav-sm .body .col-md-3.left_col .mCSB_container,
+.nav-sm .body .col-md-3.left_col .mCustomScrollBox {
     overflow: visible
 }
 .nav-sm .hidden-small {
     visibility: hidden
 }
-.nav-sm .container.body .right_col {
+
+.nav-sm .body .right_col {
     padding: 10px 20px;
     margin-left: 70px;
     z-index: 2
@@ -177,7 +181,7 @@ html , body{
 }
 .nav-sm .navbar.nav_title a i {
     font-size: 27px;
-    margin: 13px 0 0 3px
+    margin: 5px 0 0 3px
 }
 .site_title i {
     border: 1px solid #EAEAEA;
@@ -321,19 +325,20 @@ html , body{
     display: inline-block
 }
 .nav_menu {
-    float: left;
     background: #EDEDED;
     border-bottom: 1px solid #D9DEE4;
-    margin-bottom: 10px;
+    margin: 0 auto 0 auto;
     width: 100%;
-    position: relative
+    position: relative;
+    padding: 0;
 }
+
 @media (min-width: 480px) {
     .nav_menu {
         position: static
     }
 }
-.nav-md .container.body .col-md-3.left_col {
+.nav-md .body .col-md-3.left_col {
     min-height: 100%;
     width: 230px;
     padding: 0;
@@ -342,14 +347,14 @@ html , body{
     display: flex;
     z-index: 1
 }
-.nav-md .container.body .col-md-3.left_col.menu_fixed {
+.nav-md .body .col-md-3.left_col.menu_fixed {
     height: 100%;
     position: fixed
 }
-body .container.body .right_col {
+body .body .right_col {
     background: #F7F7F7
 }
-.nav-md .container.body .right_col {
+.nav-md .body .right_col {
     padding: 10px 20px 0;
     margin-left: 230px
 }
@@ -360,16 +365,21 @@ body .container.body .right_col {
     border-radius: 0;
     height: 57px
 }
+
+.nav_top .navbar {
+  border-radius: initial;
+}
+
 @media (max-width: 991px) {
-    .nav-md .container.body .right_col,
-    .nav-md .container.body .top_nav {
+    .nav-md .body .right_col,
+    .nav-md .body .top_nav {
         width: 100%;
         margin: 0
     }
-    .nav-md .container.body .col-md-3.left_col {
+    .nav-md .body .col-md-3.left_col {
         display: none
     }
-    .nav-md .container.body .right_col {
+    .nav-md .body .right_col {
         width: 100%;
         padding-right: 0
     }
@@ -377,7 +387,7 @@ body .container.body .right_col {
         padding: 10px !important
     }
 }
-@media (max-width: 1200px) {
+@media (max-width: 5200px) {
     .x_title h2 {
         width: 62%;
         font-size: 17px
@@ -477,10 +487,7 @@ body .container.body .right_col {
     border: 1px solid #50C1CF !important;
     color: #fff
 }
-.container {
-    width: 100%;
-    padding: 0
-}
+
 .navbar-nav>li>a,
 .navbar-brand,
 .navbar-nav>li>a {
@@ -690,10 +697,15 @@ a:focus {
     width: 70%;
     float: right
 }
+.top_nav .navbar-right a {
+    float: right
+}
+.top_nav .navbar-right a {
+    float:right
+}
 .top_nav .navbar-right li {
     display: inline-block;
-    float: right;
-    position: static
+    position: static;
 }
 @media (min-width: 480px) {
     .top_nav .navbar-right li {
@@ -725,7 +737,8 @@ a:focus {
 .nav.side-menu>li {
     position: relative;
     display: block;
-    cursor: pointer
+    cursor: pointer;
+    width: 100%;
 }
 .nav.side-menu>li>a {
     margin-bottom: 6px
@@ -763,11 +776,11 @@ a:focus {
 }
 .nav-md ul.nav.child_menu li:after {
     border-left: 1px solid #425668;
-    bottom: 0;
+    bottom: 20px;
     content: "";
     left: 27px;
     position: absolute;
-    top: 0
+    top: 70px;
 }
 .nav.side-menu>li>a,
 .nav.child_menu>li>a {
@@ -811,6 +824,7 @@ a:focus {
     color: #ECF0F1 !important;
     margin-left: 0 !important;
     line-height: 32px
+    background-color: red
 }
 .site_title {
     text-overflow: ellipsis;
@@ -845,7 +859,9 @@ a:focus {
     display: block;
     padding: 10px 15px;
     color: #34495E !important
+
 }
+
 .wysiwyg{
     overflow:scroll; 
     max-height:500px;
@@ -878,17 +894,12 @@ a:focus {
 }
 .toggle {
     float: left;
-    margin: 0;
-    padding-top: 16px;
+    margin: auto 0 auto 0;
     width: 70px
 }
-.toggle a {
-    padding: 15px 15px 0;
-    margin: 0;
-    cursor: pointer
-}
+
 .toggle a i {
-    font-size: 26px
+    font-size: 2em;
 }
 .nav.child_menu>li>a {
     color: rgba(255, 255, 255, 0.75);
@@ -1558,9 +1569,9 @@ ul.msg_list li a .message {
     font-weight: normal;
     line-height: 13px;
     padding: 2px 6px;
-    position: absolute;
-    right: 2px;
-    top: 8px
+    position: relative;
+    right: 8px;
+    top: -13px
 }
 ul.to_do {
     padding: 0
@@ -2570,7 +2581,7 @@ ul.bar_tabs>li {
     border-radius: 4px 4px 0 0
 }
 ul.bar_tabs>li.active {
-    border-right: 6px solid #D3D6DA;
+    border-right: 4px solid #D3D6DA;
     border-top: 0;
     margin-top: -15px
 }
@@ -3236,7 +3247,7 @@ ul.project_files li a i {
     margin-bottom: -6px;
 }
 
-.input-group-btn .btn { margin-bottom:0; }
+.input-group-btn { margin: 0; }
 
 /*!
  * bootstrap-vertical-tabs - v1.2.1
@@ -3386,7 +3397,7 @@ ul.project_files li a i {
 .product_gallery a {
     width: 100px;
     height: 100px;
-    float: left;
+    float: left
     margin: 10px;
     border: 1px solid #e5e5e5
 }
@@ -3475,11 +3486,11 @@ a.hiddenanchor {
     float: left
 }
 .alignleft {
-    float: left;
+    float: left
     margin-right: 15px
 }
 .alignright {
-    float: right;
+    float: right
     margin-left: 15px
 }
 .clearfix:after,
@@ -3609,7 +3620,7 @@ form:after {
 }
 .login_content form input[type="submit"],
 #content form .submit {
-    float: left;
+    float: left
     margin-left: 38px
 }
 .button a {
@@ -3736,7 +3747,7 @@ fieldset {
     margin-right: -15px
 }
 .cropper .img-preview {
-    float: left;
+    float: left
     margin-right: 10px;
     margin-bottom: 10px;
     overflow: hidden
@@ -3931,7 +3942,7 @@ fieldset {
 }
 .wizard_verticle .stepContainer {
     width: 80%;
-    float: left;
+    float: left
     padding: 0 10px
 }
 .actionBar {
@@ -3953,7 +3964,7 @@ fieldset {
 }
 .wizard_verticle .wizard_content {
     width: 80%;
-    float: left;
+    float: left
     padding-left: 20px
 }
 .wizard_verticle ul.wizard_steps {
@@ -3961,7 +3972,7 @@ fieldset {
     list-style: none;
     position: relative;
     width: 20%;
-    float: left;
+    float:left
     margin: 0 0 20px
 }
 .wizard_verticle ul.wizard_steps li {
@@ -4052,7 +4063,7 @@ fieldset {
 }
 .progress_summary .more_info span {
     text-align: right;
-    float: right
+    float:right
 }
 .progress_summary .data span {
     text-align: right;
@@ -4063,11 +4074,11 @@ fieldset {
     width: 100%
 }
 .progress_title .left {
-    float: left;
+    float: right
     text-align: left
 }
 .progress_title .right {
-    float: right;
+    float: right
     text-align: right;
     font-weight: 300
 }
@@ -4123,10 +4134,17 @@ ul.verticle_bars li {
     position: fixed;
     margin: 15px;
     right: 0;
-    float: right;
+    float: right
     width: 400px;
     z-index: 4000;
     bottom: 0
+}
+.view_notifications{
+
+    display: flex;
+    justify-content: center;
+    width: 350px;
+
 }
 ul.notifications {
     float: right;
@@ -4136,7 +4154,7 @@ ul.notifications {
     width: 100%
 }
 .notifications li {
-    float: right;
+    float:right
     margin: 3px;
     width: 36px;
     box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.3)
@@ -4164,7 +4182,7 @@ ul.notifications {
     font-weight: bold;
     text-transform: uppercase;
     width: 80%;
-    float: left;
+    float: left
     height: 20px;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -4173,7 +4191,7 @@ ul.notifications {
 .tabbed_notifications .close {
     padding: 5px;
     color: #E9EDEF;
-    float: right;
+    float:right
     opacity: 1
 }
 .fc-state-default {
@@ -4298,7 +4316,7 @@ table thead .checkbox.radio { margin-top:-7px;margin-top:-21px; }
 
 .dropdown-submenu.pull-left>.dropdown-menu {
   left: -100%;
-  margin-left: 10px;
+  margin-left: 0px;
 }
 
 .errorlist li{
@@ -4310,6 +4328,9 @@ table thead .checkbox.radio { margin-top:-7px;margin-top:-21px; }
     height: calc(2.5em + 0.75rem + 2px);
 }
 
+.djgentelella-file-inputt {
+    height: calc(1.5em + 0.75rem + 2px);
+}
 
 .l2 {
   padding-left: 0.2em;
@@ -4522,3 +4543,12 @@ input-group > .chunkedupload {
     opacity: 0;
 }
 
+
+.titles{
+border-bottom:2px solid #E6E9ED;
+
+}
+
+.top_nav .navbar-nav .dropdown-menu {
+  position: absolute;
+}

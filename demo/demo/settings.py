@@ -40,11 +40,11 @@ INSTALLED_APPS = [
     'djgentelella',
     'rest_framework',
     'mptt',
-    'chunked_upload',
     'demoapp',
     'djgentelella.blog',
     'djgentelella.permission_management',
     'markitup',
+
 ]
 
 MIDDLEWARE = [

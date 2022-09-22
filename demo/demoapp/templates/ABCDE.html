@@ -9,25 +9,29 @@
 
 
 <div class="row">
-    <div class="col-xs-12 col-sm-12 col-md-12">
 
+    <div class="col-12 col-sm-12 col-md-12">
 
-        <div class="x_panel">
-            <div class="x_title">
-                <h2>ABCDE</h2>
-                <ul class="nav navbar-right panel_toolbox">
-                    <li><a href="{% url 'abcde-add' %}" class="collapse-link"><i class="fa fa-plus green"
-                                                                                 style="font-size: 2em"></i></a>
-                    </li>
+        <div class="card">
+            <div class="card-body">
+                <div class="card-title titles">
+                    <div class="clearfix">
+                        <h2>ABCDE</h2>
 
-                </ul>
-                <div class="clearfix"></div>
-            </div>
-            <div class="x_content">
+                        <ul class="nav navbar-right panel_toolbox" style="margin-top:-40px;">
+                            <li>
+                                <a href="{% url 'abcde-add' %}" class="collapse-link"><i class="fa fa-plus green"
+                                                                                         style="font-size: 2em"></i></a>
+                            </li>
+
+                        </ul>
+                    </div>
+                </div>
+
                 <div>
                     <ul class="to_do">
                         {% for obj in object_list %}
-                        <li>{{obj}} <a class="btn btn-xs btn-info pull-right" href="{% url 'abcde-edit' obj.pk %}"><i
+                        <li>{{obj}} <a class="btn btn-sm btn-info float-end" href="{% url 'abcde-edit' obj.pk %}"><i
                                 class="fa fa-edit"></i></a></li>
                         {% endfor %}
                     </ul>

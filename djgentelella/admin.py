@@ -1,8 +1,6 @@
 from django.contrib import admin
-
-# Register your models here.
 from mptt.admin import DraggableMPTTAdmin
-from djgentelella.models import MenuItem, Help, GentelellaSettings, Notification, GTDbForm, GTDbField
+from djgentelella.models import MenuItem, Help, GentelellaSettings, Notification, ChunkedUpload, GTDbForm, GTDbField
 from djgentelella.utils import clean_cache
 from djgentelella.models import PermissionsCategoryManagement
 
@@ -22,7 +20,6 @@ class GentelellaSettingsAdmin(admin.ModelAdmin):
     clean_settings_cache.short_description = "Clean settings cache"
 
 
-
 class NotificationAdmin(admin.ModelAdmin):
     list_display = ['description', 'state', 'message_type']
     list_editable = ['state']
@@ -32,10 +29,18 @@ class GTDbFieldInline(admin.TabularInline):
     model = GTDbField
     extra = 0
 
+
 class GTDbFormAdmin(admin.ModelAdmin):
     inlines = [GTDbFieldInline]
 
 
+class ChunkedUploadAdmin(admin.ModelAdmin):
+    list_display = ('upload_id', 'filename', 'status', 'created_on')
+    search_fields = ('filename', 'filename')
+    list_filter = ('status',)
+
+
+admin.site.register(ChunkedUpload, ChunkedUploadAdmin)
 admin.site.register(MenuItem, MenuAdmin)
 admin.site.register(Help)
 admin.site.register(PermissionsCategoryManagement)

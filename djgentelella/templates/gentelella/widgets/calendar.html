@@ -1,0 +1,9 @@
+<div  {% include "gentelella/widgets/attrs.html" %} name="{{widget.name}}_display">
+
+</div>
+<input type="hidden" id="{{widget.name}}_events-input-src" name="{{widget.name}}">
+
+<script>
+    var calendar_options{{widget.name}} = {{ options|safe }};
+    var events{{widget.name}} = {{ events|safe }};
+</script>

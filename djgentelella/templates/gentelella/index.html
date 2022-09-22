@@ -9,29 +9,24 @@
 {% define_urlname_action 'abcde-add'%}
 {% define_urlname_action 'abcde-edit'%}
 {% endblock%}
-
-
 <div class="row">
-<div class='col-xs-12 col-sm-12 col-md-12'>
-     <div class="x_panel gencrud">
-            <div class="x_title"><h2> A form </h2>
-           <div class="clearfix"></div>
-            </div>
 
-            <div class="x_content">
-                <form action="" method="POST">
+<div class='col-sm-12 col-md-12 col-lg-12'>
+     <div class="card">
+            <div class="card-body">
+                <div class="card-title titles">
+                    <h2> A form  </h2>
+                </div>
+                   <form action="" method="POST">
                     {% csrf_token %}
                     {{form.as_inline}}
-
                     <input class="btn btn-success" type="submit"  value="Save"/>
                 </form>
 
             </div>
+
         </div>
-
-
 </div>
 </div>
-
 {% endblock %}
 {% block js %} {{ form.media }} {% endblock %}

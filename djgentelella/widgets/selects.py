@@ -1,3 +1,5 @@
+import json
+
 from django.urls import reverse_lazy
 
 from djgentelella.widgets.core import Select, update_kwargs, SelectMultiple
@@ -54,7 +56,6 @@ class AutocompleteSelectMultipleBase(BaseAutocomplete, SelectMultiple):
         attrsn.update(self.extra_attrs)
         super(AutocompleteSelectMultipleBase, self).__init__(attrsn, choices=choices, extraskwargs=False)
 
-
 def AutocompleteSelect(url, attrs={}):
     class AutocompleteSelect(AutocompleteSelectBase):
         baseurl = url+"-list"
@@ -67,4 +68,6 @@ def AutocompleteSelectMultiple(url, attrs={}):
     class AutocompleteSelectMultiple(AutocompleteSelectMultipleBase):
         baseurl = url+"-list"
         extra_attrs = attrs.copy()
+
+
     return AutocompleteSelectMultiple

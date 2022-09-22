@@ -20,7 +20,12 @@ class Command(BaseCommand):
             'dateranges_gridslider.js',
             'booleanFields.js',
             'editorTinymce.js',
-            'wysiwyg.js'
+            'wysiwyg.js',
+            'gigapixel_storymap.js',
+            'mapbased_storymap.js',
+            'storyline.js',
+            'calendar.js',
+            'timeline.js'
         ]
         jquery_plugins = [
             'notifications.js',
