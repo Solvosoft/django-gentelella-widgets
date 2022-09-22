@@ -1,6 +1,9 @@
-<div class="input-group date" data-widget="datepicker" >
-{% with id=widget.attrs.id %} {% include "gentelella/widgets/input.html" %}
- <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+<div class="input-group date">
+      {% with id=widget.attrs.id %} {% include "gentelella/widgets/input.html" %}
+      <span class="input-group-text">
+            <span class="fa fa-calendar"></span>
+      </span>
+      {% endwith %}
+
 </div>
-{% endwith %}
 
