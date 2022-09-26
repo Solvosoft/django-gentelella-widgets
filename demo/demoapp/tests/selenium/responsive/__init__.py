@@ -1,42 +1,46 @@
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.urls import reverse
-from selenium.webdriver.chrome.webdriver import WebDriver
+#from selenium.webdriver.chrome.webdriver import WebDriver
+from selenium.webdriver.firefox.webdriver import WebDriver
+from selenium.webdriver.firefox.options import Options
 from pathlib import Path
 from django.conf import settings
 import shutil
 from Screenshot import Screenshot
+import time
+from selenium.webdriver.support.wait import WebDriverWait
+
 
 class ScreenshotSeleniumTest(StaticLiveServerTestCase):
     @classmethod
     def setUpClass(cls):
         super(ScreenshotSeleniumTest, cls).setUpClass()
 
-
-        cls.timeout = 10
+        cls.timeout =10
         cls.ob = Screenshot.Screenshot()
         cls.selenium = WebDriver()
         cls.selenium.implicitly_wait(cls.timeout)
-        cls.dir = Path(settings.BASE_DIR) / 'tmp/'
-        if cls.dir.exists():
-            shutil.rmtree(str(cls.dir.absolute().resolve()))
+        cls.dir = Path(settings.BASE_DIR) / 'tmp/1920×1080/'
+        cls.server_thread.port= 8012
+        if not cls.dir.exists():
+            cls.dir.mkdir()
 
-        cls.dir.mkdir()
 
     def test_snaptshot(self):
-        url = self.live_server_url + str(reverse('home'))
+        name = 'home'
+        url = self.live_server_url + str(reverse(name))
         self.selenium.get(url)
-        print("Headless Chrome Initialized")
+        print("Headless Firefox Initialized")
         print(self.selenium.get_window_size())
-        self.selenium.set_window_size(800, 600)
+        self.selenium.set_window_size(1920, 1080)
         size = self.selenium.get_window_size()
         print("Window size: width = {}px, height = {}px".format(size["width"], size["height"]))
+        x_Page='PAGE_SCREENSHOT_%s.png'% name
+        x_Full_Page = 'Full_PAGE_SCREENSHOT_%s.png' % name
 
-       # self.selenium.find_element_by_tag_name('body').screenshot(str(Path(self.dir / 'bodypantallazo.png').absolute().resolve()))
-        self.selenium.save_screenshot(str(Path(self.dir / 'pantallazo.png').absolute().resolve()))
-
-
-        img_url = self.ob.full_Screenshot(self.selenium, save_path=str(self.dir), image_name='Myimage.png')
-        print(img_url)
+        self.selenium.save_screenshot(str(Path(self.dir / x_Page).absolute().resolve()))
+        self.selenium.save_full_page_screenshot(str(Path(self.dir / x_Full_Page).absolute().resolve()))
+        self.selenium.quit()
     @classmethod
     def tearDownClass(cls):
         cls.selenium.quit()
