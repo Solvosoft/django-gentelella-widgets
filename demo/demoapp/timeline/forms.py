@@ -7,5 +7,5 @@ from djgentelella.widgets.timeline import UrlTimeLineInput
 
 class TimelineForm(GTForm, forms.Form):
     timeline = forms.CharField(widget=UrlTimeLineInput(
-        attrs={"data-url": reverse_lazy('exampletimeline-list'), 'style': "height: 650px;",
+        attrs={"data-url": reverse_lazy('exampletimeline-list'), 'style': "height: 850px; ",
         'frameborder':"0", "data-option_language": 'es'}))

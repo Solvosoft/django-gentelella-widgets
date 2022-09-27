@@ -28,3 +28,4 @@ class CategoryForm(CustomForm, forms.ModelForm):
         widgets ={
             'name':genwidgets.TextInput
         }
+

@@ -7,9 +7,9 @@
   {% define_urlname_action 'entrycreate' %}
 {% endblock %}
 
-<div class="x_panel " xmlns="http://www.w3.org/1999/html">
-    <div class="x_title"></div>
-        <div class="x_content">
+<div class="card " xmlns="http://www.w3.org/1999/html">
+    <div class="card-body">
+    <div class="card-title titles"></div>
                 <form method="post" action="" enctype="multipart/form-data">{% csrf_token %}
                     {{ form.as_horizontal }}
 
