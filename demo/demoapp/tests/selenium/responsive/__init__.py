@@ -32,7 +32,10 @@ class ScreenshotSeleniumTest(StaticLiveServerTestCase):
                          {'width': 800, 'height': 1280},
                          {'width': 601, 'height': 962},
                          {'width': 962, 'height': 601}]
-
+        cls.paths = [{'name': 'add_formset'},
+                           {'name': 'add_model_formset'},
+                           {'name': 'create_notification'},
+                           {'name': 'markitup_preview'}]
         cls.ob = Screenshot.Screenshot()
         cls.selenium = WebDriver()
         cls.selenium.implicitly_wait(cls.timeout)
@@ -67,12 +70,12 @@ class ScreenshotSeleniumTest(StaticLiveServerTestCase):
             self.selenium.save_full_page_screenshot(str(Path(self.dir / x_Full_Page).absolute().resolve()))
 
     def test_snaptshot(self):
-        name = 'home'
-        url = self.live_server_url + str(reverse(name))
-        self.selenium.get(url)
-        print("Headless Firefox Initialized")
-        print(self.selenium.get_window_size())
-        self.screenShots(name, url)
+
+        for path in self.paths:
+            name = path['name']
+            url = self.live_server_url + str(reverse(name))
+            print("Headless Firefox Initialized __%s"%name)
+            self.screenShots(name, url)
     @classmethod
     def tearDownClass(cls):
         cls.selenium.quit()
