@@ -241,6 +241,7 @@ class DateTimeInput(DJDateTimeInput, DateFormatConverter):
     template_name = 'gentelella/widgets/datetime.html'
 
     def __init__(self, attrs=None, format=None):
+
         attrs = update_kwargs(attrs, self.__class__.__name__)
         format_js = self.get_format_js()
         attrs['data-format'] = format_js
