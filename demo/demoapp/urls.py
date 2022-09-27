@@ -26,7 +26,7 @@ menuclss = MenuItemclass()
 urlpatterns = [
         path('formset', add_formset, name='add_formset'),
         path('modelformset', add_model_formset, name='add_model_formset'),
-        path('create/notification', create_notification_view),
+        path('create/notification', create_notification_view, name='create_notification'),
         path('preview/', apply_filter, name='markitup_preview'),
         path('knobwidget/testform', knobView, name="knobwidgets"),
         path('colorwidgets', color_widget_view, name="colorwidgets"),
@@ -42,7 +42,7 @@ urlpatterns = [
         path('daterange/',date_ranges.CreateDate.as_view(), name='date-range-add'),
         path('daterange/<int:pk>',date_ranges.UpdateDate.as_view(), name='date-range-edit'),
         path('daterange/list',date_ranges.ListDate.as_view(), name='date-range-list'),
-        path('chartjs', chart_js_view, name='chartjs_view'),
+        path('chartjs', chart_js_view, name='chartjs_view'),#antony
         path('tagging/', tagging.InsertTagging.as_view(), name='input_tagging-add'),
         path('tagging/<int:pk>', tagging.EditTagging.as_view(), name='input_tagging-edit'),
         path('tagging/list', tagging.ListTagging.as_view(), name='input_tagging-list'),
