@@ -51,10 +51,11 @@ class AutocompleteSelectMultipleBase(BaseAutocomplete, SelectMultiple):
             self.baseurl = self.baseurl
         attrsn = {
             'data-start_empty': 'false'
+
         }
         attrsn.update(attrs)
         attrsn.update(self.extra_attrs)
-        super(AutocompleteSelectMultipleBase, self).__init__(attrsn, choices=choices, extraskwargs=False)
+        super(AutocompleteSelectMultipleBase, self).__init__(attrsn, choices=choices, extraskwargs=True)
 
 def AutocompleteSelect(url, attrs={}):
     class AutocompleteSelect(AutocompleteSelectBase):
