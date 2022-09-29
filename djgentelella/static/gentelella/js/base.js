@@ -1062,9 +1062,9 @@ function build_select2_init(instance){
         }
         $(window).select2related('related', value.sort(compare));
     });
+
+    
 }
-
-
 
 function decore_select2 (data) {
     // We only really care if there is an element to pull classes from

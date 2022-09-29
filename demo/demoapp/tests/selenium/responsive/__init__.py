@@ -32,10 +32,7 @@ class ScreenshotSeleniumTest(StaticLiveServerTestCase):
                          {'width': 800, 'height': 1280},
                          {'width': 601, 'height': 962},
                          {'width': 962, 'height': 601}]
-        cls.paths = [{'name': 'add_formset'},
-                           {'name': 'add_model_formset'},
-                           {'name': 'create_notification'},
-                           {'name': 'markitup_preview'}]
+        cls.paths = [{'name': 'add_formset'}]
         cls.ob = Screenshot.Screenshot()
         cls.selenium = WebDriver()
         cls.selenium.implicitly_wait(cls.timeout)
