@@ -32,26 +32,11 @@ Configure your settings
         'chunked_upload',
         'markitup',
     ]
-
-    USE_L10N = False
-
     MARKITUP_FILTER = ('markdown.markdown', {'safe_mode': True})
     MARKITUP_SET = 'markitup/sets/markdown/'
     JQUERY_URL = None
 
-    DATE_INPUT_FORMATS=[
-        '%Y-%m-%d', '%d/%m/%Y', '%d/%m/%y'
-    ]
-    DATE_FORMAT= ['%d/%m/%Y',]
 
-    DATETIME_INPUT_FORMATS = [
-        '%m/%d/%Y %H:%M',
-        '%d/%m/%Y %H:%M',
-        '%Y-%m-%d %H:%M',
-        '%d/%m/%y %H:%M'
-    ]
- 
-.. note:: Date format on Django uses localization and depends on USE_L10N, but we can not configure yet JS date widgets to change based on Django representation so USE_L10N need to be false.
 
 Run migrations 
 
@@ -113,43 +98,24 @@ In templates using base template
     
 Take a look this file to note the template block that you can overwrite
 
-widgets
+Test
 __________
 
-There are several widgets implemented this is a list of what you can use
+To run the all test use:
 
-- TextInput
-- NumberInput
-- EmailInput
-- URLInput
-- PasswordInput
-- Textarea
-- TextareaWysiwyg (not working yet)
-- DateInput
-- DateTimeInput
-- TimeInput
-- CheckboxInput
-- YesNoInput
-- Select  (jquery select2)
-- SelectMultiple (jquery select2)
-- SelectTail
-- SelectMultipleTail
-- RadioSelect
-- NullBooleanSelect
-- CheckboxSelectMultiple
-- SplitDateTimeWidget (not ready)
-- SplitHiddenDateTimeWidget (not ready)
-- SelectDateWidget (not ready)
-- PhoneNumberMaskInput
-- DateMaskInput
-- DateTimeMaskInput
-- EmailMaskInput
-- DateRangeTimeInput
-- DateRangeInput
-- AutocompleteSelect
-- AutocompleteSelectMultiple
-- Formset implementation
-- Remote select2 views.
+.. code:: bash
+
+    cd demo
+    python manage.py test
+
+
+To run the responsive test use:
+
+.. code:: bash
+
+    cd demo
+    python manage.py test demoapp.tests.selenium.responsive
+
 
 Run the demo
 ---------------

@@ -1,7 +1,13 @@
+from time import sleep
+
 from django.urls import reverse
-from selenium.webdriver.chrome.webdriver import WebDriver
+#from selenium.webdriver.chrome.webdriver import WebDriver
+from selenium.webdriver.firefox.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from selenium.webdriver.support.expected_conditions import element_to_be_clickable
+from selenium.webdriver.support.wait import WebDriverWait
+
 from demoapp.models import Event, Calendar
 from django.test import override_settings
 from datetime import date, timedelta
@@ -49,6 +55,7 @@ class CalendarWidgetFormSeleniumTest(StaticLiveServerTestCase):
         url = self.live_server_url + str(reverse('calendar_view'))
         self.selenium.get(url)
         self.selenium.find_element(By.ID, 'id_title').send_keys('CalendarTest')
-        self.selenium.find_element(By.XPATH, '//input[@type="submit"]').click()
+        element = self.selenium.find_element(By.XPATH, '//input[@type="submit"]')
+        self.selenium.execute_script("arguments[0].click();", element)
         assert len(self.events) == len(Calendar.objects.last().events)
 
