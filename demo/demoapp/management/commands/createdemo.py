@@ -337,7 +337,7 @@ class Command(BaseCommand):
 
         chunckedupload = MenuItem.objects.create(
             parent=cwidget,
-            title='ChunckedUpload',
+            title='Chuncked Upload',
             url_name='chunkeduploaditem-list',
             category='sidebar',
             is_reversed=True,

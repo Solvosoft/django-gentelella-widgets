@@ -89,7 +89,7 @@ local_settings.py
 
 .env
 demo/db.sqlite3
-
+demo/temp/
 venv/
 .idea/
 djgentelella/static/vendors/
