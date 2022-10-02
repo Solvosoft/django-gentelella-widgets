@@ -1,10 +1,13 @@
 from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 
 from demoapp.cruds import Personclass, Countryclass, MenuItemclass
 from demoapp.views import create_notification_view, color_widget_view
 from .autocomplete import views as autocompleteviews
 from .calendar.views import calendar_view
 from .chartjs import chart_js_view
+from .datatables.api import PersonViewSet
+from .datatables.views import datatableViewExample
 from .date_range import views as date_ranges
 from .filechunckedupload import views as chunckedupload
 from .formset import add_formset, add_model_formset
@@ -22,6 +25,9 @@ from markitup.views import apply_filter
 pclss = Personclass()
 countryclss = Countryclass()
 menuclss = MenuItemclass()
+
+router = DefaultRouter()
+router.register('persontableview', PersonViewSet, 'api-persontable')
 
 urlpatterns = [
         path('formset', add_formset, name='add_formset'),
@@ -62,4 +68,6 @@ urlpatterns = [
         path('mapbased_view', mapbased_view, name="mapbased_view"),
         path('storyline_view', storyline_view, name="storyline_view"),
         path('timeline_view', timeline_view, name="timeline_view"),
-              ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()
+        path('datatable_view', datatableViewExample, name="datatable_view"),
+        path('tableapi/', include(router.urls)),
+      ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()

@@ -29,7 +29,6 @@ Configure your settings
         'djgentelella',
         'mptt',
         'rest_framework',
-        'chunked_upload',
         'markitup',
     ]
     MARKITUP_FILTER = ('markdown.markdown', {'safe_mode': True})

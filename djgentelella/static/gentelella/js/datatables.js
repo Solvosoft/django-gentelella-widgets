@@ -12,6 +12,7 @@ function formatDataTableParams(dataTableParams, settings){
     // setup specific field search params - strings will use icontains search, others will use exact search
     $.each(dataTableParams.columns, function(i, column){
         if(column.search.value){
+             data[column.name] = column.search.value.trim();
             var column_type = settings.aoColumns[i].type;
             if(column_type === 'string') {
                 data[column.name + "__icontains"] = column.search.value.trim();
@@ -39,8 +40,10 @@ function addSearchInputsAndFooterDataTable(dataTable, tableId) {
 
     $(tableId + ' thead tr:eq(1) th').each(function (i) { // add search fields if they are not there already and the column is visible
         var currentColumn = dataTable.column(i);
+
         var columnType = dataTable.settings()[0].aoColumns[i].type; // get the field type
-        if (currentColumn.responsiveHidden() && columnType !== 'actions') {  // column is visible
+        //currentColumn.responsiveHidden()
+        if (currentColumn.visible() && columnType !== 'actions') {  // column is visible
             $(this).css('display', ''); // when it was cloned it might have had display:none specified
             if($(this).find('input').length === 0 && $(this).find('select').length === 0) {  // add the input/select just if it doesn't exist already
                 var title = currentColumn.header().textContent;  // get the field name
@@ -53,12 +56,15 @@ function addSearchInputsAndFooterDataTable(dataTable, tableId) {
                 }else if(columnType === 'date'){
                     $(this).html('<input type="text" class="form-control" autocomplete="off" placeholder="Select date" value="">');
                     var $inp = $(this).find("input");
-                    $inp.daterangepicker({showDropdowns: true, "locale": {"format": "MM/DD/YYYY", cancelLabel: 'Clear'}});
+                    var dateformat = dataTable.settings()[0].aoColumns[i].dateformat || "MM/DD/YYYY";
+                    $inp.daterangepicker({showDropdowns: true, "locale": {"format": dateformat, cancelLabel: 'Clear'}});
                     $inp.val("");
                     $inp.on('cancel.daterangepicker', function(ev, picker) {
                         $inp.val("");
                         $inp.trigger('change');
                     });
+                }else if(columnType == 'number'){
+                    $(this).html('<input type="number" class="form-control form-control-sm" placeholder="Search ' + title + '" />');
                 }else if(columnType === 'select'){
                     var choices = dataTable.settings()[0].aoColumns[i].choices;
                     var select = '<select class="form-control form-control-sm"><option value="">--</option>';
@@ -103,7 +109,15 @@ function clearDataTableFilters(dataTable, tableId){
 }
 function yesnoprint(data, type, row, meta){ return data ? "<i class=\"fal fa-check-circle\"></i> Yes" : "<i class=\"fal fa-times-circle\"></i> No"; };
 function emptyprint(data, type, row, meta){ return data ? data : "--"; };
-function selectobjprint(data, type, row, meta){ return data ? data.display_name: "---"; };
+// hacer que se pueda definir el tipo el objeto ej data.name
+
+function selectobjprint(config={}){
+    default_display_name = config.display_name || 'display_name'
+    return (data, type, row, meta)=>{
+        return data ? data[default_display_name] : "---";
+    }
+}
+
 function listobjprint(data, type, row, meta){
     var txt = "";
     if(data != null ){
@@ -119,7 +133,7 @@ function objshowlink(data, type, row, meta){ return data ? '<a href="'+data.url+
 
 document.table_default_dom = "<'row mb-3'<'col-sm-12 col-md-4 d-flex align-items-center justify-content-start'f>" +
                  "<'col-sm-12 col-md-6 d-flex align-items-center justify-content-end'B>" +
-                 "<'col-sm-12 col-md-2 d-flex align-items-center justify-content-end'l>>" +
+                 "<'col-sm-12 col-md-2 d-flex align-items-center 'l>>" +
                  "<'row'<'col-sm-12'tr>><'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>";
 
 function createDataTable(id, url, extraoptions={}, addfilter=false, formatDataTableParamsfnc=formatDataTableParams){
