@@ -209,7 +209,7 @@ $.fn.listcrudrest = function(){
         list.html(html);
     }
     $(btn).on('click', function(){
-        $(form).closest('.x_content').find('.alert').remove();
+        $(form).closest('.card').find('.alert').remove();
         $.ajax({
             url: url_add, // url where to submit the request
             type : "POST", // type of action POST || GET
@@ -1062,9 +1062,9 @@ function build_select2_init(instance){
         }
         $(window).select2related('related', value.sort(compare));
     });
-
-    
 }
+
+
 
 function decore_select2 (data) {
     // We only really care if there is an element to pull classes from
