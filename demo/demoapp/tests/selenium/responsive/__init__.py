@@ -6,11 +6,16 @@ from pathlib import Path
 from django.conf import settings
 import shutil
 from Screenshot import Screenshot
+from django.core.management import call_command
 
 class ScreenshotSeleniumTest(StaticLiveServerTestCase):
+
     @classmethod
     def setUpClass(cls):
         super(ScreenshotSeleniumTest, cls).setUpClass()
+        call_command('createdemo', verbosity=3)
+        call_command('demomenu', verbosity=3)
+
 
         cls.timeout =10
         cls.resolutions=[{'width': 1920,'height': 1080},
@@ -77,7 +82,7 @@ class ScreenshotSeleniumTest(StaticLiveServerTestCase):
         cls.tmp = Path(settings.BASE_DIR) / 'tmp'
         cls.folder = '%s/%dx%d' % (cls.tmp, cls.width, cls.height)
         cls.dir = Path(settings.BASE_DIR) / cls.folder
-        cls.server_thread.port = 8012
+        #cls.server_thread.port = 8012
         if not cls.tmp.exists():
             cls.tmp.mkdir()
 

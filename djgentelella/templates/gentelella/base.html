@@ -47,7 +47,7 @@
         {% endif %}
         {% get_define 'use_datatables' as use_datatables %}
         {% if use_datatables %}
-          <link href="{% static 'vendors/datatables/dataTables.bootstrap.min.css' %}?v={% get_version %}" rel="stylesheet" />
+          <link href="{% static 'vendors/datatables/datatables.min.css' %}?v={% get_version %}" rel="stylesheet" />
         {% endif %}
 
 
@@ -175,8 +175,7 @@
 
             {% get_define 'use_datatables' as use_datatables %}
         {% if use_datatables %}
-        <script src="{% static 'vendors/datatables/jquery.dataTables.min.js' %}?v={% get_version %}"></script>
-        <script src="{% static 'vendors/datatables/dataTables.bootstrap.min.js' %}?v={% get_version %}"></script>
+        <script src="{% static 'vendors/datatables/datatables.min.js' %}?v={% get_version %}"></script>
         <script src="{% static 'gentelella/js/datatables.js'%}?v={% get_version %}"></script>
         {% endif %}
 

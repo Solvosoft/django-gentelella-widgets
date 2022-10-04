@@ -1,0 +1,38 @@
+{% extends 'gentelella/base.html' %}
+{% load gtsettings timejs %}
+
+{% block pre_head %}
+    {% define_true  "use_datatables" %}
+{% endblock %}
+
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+    <div class="card-title titles">
+        <h2>Datable Example</h2>
+    </div>
+
+    <div class="col-12">
+        <table id="datatableelement" class="table "> </table>
+
+    </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+
+<script>
+    datatableelement=createDataTable('#datatableelement', '{% url "api-persontable-list" %}', {
+     columns: [
+            {data: "name", name: "name", title: "Name", type: "string", visible: true},
+            {data: "num_children", name: "num_children", title: "Children", type: "number", visible: true},
+            {data: "country", name: "country__name", title: "Country", type: "string", visible: true, render: selectobjprint({display_name: "name"}) },
+            {data: "born_date", name: "born_date", title: "Born date", type: "date", visible: true, "dateformat":  "{% get_date_format %}"},
+            {data: "last_time", name: "last_time", title: "Last time", type: "date", visible: true, "dateformat":  "{% get_datetime_format %}"},
+        ]
+    }, addfilter=true);
+</script>
+
+{% endblock js%}
