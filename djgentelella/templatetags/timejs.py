@@ -1,6 +1,8 @@
 from django import template
 
-from widgets.core import DateFormatConverter
+
+
+from djgentelella.widgets.core import DateFormatConverter
 
 register = template.Library()
 

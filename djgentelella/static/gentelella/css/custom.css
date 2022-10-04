@@ -1524,8 +1524,9 @@ ul.msg_list li a .time {
     font-style: italic;
     font-weight: bold;
     position: absolute;
-    right: 35px
+    right: 160px;
 }
+
 ul.msg_list li a .message {
     display: block !important;
     font-size: 11px
@@ -4533,6 +4534,81 @@ border-bottom:2px solid #E6E9ED;
  background: #D9DEE4
 }
 
-@media only screen and (max-width: 360px){
+.size-notifications{
+    left:-320px !important;
+    width:400px;
+}
 
+/*MEDIA RESOLUTION */
+@media screen and (min-width: 360px) and (max-width: 389px) {
+  .size-notifications{
+    left: -160px !important;
+    width: 310px;
+    }
+    ul.msg_list li a .time {
+    font-size: 11px;
+    font-style: italic;
+    font-weight: bold;
+    position: absolute;
+    right: 125px;
+    }
+}
+@media screen and (min-width: 390px) and (max-width:413px){
+    .size-notifications{
+    left: -190px !important;
+    width: 350px;
+    }
+    ul.msg_list li a .time {
+    font-size: 11px;
+    font-style: italic;
+    font-weight: bold;
+    position: absolute;
+    right: 125px;
+    }
+}
+/*(max-width:460px){*/
+@media screen and (min-width: 414px) and (max-width:990px){
+    .size-notifications{
+    left: -200px !important;
+    width: 360px;
+    }
+    ul.msg_list li a .time {
+    font-size: 11px;
+    font-style: italic;
+    font-weight: bold;
+    position: absolute;
+    right: 128px;
+    }
+}
+
+@media screen and (min-width:360px) and (max-width:404px){
+    .nav > li > a{
+        position: relative;
+        display: block;
+        padding: 10px 10px 12px;
+    }
+
+}
+
+@media screen and (min-width:360px) and (max-width:990px){
+
+    .dropdown-submenu.pull-left > .dropdown-menu {
+        left: -50%;
+        margin-left: -1px;
+        margin-right: 20px;
+        top: 20%;
+        transition-delay:2s;
+        }
+
+    .dropdown-menu.show{
+        margin-left: -60px;
+    }
+}
+
+.nav-icon-size{
+     color:inherit;
+     font-size:23px;
+}
+.menu-top-navbar:hover{
+  color:inherit;
 }
