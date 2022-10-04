@@ -76,7 +76,6 @@ function init_sidebar() {
     };
 
     $SIDEBAR_MENU.find('a').on('click', function (ev) {
-        console.log('clicked - sidebar_menu');
         var $li = $(this).parent();
 
         if ($li.is('.active')) {
@@ -105,8 +104,6 @@ function init_sidebar() {
 
     // toggle small or large menu
     $MENU_TOGGLE.on('click', function () {
-        console.log('clicked - menu toggle');
-
         if ($BODY.hasClass('nav-md')) {
             $SIDEBAR_MENU.find('li.active ul').hide();
             $SIDEBAR_MENU.find('li.active').addClass('active-sm').removeClass('active');
@@ -328,8 +325,6 @@ function init_starrr() {
     if (typeof (starrr) === 'undefined') {
         return;
     }
-    console.log('init_starrr');
-
     $(".stars").starrr();
 
     $('.stars-existing').starrr({
@@ -352,7 +347,6 @@ function init_skycons() {
     if (typeof (Skycons) === 'undefined') {
         return;
     }
-    console.log('init_skycons');
 
     var icons = new Skycons({
         "color": "#73879C"
@@ -385,7 +379,6 @@ function init_wysiwyg() {
     if (typeof ($.fn.wysiwyg) === 'undefined') {
         return;
     }
-    console.log('init_wysiwyg');
 
     function init_ToolbarBootstrapBindings() {
         var fonts = ['Serif', 'Sans', 'Arial', 'Arial Black', 'Courier',
@@ -460,7 +453,6 @@ function init_validator() {
     if (typeof (validator) === 'undefined') {
         return;
     }
-    console.log('init_validator');
 
     // initialize the validator function
     validator.message.date = 'not a real date';
@@ -524,7 +516,6 @@ window.addEventListener('resize', function(){
          $("#items-top-navbar").addClass("flex-row-reverse");
 
     }else if(screen.width<991){
-    console.log("remover")
          $("#items-top-navbar").removeClass("flex-row-reverse");
     }
 });
@@ -536,7 +527,6 @@ window.addEventListener('resize', function(){
          $("#items-top-navbar").addClass("flex-row-reverse");
 
     }else if(screen.width<991){
-    console.log("remover")
          $("#items-top-navbar").removeClass("flex-row-reverse");
     }
 })()
