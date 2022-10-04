@@ -76,7 +76,6 @@ function init_sidebar() {
     };
 
     $SIDEBAR_MENU.find('a').on('click', function (ev) {
-        console.log('clicked - sidebar_menu');
         var $li = $(this).parent();
 
         if ($li.is('.active')) {
@@ -105,8 +104,6 @@ function init_sidebar() {
 
     // toggle small or large menu
     $MENU_TOGGLE.on('click', function () {
-        console.log('clicked - menu toggle');
-
         if ($BODY.hasClass('nav-md')) {
             $SIDEBAR_MENU.find('li.active ul').hide();
             $SIDEBAR_MENU.find('li.active').addClass('active-sm').removeClass('active');
@@ -154,9 +151,9 @@ var randNum = function () {
 // Panel toolbox
 $(document).ready(function () {
     $('.collapse-link').on('click', function () {
-        var $BOX_PANEL = $(this).closest('.x_panel'),
+        var $BOX_PANEL = $(this).closest('.card'), //x_panel
             $ICON = $(this).find('i'),
-            $BOX_CONTENT = $BOX_PANEL.find('.x_content');
+            $BOX_CONTENT = $BOX_PANEL.find('.card-body'); //x_content
 
         // fix for some div with hardcoded fix class
         if ($BOX_PANEL.attr('style')) {
@@ -172,7 +169,7 @@ $(document).ready(function () {
     });
 
     $('.close-link').click(function () {
-        var $BOX_PANEL = $(this).closest('.x_panel');
+        var $BOX_PANEL = $(this).closest('.card');//x_panel
 
         $BOX_PANEL.remove();
     });
@@ -328,8 +325,6 @@ function init_starrr() {
     if (typeof (starrr) === 'undefined') {
         return;
     }
-    console.log('init_starrr');
-
     $(".stars").starrr();
 
     $('.stars-existing').starrr({
@@ -352,7 +347,6 @@ function init_skycons() {
     if (typeof (Skycons) === 'undefined') {
         return;
     }
-    console.log('init_skycons');
 
     var icons = new Skycons({
         "color": "#73879C"
@@ -385,7 +379,6 @@ function init_wysiwyg() {
     if (typeof ($.fn.wysiwyg) === 'undefined') {
         return;
     }
-    console.log('init_wysiwyg');
 
     function init_ToolbarBootstrapBindings() {
         var fonts = ['Serif', 'Sans', 'Arial', 'Arial Black', 'Courier',
@@ -460,7 +453,6 @@ function init_validator() {
     if (typeof (validator) === 'undefined') {
         return;
     }
-    console.log('init_validator');
 
     // initialize the validator function
     validator.message.date = 'not a real date';
@@ -514,3 +506,34 @@ $(document).ready(function () {
             $(this).parent('li').removeClass('active');
         });
 });
+
+
+//detecta la resoucion para cambiar la clase de un componente
+window.addEventListener('resize', function(){
+
+    if(screen.width>=992){
+
+         $("#items-top-navbar").addClass("flex-row-reverse");
+
+    }else if(screen.width<991){
+         $("#items-top-navbar").removeClass("flex-row-reverse");
+    }
+});
+
+//funcion  para detectar al iniciar la carga de pagina
+(function(){
+   if(screen.width>=992){
+
+         $("#items-top-navbar").addClass("flex-row-reverse");
+
+    }else if(screen.width<991){
+         $("#items-top-navbar").removeClass("flex-row-reverse");
+    }
+})()
+
+/*
+$('.dropdown-menu').on('click', function (e) {
+  e.stopPropagation();
+
+});
+*/
