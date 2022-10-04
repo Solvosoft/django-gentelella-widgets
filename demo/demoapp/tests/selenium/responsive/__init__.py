@@ -32,7 +32,42 @@ class ScreenshotSeleniumTest(StaticLiveServerTestCase):
                          {'width': 800, 'height': 1280},
                          {'width': 601, 'height': 962},
                          {'width': 962, 'height': 601}]
-        cls.paths = [{'name': 'add_formset'}]
+        cls.paths = [ {'name': 'add_formset'},
+                      {'name': 'add_model_formset'},
+                      {'name': 'create_notification'},
+                      {'name': 'markitup_preview'},
+                      {'name': 'knobwidgets'},
+                      {'name': 'colorwidgets'},
+                      {'name': 'pgroup-list'},
+                      {'name': 'pgroup-add'},
+                      #{'name': 'pgroup-edit'},
+                      {'name': 'abcde-list'},
+                      {'name': 'abcde-add'},
+                      {'name': 'abcde-edit'},
+                      {'name': 'input-mask-add'},
+                      #{'name': 'input-mask-edit'},
+                      {'name': 'input-mask-list'},
+                      {'name': 'date-range-add'},
+                      # {'name': 'date-range-edit'},
+                      {'name': 'date-range-list'},
+                      {'name': 'chartjs_view'},
+                      {'name': 'input_tagging-add'},
+                      #{'name': 'input_tagging-edit'},
+                      {'name': 'input_tagging-list'},
+                      {'name': 'tinymce-add'},
+                      {'name': 'tinymce-list'},
+                      #{'name': 'tinymce-edit'},
+                      #{'name': 'tinymce-show'},
+                      {'name': 'yes-no-input-add'},
+                      {'name': 'grid-slider-add'},
+                      {'name': 'grid-slider-list'},
+                      {'name': 'chunkeduploaditem-add'},
+                      {'name': 'chunkeduploaditem-list'},
+                      # {'name': 'chunkeduploaditem-edit'},
+                      {'name': 'gigapixel_view'},
+                      {'name': 'mapbased_view'},
+                      {'name': 'storyline_view'},
+                      {'name': 'timeline_view'}]
         cls.ob = Screenshot.Screenshot()
         cls.selenium = WebDriver()
         cls.selenium.implicitly_wait(cls.timeout)
@@ -44,7 +79,7 @@ class ScreenshotSeleniumTest(StaticLiveServerTestCase):
         cls.dir = Path(settings.BASE_DIR) / cls.folder
         cls.server_thread.port = 8012
         if not cls.tmp.exists():
-           cls.tmp.mkdir()
+            cls.tmp.mkdir()
 
     def screenShots(self, name, url):
         self.selenium.get(url)
