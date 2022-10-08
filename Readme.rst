@@ -125,7 +125,7 @@ Run the demo
     python manage.py migrate
     python manage.py createdemo
     python manage.py demomenu
-    python manage.py createsuperuser
+
 
 And More see demo app.
 

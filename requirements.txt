@@ -1,4 +1,5 @@
-django-mptt==0.13.4
+django-mptt==0.14.0
+django-tree-queries==0.11.0
 djangorestframework>=3.13
 djangoajax==3.3
 django-markitup==4.0.0

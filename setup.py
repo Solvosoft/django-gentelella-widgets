@@ -27,7 +27,7 @@ README = open(os.path.join(os.path.dirname(__file__), 'Readme.rst')).read()
 # allow setup.py to be run from any path
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
-version = '0.2.11'
+version = '0.2.12'
 
 setup(
     author='Luis Zarate Montero',
@@ -41,13 +41,14 @@ setup(
     platforms=['OS Independent'],
     classifiers=CLASSIFIERS,
     install_requires=[
-	    'django-mptt>=0.13.4',
+        'django-tree-queries>=0.11.0',
+	    'django-mptt>=0.14.0',
         'djangoajax>=3.3',
         'django-markitup>=4.0.0',
         'markdown',
         'Pillow',
         'djangorestframework>=3.13',
-        'django>=4.0',
+        'django>=3.2',
         'django_filter>=22.1'
     ],
     packages=find_packages(exclude=["demo", 'doc']),

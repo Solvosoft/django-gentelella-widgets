@@ -1,13 +1,11 @@
 from django.contrib import admin
 
-# Register your models here.
-from mptt.admin import DraggableMPTTAdmin
 from djgentelella.models import MenuItem, Help, GentelellaSettings, Notification, ChunkedUpload
 from djgentelella.utils import clean_cache
 from djgentelella.models import PermissionsCategoryManagement
 
 
-class MenuAdmin(DraggableMPTTAdmin):
+class MenuAdmin(admin.ModelAdmin):
     filter_horizontal = ['permission']
 
 
