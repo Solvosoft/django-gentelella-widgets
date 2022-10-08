@@ -1,7 +1,8 @@
 from django.contrib.auth.models import Permission, User
 from django.db import models
-from mptt.models import MPTTModel, TreeForeignKey
 from django.utils.translation import gettext_lazy as _
+from tree_queries.models import TreeNode
+
 from djgentelella.chunked_upload.models import AbstractChunkedUpload
 from django.conf import settings
 
@@ -17,10 +18,9 @@ class GentelellaSettings(models.Model):
         return self.key
 
 
-
-class MenuItem(MPTTModel):
+class MenuItem(TreeNode):
     #name = models.SlugField(max_length=50, unique=True)
-    parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
+    #parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
     title = models.CharField(max_length=500)
     permission = models.ManyToManyField(Permission, blank=True)
     url_name = models.CharField(max_length=500)
@@ -36,11 +36,13 @@ class MenuItem(MPTTModel):
     icon = models.CharField(max_length=50, null=True, blank=True)
     only_icon = models.BooleanField(default=False)
 
+    position = models.IntegerField(default=0)
 
     def __str__(self):
         return self.title
 
     class MPTTMeta:
+        ordering = ["position"]
         order_insertion_by = ['-id']
 
 class Help(models.Model):

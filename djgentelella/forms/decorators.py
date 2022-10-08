@@ -1,5 +1,3 @@
-from mptt import forms as treeforms
-import types
 from djgentelella.fields import tree
 from djgentelella.forms.forms import CustomForm
 from djgentelella.widgets import core
@@ -20,7 +18,7 @@ def get_field_widget(widget_type):
     return widget
 
 def decore_treenode(form_instance, field):
-    if type(form_instance.fields[field]) == treeforms.TreeNodeChoiceField:
+    if type(form_instance.fields[field]) == 'TreeNodeChoiceField':
         form_instance.fields[field] = tree.GentelellaTreeNodeChoiceField(
             queryset=form_instance.fields[field].queryset,
             required=form_instance.fields[field].required,
@@ -28,7 +26,7 @@ def decore_treenode(form_instance, field):
                 attrs=form_instance.fields[field].widget.attrs,
                 choices=form_instance.fields[field].widget.choices)
         )
-    elif type(form_instance.fields[field]) == treeforms.TreeNodeMultipleChoiceField:
+    elif type(form_instance.fields[field]) =='TreeNodeMultipleChoiceField':
         form_instance.fields[field] = tree.GentelellaTreeNodeMultipleChoiceField(
             queryset=form_instance.fields[field].queryset,
             required=form_instance.fields[field].required,
@@ -46,8 +44,8 @@ def decore_form_instance(form_instance, exclude=()):
     for field in form_instance.fields:
         if field in exclude:
             continue
-        if type(form_instance.fields[field]) in [treeforms.TreeNodeChoiceField,
-                                                 treeforms.TreeNodeMultipleChoiceField]:
+        if type(form_instance.fields[field]) in ['TreeNodeChoiceField',
+                                                 'TreeNodeMultipleChoiceField']:
             decore_treenode(form_instance, field)
         else:
             widget = get_field_widget(form_instance.fields[field])

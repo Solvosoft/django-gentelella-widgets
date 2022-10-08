@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'djgentelella',
     'rest_framework',
-    'mptt',
     'demoapp',
     'djgentelella.blog',
     'djgentelella.permission_management',
