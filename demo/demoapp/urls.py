@@ -2,7 +2,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
 from demoapp.cruds import Personclass, Countryclass, MenuItemclass
-from demoapp.views import create_notification_view, color_widget_view
+from demoapp.views import create_notification_view, color_widget_view, bt_modal_display
 from .autocomplete import views as autocompleteviews
 from .calendar.views import calendar_view
 from .chartjs import chart_js_view
@@ -30,6 +30,7 @@ router = DefaultRouter()
 router.register('persontableview', PersonViewSet, 'api-persontable')
 
 urlpatterns = [
+        path('bt_modal_display', bt_modal_display, name='bt_modal_display'),
         path('formset', add_formset, name='add_formset'),
         path('modelformset', add_model_formset, name='add_model_formset'),
         path('create/notification', create_notification_view, name='create_notification'),

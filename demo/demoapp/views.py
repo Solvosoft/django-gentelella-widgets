@@ -3,8 +3,9 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from djgentelella.notification import create_notification
+from .autocomplete.forms import ABCDEModalGroupForm
 from .forms import FooModelForm, ColorWidgetsForm, SimpleColorForm, \
-    YesNoInputAddForm
+    YesNoInputAddForm, PersonModalForm
 from django.views.generic import CreateView, ListView, UpdateView
 from .models import YesNoInput
 
@@ -56,3 +57,10 @@ class YesNoInputView(CreateView):
     template_name = 'yesnoinput.html'
     success_url = reverse_lazy('yes-no-input-add')
 
+
+def bt_modal_display(request):
+    context={
+        'form': PersonModalForm(),
+        'abcdeform': ABCDEModalGroupForm()
+    }
+    return render(request, 'btmodals.html', context=context)
