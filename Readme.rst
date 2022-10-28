@@ -27,7 +27,6 @@ Configure your settings
 
     INSTALLED_APPS = [ ..
         'djgentelella',
-        'mptt',
         'rest_framework',
         'markitup',
     ]

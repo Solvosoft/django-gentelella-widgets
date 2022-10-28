@@ -1,3 +1,15 @@
+function extract_select2_context(context, instance){
+    let dropdownparent=instance.data().dropdownparent;
+    let placeholder=instance.placeholder;
+    if( dropdownparent != undefined){
+        context.dropdownParent = $(dropdownparent);
+    }
+    if( placeholder != undefined){
+        context.placeholder=placeholder;
+    }
+}
+
+window.extract_select2_context=extract_select2_context;
 $.fn.select2related = function(action, relatedobjs=[]) {
     /**
         [{ 'id': '#myfield',
@@ -17,13 +29,15 @@ $.fn.select2related = function(action, relatedobjs=[]) {
 
         if(action === "simple"){
             for(let x=0; x<this.relatedobjs.length; x++){
-                $(this.relatedobjs[x]['id']).select2();
+                let contexts2={};
+                extract_select2_context(contexts2, $(this.relatedobjs[x]['id']));
+                $(this.relatedobjs[x]['id']).select2(contexts2);
             }
         }
 
         if(action === 'remote'){
             for(let x=0; x<this.relatedobjs.length; x++){
-                $(this.relatedobjs[x]['id']).select2({
+                let contexts2={
                       placeholder: 'Select an element',
                       ajax: {
                         url: this.relatedobjs[x]['url'],
@@ -39,12 +53,14 @@ $.fn.select2related = function(action, relatedobjs=[]) {
                               return dev;
                         },
                       }
-                });
+                };
+                extract_select2_context(contexts2, $(this.relatedobjs[x]['id']));
+                $(this.relatedobjs[x]['id']).select2(contexts2);
             }
         }
         if(action === "related"){
             for(let x=1; x<this.relatedobjs.length; x++){
-                let newselect = $(this.relatedobjs[x]['id']).select2({
+                let contexts2={
                   placeholder: 'Select an element',
                   ajax: {
                     url: this.relatedobjs[x]['url'],
@@ -61,13 +77,14 @@ $.fn.select2related = function(action, relatedobjs=[]) {
                       return dev;
                     },
                   }
-                });
+                };
+                extract_select2_context(contexts2, $(this.relatedobjs[x]['id']));
+                let newselect = $(this.relatedobjs[x]['id']).select2(contexts2);
                 if(parent.relatedobjs[x]['start_empty']){
                     newselect.val(null).trigger('change');
                 }
             }
-
-            let newselect = $(this.relatedobjs[0]['id']).select2({
+            let contexts2empty = {
               placeholder: 'Select an element',
               ajax: {
                 url: parent.relatedobjs[0]['url'],
@@ -81,7 +98,9 @@ $.fn.select2related = function(action, relatedobjs=[]) {
                       }
                     },
               }
-            });
+            };
+            extract_select2_context(contexts2empty, $(this.relatedobjs[0]['id']));
+            let newselect = $(this.relatedobjs[0]['id']).select2(contexts2empty);
             if(this.relatedobjs[0]['start_empty']){
                 newselect.val(null).trigger('change');
             }

@@ -1,7 +1,5 @@
 {% for key, value in categories.items %}
-
-   <a class="btn categories" data-toggle="collapse" data-target="#category{{key|cut:' '}}"><i class="fa fa-plus"></i></a> <strong>{{key}}</strong>
-
+   <a class="btn categories" data-bs-toggle="collapse" data-bs-target="#category{{key|cut:' '}}"><i class="fa fa-plus"></i></a> <strong>{{key}}</strong>
   <div id="category{{key|cut:' '}}" class="collapse" style="width:100%">
     {% for item in value %}
       <div class="row" style="margin-left: 12%;">
