@@ -1,6 +1,6 @@
 function extract_select2_context(context, instance){
     let dropdownparent=instance.data().dropdownparent;
-    let placeholder=instance.placeholder;
+    let placeholder=instance.data().placeholder;
     if( dropdownparent != undefined){
         context.dropdownParent = $(dropdownparent);
     }
