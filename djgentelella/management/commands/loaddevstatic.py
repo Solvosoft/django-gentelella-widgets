@@ -1,6 +1,7 @@
 from django.core.management import BaseCommand
 from django.contrib.staticfiles import finders
 import os
+import shutil
 from pathlib import Path
 
 FLAGS = ['ad', 'ae', 'af', 'ag', 'ai', 'al', 'am', 'ao', 'aq', 'ar', 'as', 'at', 'au', 'aw', 'ax', 'az', 'ba', 'bb', 'bd', 'be', 'bf', 'bg', 'bh', 'bi', 'bj', 'bl', 'bm', 'bn', 'bo', 'bq', 'br', 'bs', 'bt', 'bv', 'bw', 'by', 'bz', 'ca', 'cc', 'cd', 'cf', 'cg', 'ch', 'ci', 'ck', 'cl', 'cm', 'cn', 'co', 'cr', 'cu', 'cv', 'cw', 'cx', 'cy', 'cz', 'de', 'dj', 'dk', 'dm', 'do', 'dz', 'ec', 'ee', 'eg', 'eh', 'er', 'es-ca', 'es', 'et', 'eu', 'fi', 'fj', 'fk', 'fm', 'fo', 'fr', 'ga', 'gb-eng', 'gb-nir', 'gb-sct', 'gb-wls', 'gb', 'gd', 'ge', 'gf', 'gg', 'gh', 'gi', 'gl', 'gm', 'gn', 'gp', 'gq', 'gr', 'gs', 'gt', 'gu', 'gw', 'gy', 'hk', 'hm', 'hn', 'hr', 'ht', 'hu', 'id', 'ie', 'il', 'im', 'in', 'io', 'iq', 'ir', 'is', 'it', 'je', 'jm', 'jo', 'jp', 'ke', 'kg', 'kh', 'ki', 'km', 'kn',
@@ -27,6 +28,13 @@ class Command(BaseCommand):
                     arch.write(r.content)
                     arch.write(b'\n')
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--delete',
+            action='store_true',
+            help='Delete delete before start',
+        )
+
     def handle(self, *args, **options):
         try:
             import requests
@@ -41,6 +49,10 @@ class Command(BaseCommand):
 
         basepath = Path(result.replace(
             str(Path('gentelella/css/custom.css')), 'vendors/'))
+
+        if options['delete']:
+            shutil.rmtree(basepath)
+            basepath.mkdir()
 
         libs = {
             'bootstrap': [
