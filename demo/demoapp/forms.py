@@ -92,7 +92,24 @@ class PersonForm(GTForm, forms.ModelForm):
             'num_children': NumberInput,
 
         }
-        
+
+class PersonModalForm(GTForm, forms.ModelForm):
+    test_a = forms.ChoiceField(choices=[(1, 'one'), (2, 'two'),   (3, 'three'), (4, 'four')],
+                               widget=genwidgets.SelectMultiple(attrs={'data-dropdownparent': '#exampleModal'}))
+
+    class Meta:
+        model = Person
+        fields = ['country', 'num_children']
+        widgets = {
+            'country': AutocompleteSelect('countrybasename', attrs={'data-dropdownparent': '#exampleModal',
+                                                                    'data-placeholder': 'Custom placeholder'}),
+            'num_children': genwidgets.Select(choices=[(1, 'one'),
+                                                       (2, 'two'),
+                                                       (3, 'three'),
+                                                       (4, 'four')], attrs={'data-dropdownparent': '#exampleModal'}),
+
+        }
+
 class CityForm(GTForm, forms.ModelForm):
     class Meta:
         model = Comunity
