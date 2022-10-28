@@ -50,3 +50,42 @@ class ABCDEGroupForm(CustomForm, forms.ModelForm):
             }),
         }
 
+
+class ABCDEModalGroupForm(CustomForm, forms.ModelForm):
+    class Meta:
+        model = models.ABCDE
+        fields = '__all__'
+        widgets = {
+            'a':  AutocompleteSelectMultiple("a", attrs={
+                'data-dropdownparent': '#exampleModal',
+                'data-related': 'true',
+                'data-pos': 0,
+                'data-groupname': 'myabcde'
+            }),
+            'b': AutocompleteSelect("b", attrs={
+                'data-dropdownparent': '#exampleModal',
+                'data-related': 'true',
+                'data-pos': 1,
+                'data-groupname': 'myabcde'
+            }),
+            'c': AutocompleteSelectMultiple("c", attrs={
+                'data-dropdownparent': '#exampleModal',
+                'data-related': 'true',
+                'data-pos': 2,
+                'data-groupname': 'myabcde'
+            }),
+            'd': AutocompleteSelect('d', attrs={
+                'data-dropdownparent': '#exampleModal',
+                'data-related': 'true',
+                'data-pos': 3,
+                'data-groupname': 'myabcde'
+            }),
+            'e': AutocompleteSelectMultiple('e', attrs={
+                'data-dropdownparent': '#exampleModal',
+                'data-related': 'true',
+                'data-pos': 4,
+                'data-groupname': 'myabcde',
+            }),
+        }
+
+

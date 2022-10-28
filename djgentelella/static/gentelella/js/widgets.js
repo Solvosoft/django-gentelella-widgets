@@ -1,13 +1,29 @@
 document.formset = [];
 document.gtwidgets = {
     Select: function (instance) {
-        instance.select2();
+        instance.each(function (i, e) {
+            let s2instance=$(e);
+            let contexts2={};
+            extract_select2_context(contexts2, s2instance);
+            s2instance.select2(contexts2);
+        });
     },
     SelectMultiple: function (instance) {
-        instance.select2();
+        instance.each(function (i, e) {
+            let s2instance=$(e);
+            let contexts2={};
+            extract_select2_context(contexts2, s2instance);
+            s2instance.select2(contexts2);
+        });
     },
     TreeSelect: function (instance) {
-        instance.select2({ templateResult: decore_select2 });
+
+        instance.each(function (i, e) {
+            let s2instance=$(e);
+            let contexts2={ templateResult: decore_select2 };
+            extract_select2_context(contexts2, s2instance);
+            s2instance.select2(contexts2);
+        });
     },
     CheckboxInput: function (instance) {
 
@@ -123,20 +139,38 @@ document.gtwidgets = {
     },
     SelectWithAdd: function (instance) {
         instance.addselectwidget();
-        instance.select2();
+        instance.each(function (i, e) {
+            let contexts2={};
+            extract_select2_context(contexts2, s2instance);
+            s2instance.select2(contexts2);
+        });
     },
     SelectMultipleAdd: function (instance) {
         instance.addselectwidget();
-        instance.select2();
+        instance.each(function (i, e) {
+            let contexts2={};
+            extract_select2_context(contexts2, s2instance);
+            s2instance.select2(contexts2);
+        });
     },
     TreeSelectMultipleWithAdd: function (instance) {
         instance.addselectwidget();
         instance.select2({ templateResult: decore_select2 });
+        instance.each(function (i, e) {
+            let s2instance=$(e);
+            let contexts2={ templateResult: decore_select2 };
+            extract_select2_context(contexts2, s2instance);
+            s2instance.select2(contexts2);
+        });
     },
     TreeSelectWithAdd: function (instance) {
         instance.addselectwidget();
-        instance.select2({ templateResult: decore_select2 });
-
+        instance.each(function (i, e) {
+            let s2instance=$(e);
+            let contexts2={ templateResult: decore_select2 };
+            extract_select2_context(contexts2, s2instance);
+            s2instance.select2(contexts2);
+        });
     },
     FileInput: function (instance) {
         instance.fileuploadwidget();
