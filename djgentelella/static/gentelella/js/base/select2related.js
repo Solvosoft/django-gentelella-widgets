@@ -1,11 +1,18 @@
 function extract_select2_context(context, instance){
-    let dropdownparent=instance.data().dropdownparent;
-    let placeholder=instance.data().placeholder;
+    let data=instance.data();
+    let dropdownparent=data.dropdownparent;
+    let placeholder=data.placeholder;
+    let theme = data.theme;
     if( dropdownparent != undefined){
         context.dropdownParent = $(dropdownparent);
     }
     if( placeholder != undefined){
         context.placeholder=placeholder;
+    }
+    if(theme != undefined){
+        context.theme=theme;
+    }else{
+        context.theme='bootstrap-5'
     }
 }
 
