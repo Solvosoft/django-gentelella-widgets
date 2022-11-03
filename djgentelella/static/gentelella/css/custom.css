@@ -1539,7 +1539,7 @@ ul.msg_list li a .message {
     box-shadow: none;
     display: none;
     float: left;
-    font-size: 15px;
+    font-size: 12px;
     left: 0px;
     list-style: none outside none;
     padding: 5px 5px;
@@ -4322,7 +4322,7 @@ table thead .checkbox.radio { margin-top:-7px;margin-top:-21px; }
 }
 
 .dropdown-submenu.pull-left>.dropdown-menu {
-  left: -128%;
+  left: -110%;
   margin-left: 0px;
 }
 
