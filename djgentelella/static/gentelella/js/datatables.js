@@ -78,9 +78,12 @@ function addSearchInputsAndFooterDataTable(dataTable, tableId) {
                     var select = '<select class="form-control form-control-sm"><option value="">--</option>';
                     select += '</select>';
                     $(this).html(select);
-                    $(this).find('select').select2({
+                    let s2instance = $(this).find('select');
+                    let s2context={
                         ajax: {  url: s2url,  dataType: 'json'}
-                    });
+                    }
+                    extract_select2_context(s2context, s2instance);
+                    s2instance.select2(s2context);
                 }else if(columnType === 'readonly'){
                     $(this).html("");
                 }else {

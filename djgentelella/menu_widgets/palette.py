@@ -58,6 +58,6 @@ class PalleteWidget:
             'icon': self.context['item'].icon
         }
         return """
-            <a id="%(id)s" title="%(title)s" aria-controls="divref" data-toggle="collapse" aria-expanded="false" data-target="%(link)s" href="%(link)s">
+            <a id="%(id)s" title="%(title)s" aria-controls="divref" data-bs-toggle="collapse" aria-expanded="false" data-bs-target="%(link)s" href="%(link)s">
       <span class="%(icon)s" aria-hidden="true"></span></a>
         """%dev

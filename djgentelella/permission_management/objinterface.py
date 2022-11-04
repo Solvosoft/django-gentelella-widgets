@@ -7,8 +7,8 @@ class PMBase:
     def get_permission_list(self):
         categories = {}
         q = self.form.cleaned_data['urlname']
-        permissions_list = PermissionsCategoryManagement.objects.filter(url_name__in=q.split(',')). \
-            values('category', 'permission', 'name')
+        permissions_list = PermissionsCategoryManagement.objects.filter(url_name__in=q.split(',')).order_by('category'
+            ).distinct().values('category', 'permission', 'name')
 
         for perm in permissions_list:
             if perm['category'] not in categories:
