@@ -17,23 +17,34 @@ const Toast = Swal.mixin({
 });
 
 $(document).ready(function(){
-    $('#select_user').select2({
+
+    let selectuser = $('#select_user');
+    let selectusercontext={
       ajax: {
         url: permission_context.select_user_url,
         dataType: 'json',
       },
-      width: '100%',
-      placeholder:   permission_context.user_placeholder ,
-    });
-    $('#select_group').select2({
+      width: '100%'
+    };
+    extract_select2_context(selectusercontext, selectuser);
+    selectusercontext.placeholder=permission_context.user_placeholder;
+
+    let selectgroup = $('#select_group');
+    let selectgroupcontext={
       ajax: {
         url: permission_context.select_group_url,
         dataType: 'json',
       },
-      width: '100%',
-      placeholder: permission_context.group_placeholder,
-    });
-    $('.btn-toggle').click(function() {
+      width: '100%'
+    };
+
+    extract_select2_context(selectgroupcontext, selectgroup);
+    selectgroupcontext.placeholder=permission_context.group_placeholder;
+    selectuser.select2(selectusercontext);
+    selectgroup.select2(selectgroupcontext);
+
+
+    $('.btn-bs-toggle').click(function() {
       $(this).find('.btn').toggleClass('active');
       if ($(this).find('.btn-primary').length>0) {
           $(this).find('.btn').toggleClass('btn-primary');
