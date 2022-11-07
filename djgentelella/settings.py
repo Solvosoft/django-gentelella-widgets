@@ -17,9 +17,9 @@ DEFAULT_GROUP_MODEL_BASE = 'GT_GROUP_MODEL'
 
 DEFAULT_USER_MODEL_BASE = 'GT_USER_MODEL'
 
-DEFAULT_GROUP_MODEL = 'auth.Group'
+DEFAULT_GROUP_MODEL = 'django.contrib.auth.models.Group'
 
-DEFAULT_USER_MODEL = 'auth.User'
+DEFAULT_USER_MODEL = 'django.contrib.auth.models.User'
 
 GROUP_MODEL_BASE = getattr(
     settings, DEFAULT_GROUP_MODEL_BASE, DEFAULT_GROUP_MODEL)
@@ -28,14 +28,13 @@ USER_MODEL_BASE = getattr(
     settings, DEFAULT_USER_MODEL_BASE, DEFAULT_USER_MODEL)
 
 try:
-    from django.contrib.contenttypes.models import ContentType
-    aux_group = ContentType.objects.get(app_label=GROUP_MODEL_BASE.split('.')[0], model=GROUP_MODEL_BASE.split('.')[1].lower())
-    Group = aux_group.model_class()
-
-    aux_user = ContentType.objects.get(app_label=USER_MODEL_BASE.split('.')[0], model=USER_MODEL_BASE.split('.')[1].lower())
-    User = aux_user.model_class()
+    Group = import_string(GROUP_MODEL_BASE)
 except Exception as e:
-    from django.contrib.auth.models import User, Group
+    from django.contrib.auth.models import  Group
+try:
+    User = import_string(USER_MODEL_BASE)
+except Exception as e:
+    from django.contrib.auth.models import User
 
 #####################################################
 ##    Chuncked Upload
