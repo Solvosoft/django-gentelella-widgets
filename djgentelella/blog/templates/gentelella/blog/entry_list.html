@@ -13,95 +13,82 @@
 
 <div class="card " xmlns="http://www.w3.org/1999/html">
     <div class="card-body">
-    <div class="card-title titles">
-        <form id='searchform' class="form-inline" method="get" action="" >
-            <div class="form-group">
-                <div class="input-group">
-                 <input type="text" class="form-control" value="{{q}}" name="q" id="q" aria-describedby="search">
-                 <div class="input-group-text "id="searchbtn"><i class="fa fa-search green"></i></div>
+        <div class="card-title titles">
+            <form id='searchform' class="form-inline" method="get" action="" >
+                <div class="form-group">
+                    <div class="input-group">
+                        <input type="text" class="form-control" value="{{q}}" name="q" id="q" aria-describedby="search">
+                        <div class="input-group-text "id="searchbtn"><i class="fa fa-search green"></i></div>
+                    </div>
+                    <input type="hidden" name="cat" value="{{cat}}" />
                 </div>
-                <input type="hidden" name="cat" value="{{cat}}" />
-            </div>
-        </form>
-
+            </form>
+        </div>
+        <ul class="list-unstyled msg_list">
+            {% for entry in entries %}
+            <li style="list-style-type: none; display:block">
+                 <div class="float-end">
+                     <span class="time">{{ entry.published_timestamp|date:"d/m/Y" }}</span>
+                 </div>
+                <br>
+                <div class="d-flex align-items-center card-body">
+                    <div class="flex-shrink-0">
+                        <a href="{{ entry.get_absolute_url }}">
+                            {% if entry.feature_image %}
+                                <img src="{{ entry.feature_image.url }}"  style="max-width: 256px" class="media-object" alt="{% trans 'Preview image for' %} {{ entry.title }}" class="img-responsive"/>
+                            {% else %}
+                                <img src="{% static 'images/article.png' %}" style="width: 128px"  class="media-object" alt="img">
+                            {% endif %}
+                        </a>
+                    </div>
+                    <div class="flex-grow-1 ms-3"style="width:100%">
+                        <div class="container">
+                            <h5><a style="padding:0 !important;" href="{{ entry.get_absolute_url }}">{{entry.title}}</a></h5>
+                            <h2>{% if entry.author %} {% trans 'by' %} {{ entry.author|authordisplay }}{% else %}{% trans 'Anonymous' %}{% endif %}</h2>
+                            <br>
+                            {% if entry.preview_content %}
+                                 {{ entry.preview_content }}
+                            {% else %}
+                                {# Truncate derived from: Avg reading speed (3.33 words/s) * Average attention span (8s) #}
+                                {{ entry.content|truncatewords_html:26 }} <a href="{{ entry.get_absolute_url }}">{% trans '(More...)' %}</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="float-end p-3">
+                      {% if request.user == entry.author %}
+                                <a class="btn btn-outline-success" style="margin-left: -18px" href="{{ entry.get_absolute_url }}?preview=True" title="{% trans 'This show the last version of the entry (it\'s not necesary the last published entry)' %}">{% trans 'Preview' %}
+                                    <i class=" fa fa-eye dark-green"></i>
+                                </a>
+                            {% endif %}
+                            {% if perms.blog.change_entry %}
+                                <a class="btn btn-outline-warning" href="{% url 'blog:entry_update' entry.pk %}">{% trans 'Update' %}<i class=" fa fa-edit yellow"></i></a>
+                            {% endif %}
+                            {% if perms.blog.delete_entry %}
+                                <a class="btn btn-outline-danger" href="{% url 'blog:entry_delete' entry.pk %}">{% trans 'Delete' %}<i class=" fa fa-trash red"></i></a>
+                            {% endif %}
+                </div>
+                <div class="clearfix"></div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% include 'gentelella/cruds/pagination/enumeration.html' %}
     </div>
-
-            <ul class="list-unstyled msg_list">
-    {% for entry in entries %}
- <li style="list-style-type: none;">
-
-     <div class="media">
-           <div class="media-left">
-            <a href="{{ entry.get_absolute_url }}">
-                {% if entry.feature_image %}
-                 <img src="{{ entry.feature_image.url }}"  style="max-width: 256px" class="media-object" alt="{% trans 'Preview image for' %} {{ entry.title }}" class="img-responsive"/>
-                {% else %}
-                 <img src="{% static 'images/article.png' %}" style="width: 128px"  class="media-object" alt="img">
-                {% endif %}
-            </a>
-          </div>
-         <div class="media-body">
-             <h5 class="media-heading"><a href="{{ entry.get_absolute_url }}">{{entry.title}}</a></h5>
-            <h2 class="media-heading" style="margin-left: 5px">{% if entry.author %} {% trans 'by' %} {{ entry.author|authordisplay }}{% else %}{% trans 'Anonymous' %}{% endif %}</h2>
-            <br>
-             {% if entry.preview_content %}
-               <h2 class="media-heading" style="margin-left: 5px">{{ entry.preview_content }} </h2>
-            {% else %}
-                {# Truncate derived from: Avg reading speed (3.33 words/s) * Average attention span (8s) #}
-                {{ entry.content|truncatewords_html:26 }} <a href="{{ entry.get_absolute_url }}">{% trans '(More...)' %}</a>
-            {% endif %}
-<div class="container">
-    <div class="container-fluid " >
-          {% if request.user == entry.author %}
-        <a class="btn btn-outline-success" style="margin-left: -18px" href="{{ entry.get_absolute_url }}?preview=True" title="{% trans 'This show the last version of the entry (it\'s not necesary the last published entry)' %}">{% trans 'Preview' %}
-        <i class=" fa fa-eye dark-green">
-        </i>
-        </a>
-        {% endif %}
-        {% if perms.blog.change_entry %}
-            <a class="btn btn-outline-warning" href="{% url 'blog:entry_update' entry.pk %}">{% trans 'Update' %}
-            <i class=" fa fa-edit yellow">
-            </i>
-            </a>
-        {% endif %}
-    {% if perms.blog.delete_entry %}
-            <a class="btn btn-outline-danger" href="{% url 'blog:entry_delete' entry.pk %}">{% trans 'Delete' %}
-            <i class=" fa fa-trash red">
-            </i>
-            </a>
-        {% endif %}</div>
-
-    <span class="time">{{ entry.published_timestamp|date:"d/m/Y" }}</span>
 </div>
-
-         </div>
-
-
-     </div>
-
-</li>
-
-    {% endfor %}</ul>
-
-            {% include 'gentelella/cruds/pagination/enumeration.html' %}
-
+  </div>
+    <div class="col-md-3 col-sm-12">
+        {% if perms.blog.add_entry %}
+        <div class="card " xmlns="http://www.w3.org/1999/html">
+            <div class="card-body">
+                <a class="btn btn-success" href="{% url 'blog:entrycreate' %}">{% trans 'New Post' %} </a>
+            </div>
         </div>
-</div>
- </div>
-  <div class="col-md-3 col-sm-12">
-{% if perms.blog.add_entry %}
- <div class="card " xmlns="http://www.w3.org/1999/html">
-
-        <div class="card-body">
-            <a class="btn btn-success" href="{% url 'blog:entrycreate' %}">{% trans 'New Post' %} </a>
-        </div>
-</div>
-{% endif %}
-<div class="card mt-4" xmlns="http://www.w3.org/1999/html">
-    <div class="card-body">
-    <div class="card-title titles"><h2>{% trans 'Categories' %}</h2>
-        <ul class="nav navbar-right d-flex flex-row-reverse">
-            <li class="pull-right " style="margin-top: -43px;"><a class="close-link" href="{% url 'blog:entrylist' %}{{catparams}}"><i class="fa fa-close red"></i></a></li>
+        {% endif %}
+        <div class="card mt-4" xmlns="http://www.w3.org/1999/html">
+            <div class="card-body">
+                <div class="card-title titles"><h2>{% trans 'Categories' %}</h2>
+                    <ul class="nav navbar-right d-flex flex-row-reverse">
+                        <li class="float-end" style="margin-top: -43px;"><a class="close-link" href="{% url 'blog:entrylist' %}{{catparams}}"><i class="fa fa-close red"></i></a></li>
         </ul>
          <div class="clearfix"></div>
     </div>
