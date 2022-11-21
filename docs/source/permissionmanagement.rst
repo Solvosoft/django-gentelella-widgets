@@ -148,25 +148,27 @@ Top Navegation
 
 For get the key on the top navegation you need write the next code in the templates menu presentation/temmplates/gentelella/app/
 organization_add.html.
-
 .. code-block:: python
 
     {% endif %}
+
       <ul class="nav navbar-nav navbar-right">
-      {%get_urlname_action as urlnameaction %}
-      {%validate_context urlnameaction as context %}
-      {%if urlnameaction and contex %}
+      {% get_urlname_action as urlnameaction %}
+      {% validate_context urlnameaction as context %}
+      {% if urlnameaction and contex %}
       <li><a class="btn" id="btn_perms" title="Add Permission" data-toggles="modal" data-target="#permission_modal" data-permeters={% get_page_name urlnameacation %}"data urlname="{{urlnameactions}}" style"..."><i class"fa fa-key fa-zx" "aria-hidden="true"></i></a></li>
+
     {% endif %}
 
 
-it´s really important define the permission for view
+It´s really important define the permission for view
 
 The additional Permission that you add will go to the premission list URLNAME_PERMISSION
 
 and we calle it with the next command.
 
-.. code-block::python
+.. code-block:: python
+
     class command(BaseCommand):
         help = ' Load permission category '
 
@@ -191,9 +193,11 @@ and we calle it with the next command.
 									    permission=perm.firts(), url_name=url:name)
 
     if not permcat.exists():
-    new.permcat = PermissionCategoryManagement(
-    (name=obj['name']. category=obj['category'],permission=perm.firts(), url_name=url:name)
-    new_permcat.save()
+        new.permcat = PermissionCategoryManagement(
+        (name=obj['name']. category=obj['category'],permission=perm.firts(), url_name=url:name)
+
+        new_permcat.save()
+
     else:
         print("'"+obj['name']+ "'already exists.")
     else:
@@ -219,7 +223,7 @@ Model of user and Group
 
 -------------------------------
 
-    we have role user and grup
+    We have role user and grup
 
     each grup has users in each grup we maybe have 3 o 4 members and we can attribute the permissions to each group so that each member has them
 
@@ -244,8 +248,6 @@ Model of user and Group
                                                  'name': perm['name'}})
 
 		  return categories
-
-
 
 
 
@@ -312,7 +314,7 @@ Model of user and Group
 		   for perm in permission_list.filter(permission__in=permission).values(
 			       'permission', 'permission_name', 'permission_codename'):
 				 perms.append({'id': perm['permission'], 'name' perm['permission_name'],
-					          'codename': perm['permission_codename]})
+					          'codename': perm['permission_codename']})
 
 
 		 return perms
