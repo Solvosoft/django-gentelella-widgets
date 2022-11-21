@@ -142,7 +142,6 @@ And your custom model has to be like the following:
 
 Make suere you have the `gt_get_permission` and the `name` field that also of course can be a `@property`.
 
-
 -------------------------------
 Top Navegation
 -------------------------------
@@ -152,13 +151,13 @@ organization_add.html.
 
 .. code-block:: python
 
-{% endif %}
+    {% endif %}
     <ul class="nav navbar-nav navbar-right">
     {%get_urlname_action as urlnameaction %}
     {%validate_context urlnameaction as context %}
     {%if urlnameaction and contex %}
     <li><a class="btn" id="btn_perms" title="Add Permission" data-toggles="modal" data-target="#permission_modal" data-permeters={% get_page_name urlnameacation %}"data urlname="{{urlnameactions}}" style"..."><i class"fa fa-key fa-zx" aria-hidden="true"></i></a></li>
-{% endif %}
+    {% endif %}
 
 it´s really important define the permission for view
 
@@ -171,44 +170,42 @@ and we calle it with the next command.
 
 .. code-block:: python
 
-class command(BaseCommand):
-  help = ' Load permission category '
+    class command(BaseCommand):
+    help = ' Load permission category '
 
-   def get_permission(self. app_codename):
-   perm = None
-   val = app_codename.slipt('.')
-   if lenv(val) == 2:
+     def get_permission(self. app_codename):
+     perm = None
+     val = app_codename.slipt('.')
+    if lenv(val) == 2:
        perm = Permission.objects.filter(
-		codename==val[1]
-		content:type__app_label=val[0]
+	   codename==val[1]
+       content_type__app_label=val[0]
+    return perm
 
 
-	return perm
+    def load_urlname_permissions(self):
+	    for url_name, item_list in URLNAME_PERMISSION.items():
+
+		  for obj in item_list:
+              perm = self.get_permission(obj['permission'])
 
 
-def load_urlname_permissions(self):
-	for url_name, item_list in URLNAME_PERMISSION.items():
-
-		for obj in item_list:
-		   perm = self.get_permission(obj['permission'])
-
-
-if perm:
+        if perm:
      permcat = PermissionCategoryManagement.objects.filter(name=obj['name']. category=obj['category'],
 									    permission=perm.firts(), url_name=url:name)
 
-	if not permcat.exists():
+    	if not permcat.exists():
 	   new.permcat = PermissionCategoryManagement(
-		 (name=obj['name']. category=obj['category'],permission=perm.firts(), url_name=url:name
-	   )
+     (name=obj['name']. category=obj['category'],permission=perm.firts(), url_name=url:name
+	    )
 
 	    new_permcat.save()
-	else:
-		print("'"+obj['name']+ "'already exists.")
-    else:
-	    print("'"+obj['permisison']+ "'doesn´t exists.")
+	    else:
+		     print("'"+obj['name']+ "'already exists.")
+        else:
+	         print("'"+obj['permisison']+ "'doesn´t exists.")
 
-def handle(self,*args,**options):
+    def handle(self,*args,**options):
     PermissionCategoryManagement.objects.all().delete()
     self.load_urlname_permission()
 
@@ -236,7 +233,7 @@ Note: not all users will be able to edit permissions only users with respective 
 
 .. code-block:: python
 
-class PmBAse
+    class PmBAse
 
 	    def get_permission_list(self):
 		  categories = {}
@@ -244,14 +241,14 @@ class PmBAse
 	    permission_list = PermissionCategoryManagement.objects.filter(url_name__in=q.slipt(',')). \
 	    values('category','permission','name')
 
-	for perm in permission_list:
-	    if perm['category'] not in categories:
+	   for perm in permission_list:
+	      if perm['category'] not in categories:
 		  categories[perm['category']] =[]
 
 	        categories[perm['category']].append{'id': perm['permission'],
                                                  'name': perm['name'}})
 
-		 return categories
+		  return categories
 
 
 
@@ -323,24 +320,24 @@ class PmBAse
 					          'codename': perm['permission_codename]})
 
 
-		return perms
+		 return perms
 
         def update_permission(self):
             group = self.form.cleaned_data{'user'}
-		old_group_permission = set(map(lamba x: x['id'], self.get_django_permission(user.pk)))
-	      set_permission_list = set(self.form.cleaned_data['permissions'].values_list('pk',flat=True))
+		    old_group_permission = set(map(lamba x: x['id'], self.get_django_permission(user.pk)))
+	        set_permission_list = set(self.form.cleaned_data['permissions'].values_list('pk',flat=True))
 
-		remove_permission = old_group_permission - set_permission_list
-		add_permission = set_permission_list - old_user_permission
+		    remove_permission = old_group_permission - set_permission_list
+		    add_permission = set_permission_list - old_user_permission
 
-		if hasattr(user,'gt_get_permission'):
+		 if hasattr(user,'gt_get_permission'):
 		    group.gt_get_permisson.remove(*remove_permission)
-		else:
+		 else:
 		     user.group_permission.remove(*remove_permission)
 
-		if hasattr(group,'gt_get_permission'):
+		 if hasattr(group,'gt_get_permission'):
 		    group.gt_get_permisson.add(*add_permission)
-		else:
+		 else:
 		     group.group_permission.add(*add_permission)
 
 
@@ -359,11 +356,12 @@ class PmBAse
 	we have the user and group with a form, the recent permission and the permission it going to set.
 
 .. code-block::python
+     Class ObjManager:
 
-Class ObjManager:
-	    @staticmethod
-	    def get_class(request,form):
-              if form.cleaned_data['option'] == '1':
+       @staticmethod
+
+     def get_class(request,form):
+          if form.cleaned_data['option'] == '1':
 	           return PMUser(request, form)
               elif form.cleaned_data['option'] == '2'
 	           return PMGroup(request, form)
