@@ -156,8 +156,9 @@ organization_add.html.
       {%get_urlname_action as urlnameaction %}
       {%validate_context urlnameaction as context %}
       {%if urlnameaction and contex %}
-      <li><a class="btn" id="btn_perms" title="Add Permission" data-toggles="modal" data-target="#permission_modal" data-permeters={% get_page_name urlnameacation %}"data urlname="{{urlnameactions}}" style"..."><i class"fa fa-key fa-zx" aria-hidden="true"></i></a></li>
+      <li><a class="btn" id="btn_perms" title="Add Permission" data-toggles="modal" data-target="#permission_modal" data-permeters={% get_page_name urlnameacation %}"data urlname="{{urlnameactions}}" style"..."><i class"fa fa-key fa-zx" "aria-hidden="true"></i></a></li>
     {% endif %}
+
 
 it´s really important define the permission for view
 
@@ -166,7 +167,6 @@ The additional Permission that you add will go to the premission list URLNAME_PE
 and we calle it with the next command.
 
 .. code-block::python
-
     class command(BaseCommand):
         help = ' Load permission category '
 
