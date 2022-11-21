@@ -146,17 +146,17 @@ Make suere you have the `gt_get_permission` and the `name` field that also of co
 Top Navegation
 -------------------------------
 
-for get the key on the top navegation you need write the next code in the templates menu presentation/temmplates/gentelella/app/
+For get the key on the top navegation you need write the next code in the templates menu presentation/temmplates/gentelella/app/
 organization_add.html.
 
 .. code-block:: python
 
     {% endif %}
-    <ul class="nav navbar-nav navbar-right">
-    {%get_urlname_action as urlnameaction %}
-    {%validate_context urlnameaction as context %}
-    {%if urlnameaction and contex %}
-    <li><a class="btn" id="btn_perms" title="Add Permission" data-toggles="modal" data-target="#permission_modal" data-permeters={% get_page_name urlnameacation %}"data urlname="{{urlnameactions}}" style"..."><i class"fa fa-key fa-zx" aria-hidden="true"></i></a></li>
+      <ul class="nav navbar-nav navbar-right">
+      {%get_urlname_action as urlnameaction %}
+      {%validate_context urlnameaction as context %}
+      {%if urlnameaction and contex %}
+      <li><a class="btn" id="btn_perms" title="Add Permission" data-toggles="modal" data-target="#permission_modal" data-permeters={% get_page_name urlnameacation %}"data urlname="{{urlnameactions}}" style"..."><i class"fa fa-key fa-zx" aria-hidden="true"></i></a></li>
     {% endif %}
 
 it´s really important define the permission for view
@@ -165,67 +165,65 @@ The additional Permission that you add will go to the premission list URLNAME_PE
 
 and we calle it with the next command.
 
+.. code-block::python
 
-.. code-block:: python
     class command(BaseCommand):
-    help = ' Load permission category '
+        help = ' Load permission category '
 
-     def get_permission(self. app_codename):
-     perm = None
-     val = app_codename.slipt('.')
+    def get_permission(self. app_codename):
+        perm = None
+        val = app_codename.slipt('.')
     if lenv(val) == 2:
-       perm = Permission.objects.filter(
-	   codename==val[1]
-       content_type__app_label=val[0]
+        perm = Permission.objects.filter(
+        codename==val[1]
+        content_type__app_label=val[0]
     return perm
 
 
-     def load_urlname_permissions(self):
-	    for url_name, item_list in URLNAME_PERMISSION.items():
+    def load_urlname_permissions(self):
+    for url_name, item_list in URLNAME_PERMISSION.items():
 
-		  for obj in item_list:
-              perm = self.get_permission(obj['permission'])
+    for obj in item_list:
+    perm = self.get_permission(obj['permission'])
 
-      if perm:
-      permcat = PermissionCategoryManagement.objects.filter(name=obj['name']. category=obj['category'],
+    if perm:
+        permcat = PermissionCategoryManagement.objects.filter(name=obj['name']. category=obj['category'],
 									    permission=perm.firts(), url_name=url:name)
 
     if not permcat.exists():
-	   new.permcat = PermissionCategoryManagement(
-     (name=obj['name']. category=obj['category'],permission=perm.firts(), url_name=url:name
-
-	   )
-
-	   new_permcat.save()
-	    else:
-		     print("'"+obj['name']+ "'already exists.")
-        else:
-	         print("'"+obj['permisison']+ "'doesn´t exists.")
+    new.permcat = PermissionCategoryManagement(
+    (name=obj['name']. category=obj['category'],permission=perm.firts(), url_name=url:name)
+    new_permcat.save()
+    else:
+        print("'"+obj['name']+ "'already exists.")
+    else:
+        print("'"+obj['permisison']+ "'doesn´t exists.")
 
     def handle(self,*args,**options):
-      PermissionCategoryManagement.objects.all().delete()
-      self.load_urlname_permission()
+        PermissionCategoryManagement.objects.all().delete()
+        self.load_urlname_permission()
 
 
 
+   Let's see what we have now
+   The command call the list URLNAME_PERMISSON get method permisson from codename y el content_type_app_label
+   if the permission doesn't exist will print us "doesn't exist"
+   but once permission is obtained is created and it is filtered to know if it already exists and will be creating with the name,category,permission, urlname that we already write
 
-Let's see what we have now
-The command call the list URLNAME_PERMISSON get method permisson from codename y el content_type_app_label
-if the permission doesn't exist will print us "doesn't exist"
-but once permission is obtained is created and it is filtered to know if it already exists and will be creating with the name,category,permission, urlname that we already write
-
-then a delete it's done and saved.
-we have the example of how they are loaded view by view
+   then a delete it's done and saved.
+   we have the example of how they are loaded view by view
 
 -------------------------------
-Model of User and Group
+
+Model of user and Group
+
 -------------------------------
 
-we have role user and grup
+    we have role user and grup
 
-each grup has users in each grup we maybe have 3 o 4 members and we can attribute the permissions to each group so that each member has them
+    each grup has users in each grup we maybe have 3 o 4 members and we can attribute the permissions to each group so that each member has them
 
-Note: not all users will be able to edit permissions only users with respective permissions
+    Note: not all users will be able to edit permissions only users with respective permissions
 
 
 .. code-block:: python
