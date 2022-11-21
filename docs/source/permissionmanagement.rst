@@ -166,10 +166,7 @@ The additional Permission that you add will go to the premission list URLNAME_PE
 and we calle it with the next command.
 
 
-
-
 .. code-block:: python
-
     class command(BaseCommand):
     help = ' Load permission category '
 
@@ -183,31 +180,32 @@ and we calle it with the next command.
     return perm
 
 
-    def load_urlname_permissions(self):
+     def load_urlname_permissions(self):
 	    for url_name, item_list in URLNAME_PERMISSION.items():
 
 		  for obj in item_list:
               perm = self.get_permission(obj['permission'])
 
-
-        if perm:
-     permcat = PermissionCategoryManagement.objects.filter(name=obj['name']. category=obj['category'],
+      if perm:
+      permcat = PermissionCategoryManagement.objects.filter(name=obj['name']. category=obj['category'],
 									    permission=perm.firts(), url_name=url:name)
 
-    	if not permcat.exists():
+    if not permcat.exists():
 	   new.permcat = PermissionCategoryManagement(
      (name=obj['name']. category=obj['category'],permission=perm.firts(), url_name=url:name
-	    )
 
-	    new_permcat.save()
+	   )
+
+	   new_permcat.save()
 	    else:
 		     print("'"+obj['name']+ "'already exists.")
         else:
 	         print("'"+obj['permisison']+ "'doesn´t exists.")
 
     def handle(self,*args,**options):
-    PermissionCategoryManagement.objects.all().delete()
-    self.load_urlname_permission()
+      PermissionCategoryManagement.objects.all().delete()
+      self.load_urlname_permission()
+
 
 
 
@@ -217,9 +215,7 @@ if the permission doesn't exist will print us "doesn't exist"
 but once permission is obtained is created and it is filtered to know if it already exists and will be creating with the name,category,permission, urlname that we already write
 
 then a delete it's done and saved.
- we have the example of how they are loaded view by view
-
-
+we have the example of how they are loaded view by view
 
 -------------------------------
 Model of User and Group
@@ -230,6 +226,7 @@ we have role user and grup
 each grup has users in each grup we maybe have 3 o 4 members and we can attribute the permissions to each group so that each member has them
 
 Note: not all users will be able to edit permissions only users with respective permissions
+
 
 .. code-block:: python
 
