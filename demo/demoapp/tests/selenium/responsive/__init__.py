@@ -48,7 +48,7 @@ class ScreenshotSeleniumTest(StaticLiveServerTestCase):
                       #{'name': 'pgroup-edit'},
                       {'name': 'abcde-list'},
                       {'name': 'abcde-add'},
-                      {'name': 'abcde-edit'},
+                      {'name': 'abcde-edit', 'args': ('1',)},
                       {'name': 'input-mask-add'},
                       #{'name': 'input-mask-edit'},
                       {'name': 'input-mask-list'},
@@ -110,7 +110,10 @@ class ScreenshotSeleniumTest(StaticLiveServerTestCase):
 
         for path in self.paths:
             name = path['name']
-            url = self.live_server_url + str(reverse(name))
+            args = ()
+            if 'args' in path:
+                args = path['args']
+            url = self.live_server_url + str(reverse(name, args=args))
             print("Headless Firefox Initialized __%s"%name)
             self.screenShots(name, url)
     @classmethod
