@@ -1,6 +1,7 @@
-from django.core.management import BaseCommand
-from django.contrib.staticfiles import finders
 from pathlib import Path
+
+from django.contrib.staticfiles import finders
+from django.core.management import BaseCommand
 
 
 class Command(BaseCommand):
@@ -39,9 +40,9 @@ class Command(BaseCommand):
             fwriter.write("(function($){\n")
             for f in jquery_plugins:
                 with open(basepath / 'base' / f, 'r') as rfile:
-                    fwriter.write("\n%s\n"%(rfile.read()))
+                    fwriter.write("\n%s\n" % (rfile.read()))
             fwriter.write("})(jQuery)\n")
 
             for f in basefiles:
                 with open(basepath / 'base' / f, 'r') as rfile:
-                    fwriter.write("\n%s\n"%(rfile.read()))
+                    fwriter.write("\n%s\n" % (rfile.read()))

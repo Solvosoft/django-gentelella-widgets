@@ -1,12 +1,14 @@
+from datetime import timedelta, datetime
+
+from django import forms
+from django.forms import formset_factory
+from django.template import Template, Context
 from django.test import TestCase
+from rest_framework import serializers
 
 from djgentelella.forms.forms import GTForm
 from djgentelella.widgets.calendar import CalendarInput
-from datetime import date, timedelta, datetime
-from rest_framework import serializers
-from django.forms import formset_factory
-from django import forms
-from django.template import Template, Context
+
 
 class CalendarForm(GTForm, forms.Form):
     calendar = forms.CharField(
@@ -16,6 +18,7 @@ class CalendarForm(GTForm, forms.Form):
         )
     )
 
+
 class CalendarWidgetTest(TestCase):
 
     def setUp(self):
@@ -23,17 +26,22 @@ class CalendarWidgetTest(TestCase):
             {
                 'title': 'Event 1',
                 'start': datetime.strftime(datetime.now(), "%Y-%m-%d %H:%M:%S.%f"),
-                'end': datetime.strftime(datetime.now() + timedelta(minutes=30), "%Y-%m-%d %H:%M:%S.%f")
+                'end': datetime.strftime(datetime.now() + timedelta(minutes=30),
+                                         "%Y-%m-%d %H:%M:%S.%f")
             },
             {
                 'title': 'Event 2',
-                'start': datetime.strftime(datetime.now() + timedelta(days=1), "%Y-%m-%d %H:%M:%S.%f"),
-                'end': datetime.strftime(datetime.now() + timedelta(days=1, minutes=30), "%Y-%m-%d %H:%M:%S.%f")
+                'start': datetime.strftime(datetime.now() + timedelta(days=1),
+                                           "%Y-%m-%d %H:%M:%S.%f"),
+                'end': datetime.strftime(datetime.now() + timedelta(days=1, minutes=30),
+                                         "%Y-%m-%d %H:%M:%S.%f")
             },
             {
                 'title': 'Event 3',
-                'start': datetime.strftime(datetime.now() + timedelta(days=2), "%Y-%m-%d %H:%M:%S.%f"),
-                'end': datetime.strftime(datetime.now() + timedelta(days=2, minutes=30), "%Y-%m-%d %H:%M:%S.%f")
+                'start': datetime.strftime(datetime.now() + timedelta(days=2),
+                                           "%Y-%m-%d %H:%M:%S.%f"),
+                'end': datetime.strftime(datetime.now() + timedelta(days=2, minutes=30),
+                                         "%Y-%m-%d %H:%M:%S.%f")
             },
         ]
 
@@ -50,7 +58,8 @@ class CalendarWidgetTest(TestCase):
         self.assertEquals(self.calendarWidget.widget.events, self.events)
 
     def test_calendar_attrs(self):
-        self.assertDictEqual(self.calendarWidget.widget.calendar_attrs, {'initialView': 'timeGridWeek'})
+        self.assertDictEqual(self.calendarWidget.widget.calendar_attrs,
+                             {'initialView': 'timeGridWeek'})
 
     def test_wrong_field_names(self):
         wrong_fields_event = [
@@ -66,7 +75,8 @@ class CalendarWidgetTest(TestCase):
                 events=wrong_fields_event
             )
         )
-        with self.assertRaisesMessage(serializers.ValidationError, "Serializer data is not accepted."):
+        with self.assertRaisesMessage(serializers.ValidationError,
+                                      "Serializer data is not accepted."):
             calendar.widget.events_to_json(calendar.widget.events)
 
     def test_past_end_date(self):
@@ -83,7 +93,8 @@ class CalendarWidgetTest(TestCase):
                 events=wrong_date_event
             )
         )
-        with self.assertRaisesMessage(serializers.ValidationError, "Event end date must occur after start date"):
+        with self.assertRaisesMessage(serializers.ValidationError,
+                                      "Event end date must occur after start date"):
             calendar.widget.events_to_json(calendar.widget.events)
 
     def test_empty_events(self):
@@ -94,8 +105,10 @@ class CalendarWidgetTest(TestCase):
                 events=empty_event
             )
         )
-        with self.assertRaisesMessage(serializers.ValidationError, "Empty event parameter."):
+        with self.assertRaisesMessage(serializers.ValidationError,
+                                      "Empty event parameter."):
             calendar.widget.events_to_json(calendar.widget.events)
+
 
 class FormCalendarWidgetTest(TestCase):
 
@@ -121,7 +134,8 @@ class FormCalendarWidgetTest(TestCase):
 
     def test_widget_not_required(self):
         self.form.fields['calendar'].required = True
-        calendar_required = self.render('{{form.calendar.required}}', {'form': self.form})
+        calendar_required = self.render('{{form.calendar.required}}',
+                                        {'form': self.form})
         self.assertFalse(calendar_required)
 
     def test_widget_formset(self):

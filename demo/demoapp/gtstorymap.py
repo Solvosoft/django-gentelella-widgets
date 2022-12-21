@@ -260,107 +260,107 @@ class GigaPixelStoryMapExample(BaseStoryMapGPView):
 class MapBasedStoryMapExample(BaseStoryMapMBView):
     def get_storymap(self):
         return {
-        "slides": [{
-            "type": "overview",
-            "date": "",
-            "text": {
-                "headline": "COSTA RICA PLACES TO VISIT",
-                "text": "<p>Costa Rica is a rugged, rainforested Central American country with coastlines on the Caribbean and Pacific. Though its capital, San Jose, is home to cultural institutions like the Pre-Columbian Gold Museum, Costa Rica is known for its beaches, volcanoes, and biodiversity. Roughly a quarter of its area is made up of protected jungle, teeming with wildlife including spider monkeys and quetzal birds.</p> <span class='vco-note'>This is an overview or title slide to show all the points in your story routed on your map.</span>"
-            },
-            "media": {
-                    "url":              "https://www.worldometers.info/img/maps/costa_rica_road_map.gif",
-                    "credit":               "worldometer",
-                    "caption":          "Costa Rica Map"
+            "slides": [{
+                "type": "overview",
+                "date": "",
+                "text": {
+                    "headline": "COSTA RICA PLACES TO VISIT",
+                    "text": "<p>Costa Rica is a rugged, rainforested Central American country with coastlines on the Caribbean and Pacific. Though its capital, San Jose, is home to cultural institutions like the Pre-Columbian Gold Museum, Costa Rica is known for its beaches, volcanoes, and biodiversity. Roughly a quarter of its area is made up of protected jungle, teeming with wildlife including spider monkeys and quetzal birds.</p> <span class='vco-note'>This is an overview or title slide to show all the points in your story routed on your map.</span>"
+                },
+                "media": {
+                    "url": "https://www.worldometers.info/img/maps/costa_rica_road_map.gif",
+                    "credit": "worldometer",
+                    "caption": "Costa Rica Map"
                 }
-        }, {
-            "date": "",
-            "text": {
-                "headline": "MONTEVERDE",
-                "text": "<p>Monteverde is a district of the Puntarenas canton, in the Puntarenas province of Costa Rica. It is located in the Cordillera de Tilarán mountain range. Roughly a four-hour drive from the Central Valley, Monteverde is one of the country's major ecotourism destinations.</p>"
-            },
-            "location": {
-                "name": "MONTEVERDE",
-                "lat": 10.2750,
-                "lon": -84.8255,
-                "zoom": 10,
-                "line": True
-            },
-            "media": {
-                    "url":              "https://media.tacdn.com/media/attractions-splice-spp-674x446/0a/92/c6/e3.jpg",
-                    "credit":               "viator.com",
-                    "caption":          "Canopy tour in Selvatura, Monteverde."
+            }, {
+                "date": "",
+                "text": {
+                    "headline": "MONTEVERDE",
+                    "text": "<p>Monteverde is a district of the Puntarenas canton, in the Puntarenas province of Costa Rica. It is located in the Cordillera de Tilarán mountain range. Roughly a four-hour drive from the Central Valley, Monteverde is one of the country's major ecotourism destinations.</p>"
+                },
+                "location": {
+                    "name": "MONTEVERDE",
+                    "lat": 10.2750,
+                    "lon": -84.8255,
+                    "zoom": 10,
+                    "line": True
+                },
+                "media": {
+                    "url": "https://media.tacdn.com/media/attractions-splice-spp-674x446/0a/92/c6/e3.jpg",
+                    "credit": "viator.com",
+                    "caption": "Canopy tour in Selvatura, Monteverde."
                 }
-        },{
-            "date": "",
-            "text": {
-                "headline": "MANUEL ANTONIO NATIONAL PARK",
-                "text": "<p>Manuel Antonio National Park, on Costa Rica's central Pacific coast, encompasses rugged rainforest, white-sand beaches and coral reefs. It’s renowned for its vast diversity of tropical plants and wildlife, from three-toed sloths and endangered white-faced capuchin monkeys to hundreds of bird species. </p>"
-            },
-            "location": {
-                "name": "MANUEL ANTONIO NATIONAL PARK",
-                "lat": 9.3623,
-                "lon": -84.1370,
-                "zoom": 10,
-                "line": True
-            },
-            "media": {
-                    "url":              "https://d2xuzatlfjyc9k.cloudfront.net/wp-content/uploads/2014/05/Manuel-Antonio-National-Park-1.jpg",
-                    "credit":               "costaricaexperts.com",
-                    "caption":          "Manuel Antonio National Park CR."
+            }, {
+                "date": "",
+                "text": {
+                    "headline": "MANUEL ANTONIO NATIONAL PARK",
+                    "text": "<p>Manuel Antonio National Park, on Costa Rica's central Pacific coast, encompasses rugged rainforest, white-sand beaches and coral reefs. It’s renowned for its vast diversity of tropical plants and wildlife, from three-toed sloths and endangered white-faced capuchin monkeys to hundreds of bird species. </p>"
+                },
+                "location": {
+                    "name": "MANUEL ANTONIO NATIONAL PARK",
+                    "lat": 9.3623,
+                    "lon": -84.1370,
+                    "zoom": 10,
+                    "line": True
+                },
+                "media": {
+                    "url": "https://d2xuzatlfjyc9k.cloudfront.net/wp-content/uploads/2014/05/Manuel-Antonio-National-Park-1.jpg",
+                    "credit": "costaricaexperts.com",
+                    "caption": "Manuel Antonio National Park CR."
                 }
-        }, {
-            "date": "",
-            "text": {
-                "headline": "POAS VOLCANO NATIONAL PARK",
-                "text": "<p>The Poás Volcano, is an active 2,697-metre stratovolcano in central Costa Rica and is located within Poas Volcano National Park. It has erupted 40 times since 1828, including April 2017 when visitors and residents were evacuated. </p>"
-            },
-            "location": {
-                "name": "POAS VOLCANO NATIONAL PARK",
-                "lat": 10.1978,
-                "lon": -84.2306,
-                "zoom": 10,
-                "line": True
-            },
-            "media": {
-                    "url":              "https://upload.wikimedia.org/wikipedia/commons/3/3f/Poas_crater.jpg",
-                    "credit":               "wikipedia",
-                    "caption":          "Poas Volcano National Park CR."
+            }, {
+                "date": "",
+                "text": {
+                    "headline": "POAS VOLCANO NATIONAL PARK",
+                    "text": "<p>The Poás Volcano, is an active 2,697-metre stratovolcano in central Costa Rica and is located within Poas Volcano National Park. It has erupted 40 times since 1828, including April 2017 when visitors and residents were evacuated. </p>"
+                },
+                "location": {
+                    "name": "POAS VOLCANO NATIONAL PARK",
+                    "lat": 10.1978,
+                    "lon": -84.2306,
+                    "zoom": 10,
+                    "line": True
+                },
+                "media": {
+                    "url": "https://upload.wikimedia.org/wikipedia/commons/3/3f/Poas_crater.jpg",
+                    "credit": "wikipedia",
+                    "caption": "Poas Volcano National Park CR."
                 }
-        }, {
-            "date": "",
-            "text": {
-                "headline": "TORTUGUERO",
-                "text": "<p>Tortuguero is a village in Limón Province, on Costa Rica’s Caribbean coast. Part of Tortuguero National Park, it’s on a rainforest-covered sandbar whose beaches are a major nesting site for green turtles. The Sea Turtle Conservancy runs a research station and visitor center, with turtle-related exhibits. The park’s freshwater canals, wetlands and forests shelter wildlife like jaguars, tapirs and manatees. </p>"
-            },
-            "location": {
-                "name": "TORTUGUERO",
-                "lat": 10.5425,
-                "lon": -83.5024,
-                "zoom": 10,
-                "line": True
-            },
-            "media": {
-                    "url":              "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/19/4c/15/ee/ven-a-conocer-tortuguero.jpg?w=500&h=300&s=1",
-                    "credit":               "tripadvisor",
-                    "caption":          "TORTUGUERO NATIONAL PARK."
+            }, {
+                "date": "",
+                "text": {
+                    "headline": "TORTUGUERO",
+                    "text": "<p>Tortuguero is a village in Limón Province, on Costa Rica’s Caribbean coast. Part of Tortuguero National Park, it’s on a rainforest-covered sandbar whose beaches are a major nesting site for green turtles. The Sea Turtle Conservancy runs a research station and visitor center, with turtle-related exhibits. The park’s freshwater canals, wetlands and forests shelter wildlife like jaguars, tapirs and manatees. </p>"
+                },
+                "location": {
+                    "name": "TORTUGUERO",
+                    "lat": 10.5425,
+                    "lon": -83.5024,
+                    "zoom": 10,
+                    "line": True
+                },
+                "media": {
+                    "url": "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/19/4c/15/ee/ven-a-conocer-tortuguero.jpg?w=500&h=300&s=1",
+                    "credit": "tripadvisor",
+                    "caption": "TORTUGUERO NATIONAL PARK."
                 }
-        }, {
-            "date": "",
-            "text": {
-                "headline": "ARENAL VOLCANO",
-                "text": "<p>Arenal Volcano is an active andesitic stratovolcano in north-western Costa Rica around 90 km northwest of San José, in the province of Alajuela, canton of San Carlos, and district of La Fortuna. The Arenal volcano measures at least 1,633 metres high. It is conically shaped with a crater 140 metres in diameter.</p>"
-            },
-            "location": {
-                "name": "ARENAL VOLCANO",
-                "lat": 10.4626,
-                "lon": -84.7032,
-                "zoom": 10,
-                "line": True
-            },
-            "media": {
-                    "url":              "https://upload.wikimedia.org/wikipedia/commons/5/5a/Arenal_volcano._Costa_Rica.jpg",
-                    "credit":               "wikipedia",
-                    "caption":          "ARENAL VOLCANO"
+            }, {
+                "date": "",
+                "text": {
+                    "headline": "ARENAL VOLCANO",
+                    "text": "<p>Arenal Volcano is an active andesitic stratovolcano in north-western Costa Rica around 90 km northwest of San José, in the province of Alajuela, canton of San Carlos, and district of La Fortuna. The Arenal volcano measures at least 1,633 metres high. It is conically shaped with a crater 140 metres in diameter.</p>"
+                },
+                "location": {
+                    "name": "ARENAL VOLCANO",
+                    "lat": 10.4626,
+                    "lon": -84.7032,
+                    "zoom": 10,
+                    "line": True
+                },
+                "media": {
+                    "url": "https://upload.wikimedia.org/wikipedia/commons/5/5a/Arenal_volcano._Costa_Rica.jpg",
+                    "credit": "wikipedia",
+                    "caption": "ARENAL VOLCANO"
                 }
-        }]
-    }
+            }]
+        }

@@ -1,6 +1,8 @@
+from datetime import datetime
+
 from django import forms
 from django.utils import formats
-from datetime import datetime
+
 
 class DateRangeTextWidget(forms.Widget):
     DATEFORMAT = '%m/%d/%y'

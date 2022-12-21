@@ -1,7 +1,8 @@
 from django.urls import reverse_lazy
-from .forms import ChunkedUploadItemForm
-from demoapp.models import ChunkedUploadItem
 from django.views.generic import CreateView, ListView, UpdateView
+
+from demoapp.models import ChunkedUploadItem
+from .forms import ChunkedUploadItemForm
 
 
 class Addchunkedupload(CreateView):

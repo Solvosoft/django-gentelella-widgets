@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('demoapp', '0006_inputmask'),
     ]
@@ -13,7 +12,9 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='DateRange',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id',
+                 models.AutoField(auto_created=True, primary_key=True, serialize=False,
+                                  verbose_name='ID')),
                 ('date_range', models.CharField(max_length=25)),
                 ('date_custom', models.CharField(max_length=25)),
                 ('date_time', models.CharField(max_length=40)),

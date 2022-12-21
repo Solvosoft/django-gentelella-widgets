@@ -16,11 +16,15 @@ class GigapixelForm(GTForm):
             "width": 30000,
             "height": 19970,
             "tolerance": 0.9,
-            "attribution": "<a href='http://www.google.com/culturalinstitute/asset-viewer/a-sunday-on-la-grande-jatte-1884/twGyqq52R-lYpA?projectId=art-project' target='_blank'>Google Art Project</a>"
+            "attribution": "<a href='http://www.google.com/culturalinstitute/" +
+                           "asset-viewer/a-sunday-on-la-grande-jatte-1884/twGyqq52R" +
+                           "-lYpA?projectId=art-project' target='_blank'>" +
+                           "Google Art Project</a>"
         }
     }
     gigapixel_storymap = forms.CharField(widget=GigaPixelStoryMapInput(
-        attrs={"data-url": reverse_lazy('examplestorymapgp-list'), "storymap_options": gigapixel_storymap_options}))
+        attrs={"data-url": reverse_lazy('examplestorymapgp-list'),
+               "storymap_options": gigapixel_storymap_options}))
 
 
 class MapbasedForm(GTForm):

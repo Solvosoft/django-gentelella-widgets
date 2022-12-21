@@ -1,5 +1,3 @@
-import json
-
 from django.urls import reverse_lazy
 
 from djgentelella.widgets.core import Select, update_kwargs, SelectMultiple
@@ -7,7 +5,7 @@ from djgentelella.widgets.core import Select, update_kwargs, SelectMultiple
 
 class BaseAutocomplete:
     def get_context(self, name, value, attrs):
-        context = super().get_context(name,value,attrs)
+        context = super().get_context(name, value, attrs)
         context['url'] = reverse_lazy(self.baseurl)
         return context
 
@@ -25,7 +23,8 @@ class AutocompleteSelectBase(BaseAutocomplete, Select):
 
     def __init__(self, attrs=None, choices=(), extraskwargs=True):
         if extraskwargs:
-            attrs = update_kwargs(attrs, 'AutocompleteSelect', base_class='form-control ')
+            attrs = update_kwargs(attrs, 'AutocompleteSelect',
+                                  base_class='form-control ')
         if self.baseurl is None:
             raise ValueError('Autocomplete requires baseurl to work')
         else:
@@ -35,7 +34,8 @@ class AutocompleteSelectBase(BaseAutocomplete, Select):
         }
         attrsn.update(attrs)
         attrsn.update(self.extra_attrs)
-        super(AutocompleteSelectBase, self).__init__(attrsn,  choices=choices, extraskwargs=False)
+        super(AutocompleteSelectBase, self).__init__(attrsn, choices=choices,
+                                                     extraskwargs=False)
 
 
 class AutocompleteSelectMultipleBase(BaseAutocomplete, SelectMultiple):
@@ -44,7 +44,8 @@ class AutocompleteSelectMultipleBase(BaseAutocomplete, SelectMultiple):
 
     def __init__(self, attrs=None, choices=(), extraskwargs=True):
         if extraskwargs:
-            attrs = update_kwargs(attrs, 'AutocompleteSelectMultiple',  base_class='form-control ')
+            attrs = update_kwargs(attrs, 'AutocompleteSelectMultiple',
+                                  base_class='form-control ')
         if self.baseurl is None:
             raise ValueError('Autocomplete requires baseurl to work')
         else:
@@ -55,11 +56,13 @@ class AutocompleteSelectMultipleBase(BaseAutocomplete, SelectMultiple):
         }
         attrsn.update(attrs)
         attrsn.update(self.extra_attrs)
-        super(AutocompleteSelectMultipleBase, self).__init__(attrsn, choices=choices, extraskwargs=True)
+        super(AutocompleteSelectMultipleBase, self).__init__(attrsn, choices=choices,
+                                                             extraskwargs=True)
+
 
 def AutocompleteSelect(url, attrs={}):
     class AutocompleteSelect(AutocompleteSelectBase):
-        baseurl = url+"-list"
+        baseurl = url + "-list"
         extra_attrs = attrs.copy()
 
     return AutocompleteSelect
@@ -67,8 +70,7 @@ def AutocompleteSelect(url, attrs={}):
 
 def AutocompleteSelectMultiple(url, attrs={}):
     class AutocompleteSelectMultiple(AutocompleteSelectMultipleBase):
-        baseurl = url+"-list"
+        baseurl = url + "-list"
         extra_attrs = attrs.copy()
-
 
     return AutocompleteSelectMultiple

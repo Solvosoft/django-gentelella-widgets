@@ -7,7 +7,7 @@ def update_icons(apps, schema_editor):
     model = apps.get_model('djgentelella', 'MenuItem')
     logout = model.objects.filter(title='Logout').first()
     if logout is not None:
-        logout.only_icon=False
+        logout.only_icon = False
         logout.save()
 
     help = model.objects.filter(icon='fa fa-envelope-o').first()
@@ -15,8 +15,8 @@ def update_icons(apps, schema_editor):
         help.title = 'Help'
         help.save()
 
-class Migration(migrations.Migration):
 
+class Migration(migrations.Migration):
     dependencies = [
         ('djgentelella', '0006_permissionscategorymanagement'),
     ]

@@ -1,15 +1,16 @@
-from django.conf import settings
-from django.utils.translation import gettext_lazy as _
-import time
 import os.path
+import time
 from datetime import timedelta
-from django.utils.module_loading import import_string
+
+from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
+from django.utils.module_loading import import_string
+from django.utils.translation import gettext_lazy as _
 
 NOTIFICATION_DEFAULT_SUBJECT = getattr(settings, 'NOTIFICATION_DEFAULT_SUBJECT',
-                                     _('You have a new notification'))
+                                       _('You have a new notification'))
 NOTIFICATION_DEFAULT_TEMPLATE = getattr(settings, 'NOTIFICATION_DEFAULT_TEMPLATE',
-                                     'gentelella/email/notification.html')
+                                        'gentelella/email/notification.html')
 
 DEFAULT_JS_IMPORTS = getattr(settings, 'DEFAULT_JS_IMPORTS', {})
 
@@ -30,14 +31,14 @@ USER_MODEL_BASE = getattr(
 try:
     Group = import_string(GROUP_MODEL_BASE)
 except Exception as e:
-    from django.contrib.auth.models import  Group
+    from django.contrib.auth.models import Group
 try:
     User = import_string(USER_MODEL_BASE)
 except Exception as e:
     from django.contrib.auth.models import User
 
 #####################################################
-##    Chuncked Upload
+#    Chuncked Upload
 ############################################
 
 # How long after creation the upload will expire
@@ -61,7 +62,8 @@ UPLOAD_TO = getattr(settings, 'CHUNKED_UPLOAD_TO', default_upload_to)
 try:
     STORAGE = getattr(settings, 'CHUNKED_UPLOAD_STORAGE_CLASS', lambda: None)()
 except TypeError:
-    STORAGE = import_string(getattr(settings, 'CHUNKED_UPLOAD_STORAGE_CLASS', lambda: None))()
+    STORAGE = import_string(
+        getattr(settings, 'CHUNKED_UPLOAD_STORAGE_CLASS', lambda: None))()
 
 # Function used to encode response data. Receives a dict and return a string
 DEFAULT_ENCODER = DjangoJSONEncoder().encode
@@ -77,4 +79,4 @@ DEFAULT_MAX_BYTES = None
 MAX_BYTES = getattr(settings, 'CHUNKED_UPLOAD_MAX_BYTES', DEFAULT_MAX_BYTES)
 
 #############################################################
-####   END UPLOAD CHUNKED
+#   END UPLOAD CHUNKED

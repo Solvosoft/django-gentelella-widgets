@@ -11,7 +11,7 @@ class TaggingForm(GTForm, forms.ModelForm):
         fields = '__all__'
         widgets = {
 
-        'text_list': TaggingInput,
-        'email_list':  EmailTaggingInput,
-        'area_list': TaggingInput
+            'text_list': TaggingInput,
+            'email_list': EmailTaggingInput,
+            'area_list': TaggingInput
         }

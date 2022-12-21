@@ -1,8 +1,7 @@
+from django import forms
 from django.urls import reverse_lazy
 
 from djgentelella.forms.forms import GTForm
-from django import forms
-
 from djgentelella.widgets.storyline import UrlStoryLineInput
 
 

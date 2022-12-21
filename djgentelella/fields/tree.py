@@ -3,15 +3,14 @@ from django.utils.encoding import smart_str
 from django.utils.html import conditional_escape
 
 
-
 class GentelellaTreeNodeChoiceField(forms.Select):
 
     def __init__(self, queryset, *args, **kwargs):
         self.disables = []
         for x in range(4):
-            if 'disable'+str(x) in kwargs:
+            if 'disable' + str(x) in kwargs:
                 self.disables.append(x)
-                kwargs.pop('disable'+str(x))
+                kwargs.pop('disable' + str(x))
 
         super().__init__(queryset, *args, **kwargs)
 
@@ -21,7 +20,6 @@ class GentelellaTreeNodeChoiceField(forms.Select):
         generating option labels.
         """
         return conditional_escape(smart_str(obj))
-
 
     def label_from_instance(self, obj):
         """
@@ -33,16 +31,16 @@ class GentelellaTreeNodeChoiceField(forms.Select):
         disable = False
         if level in self.disables:
             disable = True
-        return {'level':level, 'disable': disable,  'text': str(obj) }
+        return {'level': level, 'disable': disable, 'text': str(obj)}
 
 
 class GentelellaTreeNodeMultipleChoiceField(forms.SelectMultiple):
     def __init__(self, queryset, *args, **kwargs):
         self.disables = []
         for x in range(4):
-            if 'disable'+str(x) in kwargs:
+            if 'disable' + str(x) in kwargs:
                 self.disables.append(x)
-                kwargs.pop('disable'+str(x))
+                kwargs.pop('disable' + str(x))
 
         super().__init__(queryset, *args, **kwargs)
 
@@ -63,4 +61,4 @@ class GentelellaTreeNodeMultipleChoiceField(forms.SelectMultiple):
         disable = False
         if level in self.disables:
             disable = True
-        return {'level':level, 'disable': disable,  'text': str(obj) }
+        return {'level': level, 'disable': disable, 'text': str(obj)}

@@ -25,10 +25,11 @@ clean-pyc:
 	find . -name '*~' -exec rm -f {} +
 
 lint:
-	pep8 djgentelella
+	pycodestyle --max-line-length=88 djgentelella --exclude=djgentelella/management/commands/loaddevstatic.py
+	pycodestyle --max-line-length=88 demo --exclude=demo/demoapp/gtstorymap.py
 
 test:
-	cd demo && python manage.py text
+	cd demo && python manage.py test
 
 docs:
 	$(MAKE) -C docs clean

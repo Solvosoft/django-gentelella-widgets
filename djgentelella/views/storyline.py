@@ -1,8 +1,9 @@
 import csv
 
-from django.http import HttpResponse, JsonResponse, Http404
+from django.http import HttpResponse, JsonResponse
 from django.urls import reverse, NoReverseMatch
 from rest_framework.viewsets import ReadOnlyModelViewSet
+
 from djgentelella.serializers.storyline import OptionsSerializer
 
 
@@ -26,7 +27,8 @@ class StorylineBuilder(ReadOnlyModelViewSet):
             raise NameError("No base name set")
         try:
             options = self.create_options()
-            options['data']['url'] = reverse(self.urlbasename + '-detail', args=[self.retryname])
+            options['data']['url'] = reverse(self.urlbasename + '-detail',
+                                             args=[self.retryname])
             options_serializer = OptionsSerializer(data=options)
             options_serializer.is_valid(raise_exception=True)
             return JsonResponse(options_serializer.data)
@@ -51,10 +53,10 @@ class StorylineBuilder(ReadOnlyModelViewSet):
             # only the first one call update the len so always is row[0]
             self.title_len = len(row)
             if self.title_len < 2:
-                ok=False
+                ok = False
         # do checks
         if len(row) < self.row_size or len(row) != self.title_len:
-            ok=False
+            ok = False
 
         if ok or self.allow_errors:
             return row
@@ -81,6 +83,3 @@ class StorylineBuilder(ReadOnlyModelViewSet):
             return HttpResponse(status=400, reason="Invalid csv data")
 
         return response
-
-
-

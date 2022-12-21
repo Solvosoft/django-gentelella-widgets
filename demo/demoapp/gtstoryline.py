@@ -1,5 +1,6 @@
-import io
 import csv
+import io
+
 from django.template.loader import render_to_string
 
 from djgentelella.groute import register_lookups
@@ -33,4 +34,3 @@ class StorylineExample(StorylineBuilder):
 
         for row in reader:
             yield list(row)
-

@@ -7,8 +7,11 @@ class PMBase:
     def get_permission_list(self):
         categories = {}
         q = self.form.cleaned_data['urlname']
-        permissions_list = PermissionsCategoryManagement.objects.filter(url_name__in=q.split(',')).order_by('category'
-            ).distinct().values('category', 'permission', 'name')
+        permissions_list = PermissionsCategoryManagement.objects.filter(
+            url_name__in=q.split(',')).order_by('category'
+                                                ).distinct().values('category',
+                                                                    'permission',
+                                                                    'name')
 
         for perm in permissions_list:
             if perm['category'] not in categories:
@@ -20,7 +23,7 @@ class PMBase:
 
 
 class PMUser(PMBase):
-    
+
     def __init__(self, request, form):
         self.form = form
         self.request = request
@@ -33,17 +36,21 @@ class PMUser(PMBase):
             permission = user.gt_get_permission.all()
         else:
             permission = user.user_permissions.all()
-        permission_list = PermissionsCategoryManagement.objects.filter(url_name__in=q.split(','))
-        for perm in permission_list.filter(permission__in=permission).values(
-                'permission',  'permission__name', 'permission__codename'):
-                perms.append({'id': perm['permission'], 'name': perm['permission__name'],
-                              'codename': perm['permission__codename']})
+        permission_list = PermissionsCategoryManagement.objects.filter(
+            url_name__in=q.split(','))
+        for perm in permission_list.filter(permission__in=permission
+                                           ).values('permission', 'permission__name',
+                                                    'permission__codename'):
+            perms.append({'id': perm['permission'], 'name': perm['permission__name'],
+                          'codename': perm['permission__codename']})
         return perms
 
     def update_permission(self):
         user = self.form.cleaned_data['user']
-        old_user_permission = set(map(lambda x: x["id"], self.get_django_permissions(user.pk)))
-        set_permission_list = set(self.form.cleaned_data['permissions'].values_list('pk', flat=True))
+        old_user_permission = set(
+            map(lambda x: x["id"], self.get_django_permissions(user.pk)))
+        set_permission_list = set(
+            self.form.cleaned_data['permissions'].values_list('pk', flat=True))
 
         remove_permission = old_user_permission - set_permission_list
         add_permission = set_permission_list - old_user_permission
@@ -56,7 +63,9 @@ class PMUser(PMBase):
         if hasattr(user, 'gt_get_permission'):
             user.gt_get_permission.add(*add_permission)
         else:
-            user.user_permissions.add(*add_permission) # ? list(Permission.objects.filter(pk__in=add_permission))
+            user.user_permissions.add(
+                *add_permission)
+            # ? list(Permission.objects.filter(pk__in=add_permission))
 
 
 class PMGroup(PMBase):
@@ -73,17 +82,21 @@ class PMGroup(PMBase):
             permission = group.gt_get_permission().all()
         else:
             permission = group.permissions.all()
-        permission_list = PermissionsCategoryManagement.objects.filter(url_name__in=q.split(','))
-        for perm in permission_list.filter(permission__in=permission).values(
-                'permission',  'permission__name', 'permission__codename'):
-                perms.append({'id': perm['permission'], 'name': perm['permission__name'],
-                              'codename': perm['permission__codename']})
+        permission_list = PermissionsCategoryManagement.objects.filter(
+            url_name__in=q.split(','))
+        for perm in permission_list.filter(permission__in=permission
+                                           ).values('permission', 'permission__name',
+                                                    'permission__codename'):
+            perms.append({'id': perm['permission'], 'name': perm['permission__name'],
+                          'codename': perm['permission__codename']})
         return perms
 
     def update_permission(self):
         group = self.form.cleaned_data['group']
-        old_user_permission = set(map(lambda x: x["id"], self.get_django_permissions(group.pk)))
-        set_permission_list = set(self.form.cleaned_data['permissions'].values_list('pk', flat=True))
+        old_user_permission = set(
+            map(lambda x: x["id"], self.get_django_permissions(group.pk)))
+        set_permission_list = set(
+            self.form.cleaned_data['permissions'].values_list('pk', flat=True))
         remove_permission = old_user_permission - set_permission_list
         add_permission = set_permission_list - old_user_permission
         # Check empty fields and clean permissions ?
@@ -95,7 +108,8 @@ class PMGroup(PMBase):
         if hasattr(group, 'gt_get_permission'):
             group.gt_get_permission(*add_permission)
         else:
-            group.permissions.add(*add_permission) # ? Permission.objects.filter(pk__in=add_permission)
+            group.permissions.add(
+                *add_permission)  # ? Permission.objects.filter(pk__in=add_permission)
 
 
 class ObjManager:

@@ -1,12 +1,12 @@
+from django import forms
+
+from demoapp import models
 from djgentelella.forms.forms import CustomForm
 from djgentelella.widgets.core import TextInput
 from djgentelella.widgets.selects import AutocompleteSelect, AutocompleteSelectMultiple
-from django import forms
-from demoapp import models
 
 
 class PeopleGroupForm(CustomForm, forms.ModelForm):
-
     class Meta:
         model = models.PeopleGroup
         fields = '__all__'
@@ -23,7 +23,7 @@ class ABCDEGroupForm(CustomForm, forms.ModelForm):
         model = models.ABCDE
         fields = '__all__'
         widgets = {
-            'a':  AutocompleteSelectMultiple("a", attrs={
+            'a': AutocompleteSelectMultiple("a", attrs={
                 'data-related': 'true',
                 'data-pos': 0,
                 'data-groupname': 'myabcde'
@@ -56,7 +56,7 @@ class ABCDEModalGroupForm(CustomForm, forms.ModelForm):
         model = models.ABCDE
         fields = '__all__'
         widgets = {
-            'a':  AutocompleteSelectMultiple("a", attrs={
+            'a': AutocompleteSelectMultiple("a", attrs={
                 'data-dropdownparent': '#exampleModal',
                 'data-related': 'true',
                 'data-pos': 0,
@@ -87,5 +87,3 @@ class ABCDEModalGroupForm(CustomForm, forms.ModelForm):
                 'data-groupname': 'myabcde',
             }),
         }
-
-

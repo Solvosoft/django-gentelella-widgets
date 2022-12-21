@@ -310,7 +310,6 @@ class Command(BaseCommand):
             only_icon=False
         )
 
-
         chart = MenuItem.objects.create(
             parent=dashboard,
             title='Charts',
@@ -438,7 +437,7 @@ class Command(BaseCommand):
         item = MenuItem.objects.create(
             parent=None,
             title='Logout',
-            url_name='/accounts/logout/', # DO manual
+            url_name='/accounts/logout/',  # DO manual
             category='sidebarfooter',  # sidebar, sidebarfooter,
             is_reversed=False,
             reversed_kwargs=None,
@@ -561,8 +560,9 @@ class Command(BaseCommand):
                             d, c, b, a), id=did, c_id=cid))
                         for e in range(1, 4):
                             eid += 1
-                            el.append(models.E(display="E %d d(%d) c(%d) b(%d) a(%d)" % (
-                                e, d, c, b, a), id=eid, d_id=did))
+                            el.append(
+                                models.E(display="E %d d(%d) c(%d) b(%d) a(%d)" % (
+                                    e, d, c, b, a), id=eid, d_id=did))
         models.A.objects.bulk_create(al)
         models.B.objects.bulk_create(bl)
         models.C.objects.bulk_create(cl)

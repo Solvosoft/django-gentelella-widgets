@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('demoapp', '0007_daterange'),
     ]
@@ -13,7 +12,9 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='TaggingModel',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id',
+                 models.AutoField(auto_created=True, primary_key=True, serialize=False,
+                                  verbose_name='ID')),
                 ('text_list', models.CharField(blank=True, max_length=500, null=True)),
                 ('email_list', models.CharField(blank=True, max_length=500, null=True)),
                 ('area_list', models.TextField(blank=True, null=True)),

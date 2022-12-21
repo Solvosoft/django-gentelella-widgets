@@ -17,6 +17,7 @@ def get_field_widget(widget_type):
 
     return widget
 
+
 def decore_treenode(form_instance, field):
     if type(form_instance.fields[field]) == 'TreeNodeChoiceField':
         form_instance.fields[field] = tree.GentelellaTreeNodeChoiceField(
@@ -26,7 +27,7 @@ def decore_treenode(form_instance, field):
                 attrs=form_instance.fields[field].widget.attrs,
                 choices=form_instance.fields[field].widget.choices)
         )
-    elif type(form_instance.fields[field]) =='TreeNodeMultipleChoiceField':
+    elif type(form_instance.fields[field]) == 'TreeNodeMultipleChoiceField':
         form_instance.fields[field] = tree.GentelellaTreeNodeMultipleChoiceField(
             queryset=form_instance.fields[field].queryset,
             required=form_instance.fields[field].required,
@@ -35,10 +36,13 @@ def decore_treenode(form_instance, field):
                 choices=form_instance.fields[field].widget.choices)
         )
 
+
 def _form_instance(fnc, instance):
     def new_fnc():
         return fnc(instance)
+
     return new_fnc
+
 
 def decore_form_instance(form_instance, exclude=()):
     for field in form_instance.fields:
@@ -53,6 +57,6 @@ def decore_form_instance(form_instance, exclude=()):
                 form_instance.fields[field].widget = widget
     for method in CustomForm.exposed_method:
         setattr(form_instance, method,
-                _form_instance(getattr(CustomForm, method),form_instance))
+                _form_instance(getattr(CustomForm, method), form_instance))
     form_instance.is_customized = True
     return form_instance

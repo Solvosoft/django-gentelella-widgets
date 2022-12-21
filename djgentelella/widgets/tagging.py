@@ -19,6 +19,7 @@ class TaggingInput(Input):
             value = ", ".join([item['value'] for item in data])
         return value
 
+
 class EmailTaggingInput(Input):
     input_type = 'text'
     template_name = 'gentelella/widgets/tagging.html'

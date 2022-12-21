@@ -149,7 +149,8 @@ class BaseChartGetter(viewsets.ViewSet):
     serializer_class = ChartSerializer
 
     def get_options(self):
-        options = ['responsive', 'legend', 'title', 'tooltips', 'hover', 'scales', 'elements', 'animation']
+        options = ['responsive', 'legend', 'title', 'tooltips', 'hover', 'scales',
+                   'elements', 'animation']
         dev = {}
         for option in options:
             if hasattr(self, 'get_' + option):

@@ -2,14 +2,15 @@
 
 from django.db import migrations, models
 
+
 def gen_position(apps, schema_editor):
     MenuItem = apps.get_model('djgentelella', 'MenuItem')
     for obj in MenuItem.objects.all():
         obj.position = obj.tree_id * 100000 + obj.lft
         obj.save(update_fields=['position'])
 
-class Migration(migrations.Migration):
 
+class Migration(migrations.Migration):
     dependencies = [
         ('djgentelella', '0009_chunkedupload'),
     ]

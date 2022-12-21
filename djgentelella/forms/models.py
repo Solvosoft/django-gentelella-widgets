@@ -1,8 +1,9 @@
 from django import forms
 
 from djgentelella.models import Help
-from .forms import CustomForm
 from djgentelella.widgets import core as genwidgets
+from .forms import CustomForm
+
 
 class HelpForm(CustomForm, forms.ModelForm):
     class Meta:

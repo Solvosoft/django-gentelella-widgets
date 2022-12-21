@@ -1,5 +1,7 @@
 from django.contrib import admin
-from .models import WithCatalog, Catalog, OneCatalog, Country, Person, Colors, Foo, Comunity, Employee, \
+
+from .models import WithCatalog, Catalog, OneCatalog, Country, Person, Colors, Foo, \
+    Comunity, Employee, \
     ChunkedUploadItem, Event, Calendar
 
 admin.site.register(Country)
