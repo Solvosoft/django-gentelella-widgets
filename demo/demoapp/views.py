@@ -2,11 +2,12 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
+from django.views.generic import CreateView
+
 from djgentelella.notification import create_notification
 from .autocomplete.forms import ABCDEModalGroupForm
 from .forms import FooModelForm, ColorWidgetsForm, SimpleColorForm, \
     YesNoInputAddForm, PersonModalForm
-from django.views.generic import CreateView, ListView, UpdateView
 from .models import YesNoInput
 
 
@@ -14,29 +15,30 @@ from .models import YesNoInput
 def create_notification_view(request):
     email = request.GET.get('email', '')
     if email:
-        create_notification("This es an example of notification system with email", request.user,
-           'success', link='notifications',
-            link_prop={'args': [], 'kwargs': {'pk': 2}},
+        create_notification("This es an example of notification system with email",
+                            request.user,
+                            'success', link='notifications',
+                            link_prop={'args': [], 'kwargs': {'pk': 2}},
                             request=request, send_email=True)
     else:
         create_notification("This es an example of notification system", request.user,
-           'success', link='notifications',
-            link_prop={'args': [], 'kwargs': {'pk': 2}}, request=request)
+                            'success', link='notifications',
+                            link_prop={'args': [], 'kwargs': {'pk': 2}},
+                            request=request)
 
     messages.success(request, 'A notification was created, check the widget')
 
-
-
     return redirect("/")
+
 
 def knobView(request):
     form = FooModelForm()
     if request.method == 'POST':
-        form  = FooModelForm(request.POST)
+        form = FooModelForm(request.POST)
         if form.is_valid():
             form.save()
             form = FooModelForm()
-            
+
     return render(request, 'knobs-form.html', {'form': form})
 
 
@@ -59,7 +61,7 @@ class YesNoInputView(CreateView):
 
 
 def bt_modal_display(request):
-    context={
+    context = {
         'form': PersonModalForm(),
         'abcdeform': ABCDEModalGroupForm()
     }

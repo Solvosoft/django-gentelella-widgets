@@ -1,7 +1,8 @@
 from django.http import JsonResponse
 from rest_framework.viewsets import ViewSet
 
-from djgentelella.serializers.storymap import GStoryMapMBSerializer, GStoryMapGPSerializer
+from djgentelella.serializers.storymap import GStoryMapMBSerializer, \
+    GStoryMapGPSerializer
 
 
 class BaseStoryMapMBView(ViewSet):

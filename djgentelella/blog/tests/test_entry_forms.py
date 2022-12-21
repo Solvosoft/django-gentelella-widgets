@@ -7,7 +7,9 @@ from djgentelella.blog import models
 class TestEntryEditing(TestCase):
 
     def setUp(self):
-        self.entry = models.Entry.objects.create(title=u'Welcome!', content='### Some Content', is_published=False)
+        self.entry = models.Entry.objects.create(title=u'Welcome!',
+                                                 content='### Some Content',
+                                                 is_published=False)
 
         class EntryForm(ModelForm):
             class Meta:

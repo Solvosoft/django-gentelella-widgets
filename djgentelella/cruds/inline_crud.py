@@ -8,7 +8,6 @@ Created on 14/4/2017
 '''
 from __future__ import unicode_literals
 
-
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import re_path
@@ -16,7 +15,8 @@ from django_ajax.decorators import ajax
 
 from djgentelella.cruds.base import CRUDView
 from djgentelella.templatetags.crud_tags import crud_inline_url
-from . import  utils
+from . import utils
+
 
 class InlineAjaxCRUD(CRUDView):
     base_model = None
@@ -87,6 +87,7 @@ class InlineAjaxCRUD(CRUDView):
             def get(self, request, *args, **kwargs):
                 self.model_id = kwargs['model_id']
                 return djDetailView.get(self, request, *args, **kwargs)
+
         return DetailView
 
     def get_update_view(self):
@@ -124,10 +125,11 @@ class InlineAjaxCRUD(CRUDView):
                 self.model_id = get_object_or_404(
                     self.base_model, pk=kwargs['model_id'])
                 return djUpdateView.post(self, request, *args, **kwargs)
+
         return UpdateView
 
     def get_list_view(self):
-        djListView = super(InlineAjaxCRUD, self). get_list_view()
+        djListView = super(InlineAjaxCRUD, self).get_list_view()
 
         class ListView(djListView):
             inline_field = self.inline_field
@@ -154,6 +156,7 @@ class InlineAjaxCRUD(CRUDView):
                 self.model_id = get_object_or_404(
                     self.base_model, pk=kwargs['model_id'])
                 return djListView.get(self, request, *args, **kwargs)
+
         return ListView
 
     def get_delete_view(self):
@@ -186,6 +189,7 @@ class InlineAjaxCRUD(CRUDView):
                     self.base_model, pk=kwargs['model_id'])
                 response = djDeleteView.post(self, request, *args, **kwargs)
                 return HttpResponse(" ")
+
         return DeleteView
 
     def __init__(self, *args, **kwargs):
@@ -199,36 +203,36 @@ class InlineAjaxCRUD(CRUDView):
         myurls = []
         if 'list' in self.views_available:
             myurls.append(re_path("^%s/(?P<model_id>[^/]+)/list$" % (base_name,),
-                              self.list,
-                              name=utils.crud_url_name(
-                                  self.model, 'list', prefix=self.urlprefix)))
+                                  self.list,
+                                  name=utils.crud_url_name(
+                                      self.model, 'list', prefix=self.urlprefix)))
         if 'create' in self.views_available:
             myurls.append(re_path("^%s/(?P<model_id>[^/]+)/create$" % (base_name,),
-                              self.create,
-                              name=utils.crud_url_name(
-                                  self.model, 'create', prefix=self.urlprefix))
+                                  self.create,
+                                  name=utils.crud_url_name(
+                                      self.model, 'create', prefix=self.urlprefix))
                           )
         if 'detail' in self.views_available:
             myurls.append(re_path('^%s/(?P<model_id>[^/]+)/(?P<pk>[^/]+)$' %
-                              (base_name,),
-                              self.detail,
-                              name=utils.crud_url_name(
-                                  self.model, 'detail', prefix=self.urlprefix))
+                                  (base_name,),
+                                  self.detail,
+                                  name=utils.crud_url_name(
+                                      self.model, 'detail', prefix=self.urlprefix))
                           )
         if 'update' in self.views_available:
             myurls.append(re_path("^%s/(?P<model_id>[^/]+)/(?P<pk>[^/]+)/update$" %
-                              (base_name,),
-                              self.update,
-                              name=utils.crud_url_name(
-                                  self.model, 'update', prefix=self.urlprefix))
+                                  (base_name,),
+                                  self.update,
+                                  name=utils.crud_url_name(
+                                      self.model, 'update', prefix=self.urlprefix))
                           )
         if 'delete' in self.views_available:
             myurls.append(re_path(r"^%s/(?P<model_id>[^/]+)/(?P<pk>[^/]+)/delete$"
-                          %
-                          (base_name,),
-                          self.delete,
-                          name=utils.crud_url_name(
-                              self.model, 'delete', prefix=self.urlprefix))
+                                  %
+                                  (base_name,),
+                                  self.delete,
+                                  name=utils.crud_url_name(
+                                      self.model, 'delete', prefix=self.urlprefix))
                           )
 
         return myurls

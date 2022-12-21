@@ -1,22 +1,26 @@
+from django import forms
 from django.core.exceptions import ImproperlyConfigured
+from django.forms import formset_factory
 from django.template import Template, Context
 from django.test import TestCase
-from django.forms import formset_factory
+
 from djgentelella.views.storyline import OptionsSerializer
 from djgentelella.widgets.storyline import UrlStoryLineInput
-from django import forms
 
-
-attrs={"data-url": 'examplestoryline-url/',  "height": 568}
+attrs = {"data-url": 'examplestoryline-url/', "height": 568}
 
 
 class FormClass(forms.Form):
     storyline = forms.CharField(widget=UrlStoryLineInput(attrs))
 
+
 class MultiItemsFormClass(forms.Form):
-    storyone = forms.CharField(widget=UrlStoryLineInput(attrs), disabled=True, required=True)
-    storytwo = forms.CharField(widget=UrlStoryLineInput(attrs), disabled=True, required=False)
-    storythree = forms.CharField(widget=UrlStoryLineInput(attrs), disabled=False, required=False)
+    storyone = forms.CharField(widget=UrlStoryLineInput(attrs), disabled=True,
+                               required=True)
+    storytwo = forms.CharField(widget=UrlStoryLineInput(attrs), disabled=True,
+                               required=False)
+    storythree = forms.CharField(widget=UrlStoryLineInput(attrs), disabled=False,
+                                 required=False)
 
 
 class UrlStorylineWidgetUnitTest(TestCase):
@@ -62,14 +66,14 @@ class UrlStorylineWidgetUnitTest(TestCase):
         form = self.render('{{form}}', {'form': self.basicform})
         self.assertIn('data-widget="UrlStoryLineInput"', form)
 
-
     def test_check_data_url_required(self):
         """
         Check exception when data-url not found on widget
         reason: help user to identify error when code
         """
 
-        with self.assertRaisesRegex(ImproperlyConfigured, "You must add data-url on attrs"):
+        with self.assertRaisesRegex(ImproperlyConfigured,
+                                    "You must add data-url on attrs"):
             class InvalidForm(forms.Form):
                 storyline = forms.CharField(widget=UrlStoryLineInput)
                 storytwo = forms.CharField(widget=UrlStoryLineInput({"height": 20}))
@@ -139,7 +143,8 @@ class SerializerCheckTest(TestCase):
         Check correct data validation on data field.
         reason: we need to identify possible data errors in serializer
         """
-        bad_data = {'data': self.invalid_data_1,'chart': self.chart,'slider': self.slider}
+        bad_data = {'data': self.invalid_data_1, 'chart': self.chart,
+                    'slider': self.slider}
         new_serializer = OptionsSerializer(data=bad_data)
         self.assertEqual(new_serializer.is_valid(), False)
         error_list = list(new_serializer.errors['data'].keys())
@@ -148,7 +153,8 @@ class SerializerCheckTest(TestCase):
         wait_list.sort()
         self.assertListEqual(error_list, wait_list)
 
-        bad_data = {'data': self.invalid_data_2, 'chart': self.chart,'slider': self.slider}
+        bad_data = {'data': self.invalid_data_2, 'chart': self.chart,
+                    'slider': self.slider}
         new_serializer = OptionsSerializer(data=bad_data)
         self.assertEqual(new_serializer.is_valid(), False)
         error_list = list(new_serializer.errors['data'].keys())
@@ -157,7 +163,8 @@ class SerializerCheckTest(TestCase):
         wait_list.sort()
         self.assertListEqual(error_list, wait_list)
 
-        bad_data = {'data': self.invalid_data_3,'chart': self.chart,'slider': self.slider}
+        bad_data = {'data': self.invalid_data_3, 'chart': self.chart,
+                    'slider': self.slider}
         new_serializer = OptionsSerializer(data=bad_data)
         self.assertEqual(new_serializer.is_valid(), False)
         error_list = list(new_serializer.errors['data'].keys())
@@ -171,13 +178,13 @@ class SerializerCheckTest(TestCase):
         Check chart structure data, this test checks that  datetime_format not found.
         reason: Js doesn't work if datetime_format is not present
         """
-        bad_data = {'data': self.data, 'chart': self.invalid_chart, 'slider': self.slider}
+        bad_data = {'data': self.data, 'chart': self.invalid_chart,
+                    'slider': self.slider}
         new_serializer = OptionsSerializer(data=bad_data)
         self.assertEqual(new_serializer.is_valid(), False)
         error_list = list(new_serializer.errors['chart'].keys())
         wait_list = ['datetime_format']
         self.assertListEqual(error_list, wait_list)
-
 
     def test_OptionsSerializer_slider(self):
         """
@@ -186,28 +193,27 @@ class SerializerCheckTest(TestCase):
 
         """
 
-        bad_data = {'data': self.data,'chart': self.chart,'slider': self.invalid_slider_1}
+        bad_data = {'data': self.data, 'chart': self.chart,
+                    'slider': self.invalid_slider_1}
         new_serializer = OptionsSerializer(data=bad_data)
         self.assertEqual(new_serializer.is_valid(), False)
         error_list = list(new_serializer.errors['slider'].keys())
         wait_list = ['title_column_name']
         self.assertListEqual(error_list, wait_list)
 
-        bad_data = {'data': self.data, 'chart': self.chart,'slider': self.invalid_slider_2}
+        bad_data = {'data': self.data, 'chart': self.chart,
+                    'slider': self.invalid_slider_2}
         new_serializer = OptionsSerializer(data=bad_data)
         self.assertEqual(new_serializer.is_valid(), False)
         error_list = list(new_serializer.errors['slider'].keys())
         wait_list = ['text_column_name']
         self.assertListEqual(error_list, wait_list)
 
-
-
-
     def test_OptionsSerializer_valid(self):
         """This test checks that the serializer works with all configurations possible
         FIXME: better data options required that can check all configurations available
         reason: check the correct way.
         """
-        data = {'data': self.data,'chart': self.chart,'slider': self.slider}
+        data = {'data': self.data, 'chart': self.chart, 'slider': self.slider}
         new_serializer = OptionsSerializer(data=data)
         self.assertEqual(new_serializer.is_valid(), True)

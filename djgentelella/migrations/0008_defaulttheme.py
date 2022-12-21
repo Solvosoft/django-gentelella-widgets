@@ -2,6 +2,7 @@
 
 from django.db import migrations
 
+
 def forwards_func(apps, schema_editor):
     Settings = apps.get_model("djgentelella", "GentelellaSettings")
     Settings.objects.create(
@@ -11,7 +12,6 @@ def forwards_func(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('djgentelella', '0007_edit_footer'),
     ]

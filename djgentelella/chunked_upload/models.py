@@ -1,9 +1,9 @@
 import hashlib
 import uuid
-from django.utils import timezone
-from django.db import models
-from django.core.files.uploadedfile import UploadedFile
 
+from django.core.files.uploadedfile import UploadedFile
+from django.db import models
+from django.utils import timezone
 
 from djgentelella.settings import EXPIRATION_DELTA, UPLOAD_TO, STORAGE
 from .constants import CHUNKED_UPLOAD_CHOICES, UPLOADING
@@ -62,7 +62,8 @@ class AbstractChunkedUpload(models.Model):
     def append_chunk(self, chunk, chunk_size=None, save=True):
         self.file.close()
         with open(self.file.path, mode='ab') as file_obj:  # mode = append+binary
-            file_obj.write(chunk.read())  # We can use .read() safely because chunk is already in memory
+            # We can use .read() safely because chunk is already in memory
+            file_obj.write(chunk.read())
 
         if chunk_size is not None:
             self.offset += chunk_size
@@ -83,5 +84,3 @@ class AbstractChunkedUpload(models.Model):
 
     class Meta:
         abstract = True
-
-

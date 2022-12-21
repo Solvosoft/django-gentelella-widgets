@@ -10,8 +10,10 @@ from djgentelella.widgets.files import FileChunkedUpload
 
 
 class ExampleForm(CustomForm):
-    your_name = forms.CharField(label='Your name', max_length=100, widget=genwidgets.TextInput)
-    your_age = forms.IntegerField(widget=genwidgets.NumberInput(attrs={'min_value': 2, 'max_value': 8}))
+    your_name = forms.CharField(label='Your name', max_length=100,
+                                widget=genwidgets.TextInput)
+    your_age = forms.IntegerField(
+        widget=genwidgets.NumberInput(attrs={'min_value': 2, 'max_value': 8}))
     your_email = forms.EmailField(widget=genwidgets.EmailInput)
     your_email_mask = forms.EmailField(widget=genwidgets.EmailMaskInput)
     your_url = forms.URLField(widget=genwidgets.URLInput)
@@ -82,7 +84,8 @@ class ExampleForm(CustomForm):
 
     your_phone = forms.CharField(widget=genwidgets.PhoneNumberMaskInput)
     your_boolean = forms.BooleanField(
-        widget=genwidgets.YesNoInput(attrs={'rel': ['#id_your_radio_vertical', 'your_datemask', 'you_emailmask']}))
+        widget=genwidgets.YesNoInput(attrs={
+            'rel': ['#id_your_radio_vertical', 'your_datemask', 'you_emailmask']}))
     your_datemask = forms.DateField(widget=genwidgets.DateMaskInput)
     your_datetimeMask = forms.DateTimeField(widget=genwidgets.DateTimeMaskInput)
     you_emailmask = forms.EmailField(widget=genwidgets.EmailMaskInput)
@@ -117,8 +120,8 @@ class ExampleForm(CustomForm):
     # )
 
     your_age = forms.IntegerField(
-        widget=knobwidget.NumberKnobInput(attrs={"value": 5, "data-min": 1, "data-max": 10}))
-
+        widget=knobwidget.NumberKnobInput(
+            attrs={"value": 5, "data-min": 1, "data-max": 10}))
 
 
 def home(request):
@@ -126,7 +129,7 @@ def home(request):
     if request.method == 'POST':
         form = ExampleForm(request.POST)
         form.is_valid()
-        #print(form.cleaned_data)
+        # print(form.cleaned_data)
     return render(request, 'gentelella/index.html', {'form': form})
 
 

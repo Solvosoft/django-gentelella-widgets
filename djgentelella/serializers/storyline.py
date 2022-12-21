@@ -3,7 +3,8 @@ from rest_framework import serializers
 
 class DataSerializer(serializers.Serializer):
     data_column_name = serializers.CharField(required=True)
-    datetime_format = serializers.CharField(required=True)  # still missing to validate date format
+    datetime_format = serializers.CharField(
+        required=True)  # still missing to validate date format
     datetime_column_name = serializers.CharField(required=True)
     url = serializers.CharField(required=True)
 

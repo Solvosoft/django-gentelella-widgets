@@ -1,7 +1,7 @@
 from django.template.loader import render_to_string
 from django.urls import reverse
-from django.utils import  translation
-from django.templatetags import static
+from django.utils import translation
+
 
 class NotificationMenu:
     """
@@ -29,6 +29,7 @@ class NotificationMenu:
 
     You can set both as None to use default values.
     """
+
     def __init__(self, context):
         self.context = context
 
@@ -42,7 +43,8 @@ class NotificationMenu:
         self.context['api_url'] = api_url
         self.context['view_url'] = view_url
         self.context['lang_code'] = translation.get_language()
-        return render_to_string('gentelella/menu/notificacion.html', context=self.context)
+        return render_to_string('gentelella/menu/notificacion.html',
+                                context=self.context)
 
     def render_js(self):
         return """<script > $('.notificationmenu').notificationWidget(); </script>"""

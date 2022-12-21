@@ -1,7 +1,7 @@
-from djgentelella.models import ChunkedUpload
 from django.forms import FileInput
 from django.urls import reverse_lazy
 
+from djgentelella.models import ChunkedUpload
 from djgentelella.widgets.core import update_kwargs
 
 

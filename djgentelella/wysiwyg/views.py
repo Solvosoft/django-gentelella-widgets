@@ -11,19 +11,24 @@ def upload(request, folder):
         upload_to = getattr(settings, 'TINYMCE_UPLOAD_PATH')
         if not isinstance(upload_to, Path):
             upload_to = Path(upload_to)
-        path = default_storage.save(upload_to / folder / the_file.name, the_file)
+        path = default_storage.save(
+            upload_to / folder / the_file.name, the_file)
         return path
 
 
 def image_upload(request):
     path = upload(request, 'images')
-    link = path.replace(str(settings.MEDIA_ROOT), settings.MEDIA_URL).replace("//", "/")
-    link = "%s://%s%s%s" % (request.scheme, request.get_host(), settings.MEDIA_URL, link)
+    link = path.replace(str(settings.MEDIA_ROOT),
+                        settings.MEDIA_URL).replace("//", "/")
+    link = "%s://%s%s%s" % (
+        request.scheme, request.get_host(), settings.MEDIA_URL, link)
     return JsonResponse({'link': link})
 
 
 def video_upload(request):
     path = upload(request, 'videos')
-    link = path.replace(str(settings.MEDIA_ROOT), settings.MEDIA_URL).replace("//", "/")
-    link = "%s://%s%s%s" % (request.scheme, request.get_host(), settings.MEDIA_URL, link)
+    link = path.replace(str(settings.MEDIA_ROOT),
+                        settings.MEDIA_URL).replace("//", "/")
+    link = "%s://%s%s%s" % (
+        request.scheme, request.get_host(), settings.MEDIA_URL, link)
     return JsonResponse({'link': link})

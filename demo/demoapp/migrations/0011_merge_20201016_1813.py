@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('demoapp', '0008_auto_20200916_1352'),
         ('demoapp', '0010_yesnoinput'),
