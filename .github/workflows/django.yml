@@ -25,7 +25,7 @@ jobs:
     - name: Install chomedriver
       uses: nanasess/setup-chromedriver@v1
     - name: Install geckodriver
-      user: ./.github/actions/setup-firefox
+      uses: ./.github/actions/setup-firefox
     - name: Add Actions checkout
       uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
