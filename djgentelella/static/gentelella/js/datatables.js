@@ -132,7 +132,8 @@ function listobjprint(data, type, row, meta){
 };
 function showlink(data, type, row, meta){ return data ? '<a href="'+data+'" target="_blank" class="btn btn-xs btn-success"> More </a>': ''; };
 function downloadlink(data, type, row, meta){ return data ? '<a href="'+data+'" target="_blank" class="btn btn-xs btn-success"> Show </a>': ''; };
-function objshowlink(data, type, row, meta){ return data ? '<a href="'+data.url+'" target="_blank" class="link"> '+data.display_name+ '</a>': ''; };
+function objshowlink(data, type, row, meta){ return data ? '<a href="'+data.url+'" target="_blank" class="'+(data.class!=undefined ? data.class : 'link')+'"> '+data.display_name+ '</a>': ''; };
+function objnode(data, type, row, meta){ return data ? '<'+data.tagName+' href="'+data.url+'" '+data.extraattr+' class="'+(data.class!=undefined ? data.class : 'link')+'"> '+data.display_name+ '</'+data.tagName+'>': ''; };
 
 document.table_default_dom = "<'row mb-3'<'col-sm-12 col-md-4 d-flex align-items-center justify-content-start'f>" +
                  "<'col-sm-12 col-md-6 d-flex align-items-center justify-content-end'B>" +
@@ -156,7 +157,7 @@ function createDataTable(id, url, extraoptions={}, addfilter=false, formatDataTa
                 action: function ( e, dt, node, config ) {clearDataTableFilters(dt, id)},
                 text: 'Clear Filters',
                 titleAttr: 'Clear Filters',
-                className: 'btn-outline-warning btn-sm mr-4'
+                className: 'btn-sm mr-4'
             },
         ],
         ajax: {
