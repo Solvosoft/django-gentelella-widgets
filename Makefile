@@ -18,6 +18,7 @@ clean-build:
 	rm -fr build/
 	rm -fr dist/
 	rm -fr *.egg-info
+	rm -fr djgentelella/static/vendors/*
 
 clean-pyc:
 	find . -name '*.pyc' -exec rm -f {} +
@@ -38,10 +39,12 @@ docs:
 	sphinx-build -b html ./docs/source _build/
 
 
-release: clean
-	python setup.py sdist --formats tar bdist_wheel
+release: sdist
+	git tag -a "v`python setup.py --version`" -m "Bump version `python setup.py --version`"
+	git push origin "v`python setup.py --version`"
 	twine upload -s dist/*
 
 sdist: clean
+	cd demo && python manage.py makemigrations && python manage.py loaddevstatic && python manage.py createbasejs
 	python setup.py sdist
 	ls -l dist
