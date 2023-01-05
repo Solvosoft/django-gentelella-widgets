@@ -100,6 +100,9 @@ class PermissionsCategoryManagement(models.Model):
     def __str__(self):
         return "%s ½s.%s" % (self.category, self.url_name)
 
+    class Meta:
+        permissions = [('can_manage_permissions', 'Can manage permissions')]
+
 
 # determine the "null" and "blank" properties of "user" field in
 # the "ChunkedUpload" model
