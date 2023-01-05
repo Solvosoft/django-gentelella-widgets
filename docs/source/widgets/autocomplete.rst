@@ -78,7 +78,7 @@ for example
 
 .. code:: html
 
-    <div id="mymodal" class="modal" tabindex="-1">
+    <div id="exampleModal" class="modal" tabindex="-1">
         <div class="modal-body">
            {{form.has_horizontal}}
         </div>
@@ -88,3 +88,80 @@ in forms.py
 
 .. code:: python
 
+    class Meta:
+      widgets={
+        'comunities': AutocompleteSelectMultiple("comunitybasename", attrs={'data-dropdownparent': '#exampleModal'}),
+      }
+
+----------------------
+Selects groups
+----------------------
+Using `attrs` you can autocomplete options based on others select2,  to do that just set `data-related` as `True`, add
+the groupname `data-groupname`, this need to be shared by all select on group, and add the position order `data-pos`,
+this needs to be in ascending order number, is used to know who is the next select when one select is changed, so you
+need to be sure that numbers don't repeat and are in order.
+
+.. code:: python
+
+    class ABCDEGroupForm(GTForm, forms.ModelForm):
+      class Meta:
+        model = models.ABCDE
+        fields = '__all__'
+        widgets = {
+            'a': AutocompleteSelectMultiple("a", attrs={
+                'data-related': 'true',
+                'data-pos': 0,
+                'data-groupname': 'myabcde'
+            }),
+            'b': AutocompleteSelect("b", attrs={
+                'data-related': 'true',
+                'data-pos': 1,
+                'data-groupname': 'myabcde'
+            }),
+
+In your app  `gtselects.py` set the `ref_field` to indicate what field use to lookup on queryset.
+
+
+.. code:: python
+
+    @register_lookups(prefix="b", basename="b")
+    class BLookup(BaseSelect2View):
+        model = models.B
+        fields = ['display']
+        ref_field = 'a'
+
+
+----------------------
+Customs Urls
+----------------------
+In some cases you need to pass more data to reverse url, by default `-list` is appended to the base url name, but you
+can change it for something like `-detail` and pass some data like pk, ej.
+
+in forms.py
+
+.. code:: python
+
+    class Meta:
+      widgets={
+        'comunities': AutocompleteSelectMultiple("comunitybasename",
+                        url_suffix='-detail', url_args=[], url_kwargs={'pk': 1}, }),
+      }
+
+
+.. note:: the reverse url happen on `get_context(self, name, value, attrs)` method.
+
+There is some cases when you don't have the values on compilation moment, so you can overwrite
+`extra_url_args` and `extra_url_kwargs` in widget instance before form render
+
+
+.. code:: python
+
+    class Myform(GTForm):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.fields['comunities'].widget.extra_url_kwargs['pk']=1
+
+        class Meta:
+            widgets={
+              'comunities': AutocompleteSelectMultiple("comunitybasename", url_suffix='-detail'),
+            }
