@@ -6,7 +6,8 @@ from djgentelella.widgets.core import Select, update_kwargs, SelectMultiple
 class BaseAutocomplete:
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
-        context['url'] = reverse_lazy(self.baseurl)
+        context['url'] = reverse_lazy(self.baseurl, args=self.extra_url_args,
+                                      kwargs=self.extra_url_kwargs)
         return context
 
     def optgroups(self, name, value, attrs=None):
@@ -60,17 +61,22 @@ class AutocompleteSelectMultipleBase(BaseAutocomplete, SelectMultiple):
                                                              extraskwargs=True)
 
 
-def AutocompleteSelect(url, attrs={}):
+def AutocompleteSelect(url, url_suffix="-list", url_args=[], url_kwargs={}, attrs={}):
     class AutocompleteSelect(AutocompleteSelectBase):
-        baseurl = url + "-list"
+        baseurl = url + url_suffix
         extra_attrs = attrs.copy()
+        extra_url_kwargs = url_kwargs.copy()
+        extra_url_args = url_args.copy()
 
     return AutocompleteSelect
 
 
-def AutocompleteSelectMultiple(url, attrs={}):
+def AutocompleteSelectMultiple(url, url_suffix="-list", url_args=[], url_kwargs={},
+                               attrs={}):
     class AutocompleteSelectMultiple(AutocompleteSelectMultipleBase):
-        baseurl = url + "-list"
+        baseurl = url + url_suffix
         extra_attrs = attrs.copy()
+        extra_url_kwargs = url_kwargs.copy()
+        extra_url_args = url_args.copy()
 
     return AutocompleteSelectMultiple
