@@ -44,7 +44,7 @@ If a more customized class is desired the next options can be overwritten to ach
  - order_by: if provided, the class will used the given field to order the result query, the default field is the model pk.
 
 -----------------
-Usage in forms.py
+Usage in forms
 -----------------
 
 In model based form:
@@ -67,3 +67,24 @@ In model based form:
 As noticed in above example, the last steps are:
  - Replace the default widget with ``AutocompleteSelect`` or ``AutocompleteSelectMultiple`` (this may vary depending of the kind of form used).
  - Send the basename we provided in the lookup class decorator (see previous example) to the widget and it's ready for usage!
+
+
+----------------------
+Widget inside modals
+----------------------
+
+Select2 has problems for deal with forms inside modals, but it has an attribute to work with modals, so you can add `data-dropdownparent` as attr
+for example
+
+.. code:: html
+
+    <div id="mymodal" class="modal" tabindex="-1">
+        <div class="modal-body">
+           {{form.has_horizontal}}
+        </div>
+    <div>
+
+in forms.py
+
+.. code:: python
+

@@ -42,17 +42,17 @@ def create_notification(
     - NOTIFICATION_DEFAULT_TEMPLATE
 
     All settings have a default value provided by django-gentelella-widgets, but you can
-    overwrite it
+    overwrite it.
 
     :param description: description to show
     :param user: user to be notified
-    :param message_type: type of message available options
+    :param message_type: type of message available options\
     (info, default, success, warning, danger) there is no priority here yet
     :param category: used for group notifications (not required)
     :param link: complete url or reverse name (see django reverse)
-    :param link_prop: when is set, the link is take as reverse name, you need to
+    :param link_prop: when is set, the link is take as reverse name, you need to \
     provide dict of args and kwargs
-    :param request: it's django request used on email and for make a complete uri
+    :param request: it's django request used on email and for make a complete uri \
     on reverse
     :param send_email: True/False specify you want to send a email notification
     :param email_subject: alternative subject message

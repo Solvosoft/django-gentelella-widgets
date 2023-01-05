@@ -126,7 +126,7 @@
               {% include "gentelella/app/footer.html" %}
 
             </footer>
-              {% if request.user.is_superuser %}
+              {% if perms.djgentelella.can_manage_permissions %}
                 {% include 'gentelella/blocks/permissions_management.html' %}
               {% endif %}
           {% endblock footer %}
@@ -196,7 +196,7 @@
       <script src="{% static 'gentelella/js/base.js' %}?v={% get_version %}"></script>
       <script src="{% static 'gentelella/js/widgets.js' %}?v={% get_version %}"></script>
       <script src="{% static 'gentelella/js/custom.js' %}?v={% get_version %}"></script>
-      {% if request.user.is_superuser %}
+      {% if perms.djgentelella.can_manage_permissions %}
         {% get_urlname_action as urlnameactions %}
         {% if urlnameactions %}
           <script>
