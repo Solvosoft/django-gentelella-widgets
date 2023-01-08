@@ -1,5 +1,20 @@
 document.formset = [];
 document.gtwidgets = {
+    ImageRecordInput: function(instance){
+        instance.each(function (i, e) {
+            getMediaRecord(e, 'photo');
+        });
+    },
+    VideoRecordInput: function(instance){
+        instance.each(function (i, e) {
+            getMediaRecord(e, 'video');
+        });
+    },
+    AudioRecordInput: function(instance){
+        instance.each(function (i, e) {
+            getMediaRecord(e, 'audio');
+        });
+    },
     Select: function (instance) {
         instance.each(function (i, e) {
             let s2instance=$(e);

@@ -164,6 +164,45 @@ class FileInput(DJFileInput):
         super().__init__(attrs)
 
 
+class ImageRecordInput(DJFileInput):
+    needs_multipart_form = True
+    template_name = 'gentelella/widgets/record_photo.html'
+
+    def __init__(self, attrs=None, extraskwargs=True):
+        if extraskwargs:
+            attrs = update_kwargs(
+                attrs,
+                self.__class__.__name__,
+                base_class='d-none')
+        super().__init__(attrs)
+
+
+class VideoRecordInput(DJFileInput):
+    needs_multipart_form = True
+    template_name = 'gentelella/widgets/record_video.html'
+
+    def __init__(self, attrs=None, extraskwargs=True):
+        if extraskwargs:
+            attrs = update_kwargs(
+                attrs,
+                self.__class__.__name__,
+                base_class='d-none')
+        super().__init__(attrs)
+
+
+class AudioRecordInput(DJFileInput):
+    needs_multipart_form = True
+    template_name = 'gentelella/widgets/record_audio.html'
+
+    def __init__(self, attrs=None, extraskwargs=True):
+        if extraskwargs:
+            attrs = update_kwargs(
+                attrs,
+                self.__class__.__name__,
+                base_class='d-none')
+        super().__init__(attrs)
+
+
 class ClearableFileInput(DJClearableFileInput):
     template_name = 'gentelella/widgets/file.html'
 

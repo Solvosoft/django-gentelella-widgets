@@ -26,7 +26,8 @@ class Command(BaseCommand):
             'mapbased_storymap.js',
             'storyline.js',
             'calendar.js',
-            'timeline.js'
+            'timeline.js',
+            'mediarecord.js'
         ]
         jquery_plugins = [
             'notifications.js',
