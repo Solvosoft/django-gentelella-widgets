@@ -14,6 +14,7 @@ from .filechunckedupload import views as chunckedupload
 from .formset import add_formset, add_model_formset
 from .grid_slider import views as grid
 from .input_masks import views as input_mask
+from .media_upload.views import mediaupload_view
 from .storyLine.views import storyline_view
 from .storymap.views import gigapixel_view, mapbased_view
 from .tagging import views as tagging
@@ -96,5 +97,6 @@ urlpatterns = [
                   path('storyline_view', storyline_view, name="storyline_view"),
                   path('timeline_view', timeline_view, name="timeline_view"),
                   path('datatable_view', datatableViewExample, name="datatable_view"),
+                  path('mediarecord_upload', mediaupload_view, name="mediaupload_view"),
                   path('tableapi/', include(router.urls)),
               ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()

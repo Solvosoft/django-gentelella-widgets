@@ -3,13 +3,17 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 
-from djgentelella.forms.forms import CustomForm
+from djgentelella.forms.forms import GTForm
 from djgentelella.widgets import core as genwidgets
 from djgentelella.widgets import numberknobinput as knobwidget
 from djgentelella.widgets.files import FileChunkedUpload
 
 
-class ExampleForm(CustomForm):
+class ExampleForm(GTForm):
+    photo_record = forms.FileField(label='Your photo',
+                                   widget=genwidgets.ImageRecordInput)
+    video_record = forms.FileField(label='Your video',
+                                   widget=genwidgets.VideoRecordInput)
     your_name = forms.CharField(label='Your name', max_length=100,
                                 widget=genwidgets.TextInput)
     your_age = forms.IntegerField(

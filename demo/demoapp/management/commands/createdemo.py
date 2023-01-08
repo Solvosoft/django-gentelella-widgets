@@ -99,6 +99,18 @@ class Command(BaseCommand):
             icon='fa fa-home',
             only_icon=False
         )
+        cwidget = MenuItem.objects.create(
+            parent=extrawidget,
+            title='User Media widget',
+            url_name='mediaupload_view',
+            category='sidebar',  # sidebar, sidebarfooter,
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-camera',
+            only_icon=False
+        )
 
         cwidget = MenuItem.objects.create(
             parent=extrawidget,

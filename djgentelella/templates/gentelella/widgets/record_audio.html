@@ -1,0 +1,8 @@
+{% load i18n %}
+<div id="{{ widget.attrs.id }}_container" >
+    <input type="{{ widget.type }}"  name="{{ widget.name }}" {% include "gentelella/widgets/attrs.html" %}>
+    <button class="btn btn-success rounded-circle" type="button" id="{{ widget.attrs.id }}_btn"><i class="fa fa-video-camera" aria-hidden="true"></i>
+ <span>{% trans 'Start' %}</span> </button>
+   <button class="btn btn-danger rounded-circle" type="button" id="{{ widget.attrs.id }}_cancel"><i class="fa fa-stop-circle-o" aria-hidden="true"></i>
+ {% trans 'Cancel' %} </button>
+</div>
