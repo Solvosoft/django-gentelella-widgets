@@ -1,4 +1,4 @@
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import permission_required
 from django.http import JsonResponse, Http404
 from django.template.loader import render_to_string
 
@@ -8,8 +8,7 @@ from djgentelella.permission_management.objinterface import ObjManager
 from djgentelella.settings import Group, User
 
 
-@login_required
-@user_passes_test(lambda u: u.is_superuser)
+@permission_required('djgentelella.can_manage_permissions')
 def get_permission_list(request):
     response = {}
     form = FilterPermCategoryForm(request.GET)
@@ -26,8 +25,7 @@ def get_permission_list(request):
     return JsonResponse(response)
 
 
-@login_required
-@user_passes_test(lambda u: u.is_superuser)
+@permission_required('djgentelella.can_manage_permissions')
 def save_permcategorymanagement(request):
     response = {'result': 'error'}
     form = PermCategoryManagementForm(request.POST)
@@ -41,8 +39,7 @@ def save_permcategorymanagement(request):
     return JsonResponse(response)
 
 
-@login_required
-@user_passes_test(lambda u: u.is_superuser)
+@permission_required('djgentelella.can_manage_permissions')
 def get_permissions(request, pk):
     form = FilterPermCategoryForm(request.GET)
     response = {}
