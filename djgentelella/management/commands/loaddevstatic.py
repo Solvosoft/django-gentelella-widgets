@@ -1,9 +1,16 @@
 import os
 import shutil
 from pathlib import Path
+from threading import Thread, current_thread
 
 from django.contrib.staticfiles import finders
 from django.core.management import BaseCommand
+
+try:
+    import requests
+except BaseException:
+    print("Requests is required try pip install requests")
+    exit(1)
 
 FLAGS = ['ad', 'ae', 'af', 'ag', 'ai', 'al', 'am', 'ao', 'aq', 'ar', 'as', 'at', 'au',
          'aw', 'ax', 'az', 'ba', 'bb', 'bd', 'be', 'bf', 'bg', 'bh', 'bi', 'bj', 'bl',
@@ -28,30 +35,57 @@ FLAGS = ['ad', 'ae', 'af', 'ag', 'ai', 'al', 'am', 'ao', 'aq', 'ar', 'as', 'at',
          'zw']
 
 
+def download(urls):
+    thread = current_thread()
+    for url in urls:
+        download_url = url[0]
+        filename = url[1]
+        print("%s) Downloading %s --> %s" % (thread.name, download_url, filename))
+        r = requests.get(download_url)
+        with open(filename, 'wb') as arch:
+            arch.write(r.content)
+
+
 class Command(BaseCommand):
     help = "Load static files for development command"
     urls = []
-    def download(self, urls):
-        for url in urls:
-            requests=url[2]
-            download_url =url[0]
-            filename=url[1]
-            print("Downloading %s --> %s" % (download_url, filename))
-            r = requests.get(url)
-            with open(filename, 'wb') as arch:
-                arch.write(r.content)
+    threads_count = 10
+
+    def get_urls_list(self, urls):
+        if self.threads_count == 1:
+            yield urls[:]
+            return
+
+        trunk_len = len(urls) // self.threads_count
+        start = 0
+        nextt = trunk_len
+        end = len(urls)
+        while nextt != end:
+            yield urls[start:nextt]
+            start = nextt
+            nextt += trunk_len
+            if nextt > end:
+                yield urls[start:]
+                nextt = end
 
     def download_urls(self):
+        threads = []
+        for urls_trunk in self.get_urls_list(self.urls):
+            t = Thread(target=download, args=[urls_trunk])
+            t.start()
+            threads.append(t)
 
+        for t in threads:
+            t.join()
 
-    def get_static_file(self, requests, url, basepath):
+    def get_static_file(self, url, basepath):
         name = url.split('/')[-1]
         if not os.path.exists(basepath / name):
             self.urls.append(
-                (url, basepath / name, requests)
+                (url, basepath / name)
             )
 
-    def get_static_list_file(self, requests, files, basepath):
+    def get_static_list_file(self, files, basepath):
         if not os.path.exists(basepath):
             print("Downloading %s " % (basepath,))
             with open(basepath, 'wb') as arch:
@@ -66,14 +100,11 @@ class Command(BaseCommand):
             action='store_true',
             help='Delete delete before start',
         )
+        parser.add_argument('--threads', type=int, default=10,
+                            help='Number of downloading threads')
 
     def handle(self, *args, **options):
-        try:
-            import requests
-        except BaseException:
-            print("Requests is required try pip install requests")
-            exit(1)
-
+        self.threads_count = options['threads']
         result = finders.find(Path('gentelella/css/custom.css'))
         if result is None:
             print('No static folder found')
@@ -398,12 +429,12 @@ class Command(BaseCommand):
             if not os.path.exists(currentbasepath):
                 os.makedirs(currentbasepath)
             for staticfile in libs[lib]:
-                self.get_static_file(requests, staticfile, currentbasepath)
+                self.get_static_file(staticfile, currentbasepath)
 
         for files in compressed:
             for name in compressed[files]:
                 currentbasepath = basepath / files
                 currentbasepath = currentbasepath / name
-                self.get_static_list_file(requests, compressed[files][name],
+                self.get_static_list_file(compressed[files][name],
                                           currentbasepath)
         self.download_urls()
