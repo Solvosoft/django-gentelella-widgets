@@ -165,6 +165,9 @@ class FileInput(DJFileInput):
 
 
 class ImageRecordInput(DJFileInput):
+    """
+    You can set the preview size using data-width and data-height.
+    """
     needs_multipart_form = True
     template_name = 'gentelella/widgets/record_photo.html'
 
@@ -178,6 +181,11 @@ class ImageRecordInput(DJFileInput):
 
 
 class VideoRecordInput(DJFileInput):
+    """
+    You can set the preview size using data-width and data-height.
+
+    .. note:: Size of video depends on camera default configuration.
+    """
     needs_multipart_form = True
     template_name = 'gentelella/widgets/record_video.html'
 
