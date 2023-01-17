@@ -30,14 +30,26 @@ FLAGS = ['ad', 'ae', 'af', 'ag', 'ai', 'al', 'am', 'ao', 'aq', 'ar', 'as', 'at',
 
 class Command(BaseCommand):
     help = "Load static files for development command"
+    urls = []
+    def download(self, urls):
+        for url in urls:
+            requests=url[2]
+            download_url =url[0]
+            filename=url[1]
+            print("Downloading %s --> %s" % (download_url, filename))
+            r = requests.get(url)
+            with open(filename, 'wb') as arch:
+                arch.write(r.content)
+
+    def download_urls(self):
+
 
     def get_static_file(self, requests, url, basepath):
         name = url.split('/')[-1]
         if not os.path.exists(basepath / name):
-            print("Downloading %s --> %s" % (url, basepath / name))
-            r = requests.get(url)
-            with open(basepath / name, 'wb') as arch:
-                arch.write(r.content)
+            self.urls.append(
+                (url, basepath / name, requests)
+            )
 
     def get_static_list_file(self, requests, files, basepath):
         if not os.path.exists(basepath):
@@ -394,3 +406,4 @@ class Command(BaseCommand):
                 currentbasepath = currentbasepath / name
                 self.get_static_list_file(requests, compressed[files][name],
                                           currentbasepath)
+        self.download_urls()
