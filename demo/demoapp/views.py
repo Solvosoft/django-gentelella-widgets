@@ -6,8 +6,7 @@ from django.views.generic import CreateView
 
 from djgentelella.notification import create_notification
 from .autocomplete.forms import ABCDEModalGroupForm
-from .forms import FooModelForm, ColorWidgetsForm, SimpleColorForm, \
-    YesNoInputAddForm, PersonModalForm
+from .forms import FooModelForm, YesNoInputAddForm, PersonModalForm
 from .models import YesNoInput
 
 
@@ -40,17 +39,6 @@ def knobView(request):
             form = FooModelForm()
 
     return render(request, 'knobs-form.html', {'form': form})
-
-
-def color_widget_view(request):
-    form_widgets = SimpleColorForm()
-    form = ColorWidgetsForm()
-    if request.method == 'POST':
-        form = ColorWidgetsForm(request.POST)
-        form.is_valid()
-        form.save()
-    return render(request, 'index-color.html', {'form': form,
-                                                "form_widgets": form_widgets})
 
 
 class YesNoInputView(CreateView):

@@ -50,6 +50,11 @@ class TextInput(Input):
     template_name = 'gentelella/widgets/text.html'
 
 
+class ColorInput(Input):
+    input_type = 'color'
+    template_name = 'gentelella/widgets/input.html'
+
+
 class HiddenInput(Input):
     input_type = 'hidden'
     template_name = 'gentelella/widgets/text.html'

@@ -208,18 +208,6 @@ document.gtwidgets = {
     NumberKnobInput: function (instance) {
         instance.knob();
     },
-    DefaultColorInput: function (instance) {
-        instance.colorpicker();
-    },
-    StyleColorInput: function (instance) {
-        instance.parent('.color-input-field').colorpicker();
-    },
-    HorizontalBarColorInput: function (instance) {
-        instance.colorpicker({ horizontal: true });
-    },
-    VerticalBarColorInput: function (instance) {
-        instance.colorpicker({ format: 'rgb' });
-    },
     TextareaWysiwyg: function (instance) {
         $(instance).removeAttr('required');
         instance.tinymce({
@@ -268,9 +256,6 @@ document.gtwidgets = {
         });
     },
 
-    InlinePickerColor: function (instance) {
-        instance.parent('.color-input-field-inline-picker').css("display", "inline-block").colorpicker({ container: true, inline: true });
-    },
     TaggingInput: function (instance) {
         instance.tagify();
     },

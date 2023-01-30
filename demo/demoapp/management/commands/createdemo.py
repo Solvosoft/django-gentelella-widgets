@@ -197,18 +197,6 @@ class Command(BaseCommand):
             icon='fa fa-eyedropper',
             only_icon=False
         )
-        MenuItem.objects.create(
-            parent=cwidget,
-            title='Color Widgets',
-            url_name='colorwidgets',
-            category='sidebar',  # sidebar, sidebarfooter,
-            is_reversed=True,
-            reversed_kwargs=None,
-            reversed_args=None,
-            is_widget=False,
-            icon='fa fa-diamond',
-            only_icon=False
-        )
         inputmask = MenuItem.objects.create(
             parent=cwidget,
             title='Input Mask',
