@@ -3,16 +3,7 @@ from .core import TextInput, update_kwargs
 
 class DefaultColorInput(TextInput):
     template_name = 'gentelella/widgets/color_default.html'
-
-    class Media:
-        css = {
-            "all": (
-                'vendors/bootstrap-colorpicker/bootstrap-colorpicker.min.css',
-            )
-        }
-        js = (
-            'vendors/bootstrap-colorpicker/bootstrap-colorpicker.min.js',
-        )
+    input_type = 'color'
 
     def __init__(self, attrs=None):
         attrs = update_kwargs(attrs, self.__class__.__name__,
