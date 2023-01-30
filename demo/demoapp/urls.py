@@ -3,7 +3,7 @@ from markitup.views import apply_filter
 from rest_framework.routers import DefaultRouter
 
 from demoapp.cruds import Personclass, Countryclass, MenuItemclass
-from demoapp.views import create_notification_view, color_widget_view, bt_modal_display
+from demoapp.views import create_notification_view, bt_modal_display
 from .autocomplete import views as autocompleteviews
 from .calendar.views import calendar_view
 from .chartjs import chart_js_view
@@ -37,7 +37,6 @@ urlpatterns = [
                        name='create_notification'),
                   path('preview/', apply_filter, name='markitup_preview'),
                   path('knobwidget/testform', knobView, name="knobwidgets"),
-                  path('colorwidgets', color_widget_view, name="colorwidgets"),
                   path('pgroup/', autocompleteviews.PeopleGroupList.as_view(),
                        name='pgroup-list'),
                   path('pgroup/create/', autocompleteviews.PeopleGroupAdd.as_view(),

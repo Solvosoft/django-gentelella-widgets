@@ -1,11 +1,8 @@
 from django import forms
 
-from demoapp.models import Colors
 from djgentelella.forms.forms import GTForm
 from djgentelella.widgets import core as genwidgets
 from djgentelella.widgets import numberknobinput as knobwidget
-from djgentelella.widgets.color import StyleColorInput, DefaultColorInput, \
-    HorizontalBarColorInput, VerticalBarColorInput, InlinePickerColor
 from djgentelella.widgets.core import NumberInput
 from djgentelella.widgets.selects import AutocompleteSelect
 from .models import Foo, Person, Comunity, YesNoInput
@@ -48,38 +45,6 @@ class FooBasicForm(GTForm, forms.Form):
             "data-min": 1,
             "steps": 0.1,
             "data-max": 50}))
-
-
-class ColorWidgetsForm(GTForm, forms.ModelForm):
-    color = forms.CharField(widget=DefaultColorInput)
-    color2 = forms.CharField(
-        widget=StyleColorInput(attrs={"value": "#0014bb", "id": "c2"}))
-
-    class Meta:
-        model = Colors
-        fields = "__all__"
-        widgets = {
-            "color3": HorizontalBarColorInput,
-            "color4": VerticalBarColorInput(attrs={"value": "#0014bb", "id": "c4"}),
-        }
-
-
-class SimpleColorForm(GTForm, forms.Form):
-    default_input = forms.CharField(
-        widget=DefaultColorInput
-    )
-    style_input = forms.CharField(
-        widget=StyleColorInput(attrs={"value": "#0014bb"})
-    )
-    horizontal_bar_input = forms.CharField(
-        widget=HorizontalBarColorInput
-    )
-    vertical_bar_input = forms.CharField(
-        widget=VerticalBarColorInput(attrs={"value": "#0014bb"})
-    )
-    inline_picker = forms.CharField(
-        widget=InlinePickerColor
-    )
 
 
 class PersonForm(GTForm, forms.ModelForm):

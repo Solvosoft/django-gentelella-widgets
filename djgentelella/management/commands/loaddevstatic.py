@@ -287,23 +287,7 @@ class Command(BaseCommand):
                 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.css'
             ],
-
-            'bootstrap-colorpicker': [
-                # 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/3.4.0/js/bootstrap-colorpicker.min.js',
-                # 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/3.4.0/css/bootstrap-colorpicker.css'
-                'https://colorlib.com/polygon/vendors/mjolnic-bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css',
-                'https://colorlib.com/polygon/vendors/mjolnic-bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min.js'
-            ],
             "img/": [],
-            "img/bootstrap-colorpicker": [
-                'https://colorlib.com/polygon/vendors/mjolnic-bootstrap-colorpicker/dist/img/bootstrap-colorpicker/alpha.png',
-                'https://colorlib.com/polygon/vendors/mjolnic-bootstrap-colorpicker/dist/img/bootstrap-colorpicker/hue.png',
-                'https://colorlib.com/polygon/vendors/mjolnic-bootstrap-colorpicker/dist/img/bootstrap-colorpicker/saturation.png',
-
-                'https://colorlib.com/polygon/vendors/mjolnic-bootstrap-colorpicker/dist/img/bootstrap-colorpicker/alpha-horizontal.png',
-                'https://colorlib.com/polygon/vendors/mjolnic-bootstrap-colorpicker/dist/img/bootstrap-colorpicker/hue-horizontal.png',
-                'https://colorlib.com/polygon/vendors/mjolnic-bootstrap-colorpicker/dist/img/bootstrap-colorpicker/saturation-horizontal.png',
-            ],
             'bootstrap-tree': [
                 'https://github.com/patternfly/patternfly-bootstrap-treeview/raw/master/dist/bootstrap-treeview.min.js',
                 'https://raw.githubusercontent.com/patternfly/patternfly-bootstrap-treeview/master/dist/bootstrap-treeview.min.css'

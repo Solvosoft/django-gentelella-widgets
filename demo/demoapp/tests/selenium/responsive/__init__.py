@@ -42,7 +42,6 @@ class ScreenshotSeleniumTest(StaticLiveServerTestCase):
                      {'name': 'create_notification'},
                      {'name': 'markitup_preview'},
                      {'name': 'knobwidgets'},
-                     {'name': 'colorwidgets'},
                      {'name': 'pgroup-list'},
                      {'name': 'pgroup-add'},
                      # {'name': 'pgroup-edit'},
