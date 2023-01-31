@@ -156,6 +156,7 @@ document.gtwidgets = {
         instance.addselectwidget();
         instance.each(function (i, e) {
             let contexts2={};
+            let s2instance=$(e);
             extract_select2_context(contexts2, s2instance);
             s2instance.select2(contexts2);
         });
@@ -164,6 +165,7 @@ document.gtwidgets = {
         instance.addselectwidget();
         instance.each(function (i, e) {
             let contexts2={};
+            let s2instance=$(e);
             extract_select2_context(contexts2, s2instance);
             s2instance.select2(contexts2);
         });
