@@ -169,8 +169,8 @@ You can use like:
 any_permission_required
 ''''''''''''''''''''''''''''''''
 
-Decorator for views that checks whether a user has a particular permission
-enabled, redirecting to the log-in page if necessary.
+Decorator for views that checks whether user has any permission
+enabled in perms list, redirecting to the log-in page if necessary.
 If the raise_exception parameter is given the PermissionDenied exception
 is raised.
 
@@ -187,6 +187,11 @@ is raised.
 ''''''''''''''''''''''''''''
 all_permission_required
 ''''''''''''''''''''''''''''
+
+Decorator for views that checks whether a user has all permission
+enabled in perms list, redirecting to the log-in page if necessary.
+If the raise_exception parameter is given the PermissionDenied exception
+is raised.
 
 .. code-block:: python
 
