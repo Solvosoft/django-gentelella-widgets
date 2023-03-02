@@ -1,10 +1,33 @@
 {% extends 'gentelella/base.html' %}
+{% load gtpermissions %}
 
 {% block content %}
 <div class="container">
- {{counts_views.render}}
- {{tile_views.render}}
+  {{counts_views.render}}
+  {{tile_views.render}}
 </div>
 
+<div>
+  <h1> Permissions tags </h1>
 
- {% endblock content %}
+  <div class="card">
+
+    <div class="card-body">
+      <div class="card-title"><h2 class="title">Display what permission your user is allowed (login is required)</h2>
+      </div>
+      <br>
+      {% all_permission_required 'djgentelella.view_gentelellasettings' 'auth.view_user' as allperm %}
+      {% any_permission_required 'djgentelella.view_gentelellasettings' 'auth.view_user' as anyperm %}
+
+      {% if allperm %}
+      <br>djgentelella.view_gentelellasettings <strong class="text-danger">AND</strong> auth.view_user are allowed
+      {% endif %}
+
+      {% if anyperm %}
+      <br>djgentelella.view_gentelellasettings <strong class="text-danger">OR</strong> auth.view_user allowed
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% endblock content %}

@@ -2,11 +2,11 @@
 Permission Management
 ======================
 
-This feature allow as to manage permissions per view, so we can asociate an 
+This feature allow as to manage permissions per view, so we can asociate an
 specific url name with an specific permission codename and permission category.
 
 ---------------------
- Live Demo 
+ Live Demo
 ---------------------
 
 .. image:: ./_static/01-permissionmanagement.gif
@@ -21,7 +21,7 @@ Define programatically.
 --------------------------
 
 1. You must create a `pre_head` block as the following example in your template:
- 
+
 .. code-block:: python
 
    {% block pre_head %}
@@ -61,10 +61,10 @@ If you want to keep your code clearly:
    {% endblock%}
 
 
-The default behavior of the djgentellela is that if you are superadmin will display de button 
+The default behavior of the djgentellela is that if you are superadmin will display de button
 to manage the permissions similar to the Live Demo.
 
-If you want to change the permissions you can override the following partial `gentelella/app/top_navigation.html` and 
+If you want to change the permissions you can override the following partial `gentelella/app/top_navigation.html` and
 also in `gentelella/base.html`
 
 -------------------------------
@@ -96,7 +96,7 @@ Use different model that User and Group
 To use different User model you have to add to your settings.py the following:
 
 .. code-block:: python
-   
+
    GT_USER_MODEL = 'demoapp.Employee'
 
 And your custom model need to implement the following function:
@@ -123,7 +123,7 @@ djgentellela will display all the information properly.
 To use different Group model you have to add to your settings.py the following:
 
 .. code-block:: python
-   
+
    GT_GROUP_MODEL = 'demoapp.Employee'
 
 And your custom model has to be like the following:
@@ -142,4 +142,101 @@ And your custom model has to be like the following:
 
 Make suere you have the `gt_get_permission` and the `name` field that also of course can be a `@property`.
 
+
+-----------------------------------------
+Decorators
+-----------------------------------------
+
+This decorators have 2 optionals parameters
+
+1) login_url=None    Same as `login_url` of the django decorator `login_required`
+2) raise_exception=False  Same as `raise_exception` of the django decorator `login_required`
+
+
+You can use like:
+
+.. code-block:: python
+
+    from djgentelella.decorators.perms import any_permission_required
+    @any_permission_required(['djgentelella.view_gentelellasettings' 'auth.view_user'],
+    login_url='/your/url', raise_exception=True
+    )
+    def myview(request, *args, **kwargs):
+        # do your view
+
+
+''''''''''''''''''''''''''''''''
+any_permission_required
+''''''''''''''''''''''''''''''''
+
+Decorator for views that checks whether a user has a particular permission
+enabled, redirecting to the log-in page if necessary.
+If the raise_exception parameter is given the PermissionDenied exception
+is raised.
+
+.. code-block:: python
+
+    from djgentelella.decorators.perms import any_permission_required
+
+    @any_permission_required(['djgentelella.view_gentelellasettings' 'auth.view_user'])
+    def myview(request, *args, **kwargs):
+        # do your view
+
+
+
+''''''''''''''''''''''''''''
+all_permission_required
+''''''''''''''''''''''''''''
+
+.. code-block:: python
+
+    from djgentelella.decorators.perms import all_permission_required
+    @all_permission_required(['djgentelella.view_gentelellasettings' 'auth.view_user'])
+    def myview(request, *args, **kwargs):
+        # do your view
+
+
+
+-----------------------------------------
+TemplateTags
+-----------------------------------------
+
+''''''''''''''''''''''''''''''
+any_permission_required
+''''''''''''''''''''''''''''''
+
+This template tag check if the user have any permission in the list of perms
+
+Example:
+
+.. code-block:: html
+
+    {% extends 'gentelella/base.html' %}
+    {% load gtpermissions %}
+    {% any_permission_required 'djgentelella.view_gentelellasettings' 'auth.view_user' as anyperm %}
+    {% if anyperm %}
+    <br>djgentelella.view_gentelellasettings <strong class="text-danger">OR</strong> auth.view_user allowed
+    {% endif %}
+
+
+''''''''''''''''''''''''''''''
+all_permission_required
+''''''''''''''''''''''''''''''
+
+This template tag check if the user have all permissions in the list of perms
+
+.. code-block:: html
+
+    {% extends 'gentelella/base.html' %}
+    {% load gtpermissions %}
+    {% block content %}
+    {% all_permission_required 'djgentelella.view_gentelellasettings' 'auth.view_user' as allperm %}
+    {% if allperm %}
+    <br>djgentelella.view_gentelellasettings <strong class="text-danger">AND</strong> auth.view_user are allowed
+    {% endif %}
+    {% endblock content %}
+
 Happy coding.
+
+
+
