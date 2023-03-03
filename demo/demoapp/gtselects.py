@@ -8,7 +8,10 @@ from djgentelella.views.select2autocomplete import BaseSelect2View
 class PersonGModelLookup(BaseSelect2View):
     model = models.Person
     fields = ['name']
-    # queryset = Person.objects.none()
+    selected = ['1']
+
+    def get_disabled_display(self, obj):
+        return obj.pk == 5
 
 
 @register_lookups(prefix="comunity", basename="comunitybasename")
