@@ -94,7 +94,10 @@ class BaseSelect2View(generics.ListAPIView, viewsets.GenericViewSet):
 
     def filter_queryset(self, queryset):
         q = self.query_get('term', '')
-        self.selected = self.query_get('selected', '')
+        if hasattr(self, 'selected'):
+            self.selected += self.query_get('selected', '')
+        else:
+            self.selected = self.query_get('selected', '')
         if self.ref_field is not None:
             relq = self.query_get(self.ref_name, '')
             if relq:
