@@ -30,6 +30,13 @@ function add_selected_option(item, data){
         itemjq.append(newOption).trigger('change');
     }
 }
+function get_selected_values(obj){
+    var data = [];
+    $.each(obj, function(i, e){
+        if(e.value != "") data.push(e.value);
+    });
+    return data.join(',');
+}
 
 function get_s2filter_parameters(elemid, params){
     let filters = {
@@ -57,13 +64,7 @@ $.fn.select2related = function(action, relatedobjs=[]) {
     **/
         this.relatedobjs = relatedobjs;
         let parent = this;
-        function get_selected_values(obj){
-            var data = [];
-            $.each(obj, function(i, e){
-                if(e.value != "") data.push(e.value);
-            });
-            return data.join(',');
-        }
+
 
         if(action === "simple"){
             for(let x=0; x<this.relatedobjs.length; x++){
@@ -115,7 +116,7 @@ $.fn.select2related = function(action, relatedobjs=[]) {
                     },
                     data: function (params) {
                       let filters = get_s2filter_parameters($(parent.relatedobjs[x]['id']), params);
-                      filters['relfield']= get_selected_values($(parent.relatedobjs[x-1]['id'])).find(':selected'));
+                      filters['relfield']= get_selected_values($(parent.relatedobjs[x-1]['id'])).find(':selected');
                       $(parent.relatedobjs[x]['id']).trigger('relautocompletedata', filters);
                       return filters;
                     },

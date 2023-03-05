@@ -165,3 +165,29 @@ There is some cases when you don't have the values on compilation moment, so you
             widgets={
               'comunities': AutocompleteSelectMultiple("comunitybasename", url_suffix='-detail'),
             }
+
+
+-------------------------------------
+Filter based on inputs inside page
+-------------------------------------
+It's posible to use other inputs included on the search criteria, using `attr` attribute you can inject html data atributes
+that start with `data-s2filter-`, next the name of the search criteria esperated on backend like  `data-s2filter-myinput`,
+the value it has the html selector on the page.
+
+
+.. code:: python
+
+
+    class PeopleGroupForm(CustomForm, forms.ModelForm):
+        class Meta:
+            model = models.PeopleGroup
+            fields = '__all__'
+            widgets = {
+                'name': TextInput,
+                'people': AutocompleteSelectMultiple("personbasename",
+                                                     attrs={
+                                                         'data-s2filter-myinput': '#id_name'}),
+                }
+
+
+
