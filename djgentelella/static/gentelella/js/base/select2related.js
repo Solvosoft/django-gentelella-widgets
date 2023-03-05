@@ -31,6 +31,22 @@ function add_selected_option(item, data){
     }
 }
 
+function get_s2filter_parameters(elemid, params){
+    let filters = {
+        selected: get_selected_values($(elemid).find(':selected')),
+        page: params.page || 1,
+    };
+    if ( params.term != undefined){
+        filters['term']=params.term;
+    }
+    $.each($(elemid).data(), function(key, value) {
+        if (key.startsWith("s2filter")){
+            filters[key.replace("s2filter", "").toLowerCase()] = $(value).val();
+        }
+    });
+    return filters;
+}
+
 window.extract_select2_context=extract_select2_context;
 $.fn.select2related = function(action, relatedobjs=[]) {
     /**
@@ -72,13 +88,9 @@ $.fn.select2related = function(action, relatedobjs=[]) {
                             return data;
                         },
                         data: function (params) {
-                              var dev= {
-                                selected: get_selected_values($(parent.relatedobjs[x]['id']).find(':selected')),
-                                term: params.term,
-                                page: params.page || 1
-                              };
-                              $(parent.relatedobjs[x]['id']).trigger('relautocompletedata', dev);
-                              return dev;
+                            let filters = get_s2filter_parameters($(parent.relatedobjs[x]['id'], params);
+                            $(parent.relatedobjs[x]['id']).trigger('relautocompletedata', filters);
+                            return filters;
                         }
                       }
                 };
@@ -102,14 +114,10 @@ $.fn.select2related = function(action, relatedobjs=[]) {
                         return data;
                     },
                     data: function (params) {
-                      var dev = {
-                        relfield: get_selected_values($(parent.relatedobjs[x-1]['id']).find(':selected')),
-                        selected: get_selected_values($(parent.relatedobjs[x]['id']).find(':selected')),
-                        term: params.term,
-                        page: params.page || 1
-                      }
-                      $(parent.relatedobjs[x]['id']).trigger('relautocompletedata', dev);
-                      return dev;
+                      let filters = get_s2filter_parameters($(parent.relatedobjs[x]['id'], params);
+                      filters['relfield']= get_selected_values($(parent.relatedobjs[x-1]['id']).find(':selected'));
+                      $(parent.relatedobjs[x]['id']).trigger('relautocompletedata', filters);
+                      return filters;
                     },
                   }
                 };
@@ -133,12 +141,10 @@ $.fn.select2related = function(action, relatedobjs=[]) {
                     return data;
                 },
                 data: function (params) {
-                      return {
-                        selected: get_selected_values($(parent.relatedobjs[0]['id']).find(':selected')),
-                        term: params.term,
-                        page: params.page || 1
-                      }
-                    },
+                      let filters = get_s2filter_parameters($(parent.relatedobjs[0]['id'], params);
+                      $(parent.relatedobjs[0]['id']).trigger('relautocompletedata', filters);
+                      return filters;
+                },
               }
             };
             extract_select2_context(contexts2empty, $(this.relatedobjs[0]['id']));
