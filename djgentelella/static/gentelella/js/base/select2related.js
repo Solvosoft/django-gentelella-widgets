@@ -88,7 +88,7 @@ $.fn.select2related = function(action, relatedobjs=[]) {
                             return data;
                         },
                         data: function (params) {
-                            let filters = get_s2filter_parameters($(parent.relatedobjs[x]['id'], params);
+                            let filters = get_s2filter_parameters($(parent.relatedobjs[x]['id']), params);
                             $(parent.relatedobjs[x]['id']).trigger('relautocompletedata', filters);
                             return filters;
                         }
@@ -114,8 +114,8 @@ $.fn.select2related = function(action, relatedobjs=[]) {
                         return data;
                     },
                     data: function (params) {
-                      let filters = get_s2filter_parameters($(parent.relatedobjs[x]['id'], params);
-                      filters['relfield']= get_selected_values($(parent.relatedobjs[x-1]['id']).find(':selected'));
+                      let filters = get_s2filter_parameters($(parent.relatedobjs[x]['id']), params);
+                      filters['relfield']= get_selected_values($(parent.relatedobjs[x-1]['id'])).find(':selected'));
                       $(parent.relatedobjs[x]['id']).trigger('relautocompletedata', filters);
                       return filters;
                     },
@@ -141,7 +141,7 @@ $.fn.select2related = function(action, relatedobjs=[]) {
                     return data;
                 },
                 data: function (params) {
-                      let filters = get_s2filter_parameters($(parent.relatedobjs[0]['id'], params);
+                      let filters = get_s2filter_parameters($(parent.relatedobjs[0]['id']), params);
                       $(parent.relatedobjs[0]['id']).trigger('relautocompletedata', filters);
                       return filters;
                 },
