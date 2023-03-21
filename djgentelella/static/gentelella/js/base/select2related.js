@@ -77,7 +77,7 @@ $.fn.select2related = function(action, relatedobjs=[]) {
         if(action === 'remote'){
             for(let x=0; x<this.relatedobjs.length; x++){
                 let contexts2={
-                      placeholder: 'Select an element',
+                      placeholder: gettext('Select an element'),
                       ajax: {
                         url: this.relatedobjs[x]['url'],
                         type: 'GET',
@@ -103,7 +103,7 @@ $.fn.select2related = function(action, relatedobjs=[]) {
         if(action === "related"){
             for(let x=1; x<this.relatedobjs.length; x++){
                 let contexts2={
-                  placeholder: 'Select an element',
+                  placeholder: gettext('Select an element'),
                   ajax: {
                     url: this.relatedobjs[x]['url'],
                     type: 'GET',
@@ -130,7 +130,7 @@ $.fn.select2related = function(action, relatedobjs=[]) {
                 }
             }
             let contexts2empty = {
-              placeholder: 'Select an element',
+              placeholder: gettext('Select an element'),
               ajax: {
                 url: parent.relatedobjs[0]['url'],
                 type: 'GET',

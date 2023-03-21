@@ -251,7 +251,7 @@ function countChecked() {
     if (checkCount) {
         $('.column-title').hide();
         $('.bulk-actions').show();
-        $('.action-cnt').html(checkCount + ' Records Selected');
+        $('.action-cnt').html(checkCount + gettext(' Records Selected'));
     } else {
         $('.column-title').show();
         $('.bulk-actions').hide();
@@ -424,9 +424,9 @@ function init_wysiwyg() {
     function showErrorAlert(reason, detail) {
         var msg = '';
         if (reason === 'unsupported-file-type') {
-            msg = "Unsupported format " + detail;
+            msg = gettext("Unsupported format ") + detail;
         } else {
-            console.log("error uploading file", reason, detail);
+            console.log(gettext("error uploading file"), reason, detail);
         }
         $('<div class="alert"> <button type="button" class="close" data-bs-dismiss="alert">&times;</button>' +
             '<strong>File upload error</strong> ' + msg + ' </div>').prependTo('#alerts');
@@ -455,7 +455,7 @@ function init_validator() {
     }
 
     // initialize the validator function
-    validator.message.date = 'not a real date';
+    validator.message.date = gettext('not a real date');
 
     // validate a field on "blur" event, a 'select' on 'change' event & a '.reuired' classed multifield on 'keyup':
     $('form')

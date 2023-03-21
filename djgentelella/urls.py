@@ -2,6 +2,8 @@ from django.conf import settings
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
 from django.urls import path, include, re_path
+from django.views.decorators.cache import cache_page
+from django.views.i18n import JavaScriptCatalog
 
 from djgentelella.chunked_upload.views import ChunkedUploadView, \
     ChunkedUploadCompleteView
@@ -10,6 +12,7 @@ from djgentelella.permission_management import views as permissions
 from djgentelella.widgets.helper import HelperWidgetView
 from djgentelella.wysiwyg import views as wysiwyg
 from .groute import routes
+from .templatetags.gtsettings import get_version
 
 auth_urls = [
     path('accounts/login/',
@@ -95,3 +98,14 @@ permission_management_urls = [
 
 ]
 urlpatterns = auth_urls + base_urlpatterns + wysiwyg_urls + permission_management_urls
+if settings.DEBUG:
+    urlpatterns += [
+        path('djsi18n/', JavaScriptCatalog.as_view(), name='djgentelella-js-catalog'),
+    ]
+else:
+    urlpatterns += [
+        path('djsi18n/',
+             cache_page(86400, key_prefix='djsi18n-%s' % get_version())(
+                 JavaScriptCatalog.as_view()),
+             name='djgentelella-js-catalog'),
+    ]

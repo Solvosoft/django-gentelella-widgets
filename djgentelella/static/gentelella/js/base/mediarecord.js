@@ -1,8 +1,8 @@
 function show_errors_media_record(error){
     Swal.fire({
           icon: 'error',
-          title: 'Sorry, there is a problem',
-          text: 'Media device is not available',
+          title: gettext('Sorry, there is a problem'),
+          text: gettext('Media device is not available'),
         })
 }
 function getPhotoRecord(element){
@@ -65,17 +65,17 @@ function getPhotoRecord(element){
             if(this.status==0){
                 this.btn_cancel.hide();
                 $("#"+this.id+"_btn i").attr('class', 'fa fa-video-camera');
-                $("#"+this.id+"_btn span").text('Start');
+                $("#"+this.id+"_btn span").text(gettext('Start'));
             }else{
                 this.btn_cancel.show();
             }
             if(this.status==1){
                     $("#"+this.id+"_btn i").attr('class', 'fa fa-camera');
-                    $("#"+this.id+"_btn span").text('Capture');
+                    $("#"+this.id+"_btn span").text(gettext(gettext('Capture')));
             }
             if(this.status==2) {
                     $("#"+this.id+"_btn i").attr('class', 'fa fa-check');
-                    $("#"+this.id+"_btn span").text('Save');
+                    $("#"+this.id+"_btn span").text(gettext('Save'));
             }
         },
         cancel: function(trigger){
@@ -172,19 +172,19 @@ function getVideoRecord(element){
             if(this.status==0){
                 this.btn_cancel.hide();
                 $("#"+this.id+"_btn i").attr('class', 'fa fa-video-camera');
-                $("#"+this.id+"_btn span").text('Start');
+                $("#"+this.id+"_btn span").text(gettext('Start'));
 
             }else{
                 this.btn_cancel.show();
             }
             if(this.status==1){
                 $("#"+this.id+"_btn i").attr('class', 'fa fa-play');
-                $("#"+this.id+"_btn span").text('Record');
+                $("#"+this.id+"_btn span").text(gettext('Record'));
                 $("#"+this.id+"_container .mediareproductor").remove();
             }
             if(this.status==2) {
                 $("#"+this.id+"_btn i").attr('class', 'fa fa-pause');
-                $("#"+this.id+"_btn span").text('Recording...');
+                $("#"+this.id+"_btn span").text(gettext('Recording...'));
             }
         },
         cancel: function(trigger){
@@ -276,18 +276,18 @@ function getAudioRecord(element){
             if(this.status==0){
                 this.btn_cancel.hide();
                 $("#"+this.id+"_btn i").attr('class', 'fa fa-video-camera');
-                $("#"+this.id+"_btn span").text('Start');
+                $("#"+this.id+"_btn span").text(gettext('Start'));
                 $("#"+this.id+"_container .mediareproductor").remove();
             }else{
                 this.btn_cancel.show();
             }
             if(this.status==1){
                 $("#"+this.id+"_btn i").attr('class', 'fa fa-play');
-                $("#"+this.id+"_btn span").text('Record');
+                $("#"+this.id+"_btn span").text(gettext('Record'));
             }
             if(this.status==2) {
                 $("#"+this.id+"_btn i").attr('class', 'fa fa-pause');
-                $("#"+this.id+"_btn span").text('Recording...');
+                $("#"+this.id+"_btn span").text(gettext('Recording...'));
             }
         },
         cancel: function(trigger){
