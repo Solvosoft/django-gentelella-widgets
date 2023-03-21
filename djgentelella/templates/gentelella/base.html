@@ -1,6 +1,7 @@
 {% load static i18n %}
 {% load  gentelellamenu gtsettings urlname_tags %}
-<html lang="en">
+{% get_current_language as LANGUAGE_CODE %}
+<html lang="{{LANGUAGE_CODE}}">
 <head>
   {% block pre_head %}
   {% endblock %}
@@ -61,6 +62,7 @@
   <link href="{% static theme %}?v={% get_version %}" rel="stylesheet">
   {% endblock head %}
   {% block extra_css %} {% endblock %}
+  <script src="{% url 'djgentelella-js-catalog' %}?v={% get_version %}"></script>
   <!-- jQuery -->
   <script src="{% static 'vendors/jquery/jquery.min.js' %}?v={% get_version %}"></script>
   <!-- Bootstrap -->
@@ -84,6 +86,9 @@
         }
         return cookieValue;
     }
+
+
+
 
 
   </script>
@@ -221,6 +226,9 @@
               'save_messages': "{% trans 'Permission have been successfully saved.' %}",
               'error': "{% trans 'An error occurred while saving.' %}",
           };
+
+
+
 
 
 </script>

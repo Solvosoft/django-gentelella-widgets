@@ -54,17 +54,17 @@ function addSearchInputsAndFooterDataTable(dataTable, tableId) {
                 if(columnType === 'boolean'){
                     $(this).html('<select class="form-control form-control-sm"><option value="">--</option><option value="True">Yes</option><option value="False">No</option></select>');
                 }else if(columnType === 'date'){
-                    $(this).html('<input type="text" class="form-control" autocomplete="off" placeholder="Select date" value="">');
+                    $(this).html('<input type="text" class="form-control" autocomplete="off" placeholder="'+gettext('Select date')+'" value="">');
                     var $inp = $(this).find("input");
                     var dateformat = dataTable.settings()[0].aoColumns[i].dateformat || "MM/DD/YYYY";
-                    $inp.daterangepicker({showDropdowns: true, "locale": {"format": dateformat, cancelLabel: 'Clear'}});
+                    $inp.daterangepicker({showDropdowns: true, "locale": {"format": dateformat, cancelLabel: gettext('Clear')}});
                     $inp.val("");
                     $inp.on('cancel.daterangepicker', function(ev, picker) {
                         $inp.val("");
                         $inp.trigger('change');
                     });
                 }else if(columnType == 'number'){
-                    $(this).html('<input type="number" class="form-control form-control-sm" placeholder="Search ' + title + '" />');
+                    $(this).html('<input type="number" class="form-control form-control-sm" placeholder="'+gettext('Search ') + title + '" />');
                 }else if(columnType === 'select'){
                     var choices = dataTable.settings()[0].aoColumns[i].choices;
                     var select = '<select class="form-control form-control-sm"><option value="">--</option>';
@@ -87,7 +87,7 @@ function addSearchInputsAndFooterDataTable(dataTable, tableId) {
                 }else if(columnType === 'readonly'){
                     $(this).html("");
                 }else {
-                    $(this).html('<input type="text" class="form-control form-control-sm" placeholder="Search ' + title + '" />');
+                    $(this).html('<input type="text" class="form-control form-control-sm" placeholder="'+gettext('Search ') + title + '" />');
                 }
 
                 $('input, select', this).on('keyup change', function () {
@@ -110,7 +110,7 @@ function clearDataTableFilters(dataTable, tableId){
     dataTable.search('').columns().search('').draw();
     $(tableId).find('input, select').val('');
 }
-function yesnoprint(data, type, row, meta){ return data ? "<i class=\"fal fa-check-circle\"></i> Yes" : "<i class=\"fal fa-times-circle\"></i> No"; };
+function yesnoprint(data, type, row, meta){ return data ? "<i class=\"fal fa-check-circle\"></i> "+gettext("Yes") : "<i class=\"fal fa-times-circle\"></i>"+gettext("No"); };
 function emptyprint(data, type, row, meta){ return data ? data : "--"; };
 // hacer que se pueda definir el tipo el objeto ej data.name
 
@@ -130,8 +130,8 @@ function listobjprint(data, type, row, meta){
     }
     return txt != "" ? txt : "---";
 };
-function showlink(data, type, row, meta){ return data ? '<a href="'+data+'" target="_blank" class="btn btn-xs btn-success"> More </a>': ''; };
-function downloadlink(data, type, row, meta){ return data ? '<a href="'+data+'" target="_blank" class="btn btn-xs btn-success"> Show </a>': ''; };
+function showlink(data, type, row, meta){ return data ? '<a href="'+data+'" target="_blank" class="btn btn-xs btn-success"> '+gettext('More')+' </a>': ''; };
+function downloadlink(data, type, row, meta){ return data ? '<a href="'+data+'" target="_blank" class="btn btn-xs btn-success"> '+gettext('Show')+' </a>': ''; };
 function objshowlink(data, type, row, meta){ return data ? '<a href="'+data.url+'" target="_blank" class="'+(data.class!=undefined ? data.class : 'link')+'"> '+data.display_name+ '</a>': ''; };
 function objnode(data, type, row, meta){ return data ? '<'+data.tagName+' href="'+data.url+'" '+data.extraattr+' class="'+(data.class!=undefined ? data.class : 'link')+'"> '+data.display_name+ '</'+data.tagName+'>': ''; };
 
@@ -155,8 +155,8 @@ function createDataTable(id, url, extraoptions={}, addfilter=false, formatDataTa
         buttons: [
             {
                 action: function ( e, dt, node, config ) {clearDataTableFilters(dt, id)},
-                text: 'Clear Filters',
-                titleAttr: 'Clear Filters',
+                text: gettext('Clear Filters'),
+                titleAttr: gettext('Clear Filters'),
                 className: 'btn-sm mr-4'
             },
         ],
