@@ -55,7 +55,9 @@ class Command(BaseCommand):
         if self.threads_count == 1:
             yield urls[:]
             return
-
+        if self.threads_count > len(urls):
+            yield urls[:]
+            return
         trunk_len = len(urls) // self.threads_count
         start = 0
         nextt = trunk_len
@@ -71,9 +73,10 @@ class Command(BaseCommand):
     def download_urls(self):
         threads = []
         for urls_trunk in self.get_urls_list(self.urls):
-            t = Thread(target=download, args=[urls_trunk])
-            t.start()
-            threads.append(t)
+            if urls_trunk:
+                t = Thread(target=download, args=[urls_trunk])
+                t.start()
+                threads.append(t)
 
         for t in threads:
             t.join()
@@ -248,7 +251,9 @@ class Command(BaseCommand):
                 for flag in FLAGS],
             'datatables': [
                 'https://cdn.datatables.net/v/bs5/jszip-2.5.0/dt-1.12.1/af-2.4.0/b-2.2.3/b-colvis-2.2.3/b-html5-2.2.3/b-print-2.2.3/cr-1.5.6/date-1.1.2/fc-4.1.0/fh-3.2.4/kt-2.7.0/r-2.3.0/rg-1.2.0/rr-1.2.8/sc-2.0.7/sb-1.3.4/sp-2.0.2/sl-1.4.0/sr-1.1.1/datatables.min.js',
-                'https://cdn.datatables.net/v/bs5/jszip-2.5.0/dt-1.12.1/af-2.4.0/b-2.2.3/b-colvis-2.2.3/b-html5-2.2.3/b-print-2.2.3/cr-1.5.6/date-1.1.2/fc-4.1.0/fh-3.2.4/kt-2.7.0/r-2.3.0/rg-1.2.0/rr-1.2.8/sc-2.0.7/sb-1.3.4/sp-2.0.2/sl-1.4.0/sr-1.1.1/datatables.min.css'
+                'https://cdn.datatables.net/v/bs5/jszip-2.5.0/dt-1.12.1/af-2.4.0/b-2.2.3/b-colvis-2.2.3/b-html5-2.2.3/b-print-2.2.3/cr-1.5.6/date-1.1.2/fc-4.1.0/fh-3.2.4/kt-2.7.0/r-2.3.0/rg-1.2.0/rr-1.2.8/sc-2.0.7/sb-1.3.4/sp-2.0.2/sl-1.4.0/sr-1.1.1/datatables.min.css',
+                "https://cdn.datatables.net/plug-ins/1.12.1/i18n/en-GB.json",
+                "http://cdn.datatables.net/plug-ins/1.12.1/i18n/es-ES.json"
 
             ],
             'fileupload': [
