@@ -4,6 +4,7 @@ from datetime import timedelta
 
 from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
+from django.templatetags.static import static
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 
@@ -13,6 +14,11 @@ NOTIFICATION_DEFAULT_TEMPLATE = getattr(settings, 'NOTIFICATION_DEFAULT_TEMPLATE
                                         'gentelella/email/notification.html')
 
 DEFAULT_JS_IMPORTS = getattr(settings, 'DEFAULT_JS_IMPORTS', {})
+DATATABLES_SUPPORT_LANGUAGES = getattr(settings, 'DATATABLES_SUPPORT_LANGUAGES', {
+    'en': static("vendors/datatables/en-GB.json"),
+    'es': static("vendors/datatables/es-ES.json")
+
+})
 
 DEFAULT_GROUP_MODEL_BASE = 'GT_GROUP_MODEL'
 

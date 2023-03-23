@@ -135,9 +135,9 @@ function downloadlink(data, type, row, meta){ return data ? '<a href="'+data+'" 
 function objshowlink(data, type, row, meta){ return data ? '<a href="'+data.url+'" target="_blank" class="'+(data.class!=undefined ? data.class : 'link')+'"> '+data.display_name+ '</a>': ''; };
 function objnode(data, type, row, meta){ return data ? '<'+data.tagName+' href="'+data.url+'" '+data.extraattr+' class="'+(data.class!=undefined ? data.class : 'link')+'"> '+data.display_name+ '</'+data.tagName+'>': ''; };
 
-document.table_default_dom = "<'row mb-3'<'col-sm-12 col-md-4 d-flex align-items-center justify-content-start'f>" +
-                 "<'col-sm-12 col-md-6 d-flex align-items-center justify-content-end'B>" +
-                 "<'col-sm-12 col-md-2 d-flex align-items-center 'l>>" +
+document.table_default_dom = "<'row mb-3'<'col-sm-12 col-md-12 mb-1 d-flex align-items-center justify-content-center'f>" +
+                 "<'col-sm-6 col-md-6 mt-1 d-flex align-items-center justify-content-start'B>" +
+                 "<'col-sm-6 col-md-6 mt-1 d-flex align-items-center 'l>>" +
                  "<'row'<'col-sm-12'tr>><'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>";
 
 function createDataTable(id, url, extraoptions={}, addfilter=false, formatDataTableParamsfnc=formatDataTableParams){
@@ -147,6 +147,9 @@ function createDataTable(id, url, extraoptions={}, addfilter=false, formatDataTa
         colReorder: true,
         responsive: true,
         pagingType: "full_numbers",
+        language: {
+            "url": datatables_lang
+        },
         lengthMenu: [10, 25, 50, 100, 200, 500],
         columns: [
            // {data: "item_sequence", name: "item_sequence", title: "Sequence", type: "string", visible: true},
@@ -155,7 +158,7 @@ function createDataTable(id, url, extraoptions={}, addfilter=false, formatDataTa
         buttons: [
             {
                 action: function ( e, dt, node, config ) {clearDataTableFilters(dt, id)},
-                text: gettext('Clear Filters'),
+                text: '<i class="fa fa-eraser" aria-hidden="true"></i>',
                 titleAttr: gettext('Clear Filters'),
                 className: 'btn-sm mr-4'
             },

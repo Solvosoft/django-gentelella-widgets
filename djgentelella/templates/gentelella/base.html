@@ -53,6 +53,7 @@
   {% get_define 'use_datatables' as use_datatables %}
   {% if use_datatables %}
   <link href="{% static 'vendors/datatables/datatables.min.css' %}?v={% get_version %}" rel="stylesheet"/>
+  <script> datatables_lang = "{% get_datatables_translation %}"; </script>
   {% endif %}
 
 
@@ -86,6 +87,7 @@
         }
         return cookieValue;
     }
+
 
 
 
@@ -226,6 +228,7 @@
               'save_messages': "{% trans 'Permission have been successfully saved.' %}",
               'error': "{% trans 'An error occurred while saving.' %}",
           };
+
 
 
 
