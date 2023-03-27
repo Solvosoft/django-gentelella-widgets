@@ -21,6 +21,7 @@ from .tagging import views as tagging
 from .timeline.views import timeline_view
 from .views import knobView, YesNoInputView
 from .wysiwyg import views as tinymce
+from .select2box import views as selectMult
 
 pclss = Personclass()
 countryclss = Countryclass()
@@ -32,6 +33,7 @@ router.register('persontableview', PersonViewSet, 'api-persontable')
 urlpatterns = [
                   path('bt_modal_display', bt_modal_display, name='bt_modal_display'),
                   path('formset', add_formset, name='add_formset'),
+                  path('select2box', selectMult.formSelect2BoxView.as_view(), name='select2box'),
                   path('modelformset', add_model_formset, name='add_model_formset'),
                   path('create/notification', create_notification_view,
                        name='create_notification'),

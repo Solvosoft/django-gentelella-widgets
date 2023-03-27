@@ -1,0 +1,89 @@
+{% extends 'gentelella/base.html' %}
+{% block content %}
+<!--<form style="left:600px" action="" method="POST">
+  {% csrf_token %}
+  {{form.as_table}}
+  <button type="submit">Buscar</button>
+</form>
+<script>
+  $(document).ready(function(){
+  });
+</script>
+<optgroup label="Test Op">
+      <option data-icon="fa-heart">dzd</option>
+      <option>sdz</option>
+      <option>hhzs2</option>
+      <option>czsc</option>
+    </optgroup>
+
+<script>
+  var diction = {}
+  localStorage.clear()
+  $(document).ready(function(){
+    if(localStorage.getItem("saved_dict") !== null){
+      diction = JSON.parse(window.localStorage.getItem("saved_dict"));
+      testDict();
+      console.log(diction);
+    }
+    else{
+      delete_prev();
+    }
+  });
+
+  function selected_add(){
+    let opt = document.querySelectorAll('#multiselect-options :checked')
+    opt.forEach((e) => {
+      diction[e.id] = e.value;
+    });
+    window.localStorage.setItem("saved_dict", JSON.stringify(diction));
+    testDict()
+    //console.log(JSON.parse(window.localStorage.getItem("saved_dict")));
+  };
+
+  function testDict(){
+    delete_prev(); //prepares HTML Doc
+    for (let values in diction){
+      $("#selected-options").append(`<option ondblclick="return_selected()" id=${values}_${diction[values]}>${diction[values]}</option>`);
+      let removed_data = document.getElementById(values)
+      if(removed_data !== null){
+        removed_data.remove()
+      }
+    }
+  }
+  function delete_prev(){
+    let prev_doc = document.getElementById('selected-options')
+    let ini = document.getElementById('action-btn')
+    if (prev_doc !== null){
+      prev_doc.remove()
+    }
+    ini.insertAdjacentHTML('afterend', '<select id="selected-options" style="overflow: hidden; width:50%" multiple="multiple" ></select>')
+  }
+  function return_selected(){
+    let return_opt = document.querySelectorAll('#selected-options :checked');
+    return_opt.forEach((e) => {
+      let removed_id = `${e.id}`;
+      let removed_data = document.getElementById(removed_id);
+      removed_data.remove();
+      let old_id = removed_id.split('_')[0]
+      delete diction[old_id];
+      $("#multiselect-options").append(`<option ondblclick="selected_add()" id=${old_id}>${e.value}</option>`);
+    });
+    window.localStorage.setItem("saved_dict", JSON.stringify(diction));
+  }
+</script>
+-->
+<div class="select2container" style="height: auto; display:flex">
+  <select id="multiselect-options" style="overflow: hidden; width:50%" multiple="multiple" size="8">
+    <option ondblclick="selected_add()" id=1>jjj</option>
+    {% for elem in data_pred %}
+      <option ondblclick="selected_add()" id={{elem.id}}>{{elem.desc}} - {{elem.id}}</option>
+    {% endfor %}
+  </select>
+  <div id="action-btn" style="padding-left: 2%; align-self: center">
+    <button class="btn btn-primary" onclick="selected_add()">Add</button>
+    <button class="btn btn-warning" type="submit">Return</button>
+  </div>
+  <!--<select id="selected-options" style="overflow: hidden; width:50%" multiple="multiple" ></select>-->
+</div>
+
+{% endblock %}

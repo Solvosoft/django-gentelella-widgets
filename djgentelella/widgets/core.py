@@ -416,6 +416,15 @@ class SelectMultiple(DJSelectMultiple):
                                   base_class='select2_multiple form-control ')
         super(SelectMultiple, self).__init__(attrs, choices=choices)
 
+class Select2Box(DJSelectMultiple):
+    allow_multiple_selected = True
+    template_name = 'gentelella/widgets/select2box.html'
+    def __init__(self, attrs=None, choices=(), extraskwargs=True):
+        if extraskwargs:
+            attrs = update_kwargs(attrs, self.__class__.__name__,
+                                  base_class='select2box_available form-control')
+        super(Select2Box, self).__init__(attrs, choices=choices)
+
 
 class SelectMultipleAdd(SelectMultiple):
     allow_multiple_selected = True

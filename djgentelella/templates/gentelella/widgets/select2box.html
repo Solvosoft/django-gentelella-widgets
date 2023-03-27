@@ -1,0 +1,25 @@
+<div class="select2box_container row row-cols-4">
+  <div class="col-5">
+    <input type="text" class="form-control w-100">
+    <select class="select2box_options w-100" multiple>{% for group_name, group_choices, group_index in widget.optgroups %}{% if group_name %}
+      <optgroup label="{{ group_name }}">{% endif %}{% for option in group_choices %}
+      {% include option.template_name with widget=option %}{% endfor %}{% if group_name %}
+      </optgroup>{% endif %}{% endfor %}
+    </select>
+  </div>
+
+  <div class="btn-group-vertical col-2">
+    <button class="btn btn-secondary add_selection" type="button">-></button>
+    <button class="btn btn-secondary return_selected" type="button"><-</button>
+    <button class="btn btn-primary all_to_selected" type="button">Select All</button>
+    <button class="btn btn-danger all_to_available" type="button">Return All</button>
+  </div>
+  <div class="col-4">
+    <select name="{{ widget.name }}" {% include "gentelella/widgets/attrs.html" %} ></select>
+  </div>
+  <div class="col-1">
+      <button class="btn btn-danger create_btn" type="button">+</button>
+    </div>
+
+</div>
+
