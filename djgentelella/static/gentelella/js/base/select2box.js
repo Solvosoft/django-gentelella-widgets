@@ -84,6 +84,8 @@ function get_select2box(instance){
                         let nodes_selected = this.selected_temp.querySelectorAll('option').length;
                         this.container.find('.all_to_available')[0].disabled = (nodes_selected === 0);
                         this.container.find('.all_to_selected')[0].disabled = (nodes_available === 0);
+                        this.container.find('.add_selection')[0].disabled = (nodes_available === 0);
+                        this.container.find('.return_selected')[0].disabled = (nodes_selected === 0);
 
     },
     //Filters data inside the select_options HTML element
