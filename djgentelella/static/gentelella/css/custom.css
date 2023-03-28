@@ -4618,11 +4618,21 @@ border-bottom:2px solid #E6E9ED;
     overflow: hidden;
 }
 
-.select2box_btn{
-    display:block;
-}
-
 .select2box_available{
     min-height:15em;
     overflow: hidden;
+}
+
+.move_all_selector{
+    color:black;
+    background: none;
+    border:none;
+}
+
+.move_all_selector:disabled{
+    color:grey;
+}
+
+#select2box_modal{
+    display: none;
 }
