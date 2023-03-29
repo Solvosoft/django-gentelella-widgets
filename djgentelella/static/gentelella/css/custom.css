@@ -4615,7 +4615,6 @@ border-bottom:2px solid #E6E9ED;
 
 .select2box_options{
     min-height:15em;
-    overflow: hidden;
 }
 
 .select2box_available{
@@ -4639,5 +4638,4 @@ border-bottom:2px solid #E6E9ED;
 
 .arrow_select2box {
     font-size:2em;
-    pa
 }

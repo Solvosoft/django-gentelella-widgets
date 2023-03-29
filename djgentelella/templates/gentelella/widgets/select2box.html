@@ -6,7 +6,7 @@
       {% include option.template_name with widget=option %}{% endfor %}{% if group_name %}
       </optgroup>{% endif %}{% endfor %}
     </select>
-    <button class="move_all_selector all_to_selected" type="button">Select All -></button>
+    <button class="move_all_selector all_to_selected" type="button">Select All &#8594;</button>
   </div>
 
   <div class="btn-group-vertical col-1">
@@ -14,8 +14,8 @@
     <button class="btn btn-secondary arrow_select2box return_selected h-25 mb-5" type="button">&#8592;</button>
   </div>
   <div class="col-4 text-center">
-    <select name="{{ widget.name }}" {% include "gentelella/widgets/attrs.html" %} ></select>
-    <button class="move_all_selector all_to_available" type="button"><- Return All</button>
+    <select name="{{ widget.name }}" {% include "gentelella/widgets/attrs.html" %}></select>
+    <button class="move_all_selector all_to_available" type="button">&#8592; Return All</button>
   </div>
   <div class="col-1">
     <button class="btn btn-success create_btn" type="button" data-bs-toggle="modal" data-bs-target="#select2box_modal">+</button>
@@ -45,7 +45,5 @@
       </div>
     </div>
   </div>
-
-
 </div>
 
