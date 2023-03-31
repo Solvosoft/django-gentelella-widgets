@@ -22,5 +22,5 @@ class PeopleSelect2BoxForm(GTForm, forms.ModelForm):
             'name': TextInput,
             'people': Select2Box(attrs={'data-url':reverse_lazy('personbasename-list')}),
             'comunities': Select2Box(attrs={'data-url':reverse_lazy('comunitybasename-list')}),
-            'country': Select2Box(attrs={'data-url':reverse_lazy('countrybasename-list')})
+            'country': AutocompleteSelect('countrybasename')
         }

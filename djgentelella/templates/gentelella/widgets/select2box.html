@@ -8,7 +8,7 @@
     </select>
     <button class="move_all_selector all_to_selected" type="button">Select All &#8594;</button>
   </div>
-
+  <p class="selected_values_container" hidden>{%for elem in widget.value%}{{elem}},{%endfor%}</p>
   <div class="btn-group-vertical col-1">
     <button class="btn btn-secondary arrow_select2box add_selection h-25 mt-5" type="button">&#8594;</button>
     <button class="btn btn-secondary arrow_select2box return_selected h-25 mb-5" type="button">&#8592;</button>
@@ -29,12 +29,12 @@
         </div>
         <div class="modal-body">
           <div class="md-form mb-5">
-            <input type="number" id="value_select2box" name="value_select2box">
             <label data-error="wrong" data-success="right" for="value_select2box">Value</label>
+            <input type="number" id="value_select2box" name="value_select2box">
           </div>
           <div class="md-form mb-4">
-            <input type="text" id="display_select2box" name="display_select2box">
             <label data-error="wrong" data-success="right" for="display_select2box">Display</label>
+            <input type="text" id="display_select2box" name="display_select2box">
           </div>
         </div>
         <div class="modal-footer">

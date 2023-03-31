@@ -28,8 +28,9 @@
                 <li class="d-flex">
                     <div class="p-2 flex-fill"> {{obj}} </div>
                     <div class="p-2 flex-fill">
-                        <a class="btn btn-sm btn-outline-warning float-end" href="{% url 'select2box-group-edit' obj.pk %}"><i class="fa fa-edit"></i></a></li>
+                        <a class="btn btn-sm btn-outline-warning float-end" href="{% url 'select2box-group-edit' obj.pk %}"><i class="fa fa-edit"></i></a>
                     </div>
+                </li>
         {% endfor %}
         </ul>
     </div>

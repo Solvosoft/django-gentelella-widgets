@@ -1,0 +1,80 @@
+Select2Box Widget
+^^^^^^^^^^^^^^^^^
+
+.. image:: ../_static/autocomplete.png
+
+2 requirements must be achieved to use these widget
+
+
+- Create a lookup channel in ``app/gtselects.py`` based in the model we want to use as options in the widget.
+- Replace default widget in form with ``Select2Box``.
+
+
+-------------------------------------
+Defining Lookups for usage in widgets
+-------------------------------------
+An example on how a lookup must be defined:
+
+.. code:: python
+
+    from djgentelella.groute import register_lookups
+    from djgentelella.views.select2autocomplete import BaseSelect2View
+    from yourapp.models import models
+
+    @register_lookups(prefix="person", basename="personbasename")
+    class PersonGModelLookup(BaseSelect2View):
+        model = models.Person
+        fields = ['name']
+
+Based in above example we need:
+
+- A decorator named register_lookups defined above the lookup class that receives two parameters:
+    - A prefix, which is basically the model name in lowcaps
+    - A basename, which is a meaningful name that will help you differentiate between multiple lookups
+- A class that inherits from the custom class BaseSelect2View which is responsible of creating an url that exposes the model data in a way the widget understands it, so to make it work the class needs:
+    - A model to work with.
+    - A list of fields from the model that the inherited class will use as filtering options when returning data to the widget.
+
+If a more customized class is desired the next options can be overwritten to achieve it:
+
+ - ref_field: can be used to select a specific field from the model with a list behavior (manytomanyfield or fields with choices) and use it to filter options.
+ - ref_name: combined with ref_field, this field receives a list of strings that will be evaluated if any of its elements is contained in the ref_field field.
+ - text_separator:  if provided, the class will use it to generate a list separated with the given value from result data.
+ - text_wrapper: if provided, the class will wrap each element of the result query with the value given.
+ - order_by: if provided, the class will used the given field to order the result query, the default field is the model pk.
+
+------------------------
+Usage with API in forms
+------------------------
+
+In model based form:
+
+.. code:: python
+
+    from djgentelella.widgets.core import Select2Box
+    from djgentelella.widgets.selects import AutocompleteSelect
+    from djgentelella.forms.forms import GTForm
+    class PeopleSelect2BoxForm(GTForm, forms.ModelForm):
+        class Meta:
+            model = PeopleGroup
+            fields = '__all__'
+            widgets = {
+                'name': TextInput,
+                'people': Select2Box(attrs={'data-url':reverse_lazy('personbasename-list')}),
+                'comunities': Select2Box(attrs={'data-url':reverse_lazy('comunitybasename-list')}),
+                'country': AutocompleteSelect('countrybasename')
+            }
+
+------------------------
+Usage without API in forms
+------------------------
+
+.. code:: python
+
+    class dataOptions(GTForm):
+        mydata = forms.ChoiceField(widget=Select2Box, choices=[[1, "primero"], [2, "segundo"], [3, "tercero"]])
+
+As noticed in above example, the last steps are:
+ - Replace the default widget with ``Select2Box`` (this may vary depending of the kind of form used).
+ - You can use it with a Choice and MultipleChoice fields, where you just need to set the widget to ``Select2Box``, and is ready for use.
+ - If you want data from an API, send the basename we provided in the lookup class decorator as the attribute ``data-url`` (see previous example) to the widget and it's ready for usage with an API.
