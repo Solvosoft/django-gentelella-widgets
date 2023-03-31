@@ -1,10 +1,26 @@
 from django import forms
+from django.forms import TextInput
+from django.urls import reverse_lazy
 
+from demoapp.models import PeopleGroup
 from djgentelella.forms.forms import GTForm
 from djgentelella.models import MenuItem
-from djgentelella.widgets.core import Select2Box
+from djgentelella.widgets.core import Select2Box, TextInput
+from djgentelella.widgets.selects import AutocompleteSelect
+
 
 class dataOptions(GTForm):
     mydata = forms.ChoiceField(widget=Select2Box, choices=[[1, "primero"], [2, "segundo"], [3, "tercero"]])
-    mymenu = forms.ModelMultipleChoiceField(widget=Select2Box(attrs={'data-url':'https://pokeapi.co/api/v2/pokemon/?limit=10'}), queryset=MenuItem.objects.all())
+    mymenu = forms.ModelMultipleChoiceField(widget=Select2Box(attrs={'data-url':reverse_lazy('personbasename-list')}), queryset=MenuItem.objects.all())
     mydataTest = forms.ChoiceField(widget=Select2Box, choices=[[1, "primero"], [2, "segundo"], [3, "tercero"]])
+
+class PeopleSelect2BoxForm(GTForm, forms.ModelForm):
+    class Meta:
+        model = PeopleGroup
+        fields = '__all__'
+        widgets = {
+            'name': TextInput,
+            'people': Select2Box(attrs={'data-url':reverse_lazy('personbasename-list')}),
+            'comunities': Select2Box(attrs={'data-url':reverse_lazy('comunitybasename-list')}),
+            'country': Select2Box(attrs={'data-url':reverse_lazy('countrybasename-list')})
+        }

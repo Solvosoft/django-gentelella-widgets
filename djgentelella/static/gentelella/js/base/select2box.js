@@ -2,7 +2,7 @@
 function get_select2box(instance){
     var select2box = {
     //Template for the options created
-    'opt_template': '<option value="new_value"> new_display </option>',
+    'opt_template': '<option value="new_value">new_display</option>',
     //Instance of the parent container
     'container': null,
     'options':null,
@@ -14,29 +14,66 @@ function get_select2box(instance){
                 let options = parent.getElementsByClassName("select2box_options")[0]
                 let selected_temp = parent.getElementsByClassName("select2box_available form-control")[0]
                 if(url !== undefined){
-                    this.get_api_data(url, current_instance, options, selected_temp)
+                    this.remove_all_data(current_instance, options, selected_temp);
+                    this.manage_data_api(url, 1, {}, current_instance)
+                    //let test_temp = this.get_api_data(url, current_instance, options, selected_temp)()
                 }
                 this.initialize_elem_func(current_instance, options, selected_temp);
-                this.disable_property(current_instance, options, selected_temp); //Checks if data exists in each select HTML element
+                this.disable_property(current_instance); //Checks if data exists in each select HTML element
             },
-    //Fetch the data from an API and inserts it into the options
-    'get_api_data': function(url, current_instance, options, selected_temp){
-                        let value_dictionary = {};
-                        fetch(url).then(response => response.json()).then(data => {
-                            let key_to_use = Object.keys(data.results[0])[0];
-                            for(let e in data.results ) {
-                                //console.log(e, Object.keys(data.results[e])[0]);
-                                value_dictionary[e] = data.results[e][key_to_use]
+    'manage_data_api': function(url, page, vals, current_instance){
+                        let temp_url = `${url}?page=${page}`
+                        fetch(temp_url).then(response => response.json()).then(data => {
+                            let all_results = data.results
+                            for(let e in all_results ) {
+                                vals[all_results[e]['id']] = all_results[e]['text']
                             }
-                            this.remove_all_data(current_instance, options, selected_temp);
-                            this.insert_api_data(current_instance, value_dictionary);
+                            if(data.pagination.more){
+                                let new_page = page+1
+                                this.manage_data_api(url, new_page, vals, current_instance)
+                            }
+                            else{
+                                this.insert_api_data(current_instance, vals)
+                            }
                           })
                           .catch(error => {
-                            //console.error('Error:', error);
                             console.log("Can't get the API Data, verify the url")
                           });
-                        console.log(current_instance)
-                        console.log(value_dictionary)
+
+    },
+    //Fetch the data from an API and inserts it into the options
+    'insert_api_data': function(current_instance, value_dictionary){
+                        let temp_opt_format = this.opt_template;
+                        let temp_ref = current_instance.find('.select2box_options');
+                        for(let e in value_dictionary) {
+                            console.log(e)
+                            let temp_format = temp_opt_format.replace('new_value', e).replace('new_display', value_dictionary[e])
+                            temp_ref.append(temp_format)
+                        }
+    },
+    /*'get_api_data': function(url, current_instance, options, selected_temp){
+                        let value_dictionary = [];
+                        let temp_url = url + `?page=${2}`
+                        function gg(url, page=1, values){
+                            fetch(url).then(response => response.json()).then(data => {
+                                for(let e in data.results ) {
+                                    //console.log(e, Object.keys(data.results[e])[0]);
+                                    values.push(data.results[e]['text'])
+                                }
+                                return
+                              })
+                              .catch(error => {
+                                //console.error('Error:', error);
+                                console.log("Can't get the API Data, verify the url")
+                              });
+
+                        };
+                        gg(url, [])
+                        console.log(value_dictionary.length)
+                        this.remove_all_data(current_instance, options, selected_temp);
+                        //this.insert_api_data(current_instance, value_dictionary);
+
+
     },
     'insert_api_data': function(current_instance, value_dictionary){
                         let temp_opt_format = this.opt_template;
@@ -45,10 +82,10 @@ function get_select2box(instance){
                             let temp_format = temp_opt_format.replace('new_value', e).replace('new_display', value_dictionary[e])
                             temp_ref.append(temp_format)
                         }
-    },
+    },*/
     'initialize_elem_func':function(current_instance, options, selected_temp){
                         current_instance.find('.add_selection')
-                            .on("click", () => {this.selected_add(current_instance, options), this.disable_property(current_instance, options, selected_temp);});
+                            .on("click", () => this.selected_add(current_instance, options));
                         current_instance.find('.select2box_options').on("dblclick", () => this.selected_add(current_instance, options));
                         current_instance.find('.return_selected').on("click", () => this.remove_selected(current_instance, selected_temp));
                         current_instance.find('.select2box_available').on("dblclick", () => this.remove_selected(current_instance, selected_temp));
@@ -57,6 +94,7 @@ function get_select2box(instance){
                         current_instance.find('.search_select2box').on('input', () => this.search_data(current_instance, options));
                         current_instance.find('.delete_btn').on('click', () => this.remove_all_data(current_instance, options, selected_temp));
                         current_instance.find('.save_data_btn').on('click', () => this.insert_new_data(current_instance));
+
                         $('#select2box_modal').on('hide.bs.modal', () => {
                                                     //Resets the value of the 2 modal inputs
                                                     current_instance.find('#value_select2box')[0].value = "";
@@ -66,7 +104,6 @@ function get_select2box(instance){
 
     //Add selected options to the selected container
     'selected_add': function(current_instance, options){
-                        console.log(options)
                         let temp_ref = current_instance.find('.select2box_available');
                         let temp_opt_format = this.opt_template;
                         let opt = options.querySelectorAll(':checked')
@@ -109,7 +146,6 @@ function get_select2box(instance){
                         let nodes_selected = selected_temp.querySelectorAll('option');
                         nodes_available.forEach((e) => {e.remove()});
                         nodes_selected.forEach((e) => {e.remove()});
-                        this.disable_property(current_instance);
     },
     //Disables buttons depending on the data in them
     'disable_property': function(current_instance) {
@@ -118,6 +154,8 @@ function get_select2box(instance){
                         let selected_temp = parent.getElementsByClassName("select2box_available form-control")[0]
                         let nodes_available = options.querySelectorAll('option').length === 0;
                         let nodes_selected = selected_temp.querySelectorAll('option').length === 0;
+                        let selected_available = options.querySelectorAll(':checked').length === 0;
+                        let selected_options = selected_temp.querySelectorAll(':checked').length === 0;
                         current_instance.find('.all_to_selected')[0].disabled = (nodes_available);
                         current_instance.find('.add_selection')[0].disabled = (nodes_available);
                         current_instance.find('.all_to_available')[0].disabled = (nodes_selected);
@@ -155,17 +193,39 @@ function get_select2box(instance){
                         }
                         this.disable_property(current_instance);
     },
+    'selected_all_instances': function() {
+                                let all_instances = $(instance).closest('.select2box_container');
+                                delete all_instances.prevObject;
+                                delete all_instances.length;
+                                container_values = Object.keys(all_instances)
+                                console.log(container_values)
+                                container_values.forEach((e) => {
+                                    temp_container = $(all_instances[e])
+                                    let temp_ref = temp_container.find('.select2box_available');
+                                    //console.log(temp_ref[0])
+                                    this.form_selected_options(temp_ref[0])
+
+                                })
+    },
+    'form_selected_options': function(selected_temp) {
+                                let temp_opt_format = this.opt_template;
+                                let opt = selected_temp.querySelectorAll('option')
+                                opt.forEach((e) => {
+                                  console.log(e)
+                                  //e.selected = true
+                                });
+    }
     }
     let all_instances = $(instance).closest('.select2box_container')
     delete all_instances.prevObject
     delete all_instances.length
-    //console.log(all_instances)
     container_values = Object.keys(all_instances)
     container_values.forEach((e) => {
         let _ = select2box
         _.container = $(all_instances[e])
         _.init()
     })
+    select2box.container.closest('form').find('.btn-success').on('click', () => select2box.selected_all_instances())
     return select2box
 
 }

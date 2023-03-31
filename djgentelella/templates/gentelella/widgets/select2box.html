@@ -18,8 +18,7 @@
     <button class="move_all_selector all_to_available" type="button">&#8592; Return All</button>
   </div>
   <div class="col-1">
-    <button class="btn btn-success create_btn" type="button" data-bs-toggle="modal" data-bs-target="#select2box_modal">+</button>
-    <button class="btn btn-warning delete_btn" type="button">-</button>
+    <button class="btn btn-info create_btn" type="button" data-bs-toggle="modal" data-bs-target="#select2box_modal">+</button>
   </div>
   <div class="modal fade" id="select2box_modal" tabindex="-1" aria-labelledby="select2box_modalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
@@ -30,11 +29,11 @@
         </div>
         <div class="modal-body">
           <div class="md-form mb-5">
-            <input type="text" id="value_select2box" class="form-control" required>
+            <input type="number" id="value_select2box" name="value_select2box">
             <label data-error="wrong" data-success="right" for="value_select2box">Value</label>
           </div>
           <div class="md-form mb-4">
-            <input type="text" id="display_select2box" class="form-control" required>
+            <input type="text" id="display_select2box" name="display_select2box">
             <label data-error="wrong" data-success="right" for="display_select2box">Display</label>
           </div>
         </div>
