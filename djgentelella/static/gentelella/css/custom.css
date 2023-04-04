@@ -4620,6 +4620,8 @@ border-bottom:2px solid #E6E9ED;
 .select2box_available{
     min-height:15em;
     overflow: hidden;
+    font-size:0.95rem;
+    padding-left:0;
 }
 
 .move_all_selector{
@@ -4637,5 +4639,15 @@ border-bottom:2px solid #E6E9ED;
 }
 
 .arrow_select2box {
-    font-size:2em;
+    font-size:2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn_col_style{
+    margin: auto;
+    display: flex;
+    flex-direction: col;
+    justify-content: center;
 }

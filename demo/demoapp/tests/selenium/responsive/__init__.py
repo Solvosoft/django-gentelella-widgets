@@ -1,5 +1,4 @@
 from pathlib import Path
-
 from Screenshot import Screenshot
 from django.conf import settings
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
@@ -37,13 +36,16 @@ class ScreenshotSeleniumTest(StaticLiveServerTestCase):
                            {'width': 800, 'height': 1280},
                            {'width': 601, 'height': 962},
                            {'width': 962, 'height': 601}]
-        cls.paths = [{'name': 'add_formset'},
+        """cls.paths = [{'name': 'add_formset'},
                      {'name': 'add_model_formset'},
                      {'name': 'create_notification'},
                      {'name': 'markitup_preview'},
                      {'name': 'knobwidgets'},
                      {'name': 'pgroup-list'},
                      {'name': 'pgroup-add'},
+                     {'name': 'select2box-group-add'},
+                     #{'name': 'select2box-group-edit', 'args':('')},
+                     {'name': 'select2box-group-list'},
                      # {'name': 'pgroup-edit'},
                      {'name': 'abcde-list'},
                      {'name': 'abcde-add'},
@@ -71,7 +73,12 @@ class ScreenshotSeleniumTest(StaticLiveServerTestCase):
                      {'name': 'gigapixel_view'},
                      {'name': 'mapbased_view'},
                      {'name': 'storyline_view'},
-                     {'name': 'timeline_view'}]
+                     {'name': 'timeline_view'}]"""
+        cls.paths = [
+            {'name': 'select2box-group-add'},
+            # {'name': 'select2box-group-edit', 'args':('')},
+            {'name': 'select2box-group-list'},
+        ]
         cls.ob = Screenshot.Screenshot()
         cls.selenium = WebDriver()
         cls.selenium.implicitly_wait(cls.timeout)

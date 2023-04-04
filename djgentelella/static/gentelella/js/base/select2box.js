@@ -9,23 +9,36 @@ function get_select2box(instance){
                 let current_instance = this.container
                 let parent = current_instance[0] //DOM Container
                 let url = current_instance.find('.select2box_available').data('url') //undefined or data
+                let form_url = current_instance.find('.select2box_available').data('addurl') //undefined or data
                 //Container for the select in options
                 let options = parent.getElementsByClassName('select2box_options')[0]
                 //Container for the select in available
                 let selected_temp = parent.getElementsByClassName('select2box_available form-control')[0]
-                //Previously selected values for each element
-                let selected_values = current_instance.find('.selected_values_container')[0].innerHTML
-
-                if(url !== undefined){
-                    this.remove_all_data(current_instance, options, selected_temp);
-                    this.manage_data_api(url, 1, {'selected':[], 'not_selected':[], 'values_selected':selected_values.slice(0, -1)}, current_instance)
-                }
-                else{
-                    this.add_selected(selected_values, current_instance, options);
-                }
-                this.initialize_elem_func(current_instance, options, selected_temp);
+                this.url_management(url, current_instance, options, selected_temp)
+                this.form_url_management(form_url, current_instance)
+                this.initialize_elem_func(current_instance, options, selected_temp); //Initialize all elements in DOM
                 this.disable_property(current_instance); //Checks if data exists in each select HTML element
             },
+    'url_management': function(url, current_instance, options, selected_temp) {
+                        //Previously selected values for each element
+                        let selected_values = current_instance.find('.selected_values_container')[0].innerHTML
+                        if(url){
+                            this.remove_all_data(current_instance, options, selected_temp);
+                            this.manage_data_api(url, 1, {'selected':[], 'not_selected':[], 'values_selected':selected_values.slice(0, -1)}, current_instance)
+                        }
+                        else{
+                            this.add_selected(selected_values, current_instance, options);
+                        }
+    },
+    'form_url_management': function(form_url, current_instance){
+                        if(form_url){
+                            this.create_custom_form(form_url, current_instance)
+                            current_instance.find('.save_data_btn').on('click', () => this.send_form_data(form_url, current_instance))
+                        }
+                        else{
+                            current_instance.find('.create_btn')[0].hidden = 'hidden'
+                        }
+    },
     //Fetch the data from an API and inserts it into the options
     'manage_data_api': function(url, page, vals, current_instance){
                         let temp_url = `${url}?page=${page}&selected=${vals['values_selected']}`
@@ -48,9 +61,8 @@ function get_select2box(instance){
                             }
                           })
                           .catch(error => {
-                            console.log("Can't get the API Data, verify the url")
+                            alert("Can't get the API Data, verify the url attr")
                           });
-
     },
     //Insert API data in the select elements
     'insert_api_data': function(current_instance, value_dictionary){
@@ -89,11 +101,8 @@ function get_select2box(instance){
                             .on('click', () => this.remove_all_data(current_instance, options, selected_temp));
                         current_instance.find('.save_data_btn')
                             .on('click', () => this.insert_new_data(current_instance));
-                        $('#select2box_modal').on('hide.bs.modal', () => {
-                                                    //Resets the value of the 2 modal inputs
-                                                    current_instance.find('#value_select2box')[0].value = "";
-                                                    current_instance.find('#display_select2box')[0].value = "";
-                        });
+                        current_instance.find('.create_btn')
+                            .on('click', () => current_instance.find('#select2box_modal').modal('show'));
     },
     //Add selected options to the selected container
     'selected_add': function(current_instance, options){
@@ -151,7 +160,6 @@ function get_select2box(instance){
                         current_instance.find('.add_selection')[0].disabled = (nodes_available);
                         current_instance.find('.all_to_available')[0].disabled = (nodes_selected);
                         current_instance.find('.return_selected')[0].disabled = (nodes_selected);
-
     },
     //Filters data inside the select_options HTML element
     'search_data': function(current_instance, options) {
@@ -167,40 +175,16 @@ function get_select2box(instance){
                                         }
                                         });
     },
-    //Insert new data using the modal inputs
-    'insert_new_data': function (current_instance) {
-                        let value = current_instance.find('#value_select2box')[0].value;
-                        let display = current_instance.find('#display_select2box')[0].value;
-                        let temp_opt_format = this.opt_template;
-                        let temp_ref = current_instance.find('.select2box_options')
-                        if (value !== "" && display !== ""){
-                            let temp_format = temp_opt_format.replace('new_value', value).replace('new_display', display);
-                            temp_ref.append(temp_format);
-                            $('#select2box_modal').modal('hide');
-                        }
-                        else{
-                            alert("Invalid data provided")
-                        }
-                        this.disable_property(current_instance);
-    },
     'selected_all_instances': function() {
                                 let all_instances = $(instance).closest('.select2box_container');
+                                //Cleans instance object for selection
                                 delete all_instances.prevObject;
                                 delete all_instances.length;
                                 container_values = Object.keys(all_instances)
                                 container_values.forEach((e) => {
                                     temp_container = $(all_instances[e])
-                                    let temp_ref = temp_container.find('.select2box_available');
-                                    this.form_selected_options(temp_ref[0])
-
+                                    temp_container.find('.select2box_available option').attr('selected', 'selected')
                                 })
-    },
-    'form_selected_options': async function(selected_temp) {
-                                let temp_opt_format = this.opt_template;
-                                let opt = selected_temp.querySelectorAll('option')
-                                opt.forEach((e) => {
-                                  e.selected = true
-                                });
     },
     'add_selected': function(selected_values, current_instance, options){
                         let temp_ref = current_instance.find('.select2box_available')
@@ -215,18 +199,77 @@ function get_select2box(instance){
                                 e.remove()
                             }
                         })
-    }
+    },
+    'create_custom_form': function(url, current_instance) {
+                            let modal = current_instance.find('#select2box_modal')
+                            fetch(url, {credentials: 'same-origin',}).then(response => response.json()).then(data => {
+                                modal.append(data.result)
+                                gt_find_initialize($(modal))
+                                current_instance.find('.save_data_btn').on('click', () => this.send_form_data(url, current_instance))
+
+                            }).catch(error => {
+                                alert("Can't get the API Data, verify the addurl attr")
+                            })
+    },
+    'send_form_data': function(url, current_instance){
+                        let form = current_instance.find('.insert_model_data_form')[0]
+                        let formData = new FormData(form)
+                        const plainFormData = Object.fromEntries(formData.entries());
+	                    const formDataJsonString = JSON.stringify(plainFormData);
+                        fetch(url, { method: "POST", credentials: 'include',
+                          headers: {
+                            "Content-Type": "application/json",
+                            "Accept": "application/json",
+                            'X-CSRFToken': this.get_cookie('csrftoken'),
+                          },
+                          body: formDataJsonString
+                        }).then(response => response.json()).then(data => {
+                            try{
+                                this.insert_new_data(current_instance, data['result'])
+
+                            }catch(error){
+                                alert(data['error'])
+                            }
+                          }).catch(error => {
+                                alert("Can't POST the Data")
+                        });
+    },
+    //Insert new data using the modal inputs
+    'insert_new_data': function (current_instance, new_data) {
+                        let temp_opt_format = this.opt_template;
+                        let temp_ref = current_instance.find('.select2box_options')
+                        let temp_format = temp_opt_format.replace('new_value', new_data.id).replace('new_display', new_data.text);
+                        temp_ref.append(temp_format);
+                        current_instance.find('#select2box_modal').modal('hide');
+                        this.disable_property(current_instance);
+    },
+    //Get the CSRF Token
+    'get_cookie': function(name){
+                        let cookieValue = null;
+                        if (document.cookie && document.cookie !== '') {
+                            const cookies = document.cookie.split(';');
+                            for (let i = 0; i < cookies.length; i++) {
+                                const cookie = cookies[i].trim();
+                                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                    break;
+                                }
+                            }
+                        }
+                        return cookieValue;
+                    }
     }
     let all_instances = $(instance).closest('.select2box_container')
     delete all_instances.prevObject
     delete all_instances.length
     container_values = Object.keys(all_instances)
+    //Iterates through every instance and configure its elements
     container_values.forEach((e) => {
         let _ = select2box
         _.container = $(all_instances[e])
         _.init()
     })
+    //Auto selects all data inside selected boxes
     select2box.container.closest('form').find('.btn-success').on('click', () => select2box.selected_all_instances())
     return select2box
-
 }

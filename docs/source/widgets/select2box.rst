@@ -1,7 +1,7 @@
 Select2Box Widget
-^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^
 
-.. image:: ../_static/autocomplete.png
+.. image:: ../_static/select2box.png
 
 2 requirements must be achieved to use these widget
 
@@ -10,9 +10,9 @@ Select2Box Widget
 - Replace default widget in form with ``Select2Box``.
 
 
--------------------------------------
+--------------------------------------
 Defining Lookups for usage in widgets
--------------------------------------
+--------------------------------------
 An example on how a lookup must be defined:
 
 .. code:: python
@@ -65,16 +65,66 @@ In model based form:
                 'country': AutocompleteSelect('countrybasename')
             }
 
-------------------------
+As noticed in above example, the last steps are:
+ - You can use it with a MultipleChoice field, where you just need to set the widget to ``Select2Box``, and is ready for use.
+ - If you want data from an API, send the basename we provided in the lookup class decorator as the attribute ``data-url`` (see previous example) to the widget and it's ready for usage with an API.
+
+---------------------------
 Usage without API in forms
-------------------------
+---------------------------
 
 .. code:: python
 
     class dataOptions(GTForm):
-        mydata = forms.ChoiceField(widget=Select2Box, choices=[[1, "primero"], [2, "segundo"], [3, "tercero"]])
+        mydata = forms.MultipleChoiceField(widget=Select2Box, choices=[[1, "primero"], [2, "segundo"], [3, "tercero"]])
 
 As noticed in above example, the last steps are:
- - Replace the default widget with ``Select2Box`` (this may vary depending of the kind of form used).
- - You can use it with a Choice and MultipleChoice fields, where you just need to set the widget to ``Select2Box``, and is ready for use.
- - If you want data from an API, send the basename we provided in the lookup class decorator as the attribute ``data-url`` (see previous example) to the widget and it's ready for usage with an API.
+ - You can use it with a MultipleChoice field, where you just need to set the widget to ``Select2Box``, and is ready for use.
+
+----------------------------------------
+Create new data for the select elements
+----------------------------------------
+
+If you want to create new elements, you must create a view that can process data, with ``GET`` and ``POST`` requests.
+
+.. code:: python
+
+    def Select2BoxPersonAddView(request):
+    form_t = PersonForm(prefix='person_new_data')
+    if request.method == "GET":
+        render_str = render_to_string('gentelella/widgets/select2box_modal_body.html', {'form': form_t})
+        return JsonResponse({'result': render_str})
+    elif request.method == "POST":
+        json_data = json.loads(request.body)
+        review_data = PersonForm(json_data, prefix='person_new_data')
+        if review_data.is_valid():
+            try:
+                saved_data = review_data.save()
+                return JsonResponse({'result': {'id': saved_data.id, 'text': saved_data.name, 'selected': False, 'disabled': False}})
+            except (KeyError, PersonForm.errors):
+                return JsonResponse({'error': 'Error'})
+
+As shown in the previous example, for the creation these are the steps:
+ - The view must have a form to send and save data.
+ - Define a form variable, that contains a model form.
+ - If there are same widgets in the general form and in the model form, a prefix must be declared (as shown in the above example), to avoid functionality issues.
+ - If the request is a ``GET`` method, the data of the form must be rendered to string, and sent as a JsonResponse.
+ - If the request is a ``POST`` method, the data must be validated with the django ``is_valid`` functionality an saved to the model, preventing data loss and corruption.
+ - The ``POST`` method returns a JSON with the saved data id, text, selected, disabled.
+
+For the form configuration, you must declare ``data-addurl``:
+
+.. code:: python
+
+    class PeopleSelect2BoxForm(GTForm, forms.ModelForm):
+        class Meta:
+            model = PeopleGroup
+            fields = '__all__'
+            widgets = {
+                'name': TextInput,
+                'people': Select2Box(attrs={'data-url':reverse_lazy('personbasename-list'), 'data-addurl':reverse_lazy('select2box-group-personform')}),
+                'comunities': Select2Box(attrs={'data-url':reverse_lazy('comunitybasename-list'), 'data-addurl':reverse_lazy('select2box-group-comunityform')}),
+                'country': AutocompleteSelect('countrybasename')
+            }
+
+As seen in the previous example, ``addurl`` references the view where the form is processed.

@@ -2,6 +2,7 @@ from django import forms
 from django.forms import TextInput
 from django.urls import reverse_lazy
 
+from demoapp.forms import PersonForm, CityForm
 from demoapp.models import PeopleGroup
 from djgentelella.forms.forms import GTForm
 from djgentelella.models import MenuItem
@@ -10,7 +11,7 @@ from djgentelella.widgets.selects import AutocompleteSelect
 
 
 class dataOptions(GTForm):
-    mydata = forms.ChoiceField(widget=Select2Box, choices=[[1, "primero"], [2, "segundo"], [3, "tercero"]])
+    mydata = forms.MultipleChoiceField(widget=Select2Box, choices=[[1, "primero"], [2, "segundo"], [3, "tercero"]])
     mymenu = forms.ModelMultipleChoiceField(widget=Select2Box(attrs={'data-url':reverse_lazy('personbasename-list')}), queryset=MenuItem.objects.all())
     mydataTest = forms.ChoiceField(widget=Select2Box, choices=[[1, "primero"], [2, "segundo"], [3, "tercero"]])
 
@@ -20,7 +21,7 @@ class PeopleSelect2BoxForm(GTForm, forms.ModelForm):
         fields = '__all__'
         widgets = {
             'name': TextInput,
-            'people': Select2Box(attrs={'data-url':reverse_lazy('personbasename-list')}),
-            'comunities': Select2Box(attrs={'data-url':reverse_lazy('comunitybasename-list')}),
+            'people': Select2Box(attrs={'data-url':reverse_lazy('personbasename-list'), 'data-addurl':reverse_lazy('select2box-group-personform')}),
+            'comunities': Select2Box(attrs={'data-url':reverse_lazy('comunitybasename-list'), 'data-addurl':reverse_lazy('select2box-group-comunityform')}),
             'country': AutocompleteSelect('countrybasename')
         }
