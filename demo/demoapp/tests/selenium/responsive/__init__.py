@@ -36,7 +36,8 @@ class ScreenshotSeleniumTest(StaticLiveServerTestCase):
                            {'width': 800, 'height': 1280},
                            {'width': 601, 'height': 962},
                            {'width': 962, 'height': 601}]
-        """cls.paths = [{'name': 'add_formset'},
+
+        cls.paths = [{'name': 'add_formset'},
                      {'name': 'add_model_formset'},
                      {'name': 'create_notification'},
                      {'name': 'markitup_preview'},
@@ -73,12 +74,8 @@ class ScreenshotSeleniumTest(StaticLiveServerTestCase):
                      {'name': 'gigapixel_view'},
                      {'name': 'mapbased_view'},
                      {'name': 'storyline_view'},
-                     {'name': 'timeline_view'}]"""
-        cls.paths = [
-            {'name': 'select2box-group-add'},
-            # {'name': 'select2box-group-edit', 'args':('')},
-            {'name': 'select2box-group-list'},
-        ]
+                     {'name': 'timeline_view'}]
+
         cls.ob = Screenshot.Screenshot()
         cls.selenium = WebDriver()
         cls.selenium.implicitly_wait(cls.timeout)
