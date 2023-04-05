@@ -10,7 +10,6 @@ from djgentelella.widgets.selects import AutocompleteSelect
 class dataOptions(GTForm):
     mydata = forms.MultipleChoiceField(widget=Select2Box, choices=[[1, "primero"], [2, "segundo"], [3, "tercero"]])
     mymenu = forms.ModelMultipleChoiceField(widget=Select2Box(attrs={'data-url':reverse_lazy('personbasename-list')}), queryset=MenuItem.objects.all())
-    mydataTest = forms.ChoiceField(widget=Select2Box, choices=[[1, "primero"], [2, "segundo"], [3, "tercero"]])
 
 class PeopleSelect2BoxForm(GTForm, forms.ModelForm):
     class Meta:
