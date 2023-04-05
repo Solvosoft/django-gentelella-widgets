@@ -1,8 +1,5 @@
 from django import forms
-from django.forms import TextInput
 from django.urls import reverse_lazy
-
-from demoapp.forms import PersonForm, CityForm
 from demoapp.models import PeopleGroup
 from djgentelella.forms.forms import GTForm
 from djgentelella.models import MenuItem
