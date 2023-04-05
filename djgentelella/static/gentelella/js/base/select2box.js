@@ -212,6 +212,7 @@ function get_select2box(instance){
                                 current_instance.find('.save_data_btn').on('click', () => this.send_form_data(url, current_instance))
 
                             }).catch(error => {
+                                current_instance.find('.create_btn')[0].hidden = 'hidden'
                                 alert(gettext("Can't get the API Data, verify the addurl attr"))
                             })
     },
