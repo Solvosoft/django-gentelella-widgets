@@ -231,7 +231,7 @@ function get_select2box(instance){
                                 alert(data['error'])
                             }
                           }).catch(error => {
-                                alert("Can't POST the Data")
+                                alert(gettext("Can't POST the Data"))
                         });
     },
     //Insert new data using the modal inputs
