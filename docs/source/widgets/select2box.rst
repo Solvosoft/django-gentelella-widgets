@@ -107,7 +107,7 @@ If you want to create new elements, you must create a view that can process data
 As shown in the previous example, for the creation these are the steps:
  - The view must have a form to send and save data.
  - Define a form variable, that contains a model form.
- - If there are same widgets in the general form and in the model form, a prefix must be declared due to a name (as shown in the above example), to avoid functionality issues.
+ - If there are same widgets in the general form and in the model form, a prefix must be declared (as shown in the above example) due to a name conflict, to avoid functionality issues.
  - If the request is a ``GET`` method, the data of the form must be rendered to string, and sent as a JsonResponse.
  - If the request is a ``POST`` method, the data must be validated with the django ``is_valid`` functionality an saved to the model, preventing data loss and corruption.
  - The ``POST`` method returns a JSON with the saved data id, text, selected, disabled.

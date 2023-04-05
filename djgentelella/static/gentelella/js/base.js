@@ -1852,7 +1852,6 @@ function getMediaRecord(element, mediatype){
 }
 
 
-//var diction = {}
 function get_select2box(instance){
     var select2box = {
     //Template for the options created
@@ -1915,7 +1914,7 @@ function get_select2box(instance){
                             }
                           })
                           .catch(error => {
-                            alert("Can't get the API Data, verify the url attr")
+                            alert(gettext("Can't get the API Data, verify the url attr"))
                           });
     },
     //Insert API data in the select elements
@@ -2056,13 +2055,18 @@ function get_select2box(instance){
     },
     'create_custom_form': function(url, current_instance) {
                             let modal = current_instance.find('#select2box_modal')
-                            fetch(url, {credentials: 'same-origin',}).then(response => response.json()).then(data => {
+                            fetch(url,
+                                {credentials: 'include',
+                                    headers:{
+                                        'X-CSRFToken': this.get_cookie('csrftoken'),
+                                    }
+                                }).then(response => response.json()).then(data => {
                                 modal.append(data.result)
                                 gt_find_initialize($(modal))
                                 current_instance.find('.save_data_btn').on('click', () => this.send_form_data(url, current_instance))
 
                             }).catch(error => {
-                                alert("Can't get the API Data, verify the addurl attr")
+                                alert(gettext("Can't get the API Data, verify the addurl attr"))
                             })
     },
     'send_form_data': function(url, current_instance){
@@ -2080,12 +2084,11 @@ function get_select2box(instance){
                         }).then(response => response.json()).then(data => {
                             try{
                                 this.insert_new_data(current_instance, data['result'])
-
                             }catch(error){
                                 alert(data['error'])
                             }
                           }).catch(error => {
-                                alert("Can't POST the Data")
+                                alert(gettext("Can't POST the Data"))
                         });
     },
     //Insert new data using the modal inputs
@@ -2099,19 +2102,8 @@ function get_select2box(instance){
     },
     //Get the CSRF Token
     'get_cookie': function(name){
-                        let cookieValue = null;
-                        if (document.cookie && document.cookie !== '') {
-                            const cookies = document.cookie.split(';');
-                            for (let i = 0; i < cookies.length; i++) {
-                                const cookie = cookies[i].trim();
-                                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                                    break;
-                                }
-                            }
-                        }
-                        return cookieValue;
-                    }
+                        return getCookie(name);
+    },
     }
     let all_instances = $(instance).closest('.select2box_container')
     delete all_instances.prevObject

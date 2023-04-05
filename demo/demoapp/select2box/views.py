@@ -1,15 +1,9 @@
 import json
-
 from django.http import JsonResponse
-from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
-from django.views.decorators.csrf import requires_csrf_token, ensure_csrf_cookie, \
-    csrf_exempt
-
 from .forms import dataOptions, PeopleSelect2BoxForm
 from django.views.generic import FormView, CreateView, UpdateView, ListView
-
 from ..forms import PersonForm, CityForm
 from ..models import PeopleGroup
 

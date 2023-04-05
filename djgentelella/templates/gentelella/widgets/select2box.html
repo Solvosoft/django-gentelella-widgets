@@ -1,3 +1,4 @@
+{% load i18n %}
 <div class="select2box_container row row-cols-4">
   <div class="col-5 text-center">
     <input type="text" class="form-control search_select2box w-100">
@@ -6,7 +7,7 @@
       {% include option.template_name with widget=option %}{% endfor %}{% if group_name %}
       </optgroup>{% endif %}{% endfor %}
     </select>
-    <button class="move_all_selector all_to_selected" type="button">Select All &#8594;</button>
+    <button class="move_all_selector all_to_selected" type="button">{% trans "Select All" %} &#8594;</button>
   </div>
   <p class="selected_values_container" hidden>{%for elem in widget.value%}{{elem}},{%endfor%}</p>
   <div class="btn-group-vertical col-1 btn_col_style">
@@ -15,7 +16,7 @@
   </div>
   <div class="col-4 text-center">
     <select name="{{ widget.name }}" {% include "gentelella/widgets/attrs.html" %}></select>
-    <button class="move_all_selector all_to_available" type="button">&#8592; Return All</button>
+    <button class="move_all_selector all_to_available" type="button">&#8592; {% trans "Return All" %}</button>
   </div>
   <div class="col-1">
     <button class="btn btn-info create_btn" type="button">+</button>
