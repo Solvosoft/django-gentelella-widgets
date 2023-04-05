@@ -2,7 +2,7 @@ import sys
 import uuid
 
 from django import template
-from django.conf import settings
+from django.templatetags.static import static
 from django.utils.safestring import mark_safe
 from django.utils.translation import get_language
 
@@ -36,7 +36,7 @@ def get_datatables_translation(context):
     if lang and hasattr(settings, 'DATATABLES_SUPPORT_LANGUAGES'):
         if lang in settings.DATATABLES_SUPPORT_LANGUAGES:
             return settings.DATATABLES_SUPPORT_LANGUAGES[lang]
-    return "//cdn.datatables.net/plug-ins/1.10.20/i18n/English.json"
+    return static("vendors/datatables/en-GB.json")
 
 
 @register.simple_tag(takes_context=True)
