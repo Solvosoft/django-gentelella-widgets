@@ -116,7 +116,7 @@ $.fn.select2related = function(action, relatedobjs=[]) {
                     },
                     data: function (params) {
                       let filters = get_s2filter_parameters($(parent.relatedobjs[x]['id']), params);
-                      filters['relfield']= get_selected_values($(parent.relatedobjs[x-1]['id'])).find(':selected');
+                      filters['relfield']= get_selected_values($(parent.relatedobjs[x-1]['id']).find(':selected'));
                       $(parent.relatedobjs[x]['id']).trigger('relautocompletedata', filters);
                       return filters;
                     },
