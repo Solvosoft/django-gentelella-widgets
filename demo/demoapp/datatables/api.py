@@ -8,6 +8,8 @@ from . import serializer
 from .serializer import PersonFilterSet
 from ..models import Person
 
+from djgentelella.models import Notification
+
 
 class PersonViewSet(viewsets.ModelViewSet):
     # permission_classes = (IsAuthenticated,)
@@ -28,3 +30,11 @@ class PersonViewSet(viewsets.ModelViewSet):
                     'recordsFiltered': queryset.count(),
                     'draw': self.request.GET.get('draw', 1)}
         return Response(self.get_serializer(response).data)
+
+
+class NotificationViewSet(viewsets.ModelViewSet):
+    queryset = Notification.objects.all()
+    serializer_class = serializer.NotificationSerializer
+
+    def get_queryset(self):
+        return super().get_queryset().filter(user=self.request.user)

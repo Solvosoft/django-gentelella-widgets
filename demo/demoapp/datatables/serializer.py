@@ -5,6 +5,8 @@ from rest_framework import serializers
 from demoapp.models import Person, Country
 from djgentelella.fields.drfdatetime import DateRangeTextWidget, DateTimeRangeTextWidget
 
+from django.contrib.auth.models import User
+from djgentelella.models import Notification
 
 class PersonFilterSet(FilterSet):
     born_date = DateFromToRangeFilter(
@@ -37,3 +39,29 @@ class PersonDataTableSerializer(serializers.Serializer):
     draw = serializers.IntegerField(required=True)
     recordsFiltered = serializers.IntegerField(required=True)
     recordsTotal = serializers.IntegerField(required=True)
+
+
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = (
+            'username',
+        )
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+
+    class Meta:
+        model = Notification
+        fields = (
+            'message_type',
+            'creation_date',
+            'description',
+            'link',
+            'state',
+            'user',
+            'category',
+            'update_date'
+        )

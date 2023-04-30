@@ -1,0 +1,40 @@
+{% extends 'gentelella/base_site.html' %}
+{% load static i18n gtsettings %}
+{% load gtsettings timejs %}
+
+{% block pre_head %}
+    {% define_true  "use_datatables" %}
+{% endblock %}
+
+
+{% block content %}
+<div class="container">
+  <div class="row">
+
+    <div class='col-md-12 col-sm-12'>
+      <h1 class="text-center"> {% trans 'List of notifications' %}</h1>
+
+      <div class="card">
+
+        <div class="col-12">
+          <table id="datatableelement" class="table "> </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+{% block js %}
+
+<script>
+    datatableelement=createDataTable('#datatableelement', '{% url "api-notificationtable-list" %}', {
+     columns: [
+            {data: "message_type_display", name: "message_type", title: "Tipo", type: "string", visible: true},
+            {data: "creation_date", name: "creation_date", title: "Fecha de creación", type: "date", visible: true, "dateformat":  "{% get_date_format %}"},
+            {data: "description", name: "description", title: "Descripción", type: "string", visible: true},
+            {data: "link", name: "link", title: "Enlace", type: "string", visible: true},
+            {data: "state", name: "state", title: "Estado", type: "string", visible: true},
+        ]
+    }, addfilter=true);
+</script>
+{% endblock %}
