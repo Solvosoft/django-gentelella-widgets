@@ -8,6 +8,7 @@ from djgentelella.fields.drfdatetime import DateRangeTextWidget, DateTimeRangeTe
 from django.contrib.auth.models import User
 from djgentelella.models import Notification
 
+
 class PersonFilterSet(FilterSet):
     born_date = DateFromToRangeFilter(
         widget=DateRangeTextWidget(attrs={'placeholder': 'YYYY/MM/DD'}))
@@ -42,10 +43,12 @@ class PersonDataTableSerializer(serializers.Serializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = User
         fields = (
+            'id',
             'username',
         )
 
@@ -65,3 +68,7 @@ class NotificationSerializer(serializers.ModelSerializer):
             'category',
             'update_date'
         )
+
+
+class NotificationDataTableSerializer(serializers.Serializer):
+    data = serializers.ListField(child=NotificationSerializer(), required=True)
