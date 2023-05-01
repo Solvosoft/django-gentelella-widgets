@@ -29,8 +29,8 @@
 <script>
     datatableelement=createDataTable('#datatableelement', '{% url "api-notificationtable-list" %}', {
      columns: [
-            {data: "message_type_display", name: "message_type", title: "Tipo", type: "string", visible: true},
-            {data: "creation_date", name: "creation_date", title: "Fecha de creación", type: "date", visible: true, "dateformat":  "{% get_date_format %}"},
+            {data: "message_type", name: "message_type", title: "Tipo", type: "string", visible: true},
+            {data: "creation_date", name: "creation_date", title: "Fecha de creación", type: "date", visible: true, "dateformat":  "{% get_datetime_format %}"},
             {data: "description", name: "description", title: "Descripción", type: "string", visible: true},
             {data: "link", name: "link", title: "Enlace", type: "string", visible: true},
             {data: "state", name: "state", title: "Estado", type: "string", visible: true},
