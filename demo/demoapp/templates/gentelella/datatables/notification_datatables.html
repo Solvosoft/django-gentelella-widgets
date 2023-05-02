@@ -29,10 +29,19 @@
 <script>
     datatableelement=createDataTable('#datatableelement', '{% url "api-notificationtable-list" %}', {
      columns: [
-            {data: "message_type", name: "message_type", title: "Tipo", type: "string", visible: true},
-            {data: "creation_date", name: "creation_date", title: "Fecha de creación", type: "date", visible: true, "dateformat":  "{% get_datetime_format %}"},
+            {data: "message_type",
+              render: function (data, type, row) {
+                return '<span style="font-size: 1.5em;" class="text-'+data+' fa fa-circle"></span>'
+              }, name: "message_type", title: "Tipo", type: "string", visible: true},
+            {data: "creation_date",
+              render: function (data, type, row) {
+                return '<div>'+data+'</div>'
+            }, name: "creation_date", title: "Fecha de creación", type: "string", visible: "true"},
             {data: "description", name: "description", title: "Descripción", type: "string", visible: true},
-            {data: "link", name: "link", title: "Enlace", type: "string", visible: true},
+            {data: "link",
+              render: function (data, type, row) {
+                return '<a href='+data+'>'+'Ver'+'</a>';
+              }, title: "Enlace", type: "string", visible: true},
             {data: "state", name: "state", title: "Estado", type: "string", visible: true},
         ]
     }, addfilter=true);

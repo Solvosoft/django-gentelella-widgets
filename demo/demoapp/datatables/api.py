@@ -44,7 +44,10 @@ class NotificationViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         queryset = super().get_queryset().filter(user=self.request.user)
         data = self.paginate_queryset(queryset)
-        response = {'data': data}
+        response = {'data': data, 'recordsTotal': Notification.objects.count(),
+                    'recordsFiltered': queryset.count(),
+                    'draw': self.request.GET.get('draw', 1)}
 
-        print(f'Notifications: {self.get_serializer(response).data}')
+        print(f'Type: {queryset[0].creation_date}')
+
         return Response(self.get_serializer(response).data)

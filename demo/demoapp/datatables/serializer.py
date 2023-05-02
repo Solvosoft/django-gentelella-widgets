@@ -72,3 +72,6 @@ class NotificationSerializer(serializers.ModelSerializer):
 
 class NotificationDataTableSerializer(serializers.Serializer):
     data = serializers.ListField(child=NotificationSerializer(), required=True)
+    draw = serializers.IntegerField(required=True)
+    recordsFiltered = serializers.IntegerField(required=True)
+    recordsTotal = serializers.IntegerField(required=True)
