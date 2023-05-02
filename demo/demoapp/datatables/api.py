@@ -48,6 +48,4 @@ class NotificationViewSet(viewsets.ModelViewSet):
                     'recordsFiltered': queryset.count(),
                     'draw': self.request.GET.get('draw', 1)}
 
-        print(f'Type: {queryset[0].creation_date}')
-
         return Response(self.get_serializer(response).data)
