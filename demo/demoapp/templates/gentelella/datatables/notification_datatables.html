@@ -16,8 +16,10 @@
 
       <div class="card">
 
-        <div class="col-12">
-          <table id="datatableelement" class="table "> </table>
+        <div class="card-body" style="display:block;">
+          <div class="dashboard-widget-content table-responsive">
+            <table id="datatableelement" class="table table-striped table-bordered" style="width:100%"></table>
+          </div>
         </div>
       </div>
     </div>
@@ -33,10 +35,7 @@
               render: function (data, type, row) {
                 return '<span style="font-size: 1.5em;" class="text-'+data+' fa fa-circle"></span>'
               }, name: "message_type", title: "Tipo", type: "string", visible: true},
-            {data: "creation_date",
-              render: function (data, type, row) {
-                return '<div>'+new Date(data).toLocaleString()+'</div>'
-            }, name: "creation_date", title: "Fecha de creación", type: "string", visible: "true"},
+            {data: "creation_date", name: "creation_date", title: "Fecha de creación", type: "datetime", visible: "true", "dateformat":  "{% get_datetime_format %}"},
             {data: "description", name: "description", title: "Descripción", type: "string", visible: true},
             {data: "link",
               render: function (data, type, row) {
