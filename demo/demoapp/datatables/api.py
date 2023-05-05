@@ -37,14 +37,14 @@ class NotificationViewSet(viewsets.ModelViewSet):
     serializer_class = serializer.NotificationDataTableSerializer
     pagination_class = LimitOffsetPagination
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
-    search_fields = ['user', 'state', ]
+    search_fields = ['message_type', 'state', ]
     ordering_fields = ['message_type', 'creation_date', 'description', 'link', 'state']
     ordering = ('-creation_date',)
 
     def list(self, request, *args, **kwargs):
         queryset = super().get_queryset().filter(user=self.request.user)
         data = self.paginate_queryset(queryset)
-        response = {'data': data, 'recordsTotal': Notification.objects.count(),
+        response = {'data': data, 'recordsTotal': queryset.count(),
                     'recordsFiltered': queryset.count(),
                     'draw': self.request.GET.get('draw', 1)}
 
