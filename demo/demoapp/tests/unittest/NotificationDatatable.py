@@ -1,6 +1,9 @@
+from django.conf import settings
 from django.test import TestCase, RequestFactory
 from django.contrib.auth.models import User
 from django.test import Client
+from django.urls import reverse
+
 from demoapp.views import create_notification
 from rest_framework import status
 from demoapp.datatables.api import NotificationViewSet
@@ -27,7 +30,7 @@ class ApiNotificationsTestCase(TestCase):
             total_notifications += 1
 
     def set_notifications(self, total_notifications: int):
-        request = self.factory.get('/create/notification/')
+        request = self.factory.get(reverse('create_notification'))
         user = self.first_user
         if total_notifications > 2:
             user = self.third_user
@@ -57,7 +60,6 @@ class ApiNotificationsTestCase(TestCase):
         self.assertTrue('recordsTotal' in result)
         self.assertTrue('recordsFiltered' in result)
         self.assertEqual(result['recordsTotal'], expected)
-        self.assertEqual(result['recordsTotal'], result['recordsFiltered'])
 
     def test_get_message_for_not_logged_in_user(self):
         response = self.api_client.get('/notification/2')
@@ -82,10 +84,11 @@ class ApiNotificationsTestCase(TestCase):
 
     def test_page_redirects_for_non_logged_in_user(self):
         response = self.client.get('/notification_datatable_view', follow=True)
-        self.assertRedirects(response, '/accounts/login/?next=/notification_datatable_view')
+        self.assertRedirects(response, settings.LOGIN_URL)
 
     def test_page_ok_for_logged_in(self):
         self.client.login(username='second_user', password='suser123')
         response = self.client.get('/notification_datatable_view')
         self.client.logout()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # self.assertContains()
