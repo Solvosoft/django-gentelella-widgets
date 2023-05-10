@@ -29,6 +29,11 @@
 {% block js %}
 
 <script>
+    document.table_default_dom = "<'row'<'col-sm-12 col-md-12 mb-1 d-flex 'f>" +
+                 "<'col-sm-6 col-md-6 mt-1 d-flex align-items-center justify-content-start'B>" +
+                 "<'col-sm-6 col-md-6 mt-1 d-flex align-items-center 'l>>" +
+                 "<'row'<'col-sm-12'tr>><'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>";
+
     datatableelement=createDataTable('#datatableelement', '{% url "api-notificationtable-list" %}', {
      columns: [
             {data: "message_type",

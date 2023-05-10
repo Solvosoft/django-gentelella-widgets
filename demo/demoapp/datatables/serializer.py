@@ -7,6 +7,8 @@ from djgentelella.fields.drfdatetime import DateRangeTextWidget, DateTimeRangeTe
 
 from django.contrib.auth.models import User
 from djgentelella.models import Notification
+from django.utils import formats
+from rest_framework.views import exception_handler
 
 
 class PersonFilterSet(FilterSet):
@@ -55,9 +57,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 class NotificationSerializer(serializers.ModelSerializer):
     user = UserSerializer()
-    creation_date = serializers.DateTimeField(format='%B %d, %Y %H:%M')
-    # Possible format:
-    # '%d de %B de %Y a las %H:%M'
+    creation_date = serializers.DateTimeField(format=formats.get_format('DATETIME_INPUT_FORMATS')[0])
 
     class Meta:
         model = Notification
