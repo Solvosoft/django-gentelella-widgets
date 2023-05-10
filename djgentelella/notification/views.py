@@ -2,6 +2,6 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 
 
-@login_required(login_url='/accounts/login/')
+@login_required
 def notification_datable_view(request):
-    return render(request, 'gentelella/datatables/notification_datatables.html')
+    return render(request, 'gentelella/notification/notification_datatables.html')
