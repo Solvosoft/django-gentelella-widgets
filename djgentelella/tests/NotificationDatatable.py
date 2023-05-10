@@ -6,7 +6,7 @@ from django.urls import reverse
 
 from demoapp.views import create_notification
 from rest_framework import status
-from demoapp.datatables.api import NotificationViewSet
+from djgentelella.datatables.api import NotificationViewSet
 from rest_framework.test import APIClient
 from rest_framework_datatables.pagination import DatatablesPageNumberPagination
 

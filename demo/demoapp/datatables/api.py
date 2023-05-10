@@ -8,8 +8,6 @@ from . import serializer
 from .serializer import PersonFilterSet
 from ..models import Person
 
-from djgentelella.models import Notification
-
 
 class PersonViewSet(viewsets.ModelViewSet):
     # permission_classes = (IsAuthenticated,)
@@ -29,22 +27,4 @@ class PersonViewSet(viewsets.ModelViewSet):
         response = {'data': data, 'recordsTotal': Person.objects.count(),
                     'recordsFiltered': queryset.count(),
                     'draw': self.request.GET.get('draw', 1)}
-        return Response(self.get_serializer(response).data)
-
-
-class NotificationViewSet(viewsets.ModelViewSet):
-    serializer_class = serializer.NotificationDataTableSerializer
-    pagination_class = LimitOffsetPagination
-    filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
-    search_fields = ['message_type', 'state', ]
-    ordering_fields = ['creation_date', 'message_type', 'description', 'link', 'state']
-    ordering = ('-creation_date',)
-
-    def list(self, request, *args, **kwargs):
-        queryset = Notification.objects.filter(user=self.request.user)
-        data = self.paginate_queryset(queryset)
-        response = {'data': data, 'recordsTotal': queryset.count(),
-                    'recordsFiltered': queryset.count(),
-                    'draw': self.request.GET.get('draw', 1)}
-
         return Response(self.get_serializer(response).data)

@@ -1,13 +1,18 @@
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.views.generic import ListView
-from rest_framework import mixins, permissions
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework import mixins, permissions, viewsets
+from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.viewsets import GenericViewSet
+from rest_framework.response import Response
 
 from djgentelella.models import Notification
 from djgentelella.notification.serializer import NotificationSerializer, \
     NotificationPagination, \
-    NotificationSerializerUpdate
+    NotificationSerializerUpdate, \
+    NotificationDataTableSerializer
 
 
 class NotificacionAPIView(mixins.RetrieveModelMixin,
@@ -41,3 +46,21 @@ class NotificationList(ListView):
         queryset = queryset.filter(user=self.request.user).order_by('state',
                                                                     'creation_date')
         return queryset
+
+
+class NotificationViewSet(viewsets.ModelViewSet):
+    serializer_class = NotificationDataTableSerializer
+    pagination_class = LimitOffsetPagination
+    filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
+    search_fields = ['message_type', 'state', ]
+    ordering_fields = ['creation_date', 'message_type', 'description', 'link', 'state']
+    ordering = ('-creation_date',)
+
+    def list(self, request, *args, **kwargs):
+        queryset = Notification.objects.filter(user=self.request.user)
+        data = self.paginate_queryset(queryset)
+        response = {'data': data, 'recordsTotal': queryset.count(),
+                    'recordsFiltered': queryset.count(),
+                    'draw': self.request.GET.get('draw', 1)}
+
+        return Response(self.get_serializer(response).data)
