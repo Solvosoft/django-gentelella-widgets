@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.urls import path, include, re_path
 from django.views.decorators.cache import cache_page
 from django.views.i18n import JavaScriptCatalog
+from rest_framework.routers import DefaultRouter
 
 from djgentelella.chunked_upload.views import ChunkedUploadView, \
     ChunkedUploadCompleteView
@@ -13,6 +14,8 @@ from djgentelella.widgets.helper import HelperWidgetView
 from djgentelella.wysiwyg import views as wysiwyg
 from .groute import routes
 from .templatetags.gtsettings import get_version
+from .notification.base import NotificationViewSet
+from .notification.views import notification_datable_view
 
 auth_urls = [
     path('accounts/login/',
@@ -97,7 +100,19 @@ permission_management_urls = [
          name="permcategorymanagement-save"),
 
 ]
-urlpatterns = auth_urls + base_urlpatterns + wysiwyg_urls + permission_management_urls
+
+router = DefaultRouter()
+router.register('notificationtableview', NotificationViewSet, 'api-notificationtable')
+
+notification_urls =[
+    path('notification_datatable_view', notification_datable_view,
+         name='notification_datatable_view'),
+    path('tableapi/', include(router.urls)),
+
+]
+
+urlpatterns = auth_urls + base_urlpatterns + wysiwyg_urls + permission_management_urls \
+              + notification_urls
 if settings.DEBUG:
     urlpatterns += [
         path('djsi18n/', JavaScriptCatalog.as_view(), name='djgentelella-js-catalog'),
