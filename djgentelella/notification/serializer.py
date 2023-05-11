@@ -4,7 +4,6 @@ from rest_framework.pagination import LimitOffsetPagination
 from django.contrib.auth.models import User
 from djgentelella.models import Notification
 from django.utils import formats
-from rest_framework.views import exception_handler
 
 
 class UserSerializer(serializers.ModelSerializer):

@@ -9,6 +9,7 @@ from rest_framework import status
 from djgentelella.notification.base import NotificationViewSet
 from rest_framework.test import APIClient
 from rest_framework_datatables.pagination import DatatablesPageNumberPagination
+from rest_framework.exceptions import NotFound, NotAuthenticated
 
 
 class ApiNotificationsTestCase(TestCase):
@@ -44,15 +45,16 @@ class ApiNotificationsTestCase(TestCase):
                                 request=request)
 
     def test_no_datatables_query_if_not_logged_in(self):
-        response = self.api_client.get('/tableapi/notificationtableview/?format=datatables')
+        response = self.api_client.get(reverse('api-notificationtable-list') +
+                                       "?format=datatables")
         result = response.json()
-        expected = 'No encontrado.'
+        expected = NotFound.default_detail
         self.assertFalse('recordsTotal' in result)
         self.assertEqual(result['detail'], expected)
 
     def test_datatables_query_for_logged_user(self):
         self.api_client.login(username='first_user', password='fuser123')
-        response = self.api_client.get('/tableapi/notificationtableview/')
+        response = self.api_client.get(reverse('api-notificationtable-list'))
         self.client.logout()
         expected = 1
         result = response.json()
@@ -62,16 +64,16 @@ class ApiNotificationsTestCase(TestCase):
         self.assertEqual(result['recordsTotal'], expected)
 
     def test_get_message_for_not_logged_in_user(self):
-        response = self.api_client.get('/notification/2')
+        response = self.api_client.get(reverse('notifications'))
         result = response.json()
-        expected = 'Las credenciales de autenticación no se proveyeron.'
+        expected = NotAuthenticated.default_detail
         self.assertFalse('count' in result)
         self.assertFalse('results' in result)
         self.assertEqual(result['detail'], expected)
 
     def test_get_notification_info_by_pk(self):
         self.api_client.login(username='third_user', password='tuser123')
-        response = self.api_client.get('/notification/2')
+        response = self.api_client.get(reverse('notifications'))
         self.api_client.logout()
         result = response.json()
         expected = 3
@@ -79,16 +81,17 @@ class ApiNotificationsTestCase(TestCase):
         self.assertTrue("results" in result)
 
     def test_page_found_but_needs_login(self):
-        response = self.client.get('/notification_datatable_view')
+        response = self.client.get(reverse('notification_datatable_view'))
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
 
     def test_page_redirects_for_non_logged_in_user(self):
-        response = self.client.get('/notification_datatable_view', follow=True)
-        self.assertRedirects(response, settings.LOGIN_URL)
+        response = self.client.get(reverse('notification_datatable_view'), follow=True)
+        self.assertRedirects(response, settings.LOGIN_URL + "?next=" +
+                             reverse('notification_datatable_view'))
 
     def test_page_ok_for_logged_in(self):
         self.client.login(username='second_user', password='suser123')
-        response = self.client.get('/notification_datatable_view')
+        response = self.client.get(reverse('notification_datatable_view'))
         self.client.logout()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # self.assertContains()
