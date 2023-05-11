@@ -22,7 +22,7 @@ The items shown in view set are ordered with the below priority:
 #. Link
 #. State
 
-Because of the information contained in every notification, the fields destined as search field are ``message_type`` and ``state``.
+Because of the information contained in every notification, the fields destined as search field are ``message_type``, ``description`` and ``state``.
 
 The list function filters the queryset to be shown matching the user on each notification to the current
 authenticated user, then a response is sent to */gentelella/datatables/notification_datatables.html* containing
