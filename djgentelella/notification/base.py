@@ -52,7 +52,7 @@ class NotificationViewSet(viewsets.ModelViewSet):
     serializer_class = NotificationDataTableSerializer
     pagination_class = LimitOffsetPagination
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
-    search_fields = ['message_type', 'state', ]
+    search_fields = ['message_type', 'state', 'description', ]
     ordering_fields = ['creation_date', 'message_type', 'description', 'link', 'state']
     ordering = ('-creation_date',)
 

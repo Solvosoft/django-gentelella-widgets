@@ -3,8 +3,11 @@
 {% load gtsettings timejs %}
 
 {% block pre_head %}
+    <style>
+    </style>
     {% define_true  "use_datatables" %}
 {% endblock %}
+
 
 
 {% block content %}
@@ -29,9 +32,9 @@
 {% block js %}
 
 <script>
-    document.table_default_dom = "<'row'<'col-sm-12 col-md-12 mb-1 d-flex 'f>" +
-                 "<'col-sm-6 col-md-6 mt-1 d-flex align-items-center justify-content-start'B>" +
-                 "<'col-sm-6 col-md-6 mt-1 d-flex align-items-center 'l>>" +
+    document.table_default_dom = "<'row col-12'<'col-sm-12 col-md-12 mb-1 d-flex' f>" +
+                 "<'col-sm-11 col-md-11 mt-1 p-0 d-flex align-items-center justify-content-start'l>" +
+                 "<'col-sm-1 col-md-1 mt-1 d-flex align-items-center justify-content-end 'B>>" +
                  "<'row'<'col-sm-12'tr>><'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>";
 
     datatableelement=createDataTable('#datatableelement', '{% url "api-notificationtable-list" %}', {
@@ -39,18 +42,27 @@
             {data: "message_type",
               render: function (data, type, row) {
                 return '<span style="font-size: 1.5em;" class="text-'+data+' fa fa-circle"></span>'
-              }, name: "message_type", title: "Tipo", type: "string", visible: true},
-            {data: "creation_date", name: "creation_date", title: "Fecha de creación", type: "datetime", visible: "true", "dateformat":  "{% get_datetime_format %}"},
-            {data: "description", name: "description", title: "Descripción", type: "string", visible: true},
+              }, name: "message_type", title: "{% trans 'Type' %}", className: "col-1", type: "string", visible: true},
+            {data: "creation_date", name: "creation_date", title: "{% trans 'Creation date' %}", className: "col-4", type: "datetime", visible: "true", "dateformat":  "{% get_datetime_format %}"},
+            {data: "description", name: "description", title: "{% trans 'Description' %}", className: "col-5", type: "string", visible: true},
             {data: "link",
               render: function (data, type, row) {
                 return '<a href='+data+'>'+'Ver'+'</a>';
-              }, title: "Enlace", type: "string", visible: true},
+              }, title: "{% trans 'Link' %}", className: "col-1", type: "string", visible: true},
             {data: "state",
               render: function (data, type, row) {
                 return '<div>'+data.charAt(0).toUpperCase() + data.slice(1)+'</div>'
-            }, name: "state", title: "Estado", type: "string", visible: true},
-        ]
+            }, name: "state", title: "{% trans 'State' %}", className: "col-1", type: "string", visible: true},
+        ],
     }, addfilter=true);
+
+    $(document).ready(function() {
+      $('.dataTables_filter').addClass('w-100');
+      $('.dataTables_filter input').addClass('filter-input').css('width', '96%');
+      $('.dataTables_filter label').addClass('filter-label').css('width', '100%');
+      $('.dataTables_paginate').removeClass('paging_full_numbers');
+      $('.dataTables_paginate').addClass('paging_simple_numbers');
+      $('#datatableelement').removeClass('dtr-inline');
+    })
 </script>
 {% endblock %}
