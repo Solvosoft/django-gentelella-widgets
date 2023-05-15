@@ -4,6 +4,21 @@ from rest_framework.pagination import LimitOffsetPagination
 from django.contrib.auth.models import User
 from djgentelella.models import Notification
 from django.utils import formats
+from django_filters import FilterSet
+from django_filters import DateTimeFromToRangeFilter
+from djgentelella.fields.drfdatetime import DateTimeRangeTextWidget
+
+
+class NotificationFilterSet(FilterSet):
+    creation_date = DateTimeFromToRangeFilter(
+        widget=DateTimeRangeTextWidget(
+            attrs={'placeholder': formats.get_format('DATETIME_INPUT_FORMATS')[0]})
+    )
+
+    class Meta:
+        model = Notification
+        fields = {'message_type': ['icontains'], 'description': ['icontains'],
+                  'link': ['icontains'], 'state': ['icontains']}
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -49,17 +64,3 @@ class NotificationDataTableSerializer(serializers.Serializer):
     draw = serializers.IntegerField(required=True)
     recordsFiltered = serializers.IntegerField(required=True)
     recordsTotal = serializers.IntegerField(required=True)
-
-
-"""
-fields = (
-        'message_type',
-        'creation_date',
-        'description',
-        'link',
-        'state',
-        'user',
-        'category',
-        'update_date'
-    )
-"""
