@@ -12,7 +12,8 @@ from djgentelella.models import Notification
 from djgentelella.notification.serializer import NotificationSerializer, \
     NotificationPagination, \
     NotificationSerializerUpdate, \
-    NotificationDataTableSerializer
+    NotificationDataTableSerializer,\
+    NotificationFilterSet
 
 
 class NotificacionAPIView(mixins.RetrieveModelMixin,
@@ -52,12 +53,23 @@ class NotificationViewSet(viewsets.ModelViewSet):
     serializer_class = NotificationDataTableSerializer
     pagination_class = LimitOffsetPagination
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
-    search_fields = ['message_type', 'state', 'description', ]
+    search_fields = ('description', 'message_type', 'state',)
+    filterset_class = NotificationFilterSet
+    """filterset_fields = {'message_type': ['icontains'], 'description': ['icontains'],
+                        'link': ['icontains'], 'state': ['icontains']}"""
     ordering_fields = ['creation_date', 'message_type', 'description', 'link', 'state']
-    ordering = ('-creation_date',)
+    ordering = ('-message_type',)
+
+    def filter_queryset(self, queryset):
+        return super().filter_queryset(queryset)
+
+    def get_queryset(self):
+        queryset = Notification.objects.filter(user=self.request.user)
+        return queryset
 
     def list(self, request, *args, **kwargs):
-        queryset = Notification.objects.filter(user=self.request.user)
+        self.request = request
+        queryset = self.filter_queryset(self.get_queryset())
         data = self.paginate_queryset(queryset)
         response = {'data': data, 'recordsTotal': queryset.count(),
                     'recordsFiltered': queryset.count(),

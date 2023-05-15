@@ -99,7 +99,7 @@ class ApiNotificationsTestCase(TestCase):
         self.client.login(username='second_user', password='suser123')
         response = self.client.get(reverse('notification_datatable_view'))
         self.client.logout()
-        table_script = '<table id="datatableelement" class="table table-striped ' \
-                       'table-bordered" style="width:100%">'
+        table_script = '<table id="notificationdatatable" class="table table-striped ' \
+                       'table-bordered" style="width:100%"></table>'
 
         self.assertContains(response, table_script, html=True)
