@@ -55,8 +55,6 @@ class NotificationViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
     search_fields = ('description', 'message_type', 'state',)
     filterset_class = NotificationFilterSet
-    """filterset_fields = {'message_type': ['icontains'], 'description': ['icontains'],
-                        'link': ['icontains'], 'state': ['icontains']}"""
     ordering_fields = ['creation_date', 'message_type', 'description', 'link', 'state']
     ordering = ('-message_type',)
 
@@ -71,7 +69,8 @@ class NotificationViewSet(viewsets.ModelViewSet):
         self.request = request
         queryset = self.filter_queryset(self.get_queryset())
         data = self.paginate_queryset(queryset)
-        response = {'data': data, 'recordsTotal': queryset.count(),
+        response = {'data': data, 'recordsTotal': Notification.objects.filter(
+                    user=self.request.user).count(),
                     'recordsFiltered': queryset.count(),
                     'draw': self.request.GET.get('draw', 1)}
 
