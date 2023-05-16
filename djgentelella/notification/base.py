@@ -1,6 +1,3 @@
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
-from django.views.generic import ListView
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework import mixins, permissions, viewsets
@@ -35,18 +32,6 @@ class NotificacionAPIView(mixins.RetrieveModelMixin,
         if self.request.method == 'PUT':
             return NotificationSerializerUpdate
         return super().get_serializer_class()
-
-
-@method_decorator(login_required, name='dispatch')
-class NotificationList(ListView):
-    model = Notification
-    template_name = 'gentelella/menu/notification_list.html'
-
-    def get_queryset(self):
-        queryset = super(NotificationList, self).get_queryset()
-        queryset = queryset.filter(user=self.request.user).order_by('state',
-                                                                    'creation_date')
-        return queryset
 
 
 class NotificationViewSet(viewsets.ModelViewSet):
