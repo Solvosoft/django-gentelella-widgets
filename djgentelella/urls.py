@@ -8,8 +8,8 @@ from rest_framework.routers import DefaultRouter
 
 from djgentelella.chunked_upload.views import ChunkedUploadView, \
     ChunkedUploadCompleteView
-from djgentelella.notification.base import NotificacionAPIView, NotificationViewSet
-from djgentelella.notification.views import notification_list_view
+from djgentelella.notification.base import NotificacionAPIView, NotificationViewSet, \
+    notification_list_view
 from djgentelella.permission_management import views as permissions
 from djgentelella.widgets.helper import HelperWidgetView
 from djgentelella.wysiwyg import views as wysiwyg
