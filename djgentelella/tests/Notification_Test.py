@@ -97,23 +97,23 @@ class ApiNotificationsTestCase(TestCase):
         self.assertTrue("results" in result)
 
     def test_page_found_but_needs_login(self):
-        response = self.client.get(reverse('notification_datatable_view'))
+        response = self.client.get(reverse('notification_list'))
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
 
     def test_page_redirects_for_non_logged_in_user(self):
-        response = self.client.get(reverse('notification_datatable_view'), follow=True)
+        response = self.client.get(reverse('notification_list'), follow=True)
         self.assertRedirects(response, settings.LOGIN_URL + "?next=" +
-                             reverse('notification_datatable_view'))
+                             reverse('notification_list'))
 
     def test_page_ok_for_logged_in(self):
         self.client.login(username='second_user', password='suser123')
-        response = self.client.get(reverse('notification_datatable_view'))
+        response = self.client.get(reverse('notification_list'))
         self.client.logout()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_page_contains_table(self):
         self.client.login(username='second_user', password='suser123')
-        response = self.client.get(reverse('notification_datatable_view'))
+        response = self.client.get(reverse('notification_list'))
         self.client.logout()
         table_script = '<table id="notificationdatatable" class="table table-striped ' \
                        'table-bordered" style="width:100%"></table>'
