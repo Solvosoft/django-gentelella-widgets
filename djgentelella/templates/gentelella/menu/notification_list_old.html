@@ -1,0 +1,68 @@
+{% extends 'gentelella/base_site.html' %}
+{% load static i18n gtsettings %}
+
+{% block pre_head %}
+{% define_true  "use_datatables" %}
+{% endblock %}
+
+
+{% block content %}
+<div class="container">
+  <div class="row">
+
+    <div class='col-md-12 col-sm-12'>
+      <h1 class="text-center"> {% trans 'List of notifications' %}</h1>
+
+      <div class="card">
+
+        <div class="card-body" style="display: block;">
+          <div class="dashboard-widget-content table-responsive">
+            <table id="notificationtable" class="table table-striped table-bordered" style="width:100%">
+              <thead>
+              <tr>
+                <th>{% trans 'Type' %}</th>
+                <th>{% trans 'Creation date' %}</th>
+                <th>{% trans 'Description' %}</th>
+                <th>{% trans 'Link' %}</th>
+                <th>{% trans 'State' %}</th>
+              </tr>
+              </thead>
+              <tbody>
+              {% for obj in object_list %}
+              <tr>
+                <td><span title="{{obj.get_message_type_display}}" style="font-size: 1.5em;"
+                          class="text-{{obj.message_type}} fa fa-circle"></span></td>
+                <td>{{obj.creation_date}}</td>
+                <td class="text-justify">{{ obj.description}}</td>
+                <td><a href="{{obj.link}}" target="_blank">{% trans 'Show' %} </a></td>
+                <td>{{ obj.get_state_display }}</td>
+              </tr>
+              {% endfor %}
+              </tbody>
+
+              <tbody>
+
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+{% block js %}
+{{ block.super }}
+
+<script>
+(function(){
+    $("#notificationtable").DataTable({
+        "language": {
+            "url": "{% get_datatables_translation %}"
+        }
+    });
+})(jQuery);
+
+
+
+</script>
+{% endblock %}

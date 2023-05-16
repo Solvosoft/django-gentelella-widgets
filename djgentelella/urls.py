@@ -15,7 +15,7 @@ from djgentelella.wysiwyg import views as wysiwyg
 from .groute import routes
 from .templatetags.gtsettings import get_version
 from .notification.base import NotificationViewSet
-from .notification.views import notification_datable_view
+from .notification.views import notification_list_view
 
 auth_urls = [
     path('accounts/login/',
@@ -75,6 +75,9 @@ for app in settings.INSTALLED_APPS:
     import_module_app_gt(app, 'gtstorymap')
     import_module_app_gt(app, 'gtstoryline')
 
+router = DefaultRouter()
+router.register('notificationtableview', NotificationViewSet, 'api-notificationtable')
+
 base_urlpatterns = [
     re_path('gtapis/', include(routes.urls)),
     path('djgentelella/upload/', ChunkedUploadView.as_view(),
@@ -87,8 +90,9 @@ base_urlpatterns = [
     re_path(r'^notification/(?P<pk>\d+)?$', NotificacionAPIView.as_view(
         {'get': 'list', 'put': 'update', 'delete': 'destroy'}),
             name="notifications"),
-    re_path('^notification/list/$', NotificationList.as_view(),
-            name="notification_list")
+    re_path('^notification/list/$', notification_list_view,
+            name="notification_list"),
+    path('tableapi/', include(router.urls)),
 ]
 
 permission_management_urls = [
@@ -101,18 +105,7 @@ permission_management_urls = [
 
 ]
 
-router = DefaultRouter()
-router.register('notificationtableview', NotificationViewSet, 'api-notificationtable')
-
-notification_urls =[
-    path('notification_datatable_view', notification_datable_view,
-         name='notification_datatable_view'),
-    path('tableapi/', include(router.urls)),
-
-]
-
-urlpatterns = auth_urls + base_urlpatterns + wysiwyg_urls + permission_management_urls \
-              + notification_urls
+urlpatterns = auth_urls + base_urlpatterns + wysiwyg_urls + permission_management_urls
 if settings.DEBUG:
     urlpatterns += [
         path('djsi18n/', JavaScriptCatalog.as_view(), name='djgentelella-js-catalog'),
