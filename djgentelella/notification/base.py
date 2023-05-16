@@ -19,6 +19,7 @@ from djgentelella.notification.serializer import NotificationSerializer, \
 def notification_list_view(request):
     return render(request, 'gentelella/menu/notification_list.html')
 
+
 class NotificacionAPIView(mixins.RetrieveModelMixin,
                           mixins.UpdateModelMixin,
                           mixins.DestroyModelMixin,
