@@ -47,6 +47,6 @@ release: sdist
 sdist: clean
 	cd demo && python manage.py makemigrations && python manage.py loaddevstatic && python manage.py createbasejs
 	cd djgentelella && django-admin compilemessages -l es
-	python setup.py sdist
+	python3 -m build
 	ls -l dist
 
