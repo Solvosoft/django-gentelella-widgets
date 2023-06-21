@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.utils import formats
 from django_filters import DateFromToRangeFilter, DateTimeFromToRangeFilter
 from django_filters import FilterSet
 from rest_framework import serializers
@@ -26,6 +28,12 @@ class CountrySerializer(serializers.ModelSerializer):
 
 class PersonSerializer(serializers.ModelSerializer):
     country = CountrySerializer()
+    actions = serializers.SerializerMethodField()
+
+    def get_actions(self, obj):
+        return {
+            'do': True
+        }
 
     class Meta:
         model = Person
@@ -39,3 +47,14 @@ class PersonDataTableSerializer(serializers.Serializer):
     recordsTotal = serializers.IntegerField(required=True)
 
 
+class PersonCreateSerializer(serializers.ModelSerializer):
+    born_date = serializers.DateField(
+        input_formats=settings.DATE_INPUT_FORMATS,
+        format=formats.get_format('DATE_INPUT_FORMATS')[0])
+    last_time = serializers.DateTimeField(
+        input_formats=settings.DATETIME_INPUT_FORMATS,
+        format=formats.get_format('DATETIME_INPUT_FORMATS')[0])
+
+    class Meta:
+        model = Person
+        fields = "__all__"
