@@ -160,6 +160,18 @@ class Command(BaseCommand):
             icon='fa fa-table',
             only_icon=False
         )
+        cwidget = MenuItem.objects.create(
+            parent=extrawidget,
+            title='Object Management',
+            url_name='person_object_management',
+            category='sidebar',  # sidebar, sidebarfooter,
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa-microchip',
+            only_icon=False
+        )
 
         cwidget = MenuItem.objects.create(
             parent=extrawidget,

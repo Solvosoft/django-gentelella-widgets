@@ -134,6 +134,7 @@ function showlink(data, type, row, meta){ return data ? '<a href="'+data+'" targ
 function downloadlink(data, type, row, meta){ return data ? '<a href="'+data+'" target="_blank" class="btn btn-xs btn-success"> '+gettext('Show')+' </a>': ''; };
 function objshowlink(data, type, row, meta){ return data ? '<a href="'+data.url+'" target="_blank" class="'+(data.class!=undefined ? data.class : 'link')+'"> '+data.display_name+ '</a>': ''; };
 function objnode(data, type, row, meta){ return data ? '<'+data.tagName+' href="'+data.url+'" '+data.extraattr+' class="'+(data.class!=undefined ? data.class : 'link')+'"> '+data.display_name+ '</'+data.tagName+'>': ''; };
+function objShowBool(data, type, row, meta){ return data ? '<i class="fa fa-check-circle" title="' + data + '">': '<i class="fa fa-times-circle" title="' +  data + '">'; };
 
 document.table_default_dom = "<'row mb-3'<'col-sm-12 col-md-12 mb-1 d-flex align-items-center justify-content-center'f>" +
                  "<'col-sm-6 col-md-6 mt-1 d-flex align-items-center justify-content-start'B>" +
