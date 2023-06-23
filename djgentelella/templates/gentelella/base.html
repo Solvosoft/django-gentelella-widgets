@@ -88,6 +88,7 @@
         return cookieValue;
     }
 
+
 	</script>
 	{% block extra_head %}{% endblock %}
 </head>
@@ -142,6 +143,7 @@
 {% render_external_widget %}
 {% block javascripts %}
 
+<script src="{% static 'vendors/squirrelly/squirrelly.min.js' %}?v={% get_version %}"></script>
 <script src="{% static 'vendors/moment/moment-with-locales.min.js' %}?v={% get_version %}"></script>
 <script src="{% static 'vendors/jquery-knob/jquery.knob.min.js' %}?v={% get_version %}"></script>
 <script src="{% static 'vendors/inputmask/inputmask.min.js' %}?v={% get_version %}"></script>
@@ -224,6 +226,7 @@
               'save_messages': "{% trans 'Permission have been successfully saved.' %}",
               'error': "{% trans 'An error occurred while saving.' %}",
           };
+
 
 
 </script>

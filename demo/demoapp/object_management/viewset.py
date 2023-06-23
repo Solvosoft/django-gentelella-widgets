@@ -15,6 +15,7 @@ class PersonObjectMangement(viewsets.ModelViewSet):
         'list': serializer.PersonDataTableSerializer,
         'create': serializer.PersonCreateSerializer,
         'update': serializer.PersonCreateSerializer,
+        'retrieve': serializer.PersonUpdateSerializer,
         'update_values': serializer.PersonUpdateSerializer
     }
 
@@ -49,3 +50,10 @@ class PersonObjectMangement(viewsets.ModelViewSet):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
+
+    @action(detail=False, methods=['get'])
+    def detail_template(self, request, *args, **kwargs):
+        data = {
+            "template": "Name: {{it.name}}"
+        }
+        return Response(data)

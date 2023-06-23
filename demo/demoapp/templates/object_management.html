@@ -29,7 +29,7 @@
 {% url "api-personobjectmanagement-detail" 0 as update_obj_url %}
 {% trans 'Update Person' as update_obj_tittle %}
 {% include 'gentelella/blocks/modal_template.html' with form=update_form id="update_obj_modal" title=update_obj_tittle form_id="update_obj_form" url=update_obj_url %}
-
+{% include 'gentelella/blocks/modal_template_detail.html' with id="detail_obj_modal" %}
 
 {% endblock %}
 
@@ -41,6 +41,8 @@ document.date_format="{% get_date_format %}";
 var object_urls ={
 	list_url: "{% url 'api-personobjectmanagement-list' %}",
 	destroy_url: "{% url 'api-personobjectmanagement-detail' 0 %}",
+	detail_url: "{% url 'api-personobjectmanagement-detail' 0 %}",
+	detail_template_url: "{% url 'api-personobjectmanagement-detail-template' %}",
 	update_values_url: "{% url 'api-personobjectmanagement-update-values' 0 %}",
 	create_url: "{{create_obj_url}}",
 	update_url: "{{update_obj_url}}"
@@ -64,7 +66,8 @@ datatableinits = {
 
 var obj_modalids = {
 	create: "#create_obj_modal",
-	update: "#update_obj_modal"
+	update: "#update_obj_modal",
+	detail: "#detail_obj_modal"
 }
 var obj_actions = {
 	instance_action: [],
@@ -78,6 +81,10 @@ let ocrud=ObjectCRUD("setmeunique", object_urls, "#object_table", obj_modalids, 
 
 
 ocrud.init();
+
+
+
+
 
 
 
