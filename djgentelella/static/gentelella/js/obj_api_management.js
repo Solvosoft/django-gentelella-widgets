@@ -34,6 +34,21 @@ function form_field_errors(target_form, form_errors, prefix){
     }
 }
 
+function response_manage_type_data(instance){
+    return function(response) {
+        const contentType = response.headers.get("content-type");
+        if(response.ok){
+             if (contentType && contentType.indexOf("application/json") !== -1) {
+                return response.json();
+            }else{
+                return response.text();
+            }
+        }
+        return Promise.reject(response);  // then it will go to the catch if it is an error code
+    }
+}
+
+
 function clear_action_form(form){
     // clear switchery before the form reset so the check status doesn't get changed before the validation
     $(form).find("input[data-switchery=true]").each(function() {
@@ -105,7 +120,7 @@ function BaseFormModal(modalid, datatableelement,  data_extras={}, relinstance_d
         "error": function(instance){
             return function(xhr, resp, text) {
                 if(xhr.hasOwnProperty('responseJSON')){
-                    var errors = xhr.responseJSON.errors;
+                    var errors = xhr.responseJSON;
                     if(errors){  // form errors
                         form.find('ul.form_errors').remove();
                         form_field_errors(form, errors, instance.prefix);
@@ -122,9 +137,7 @@ function BaseFormModal(modalid, datatableelement,  data_extras={}, relinstance_d
                             title: gettext('Error'),
                             text: xhr.statusText
                         });
-                    console.log(xhr.responseText)
                 }
-               // instance.error(instance, xhr, resp, text);
             }
         },
         "hidemodal": function(){
@@ -189,12 +202,90 @@ function BaseFormModal(modalid, datatableelement,  data_extras={}, relinstance_d
        }
     }
 }
-function BaseDetailModal(modal){
+function BaseDetailModal(modalid, base_detail_url, template_url){
+    return {
+        "modal": $(modalid),
+        "modalid": modalid,
+        "instanceid": null,
+        "template_url": template_url,
+        "base_detail_url": base_detail_url,
+        "template": "{{it.display_text}}",
+        "template_max_tries": 1,
+        "detail_max_tries": 1,
+        "template_tries": 0,
+        "detail_tries": 0,
+        "init": function(){
+            this.get_template();
+        },
+        "show": function(){
+            this.modal.modal('show');
+        },
+        "hide": function(){
+            this.modal.modal('hide');
+        },
+        "update_template": function(instance){
+            return function(data){
+                instance.template_tries=0;
+                instance.template=data['template'];
+            }
+        },
+        "update_detail": function(instance){
+            return function(data){
+                 instance.detail_tries=0;
+                 var result = Sqrl.render(instance.template,  data);
+                 instance.modal.find(".modal-body").html(result);
+                 instance.show();
+            }
+        },
+        "recall_get_template": function(instance){
+            return function(response) {
+                if(instance.template_tries<instance.template_max_tries){
+                    instance.template_tries = instance.template_tries+ 1;
+                    instance.get_template();
+                }
+            }
+        },
+        "recall_get_detail": function(instance){
+            return function(response) {
+                if(instance.detail_tries<instance.detail_max_tries){
+                    instance.detail_tries = instance.detail_tries+1;
+                    instance.show_instance(instance.instanceid);
+                }
+            }
+
+        },
+        "get_template": function(){
+            var instance = this;
+            fetch(instance.template_url, {
+                  method: "get",
+                  headers: {'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json'}
+                }
+                ).then(response_manage_type_data(instance))
+                .then(instance.update_template(instance))
+                .catch(instance.recall_get_template(instance));
+        },
+        "show_instance": function(instanceid){
+            var instance = this;
+            if(this.instanceid != instanceid){ instance.detail_tries = 0; }
+            this.instanceid = instanceid
+            var url = this.base_detail_url.replace('/0/', '/'+instanceid+'/');
+
+            fetch(url, {
+                method: "get",
+                headers: {'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json'}
+                }
+                ).then(response_manage_type_data(instance))
+                .then(instance.update_detail(instance))
+                .catch(instance.recall_get_detail(instance));
+
+        }
+
+    }
 }
 
 function ObjectCRUD(uniqueid, urls, datatableelement, modalids, actions, datatableinits,
     replace_as_detail={create: false,  update: true, destroy: true, list: false },
-    addfilter=false, relinstance_display={}
+    addfilter=false, relinstance_display={}, data_extras={}
 ){
 /**
 actions:   {
@@ -226,12 +317,15 @@ actions:   {
         "can_create": modalids.hasOwnProperty("create"),
         "can_destroy": urls.hasOwnProperty("destroy_url"),
         "can_list": urls.hasOwnProperty("list_url"),
+        "can_detail": urls.hasOwnProperty("detail_url") && modalids.hasOwnProperty("detail") && urls.hasOwnProperty("detail_template_url"),
         "can_update": modalids.hasOwnProperty("update"),
         "use_update_values": urls.hasOwnProperty("update_values_url"),
         "header_btn_class": 'btn-sm mr-4',
         "datatable": null,
         "create_form": null,
         "update_form": null,
+        "data_extras": data_extras,
+        "detail_modal": null,
         "base_update_url":null,
         "instance_actions": per_instance_actions,
         "obj_action": per_obj_action,
@@ -244,15 +338,19 @@ actions:   {
                     titleAttr: gettext('Create'),
                     className: this.header_btn_class
                 })
-                this.create_form = BaseFormModal(modalids.create, this.datatable);
+                this.create_form = BaseFormModal(modalids.create, this.datatable, data_extras=this.data_extras);
                 this.create_form.init();
             }
             if(this.can_update){
                 this.update_form = BaseFormModal(modalids.update, this.datatable,
-                 data_extras={}, relinstance_display=this.display_text);
+                 data_extras=this.data_extras, relinstance_display=this.display_text);
                 this.update_form.type = "PUT";
                 this.base_update_url = this.update_form.url;
                 this.update_form.init();
+            }
+            if(this.can_detail){
+                this.detail_modal = BaseDetailModal(modalids.detail, urls.detail_url, urls.detail_template_url)
+                this.detail_modal.init()
             }
         },
         "create":  function(instance){
@@ -349,7 +447,16 @@ actions:   {
             if(!datatableinits.hasOwnProperty("buttons")){
                 datatableinits['buttons'] = this.obj_action;
             }
-
+            if(this.can_detail){
+                instance.instance_actions.push(
+                    {
+                     'name': "detail",
+                     'action': 'detail',
+                     'url': null,
+                     'i_class': 'fa fa-eye',
+                    }
+                )
+            }
             if(this.can_update){
                 instance.instance_actions.push(
                     {
@@ -397,6 +504,9 @@ actions:   {
             }
          this.datatable = createDataTable(datatableelement, urls.list_url, datatableinits, addfilter=addfilter);
 
+        },
+        "detail":  function(instance, action){
+                this.detail_modal.show_instance(instance.id);
         },
         "update": function(instance, action){
             if(this.use_update_values){

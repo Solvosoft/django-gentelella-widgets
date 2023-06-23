@@ -1,7 +1,9 @@
 from django.utils import formats
+from django.utils.translation import gettext_lazy as _
 from django_filters import DateFromToRangeFilter, DateTimeFromToRangeFilter
 from django_filters import FilterSet
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from demoapp.models import Person, Country
 from djgentelella.fields.drfdatetime import DateRangeTextWidget, DateTimeRangeTextWidget
@@ -54,6 +56,12 @@ class PersonCreateSerializer(serializers.ModelSerializer):
         input_formats=[formats.get_format('DATETIME_INPUT_FORMATS')[0]],
         format=formats.get_format('DATETIME_INPUT_FORMATS')[0])
 
+    def validate_num_children(self, value):
+        num_children = value
+        if num_children < 0:
+            raise ValidationError(detail=_("Value has to be positive or zero "))
+        return num_children
+
     class Meta:
         model = Person
         fields = "__all__"
@@ -73,7 +81,7 @@ class PersonUpdateSerializer(serializers.ModelSerializer):
         input_formats=[formats.get_format('DATETIME_INPUT_FORMATS')[0]],
         format=formats.get_format('DATETIME_INPUT_FORMATS')[0])
     country = CountrySerializer()
-    
+
     class Meta:
         model = Person
         fields = "__all__"
