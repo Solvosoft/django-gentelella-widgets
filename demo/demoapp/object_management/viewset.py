@@ -1,5 +1,6 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
+from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
@@ -12,7 +13,9 @@ from ..models import Person
 class PersonObjectMangement(viewsets.ModelViewSet):
     serializer_class = {
         'list': serializer.PersonDataTableSerializer,
-        'create': serializer.PersonCreateSerializer
+        'create': serializer.PersonCreateSerializer,
+        'update': serializer.PersonCreateSerializer,
+        'update_values': serializer.PersonUpdateSerializer
     }
 
     queryset = Person.objects.all()
@@ -37,3 +40,12 @@ class PersonObjectMangement(viewsets.ModelViewSet):
                     'recordsFiltered': queryset.count(),
                     'draw': self.request.GET.get('draw', 1)}
         return Response(self.get_serializer(response).data)
+
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+    @action(detail=True, methods=['get'])
+    def update_values(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
