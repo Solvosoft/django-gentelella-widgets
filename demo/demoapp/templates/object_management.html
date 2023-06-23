@@ -41,6 +41,7 @@ document.date_format="{% get_date_format %}";
 var object_urls ={
 	list_url: "{% url 'api-personobjectmanagement-list' %}",
 	destroy_url: "{% url 'api-personobjectmanagement-detail' 0 %}",
+	update_values_url: "{% url 'api-personobjectmanagement-update-values' 0 %}",
 	create_url: "{{create_obj_url}}",
 	update_url: "{{update_obj_url}}"
 }
@@ -72,18 +73,11 @@ var obj_actions = {
 
 let ocrud=ObjectCRUD("setmeunique", object_urls, "#object_table", obj_modalids, obj_actions, datatableinits,
     replace_as_detail={create: false,  update: true, destroy: true, list: false },
-    addfilter=true
+    addfilter=true, relinstance_display={'country': 'name' }
 )
 
 
 ocrud.init();
-
-
-
-
-
-
-
 
 
 

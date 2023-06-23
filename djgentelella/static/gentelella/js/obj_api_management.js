@@ -51,7 +51,7 @@ function clear_action_form(form){
 var gt_form_modals = {}
 var gt_detail_modals = {}
 var gt_crud_objs = {};
-function BaseFormModal(modalid, datatableelement,  data_extras={})  {
+function BaseFormModal(modalid, datatableelement,  data_extras={}, relinstance_display={})  {
     var modal = $(modalid);
     var form = modal.find('form');
     var prefix = form.find(".form_prefix").val();
@@ -60,6 +60,7 @@ function BaseFormModal(modalid, datatableelement,  data_extras={})  {
     }
     return {
         "instance": modal,
+        "relinstance_display": relinstance_display,
         "reloadtable": true,
         "form": form,
         "url": form[0].action,
@@ -79,8 +80,8 @@ function BaseFormModal(modalid, datatableelement,  data_extras={})  {
                     type: instance.type,
                     data: convertToStringJson(instance.form, prefix=instance.prefix, extras=instance.data_extras),
                     headers: {'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': "application/json"},
-                    success: instance.fn_success,
-                    error: instance.error
+                    success: instance.fn_success(instance),
+                    error: instance.error(instance)
                 });
             }
         },
@@ -103,18 +104,27 @@ function BaseFormModal(modalid, datatableelement,  data_extras={})  {
         },
         "error": function(instance){
             return function(xhr, resp, text) {
-                var errors = xhr.responseJSON.errors;
-                if(errors){  // form errors
-                    form.find('ul.form_errors').remove();
-                    form_field_errors(form, errors, instance.prefix);
-                }else{ // any other error
+                if(xhr.hasOwnProperty('responseJSON')){
+                    var errors = xhr.responseJSON.errors;
+                    if(errors){  // form errors
+                        form.find('ul.form_errors').remove();
+                        form_field_errors(form, errors, instance.prefix);
+                    }else{ // any other error
+                        Swal.fire({
+                            icon: 'error',
+                            title: gettext('Error'),
+                            text: gettext('There was a problem performing your request. Please try again later or contact the administrator.')
+                        });
+                    }
+                }else{
                     Swal.fire({
-                        icon: 'error',
-                        title: gettext('Error'),
-                        text: gettext('There was a problem performing your request. Please try again later or contact the administrator.')
-                    });
+                            icon: 'error',
+                            title: gettext('Error'),
+                            text: xhr.statusText
+                        });
+                    console.log(xhr.responseText)
                 }
-                instance.error(instance, xhr, resp, text);
+               // instance.error(instance, xhr, resp, text);
             }
         },
         "hidemodal": function(){
@@ -128,8 +138,55 @@ function BaseFormModal(modalid, datatableelement,  data_extras={})  {
         },
         "showmodal": function(btninstance){
             this.instance.modal('show');
-        }
+        },
+        "fillForm": function(datainstance){
+            var keys  = Object.keys(datainstance);
+            var select2Items = [];
+            var instance = this;
+            $.each(keys, function(i, e){
+                if($("#id_"+instance.prefix+e).data('select2-id') != undefined ){
+                  select2Items.push(e);
+                }else{
+                   instance.updateInstanceForm(instance.prefix+e, datainstance[e]);
+                }
 
+             });
+             // do select 2 items
+             $.each(select2Items, function(i, e){
+                     var display_name_key = 'display_name';
+                     if(instance.relinstance_display.hasOwnProperty(e)){
+                        display_name_key=instance.relinstance_display[e];
+                     }
+                      $('#id_'+instance.prefix+e).val(null).trigger('change');
+                      if(datainstance[e]){
+                        if(Array.isArray(datainstance[e])){
+                            for(var x=0; x<datainstance[e].length; x++){
+                                var newOption = new Option(datainstance[e][x][display_name_key], datainstance[e][x]['id'], true, true);
+                                $('#id_'+instance.prefix+e).append(newOption);
+                            }
+                        }else{
+                            if($('#id_'+instance.prefix+e+' option[value="'+datainstance[e]['id']+'"]').length>0){
+                                $('#id_'+instance.prefix+e).val(datainstance[e]['id']);
+                            }else{
+                                var newOption = new Option(datainstance[e][display_name_key], datainstance[e]['id'], true, true);
+                                $('#id_'+instance.prefix+e).append(newOption);
+                            }
+                        }
+                        $('#id_'+instance.prefix+e).trigger('change')
+                      }
+            });
+        },
+        "updateInstanceForm": function (name, value){
+            var item = this.form.find('input[name="'+name+'"], textarea[name="'+name+'"]');
+            if (item.length>0){
+                if(item.attr('type') === "checkbox" ){
+                    item.prop( "checked", value);
+                }else if(item.attr('type') === "radio"){
+                    var sel = item.filter(function() { return this.value == value });
+                    sel.prop( "checked", true);
+             } else {  item.val(value); }
+            }
+       }
     }
 }
 function BaseDetailModal(modal){
@@ -137,7 +194,7 @@ function BaseDetailModal(modal){
 
 function ObjectCRUD(uniqueid, urls, datatableelement, modalids, actions, datatableinits,
     replace_as_detail={create: false,  update: true, destroy: true, list: false },
-    addfilter=false
+    addfilter=false, relinstance_display={}
 ){
 /**
 actions:   {
@@ -165,11 +222,12 @@ actions:   {
     }
     obj={
         "uniqueid": uniqueid,
-        "display_text": 'display_text',
+        "display_text": relinstance_display,
         "can_create": modalids.hasOwnProperty("create"),
         "can_destroy": urls.hasOwnProperty("destroy_url"),
         "can_list": urls.hasOwnProperty("list_url"),
         "can_update": modalids.hasOwnProperty("update"),
+        "use_update_values": urls.hasOwnProperty("update_values_url"),
         "header_btn_class": 'btn-sm mr-4',
         "datatable": null,
         "create_form": null,
@@ -190,7 +248,9 @@ actions:   {
                 this.create_form.init();
             }
             if(this.can_update){
-                this.update_form = BaseFormModal(modalids.update, this.datatable);
+                this.update_form = BaseFormModal(modalids.update, this.datatable,
+                 data_extras={}, relinstance_display=this.display_text);
+                this.update_form.type = "PUT";
                 this.base_update_url = this.update_form.url;
                 this.update_form.init();
             }
@@ -215,18 +275,27 @@ actions:   {
         "error": function(instance){
             return function(response) {
                 let error_msg = gettext('There was a problem performing your request. Please try again later or contact the administrator.');  // any other error
-                response.json().then(data => {  // there was something in the response from the API regarding validation
-                    if(data['detail']){
-                        error_msg = data['detail'][0];  // specific api validation errors
-                    }
-                })
-                .finally(() => {
-                    Swal.fire({
-                        title: gettext('Error'),
-                        text: error_msg,
-                        icon: 'error'
+                  if(response.type === "basic" ){
+                      Swal.fire({
+                            title: gettext('Error'),
+                            text: error_msg + gettext(" status ") +response.statusText,
+                            icon: 'error'
+                        });
+                        return response;
+                  } else {
+                   response.json().then(data => {  // there was something in the response from the API regarding validation
+                        if(data['detail']){
+                            error_msg = data['detail'];  // specific api validation errors
+                        }
+                    })
+                    .finally(() => {
+                        Swal.fire({
+                            title: gettext('Error'),
+                            text: error_msg,
+                            icon: 'error'
+                        });
                     });
-                });
+                }
             }
         },
         "destroy": function(data, action) {
@@ -250,7 +319,13 @@ actions:   {
                             headers: {'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json'}
                             }
                             ).then(response => {
-                                if(response.ok){ return response.json(); }
+                                if(response.ok){
+                                    if(response.type === "basic" ){
+                                        return response
+                                    }else{
+                                        return response.json();
+                                    }
+                                }
                                 return Promise.reject(response);  // then it will go to the catch if it is an error code
                             })
                             .then(instance.success(instance))
@@ -262,7 +337,7 @@ actions:   {
             /**
                 This function initialize datatable
             */
-            instance = this;
+            var instance = this;
             if(this.can_list){
               this.obj_action.unshift({
                 action: function ( e, dt, node, config ) {clearDataTableFilters(dt, id)},
@@ -324,12 +399,25 @@ actions:   {
 
         },
         "update": function(instance, action){
-            this.update_form.url = this.base_update_url.replace('/0/', '/'+instance.pk+'/');
-            this.update_form.showmodal();
+            if(this.use_update_values){
+                let url =  urls.update_values_url.replace('/0/', '/'+instance.id+'/');
+                this.retrieve_data(url, 'GET', this.update_value_success(this, instance),
+                this.error(this));
+            }else{
+                this.update_value_success(this, instance)(instance);
+            }
+        },
+        "update_value_success": function(instance, element){
+            return function(data){
+                instance.update_form.fillForm(data);
+                instance.update_form.url = instance.base_update_url.replace('/0/', '/'+data.id+'/');
+                instance.update_form.showmodal();
+            }
         },
         "action_update": function(action, data){},
         "action_destroy": function(action, data){},
         'do_instance_action': function(action_position, instance_id){
+           var instance = this;
            var data = this.datatable.row(instance_id).data(); ;
            if(action_position>=0 && action_position<instance.instance_actions.length){
                 let action=instance.instance_actions[action_position];
@@ -356,6 +444,18 @@ actions:   {
                 .then(instance.success(instance))
                 .catch(instance.error(instance));
             }
+        },
+        'retrieve_data': function(url, method, success, error){
+                fetch(url, {
+                    method: method,
+                   // body: body,
+                    headers: {'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json'}
+                }).then(response => {
+                    if(response.ok){ return response.json(); }
+                    return Promise.reject(response);  // then it will go to the catch if it is an error code
+                })
+                .then(success)
+                .catch(error);
         }
     };
     gt_crud_objs[uniqueid] = obj;
