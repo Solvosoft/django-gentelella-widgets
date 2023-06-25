@@ -71,7 +71,8 @@ datatableinits = {
 var obj_modalids = {
 	create: "#create_obj_modal",
 	update: "#update_obj_modal",
-	detail: "#detail_obj_modal"
+	detail: "#detail_obj_modal",
+	destroy: "#delete_obj_modal",
 }
 var obj_actions = {
 	instance_action: [],
@@ -85,6 +86,8 @@ let ocrud=ObjectCRUD("setmeunique", object_urls, "#object_table", obj_modalids, 
 
 
 ocrud.init();
+
+
 
 
 
