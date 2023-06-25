@@ -31,6 +31,10 @@
 {% include 'gentelella/blocks/modal_template.html' with form=update_form id="update_obj_modal" title=update_obj_tittle form_id="update_obj_form" url=update_obj_url %}
 {% include 'gentelella/blocks/modal_template_detail.html' with id="detail_obj_modal" %}
 
+{% url "api-personobjectmanagement-detail"  as delete_obj_url %}
+{% trans 'Delete Person' as delete_obj_tittle %}
+{% include 'gentelella/blocks/modal_template_delete.html' with form=delete_form id="delete_obj_modal" title=delete_obj_tittle form_id="delete_obj_form" url=delete_obj_url %}
+
 {% endblock %}
 
 {% block js %}
@@ -81,6 +85,7 @@ let ocrud=ObjectCRUD("setmeunique", object_urls, "#object_table", obj_modalids, 
 
 
 ocrud.init();
+
 
 
 
