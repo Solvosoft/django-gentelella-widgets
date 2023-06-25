@@ -327,7 +327,7 @@ actions:   {
         "uniqueid": uniqueid,
         "display_text": relinstance_display,
         "can_create": modalids.hasOwnProperty("create"),
-        "can_destroy": urls.hasOwnProperty("destroy_url"),
+        "can_destroy": urls.hasOwnProperty("destroy_url") && modalids.hasOwnProperty("destroy") ,
         "can_list": urls.hasOwnProperty("list_url"),
         "can_detail": urls.hasOwnProperty("detail_url") && modalids.hasOwnProperty("detail") && urls.hasOwnProperty("detail_template_url"),
         "can_update": modalids.hasOwnProperty("update"),
@@ -336,6 +336,7 @@ actions:   {
         "datatable": null,
         "create_form": null,
         "update_form": null,
+        "delete_form": null,
         "data_extras": data_extras,
         "detail_modal": null,
         "base_update_url":null,
@@ -363,6 +364,13 @@ actions:   {
             if(this.can_detail){
                 this.detail_modal = BaseDetailModal(modalids.detail, urls.detail_url, urls.detail_template_url)
                 this.detail_modal.init()
+            }
+            if(this.can_destroy){
+                this.destroy_form = BaseFormModal(modalids.destroy, this.datatable,
+                 data_extras=this.data_extras, relinstance_display=this.display_text);
+                this.destroy_form.type = "DELETE";
+                this.destroy_form.btn_class = ".delbtn";
+                this.destroy_form.init();
             }
         },
         "create":  function(instance){
@@ -409,39 +417,11 @@ actions:   {
             }
         },
         "destroy": function(data, action) {
-            let message = gettext("Are you sure you want to delete")
-            let text = this.display_text in data ? data[this.display_text] :  gettext("This Object")
-            message = `${message} "${text}"?`
             let url =  urls.destroy_url.replace('/0/', '/'+data.id+'/');
-            Swal.fire({ //Confirmation for delete
-                icon: "warning",
-                title: gettext("Are you sure?"),
-                text: message,
-                confirmButtonText: gettext("Confirm"),
-                showCloseButton: true,
-                denyButtonText: gettext('Cancel'),
-                showDenyButton: true,
-                })
-                .then(function(result) {
-                    if (result.isConfirmed) {
-                        fetch(url, {
-                            method: "delete",
-                            headers: {'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json'}
-                            }
-                            ).then(response => {
-                                if(response.ok){
-                                    if(response.type === "basic" ){
-                                        return response
-                                    }else{
-                                        return response.json();
-                                    }
-                                }
-                                return Promise.reject(response);  // then it will go to the catch if it is an error code
-                            })
-                            .then(instance.success(instance))
-                            .catch(instance.error(instance));
-                    }
-                });
+            let text = gettext("This Object")
+            this.destroy_form.url = url;
+            this.destroy_form.instance.find(".objtext").html(text)
+            this.destroy_form.showmodal();
         },
         "list": function(){
             /**
