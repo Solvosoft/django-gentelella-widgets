@@ -77,15 +77,28 @@ var obj_modalids = {
 var obj_actions = {
 	instance_action: [],
 	 obj_action: [],
+		title: gettext('Actions'),
+		className:  "no-export-col"
 }
 
-let ocrud=ObjectCRUD("setmeunique", object_urls, "#object_table", obj_modalids, obj_actions, datatableinits,
-    replace_as_detail={create: false,  update: true, destroy: true, list: false },
-    addfilter=true, relinstance_display={'country': 'name' }
-)
+let objconfig={
+	urls: object_urls,
+	datatableelement:  "#object_table",
+	modalids: obj_modalids,
+	actions: obj_actions,
+	datatableinits: datatableinits,
+	addfilter: true,
+	relinstance_display: {'country': 'name' },
+	delete_display: data => data['name']
+}
+
+let ocrud=ObjectCRUD("setmeunique", objconfig)
 
 
 ocrud.init();
+
+
+
 
 
 

@@ -295,10 +295,8 @@ function BaseDetailModal(modalid, base_detail_url, template_url){
     }
 }
 
-function ObjectCRUD(uniqueid, urls, datatableelement, modalids, actions, datatableinits,
-    replace_as_detail={create: false,  update: true, destroy: true, list: false },
-    addfilter=false, relinstance_display={}, data_extras={}
-){
+function ObjectCRUD(uniqueid, objconfig={}){
+
 /**
 actions:   {
     instance_action: [],
@@ -315,29 +313,61 @@ actions:   {
 
 */
 
+    var default_config = {
+        uls: null,
+        datatableelement: null,
+        modalids: null,
+        actions: { instance_action: [],  obj_action: [],
+                    title: gettext('Actions'),
+                    className:  "no-export-col"
+                    },
+        datatableinits: {},
+        replace_as_detail: {create: false,  update: true, destroy: true, list: false },
+        addfilter: false,
+        relinstance_display: {},
+        data_extras: {},
+        headers: {'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json'},
+        btn_class: {
+            create: 'btn-sm mr-4'
+        },
+        icons: {
+            create: '<i class="fa fa-plus" aria-hidden="true"></i>',
+            clear: '<i class="fa fa-eraser" aria-hidden="true"></i>',
+            detail: 'fa fa-eye',
+            update: 'fa fa-edit',
+            destroy: 'fa fa-trash'
+        },
+        delete_display: function(data){ return gettext("This Object"); }
+
+    }
+
+    const config =  Object.assign({}, default_config, objconfig);
+
     per_instance_actions = []
     per_obj_action = []
-    if( "instance_action" in actions){
-        per_instance_actions=actions.instance_action;
+    if( "instance_action" in objconfig.actions){
+        per_instance_actions=objconfig.actions.instance_action;
     }
-    if( "obj_action" in actions){
-        per_obj_action = actions.obj_action;
+    if( "obj_action" in objconfig.actions){
+        per_obj_action = objconfig.actions.obj_action;
     }
     obj={
         "uniqueid": uniqueid,
-        "display_text": relinstance_display,
-        "can_create": modalids.hasOwnProperty("create"),
-        "can_destroy": urls.hasOwnProperty("destroy_url") && modalids.hasOwnProperty("destroy") ,
-        "can_list": urls.hasOwnProperty("list_url"),
-        "can_detail": urls.hasOwnProperty("detail_url") && modalids.hasOwnProperty("detail") && urls.hasOwnProperty("detail_template_url"),
-        "can_update": modalids.hasOwnProperty("update"),
-        "use_update_values": urls.hasOwnProperty("update_values_url"),
-        "header_btn_class": 'btn-sm mr-4',
+        "config": config,
+        "display_text": config.relinstance_display,
+        "can_create": config.modalids.hasOwnProperty("create"),
+        "can_destroy": config.urls.hasOwnProperty("destroy_url") && config.modalids.hasOwnProperty("destroy") ,
+        "can_list": config.urls.hasOwnProperty("list_url"),
+        "can_detail": objconfig.urls.hasOwnProperty("detail_url") && config.modalids.hasOwnProperty("detail")
+        && config.urls.hasOwnProperty("detail_template_url"),
+        "can_update": config.modalids.hasOwnProperty("update"),
+        "use_update_values": config.urls.hasOwnProperty("update_values_url"),
+        "create_btn_class": config.btn_class.create,
         "datatable": null,
         "create_form": null,
         "update_form": null,
         "delete_form": null,
-        "data_extras": data_extras,
+        "data_extras": config.data_extras,
         "detail_modal": null,
         "base_update_url":null,
         "instance_actions": per_instance_actions,
@@ -347,26 +377,28 @@ actions:   {
             if(this.can_create){
                 this.obj_action.push({
                     action: this.create(this),
-                    text: '<i class="fa fa-plus" aria-hidden="true"></i>',
+                    text: this.config.icons.create,
                     titleAttr: gettext('Create'),
-                    className: this.header_btn_class
+                    className: this.config.create
                 })
-                this.create_form = BaseFormModal(modalids.create, this.datatable, data_extras=this.data_extras);
+                this.create_form = BaseFormModal(this.config.modalids.create, this.datatable, data_extras=this.data_extras);
                 this.create_form.init();
             }
             if(this.can_update){
-                this.update_form = BaseFormModal(modalids.update, this.datatable,
+                this.update_form = BaseFormModal(this.config.modalids.update, this.datatable,
                  data_extras=this.data_extras, relinstance_display=this.display_text);
                 this.update_form.type = "PUT";
                 this.base_update_url = this.update_form.url;
                 this.update_form.init();
             }
             if(this.can_detail){
-                this.detail_modal = BaseDetailModal(modalids.detail, urls.detail_url, urls.detail_template_url)
+                this.detail_modal = BaseDetailModal(this.config.modalids.detail,
+                                                    this.config.urls.detail_url,
+                                                    this.config.urls.detail_template_url)
                 this.detail_modal.init()
             }
             if(this.can_destroy){
-                this.destroy_form = BaseFormModal(modalids.destroy, this.datatable,
+                this.destroy_form = BaseFormModal(this.config.modalids.destroy, this.datatable,
                  data_extras=this.data_extras, relinstance_display=this.display_text);
                 this.destroy_form.type = "DELETE";
                 this.destroy_form.btn_class = ".delbtn";
@@ -390,35 +422,9 @@ actions:   {
             }
 
         },
-        "error": function(instance){
-            return function(response) {
-                let error_msg = gettext('There was a problem performing your request. Please try again later or contact the administrator.');  // any other error
-                  if(response.type === "basic" ){
-                      Swal.fire({
-                            title: gettext('Error'),
-                            text: error_msg + gettext(" status ") +response.statusText,
-                            icon: 'error'
-                        });
-                        return response;
-                  } else {
-                   response.json().then(data => {  // there was something in the response from the API regarding validation
-                        if(data['detail']){
-                            error_msg = data['detail'];  // specific api validation errors
-                        }
-                    })
-                    .finally(() => {
-                        Swal.fire({
-                            title: gettext('Error'),
-                            text: error_msg,
-                            icon: 'error'
-                        });
-                    });
-                }
-            }
-        },
         "destroy": function(data, action) {
-            let url =  urls.destroy_url.replace('/0/', '/'+data.id+'/');
-            let text = gettext("This Object")
+            let url =  this.config.urls.destroy_url.replace('/0/', '/'+data.id+'/');
+            let text = this.config.delete_display(data)
             this.destroy_form.url = url;
             this.destroy_form.instance.find(".objtext").html(text)
             this.destroy_form.showmodal();
@@ -431,7 +437,7 @@ actions:   {
             if(this.can_list){
               this.obj_action.unshift({
                 action: function ( e, dt, node, config ) {clearDataTableFilters(dt, id)},
-                text: '<i class="fa fa-eraser" aria-hidden="true"></i>',
+                text: this.config.icons.clear,
                 titleAttr: gettext('Clear Filters'),
                 className: this.header_btn_class
              })
@@ -445,7 +451,7 @@ actions:   {
                      'name': "detail",
                      'action': 'detail',
                      'url': null,
-                     'i_class': 'fa fa-eye',
+                     'i_class': this.config.icons.detail,
                     }
                 )
             }
@@ -455,7 +461,7 @@ actions:   {
                      'name': "update",
                      'action': 'update',
                      'url': null,
-                     'i_class': 'fa fa-edit',
+                     'i_class': this.config.icons.update,
                     }
                 )
             }
@@ -465,7 +471,7 @@ actions:   {
                      'name': 'destroy',
                      'action': 'destroy',
                      'url': null,
-                     'i_class': 'fa fa-trash',
+                     'i_class': this.config.icons.destroy,
                     }
                 )
             }
@@ -476,9 +482,9 @@ actions:   {
                 datatableinits['columnDefs'] = [
                     {
                     targets: -1,
-                    title: gettext('Actions'),
+                    title: this.config.actions.title,
                     type: 'actions',
-                    className: "no-export-col",
+                    className: this.config.actions.className,
                     orderable: false,
                     render: function(data, type, full, meta){
                         var edittext = '<div class="d-flex mt-1">';
@@ -494,7 +500,8 @@ actions:   {
                 }
                 ]
             }
-         this.datatable = createDataTable(datatableelement, urls.list_url, datatableinits, addfilter=addfilter);
+         this.datatable = createDataTable(this.config.datatableelement, this.config.urls.list_url, this.config.datatableinits,
+         addfilter=this.config.addfilter);
 
         },
         "detail":  function(instance, action){
@@ -502,9 +509,8 @@ actions:   {
         },
         "update": function(instance, action){
             if(this.use_update_values){
-                let url =  urls.update_values_url.replace('/0/', '/'+instance.id+'/');
-                this.retrieve_data(url, 'GET', this.update_value_success(this, instance),
-                this.error(this));
+                let url =  this.config.urls.update_values_url.replace('/0/', '/'+instance.id+'/');
+                this.retrieve_data(url, 'GET', this.update_value_success(this, instance));
             }else{
                 this.update_value_success(this, instance)(instance);
             }
@@ -533,32 +539,42 @@ actions:   {
         'do_action': function(data, action){
             let method = 'method' in action ? action.method : 'POST';
             let body = 'data_fn' in action ? JSON.stringify(action.data_fn(data)) : '';
+            let error_fn = 'error_fn' in action ? action.error_fn : instance.error;
             if( 'url' in action  &&  action.url !== null){
                 fetch(action.url, {
                     method: method,
                     body: body,
-                    headers: {'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json'}
+                    headers: this.config.headers
                     }
-                ).then(response => {
-                    if(response.ok){ return response.json(); }
-                    return Promise.reject(response);  // then it will go to the catch if it is an error code
-                })
+                ).then(response_manage_type_data(instance, error_fn, instance.error_text))
                 .then(instance.success(instance))
                 .catch(instance.error(instance));
             }
         },
-        'retrieve_data': function(url, method, success, error){
-                fetch(url, {
+        'retrieve_data': function(url, method, success){
+            var instance = this;
+            fetch(url, {
                     method: method,
-                   // body: body,
-                    headers: {'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json'}
-                }).then(response => {
-                    if(response.ok){ return response.json(); }
-                    return Promise.reject(response);  // then it will go to the catch if it is an error code
-                })
+                    headers:this.config.headers
+                }).then(response_manage_type_data(instance, instance.error, instance.error_text))
                 .then(success)
-                .catch(error);
+                .catch(error => instance.handle_error(instance, error));
+        },
+        "error_text": function(instance, message){
+            Swal.fire({icon: 'error',  title: gettext('Error'),  text: message });
+        },
+        "error": function(instance, errors){
+            if(errors.hasOwnProperty('detail') && Object.keys(errors).length == 1){
+                Swal.fire({ icon: 'error', title: gettext('Error'), text: errors.detail });
+            }
+            //instance.form.find('ul.form_errors').remove();
+            //form_field_errors(instance.form, errors, instance.prefix);
+        },
+        "handle_error": function(instance, error){
+            let error_msg = gettext('There was a problem performing your request. Please try again later or contact the administrator.');
+            Swal.fire({ icon: 'error', title: error_msg, text: error.message });
         }
+
     };
     gt_crud_objs[uniqueid] = obj;
     return obj;
