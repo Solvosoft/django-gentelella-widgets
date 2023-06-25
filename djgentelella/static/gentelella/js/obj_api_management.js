@@ -34,7 +34,7 @@ function form_field_errors(target_form, form_errors, prefix){
     }
 }
 
-function response_manage_type_data(instance){
+function response_manage_type_data(instance, err_json_fn, error_text_fn){
     return function(response) {
         const contentType = response.headers.get("content-type");
         if(response.ok){
@@ -43,7 +43,15 @@ function response_manage_type_data(instance){
             }else{
                 return response.text();
             }
+        }else{
+            if (contentType && contentType.indexOf("application/json") !== -1) {
+                response.json().then(data => err_json_fn(instance, data));
+            }else{
+                response.text().then(data => error_text_fn(instance, data));
+            }
+            return Promise.resolve(false);
         }
+
         return Promise.reject(response);  // then it will go to the catch if it is an error code
     }
 }
@@ -81,64 +89,57 @@ function BaseFormModal(modalid, datatableelement,  data_extras={}, relinstance_d
         "url": form[0].action,
         "prefix": prefix,
         "type": "POST",
+        "btn_class": ".formadd",
         "data_extras": data_extras,
         "init": function(){
             var myModalEl = this.instance[0];
             myModalEl.addEventListener('hidden.bs.modal', this.hidemodalevent(this))
-            this.instance.find('.formadd').on('click', this.add_btn_form(this));
+            this.instance.find(this.btn_class).on('click', this.add_btn_form(this));
 
         },
         "add_btn_form": function(instance){
             return function(event){
-                $.ajax({
-                    url: instance.url,
-                    type: instance.type,
-                    data: convertToStringJson(instance.form, prefix=instance.prefix, extras=instance.data_extras),
-                    headers: {'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': "application/json"},
-                    success: instance.fn_success(instance),
-                    error: instance.error(instance)
-                });
+                fetch(instance.url, {
+                    method: instance.type,
+                    body: convertToStringJson(instance.form, prefix=instance.prefix, extras=instance.data_extras),
+                    headers: {'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json'}
+                    }
+                    ).then(response_manage_type_data(instance, instance.error, instance.error_text))
+                    .then(instance.fn_success(instance))
+                    .catch(error => instance.handle_error(instance, error));
             }
         },
         "success": function(instance, data){
         },
         "fn_success": function(instance){
-            return function(data){
-                if (instance.reloadtable){
-                    datatableelement.ajax.reload();
-                }
-                instance.hidemodal();
-                Swal.fire({
-                    icon: 'success',
-                    title: gettext('Success'),
-                    text: data.detail,
-                    timer: 1500
-                });
-                instance.success(instance, data);
-            }
-        },
-        "error": function(instance){
-            return function(xhr, resp, text) {
-                if(xhr.hasOwnProperty('responseJSON')){
-                    var errors = xhr.responseJSON;
-                    if(errors){  // form errors
-                        form.find('ul.form_errors').remove();
-                        form_field_errors(form, errors, instance.prefix);
-                    }else{ // any other error
-                        Swal.fire({
-                            icon: 'error',
-                            title: gettext('Error'),
-                            text: gettext('There was a problem performing your request. Please try again later or contact the administrator.')
-                        });
+           return function(data){
+                if(data !== false){
+                    if (instance.reloadtable){
+                        datatableelement.ajax.reload();
                     }
-                }else{
+                    instance.hidemodal();
                     Swal.fire({
-                            icon: 'error',
-                            title: gettext('Error'),
-                            text: xhr.statusText
-                        });
+                        icon: 'success',
+                        title: gettext('Success'),
+                        text: data.detail,
+                        timer: 1500
+                    });
+                    instance.success(instance, data);
                 }
+           }
+        },
+        "error_text": function(instance, message){
+            Swal.fire({icon: 'error',  title: gettext('Error'),  text: message });
+        },
+        "error": function(instance, errors){
+            if(errors.hasOwnProperty('detail') && Object.keys(errors).length == 1){
+                Swal.fire({ icon: 'error', title: gettext('Error'), text: errors.detail });
             }
+            instance.form.find('ul.form_errors').remove();
+            form_field_errors(instance.form, errors, instance.prefix);
+        },
+        "handle_error": function(instance, error){
+            Swal.fire({ icon: 'error', title: gettext('Error'), text: error.message });
         },
         "hidemodal": function(){
             this.instance.modal('hide');
@@ -202,6 +203,11 @@ function BaseFormModal(modalid, datatableelement,  data_extras={}, relinstance_d
        }
     }
 }
+/**
+
+
+**/
+
 function BaseDetailModal(modalid, base_detail_url, template_url){
     return {
         "modal": $(modalid),
@@ -260,7 +266,7 @@ function BaseDetailModal(modalid, base_detail_url, template_url){
                   method: "get",
                   headers: {'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json'}
                 }
-                ).then(response_manage_type_data(instance))
+                ).then(response_manage_type_data(instance, instance.error, instance.handle_error))
                 .then(instance.update_template(instance))
                 .catch(instance.recall_get_template(instance));
         },
@@ -274,11 +280,17 @@ function BaseDetailModal(modalid, base_detail_url, template_url){
                 method: "get",
                 headers: {'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json'}
                 }
-                ).then(response_manage_type_data(instance))
+                ).then(response_manage_type_data(instance, instance.error, instance.handle_error))
                 .then(instance.update_detail(instance))
                 .catch(instance.recall_get_detail(instance));
 
-        }
+        },
+        "error": function(instance, errors){
+            Swal.fire({ icon: 'error', title: gettext('Error'), text: errors.detail });
+        },
+        "handle_error": function(instance, error){
+            Swal.fire({ icon: 'error', title: gettext('Error'), text: error.message });
+        },
 
     }
 }

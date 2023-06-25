@@ -18,7 +18,8 @@ class PersonObjectMangement(viewsets.ModelViewSet):
         'retrieve': serializer.PersonUpdateSerializer,
         'update_values': serializer.PersonUpdateSerializer
     }
-
+    #    permission_classes = (IsAuthenticated,)
+    #    authentication_classes = (TokenAuthentication, SessionAuthentication)
     queryset = Person.objects.all()
     pagination_class = LimitOffsetPagination
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
