@@ -29,6 +29,7 @@
 {% url "api-personobjectmanagement-detail" 0 as update_obj_url %}
 {% trans 'Update Person' as update_obj_tittle %}
 {% include 'gentelella/blocks/modal_template.html' with form=update_form id="update_obj_modal" title=update_obj_tittle form_id="update_obj_form" url=update_obj_url %}
+
 {% include 'gentelella/blocks/modal_template_detail.html' with id="detail_obj_modal" %}
 
 {% url "api-personobjectmanagement-detail"  as delete_obj_url %}
@@ -47,7 +48,7 @@ var object_urls ={
 	destroy_url: "{% url 'api-personobjectmanagement-detail' 0 %}",
 	detail_url: "{% url 'api-personobjectmanagement-detail' 0 %}",
 	detail_template_url: "{% url 'api-personobjectmanagement-detail-template' %}",
-	update_values_url: "{% url 'api-personobjectmanagement-update-values' 0 %}",
+	update_values_url: "{% url 'api-personobjectmanagement-update-values' 0 %}", // get_object_for_update_url
 	create_url: "{{create_obj_url}}",
 	update_url: "{{update_obj_url}}"
 }
@@ -66,6 +67,12 @@ datatableinits = {
 							{data: "actions", name: "actions", title: gettext("Actions"), type: "string", visible: true }
 
 			],
+			events: {
+					filter: function(data){
+							return data;
+						}
+			},
+			addfilter: true
 }
 
 var obj_modalids = {
@@ -75,20 +82,20 @@ var obj_modalids = {
 	destroy: "#delete_obj_modal",
 }
 var obj_actions = {
-	instance_action: [],
-	 obj_action: [],
+	 instance_action: [],  //table_actions
+	 obj_action: [],  // object_actions
 		title: gettext('Actions'),
 		className:  "no-export-col"
 }
 
 let objconfig={
 	urls: object_urls,
-	datatableelement:  "#object_table",
-	modalids: obj_modalids,
+	datatable_element:  "#object_table",
+	modal_ids: obj_modalids,
 	actions: obj_actions,
-	datatableinits: datatableinits,
-	addfilter: true,
-	relinstance_display: {'country': 'name' },
+	datatable_inits: datatableinits,
+	add_filter: true,
+	relation_render: {'country': 'name' },
 	delete_display: data => data['name']
 }
 
@@ -96,6 +103,18 @@ let ocrud=ObjectCRUD("setmeunique", objconfig)
 
 
 ocrud.init();
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

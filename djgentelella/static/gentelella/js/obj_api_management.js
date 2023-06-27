@@ -74,26 +74,41 @@ function clear_action_form(form){
 var gt_form_modals = {}
 var gt_detail_modals = {}
 var gt_crud_objs = {};
-function BaseFormModal(modalid, datatableelement,  data_extras={}, relinstance_display={})  {
-    var modal = $(modalid);
+function GTBaseFormModal(modal_id, datatable_element,  form_config)  {
+    var modal = $(modal_id);
     var form = modal.find('form');
     var prefix = form.find(".form_prefix").val();
     if(prefix.length != 0){
         prefix = prefix+"-"
     }
+    const default_config = {
+        "btn_class": ".formadd",
+        "type": "POST",
+        "reload_table": true,
+        "events": {'form_submit': function(instance){ return {} },
+                   'success_form': function(data){},
+                   'error_form': function(errors){}
+
+                  },
+        "relation_render": {}
+   }
+
+
+    const config =  Object.assign({}, default_config, form_config);
+
     return {
         "instance": modal,
-        "relinstance_display": relinstance_display,
-        "reloadtable": true,
+        "relation_render": config.relation_render,
+        "reload_table": config.reload_table,
+        "config": config,
         "form": form,
         "url": form[0].action,
         "prefix": prefix,
-        "type": "POST",
-        "btn_class": ".formadd",
-        "data_extras": data_extras,
+        "type": config.type,
+        "btn_class": config.btn_class,
         "init": function(){
             var myModalEl = this.instance[0];
-            myModalEl.addEventListener('hidden.bs.modal', this.hidemodalevent(this))
+            myModalEl.addEventListener('hidden.bs.modal', this.hide_modalevent(this))
             this.instance.find(this.btn_class).on('click', this.add_btn_form(this));
 
         },
@@ -101,7 +116,8 @@ function BaseFormModal(modalid, datatableelement,  data_extras={}, relinstance_d
             return function(event){
                 fetch(instance.url, {
                     method: instance.type,
-                    body: convertToStringJson(instance.form, prefix=instance.prefix, extras=instance.data_extras),
+                    body: convertToStringJson(instance.form, prefix=instance.prefix,
+                            extras=instance.config.events.form_submit(instance)),
                     headers: {'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json'}
                     }
                     ).then(response_manage_type_data(instance, instance.error, instance.error_text))
@@ -114,10 +130,11 @@ function BaseFormModal(modalid, datatableelement,  data_extras={}, relinstance_d
         "fn_success": function(instance){
            return function(data){
                 if(data !== false){
-                    if (instance.reloadtable){
-                        datatableelement.ajax.reload();
+                    instance.config.events.success_form(data)
+                    if (instance.reload_table){
+                        datatable_element.ajax.reload();
                     }
-                    instance.hidemodal();
+                    instance.hide_modal();
                     Swal.fire({
                         icon: 'success',
                         title: gettext('Success'),
@@ -132,6 +149,7 @@ function BaseFormModal(modalid, datatableelement,  data_extras={}, relinstance_d
             Swal.fire({icon: 'error',  title: gettext('Error'),  text: message });
         },
         "error": function(instance, errors){
+            instance.config.events.error_form(errors)
             if(errors.hasOwnProperty('detail') && Object.keys(errors).length == 1){
                 Swal.fire({ icon: 'error', title: gettext('Error'), text: errors.detail });
             }
@@ -141,19 +159,19 @@ function BaseFormModal(modalid, datatableelement,  data_extras={}, relinstance_d
         "handle_error": function(instance, error){
             Swal.fire({ icon: 'error', title: gettext('Error'), text: error.message });
         },
-        "hidemodal": function(){
+        "hide_modal": function(){
             this.instance.modal('hide');
         },
-        "hidemodalevent": function(instance){
+        "hide_modalevent": function(instance){
             return function(event){
                 clear_action_form(instance.form);
-                instance.hidemodal();
+                instance.hide_modal();
             }
         },
-        "showmodal": function(btninstance){
+        "show_modal": function(btninstance){
             this.instance.modal('show');
         },
-        "fillForm": function(datainstance){
+        "fill_form": function(datainstance){
             var keys  = Object.keys(datainstance);
             var select2Items = [];
             var instance = this;
@@ -168,8 +186,8 @@ function BaseFormModal(modalid, datatableelement,  data_extras={}, relinstance_d
              // do select 2 items
              $.each(select2Items, function(i, e){
                      var display_name_key = 'display_name';
-                     if(instance.relinstance_display.hasOwnProperty(e)){
-                        display_name_key=instance.relinstance_display[e];
+                     if(instance.relation_render.hasOwnProperty(e)){
+                        display_name_key=instance.relation_render[e];
                      }
                       $('#id_'+instance.prefix+e).val(null).trigger('change');
                       if(datainstance[e]){
@@ -204,22 +222,41 @@ function BaseFormModal(modalid, datatableelement,  data_extras={}, relinstance_d
     }
 }
 /**
-
-
 **/
 
-function BaseDetailModal(modalid, base_detail_url, template_url){
+function BaseDetailModal(modalid, base_detail_url, template_url, form_config={}){
+    const default_config = {
+        "base_template": "{{it.display_text}}",
+        "title": "{{it.title}}",
+        "template_max_tries": 1,
+        "detail_max_tries": 1,
+        "headers": {'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json'},
+        "method": "get",
+        "events": {
+                   'update_detail_event': function(data){ return data},
+                   'form_submit_template': function(data){ return data},
+                   'form_submit_instance': function(data){ return data},
+                   'form_error_instance': function(errors){},
+                   'form_error_template': function(errors){}
+        }
+   }
+
+
+    const config =  Object.assign({}, default_config, form_config);
     return {
         "modal": $(modalid),
         "modalid": modalid,
+        "config" : config,
         "instanceid": null,
         "template_url": template_url,
         "base_detail_url": base_detail_url,
-        "template": "{{it.display_text}}",
-        "template_max_tries": 1,
-        "detail_max_tries": 1,
+        "template": config.base_template,
+        "title": config.title,
+        "template_max_tries": config.template_max_tries,
+        "detail_max_tries": config.detail_max_tries,
         "template_tries": 0,
         "detail_tries": 0,
+        "title": config.title,
         "init": function(){
             this.get_template();
         },
@@ -232,14 +269,18 @@ function BaseDetailModal(modalid, base_detail_url, template_url){
         "update_template": function(instance){
             return function(data){
                 instance.template_tries=0;
-                instance.template=data['template'];
+                instance.template= 'template' in data ? data['template'] : instance.template;
+                instance.title = 'title' in data ? data['title'] : instance.title;
             }
         },
         "update_detail": function(instance){
             return function(data){
+                 data = instance.config.events.update_detail_event(data);
                  instance.detail_tries=0;
                  var result = Sqrl.render(instance.template,  data);
                  instance.modal.find(".modal-body").html(result);
+                 var result = Sqrl.render(instance.title,  data);
+                 instance.modal.find(".modal-title").html(result);
                  instance.show();
             }
         },
@@ -248,6 +289,8 @@ function BaseDetailModal(modalid, base_detail_url, template_url){
                 if(instance.template_tries<instance.template_max_tries){
                     instance.template_tries = instance.template_tries+ 1;
                     instance.get_template();
+                }else{
+                    instance.config.events.form_error_template(response);
                 }
             }
         },
@@ -256,16 +299,21 @@ function BaseDetailModal(modalid, base_detail_url, template_url){
                 if(instance.detail_tries<instance.detail_max_tries){
                     instance.detail_tries = instance.detail_tries+1;
                     instance.show_instance(instance.instanceid);
+                }else{
+                    instance.config.events.form_error_instance(response);
                 }
             }
 
         },
         "get_template": function(){
             var instance = this;
-            fetch(instance.template_url, {
-                  method: "get",
-                  headers: {'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json'}
+            let params = {
+                  method: instance.config.method,
+                  headers: instance.config.headers
                 }
+            params = instance.config.events.form_submit_template(params);
+
+            fetch(instance.template_url, params
                 ).then(response_manage_type_data(instance, instance.error, instance.handle_error))
                 .then(instance.update_template(instance))
                 .catch(instance.recall_get_template(instance));
@@ -276,10 +324,12 @@ function BaseDetailModal(modalid, base_detail_url, template_url){
             this.instanceid = instanceid
             var url = this.base_detail_url.replace('/0/', '/'+instanceid+'/');
 
-            fetch(url, {
-                method: "get",
-                headers: {'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json'}
+            let params = {
+                  method: instance.config.method,
+                  headers: instance.config.headers
                 }
+            params = instance.config.events.form_submit_instance(params);
+            fetch(url, params
                 ).then(response_manage_type_data(instance, instance.error, instance.handle_error))
                 .then(instance.update_detail(instance))
                 .catch(instance.recall_get_detail(instance));
@@ -315,17 +365,18 @@ actions:   {
 
     var default_config = {
         uls: null,
-        datatableelement: null,
-        modalids: null,
+        datatable_element: null,
+        modal_ids: null,
+        events: {
+             'update_data': function(data){ return data; }
+        },
         actions: { instance_action: [],  obj_action: [],
                     title: gettext('Actions'),
                     className:  "no-export-col"
                     },
-        datatableinits: {},
+        datatable_inits: {},
         replace_as_detail: {create: false,  update: true, destroy: true, list: false },
-        addfilter: false,
-        relinstance_display: {},
-        data_extras: {},
+        relation_render: {},
         headers: {'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json'},
         btn_class: {
             create: 'btn-sm mr-4'
@@ -337,7 +388,13 @@ actions:   {
             update: 'fa fa-edit',
             destroy: 'fa fa-trash'
         },
-        delete_display: function(data){ return gettext("This Object"); }
+        delete_display: function(data){ return gettext("This Object"); },
+        gt_form_modals: {
+            'create': {},
+            'detail': {},
+            'update': {},
+            'destroy': {}
+        }
 
     }
 
@@ -354,13 +411,13 @@ actions:   {
     obj={
         "uniqueid": uniqueid,
         "config": config,
-        "display_text": config.relinstance_display,
-        "can_create": config.modalids.hasOwnProperty("create"),
-        "can_destroy": config.urls.hasOwnProperty("destroy_url") && config.modalids.hasOwnProperty("destroy") ,
+        "relation_render": config.relation_render,
+        "can_create": config.modal_ids.hasOwnProperty("create"),
+        "can_destroy": config.urls.hasOwnProperty("destroy_url") && config.modal_ids.hasOwnProperty("destroy") ,
         "can_list": config.urls.hasOwnProperty("list_url"),
-        "can_detail": objconfig.urls.hasOwnProperty("detail_url") && config.modalids.hasOwnProperty("detail")
+        "can_detail": objconfig.urls.hasOwnProperty("detail_url") && config.modal_ids.hasOwnProperty("detail")
         && config.urls.hasOwnProperty("detail_template_url"),
-        "can_update": config.modalids.hasOwnProperty("update"),
+        "can_update": config.modal_ids.hasOwnProperty("update"),
         "use_update_values": config.urls.hasOwnProperty("update_values_url"),
         "create_btn_class": config.btn_class.create,
         "datatable": null,
@@ -381,33 +438,37 @@ actions:   {
                     titleAttr: gettext('Create'),
                     className: this.config.create
                 })
-                this.create_form = BaseFormModal(this.config.modalids.create, this.datatable, data_extras=this.data_extras);
+                let create_conf = Object.assign({}, {}, this.config.gt_form_modals.create);
+                this.create_form = GTBaseFormModal(this.config.modal_ids.create, this.datatable, create_conf);
                 this.create_form.init();
             }
             if(this.can_update){
-                this.update_form = BaseFormModal(this.config.modalids.update, this.datatable,
-                 data_extras=this.data_extras, relinstance_display=this.display_text);
-                this.update_form.type = "PUT";
+                let update_conf = Object.assign({}, {
+                    type: "PUT",  relation_render: this.relation_render
+                }, this.config.gt_form_modals.update);
+                this.update_form = GTBaseFormModal(this.config.modal_ids.update, this.datatable, update_conf);
                 this.base_update_url = this.update_form.url;
                 this.update_form.init();
             }
             if(this.can_detail){
-                this.detail_modal = BaseDetailModal(this.config.modalids.detail,
+                let detail_conf = Object.assign({}, {}, this.config.gt_form_modals.detail);
+                this.detail_modal = BaseDetailModal(this.config.modal_ids.detail,
                                                     this.config.urls.detail_url,
-                                                    this.config.urls.detail_template_url)
+                                                    this.config.urls.detail_template_url,
+                                                    detail_conf)
                 this.detail_modal.init()
             }
             if(this.can_destroy){
-                this.destroy_form = BaseFormModal(this.config.modalids.destroy, this.datatable,
-                 data_extras=this.data_extras, relinstance_display=this.display_text);
-                this.destroy_form.type = "DELETE";
-                this.destroy_form.btn_class = ".delbtn";
+                let destroy_conf = Object.assign({}, {
+                    type: "DELETE", relation_render: this.relation_render, btn_class: ".delbtn"
+                }, this.config.gt_form_modals.destroy);
+                this.destroy_form = GTBaseFormModal(this.config.modal_ids.destroy, this.datatable, destroy_conf);
                 this.destroy_form.init();
             }
         },
         "create":  function(instance){
             return function(e, dt, node, config){
-                instance.create_form.showmodal();
+                instance.create_form.show_modal();
             }
         },
         "success": function(instance){
@@ -427,7 +488,7 @@ actions:   {
             let text = this.config.delete_display(data)
             this.destroy_form.url = url;
             this.destroy_form.instance.find(".objtext").html(text)
-            this.destroy_form.showmodal();
+            this.destroy_form.show_modal();
         },
         "list": function(){
             /**
@@ -442,8 +503,8 @@ actions:   {
                 className: this.header_btn_class
              })
             }
-            if(!datatableinits.hasOwnProperty("buttons")){
-                datatableinits['buttons'] = this.obj_action;
+            if(!config.datatable_inits.hasOwnProperty("buttons")){
+                config.datatable_inits['buttons'] = this.obj_action;
             }
             if(this.can_detail){
                 instance.instance_actions.push(
@@ -475,11 +536,11 @@ actions:   {
                     }
                 )
             }
-            if(!datatableinits.hasOwnProperty("columns")){
-                datatableinits.columns=[];
+            if(!config.datatable_inits.hasOwnProperty("columns")){
+                config.datatable_inits.columns=[];
             }
-            if(!datatableinits.hasOwnProperty("columnDefs")){
-                datatableinits['columnDefs'] = [
+            if(!config.datatable_inits.hasOwnProperty("columnDefs")){
+                config.datatable_inits['columnDefs'] = [
                     {
                     targets: -1,
                     title: this.config.actions.title,
@@ -500,9 +561,8 @@ actions:   {
                 }
                 ]
             }
-         this.datatable = createDataTable(this.config.datatableelement, this.config.urls.list_url, this.config.datatableinits,
-         addfilter=this.config.addfilter);
-
+         this.datatable = gtCreateDataTable(this.config.datatable_element, this.config.urls.list_url,
+                                            this.config.datatable_inits);
         },
         "detail":  function(instance, action){
                 this.detail_modal.show_instance(instance.id);
@@ -517,9 +577,10 @@ actions:   {
         },
         "update_value_success": function(instance, element){
             return function(data){
-                instance.update_form.fillForm(data);
+                data = instance.config.events.update_data(data);
+                instance.update_form.fill_form(data);
                 instance.update_form.url = instance.base_update_url.replace('/0/', '/'+data.id+'/');
-                instance.update_form.showmodal();
+                instance.update_form.show_modal();
             }
         },
         "action_update": function(action, data){},
