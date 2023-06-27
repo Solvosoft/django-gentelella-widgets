@@ -18,8 +18,8 @@ class PersonObjectMangement(viewsets.ModelViewSet):
         'retrieve': serializer.PersonUpdateSerializer,
         'update_values': serializer.PersonUpdateSerializer
     }
-    #    permission_classes = (IsAuthenticated,)
-    #    authentication_classes = (TokenAuthentication, SessionAuthentication)
+    # permission_classes = (IsAuthenticated,)
+    # authentication_classes = (TokenAuthentication, SessionAuthentication)
     queryset = Person.objects.all()
     pagination_class = LimitOffsetPagination
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
@@ -55,6 +55,7 @@ class PersonObjectMangement(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def detail_template(self, request, *args, **kwargs):
         data = {
+            "title": "Title {{it.name}}",
             "template": "Name: {{it.name}}"
         }
         return Response(data)

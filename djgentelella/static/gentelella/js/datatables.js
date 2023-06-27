@@ -141,7 +141,16 @@ document.table_default_dom = "<'row mb-3'<'col-sm-12 col-md-12 mb-1 d-flex align
                  "<'col-sm-6 col-md-6 mt-1 d-flex align-items-center 'l>>" +
                  "<'row'<'col-sm-12'tr>><'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>";
 
-function createDataTable(id, url, extraoptions={}, addfilter=false, formatDataTableParamsfnc=formatDataTableParams){
+
+
+function gtCreateDataTable(id, url, table_options={}){
+    const options = Object.assign({}, {
+        formatDataTableParamsfnc : formatDataTableParams,
+        addfilter: false,
+        events: {
+            'filter': function(data){return data}
+        }
+    }, table_options);
     var default_options = {
         serverSide: true,
         processing: true,
@@ -168,14 +177,16 @@ function createDataTable(id, url, extraoptions={}, addfilter=false, formatDataTa
             url: url,
             type: 'GET',
             data: function(dataTableParams, settings) {
-                return formatDataTableParamsfnc(dataTableParams, settings);
+                var data = options.formatDataTableParamsfnc(dataTableParams, settings);
+                data = options.events.filter(data);
+                return data;
             }
         }
     }
-    $.extend(default_options, extraoptions);
+    $.extend(default_options, options);
 
     var instance = $(id).DataTable(default_options);
-    if(addfilter){
+    if(options.addfilter){
         instance.on('init.dt', function(e, settings, json){
             addSearchInputsAndFooterDataTable(instance, id);
         });
@@ -185,4 +196,12 @@ function createDataTable(id, url, extraoptions={}, addfilter=false, formatDataTa
         });
     }
     return instance;
+}
+
+function createDataTable(id, url, extraoptions={}, addfilter=false, formatDataTableParamsfnc=formatDataTableParams){
+    const options = Object.assign({}, {
+       formatDataTableParamsfnc : formatDataTableParams,
+       addfilter: addfilter
+    }, extraoptions);
+    return gtCreateDataTable(id, url, options);
 }

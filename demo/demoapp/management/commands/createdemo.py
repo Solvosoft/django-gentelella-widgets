@@ -169,7 +169,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa-microchip',
+            icon='fa fa-microchip',
             only_icon=False
         )
 
