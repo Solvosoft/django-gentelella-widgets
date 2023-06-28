@@ -349,8 +349,8 @@ function ObjectCRUD(uniqueid, objconfig={}){
 
 /**
 actions:   {
-    instance_action: [],
-    obj_action: [
+    table_actions: [],
+    object_actions: [
         {
                 action: function ( e, dt, node, config ) {},
                 text: '<i class="fa fa-eraser" aria-hidden="true"></i>',
@@ -370,7 +370,7 @@ actions:   {
         events: {
              'update_data': function(data){ return data; }
         },
-        actions: { instance_action: [],  obj_action: [],
+        actions: { table_actions: [],  object_actions: [],
                     title: gettext('Actions'),
                     className:  "no-export-col"
                     },
@@ -400,13 +400,13 @@ actions:   {
 
     const config =  Object.assign({}, default_config, objconfig);
 
-    per_instance_actions = []
-    per_obj_action = []
-    if( "instance_action" in objconfig.actions){
-        per_instance_actions=objconfig.actions.instance_action;
+    per_table_actions = []
+    per_object_actions = []
+    if( "table_actions" in objconfig.actions){
+        per_table_actions=objconfig.actions.table_actions;
     }
-    if( "obj_action" in objconfig.actions){
-        per_obj_action = objconfig.actions.obj_action;
+    if( "object_actions" in objconfig.actions){
+        per_object_actions = objconfig.actions.object_actions;
     }
     obj={
         "uniqueid": uniqueid,
@@ -427,12 +427,12 @@ actions:   {
         "data_extras": config.data_extras,
         "detail_modal": null,
         "base_update_url":null,
-        "instance_actions": per_instance_actions,
-        "obj_action": per_obj_action,
+        "table_actions": per_table_actions,
+        "object_actions": per_object_actions,
         "init": function(){
             if(this.can_list) this.list();
             if(this.can_create){
-                this.obj_action.push({
+                this.object_actions.push({
                     action: this.create(this),
                     text: this.config.icons.create,
                     titleAttr: gettext('Create'),
@@ -496,7 +496,7 @@ actions:   {
             */
             var instance = this;
             if(this.can_list){
-              this.obj_action.unshift({
+              this.object_actions.unshift({
                 action: function ( e, dt, node, config ) {clearDataTableFilters(dt, id)},
                 text: this.config.icons.clear,
                 titleAttr: gettext('Clear Filters'),
@@ -504,10 +504,10 @@ actions:   {
              })
             }
             if(!config.datatable_inits.hasOwnProperty("buttons")){
-                config.datatable_inits['buttons'] = this.obj_action;
+                config.datatable_inits['buttons'] = this.object_actions;
             }
             if(this.can_detail){
-                instance.instance_actions.push(
+                instance.table_actions.push(
                     {
                      'name': "detail",
                      'action': 'detail',
@@ -517,7 +517,7 @@ actions:   {
                 )
             }
             if(this.can_update){
-                instance.instance_actions.push(
+                instance.table_actions.push(
                     {
                      'name': "update",
                      'action': 'update',
@@ -527,7 +527,7 @@ actions:   {
                 )
             }
             if(this.can_destroy){
-                instance.instance_actions.push(
+                instance.table_actions.push(
                     {
                      'name': 'destroy',
                      'action': 'destroy',
@@ -549,10 +549,10 @@ actions:   {
                     orderable: false,
                     render: function(data, type, full, meta){
                         var edittext = '<div class="d-flex mt-1">';
-                            for(var x=0; x<instance.instance_actions.length; x++){
+                            for(var x=0; x<instance.table_actions.length; x++){
                               let params = "'"+instance.uniqueid+"', "+x+", "+meta.row
                               edittext += '<i onclick="javascript:call_obj_crud_event('+params+');"';
-                              edittext += ' class="'+instance.instance_actions[x].i_class+'" ></i>';
+                              edittext += ' class="'+instance.table_actions[x].i_class+'" ></i>';
                             }
 
                         edittext += '</div>';
@@ -585,11 +585,11 @@ actions:   {
         },
         "action_update": function(action, data){},
         "action_destroy": function(action, data){},
-        'do_instance_action': function(action_position, instance_id){
+        'do_table_actions': function(action_position, instance_id){
            var instance = this;
            var data = this.datatable.row(instance_id).data(); ;
-           if(action_position>=0 && action_position<instance.instance_actions.length){
-                let action=instance.instance_actions[action_position];
+           if(action_position>=0 && action_position<instance.table_actions.length){
+                let action=instance.table_actions[action_position];
                 if(action.name in this){
                     this[action.name](data, action);
                 }else{
@@ -643,6 +643,6 @@ actions:   {
 
 function call_obj_crud_event(uniqueid, action_position, row_id){
     if(uniqueid in gt_crud_objs){
-        gt_crud_objs[uniqueid].do_instance_action(action_position, row_id)
+        gt_crud_objs[uniqueid].do_table_actions(action_position, row_id)
     }
 }
