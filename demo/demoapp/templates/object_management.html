@@ -33,6 +33,7 @@
 {% include 'gentelella/blocks/modal_template_detail.html' with id="detail_obj_modal" %}
 
 {% url "api-personobjectmanagement-detail"  as delete_obj_url %}
+
 {% trans 'Delete Person' as delete_obj_tittle %}
 {% include 'gentelella/blocks/modal_template_delete.html' with form=delete_form id="delete_obj_modal" title=delete_obj_tittle form_id="delete_obj_form" url=delete_obj_url %}
 
@@ -53,7 +54,7 @@ var object_urls ={
 	update_url: "{{update_obj_url}}"
 }
 
-datatableinits = {
+datatable_inits = {
 			columns: [
 							{data: "id", name: "id", title: gettext("Id"), type: "string", visible: false},
 							{data: "name", name: "name", title: gettext("Name"), type: "string", visible: true},
@@ -93,7 +94,7 @@ let objconfig={
 	datatable_element:  "#object_table",
 	modal_ids: obj_modalids,
 	actions: obj_actions,
-	datatable_inits: datatableinits,
+	datatable_inits: datatable_inits,
 	add_filter: true,
 	relation_render: {'country': 'name' },
 	delete_display: data => data['name']
