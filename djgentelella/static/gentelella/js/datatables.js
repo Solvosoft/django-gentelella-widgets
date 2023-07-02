@@ -30,20 +30,31 @@ function formatDataTableParams(dataTableParams, settings){
     return data;
 }
 
-function addSearchInputsAndFooterDataTable(dataTable, tableId) {
+var default_table_columns_display = {}
+function addSearchInputsAndFooterDataTable(dataTable, tableId, columns) {
     // takes care of adding the search inputs to each of the columns of the datatable, it will
     // hide/display them according to how the table changes in the responsive mode
-
+    if (!(tableId in default_table_columns_display)){
+        default_table_columns_display[tableId]=[];
+    }
+    if (columns == undefined){
+        columns=default_table_columns_display[tableId];
+    }else{
+        default_table_columns_display[tableId]=columns;
+    }
     if($(tableId + ' thead tr').length < 2){  // clone the tr only if it wasn't cloned before
        $(tableId + ' thead tr').clone(false).appendTo(tableId + ' thead');
     }
 
     $(tableId + ' thead tr:eq(1) th').each(function (i) { // add search fields if they are not there already and the column is visible
         var currentColumn = dataTable.column(i);
-
+        var is_display = true
+        if(i<columns.length){
+            is_display=columns[i]
+        }
         var columnType = dataTable.settings()[0].aoColumns[i].type; // get the field type
         //currentColumn.responsiveHidden()
-        if (currentColumn.visible() && columnType !== 'actions') {  // column is visible
+        if (is_display && currentColumn.visible() && columnType !== 'actions') {  // column is visible
             $(this).css('display', ''); // when it was cloned it might have had display:none specified
             if($(this).find('input').length === 0 && $(this).find('select').length === 0) {  // add the input/select just if it doesn't exist already
                 var title = currentColumn.header().textContent;  // get the field name
@@ -110,7 +121,7 @@ function clearDataTableFilters(dataTable, tableId){
     dataTable.search('').columns().search('').draw();
     $(tableId).find('input, select').val('');
 }
-function yesnoprint(data, type, row, meta){ return data ? "<i class=\"fal fa-check-circle\"></i> "+gettext("Yes") : "<i class=\"fal fa-times-circle\"></i>"+gettext("No"); };
+function yesnoprint(data, type, row, meta){ return data ? "<i class=\"fa fa-check-circle\"></i> "+gettext("Yes") : "<i class=\"fa fa-times-circle\"></i>"+gettext("No"); };
 function emptyprint(data, type, row, meta){ return data ? data : "--"; };
 // hacer que se pueda definir el tipo el objeto ej data.name
 
@@ -130,17 +141,44 @@ function listobjprint(data, type, row, meta){
     }
     return txt != "" ? txt : "---";
 };
+
+function gt_print_list_object(display_name){
+    return function (data, type, row, meta){
+            var txt = "";
+            if(data != null ){
+                if(Array.isArray(data) ){
+                    for(var x=0; x<data.length; x++){
+                        txt += data[x][display_name] + "<br>"
+                    }
+                }else{
+                    txt += data[display_name] + "<br>"
+                }
+            }
+            return txt != "" ? txt : "---";
+    }
+}
+
 function showlink(data, type, row, meta){ return data ? '<a href="'+data+'" target="_blank" class="btn btn-xs btn-success"> '+gettext('More')+' </a>': ''; };
-function downloadlink(data, type, row, meta){ return data ? '<a href="'+data+'" target="_blank" class="btn btn-xs btn-success"> '+gettext('Show')+' </a>': ''; };
+function downloadlink(data, type, row, meta){ return data ? '<a href="'+data+'" target="_blank" class="btn btn-xs btn-success"> '+gettext('Download')+' </a>': ''; };
 function objshowlink(data, type, row, meta){ return data ? '<a href="'+data.url+'" target="_blank" class="'+(data.class!=undefined ? data.class : 'link')+'"> '+data.display_name+ '</a>': ''; };
 function objnode(data, type, row, meta){ return data ? '<'+data.tagName+' href="'+data.url+'" '+data.extraattr+' class="'+(data.class!=undefined ? data.class : 'link')+'"> '+data.display_name+ '</'+data.tagName+'>': ''; };
+function objShowBool(data, type, row, meta){ return data ? '<i class="fa fa-check-circle" title="' + data + '">': '<i class="fa fa-times-circle" title="' +  data + '">'; };
 
 document.table_default_dom = "<'row mb-3'<'col-sm-12 col-md-12 mb-1 d-flex align-items-center justify-content-center'f>" +
                  "<'col-sm-6 col-md-6 mt-1 d-flex align-items-center justify-content-start'B>" +
                  "<'col-sm-6 col-md-6 mt-1 d-flex align-items-center 'l>>" +
                  "<'row'<'col-sm-12'tr>><'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>";
 
-function createDataTable(id, url, extraoptions={}, addfilter=false, formatDataTableParamsfnc=formatDataTableParams){
+
+
+function gtCreateDataTable(id, url, table_options={}){
+    const options = Object.assign({}, {
+        formatDataTableParamsfnc : formatDataTableParams,
+        addfilter: false,
+        events: {
+            'filter': function(data){return data}
+        }
+    }, table_options);
     var default_options = {
         serverSide: true,
         processing: true,
@@ -167,21 +205,31 @@ function createDataTable(id, url, extraoptions={}, addfilter=false, formatDataTa
             url: url,
             type: 'GET',
             data: function(dataTableParams, settings) {
-                return formatDataTableParamsfnc(dataTableParams, settings);
+                var data = options.formatDataTableParamsfnc(dataTableParams, settings);
+                data = options.events.filter(data);
+                return data;
             }
         }
     }
-    $.extend(default_options, extraoptions);
+    $.extend(default_options, options);
 
     var instance = $(id).DataTable(default_options);
-    if(addfilter){
+    if(options.addfilter){
         instance.on('init.dt', function(e, settings, json){
-            addSearchInputsAndFooterDataTable(instance, id);
+            addSearchInputsAndFooterDataTable(instance, id, undefined);
         });
 
         instance.on('responsive-resize', function (e, datatable, columns) {
-            addSearchInputsAndFooterDataTable(instance, id);
+            addSearchInputsAndFooterDataTable(instance, id, columns);
         });
     }
     return instance;
+}
+
+function createDataTable(id, url, extraoptions={}, addfilter=false, formatDataTableParamsfnc=formatDataTableParams){
+    const options = Object.assign({}, {
+       formatDataTableParamsfnc : formatDataTableParams,
+       addfilter: addfilter
+    }, extraoptions);
+    return gtCreateDataTable(id, url, options);
 }

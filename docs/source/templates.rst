@@ -39,7 +39,7 @@ Importing javascript libraries
 ---------------------------------
 
 Django gentelella has a lot of Javascript dependencies, most of them are imported in base.html,
-but there are many that you can activate in your template to avoit use import statics files manually.
+but there are many that you can activate in your template to avoid use import statics files manually.
 
 You can define what library you want using ``define_true`` tag, in this way:
 

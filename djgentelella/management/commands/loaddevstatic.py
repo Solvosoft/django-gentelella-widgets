@@ -173,6 +173,9 @@ class Command(BaseCommand):
                 # 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js',
                 # 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css'
             ],
+            "squirrelly": [
+                "https://unpkg.com/squirrelly@9.0.0/dist/browser/squirrelly.min.js"
+            ],
             'switchery': [
                 'https://cdnjs.cloudflare.com/ajax/libs/switchery/0.8.2/switchery.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/switchery/0.8.2/switchery.min.css',
