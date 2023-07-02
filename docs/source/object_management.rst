@@ -123,11 +123,11 @@ Must be look like this in config object.
         gt_form_modals: {
              'detail': {
                 "events": {
-                       'update_detail_event': function(data){ return data},
-                       'form_submit_template': function(data){ return data},
-                       'form_submit_instance': function(data){ return data},
-                       'form_error_instance': function(errors){},
-                       'form_error_template': function(errors){}
+                   'update_detail_event': function(data){ return data},
+                   'form_submit_template': function(data){ return data},
+                   'form_submit_instance': function(data){ return data},
+                   'form_error_instance': function(errors){},
+                   'form_error_template': function(errors){}
                 }
             }
         }
@@ -144,9 +144,10 @@ Must be look like this in config object.
 
         gt_form_modals: {
             'create': {
-                "events": {'form_submit': function(instance){ return {} },
-                            'success_form': function(data){},
-                            'error_form': function(errors){}
+                "events": {
+                    'form_submit': function(instance){ return {} },
+                    'success_form': function(data){},
+                    'error_form': function(errors){}
                           }
             },
             'update': { /** same here*/ },
@@ -161,9 +162,83 @@ It's call before return the request parameters, pass the parameter to be send, a
 .. code:: javascript
 
         datatable_inits : {
-            "events": {
-                        filter: function(data){
-                                        return data;
-                                }
-                        }
+          "events": {
+            filter: function(data){
+                            return data;
+                    }
+            }
         }
+
+Custom Actions
+-----------------------
+
+It is possible to register custom actions to the CRUDL object, these actions are by default registered in the
+actions column of each table object.
+Actions for objects must be registered in the `object_actions` list, the `in_action_column` allow not displayed icon
+in the actions column so you must called in another column.
+
+
+.. code:: javascript
+
+    object_actions: [
+      {
+        'name': "mycustomaction",  // Action identification, must be unique
+        'action': 'mycustomaction', // Name of the function to call to process the action.
+        'in_action_column': false, // The action must be displayed in the actions column
+        'i_class': 'fa fa-plus', // clase a utilizar para el ícono de la acción.
+      }
+    ]
+
+To provide action function implementation you can append to `ObjectCRUD` instance properties
+
+.. code:: javascript
+
+    let ocrud=ObjectCRUD("setmeunique", objconfig)
+    ocrud.mycustomaction = function(obj, action){ /** Js stuff */}
+    ocrud.init();
+
+
+Additionally, if you don't want to provide a function and instead prefer to make a request to the server, you can register an action like this.
+
+.. code:: javascript
+
+    object_actions: [
+      {
+        'name': "mydo_action",  // Action identification, must be unique
+        'action': 'mydo_action', // Name of the function to call to process the action.
+        'in_action_column': false, // The action must be displayed in the actions column
+        'i_class': 'fa fa-plus', // clase a utilizar para el ícono de la acción.
+        'method': 'POST',
+        'data_fn': function(data){ return data; }, // Preprocess data before send to server, it's required return data
+        'error_fn' function(errors) {} // Optional manage the form errors if exists
+      }
+    ]
+
+
+Render actions on  custom column
+---------------------------------------
+
+Djgentelella allows registering a field and rendering the obtained values to present the actions at the end of the representation
+
+.. code:: javascript
+
+    datatable_inits = {
+      columns: [
+        {data: "mycolumn", name: "mycolumn", title: "title", type: "string",  visible: true, render:  gt_show_actions("setmeunique")},
+      ]
+
+It's important to mention that the unique name registered in `ObjectCRUD` must be used in the `gt_show_actions` function.
+
+The function expects an API response like this:
+
+.. code:: javascript
+
+    {
+        'title': 'One string representation of the object, it could be html ether',
+        'actions': [
+            {
+                'name': 'mycustomaction',  // Action identification
+                'i_class': 'fa fa-plus'  // Class used to show the action
+            }
+        ]
+    }

@@ -20,6 +20,7 @@ Welcome to Django gentelella widgets's documentation!
    blog
    crud
    contents
+   datatables
    object_management
    permissionmanagement
 
