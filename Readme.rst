@@ -36,7 +36,7 @@ Configure your settings
 
 
 
-Run migrations 
+Run migrations
 
 .. code:: bash
 
@@ -58,12 +58,12 @@ Add djgentelella urls in your project urls.py file
     urlpatterns = djgentelellaurls + [
                     ...
                   ]
-     
+
 Usage
 _________
 
 
-In forms 
+In forms
 
 .. code:: python
 
@@ -93,7 +93,7 @@ In templates using base template
 .. code:: html
 
     {% extends 'gentelella/base.html' %}
-    
+
 Take a look this file to note the template block that you can overwrite
 
 Test
@@ -141,3 +141,34 @@ Remember update the package version before make deploy it on server.
 
 
 sudo apt install node-babel-cli npm webpack
+
+Translation
+____________________________
+
+To add a new translation for a word there are two options:
+
+.. code:: bash
+
+    django-admin makemessages --all
+
+This command adds words that are inside django templates to ``locale/es/LC_MESSAGES/django.po``, there these words can be translated.
+
+To add a word you can use the following syntax.
+
+.. code:: html
+
+    {% trans "new_word" %}
+
+For words used in JavaScript files, the following command must be executed.
+
+.. code:: bash
+
+    django-admin makemessages -d djangojs -l es  --ignore *.min.js
+
+This command adds words that are inside the ``gettext`` js function, to ``locale/es/LC_MESSAGES/djangojs.po``, there these words can be translated.
+
+Here is an example of ``gettext`` implementation:
+
+.. code:: js
+
+    alert(gettext("new_word"))
