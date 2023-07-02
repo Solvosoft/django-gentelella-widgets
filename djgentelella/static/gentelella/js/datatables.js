@@ -30,20 +30,31 @@ function formatDataTableParams(dataTableParams, settings){
     return data;
 }
 
-function addSearchInputsAndFooterDataTable(dataTable, tableId) {
+var default_table_columns_display = {}
+function addSearchInputsAndFooterDataTable(dataTable, tableId, columns) {
     // takes care of adding the search inputs to each of the columns of the datatable, it will
     // hide/display them according to how the table changes in the responsive mode
-
+    if (!(tableId in default_table_columns_display)){
+        default_table_columns_display[tableId]=[];
+    }
+    if (columns == undefined){
+        columns=default_table_columns_display[tableId];
+    }else{
+        default_table_columns_display[tableId]=columns;
+    }
     if($(tableId + ' thead tr').length < 2){  // clone the tr only if it wasn't cloned before
        $(tableId + ' thead tr').clone(false).appendTo(tableId + ' thead');
     }
 
     $(tableId + ' thead tr:eq(1) th').each(function (i) { // add search fields if they are not there already and the column is visible
         var currentColumn = dataTable.column(i);
-
+        var is_display = true
+        if(i<columns.length){
+            is_display=columns[i]
+        }
         var columnType = dataTable.settings()[0].aoColumns[i].type; // get the field type
         //currentColumn.responsiveHidden()
-        if (currentColumn.visible() && columnType !== 'actions') {  // column is visible
+        if (is_display && currentColumn.visible() && columnType !== 'actions') {  // column is visible
             $(this).css('display', ''); // when it was cloned it might have had display:none specified
             if($(this).find('input').length === 0 && $(this).find('select').length === 0) {  // add the input/select just if it doesn't exist already
                 var title = currentColumn.header().textContent;  // get the field name
@@ -130,6 +141,23 @@ function listobjprint(data, type, row, meta){
     }
     return txt != "" ? txt : "---";
 };
+
+function gt_print_list_object(display_name){
+    return function (data, type, row, meta){
+            var txt = "";
+            if(data != null ){
+                if(Array.isArray(data) ){
+                    for(var x=0; x<data.length; x++){
+                        txt += data[x][display_name] + "<br>"
+                    }
+                }else{
+                    txt += data[display_name] + "<br>"
+                }
+            }
+            return txt != "" ? txt : "---";
+    }
+}
+
 function showlink(data, type, row, meta){ return data ? '<a href="'+data+'" target="_blank" class="btn btn-xs btn-success"> '+gettext('More')+' </a>': ''; };
 function downloadlink(data, type, row, meta){ return data ? '<a href="'+data+'" target="_blank" class="btn btn-xs btn-success"> '+gettext('Show')+' </a>': ''; };
 function objshowlink(data, type, row, meta){ return data ? '<a href="'+data.url+'" target="_blank" class="'+(data.class!=undefined ? data.class : 'link')+'"> '+data.display_name+ '</a>': ''; };
@@ -188,11 +216,11 @@ function gtCreateDataTable(id, url, table_options={}){
     var instance = $(id).DataTable(default_options);
     if(options.addfilter){
         instance.on('init.dt', function(e, settings, json){
-            addSearchInputsAndFooterDataTable(instance, id);
+            addSearchInputsAndFooterDataTable(instance, id, undefined);
         });
 
         instance.on('responsive-resize', function (e, datatable, columns) {
-            addSearchInputsAndFooterDataTable(instance, id);
+            addSearchInputsAndFooterDataTable(instance, id, columns);
         });
     }
     return instance;

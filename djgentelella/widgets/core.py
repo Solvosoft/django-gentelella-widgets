@@ -373,6 +373,9 @@ class YesNoInput(DJCheckboxInput):
         if 'rel' in attrs:
             rel = attrs.pop('rel')
             attrs['data-rel'] = ';'.join(rel)
+        if 'rel_start_hidden' in attrs:
+            rel = attrs.pop('rel_start_hidden')
+            attrs['data-relhidden'] = ';'.join(rel)
         attrs['data-shparent'] = shparent
         super().__init__(attrs)
         self.format = format or None

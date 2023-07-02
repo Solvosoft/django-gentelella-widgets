@@ -1,9 +1,31 @@
 function convertFormToJSON(form, prefix="") {
   const re = new RegExp("^"+prefix);
+  var selectmultipleitems = [];
+  form.find("select").each(function(i,e){
+        if($(e).prop('multiple')){
+            selectmultipleitems.push(e.name.replace(re, ""));
+        }
+  });
+
   return form
     .serializeArray()
     .reduce(function (json, { name, value }) {
-      json[name.replace(re, "")] = value;
+      let clean_name = name.replace(re, "");
+      if(json.hasOwnProperty(clean_name)){
+         if(Array.isArray(json[clean_name])){
+            json[clean_name].push(value);
+         }else{
+            let oldvalue = json[clean_name];
+            json[clean_name]=[];
+            json[clean_name].push(oldvalue);
+         }
+      }else{
+         if(selectmultipleitems.indexOf(clean_name) !== -1){
+            json[clean_name] = [value];
+         }else{
+            json[clean_name] = value;
+         }
+      }
       return json;
     }, {});
 }
@@ -56,7 +78,6 @@ function response_manage_type_data(instance, err_json_fn, error_text_fn){
     }
 }
 
-
 function clear_action_form(form){
     // clear switchery before the form reset so the check status doesn't get changed before the validation
     $(form).find("input[data-switchery=true]").each(function() {
@@ -74,6 +95,23 @@ function clear_action_form(form){
 var gt_form_modals = {}
 var gt_detail_modals = {}
 var gt_crud_objs = {};
+
+function  gt_show_actions(crud_name){
+     return function(data, type, row, meta){
+        var html="";
+        if(data != null ){
+            if(data.title != undefined){
+                html+= data.title+" ";
+            }
+            for(var x=0; x<data.actions.length; x++){
+                let action = data.actions[x];
+                html += '<i onclick="javascript:call_obj_crud_event(\''+crud_name+'\', \''+action.name+'\', '+meta.row+');" class="'+action.i_class+'"></i>';
+            }
+        }
+        return html;
+    }
+}
+
 function GTBaseFormModal(modal_id, datatable_element,  form_config)  {
     var modal = $(modal_id);
     var form = modal.find('form');
@@ -347,22 +385,6 @@ function BaseDetailModal(modalid, base_detail_url, template_url, form_config={})
 
 function ObjectCRUD(uniqueid, objconfig={}){
 
-/**
-actions:   {
-    table_actions: [],
-    object_actions: [
-        {
-                action: function ( e, dt, node, config ) {},
-                text: '<i class="fa fa-eraser" aria-hidden="true"></i>',
-                titleAttr: gettext('Clear Filters'),
-                className: this.header_btn_class
-        }
-    ]
-
-}
-
-*/
-
     var default_config = {
         uls: null,
         datatable_element: null,
@@ -432,12 +454,6 @@ actions:   {
         "init": function(){
             if(this.can_list) this.list();
             if(this.can_create){
-                this.object_actions.push({
-                    action: this.create(this),
-                    text: this.config.icons.create,
-                    titleAttr: gettext('Create'),
-                    className: this.config.create
-                })
                 let create_conf = Object.assign({}, {}, this.config.gt_form_modals.create);
                 this.create_form = GTBaseFormModal(this.config.modal_ids.create, this.datatable, create_conf);
                 this.create_form.init();
@@ -495,19 +511,28 @@ actions:   {
                 This function initialize datatable
             */
             var instance = this;
+
+            if(this.can_create){
+                this.table_actions.push({
+                    action: this.create(this),
+                    text: this.config.icons.create,
+                    titleAttr: gettext('Create'),
+                    className: this.config.create
+                })
+            }
             if(this.can_list){
-              this.object_actions.unshift({
-                action: function ( e, dt, node, config ) {clearDataTableFilters(dt, id)},
+              this.table_actions.unshift({
+                action: function ( e, dt, node, config ) {clearDataTableFilters(dt, instance.config.datatable_element)},
                 text: this.config.icons.clear,
                 titleAttr: gettext('Clear Filters'),
                 className: this.header_btn_class
              })
             }
             if(!config.datatable_inits.hasOwnProperty("buttons")){
-                config.datatable_inits['buttons'] = this.object_actions;
+                config.datatable_inits['buttons'] = this.table_actions;
             }
             if(this.can_detail){
-                instance.table_actions.push(
+                instance.object_actions.push(
                     {
                      'name': "detail",
                      'action': 'detail',
@@ -517,7 +542,7 @@ actions:   {
                 )
             }
             if(this.can_update){
-                instance.table_actions.push(
+                instance.object_actions.push(
                     {
                      'name': "update",
                      'action': 'update',
@@ -527,7 +552,7 @@ actions:   {
                 )
             }
             if(this.can_destroy){
-                instance.table_actions.push(
+                instance.object_actions.push(
                     {
                      'name': 'destroy',
                      'action': 'destroy',
@@ -549,12 +574,19 @@ actions:   {
                     orderable: false,
                     render: function(data, type, full, meta){
                         var edittext = '<div class="d-flex mt-1">';
-                            for(var x=0; x<instance.table_actions.length; x++){
-                              let params = "'"+instance.uniqueid+"', "+x+", "+meta.row
-                              edittext += '<i onclick="javascript:call_obj_crud_event('+params+');"';
-                              edittext += ' class="'+instance.table_actions[x].i_class+'" ></i>';
-                            }
+                            for(var x=0; x<instance.object_actions.length; x++){
+                               let action = instance.object_actions[x];
+                               let display_in_column = true;
+                              if('in_action_column' in action ){
+                                    display_in_column=action.in_action_column;
+                              }
+                              if(display_in_column){
+                                 let params = "'"+instance.uniqueid+"', '"+action.name+"', "+meta.row;
+                                 edittext += '<i onclick="javascript:call_obj_crud_event('+params+');"';
+                                 edittext += ' class="'+instance.object_actions[x].i_class+'" ></i>';
+                              }
 
+                            }
                         edittext += '</div>';
                         return edittext;
                      }
@@ -585,11 +617,22 @@ actions:   {
         },
         "action_update": function(action, data){},
         "action_destroy": function(action, data){},
-        'do_table_actions': function(action_position, instance_id){
+        'do_table_actions': function(action_position){
            var instance = this;
-           var data = this.datatable.row(instance_id).data(); ;
            if(action_position>=0 && action_position<instance.table_actions.length){
                 let action=instance.table_actions[action_position];
+                if(action.name in this){
+                    this[action.name]({}, action);
+                }else{
+                    this.do_action({}, action);
+                }
+           }
+        },
+        'do_object_actions': function(action_position, instance_id){
+           var instance = this;
+           var data = this.datatable.row(instance_id).data(); ;
+           if(action_position>=0 && action_position<instance.object_actions.length){
+                let action=instance.object_actions[action_position];
                 if(action.name in this){
                     this[action.name](data, action);
                 }else{
@@ -598,6 +641,7 @@ actions:   {
            }
         },
         'do_action': function(data, action){
+            var instance = this;
             let method = 'method' in action ? action.method : 'POST';
             let body = 'data_fn' in action ? JSON.stringify(action.data_fn(data)) : '';
             let error_fn = 'error_fn' in action ? action.error_fn : instance.error;
@@ -634,6 +678,22 @@ actions:   {
         "handle_error": function(instance, error){
             let error_msg = gettext('There was a problem performing your request. Please try again later or contact the administrator.');
             Swal.fire({ icon: 'error', title: error_msg, text: error.message });
+        },
+        'find_table_action_by_name': function(name){
+            for(var x=0; x<this.table_actions.length; x++){
+                if(this.table_actions[x].name === name){
+                    return x;
+                }
+            }
+            return undefined;
+        },
+        'find_object_action_by_name': function(name){
+            for(var x=0; x<this.object_actions.length; x++){
+                if(this.object_actions[x].name === name){
+                    return x;
+                }
+            }
+            return undefined;
         }
 
     };
@@ -641,8 +701,21 @@ actions:   {
     return obj;
 }
 
-function call_obj_crud_event(uniqueid, action_position, row_id){
+function call_obj_crud_event(uniqueid, action_name, row_id){
     if(uniqueid in gt_crud_objs){
-        gt_crud_objs[uniqueid].do_table_actions(action_position, row_id)
+        let position = gt_crud_objs[uniqueid].find_object_action_by_name(action_name);
+        if(position != undefined){
+            gt_crud_objs[uniqueid].do_object_actions(position, row_id);
+        }
     }
 }
+
+function call_table_crud_event(uniqueid, action_name){
+    if(uniqueid in gt_crud_objs){
+         let position = gt_crud_objs[uniqueid].find_table_action_by_name(action_name);
+         if(position != undefined){
+            gt_crud_objs[uniqueid].do_table_actions(position, 0);
+         }
+    }
+}
+

@@ -50,3 +50,7 @@ sdist: clean
 	python3 -m build
 	ls -l dist
 
+fuzzysdist:
+	cd demo && python manage.py makemigrations && python manage.py loaddevstatic && python manage.py createbasejs
+	cd djgentelella && django-admin compilemessages -l es
+	python3 -m build
