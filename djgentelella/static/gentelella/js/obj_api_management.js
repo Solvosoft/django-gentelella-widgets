@@ -248,14 +248,24 @@ function GTBaseFormModal(modal_id, datatable_element,  form_config)  {
         },
         "updateInstanceForm": function (name, value){
             var item = this.form.find('input[name="'+name+'"], textarea[name="'+name+'"]');
-            if (item.length>0){
-                if(item.attr('type') === "checkbox" ){
-                    item.prop( "checked", value);
-                }else if(item.attr('type') === "radio"){
-                    var sel = item.filter(function() { return this.value == value });
+
+            item.each(function(i, inputfield){
+                let done=false;
+                inputfield=$(inputfield);
+                if(inputfield.attr('type') === "checkbox" ){
+                    inputfield.prop( "checked", value);
+                    done=true;
+                } else if(inputfield.attr('type') === "radio"){
+                    var sel = inputfield.filter(function() { return this.value == value });
                     sel.prop( "checked", true);
-             } else {  item.val(value); }
-            }
+                    done=true;
+                }
+                if (inputfield.data().widget === "EditorTinymce"){
+                     tinymce.get(inputfield.attr('id')).setContent(value);
+                     done=true;
+                }
+                if(!done) { inputfield.val(value); }
+            });
        }
     }
 }
