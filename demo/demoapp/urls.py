@@ -15,6 +15,8 @@ from .formset import add_formset, add_model_formset
 from .grid_slider import views as grid
 from .input_masks import views as input_mask
 from .media_upload.views import mediaupload_view
+from .object_management.views import person_object_management
+from .object_management.viewset import PersonObjectMangement
 from .storyLine.views import storyline_view
 from .storymap.views import gigapixel_view, mapbased_view
 from .tagging import views as tagging
@@ -28,8 +30,13 @@ menuclss = MenuItemclass()
 
 router = DefaultRouter()
 router.register('persontableview', PersonViewSet, 'api-persontable')
+router.register('personobjectmanagement', PersonObjectMangement,
+                'api-personobjectmanagement')
 
 urlpatterns = [
+
+                  path('person_object_management', person_object_management,
+                       name='person_object_management'),
                   path('bt_modal_display', bt_modal_display, name='bt_modal_display'),
                   path('formset', add_formset, name='add_formset'),
                   path('modelformset', add_model_formset, name='add_model_formset'),
