@@ -1351,7 +1351,22 @@ function showHideRelatedFormFields(instance){
         });
         instance.trigger('change');
     }
+    var relh = instance.data('relhidden');
+    if(relh != undefined ){
+        var relateditemsh = create_identifiers(relh.split(';'));
+        instance.on('change', function(e){
+            for(var x=0; x<relateditemsh.length; x++){
+                if(this.checked){
+                    $(relateditemsh[x]).closest(parentclass).hide();
+                }else{
+                    $(relateditemsh[x]).closest(parentclass).show();
+                }
+            }
+        });
+         instance.trigger('change');
+    }
 }
+
 
 function upload_files(callback, meta, file, image, video) {
     var csrftoken = getCookie('csrftoken');

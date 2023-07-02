@@ -7,6 +7,7 @@ from rest_framework.exceptions import ValidationError
 
 from demoapp.models import Person, Country
 from djgentelella.fields.drfdatetime import DateRangeTextWidget, DateTimeRangeTextWidget
+from djgentelella.serializers import GTDateField, GTDateTimeField
 
 
 class PersonFilterSet(FilterSet):
@@ -49,10 +50,11 @@ class PersonDataTableSerializer(serializers.Serializer):
 
 
 class PersonCreateSerializer(serializers.ModelSerializer):
-    born_date = serializers.DateField(
-        input_formats=[formats.get_format('DATE_INPUT_FORMATS')[0]],
-        format=formats.get_format('DATE_INPUT_FORMATS')[0])
-    last_time = serializers.DateTimeField(
+    born_date = GTDateField()
+    # also can overwrite input_formats and formt
+    last_time = GTDateTimeField(
+        allow_empty_str=True,
+        # True it is  default value  allow "" as none and prevent validation error
         input_formats=[formats.get_format('DATETIME_INPUT_FORMATS')[0]],
         format=formats.get_format('DATETIME_INPUT_FORMATS')[0])
 

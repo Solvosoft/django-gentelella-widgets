@@ -83,8 +83,8 @@ var obj_modalids = {
 	destroy: "#delete_obj_modal",
 }
 var obj_actions = {
-	 instance_action: [],  //table_actions
-	 obj_action: [],  // object_actions
+	 table_actions: [],  //table_actions
+	 object_actions: [],  // object_actions
 		title: gettext('Actions'),
 		className:  "no-export-col"
 }
@@ -102,6 +102,8 @@ let objconfig={
 
 let ocrud=ObjectCRUD("setmeunique", objconfig)
 ocrud.init();
+
+
 
 </script>
 
