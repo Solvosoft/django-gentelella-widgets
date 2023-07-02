@@ -121,7 +121,7 @@ function clearDataTableFilters(dataTable, tableId){
     dataTable.search('').columns().search('').draw();
     $(tableId).find('input, select').val('');
 }
-function yesnoprint(data, type, row, meta){ return data ? "<i class=\"fal fa-check-circle\"></i> "+gettext("Yes") : "<i class=\"fal fa-times-circle\"></i>"+gettext("No"); };
+function yesnoprint(data, type, row, meta){ return data ? "<i class=\"fa fa-check-circle\"></i> "+gettext("Yes") : "<i class=\"fa fa-times-circle\"></i>"+gettext("No"); };
 function emptyprint(data, type, row, meta){ return data ? data : "--"; };
 // hacer que se pueda definir el tipo el objeto ej data.name
 
@@ -159,7 +159,7 @@ function gt_print_list_object(display_name){
 }
 
 function showlink(data, type, row, meta){ return data ? '<a href="'+data+'" target="_blank" class="btn btn-xs btn-success"> '+gettext('More')+' </a>': ''; };
-function downloadlink(data, type, row, meta){ return data ? '<a href="'+data+'" target="_blank" class="btn btn-xs btn-success"> '+gettext('Show')+' </a>': ''; };
+function downloadlink(data, type, row, meta){ return data ? '<a href="'+data+'" target="_blank" class="btn btn-xs btn-success"> '+gettext('Download')+' </a>': ''; };
 function objshowlink(data, type, row, meta){ return data ? '<a href="'+data.url+'" target="_blank" class="'+(data.class!=undefined ? data.class : 'link')+'"> '+data.display_name+ '</a>': ''; };
 function objnode(data, type, row, meta){ return data ? '<'+data.tagName+' href="'+data.url+'" '+data.extraattr+' class="'+(data.class!=undefined ? data.class : 'link')+'"> '+data.display_name+ '</'+data.tagName+'>': ''; };
 function objShowBool(data, type, row, meta){ return data ? '<i class="fa fa-check-circle" title="' + data + '">': '<i class="fa fa-times-circle" title="' +  data + '">'; };
