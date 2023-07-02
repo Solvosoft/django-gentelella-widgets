@@ -4,10 +4,12 @@ from django.contrib.auth.decorators import login_required
 from django.urls import path, include, re_path
 from django.views.decorators.cache import cache_page
 from django.views.i18n import JavaScriptCatalog
+from rest_framework.routers import DefaultRouter
 
 from djgentelella.chunked_upload.views import ChunkedUploadView, \
     ChunkedUploadCompleteView
-from djgentelella.notification.base import NotificacionAPIView, NotificationList
+from djgentelella.notification.base import NotificacionAPIView, NotificationViewSet, \
+    notification_list_view
 from djgentelella.permission_management import views as permissions
 from djgentelella.widgets.helper import HelperWidgetView
 from djgentelella.wysiwyg import views as wysiwyg
@@ -72,6 +74,9 @@ for app in settings.INSTALLED_APPS:
     import_module_app_gt(app, 'gtstorymap')
     import_module_app_gt(app, 'gtstoryline')
 
+router = DefaultRouter()
+router.register('notificationtableview', NotificationViewSet, 'api-notificationtable')
+
 base_urlpatterns = [
     re_path('gtapis/', include(routes.urls)),
     path('djgentelella/upload/', ChunkedUploadView.as_view(),
@@ -84,8 +89,9 @@ base_urlpatterns = [
     re_path(r'^notification/(?P<pk>\d+)?$', NotificacionAPIView.as_view(
         {'get': 'list', 'put': 'update', 'delete': 'destroy'}),
             name="notifications"),
-    re_path('^notification/list/$', NotificationList.as_view(),
-            name="notification_list")
+    re_path('^notification/list/$', notification_list_view,
+            name="notification_list"),
+    path('tableapi/', include(router.urls)),
 ]
 
 permission_management_urls = [
@@ -97,6 +103,7 @@ permission_management_urls = [
          name="permcategorymanagement-save"),
 
 ]
+
 urlpatterns = auth_urls + base_urlpatterns + wysiwyg_urls + permission_management_urls
 if settings.DEBUG:
     urlpatterns += [

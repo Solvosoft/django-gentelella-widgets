@@ -21,6 +21,7 @@ Welcome to Django gentelella widgets's documentation!
    crud
    contents
    permissionmanagement
+   notifications
 
 Indices and tables
 ==================
