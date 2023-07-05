@@ -51,7 +51,7 @@ class PersonDataTableSerializer(serializers.Serializer):
 
 class PersonCreateSerializer(serializers.ModelSerializer):
     born_date = GTDateField()
-    # also can overwrite input_formats and formt
+    # also can overwrite input_formats and format
     last_time = GTDateTimeField(
         allow_empty_str=True,
         # True it is  default value  allow "" as none and prevent validation error
@@ -76,12 +76,8 @@ class CountrySerializer(serializers.ModelSerializer):
 
 
 class PersonUpdateSerializer(serializers.ModelSerializer):
-    born_date = serializers.DateField(
-        input_formats=[formats.get_format('DATE_INPUT_FORMATS')[0]],
-        format=formats.get_format('DATE_INPUT_FORMATS')[0])
-    last_time = serializers.DateTimeField(
-        input_formats=[formats.get_format('DATETIME_INPUT_FORMATS')[0]],
-        format=formats.get_format('DATETIME_INPUT_FORMATS')[0])
+    born_date = GTDateField()
+    last_time = GTDateTimeField()
     country = CountrySerializer()
 
     class Meta:

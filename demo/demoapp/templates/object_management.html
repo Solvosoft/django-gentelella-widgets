@@ -49,7 +49,7 @@ var object_urls ={
 	destroy_url: "{% url 'api-personobjectmanagement-detail' 0 %}",
 	detail_url: "{% url 'api-personobjectmanagement-detail' 0 %}",
 	detail_template_url: "{% url 'api-personobjectmanagement-detail-template' %}",
-	update_values_url: "{% url 'api-personobjectmanagement-update-values' 0 %}", // get_object_for_update_url
+	get_values_for_update_url: "{% url 'api-personobjectmanagement-get-values-for-update' 0 %}", // get_object_for_update_url
 	create_url: "{{create_obj_url}}",
 	update_url: "{{update_obj_url}}"
 }
@@ -102,8 +102,6 @@ let objconfig={
 
 let ocrud=ObjectCRUD("setmeunique", objconfig)
 ocrud.init();
-
-
 
 </script>
 
