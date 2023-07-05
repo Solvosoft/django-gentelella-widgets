@@ -450,7 +450,7 @@ function ObjectCRUD(uniqueid, objconfig={}){
         "can_detail": objconfig.urls.hasOwnProperty("detail_url") && config.modal_ids.hasOwnProperty("detail")
         && config.urls.hasOwnProperty("detail_template_url"),
         "can_update": config.modal_ids.hasOwnProperty("update"),
-        "use_update_values": config.urls.hasOwnProperty("update_values_url"),
+        "use_get_values_for_update": config.urls.hasOwnProperty("get_values_for_update_url"),
         "create_btn_class": config.btn_class.create,
         "datatable": null,
         "create_form": null,
@@ -610,8 +610,8 @@ function ObjectCRUD(uniqueid, objconfig={}){
                 this.detail_modal.show_instance(instance.id);
         },
         "update": function(instance, action){
-            if(this.use_update_values){
-                let url =  this.config.urls.update_values_url.replace('/0/', '/'+instance.id+'/');
+            if(this.use_get_values_for_update){
+                let url =  this.config.urls.get_values_for_update_url.replace('/0/', '/'+instance.id+'/');
                 this.retrieve_data(url, 'GET', this.update_value_success(this, instance));
             }else{
                 this.update_value_success(this, instance)(instance);

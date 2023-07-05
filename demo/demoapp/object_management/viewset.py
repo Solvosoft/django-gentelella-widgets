@@ -16,7 +16,7 @@ class PersonObjectMangement(viewsets.ModelViewSet):
         'create': serializer.PersonCreateSerializer,
         'update': serializer.PersonCreateSerializer,
         'retrieve': serializer.PersonUpdateSerializer,
-        'update_values': serializer.PersonUpdateSerializer
+        'get_values_for_update': serializer.PersonUpdateSerializer
     }
     # permission_classes = (IsAuthenticated,)
     # authentication_classes = (TokenAuthentication, SessionAuthentication)
@@ -47,7 +47,7 @@ class PersonObjectMangement(viewsets.ModelViewSet):
         return super().retrieve(request, *args, **kwargs)
 
     @action(detail=True, methods=['get'])
-    def update_values(self, request, *args, **kwargs):
+    def get_values_for_update(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
