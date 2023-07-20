@@ -242,3 +242,75 @@ The function expects an API response like this:
             }
         ]
     }
+
+
+API class helpers
+---------------------------------------
+
+BaseObjectManagement
+'''''''''''''''''''''''''
+
+A class that extends the `viewsets.ModelViewSet` class to provide custom behavior for CRUD (create, read, update, and delete) operations on Django models and other custom actions (get_values_for_update).
+
+Attributes
+----------
+- `serializer_class`: a dictionary containing the names of the view methods (such as "list" or "create") as keys and the corresponding serialization classes as values.
+- `pagination_class`: the pagination class that will be used to paginate query results. In this case, the `LimitOffsetPagination` class is used, which will paginate results based on the limit and offset values provided in the HTTP request.
+- `filter_backends`: a tuple containing the filtering classes that will be used to filter query results. In this case, three classes are used: `DjangoFilterBackend`, `SearchFilter`, and `OrderingFilter`. These classes are used together to allow users to search, filter, and sort query results.
+- `operation_type`: a string indicating the type of operation being performed in the view. This value is used in some of the methods to customize the HTTP response that is sent to the user.
+
+Methods
+-------
+- `get_serializer_class(self)`: returns the serialization class that should be used for the current view action. It checks the `serializer_class` dictionary to see if a serialization class has been provided for the current action, and returns it if it has. If no serialization class has been provided, it falls back to the default behavior of returning the serialization class defined in the `serializer_class` attribute.
+- `list(self, request, *args, **kwargs)`: is called when the view is accessed with an HTTP GET request. It filters the queryset based on the request parameters, paginates the results, and returns a JSON response containing the paginated data along with some metadata about the total number of records and the filtering parameters used.
+- `retrieve(self, request, *args, **kwargs)`: is called when the view is accessed with an HTTP GET request that includes a primary key in the URL. It retrieves the object with the specified primary key, serializes it, and returns a JSON response containing the serialized data.
+- `get_values_for_update(self, request, *args, **kwargs)`: is a custom action that can be called with an HTTP GET request on an object detail endpoint. It retrieves the object with the specified primary key, serializes it, and returns a JSON response containing data used to fill update form on frontend.
+- `detail_template(self, request, *args, **kwargs)`: is a custom action that can be called with an HTTP GET request on a list endpoint. It returns a JSON response containing a template that can be used to render details of objects. Must be compatible with squirrelly.js
+
+
+AuthAllPermBaseObjectManagement
+'''''''''''''''''''''''''''''''''''''
+
+A class that extends the `BaseObjectManagement` class to provide authentication and permission checking for CRUD operations on Django models.
+
+
+Attributes
+
+- `authentication_classes`: a tuple containing the authentication classes that will be used to authenticate requests. In this case, `TokenAuthentication` and `SessionAuthentication` are used.
+- `perms`: a dictionary containing the names of the view methods (such as "list" or "create") as keys and the corresponding permission classes as values. These permission classes are used to check if the user has the required permissions to perform the requested action.
+- `permission_classes`: a tuple containing the permission classes that will be used to check if the user has the required permissions to perform the requested action. In this case, the `AllPermissionByAction` class is used, which checks that the user has all the permissions specified in the `perms` dictionary for the requested action.
+
+.. code:: python
+
+    class MyClass(AuthAllPermBaseObjectManagement):
+        perms = {
+            'list': ['auth.view_user'],
+            'create': ['auth.add_user'],
+            'update': ['auth.change_user'],
+            'delete': ['auth.delete_user'],
+            'retrieve': ['auth.view_user'],
+            'get_values_for_update': ['auth.change_user']
+        }
+
+AuthAnyPermBaseObjectManagement
+'''''''''''''''''''''''''''''''''''
+
+A class that extends the `BaseObjectManagement` class to provide authentication and permission checking for CRUD operations on Django models.
+
+Attributes
+
+- `authentication_classes`: a tuple containing the authentication classes that will be used to authenticate requests. In this case, `TokenAuthentication` and `SessionAuthentication` are used.
+- `perms`: a dictionary containing the names of the view methods (such as "list" or "create") as keys and the corresponding permission classes as values. These permission classes are used to check if the user has the required permissions to perform the requested action.
+- `permission_classes`: a tuple containing the permission classes that will be used to check if the user has the required permissions to perform the requested action. In this case, the `AnyPermissionByAction` class is used, which checks that the user has at least one of the permissions specified in the `perms` dictionary for the requested action.
+
+.. code:: python
+
+    class MyClass(AuthAnyPermBaseObjectManagement):
+        perms = {
+            'list': ['auth.view_user'],
+            'create': ['auth.add_user'],
+            'update': ['auth.change_user'],
+            'delete': ['auth.delete_user'],
+            'retrieve': ['auth.view_user'],
+            'get_values_for_update': ['auth.change_user']
+        }

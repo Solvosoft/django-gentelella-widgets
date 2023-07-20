@@ -6,7 +6,6 @@
 {% load gtsettings %}
 
 {% block pre_head %}
-{% define_true  "use_datatables" %}
 {% define_urlname_action 'object_management' %}
 {% endblock %}
 
@@ -42,8 +41,7 @@
 {% block js %}
 {{block.super}}
 <script>
-document.datetime_format="{% get_datetime_format %}";
-document.date_format="{% get_date_format %}";
+
 var object_urls ={
 	list_url: "{% url 'api-personobjectmanagement-list' %}",
 	destroy_url: "{% url 'api-personobjectmanagement-detail' 0 %}",
@@ -102,6 +100,12 @@ let objconfig={
 
 let ocrud=ObjectCRUD("setmeunique", objconfig)
 ocrud.init();
+
+
+
+
+
+
 
 </script>
 

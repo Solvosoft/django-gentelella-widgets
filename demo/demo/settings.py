@@ -134,6 +134,7 @@ MARKITUP_SET = 'markitup/sets/markdown/'
 JQUERY_URL = None
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
-# DEFAULT_JS_IMPORTS = {
-#     'use_bootstraptree': True
-# }
+DEFAULT_JS_IMPORTS = {
+    'use_readonlywidgets': True,
+    'use_flags': True
+}

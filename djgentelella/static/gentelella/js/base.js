@@ -46,7 +46,7 @@ $.fn.notificationWidget = function(){
         }
     }
     create_notification = function(instance, elem){
-        var datedata =  moment(elem.creation_date).fromNow()
+        var datedata =  moment(elem.creation_date, document.date_format).fromNow()
         var base = $("#temp_"+instance.attr('id')).html();
         base = base.replace('$id', elem.id).replace('$message_type', elem.message_type);
         base = base.replace('$link', elem.link).replace('$description', elem.description);
@@ -131,6 +131,7 @@ $.fn.notificationWidget = function(){
         next_prev_action(instance);
     });
 }
+
 
 document.chartcallbacks = {
    doughnutlabels: function (item, data) {

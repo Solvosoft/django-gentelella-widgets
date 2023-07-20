@@ -11,6 +11,7 @@ Welcome to Django gentelella widgets's documentation!
    :caption: Contents:
 
    introduction
+   settings
    demo
    templates
    forms

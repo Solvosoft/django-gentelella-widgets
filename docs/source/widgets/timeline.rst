@@ -80,3 +80,22 @@ In the example ``data-option_language`` the prefix ``data-`` is used to indicate
 timeline option and ``language`` is the option name.
 
 More see: https://timeline.knightlab.com/docs/options.html
+
+.. Note::  Static files for this widget are not loaded by default so you need to load CSS and JS for this widget to prevent.
+
+You can define what library you want using ``define_true`` tag, in this way:
+
+.. code:: html
+
+    {% load gtsettings %}
+    {% block pre_head %}
+        {% define_true  "use_readonlywidgets" %}
+    {% endblock %}
+
+or set on setting.py the follow dict to load always all static
+
+.. code:: python
+
+    DEFAULT_JS_IMPORTS = {
+        'use_readonlywidgets': True
+    }

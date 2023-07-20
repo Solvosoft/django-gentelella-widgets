@@ -131,7 +131,9 @@ dependencies = [# Optional
 test = ["selenium==4.5.0",
     "selenium-screenshot==2.0.0"
 ]
-
+dev = [
+    'pylp', 'pylpconcat', 'css-html-js-minify'
+]
 # List URLs that are relevant to your project
 #
 # This field corresponds to the "Project-URL" and "Home-Page" metadata fields:
