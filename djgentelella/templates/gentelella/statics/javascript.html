@@ -1,0 +1,98 @@
+{% load static gtsettings urlname_tags i18n %}
+{% get_settings 'use_compress_static' as use_compress %}
+{% get_define 'use_readonlywidgets' as use_readonlywidgets %}
+
+{% if use_compress  == 'true' %}
+<script src="{% static 'djgentelella.vendors.min.js' %}?v={% get_version %}"></script>
+{% if use_readonlywidgets %}
+<script src="{% static 'djgentelella.readonly.vendors.min.js' %}?v={% get_version %}"></script>
+{% endif %}
+<script src="{% static 'vendors/tinymce/tinymce.min.js' %}?v={% get_version %}"></script>
+<script src="{% static 'vendors/tinymce/jquery.tinymce.min.js' %}?v={% get_version %}"></script>
+<script src="{% static 'vendors/tinymce/tinymce-all.js' %}?v={% get_version %}"></script>
+
+{% else %}
+<script src="{% static 'vendors/squirrelly/squirrelly.min.js' %}?v={% get_version %}"></script>
+<script src="{% static 'vendors/moment/moment-with-locales.min.js' %}?v={% get_version %}"></script>
+<script src="{% static 'vendors/jquery-knob/jquery.knob.min.js' %}?v={% get_version %}"></script>
+<script src="{% static 'vendors/inputmask/inputmask.min.js' %}?v={% get_version %}"></script>
+<script src="{% static 'vendors/inputmask/jquery.inputmask.min.js' %}?v={% get_version %}"></script>
+<script src="{% static 'vendors/nprogress/nprogress.min.js' %}?v={% get_version %}"></script>
+<script src="{% static 'vendors/bootstrap-progressbar/bootstrap-progressbar.min.js' %}?v={% get_version %}"></script>
+<script src="{% static 'vendors/iCheck/icheck.min.js' %}?v={% get_version %}"></script>
+<script src="{% static 'vendors/interact/interact.min.js' %}?v={% get_version %}"></script>
+<script src="{% static 'vendors/bootstrap-daterangepicker/daterangepicker.min.js' %}?v={% get_version %}"></script>
+<script
+	src="{% static 'vendors/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js' %}?v={% get_version %}"></script>
+<!-- Switchery -->
+<script src="{% static 'vendors/switchery/switchery.min.js' %}?v={% get_version %}"></script>
+<!-- Select2 -->
+<script src="{% static 'vendors/select2/select2.min.js' %}?v={% get_version %}"></script>
+<script src="{% static 'vendors/parsleyjs/parsley.min.js' %}?v={% get_version %}"></script>
+<!-- Autosize -->
+<script src="{% static 'vendors/autosize/autosize.min.js' %}?v={% get_version %}"></script>
+<script src="{% static 'vendors/bootstrap-maxlength/bootstrap-maxlength.min.js' %}?v={% get_version %}"></script>
+<script src="{% static 'vendors/fileupload/jquery.ui.widget.min.js' %}?v={% get_version %}"></script>
+<!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
+<!-- Grid Slider Plugin-->
+<script src="{% static 'vendors/grid-slider/ion.rangeSlider.min.js' %}?v={% get_version %}"></script>
+
+<script src="{% static 'vendors/fileupload/jquery.iframe-transport.min.js' %}?v={% get_version %}"></script>
+<!-- The basic File Upload plugin -->
+<script src="{% static 'vendors/fileupload/jquery.fileupload.min.js' %}?v={% get_version %}"></script>
+<!-- Calculate md5 -->
+<script src="{% static 'vendors/fileupload/spark-md5.min.js' %}?v={% get_version %}"></script>
+<script src="{% static 'vendors/tagify/tagify.min.js' %}?v={% get_version %}"></script>
+<script src="{% static 'vendors/tagify/jQuery.tagify.min.js' %}?v={% get_version %}"></script>
+<script src="{% static 'vendors/tinymce/tinymce.min.js' %}?v={% get_version %}"></script>
+<script src="{% static 'vendors/tinymce/jquery.tinymce.min.js' %}?v={% get_version %}"></script>
+<script src="{% static 'vendors/tinymce/tinymce-all.js' %}?v={% get_version %}"></script>
+<script src="{% static 'vendors/sweetalert2/sweetalert2.all.min.js' %}?v={% get_version %}"></script>
+{% if use_readonlywidgets %}
+<script src="{% static 'vendors/timeline/js/timeline.js' %}?v={% get_version %}"></script>
+<script src="{% static 'vendors/fullcalendar/main.min.js' %}?v={% get_version %}"></script>
+<script src="{% static 'vendors/storymapjs/storymap.js' %}?v={% get_version %}"></script>
+<script src="{% static 'vendors/storylinejs/storyline.js' %}?v={% get_version %}"></script>
+<script src="{% static 'vendors/bootstrap-tree/bootstrap-treeview.min.js' %}?v={% get_version %}"></script>
+{% endif %}
+{% endif %}
+
+{% if use_compress %}
+<script src="{% static 'gentelella/js/datatables.js'%}?v={% get_version %}"></script>
+<script src="{% static 'gentelella/js/obj_api_management.js'%}?v={% get_version %}"></script>
+{% else %}
+<script src="{% static 'vendors/datatables/datatables.min.js' %}?v={% get_version %}"></script>
+<script src="{% static 'gentelella/js/datatables.js'%}?v={% get_version %}"></script>
+<script src="{% static 'gentelella/js/obj_api_management.js'%}?v={% get_version %}"></script>
+<script src="{% static 'vendors/chartjs/Chart.min.js' %}?v={% get_version %}"></script>
+{% endif %}
+<!-- Custom Theme Scripts -->
+<script src="{% static 'gentelella/js/base.js' %}?v={% get_version %}"></script>
+<script src="{% static 'gentelella/js/widgets.js' %}?v={% get_version %}"></script>
+<script src="{% static 'gentelella/js/custom.js' %}?v={% get_version %}"></script>
+{% if perms.djgentelella.can_manage_permissions %}
+{% get_urlname_action as urlnameactions %}
+{% if urlnameactions %}
+<script>
+var permission_context = {
+				'select_user_url': "{% url 'userbase-list' %}",
+				'select_group_url': "{% url 'groupbase-list' %}",
+				'user_placeholder': "{% trans 'Select an User' %}",
+				'group_placeholder': "{% trans 'Select a Group' %}",
+				'get_permissions': "{% url 'permission_view_list' pk=0 %}",
+				'save_permissions': "{% url 'permcategorymanagement-save' %}",
+				'user_label': "{% trans 'User' %}",
+				'validation_error': "{% trans 'There are fields with invalid options' %}",
+				'not_found_object': "{% trans 'Not found' %}",
+				'group_label': "{% trans 'Group' %}",
+				'not_found_permissions_label': "{% trans 'This view has not permissions associated.' %}",
+				'not_select_valid_option': "{% trans 'You have not selected a valid option.' %}",
+				'save_messages': "{% trans 'Permission have been successfully saved.' %}",
+				'error': "{% trans 'An error occurred while saving.' %}",
+};
+
+
+</script>
+<script src="{% static 'gentelella/js/permissionmanagement.js' %}?v={% get_version %}"></script>
+{% endif %}
+{% endif %}

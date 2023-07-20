@@ -43,3 +43,22 @@ to pass it as a list of dictionaries.
 In the future, the calendar will be able to return a list of events on form submit.
 
 All the calendar settings and events API can be found in https://fullcalendar.io/docs
+
+.. Note::  Static files for this widget are not loaded by default so you need to load CSS and JS for this widget to prevent.
+
+You can define what library you want using ``define_true`` tag, in this way:
+
+.. code:: html
+
+    {% load gtsettings %}
+    {% block pre_head %}
+        {% define_true  "use_readonlywidgets" %}
+    {% endblock %}
+
+or set on setting.py the follow dict to load always all static
+
+.. code:: python
+
+    DEFAULT_JS_IMPORTS = {
+        'use_readonlywidgets': True
+    }

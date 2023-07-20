@@ -1,52 +1,48 @@
 {% extends 'gentelella/base.html' %}
 {% load gtsettings %}
 
-{% block pre_head %}
-    {% define_true  "use_chartjs" %}
-{% endblock %}
-
 {% block content %}
 
 <div class="row">
 
-  <div class="col-md-4">
-    {% include 'gentelella/widgets/chartjs.html' with graph_url=vertical_url %}
-  </div>
-  <div class="col-md-4">
-    {% include 'gentelella/widgets/chartjs.html' with graph_url=horizontal_url %}
-  </div>
-    <div class="col-md-4" >
-    {% include 'gentelella/widgets/chartjs.html' with graph_url=stacked_url %}
-  </div>
+	<div class="col-md-4">
+		{% include 'gentelella/widgets/chartjs.html' with graph_url=vertical_url %}
+	</div>
+	<div class="col-md-4">
+		{% include 'gentelella/widgets/chartjs.html' with graph_url=horizontal_url %}
+	</div>
+	<div class="col-md-4">
+		{% include 'gentelella/widgets/chartjs.html' with graph_url=stacked_url %}
+	</div>
 </div>
 
 <div class="row">
-  <div class="col-md-4">
-    {% include 'gentelella/widgets/chartjs.html' with graph_url=line_url %}
-  </div>
-    <div class="col-md-4">
-    {% include 'gentelella/widgets/chartjs.html' with graph_url=stepped_url %}
-  </div>
-    <div class="col-md-4">
-    {% include 'gentelella/widgets/chartjs.html' with graph_url=arealine_url %}
-  </div>
+	<div class="col-md-4">
+		{% include 'gentelella/widgets/chartjs.html' with graph_url=line_url %}
+	</div>
+	<div class="col-md-4">
+		{% include 'gentelella/widgets/chartjs.html' with graph_url=stepped_url %}
+	</div>
+	<div class="col-md-4">
+		{% include 'gentelella/widgets/chartjs.html' with graph_url=arealine_url %}
+	</div>
 </div>
 
 <div class="row">
-    <div class="col-md-4">
-    {% include 'gentelella/widgets/chartjs.html' with graph_url=pie_url %}
-    </div>
+	<div class="col-md-4">
+		{% include 'gentelella/widgets/chartjs.html' with graph_url=pie_url %}
+	</div>
 
-  <div class="col-md-4">
-    {% include 'gentelella/widgets/chartjs.html' with graph_url=doughnut_url %}
-  </div>
-  <div class="col-md-4">
-    {% include 'gentelella/widgets/chartjs.html' with graph_url=linebar_url %}
-  </div>
+	<div class="col-md-4">
+		{% include 'gentelella/widgets/chartjs.html' with graph_url=doughnut_url %}
+	</div>
+	<div class="col-md-4">
+		{% include 'gentelella/widgets/chartjs.html' with graph_url=linebar_url %}
+	</div>
 </div>
 <div class="row">
-    <div class="col-md-4">
-    {% include 'gentelella/widgets/chartjs.html' with graph_url=scatter_url %}
-    </div>
+	<div class="col-md-4">
+		{% include 'gentelella/widgets/chartjs.html' with graph_url=scatter_url %}
+	</div>
 </div>
-    {% endblock %}
+{% endblock %}

@@ -1,0 +1,43 @@
+{% load static gtsettings %}
+
+<script> datatables_lang = "{% get_datatables_translation %}"; </script>
+{% get_settings 'use_compress_static' as use_compress %}
+{% if use_compress == 'true' %}
+<link href="{% static 'djgentelella.vendors.min.css' %}?v={% get_version %}" rel="stylesheet">
+{% get_define 'use_flags' as use_flags %}
+{% if use_flags %}
+<link href="{% static 'djgentelella.flags.vendors.min.css' %}?v={% get_version %}" rel="stylesheet">
+{% endif %}
+<link href="{% static 'vendors/tinymce/skin.min.css' %}?v={% get_version %}" rel="stylesheet"/>
+{% get_define 'use_readonlywidgets' as use_readonlywidgets %}
+{% if use_readonlywidgets %}
+<link href="{% static 'djgentelella.readonly.vendors.min.css' %}?v={% get_version %}" rel="stylesheet">
+{% endif %}
+{% else %}
+<link href="{% static 'vendors/bootstrap/bootstrap.min.css' %}?v={% get_version %}" rel="stylesheet">
+<link href="{% static 'vendors/font-awesome/font-awesome.min.css' %}?v={% get_version %}" rel="stylesheet">
+<link href="{% static 'vendors/bootstrap-daterangepicker/daterangepicker.min.css' %}?v={% get_version %}"
+						rel="stylesheet">
+<link href="{% static 'vendors/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css' %}?v={% get_version %}"
+						rel="stylesheet">
+<link href="{% static 'vendors/select2/select2.min.css' %}?v={% get_version %}" rel="stylesheet"/>
+<link href="{% static 'vendors/select2/select2-bootstrap-5-theme.min.css' %}?v={% get_version %}" rel="stylesheet"/>
+<link href="{% static 'vendors/switchery/switchery.min.css'%}?v={% get_version %}" rel="stylesheet"/>
+<link href="{% static 'vendors/iCheck/green.css' %}?v={% get_version %}" rel="stylesheet">
+<link href="{% static 'vendors/bootstrap-progressbar/bootstrap-progressbar-3.3.4.min.css' %}?v={% get_version %}"
+						rel="stylesheet">
+<link href="{% static 'vendors/nprogress/nprogress.min.css' %}?v={% get_version %}" rel="stylesheet">
+<link href="{% static 'vendors/flag-icon-css/flag-icons.min.css' %}?v={% get_version %}" rel="stylesheet">
+<link href="{% static 'vendors/tagify/tagify.min.css' %}?v={% get_version %}" rel="stylesheet">
+<link href="{% static 'vendors/grid-slider/ion.rangeSlider.min.css' %}?v={% get_version %}" rel="stylesheet">
+<link href="{% static 'vendors/tinymce/skin.min.css' %}?v={% get_version %}" rel="stylesheet"/>
+<link href="{% static 'vendors/sweetalert2/sweetalert2.min.css' %}?v={% get_version %}" rel="stylesheet"/>
+<link href="{% static 'vendors/timeline/css/timeline.css' %}?v={% get_version %}" rel="stylesheet"/>
+<link href="{% static 'vendors/fullcalendar/main.min.css' %}?v={% get_version %}" rel="stylesheet"/>
+<link href="{% static 'vendors/storymapjs/storymap.css' %}?v={% get_version %}" rel="stylesheet"/>
+<link href="{% static 'vendors/storylinejs/storyline.css' %}?v={% get_version %}" rel="stylesheet"/>
+<link href="{% static 'vendors/chartjs/Chart.min.css' %}?v={% get_version %}" rel="stylesheet">
+<link href="{% static 'vendors/datatables/datatables.min.css' %}?v={% get_version %}" rel="stylesheet"/>
+
+
+{% endif %}

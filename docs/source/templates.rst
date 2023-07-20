@@ -49,7 +49,7 @@ You can define what library you want using ``define_true`` tag, in this way:
     {% load gtsettings %}
 
     {% block pre_head %}
-        {% define_true  "use_datatables" %}
+        {% define_true  "use_readonlywidgets" %}
     {% endblock %}
 
 It's very important to implement it in pre_head block, because is the first block processed on base.html,
@@ -62,19 +62,8 @@ Available Javascript Libraries
 
 This list could be grow in the next future.
 
-- use_datatables
-- use_chartjs
-- use_bootstraptree
+- use_readonlywidgets : Active widget timeline, fullcalendar, storymapjs, storylinejs, bootstrap-tree
+- use_flags  :  Active country flags for widget SelectFlags
 
 
 
-Force always include library
-----------------------------------
-
-Add in your ``settings.py`` a dictionary called ``DEFAULT_JS_IMPORTS`` with the libs you want to include.
-
-.. code:: python
-
-    DEFAULT_JS_IMPORTS = {
-        'use_chartjs': True
-    }

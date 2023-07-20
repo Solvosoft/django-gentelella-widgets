@@ -12,7 +12,8 @@ except BaseException:
     print("Requests is required try pip install requests")
     exit(1)
 
-FLAGS = ['ad', 'ae', 'af', 'ag', 'ai', 'al', 'am', 'ao', 'aq', 'ar', 'as', 'at', 'au',
+FLAGS = ['ac', 'ad', 'ae', 'af', 'ag', 'ai', 'al', 'am', 'ao', 'aq', 'ar', 'as', 'at',
+         'au', 'cp', 'dg', 'ea', 'es-ct', 'es-ga', 'ic', 'ta',
          'aw', 'ax', 'az', 'ba', 'bb', 'bd', 'be', 'bf', 'bg', 'bh', 'bi', 'bj', 'bl',
          'bm', 'bn', 'bo', 'bq', 'br', 'bs', 'bt', 'bv', 'bw', 'by', 'bz', 'ca', 'cc',
          'cd', 'cf', 'cg', 'ch', 'ci', 'ck', 'cl', 'cm', 'cn', 'co', 'cr', 'cu', 'cv',
@@ -31,8 +32,8 @@ FLAGS = ['ad', 'ae', 'af', 'ag', 'ai', 'al', 'am', 'ao', 'aq', 'ar', 'as', 'at',
          'sh', 'si', 'sj', 'sk', 'sl', 'sm', 'sn', 'so', 'sr', 'ss', 'st', 'sv', 'sx',
          'sy', 'sz', 'tc', 'td', 'tf', 'tg', 'th', 'tj', 'tk', 'tl', 'tm', 'tn', 'to',
          'tr', 'tt', 'tv', 'tw', 'tz', 'ua', 'ug', 'um', 'un', 'us', 'uy', 'uz', 'va',
-         'vc', 've', 'vg', 'vi', 'vn', 'vu', 'wf', 'ws', 'xk', 'ye', 'yt', 'za', 'zm',
-         'zw']
+         'vc', 've', 'vg', 'vi', 'vn', 'vu', 'wf', 'ws', 'xk', 'xx', 'ye', 'yt', 'za',
+         'zm', 'zw']
 
 
 def download(urls):
@@ -142,9 +143,11 @@ class Command(BaseCommand):
                 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/fontawesome-webfont.woff2',
             ],
             'font-awesome': [
-
                 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css',
                 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css.map'
+            ],
+            'friconix': [
+                "https://friconix.com/cdn/friconix.js"
             ],
             'bootstrap-daterangepicker': [
                 # 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.1/daterangepicker.min.js',
@@ -281,6 +284,8 @@ class Command(BaseCommand):
                 "https://cdn.knightlab.com/libs/timeline3/latest/css/icons/tl-icons.eot",
                 "https://cdn.knightlab.com/libs/timeline3/latest/css/icons/tl-icons.ttf",
                 "https://cdn.knightlab.com/libs/timeline3/latest/css/icons/tl-icons.svg",
+                "https://cdn.knightlab.com/libs/timeline3/latest/css/icons/tl-icons.woff",
+                "https://cdn.knightlab.com/libs/timeline3/latest/css/icons/tl-icons.woff2",
             ],
             'timeline/js': [
                 "https://cdn.knightlab.com/libs/timeline3/latest/js/timeline.js"],
@@ -289,7 +294,13 @@ class Command(BaseCommand):
                 "https://cdn.knightlab.com/libs/storymapjs/latest/css/storymap.css",
             ],
             'css/icons/': [
-                'https://cdn.knightlab.com/libs/storymapjs/latest/css/icons/vco-icons.ttf'
+                'https://cdn.knightlab.com/libs/storymapjs/latest/css/icons/vco-icons.ttf',
+                'https://cdn.knightlab.com/libs/storymapjs/latest/css/icons/vco-icons.eot',
+                'https://cdn.knightlab.com/libs/storymapjs/latest/css/icons/vco-icons.woff',
+                'https://cdn.knightlab.com/libs/storymapjs/latest/css/icons/vco-icons.woff2',
+                'https://cdn.knightlab.com/libs/storymapjs/latest/css/icons/vco-icons.svg',
+                'https://cdn.knightlab.com/libs/storymapjs/latest/css/icons/layers.png',
+                'https://cdn.knightlab.com/libs/storymapjs/latest/css/icons/layers-2x.png',
             ],
             'chartjs': [
                 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js',

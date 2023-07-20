@@ -98,3 +98,6 @@ djgentelella/static/vendors/
 #ignore vscode settins
 .vscode/
 demo/media
+djgentelella/static/djgentelella.vendors.header.min.js
+djgentelella/static/djgentelella.vendors.min.css
+djgentelella/static/djgentelella.vendors.min.js
