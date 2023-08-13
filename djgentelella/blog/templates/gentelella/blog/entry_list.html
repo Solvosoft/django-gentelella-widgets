@@ -27,10 +27,11 @@
                         <tr>
                             <td><a href="{{ entry.get_absolute_url }}">{{ entry.title }}</a></td>
                             <td>{{ entry.author }}</td>
-
                             <td>
-                                <a href="{% url 'blog:entry_update' entry.pk %}">{% trans 'Actualizar' %}</a> |
-                                <a href="{% url 'blog:entry_delete' entry.pk %}">{% trans 'Eliminar' %}</a>
+																													 <a href="{{ entry.get_absolute_url }}"><i class="fa fa-binoculars blue"></i> </a> |
+                                <a href="{% url 'blog:entry_update' entry.pk %}"><i class="fa fa-edit blue"></i></a> |
+                                <a href="{% url 'blog:entry_delete' entry.pk %}"><i class="fa fa-close red"></i></a>
+
                             </td>
                         </tr>
                     {% endfor %}
