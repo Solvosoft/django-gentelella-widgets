@@ -18,13 +18,13 @@
                     <tr>
                         <th>Title</th>
                         <th>Author</th>
-                        <th>Acciones</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for entry in entries %}
                         <tr>
-                            <td><a href="{{ entry.get_absolute_url }}">{{ entry.title }}</a></td>
+                            <td><a>{{ entry.title }}</a></td>
                             <td>{{ entry.author }}</td>
                             <td>
 																													 <a href="{{ entry.get_absolute_url }}"><i class="fa fa-binoculars blue"></i> </a> |
