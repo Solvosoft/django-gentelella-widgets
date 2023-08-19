@@ -18,6 +18,12 @@ from .templatetags.gtsettings import get_version
 
 
 
+from demoapp.datatables.api import PersonViewSet
+from djgentelella.blog.views import person_object_blog
+from djgentelella.blog.viewset import PersonBLog
+
+
+
 auth_urls = [
     path('accounts/login/',
          auth_views.LoginView.as_view(
@@ -79,7 +85,16 @@ for app in settings.INSTALLED_APPS:
 router = DefaultRouter()
 router.register('notificationtableview', NotificationViewSet, 'api-notificationtable')
 
+router = DefaultRouter()
+router.register('persontableview', PersonViewSet, 'api-persontable')
+router.register('personblog', PersonBLog,
+                'api-personblog')
+
 base_urlpatterns = [
+
+    path('person_object_blog', person_object_blog,
+         name='person_object_blog'),
+
     re_path('gtapis/', include(routes.urls)),
     path('djgentelella/upload/', ChunkedUploadView.as_view(),
          name='upload_file_view'),

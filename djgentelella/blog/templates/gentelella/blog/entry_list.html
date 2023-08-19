@@ -18,7 +18,7 @@
 	</div>
 </div>
 <div class="row">
-	<table class="table table-striped w-100" id="object_table"></table>
+	<table class="table table-striped w-100" id="blog_table"></table>
 </div>
 
 {% url "api-personblog-list"  as create_obj_url %}
@@ -55,22 +55,19 @@ var object_urls ={
 }
 
 datatable_inits = {
-columns: [
-    {data: "id", name: "id", title: gettext("Id"), type: "string", visible: false},
-    {data: "title", name: "title", title: gettext("Title"), type: "string", visible: true},
-    {data: "author__username", name: "author__username", title: gettext("Author"), type: "string", visible: true},
-    {data: "resume__rendered", name: "resume__rendered", title: gettext("Resume"), type: "string", visible: true},
-    {data: "content__rendered", name: "content__rendered", title: gettext("Content"), type: "string", visible: true},
-    {
-        data: "categories",
-        name: "categories__name",
-        title: gettext("Categories"),
-        type: "string",
-        visible: true,
-        render: selectobjprint({display_name: "name"})
-    },
-    {data: "actions", name: "actions", title: gettext("Actions"), type: "string", visible: true}
-],
+			columns: [
+							{data: "id", name: "id", title: gettext("Id"), type: "string", visible: false},
+							{data: "name", name: "<name></name>", title: gettext("Name"), type: "string", visible: true},
+							{data: "last_time", name: "last_time", title: gettext("Last Time"), type: "date",  render: DataTable.render.datetime(),
+							"dateformat":  document.datetime_format, visible: true},
+							{data: "born_date", name: "born_date", title: gettext("Born date"), type: "date",  render: DataTable.render.date(),
+							"dateformat":  document.date_format, visible: true},
+							{data: "country", name: "country__name", title: "Country", type: "string", visible: true,
+							render: selectobjprint({display_name: "name"}) },
+							{data: "num_children", name: "num_children", title: gettext("Num Children"), type: "string", visible: true },
+							{data: "actions", name: "actions", title: gettext("Actions"), type: "string", visible: true }
+
+			],
 			events: {
 					filter: function(data){
 							return data;
@@ -94,7 +91,7 @@ var obj_actions = {
 
 let objconfig={
 	urls: object_urls,
-	datatable_element:  "#object_table",
+	datatable_element:  "#blog_table",
 	modal_ids: obj_modalids,
 	actions: obj_actions,
 	datatable_inits: datatable_inits,
