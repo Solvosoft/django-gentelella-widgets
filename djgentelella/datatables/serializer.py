@@ -12,15 +12,10 @@ from djgentelella.serializers import GTDateField, GTDateTimeField
 
 
 class BlogFilterSet(FilterSet):
-    born_date = DateFromToRangeFilter(
-        widget=DateRangeTextWidget(attrs={'placeholder': 'YYYY/MM/DD'}))
-    last_time = DateTimeFromToRangeFilter(
-        widget=DateTimeRangeTextWidget(attrs={'placeholder': 'YYYY/MM/DD HH:MM:SS'}))
 
     class Meta:
         model = Entry
-        fields = {'title': ['icontains'], 'author': ['exact'],
-                  'categories': ['icontains']}
+        fields = {'title': ['icontains'], 'resume': ['icontains']}
 
 
 class CategorySerializer(serializers.ModelSerializer):

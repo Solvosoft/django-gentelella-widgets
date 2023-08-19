@@ -8,21 +8,65 @@
 {% block pre_head %}
 {% define_urlname_action 'entry_list' %}
 {% endblock %}
-
 {% block content %}
-<div class="row">
-	<div class="offset-md-2 col-md-8">
-		<div class="page-header" align="center">
-			<h3 class="heading-1"><span> {% trans 'List of blogs' %}  </span></h3>
-		</div>
-	</div>
+
+
+<div class="col-md-9 col-sm-12">
+    <div class="card">
+        <div class="row">
+            <div class="offset-md-2 col-md-8">
+                <div class="page-header" align="center">
+                    <h3 class="heading-1"><span>{% trans 'List of blogs' %}</span></h3>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <table class="table table-striped w-100" id="blog_table"></table>
+        </div>
+    </div>
 </div>
-<div class="row">
-	<table class="table table-striped w-100" id="blog_table"></table>
+
+<div class="col-md-3 col-sm-12">
+    <div class="card">
+        <!-- Contenido de categorías y botón para crear un nuevo blog -->
+        {% if perms.blog.add_entry %}
+        <div class="card" xmlns="http://www.w3.org/1999/html">
+            <div class="card-body">
+                <a class="btn btn-success" href="{% url 'blog:entrycreate' %}">{% trans 'New Post' %} </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    <div class="card mt-4">
+        <div class="card-body">
+            <div class="card-title titles">
+                <h2>{% trans 'Categories' %}</h2>
+                <ul class="nav navbar-right d-flex flex-row-reverse">
+                    <li class="float-end" style="margin-top: -43px;">
+                        <a class="close-link" href="{% url 'blog:entrylist' %}{{catparams}}">
+                            <i class="fa fa-close red"></i>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <ul class="to_do">
+                {% for category in categories %}
+                <li>
+                    <a class="{% if category.pk == cat %}green{%endif%}" href="{{catparams}}cat={{category.pk}}">
+                        {{category}}
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+
 </div>
+
 
 {% url "api-personblog-list"  as create_obj_url %}
-{% trans 'Create Person' as create_obj_tittle %}
+{% trans 'Create Blog' as create_obj_tittle %}
 {% include 'gentelella/blocks/modal_template.html' with form=create_form id="create_obj_modal" title=create_obj_tittle form_id="create_obj_form" url=create_obj_url %}
 
 {% url "api-personblog-detail" 0 as update_obj_url %}
@@ -33,7 +77,7 @@
 
 {% url "api-personblog-detail"  as delete_obj_url %}
 
-{% trans 'Delete Person' as delete_obj_tittle %}
+{% trans 'Delete Blog' as delete_obj_tittle %}
 {% include 'gentelella/blocks/modal_template_delete.html' with form=delete_form id="delete_obj_modal" title=delete_obj_tittle form_id="delete_obj_form" url=delete_obj_url %}
 
 {% endblock %}
