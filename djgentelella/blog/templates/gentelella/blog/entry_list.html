@@ -56,15 +56,13 @@ var object_urls ={
 
 datatable_inits = {
 			columns: [
-							{data: "id", name: "id", title: gettext("Id"), type: "string", visible: false},
-							{data: "name", name: "<name></name>", title: gettext("Name"), type: "string", visible: true},
-							{data: "last_time", name: "last_time", title: gettext("Last Time"), type: "date",  render: DataTable.render.datetime(),
-							"dateformat":  document.datetime_format, visible: true},
-							{data: "born_date", name: "born_date", title: gettext("Born date"), type: "date",  render: DataTable.render.date(),
-							"dateformat":  document.date_format, visible: true},
-							{data: "country", name: "country__name", title: "Country", type: "string", visible: true,
-							render: selectobjprint({display_name: "name"}) },
-							{data: "num_children", name: "num_children", title: gettext("Num Children"), type: "string", visible: true },
+        { data: "id", name: "id", title: gettext("ID"), visible: false },
+        { data: "title", name: "title", title: gettext("Title") },
+        { data: "author", name: "author", title: gettext("Author") },
+        { data: "resume", name: "resume", title: gettext("Resume") },
+
+
+
 							{data: "actions", name: "actions", title: gettext("Actions"), type: "string", visible: true }
 
 			],

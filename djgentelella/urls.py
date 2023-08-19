@@ -18,7 +18,9 @@ from .templatetags.gtsettings import get_version
 
 
 
-from demoapp.datatables.api import PersonViewSet
+from djgentelella.datatables.api import BlogViewSet
+
+
 from djgentelella.blog.views import person_object_blog
 from djgentelella.blog.viewset import PersonBLog
 
@@ -86,7 +88,7 @@ router = DefaultRouter()
 router.register('notificationtableview', NotificationViewSet, 'api-notificationtable')
 
 router = DefaultRouter()
-router.register('persontableview', PersonViewSet, 'api-persontable')
+router.register('blogtableview', BlogViewSet, 'api-blogtable')
 router.register('personblog', PersonBLog,
                 'api-personblog')
 

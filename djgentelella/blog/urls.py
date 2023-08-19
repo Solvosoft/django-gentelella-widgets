@@ -2,6 +2,9 @@ from django.urls import path, re_path
 from rest_framework.routers import DefaultRouter
 from . import views
 from demoapp.datatables.api import PersonViewSet
+
+from djgentelella.datatables.api import BlogViewSet
+
 from djgentelella.blog.views import person_object_blog
 from djgentelella.blog.viewset import PersonBLog
 
@@ -13,7 +16,7 @@ from demoapp.cruds import Personclass
 
 pclss = Personclass()
 router = DefaultRouter()
-router.register('persontableview', PersonViewSet, 'api-persontable')
+router.register('blogtableview', BlogViewSet, 'api-blogtable')
 router.register('personblog', PersonBLog,
                 'api-personblog')
 

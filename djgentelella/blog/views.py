@@ -16,6 +16,10 @@ from .models import Category
 from django.shortcuts import render
 from demoapp.forms import PersonForm
 
+from djgentelella.blog.forms import EntryForm #Creo que hay que cambiar el form
+
+
+
 
 def person_object_blog(response):
     context = {
