@@ -13,6 +13,17 @@ from . import models
 from .forms import EntryForm, CategoryForm
 from .models import Category
 
+from django.shortcuts import render
+from demoapp.forms import PersonForm
+
+
+def person_object_blog(response):
+    context = {
+        'create_form': PersonForm(prefix='create'),
+        'update_form': PersonForm(prefix='update'),
+    }
+    return render(response, 'entry_list.html', context=context)
+
 
 class EntriesList(ListView):
     model = models.Entry
@@ -81,8 +92,8 @@ class EntryDetail(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['draft'] = self.request.GET.get('preview', '') == 'True' and (
-                self.request.user == context['entry'].author
-                or self.request.user.has_perm('blog.change_entry'))
+            self.request.user == context['entry'].author
+            or self.request.user.has_perm('blog.change_entry'))
         return context
 
 

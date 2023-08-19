@@ -16,6 +16,8 @@ from djgentelella.wysiwyg import views as wysiwyg
 from .groute import routes
 from .templatetags.gtsettings import get_version
 
+
+
 auth_urls = [
     path('accounts/login/',
          auth_views.LoginView.as_view(
