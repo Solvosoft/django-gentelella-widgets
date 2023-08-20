@@ -23,8 +23,8 @@ from djgentelella.blog.forms import EntryForm #Creo que hay que cambiar el form
 
 def person_object_blog(response):
     context = {
-        'create_form': PersonForm(prefix='create'),
-        'update_form': PersonForm(prefix='update'),
+        'create_form': EntryForm(prefix='create'),
+        'update_form': EntryForm(prefix='update'),
     }
     return render(response, 'entry_list.html', context=context)
 

@@ -65,6 +65,10 @@
 </div>
 
 
+
+
+
+
 {% url "api-personblog-list"  as create_obj_url %}
 {% trans 'Create Blog' as create_obj_tittle %}
 {% include 'gentelella/blocks/modal_template.html' with form=create_form id="create_obj_modal" title=create_obj_tittle form_id="create_obj_form" url=create_obj_url %}
@@ -98,12 +102,15 @@ var object_urls ={
 	update_url: "{{update_obj_url}}"
 }
 
+
 datatable_inits = {
 			columns: [
         { data: "id", name: "id", title: gettext("ID"), visible: false },
         { data: "title", name: "title", title: gettext("Title") },
+        { data: "author", name: "author", title: gettext("Author") },
         { data: "resume", name: "resume", title: gettext("Resume") },
-							{data: "actions", name: "actions", title: gettext("Actions"), type: "string", visible: true }
+        { data: "content", name: "content", title: gettext("Content") },
+							 {data: "actions", name: "actions", title: gettext("Actions"), type: "string", visible: true }
 
 			],
 			events: {

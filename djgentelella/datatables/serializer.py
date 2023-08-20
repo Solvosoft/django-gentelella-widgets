@@ -15,7 +15,7 @@ class BlogFilterSet(FilterSet):
 
     class Meta:
         model = Entry
-        fields = {'title': ['icontains'], 'resume': ['icontains']}
+        fields = {'title': ['icontains'], 'resume': ['icontains'], }
 
 
 class CategorySerializer(serializers.ModelSerializer):
