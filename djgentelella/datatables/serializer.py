@@ -11,7 +11,11 @@ from djgentelella.fields.drfdatetime import DateRangeTextWidget, DateTimeRangeTe
 from djgentelella.serializers import GTDateField, GTDateTimeField
 
 
+
+
+
 class BlogFilterSet(FilterSet):
+
 
     class Meta:
         model = Entry
@@ -24,8 +28,12 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+#ESTE ES PARA CATEGORIAS y author
 class BlogSerializer(serializers.ModelSerializer):
-   # Category = CategorySerializer()
+    # Cambia Category por categories
+    categories = serializers.StringRelatedField(many=True)  # Mostrará el nombre de las categorías
+    author = serializers.StringRelatedField(many=False)
+
     actions = serializers.SerializerMethodField()
 
     def get_actions(self, obj):
@@ -36,6 +44,9 @@ class BlogSerializer(serializers.ModelSerializer):
     class Meta:
         model = Entry
         fields = "__all__"
+
+#ESTE ES PARA AUTHOR
+
 
 
 class BlogDataTableSerializer(serializers.Serializer):

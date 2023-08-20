@@ -31,7 +31,7 @@ class PersonBLog(BaseObjectBlog):
     queryset = Entry.objects.all()
     pagination_class = LimitOffsetPagination
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
-    search_fields = ['title', 'resume', ]  # for the global search
+    search_fields = ['title', 'resume']   # for the global search
     filterset_class = BlogFilterSet
     ordering_fields = ['title', 'resume']
     ordering = ('-title',)  # default order
