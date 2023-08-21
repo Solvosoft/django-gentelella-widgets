@@ -30,10 +30,9 @@ class CategorySerializer(serializers.ModelSerializer):
 
 #ESTE ES PARA CATEGORIAS y author
 class BlogSerializer(serializers.ModelSerializer):
-    # Cambia Category por categories
-    categories = serializers.StringRelatedField(many=True)  # Mostrará el nombre de las categorías
+    categories = serializers.StringRelatedField(many=True)
     author = serializers.StringRelatedField(many=False)
-
+    published_content = serializers.StringRelatedField(required=False)  # Campo no requerido
     actions = serializers.SerializerMethodField()
 
     def get_actions(self, obj):
@@ -45,49 +44,35 @@ class BlogSerializer(serializers.ModelSerializer):
         model = Entry
         fields = "__all__"
 
+
 #ESTE ES PARA AUTHOR
-
-
-
 class BlogDataTableSerializer(serializers.Serializer):
     data = serializers.ListField(child=BlogSerializer(), required=True)
     draw = serializers.IntegerField(required=True)
     recordsFiltered = serializers.IntegerField(required=True)
     recordsTotal = serializers.IntegerField(required=True)
 
+    published_content = serializers.StringRelatedField(required=False)  # Campo no requerido
+
+
 
 class BlogCreateSerializer(serializers.ModelSerializer):
-    born_date = GTDateField()
-    # also can overwrite input_formats and format
-    last_time = GTDateTimeField(
-        allow_empty_str=True,
-        # True it is  default value  allow "" as none and prevent validation error
-        input_formats=[formats.get_format('DATETIME_INPUT_FORMATS')[0]],
-        format=formats.get_format('DATETIME_INPUT_FORMATS')[0])
-
-#################################
-   # def validate_num_children(self, value):
-     #   num_children = value
-     #   if num_children < 0:
-      #      raise ValidationError(detail=_("Value has to be positive or zero "))
-     #   return num_children
-#########################
-
+    published_content = serializers.StringRelatedField(required=False)  # Campo no requerido
     class Meta:
         model = Entry
         fields = "__all__"
 
 
+
 class CategorySerializer(serializers.ModelSerializer):
+    published_content = serializers.StringRelatedField(required=False)  # Campo no requerido
     class Meta:
         model = Category
         fields = '__all__'
 
 
 class BlogUpdateSerializer(serializers.ModelSerializer):
-    born_date = GTDateField()
-    last_time = GTDateTimeField()
-    country = CategorySerializer()
+    published_content = serializers.StringRelatedField(required=False)  # Campo no requerido
 
     class Meta:
         model = Entry

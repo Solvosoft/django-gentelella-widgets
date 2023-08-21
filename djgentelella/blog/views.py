@@ -21,12 +21,12 @@ from djgentelella.blog.forms import EntryForm #Creo que hay que cambiar el form
 
 
 
-def person_object_blog(response):
+def person_object_blog(request):
     context = {
         'create_form': EntryForm(prefix='create'),
         'update_form': EntryForm(prefix='update'),
     }
-    return render(response, 'entry_list.html', context=context)
+    return request(request, 'entry_list.html', context=context)
 
 
 class EntriesList(ListView):
@@ -80,6 +80,11 @@ class EntriesList(ListView):
         context['q'] = self.request.GET.get('q', '')
         context['cat'] = self.get_category_id()
         context['getparams'] = self.get_query_get_params(exclude=['page'])
+        context = {
+            'create_form': EntryForm(prefix='create'),
+            'update_form': EntryForm(prefix='update'),
+        }
+
         return context
 
 

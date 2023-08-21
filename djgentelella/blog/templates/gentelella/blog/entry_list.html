@@ -11,7 +11,7 @@
 {% block content %}
 
 
-<div class="col-md-9 col-sm-12">
+
     <div class="card">
         <div class="row">
             <div class="offset-md-2 col-md-8">
@@ -24,28 +24,6 @@
             <table class="table table-striped w-100" id="blog_table"></table>
         </div>
     </div>
-</div>
-
-<div class="col-md-3 col-sm-12">
-    <div class="card">
-        <!-- Contenido de categorías y botón para crear un nuevo blog -->
-        {% if perms.blog.add_entry %}
-        <div class="card" xmlns="http://www.w3.org/1999/html">
-            <div class="card-body">
-                <a class="btn btn-success" href="{% url 'blog:entrycreate' %}">{% trans 'New Post' %} </a>
-            </div>
-        </div>
-        {% endif %}
-    </div>
-
-
-
-</div>
-
-
-
-<a class="btn btn-success" href="/blog/entry/create">Nueva Entrada </a>
-
 
 {% url "api-personblog-list"  as create_obj_url %}
 {% trans 'Create Blog' as create_obj_tittle %}
@@ -125,11 +103,11 @@ let objconfig={
 	actions: obj_actions,
 	datatable_inits: datatable_inits,
 	add_filter: true,
-	relation_render: {'country': 'name' },
-	delete_display: data => data['name']
+	relation_render: {'country': 'name' },////
+	delete_display: data => data['name']/////
 }
 
-let ocrud=ObjectCRUD("setmeunique", objconfig)
+let ocrud=ObjectCRUD("setmeunique", objconfig)/// setmeunique DISTINTO
 ocrud.init();
 
 
