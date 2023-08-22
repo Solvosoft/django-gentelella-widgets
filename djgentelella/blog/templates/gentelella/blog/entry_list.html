@@ -68,7 +68,21 @@ datatable_inits = {
         { data: "resume", name: "resume", title: gettext("Resume") },
         { data: "content", name: "content", title: gettext("Content") },
         { data: "categories", name: "categories", title: gettext("Category") },
-							 {data: "actions", name: "actions", title: gettext("Actions"), type: "string", visible: true }
+							 { data: "actions", name: "actions", title: gettext("Actions"), type: "string", visible: true }
+
+							/* {data: null,
+        name: "actions",
+        title: gettext("Actions"),
+        render: function (data, type, row) {
+        var updateUrl = "{% url 'blog:entry_update' pk=1 %}".replace("1", row.id);
+        return '<a href="' + updateUrl + '">' +
+                   '<i class="fa fa-edit yellow"></i>' +
+               '</a>';
+    },
+    visible: true
+}
+*/
+
 
 
 			],
