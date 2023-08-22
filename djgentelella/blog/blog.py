@@ -56,7 +56,7 @@ class BaseObjectBlog(viewsets.ModelViewSet):
     def detail_template(self, request, *args, **kwargs):
         data = {
             "title": "Title {{it.title}}",
-            "template": "Name: {{it.title}}"
+            "template": "Name: {{it.title}}" #MODAL DE DETALLES
         }
         return Response(data)
 

@@ -9,9 +9,6 @@
 {% define_urlname_action 'entry_list' %}
 {% endblock %}
 {% block content %}
-
-
-
     <div class="card">
         <div class="row">
             <div class="offset-md-2 col-md-8">
@@ -24,7 +21,6 @@
             <table class="table table-striped w-100" id="blog_table"></table>
         </div>
     </div>
-
 {% url "api-personblog-list"  as create_obj_url %}
 {% trans 'Create Blog' as create_obj_tittle %}
 {% include 'gentelella/blocks/modal_template.html' with form=create_form id="create_obj_modal" title=create_obj_tittle form_id="create_obj_form" url=create_obj_url %}
@@ -53,9 +49,9 @@ var object_urls ={
 	destroy_url: "{% url 'api-personblog-detail' 0 %}",
 	detail_url: "{% url 'api-personblog-detail' 0 %}",
 	detail_template_url: "{% url 'api-personblog-detail-template' %}",
-	get_values_for_update_url: "{% url 'api-personblog-get-values-for-update' 0 %}", // get_object_for_update_url
+	//get_values_for_update_url: "{% url 'api-personblog-get-values-for-update' 0 %}", // get_object_for_update_url
 	create_url: "{{create_obj_url}}",
-	update_url: "{{update_obj_url}}"
+	//update_url: "{{update_obj_url}}"
 }
 
 
@@ -73,6 +69,7 @@ datatable_inits = {
         { data: "content", name: "content", title: gettext("Content") },
         { data: "categories", name: "categories", title: gettext("Category") },
 							 {data: "actions", name: "actions", title: gettext("Actions"), type: "string", visible: true }
+
 
 			],
 			events: {

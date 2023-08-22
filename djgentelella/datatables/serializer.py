@@ -74,6 +74,7 @@ class CategorySerializer(serializers.ModelSerializer):
 class BlogUpdateSerializer(serializers.ModelSerializer):
     published_content = serializers.StringRelatedField(required=False)  # Campo no requerido
 
+
     class Meta:
         model = Entry
         fields = "__all__"

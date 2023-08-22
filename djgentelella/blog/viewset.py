@@ -26,6 +26,11 @@ class PersonBLog(BaseObjectBlog):
         'retrieve': serializer.BlogUpdateSerializer,
         'get_values_for_update': serializer.BlogDataTableSerializer
     }
+    def perform_create(self, serializer): # ESTO ASIGNA EL author
+        serializer.save(author=self.request.user)  # Asignar el autor al usuario actual
+        self.operation_type = 'create' # ESTO ASIGNA EL author
+
+
     # permission_classes = (IsAuthenticated,)
     # authentication_classes = (TokenAuthentication, SessionAuthentication)
     queryset = Entry.objects.all()
