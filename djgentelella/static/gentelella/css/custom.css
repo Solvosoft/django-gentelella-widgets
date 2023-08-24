@@ -4643,11 +4643,49 @@ border-bottom:2px solid #E6E9ED;
     display: flex;
     align-items: center;
     justify-content: center;
+    /*margin: 3px 0 0 0 !important;*/
 }
 
 .btn_col_style{
-    margin: auto;
+    margin: auto auto;
     display: flex;
     flex-direction: col;
-    justify-content: center;
+    justify-content: center !important;
+    align-items: center !important;
+    /*border-radius: 5% !important;*/
 }
+
+.add_selection{
+    height: 40px !important;
+    width: 65px !important;
+    border-radius: 5% !important;
+    /*align-item: center !important;
+    justify-content: center !important;*/
+}
+
+.return_selected{
+    height: 40px !important;
+    width: 65px !important;
+    border-radio: 5% !important;
+    /*align-item: center !important;
+    justify-content: center !important;*/
+}
+
+/*.content-item{
+    height: 90%;
+    width: 90%;
+}*/
+
+/*.return_selected{
+    background-color: #2A3F54;
+    color: #fff;
+}*/
+
+/*.return_selected:hover{
+    background-color: gray;
+    color: #fff;
+}*/
+
+
+
+
