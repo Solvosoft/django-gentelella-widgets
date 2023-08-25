@@ -21,13 +21,14 @@
             <table class="table table-striped w-100" id="blog_table"></table>
         </div>
     </div>
+
 {% url "api-personblog-list"  as create_obj_url %}
 {% trans 'Create Blog' as create_obj_tittle %}
 {% include 'gentelella/blocks/modal_template.html' with form=create_form id="create_obj_modal" title=create_obj_tittle form_id="create_obj_form" url=create_obj_url %}
 
-{% url "api-personblog-detail" 0 as update_obj_url %}
-{% trans 'Update Person' as update_obj_tittle %}
-{% include 'gentelella/blocks/modal_template.html' with form=update_form id="update_obj_modal" title=update_obj_tittle form_id="update_obj_form" url=update_obj_url %}
+//{% url "api-personblog-detail" 0 as update_obj_url %}
+//{% trans 'Update Person' as update_obj_tittle %}
+//{% include 'gentelella/blocks/modal_template.html' with form=update_form id="update_obj_modal" title=update_obj_tittle form_id="update_obj_form" url=update_obj_url %}
 
 {% include 'gentelella/blocks/modal_template_detail.html' with id="detail_obj_modal" %}
 
@@ -49,9 +50,9 @@ var object_urls ={
 	destroy_url: "{% url 'api-personblog-detail' 0 %}",
 	detail_url: "{% url 'api-personblog-detail' 0 %}",
 	detail_template_url: "{% url 'api-personblog-detail-template' %}",
-	//get_values_for_update_url: "{% url 'api-personblog-get-values-for-update' 0 %}", // get_object_for_update_url
+//	get_values_for_update_url: "{% url 'api-personblog-get-values-for-update' 0 %}", // get_object_for_update_url
 	create_url: "{{create_obj_url}}",
-	//update_url: "{{update_obj_url}}"
+//	update_url: "{{update_obj_url}}"
 }
 
 
@@ -60,11 +61,7 @@ datatable_inits = {
 			columns: [
         { data: "id", name: "id", title: gettext("ID"), visible: false },
         { data: "title", name: "title", title: gettext("Title") },
-
-
         { data: "author", name: "author", title: gettext("Author") },
-
-
         { data: "resume", name: "resume", title: gettext("Resume") },
         { data: "content", name: "content", title: gettext("Content") },
         { data: "categories", name: "categories", title: gettext("Category") },
@@ -96,16 +93,26 @@ datatable_inits = {
 
 var obj_modalids = {
 	create: "#create_obj_modal",
-	update: "#update_obj_modal",
+	//update: "#update_obj_modal",
 	detail: "#detail_obj_modal",
 	destroy: "#delete_obj_modal",
 }
 var obj_actions = {
-	 table_actions: [],  //table_actions
-	 object_actions: [],  // object_actions
-		title: gettext('Actions'),
-		className:  "no-export-col"
-}
+    table_actions: [],
+     object_actions: [
+        {
+            label: gettext('Update'),
+            icon: 'fa fa-edit',
+            action: function(data, type, row) {
+            var updateUrl = "{% url 'blog:entry_update' pk=1 %}".replace("1", row.id);
+                window.location.href = updateUrl;
+            },
+            visible: true
+        }
+    ],
+    title: gettext('Actions'),
+    className:  "no-export-col"
+};
 
 let objconfig={
 	urls: object_urls,

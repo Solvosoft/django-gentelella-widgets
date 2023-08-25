@@ -27,8 +27,6 @@ def person_object_blog(request):
         'update_form': EntryForm(prefix='update'),
     }
     return request(request, 'entry_list.html', context=context)
-
-
 class EntriesList(ListView):
     model = models.Entry
     template_name = 'gentelella/blog/entry_list.html'
