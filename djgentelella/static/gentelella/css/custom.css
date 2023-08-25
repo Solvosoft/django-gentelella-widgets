@@ -4671,20 +4671,24 @@ border-bottom:2px solid #E6E9ED;
     justify-content: center !important;*/
 }
 
-/*.content-item{
-    height: 90%;
-    width: 90%;
-}*/
+/* centering arrow right in button*/
 
-/*.return_selected{
-    background-color: #2A3F54;
-    color: #fff;
-}*/
+i.right {
+    margin-bottom: 10px;
+}
 
-/*.return_selected:hover{
-    background-color: gray;
-    color: #fff;
-}*/
+/* centering arrow left in button*/
+i.left {
+    margin-bottom: 10px;
+}
+
+button.btn.btn-success.arrow_select2box.add_selection.h-25.mt-lg-5.mt-md-0.mt-sm-0.p-2.d-flex.align-items-center.justify-content-center {
+    border-radius: 12% !important;
+}
+
+button.btn.btn-success.btn-sm.arrow_select2box.return_selected.h-25.mb-lg-5.mb-md-0.mb-sm-0.p-2.mt-2.d-flex.align-items-center.justify-content-center {
+    border-radius: 12% !important;
+}
 
 
 

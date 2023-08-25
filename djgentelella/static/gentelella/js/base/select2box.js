@@ -5,6 +5,7 @@ function get_select2box(instance){
     //Instance of the parent container
     'container': null,
     'init': function(){
+
                 let current_instance = this.container
                 let parent = current_instance[0] //DOM Container
                 let url = current_instance.find('.select2box_available').data('url') //undefined or data
@@ -35,7 +36,12 @@ function get_select2box(instance){
                             current_instance.find('.save_data_btn').on('click', () => this.send_form_data(form_url, current_instance))
                         }
                         else{
+
+                        //Aca esta ocultando el boton que muestra el modal con el widget.
+                        //Lo habilitare para poder ver el boton.
                             current_instance.find('.create_btn')[0].hidden = 'hidden'
+                            //prueba
+                            //current_instance.find('.create_btn')[0].show = 'show'
                         }
     },
     //Fetch the data from an API and inserts it into the options
@@ -102,6 +108,8 @@ function get_select2box(instance){
                             .on('click', () => this.insert_new_data(current_instance));
                         current_instance.find('.create_btn')
                             .on('click', () => current_instance.find('#select2box_modal').modal('show'));
+                        //current_instance.find('.create_btn_modal')
+                           // .on('click', () => current_instance.find('#select2box_modal_widget').modal('show'));
     },
     //Add selected options to the selected container
     'selected_add': function(current_instance, options){
@@ -201,6 +209,7 @@ function get_select2box(instance){
     },
     'create_custom_form': function(url, current_instance) {
                             let modal = current_instance.find('#select2box_modal')
+
                             fetch(url,
                                 {credentials: 'include',
                                     headers:{
@@ -209,6 +218,7 @@ function get_select2box(instance){
                                 }).then(response => response.json()).then(data => {
                                 modal.append(data.result)
                                 gt_find_initialize($(modal))
+
                                 current_instance.find('.save_data_btn').on('click', () => this.send_form_data(url, current_instance))
 
                             }).catch(error => {

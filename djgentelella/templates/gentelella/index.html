@@ -16,6 +16,7 @@
       <div class="card-body">
         <div class="card-title titles">
           <h2> A form </h2>
+
         </div>
         <form action="" method="POST" enctype="multipart/form-data">
           {% csrf_token %}
@@ -26,7 +27,25 @@
       </div>
 
     </div>
+
+    <!-- Prueba para agregar un modal con los widgets -->
+    <div class="card mt-3">
+      <div class="card-body">
+
+        <div class="card-title titles clearfix">
+          <h2 class="float-start"> A form  in modal</h2>
+          <button class="float-end btn btn-success create_btn_modal" type="button" data-bs-toggle="modal" data-bs-target="#select2box_modal_widget">+</button>
+        </div>
+        <div class="modal fade" id="select2box_modal_widget" tabindex="-1" aria-labelledby="miModalLabel" aria-hidden="true">
+            {% include "gentelella/widgets/select2box_modal.html" %}
+        </div>
+      </div>
+    </div>
+    <!-- Fin de la parte de prueba -->
+
   </div>
+
+
 </div>
 {% endblock %}
 {% block js %} {{ form.media }} {% endblock %}
