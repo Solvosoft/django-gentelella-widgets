@@ -1,10 +1,23 @@
 Django Gentelella widgets
 ############################
 
+.. image:: https://img.shields.io/readthedocs/django-gentelella-widgets?label=Read%20the%20Docs&logo=read%20the%20docs&logoColor=white
+  :alt: Gentelella documentation
+
+.. image:: https://img.shields.io/pypi/pyversions/django
+  :alt: Gentelella supported python version
+
+
 This application is a set of utilities that will make developing applications with django and bootstrap 5 easier, as it provides a set of Javascript libraries such as select2, icheck, datatables and more nicely integrated as widgets or utilities that simplify application creation. 
 
 This app helps you to integrate Django apps with `Gentelella <https://colorlib.com/polygon/gentelella/index.html>`_ building extra widgets for forms and speciall methods to render forms in templates.
 
+.. image:: docs/source/_static/readme/logo.png
+  :width: 200
+  :alt: Gentelella Logo
+
+Documentation
+________________
 
 See `Documentation <https://django-gentelella-widgets.readthedocs.io/>`_
 
