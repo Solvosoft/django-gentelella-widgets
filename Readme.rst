@@ -7,6 +7,10 @@ Django Gentelella widgets
 .. image:: https://img.shields.io/pypi/pyversions/django
   :alt: Gentelella supported python version
 
+.. image:: https://github.com/Solvosoft/django-gentelella-widgets/actions/workflows/django.yml/badge.svg
+  :alt: Gentelella test status
+
+
 
 This application is a set of utilities that will make developing applications with django and bootstrap 5 easier, as it provides a set of Javascript libraries such as select2, icheck, datatables and more nicely integrated as widgets or utilities that simplify application creation. 
 
