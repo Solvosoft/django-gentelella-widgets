@@ -1962,8 +1962,7 @@ function get_select2box(instance){
 
                         current_instance.find('.create_btn')
                             .on('click', () => current_instance.find('#select2box_modal').modal('show'));
-                        //current_instance.find('.create_btn_modal')
-                          //  .on('click', () => current_instance.find('#select2box_modal_widget').modal('show'));
+
     },
     //Add selected options to the selected container
     'selected_add': function(current_instance, options){
