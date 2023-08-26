@@ -19,7 +19,7 @@ class BlogFilterSet(FilterSet):
 
     class Meta:
         model = Entry
-        fields = {'title': ['icontains'], 'resume': ['icontains'], 'content': ['icontains'], }
+        fields = {'title': ['icontains'], 'resume': ['icontains'], }
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -58,7 +58,6 @@ class BlogDataTableSerializer(serializers.Serializer):
 
 class BlogCreateSerializer(serializers.ModelSerializer):
     published_content = serializers.StringRelatedField(required=False)  # Campo no requerido
-
     class Meta:
         model = Entry
         fields = "__all__"
