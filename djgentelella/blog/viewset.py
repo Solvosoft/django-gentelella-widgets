@@ -18,7 +18,7 @@ from djgentelella.datatables.serializer import BlogFilterSet
 from djgentelella.blog.models import Entry
 
 
-class PersonBLog(BaseObjectBlog):
+class ObjectBLog(BaseObjectBlog):
     serializer_class = {
         'list': serializer.BlogDataTableSerializer,
         'create': serializer.BlogCreateSerializer,
@@ -36,8 +36,8 @@ class PersonBLog(BaseObjectBlog):
     queryset = Entry.objects.all()
     pagination_class = LimitOffsetPagination
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
-    search_fields = ['title', 'resume']   # for the global search
+    search_fields = ['title', 'resume', 'content']   # for the global search
     filterset_class = BlogFilterSet
-    ordering_fields = ['title', 'resume']
+    ordering_fields = ['title', 'resume', 'content', 'categories']
     ordering = ('-title',)  # default order
     operation_type = ''

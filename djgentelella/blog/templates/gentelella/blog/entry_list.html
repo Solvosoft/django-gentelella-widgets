@@ -21,17 +21,17 @@
             <table class="table table-striped w-100" id="blog_table"></table>
         </div>
     </div>
-{% url "api-personblog-list"  as create_obj_url %}
+{% url "api-objectbLog-list"  as create_obj_url %}
 {% trans 'Create Blog' as create_obj_tittle %}
 {% include 'gentelella/blocks/modal_template.html' with form=create_form id="create_obj_modal" title=create_obj_tittle form_id="create_obj_form" url=create_obj_url %}
 
-{% url "api-personblog-detail" 0 as update_obj_url %}
+{% url "api-objectbLog-detail" 0 as update_obj_url %}
 {% trans 'Update Person' as update_obj_tittle %}
 {% include 'gentelella/blocks/modal_template.html' with form=update_form id="update_obj_modal" title=update_obj_tittle form_id="update_obj_form" url=update_obj_url %}
 
 {% include 'gentelella/blocks/modal_template_detail.html' with id="detail_obj_modal" %}
 
-{% url "api-personblog-detail"  as delete_obj_url %}
+{% url "api-objectbLog-detail"  as delete_obj_url %}
 
 {% trans 'Delete Blog' as delete_obj_tittle %}
 {% include 'gentelella/blocks/modal_template_delete.html' with form=delete_form id="delete_obj_modal" title=delete_obj_tittle form_id="delete_obj_form" url=delete_obj_url %}
@@ -45,11 +45,11 @@
 
 
 var object_urls ={
-	list_url: "{% url 'api-personblog-list' %}",
-	destroy_url: "{% url 'api-personblog-detail' 0 %}",
-	detail_url: "{% url 'api-personblog-detail' 0 %}",
-	detail_template_url: "{% url 'api-personblog-detail-template' %}",
-	//get_values_for_update_url: "{% url 'api-personblog-get-values-for-update' 0 %}", // get_object_for_update_url
+	list_url: "{% url 'api-objectbLog-list' %}",
+	destroy_url: "{% url 'api-objectbLog-detail' 0 %}",
+	detail_url: "{% url 'api-objectbLog-detail' 0 %}",
+	detail_template_url: "{% url 'api-objectbLog-detail-template' %}",
+	//get_values_for_update_url: "{% url 'api-objectbLog-get-values-for-update' 0 %}", // get_object_for_update_url
 	create_url: "{{create_obj_url}}",
 	//update_url: "{{update_obj_url}}"
 }
@@ -97,7 +97,7 @@ datatable_inits = {
 var obj_modalids = {
 	create: "#create_obj_modal",
 	update: "#update_obj_modal",
-	detail: "#detail_obj_modal",
+	//detail: "#detail_obj_modal",
 	destroy: "#delete_obj_modal",
 }
 var obj_actions = {

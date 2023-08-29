@@ -21,8 +21,8 @@ from .templatetags.gtsettings import get_version
 from djgentelella.datatables.api import BlogViewSet
 
 
-from djgentelella.blog.views import person_object_blog
-from djgentelella.blog.viewset import PersonBLog
+from djgentelella.blog.views import object_blog
+from djgentelella.blog.viewset import ObjectBLog
 
 
 
@@ -89,13 +89,13 @@ router.register('notificationtableview', NotificationViewSet, 'api-notificationt
 
 router = DefaultRouter()
 router.register('blogtableview', BlogViewSet, 'api-blogtable')
-router.register('personblog', PersonBLog,
-                'api-personblog')
+router.register('objectbLog', ObjectBLog,
+                'api-objectbLog')
 
 base_urlpatterns = [
 
-    path('person_object_blog', person_object_blog,
-         name='person_object_blog'),
+    path('object_blog', object_blog,
+         name='object_blog'),
 
     re_path('gtapis/', include(routes.urls)),
     path('djgentelella/upload/', ChunkedUploadView.as_view(),

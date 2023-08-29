@@ -21,7 +21,7 @@ from djgentelella.blog.forms import EntryForm #Creo que hay que cambiar el form
 
 
 
-def person_object_blog(request):
+def object_blog(request):
     context = {
         'create_form': EntryForm(prefix='create'),
         'update_form': EntryForm(prefix='update'),

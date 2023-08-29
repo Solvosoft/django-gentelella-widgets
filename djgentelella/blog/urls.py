@@ -5,8 +5,8 @@ from demoapp.datatables.api import PersonViewSet
 
 from djgentelella.datatables.api import BlogViewSet
 
-from djgentelella.blog.views import person_object_blog
-from djgentelella.blog.viewset import PersonBLog
+from djgentelella.blog.views import object_blog
+from djgentelella.blog.viewset import ObjectBLog
 
 from demoapp.cruds import Personclass
 
@@ -17,14 +17,14 @@ from demoapp.cruds import Personclass
 pclss = Personclass()
 router = DefaultRouter()
 router.register('blogtableview', BlogViewSet, 'api-blogtable')
-router.register('personblog', PersonBLog,
-                'api-personblog')
+router.register('objectbLog', ObjectBLog,
+                'api-objectbLog')
 
 app_name = 'blog'
 urlpatterns = [
 
-    path('person_object_blog', person_object_blog,
-         name='person_object_blog'),
+    path('object_blog', object_blog,
+         name='object_blog'),
     path('', views.EntriesList.as_view(), name='entrylist'),
     path('entry/create', views.EntryCreate.as_view(), name='entrycreate'),
     path('entry/<int:pk>/', views.EntryUpdate.as_view(), name='entry_update'),
