@@ -11,22 +11,22 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, \
 
 from . import models
 from .forms import EntryForm, CategoryForm
-from .models import Category
+from .models import Category, Entry
 
 from django.shortcuts import render
-from demoapp.forms import PersonForm
+
 
 from djgentelella.blog.forms import EntryForm #Creo que hay que cambiar el form
 
 
+from django.shortcuts import get_object_or_404
 
-
-def object_blog(request):
+def object_blog(response):
     context = {
         'create_form': EntryForm(prefix='create'),
         'update_form': EntryForm(prefix='update'),
     }
-    return request(request, 'entry_list.html', context=context)
+    return render(response, 'entry_list.html', context=context)
 
 
 class EntriesList(ListView):
@@ -80,10 +80,8 @@ class EntriesList(ListView):
         context['q'] = self.request.GET.get('q', '')
         context['cat'] = self.get_category_id()
         context['getparams'] = self.get_query_get_params(exclude=['page'])
-        context = {
-            'create_form': EntryForm(prefix='create'),
-            'update_form': EntryForm(prefix='update'),
-        }
+        context['create_form'] = EntryForm(prefix='create')
+        context['update_form'] = EntryForm(prefix='update')
 
         return context
 
@@ -132,7 +130,9 @@ class EntryUpdate(PermissionRequiredMixin, UpdateView):
     template_name = 'gentelella/blog/entry_form.html'
     success_url = reverse_lazy('blog:entrylist')
     form_class = EntryForm
-
+    def get_object(self, queryset=None):
+        # Obtén la instancia de la entrada que deseas editar
+        return get_object_or_404(Entry, pk=self.kwargs['pk'])
     def form_valid(self, form):
         response = super().form_valid(form)
         publishbtn = self.request.POST.get('publishbtn', '') == 'publish'

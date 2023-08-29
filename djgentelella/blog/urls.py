@@ -1,7 +1,6 @@
 from django.urls import path, re_path
 from rest_framework.routers import DefaultRouter
 from . import views
-from demoapp.datatables.api import PersonViewSet
 
 from djgentelella.datatables.api import BlogViewSet
 
@@ -22,6 +21,7 @@ router.register('objectbLog', ObjectBLog,
 
 app_name = 'blog'
 urlpatterns = [
+
 
     path('object_blog', object_blog,
          name='object_blog'),

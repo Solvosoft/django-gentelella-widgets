@@ -4,17 +4,15 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 
-from . import serializer
+
 from .serializer import BlogFilterSet
-#from ..models import Person
-from demoapp.models import Person
 from djgentelella.blog.models import Entry
 
 
 class BlogViewSet(viewsets.ModelViewSet):
     # permission_classes = (IsAuthenticated,)
     # authentication_classes = (TokenAuthentication,)
-    serializer_class = serializer.BlogDataTableSerializer
+    #serializer_class = serializer.BlogDataTableSerializer
     queryset = Entry.objects.all()
     pagination_class = LimitOffsetPagination
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)

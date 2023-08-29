@@ -5,10 +5,10 @@ from django_filters import FilterSet
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-#from demoapp.models import Person, Country
+
 from djgentelella.blog.models import Entry, Category, EntryImage
 from djgentelella.fields.drfdatetime import DateRangeTextWidget, DateTimeRangeTextWidget
-from djgentelella.serializers import GTDateField, GTDateTimeField
+
 
 
 
@@ -30,6 +30,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
 #ESTE ES PARA CATEGORIAS y author
 class BlogSerializer(serializers.ModelSerializer):
+    #categories = CategorySerializer()
     categories = serializers.StringRelatedField(many=True)
     author = serializers.StringRelatedField(many=False)
     published_content = serializers.StringRelatedField(required=False)  # Campo no requerido
@@ -51,13 +52,12 @@ class BlogDataTableSerializer(serializers.Serializer):
     draw = serializers.IntegerField(required=True)
     recordsFiltered = serializers.IntegerField(required=True)
     recordsTotal = serializers.IntegerField(required=True)
-
-    published_content = serializers.StringRelatedField(required=False)  # Campo no requerido
+    published_content = serializers.StringRelatedField(required=False)
 
 
 
 class BlogCreateSerializer(serializers.ModelSerializer):
-    published_content = serializers.StringRelatedField(required=False)  # Campo no requerido
+    published_content = serializers.StringRelatedField(required=False)
     class Meta:
         model = Entry
         fields = "__all__"
@@ -65,15 +65,20 @@ class BlogCreateSerializer(serializers.ModelSerializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):
-    published_content = serializers.StringRelatedField(required=False)  # Campo no requerido
+    published_content = serializers.StringRelatedField(required=False)
+
+
     class Meta:
-        model = Category
-        fields = '__all__'
+            model = Category
+            fields = '__all__'
 
 
 class BlogUpdateSerializer(serializers.ModelSerializer):
-    published_content = serializers.StringRelatedField(required=False)  # Campo no requerido
-
+    published_content = serializers.StringRelatedField(required=False)
+    #categories = serializers.StringRelatedField(many=True) #AGRGADO
+   # categories = CategorySerializer(many=True)
+    categories = serializers.StringRelatedField(
+        many=True)  # Muestra el nombre de la categoría
 
     class Meta:
         model = Entry
