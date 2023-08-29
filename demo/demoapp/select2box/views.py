@@ -32,6 +32,7 @@ class Select2BoxGroupList(ListView):
 
 def Select2BoxPersonAddView(request):
     form_t = PersonForm(prefix='person_new_data')
+    print(form_t)
     if request.method == "GET":
         render_str = render_to_string('gentelella/widgets/select2box_modal_body.html', {'form': form_t})
         return JsonResponse({'result': render_str})

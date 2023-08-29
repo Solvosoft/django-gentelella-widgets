@@ -8,7 +8,6 @@
             </div>
             <div class="modal-body">
               <form action="" method="POST" enctype="multipart/form-data">
-          {% csrf_token %}
           {{form.as_inline}}
           <input class="btn btn-success" type="submit" value="Save"/>
         </form>

@@ -4690,6 +4690,14 @@ button.btn.btn-success.btn-sm.arrow_select2box.return_selected.h-25.mb-lg-5.mb-m
     border-radius: 12% !important;
 }
 
+.select2box_options{
+    background-color: #E2E7E8 !important;
+}
+
+.select2box_available {
+    background-color: #EFF1F1 !important;
+}
+
 
 
 
