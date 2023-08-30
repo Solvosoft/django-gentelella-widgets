@@ -4698,6 +4698,68 @@ button.btn.btn-success.btn-sm.arrow_select2box.return_selected.h-25.mb-lg-5.mb-m
     background-color: #EFF1F1 !important;
 }
 
+@media only screen and (min-width: 311px) and (max-width: 768px) {
+	.add_selection{
+    height: 20px !important;
+    width: 35px !important;
+    border-radius: 5% !important;
+}
+    .return_selected{
+    height: 20px !important;
+    width: 35px !important;
+}
+
+.btn_col_style{
+    margin: auto 0px !important;
+}
+
+.select2box_options, .select2box_available{
+    overflow-x: auto;
+}
+
+}
+
+
+@media only screen and (min-width: 768px) and (max-width: 991px) {
+	.add_selection{
+    height: 30px !important;
+    width: 45px !important;
+    border-radius: 5% !important;
+}
+    .return_selected{
+    height: 30px !important;
+    width: 45px !important;
+}
+
+.btn_col_style{
+    margin: auto 0px !important;
+}
+
+}
+
+/* Para pantallas pequeñas (576px o menos) */
+@media (max-width: 576px) {
+/* first column */
+    .custom-col-4 {
+        flex: 0 0 35.666667%;
+        max-width: 35.666667%;
+    }
+    /* second column */
+    .custom-col-1 {
+        flex: 0 0 10.666667%;
+        max-width: 10.666667%;
+    }
+    /* third column */
+    .custom-col-3 {
+        flex: 0 0 34.666667%;
+        max-width: 34.666667%;
+    }
+    /* fourth column */
+    .custom-col-2 {
+        flex: 0 0 16.666667%;
+        max-width: 16.666667%;
+    }
+}
 
 
 

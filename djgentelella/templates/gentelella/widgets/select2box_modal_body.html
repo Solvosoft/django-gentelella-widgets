@@ -7,8 +7,9 @@
     </div>
     <div class="modal-body">
        <form class="insert_model_data_form" action="." method="POST">
-         {% csrf_token %}
-        {{form.as_p}}
+        {% csrf_token %}
+
+        {{ form.as_p }}
       </form>
     </div>
     <div class="modal-footer">
