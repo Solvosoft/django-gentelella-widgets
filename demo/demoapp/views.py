@@ -1,14 +1,15 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import Permission
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
+from rest_framework import generics
 
 from djgentelella.notification import create_notification
 from .autocomplete.forms import ABCDEModalGroupForm
 from .forms import FooModelForm, YesNoInputAddForm, PersonModalForm
 from .models import YesNoInput
-
 
 @login_required
 def create_notification_view(request):
@@ -54,3 +55,5 @@ def bt_modal_display(request):
         'abcdeform': ABCDEModalGroupForm()
     }
     return render(request, 'btmodals.html', context=context)
+
+
