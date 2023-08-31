@@ -12,7 +12,7 @@ Django Gentelella widgets
 
 
 
-This application is a set of utilities that will make developing applications with django and bootstrap 5 easier, as it provides a set of Javascript libraries such as select2, icheck, datatables and more nicely integrated as widgets or utilities that simplify application creation. 
+This application is a set of utilities that will make developing applications with django and bootstrap 5 easier, as it provides a set of Javascript libraries such as select2, icheck, datatables and more nicely integrated as widgets or utilities that simplify application creation.
 
 This app helps you to integrate Django apps with `Gentelella <https://colorlib.com/polygon/gentelella/index.html>`_ building extra widgets for forms and speciall methods to render forms in templates.
 
@@ -28,13 +28,8 @@ See `Documentation <https://django-gentelella-widgets.readthedocs.io/>`_
 Installation
 ________________
 
-Installing from repository (Updated frequently, most of great functionalities are not in pip yet ).
+Installing from pypi
 
-.. code:: bash
-
-   pip install git+https://github.com/Solvosoft/django-gentelella-widgets.git#egg=djgentelella
-
-An stable version on pip, but not all available widget are in this release (new release comming soon)
 
 .. code:: bash
 
