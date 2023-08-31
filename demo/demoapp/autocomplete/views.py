@@ -34,7 +34,7 @@ class ABCDECreate(CreateView):
 class ABCDEChange(UpdateView):
     model = models.ABCDE
     success_url = reverse_lazy('abcde-list')
-    form_class = forms.PeopleGroupForm
+    form_class = forms.ABCDEGroupForm
     template_name = 'gentelella/index.html'
 
 
