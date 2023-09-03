@@ -30,7 +30,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
 #ESTE ES PARA CATEGORIAS y author
 class BlogSerializer(serializers.ModelSerializer):
-    #categories = CategorySerializer()
+
     categories = serializers.StringRelatedField(many=True)
     author = serializers.StringRelatedField(many=False)
     published_content = serializers.StringRelatedField(required=False)  # Campo no requerido
@@ -75,10 +75,8 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class BlogUpdateSerializer(serializers.ModelSerializer):
     published_content = serializers.StringRelatedField(required=False)
-    #categories = serializers.StringRelatedField(many=True) #AGRGADO
-   # categories = CategorySerializer(many=True)
     categories = serializers.StringRelatedField(
-        many=True)  # Muestra el nombre de la categoría
+        many=True)
 
     class Meta:
         model = Entry

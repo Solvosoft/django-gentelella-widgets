@@ -23,10 +23,6 @@ class BaseObjectBlog(viewsets.ModelViewSet):
     # queryset =
     pagination_class = LimitOffsetPagination
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
-    # search_fields = ['name', 'num_children', ]  # for the global search
-    # filterset_class = PersonFilterSet
-    # ordering_fields = ['name', 'num_children', 'born_date', 'last_time']
-    # ordering = ('-num_children',)  # default order
     operation_type = ''
 
     def get_serializer_class(self):

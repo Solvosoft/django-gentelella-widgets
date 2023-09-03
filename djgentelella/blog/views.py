@@ -83,12 +83,7 @@ class EntriesList(ListView):
         context['q'] = self.request.GET.get('q', '')
         context['cat'] = self.get_category_id()
         context['getparams'] = self.get_query_get_params(exclude=['page'])
-
-        # Asegúrate de incluir una instancia válida de 'entry' en el contexto
-        context[
-            'entry'] = models.Entry.objects.first()  # Cambia esto a tu lógica de obtención de la entrada
-
-        # Agrega los formularios de creación y actualización al contexto
+        context['entry'] = models.Entry.objects.first()
         context['create_form'] = EntryForm(prefix='create')
         context['update_form'] = EntryForm(prefix='update')
 
@@ -143,9 +138,9 @@ class EntryUpdate(PermissionRequiredMixin, UpdateView):
     template_name = 'gentelella/blog/entry_form.html'
     success_url = reverse_lazy('blog:entrylist')
     form_class = EntryForm
-    context_object_name = 'entry'  # Agrega esta línea
+    context_object_name = 'entry'
 
-    def get_context_data(self, **kwargs):#agregada
+    def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         print(context['entry'])
         context['update_url'] = reverse('blog:entry_update',

@@ -5,7 +5,7 @@ from rest_framework.pagination import LimitOffsetPagination
 from djgentelella.blog.blog import BaseObjectBlog
 
 
-from djgentelella.datatables import  serializer
+from djgentelella.datatables import serializer
 from djgentelella.datatables.serializer import BlogFilterSet
 
 
@@ -22,10 +22,10 @@ class ObjectBLog(BaseObjectBlog):
         'retrieve': serializer.BlogUpdateSerializer,
         'get_values_for_update': serializer.BlogUpdateSerializer
     }
+    #Asigna el author al usuario actual
     def perform_create(self, serializer): # ESTO ASIGNA EL author
-        serializer.save(author=self.request.user)  # Asignar el autor al usuario actual
-        self.operation_type = 'create' # ESTO ASIGNA EL author
-
+        serializer.save(author=self.request.user)
+        self.operation_type = 'create'
 
     # permission_classes = (IsAuthenticated,)
     # authentication_classes = (TokenAuthentication, SessionAuthentication)

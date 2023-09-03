@@ -17,14 +17,6 @@
                 </div>
             </div>
         </div>
-								<!--{% for entry in entries %}
-							<div id="slug-data" data-slug="{{ entry.slug }}"></div>
-            <li>
-                <p>Entry Title: {{ entry.title }}</p>
-				           	<p>Entry Slug: {{ entry.slug }}</p>
-                <p>Entry URL: <a href="{% url 'blog:entrydetail' slug=entry.slug %}">{% url 'blog:entrydetail' slug=entry.slug %}</a></p>
-            </li>
-        {% endfor %}-->
         <div class="row">
             <table class="table table-striped w-100" id="blog_table"></table>
         </div>
@@ -74,20 +66,6 @@ datatable_inits = {
         { data: "categories", name: "categories", title: gettext("Category") },
 							 { data: "actions", name: "actions", title: gettext("Actions"), type: "string", visible: true }
 
-							/* {data: null,
-        name: "actions",
-        title: gettext("Actions"),
-        render: function (data, type, row) {
-        var updateUrl = "{% url 'blog:entry_update' pk=1 %}".replace("1", row.id);
-        return '<a href="' + updateUrl + '">' +
-                   '<i class="fa fa-edit yellow"></i>' +
-               '</a>';
-    },
-    visible: true
-}*/
-
-
-
 
 			],
 			events: {
@@ -101,11 +79,8 @@ datatable_inits = {
 var obj_modalids = {
 	create: "#create_obj_modal",
 	update: "#update_obj_modal",
-//	detail: "#detail_obj_modal",
 	destroy: "#delete_obj_modal",
 }
-//var entryDetailBaseURL = "{% url 'blog:entrydetail' slug='SLUG' %}";
-
 var obj_actions = {
     table_actions: [],
     object_actions: [
@@ -136,14 +111,15 @@ let objconfig={
 //En este código, estamos configurando un evento click en las filas de la tabla (tr) y obteniendo los datos de la fila seleccionada usando
 
 document.addEventListener("DOMContentLoaded", function() {
+
     // Configura el DataTable para llamar a la función ocrud.detailblog cuando se hace clic en el icono específico
+
     $('#blog_table tbody').on('click', '.fa-eye', function() {
         var row = $(this).closest('tr'); // Encuentra la fila más cercana al icono clicado
         var data = ocrud.datatable.row(row).data(); // Obtiene los datos de la fila
         ocrud.detailblog(null, null, data); // Llama a detailblog con los datos de la fila
     });
 
-    // Resto del código de inicialización aquí
 });
 
 
@@ -153,13 +129,10 @@ let ocrud=ObjectCRUD("setmeunique", objconfig)/// setmeunique DISTINTO
 //PARA REDIRECCIONAR
 document.addEventListener("DOMContentLoaded", function() {
     ocrud.detailblog = function(data, type, row) {
-        console.log("Row:", row); // Agrega esta línea para depurar
         var slug = row.slug; // Obtén el slug de la fila seleccionada
         var detailUrl = "/blog/published/" + slug + "/";
         window.location.href = detailUrl;
     };
-
-    // Resto del código de inicialización aquí
 });
 
 
