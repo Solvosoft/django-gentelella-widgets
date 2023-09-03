@@ -11,22 +11,24 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, \
 
 from . import models
 from .forms import EntryForm, CategoryForm
-from .models import Category, Entry
+from .models import Category
 
 from django.shortcuts import render
-
+from demoapp.forms import PersonForm
 
 from djgentelella.blog.forms import EntryForm #Creo que hay que cambiar el form
+from django.urls import reverse
 
 
-from django.shortcuts import get_object_or_404
 
-def object_blog(response):
+
+def object_blog(request):
     context = {
         'create_form': EntryForm(prefix='create'),
         'update_form': EntryForm(prefix='update'),
     }
-    return render(response, 'entry_list.html', context=context)
+
+    return request(request, 'entry_list.html', context=context)
 
 
 class EntriesList(ListView):
@@ -35,6 +37,7 @@ class EntriesList(ListView):
     context_object_name = 'entries'
     paginate_by = 10
     paginate_orphans = 5
+
 
     def get_queryset(self):
         queryset = super(EntriesList, self).get_queryset().filter(
@@ -80,8 +83,17 @@ class EntriesList(ListView):
         context['q'] = self.request.GET.get('q', '')
         context['cat'] = self.get_category_id()
         context['getparams'] = self.get_query_get_params(exclude=['page'])
+
+        # Asegúrate de incluir una instancia válida de 'entry' en el contexto
+        context[
+            'entry'] = models.Entry.objects.first()  # Cambia esto a tu lógica de obtención de la entrada
+
+        # Agrega los formularios de creación y actualización al contexto
         context['create_form'] = EntryForm(prefix='create')
         context['update_form'] = EntryForm(prefix='update')
+
+        for entry in context['entries']:
+            entry.update_url = reverse('blog:entry_update', kwargs={'pk': entry.pk})
 
         return context
 
@@ -111,6 +123,7 @@ class EntryCreate(PermissionRequiredMixin, CreateView):
     success_url = reverse_lazy('blog:entrylist')
     form_class = EntryForm
 
+
     def form_valid(self, form):
         response = super().form_valid(form)
         publishbtn = self.request.POST.get('publishbtn', '') == 'publish'
@@ -130,9 +143,15 @@ class EntryUpdate(PermissionRequiredMixin, UpdateView):
     template_name = 'gentelella/blog/entry_form.html'
     success_url = reverse_lazy('blog:entrylist')
     form_class = EntryForm
-    def get_object(self, queryset=None):
-        # Obtén la instancia de la entrada que deseas editar
-        return get_object_or_404(Entry, pk=self.kwargs['pk'])
+    context_object_name = 'entry'  # Agrega esta línea
+
+    def get_context_data(self, **kwargs):#agregada
+        context = super().get_context_data(**kwargs)
+        print(context['entry'])
+        context['update_url'] = reverse('blog:entry_update',
+                                        kwargs={'pk': self.object.pk})
+        return context
+
     def form_valid(self, form):
         response = super().form_valid(form)
         publishbtn = self.request.POST.get('publishbtn', '') == 'publish'

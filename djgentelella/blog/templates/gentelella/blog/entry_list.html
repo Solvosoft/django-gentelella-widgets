@@ -17,11 +17,20 @@
                 </div>
             </div>
         </div>
-
+								<!--{% for entry in entries %}
+							<div id="slug-data" data-slug="{{ entry.slug }}"></div>
+            <li>
+                <p>Entry Title: {{ entry.title }}</p>
+				           	<p>Entry Slug: {{ entry.slug }}</p>
+                <p>Entry URL: <a href="{% url 'blog:entrydetail' slug=entry.slug %}">{% url 'blog:entrydetail' slug=entry.slug %}</a></p>
+            </li>
+        {% endfor %}-->
         <div class="row">
             <table class="table table-striped w-100" id="blog_table"></table>
         </div>
     </div>
+<div id="slug-data" data-slug="{{ entry.slug }}"></div>
+
 {% url "api-objectbLog-list"  as create_obj_url %}
 {% trans 'Create Blog' as create_obj_tittle %}
 {% include 'gentelella/blocks/modal_template.html' with form=create_form id="create_obj_modal" title=create_obj_tittle form_id="create_obj_form" url=create_obj_url %}
@@ -43,8 +52,6 @@
 {{block.super}}
 <script>
 
-
-
 var object_urls ={
 	list_url: "{% url 'api-objectbLog-list' %}",
 	destroy_url: "{% url 'api-objectbLog-detail' 0 %}",
@@ -61,11 +68,7 @@ datatable_inits = {
 			columns: [
         { data: "id", name: "id", title: gettext("ID"), visible: false },
         { data: "title", name: "title", title: gettext("Title") },
-
-
         { data: "author", name: "author", title: gettext("Author") },
-
-
         { data: "resume", name: "resume", title: gettext("Resume") },
         { data: "content", name: "content", title: gettext("Content") },
         { data: "categories", name: "categories", title: gettext("Category") },
@@ -98,15 +101,27 @@ datatable_inits = {
 var obj_modalids = {
 	create: "#create_obj_modal",
 	update: "#update_obj_modal",
-	detail: "#detail_obj_modal",
+//	detail: "#detail_obj_modal",
 	destroy: "#delete_obj_modal",
 }
+//var entryDetailBaseURL = "{% url 'blog:entrydetail' slug='SLUG' %}";
+
 var obj_actions = {
-	 table_actions: [],  //table_actions
-	 object_actions: [],  // object_actions
-		title: gettext('Actions'),
-		className:  "no-export-col"
-}
+    table_actions: [],
+    object_actions: [
+        {
+            'name': "detailblog",
+            'action': function(data, type, row, entry, slug) {
+                ocrud.detailblog(data, type, row, entry, slug);
+            },
+            'url': null,
+            'i_class': 'fa fa-eye',
+        }
+    ],
+    title: gettext('Actions'),
+    className: "no-export-col"
+};
+
 
 let objconfig={
 	urls: object_urls,
@@ -118,10 +133,42 @@ let objconfig={
 	relation_render: {'country': 'name' },////
 	delete_display: data => data['name']/////
 }
+//En este código, estamos configurando un evento click en las filas de la tabla (tr) y obteniendo los datos de la fila seleccionada usando
+
+document.addEventListener("DOMContentLoaded", function() {
+    // Configura el DataTable para llamar a la función ocrud.detailblog cuando se hace clic en el icono específico
+    $('#blog_table tbody').on('click', '.fa-eye', function() {
+        var row = $(this).closest('tr'); // Encuentra la fila más cercana al icono clicado
+        var data = ocrud.datatable.row(row).data(); // Obtiene los datos de la fila
+        ocrud.detailblog(null, null, data); // Llama a detailblog con los datos de la fila
+    });
+
+    // Resto del código de inicialización aquí
+});
+
+
 
 let ocrud=ObjectCRUD("setmeunique", objconfig)/// setmeunique DISTINTO
-ocrud.init();
 
+//PARA REDIRECCIONAR
+document.addEventListener("DOMContentLoaded", function() {
+    ocrud.detailblog = function(data, type, row) {
+        console.log("Row:", row); // Agrega esta línea para depurar
+        var slug = row.slug; // Obtén el slug de la fila seleccionada
+        var detailUrl = "/blog/published/" + slug + "/";
+        window.location.href = detailUrl;
+    };
+
+    // Resto del código de inicialización aquí
+});
+
+
+
+
+
+
+
+ocrud.init();
 
 
 
