@@ -1,9 +1,30 @@
 from django.urls import path, re_path
-
+from rest_framework.routers import DefaultRouter
 from . import views
+
+from djgentelella.datatables.api import BlogViewSet
+
+from djgentelella.blog.views import object_blog
+from djgentelella.blog.viewset import ObjectBLog
+
+from demoapp.cruds import Personclass
+
+
+
+
+
+pclss = Personclass()
+router = DefaultRouter()
+router.register('blogtableview', BlogViewSet, 'api-blogtable')
+router.register('objectbLog', ObjectBLog,
+                'api-objectbLog')
 
 app_name = 'blog'
 urlpatterns = [
+
+
+    path('object_blog', object_blog,
+         name='object_blog'),
     path('', views.EntriesList.as_view(), name='entrylist'),
     path('entry/create', views.EntryCreate.as_view(), name='entrycreate'),
     path('entry/<int:pk>/', views.EntryUpdate.as_view(), name='entry_update'),

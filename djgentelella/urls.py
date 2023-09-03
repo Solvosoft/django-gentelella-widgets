@@ -16,6 +16,16 @@ from djgentelella.wysiwyg import views as wysiwyg
 from .groute import routes
 from .templatetags.gtsettings import get_version
 
+
+
+from djgentelella.datatables.api import BlogViewSet
+
+
+from djgentelella.blog.views import object_blog
+from djgentelella.blog.viewset import ObjectBLog
+
+
+
 auth_urls = [
     path('accounts/login/',
          auth_views.LoginView.as_view(
@@ -77,7 +87,16 @@ for app in settings.INSTALLED_APPS:
 router = DefaultRouter()
 router.register('notificationtableview', NotificationViewSet, 'api-notificationtable')
 
+router = DefaultRouter()
+router.register('blogtableview', BlogViewSet, 'api-blogtable')
+router.register('objectbLog', ObjectBLog,
+                'api-objectbLog')
+
 base_urlpatterns = [
+
+    path('object_blog', object_blog,
+         name='object_blog'),
+
     re_path('gtapis/', include(routes.urls)),
     path('djgentelella/upload/', ChunkedUploadView.as_view(),
          name='upload_file_view'),

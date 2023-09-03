@@ -13,6 +13,23 @@ from . import models
 from .forms import EntryForm, CategoryForm
 from .models import Category
 
+from django.shortcuts import render
+from demoapp.forms import PersonForm
+
+from djgentelella.blog.forms import EntryForm #Creo que hay que cambiar el form
+from django.urls import reverse
+
+
+
+
+def object_blog(request):
+    context = {
+        'create_form': EntryForm(prefix='create'),
+        'update_form': EntryForm(prefix='update'),
+    }
+
+    return request(request, 'entry_list.html', context=context)
+
 
 class EntriesList(ListView):
     model = models.Entry
@@ -20,6 +37,7 @@ class EntriesList(ListView):
     context_object_name = 'entries'
     paginate_by = 10
     paginate_orphans = 5
+
 
     def get_queryset(self):
         queryset = super(EntriesList, self).get_queryset().filter(
@@ -65,6 +83,13 @@ class EntriesList(ListView):
         context['q'] = self.request.GET.get('q', '')
         context['cat'] = self.get_category_id()
         context['getparams'] = self.get_query_get_params(exclude=['page'])
+        context['entry'] = models.Entry.objects.first()
+        context['create_form'] = EntryForm(prefix='create')
+        context['update_form'] = EntryForm(prefix='update')
+
+        for entry in context['entries']:
+            entry.update_url = reverse('blog:entry_update', kwargs={'pk': entry.pk})
+
         return context
 
 
@@ -81,8 +106,8 @@ class EntryDetail(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['draft'] = self.request.GET.get('preview', '') == 'True' and (
-                self.request.user == context['entry'].author
-                or self.request.user.has_perm('blog.change_entry'))
+            self.request.user == context['entry'].author
+            or self.request.user.has_perm('blog.change_entry'))
         return context
 
 
@@ -92,6 +117,7 @@ class EntryCreate(PermissionRequiredMixin, CreateView):
     template_name = 'gentelella/blog/entry_form.html'
     success_url = reverse_lazy('blog:entrylist')
     form_class = EntryForm
+
 
     def form_valid(self, form):
         response = super().form_valid(form)
@@ -112,6 +138,14 @@ class EntryUpdate(PermissionRequiredMixin, UpdateView):
     template_name = 'gentelella/blog/entry_form.html'
     success_url = reverse_lazy('blog:entrylist')
     form_class = EntryForm
+    context_object_name = 'entry'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        print(context['entry'])
+        context['update_url'] = reverse('blog:entry_update',
+                                        kwargs={'pk': self.object.pk})
+        return context
 
     def form_valid(self, form):
         response = super().form_valid(form)
