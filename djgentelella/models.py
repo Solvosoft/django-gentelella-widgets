@@ -4,6 +4,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from tree_queries.models import TreeNode
 
+
 from djgentelella.chunked_upload.models import AbstractChunkedUpload
 
 
@@ -123,3 +124,18 @@ class ChunkedUpload(AbstractChunkedUpload):
         null=DEFAULT_MODEL_USER_FIELD_NULL,
         blank=DEFAULT_MODEL_USER_FIELD_BLANK
     )
+
+
+class PermissionRelated(models.Model):
+    main_permission = models.ForeignKey(Permission, on_delete=models.CASCADE)
+    related_permissions = models.ManyToManyField(Permission,
+                                                related_name='permission_dep')
+
+    def __str__(self):
+        return "Perm: %d -- %s:%s  %s" % (self.main_permission.pk,
+                                          self.main_permission._meta.app_label,
+                                          self.main_permission.codename,
+                                          self.main_permission.name
+
+
+                                      )
