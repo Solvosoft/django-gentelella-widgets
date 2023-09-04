@@ -1,11 +1,116 @@
-{% for key, value in categories.items %}
-   <a class="btn categories" data-bs-toggle="collapse" data-bs-target="#category{{key|cut:' '}}"><i class="fa fa-plus"></i></a> <strong>{{key}}</strong>
-  <div id="category{{key|cut:' '}}" class="collapse" style="width:100%">
-    {% for item in value %}
-      <div class="row" style="margin-left: 12%;">
-        <p><input type="checkbox" class="flat" name="permission" value="{{item.id}}" style="position: absolute; opacity: 0;"> {{item.name}}</p>
-      </div>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Permisos</title>
+
+    <!-- Agrega los archivos CSS de iCheck -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.3/skins/flat/green.css">
+
+    <style>
+        /* Estilo para acomodar los checkboxes y el texto en la misma línea */
+        .checkboxContainer {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .checkboxPrincipal {
+            margin-right: 10px;
+        }
+        .checkboxPrincipalLabel {
+            margin: 0;
+        }
+        .checkboxInternoLabel {
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+ <div class="row" style="margin-left: 12%;">
+<div class="container">
+    <!-- Agrega los checkboxes principales con nombres de permisos (sin categoría) -->
+    <div class="checkboxes">
+        {% for key, value in categories.items %}
+
+            {% for item in value %}
+
+            <div class="checkboxContainer">
+
+                <input type="checkbox" class="flat checkboxPrincipal" id="checkbox{{ item.id }}">
+                <label class="checkboxPrincipalLabel" for="checkbox{{ item.id }}">{{ item.name }}</label>
+            </div>
+            {% endfor %}
         {% endfor %}
-  </div>
-<br>
-{% endfor %}
+    </div>
+
+    <!-- Contenedor para los checkboxes internos (inicialmente oculto) -->
+    <div class="checkboxesInternos" style="display: none;"></div>
+</div>
+
+<!-- Agrega jQuery y el archivo JavaScript de iCheck -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.3/icheck.min.js"></script>
+
+<!-- Coloca tu código JavaScript dentro de las etiquetas <script> -->
+<!-- Coloca jQuery y el archivo JavaScript de iCheck aquí antes de este código -->
+<script>
+    $(document).ready(function () {
+        // Inicializa iCheck en los checkboxes principales
+        $('.checkboxPrincipal').iCheck({
+            checkboxClass: 'icheckbox_flat-green'
+        });
+
+        // Agrega un evento ifChecked a los checkboxes principales
+        $('.checkboxPrincipal').on('ifChecked', function (event) {
+            // Obtiene el ID del permiso principal del checkbox
+            var permissionId = $(this).attr('id').replace('checkbox', '');
+
+            // Realiza una solicitud a la API para obtener los permisos relacionados
+            $.ajax({
+                url: '/permsrelated/' + permissionId + '/', // Ajusta la URL aquí
+                type: 'GET',
+                success: function (data) {
+                    console.log('Datos de permisos relacionados:', data);
+
+                    // Verifica si 'related_permissions' existe en el objeto de datos
+                    if (data && data.related_permissions && data.related_permissions.length > 0) {
+                        var relatedPermissions = data.related_permissions;
+                        var checkboxesInternos = $('.checkboxesInternos');
+                        var relatedPermissionsHtml = '';
+
+                        for (var i = 0; i < relatedPermissions.length; i++) {
+                            relatedPermissionsHtml += '<div class="checkboxContainer">' +
+                                '<input type="checkbox" class="flat checkboxInterno" id="interno' + relatedPermissions[i].id + '" name="interno' + relatedPermissions[i].id + '" value="' + relatedPermissions[i].id + '">' +
+                                '<label class="checkboxInternoLabel" for="interno' + relatedPermissions[i].id + '">' + relatedPermissions[i].name + '</label>' +
+                                '</div>';
+                        }
+
+                        checkboxesInternos.html(relatedPermissionsHtml).show();
+
+                        // Inicializa iCheck en los nuevos checkboxes internos
+                        checkboxesInternos.find('.checkboxInterno').iCheck({
+                            checkboxClass: 'icheckbox_flat-green'
+                        });
+                    } else {
+                        // Si no hay permisos relacionados, muestra un mensaje
+                        var checkboxesInternos = $('.checkboxesInternos');
+                        checkboxesInternos.html('No hay permisos relacionados para este permiso principal.').show();
+                    }
+                },
+                error: function (error) {
+                    console.error('Error al obtener los permisos relacionados:', error);
+                }
+            });
+        });
+
+        // Agrega un evento ifUnchecked a los checkboxes principales
+        $('.checkboxPrincipal').on('ifUnchecked', function (event) {
+            // Oculta los checkboxes internos si se desmarca cualquier checkbox principal
+            $('.checkboxesInternos').empty().hide();
+        });
+    });
+</script>
+
+
+</body>
+</html>
