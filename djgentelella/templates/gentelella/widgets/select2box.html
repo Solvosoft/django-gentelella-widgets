@@ -13,23 +13,22 @@
 
   <p class="selected_values_container" hidden>{%for elem in widget.value%}{{elem}},{%endfor%}</p>
   <!-- second column-->
-  <div class="btn-group-vertical col-lg-2 col-md-1 col-sm-1 btn_col_style custom-col-1">
+  <div class="btn-group-vertical col-lg-1 col-md-1 col-sm-1 btn_col_style custom-col-1">
     <button class="btn btn-success btn-sm arrow_select2box add_selection h-25 mt-lg-5 mt-md-0 mt-sm-0 p-2 d-flex align-items-center justify-content-center" type="button"><i class="right">&#8594;</i></button>
     <button class="btn btn-success btn-sm arrow_select2box return_selected h-25 mb-lg-5 mb-md-0 mb-sm-0 p-2 mt-2 d-flex align-items-center justify-content-center" type="button"><i class="left">&#8592;</i></button>
 </div>
 
   <!-- third column -->
-  <div class="col-lg-4 col-md-5 col-sm-4 text-center custom-col-3">
+  <div class="col-lg-5 col-md-5 col-sm-4 text-center custom-col-3">
     <select name="{{ widget.name }}" {% include "gentelella/widgets/attrs.html" %}></select>
     <button class="move_all_selector all_to_available" type="button">&#8592; {% trans "Return All" %}</button>
   </div>
   <!-- fourth column -->
   <div class="col-lg-1 col-md-1 col-sm-1 custom-col-2">
+
     <button class="btn btn-success create_btn"  type="button">+</button>
   </div>
   <div class="modal fade" id="select2box_modal" tabindex="-1" aria-labelledby="select2box_modalLabel" aria-hidden="true">
-
-    {% include "gentelella/widgets/select2box_modal_body.html" %}
   </div>
 </div>
 

@@ -372,6 +372,7 @@ class Command(BaseCommand):
             icon='fa fa-mouse-pointer',
             only_icon=False
         )
+
         noti = MenuItem.objects.create(
             parent=item,
             title='Create notification',

@@ -34,6 +34,7 @@ urlpatterns = [
                   path('bt_modal_display', bt_modal_display, name='bt_modal_display'),
                   path('formset', add_formset, name='add_formset'),
                   path('select2box', selectMult.formSelect2BoxView.as_view(), name='select2box'),
+                  path('select2box/create', selectMult.Select2BoxPersonAddView, name='select2box-create'),
                   path('modelformset', add_model_formset, name='add_model_formset'),
                   path('create/notification', create_notification_view,
                        name='create_notification'),
