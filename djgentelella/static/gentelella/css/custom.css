@@ -866,7 +866,7 @@ a:focus {
 }
 
 .wysiwyg{
-    overflow:scroll; 
+    overflow:scroll;
     max-height:500px;
 }
 .nav>li>a:hover,
@@ -4611,4 +4611,43 @@ border-bottom:2px solid #E6E9ED;
 }
 .menu-top-navbar:hover{
   color:inherit;
+}
+
+.select2box_options{
+    min-height:15em;
+}
+
+.select2box_available{
+    min-height:15em;
+    overflow: hidden;
+    font-size:0.95rem;
+    padding-left:0;
+}
+
+.move_all_selector{
+    color:black;
+    background: none;
+    border:none;
+}
+
+.move_all_selector:disabled{
+    color:grey;
+}
+
+#select2box_modal{
+    display: none;
+}
+
+.arrow_select2box {
+    font-size:2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn_col_style{
+    margin: auto;
+    display: flex;
+    flex-direction: col;
+    justify-content: center;
 }

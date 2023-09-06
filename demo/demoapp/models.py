@@ -7,6 +7,8 @@ from django.utils.translation import gettext_lazy as _
 # Create your models here.
 from djgentelella.fields.catalog import GTForeignKey, GTManyToManyField, GTOneToOneField
 
+class selectModel(models.Model):
+    desc = models.CharField(max_length=200)
 
 class Country(models.Model):
     name = models.CharField(max_length=150)

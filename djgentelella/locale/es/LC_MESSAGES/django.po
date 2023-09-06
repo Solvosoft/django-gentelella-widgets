@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-21 14:55-0600\n"
-"PO-Revision-Date: 2023-03-21 15:04-0600\n"
+"POT-Creation-Date: 2023-04-05 13:51-0600\n"
+"PO-Revision-Date: 2023-04-05 13:52-0600\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: es\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 2.4.2\n"
+"X-Generator: Poedit 3.0.1\n"
 
 #: blog/models.py:27 blog/models.py:95
 msgid "created"
@@ -166,7 +166,7 @@ msgstr "Descripción"
 msgid "Link"
 msgstr "Enlace"
 
-#: models.py:76 templates/gentelella/base.html:220
+#: models.py:76 templates/gentelella/base.html:222
 #: templates/gentelella/blocks/permissions_management.html:16
 msgid "User"
 msgstr "Usuario"
@@ -199,7 +199,7 @@ msgstr "Permiso"
 msgid "This is a html email, please use a visor with HTML support"
 msgstr "Este es un correo HTML, por favor use un cliente con soporte HTML"
 
-#: settings.py:11
+#: settings.py:12
 msgid "You have a new notification"
 msgstr "Usted tiene una nueva notificación"
 
@@ -207,6 +207,7 @@ msgstr "Usted tiene una nueva notificación"
 #: templates/gentelella/widgets/record_audio.html:7
 #: templates/gentelella/widgets/record_photo.html:9
 #: templates/gentelella/widgets/record_video.html:8
+#: templates/gentelella/widgets/select2box_modal_body.html:14
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -268,40 +269,40 @@ msgstr "Todos los derechos reservados."
 msgid "Add Permission"
 msgstr "Agregar Permisos"
 
-#: templates/gentelella/base.html:216
+#: templates/gentelella/base.html:218
 msgid "Select an User"
 msgstr "Seleccione a un Usuario"
 
-#: templates/gentelella/base.html:217
+#: templates/gentelella/base.html:219
 msgid "Select a Group"
 msgstr "Seleccione un grupo"
 
-#: templates/gentelella/base.html:221
+#: templates/gentelella/base.html:223
 msgid "There are fields with invalid options"
 msgstr "Hay campos con opciones no válidas"
 
-#: templates/gentelella/base.html:222
+#: templates/gentelella/base.html:224
 msgid "Not found"
 msgstr "No se encontró"
 
-#: templates/gentelella/base.html:223
+#: templates/gentelella/base.html:225
 #: templates/gentelella/blocks/permissions_management.html:17
 msgid "Group"
 msgstr "Grupo"
 
-#: templates/gentelella/base.html:224
+#: templates/gentelella/base.html:226
 msgid "This view has not permissions associated."
 msgstr "Esta vista no tiene permisos asociados."
 
-#: templates/gentelella/base.html:225
+#: templates/gentelella/base.html:227
 msgid "You have not selected a valid option."
 msgstr "No ha seleccionado una opción valida."
 
-#: templates/gentelella/base.html:226
+#: templates/gentelella/base.html:228
 msgid "Permission have been successfully saved."
 msgstr "Se han guardado exitosamente los permisos."
 
-#: templates/gentelella/base.html:227
+#: templates/gentelella/base.html:229
 msgid "An error occurred while saving."
 msgstr "Ha ocurrido un error al guardar."
 
@@ -629,11 +630,11 @@ msgid "You are now registered. Activation email sent."
 msgstr ""
 "Usted fue registrado adecuadamente. Un correo de activación ha sido enviado."
 
-#: templates/gentelella/widgets/checkyesno.html:2 widgets/core.py:473
+#: templates/gentelella/widgets/checkyesno.html:2 widgets/core.py:482
 msgid "No"
 msgstr "No"
 
-#: templates/gentelella/widgets/checkyesno.html:4 widgets/core.py:472
+#: templates/gentelella/widgets/checkyesno.html:4 widgets/core.py:481
 msgid "Yes"
 msgstr "Sí"
 
@@ -648,6 +649,22 @@ msgstr "Eliminar este archivo"
 msgid "Start"
 msgstr "Iniciar"
 
-#: widgets/core.py:471
+#: templates/gentelella/widgets/select2box.html:10
+msgid "Select All"
+msgstr "Seleccionar todos"
+
+#: templates/gentelella/widgets/select2box.html:19
+msgid "Return All"
+msgstr "Devolver todos"
+
+#: templates/gentelella/widgets/select2box_modal_body.html:5
+msgid "Enter new option"
+msgstr "Ingrese una nueva opcion"
+
+#: templates/gentelella/widgets/select2box_modal_body.html:15
+msgid "Save Data"
+msgstr "Guardar Datos"
+
+#: widgets/core.py:480
 msgid "Unknown"
 msgstr "Desconocido"

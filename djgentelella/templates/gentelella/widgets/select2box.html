@@ -1,0 +1,28 @@
+{% load i18n %}
+<div class="select2box_container row row-cols-4">
+  <div class="col-5 text-center">
+    <input type="text" class="form-control search_select2box w-100">
+    <select class="select2box_options w-100" multiple>{% for group_name, group_choices, group_index in widget.optgroups %}{% if group_name %}
+      <optgroup label="{{ group_name }}">{% endif %}{% for option in group_choices %}
+      {% include option.template_name with widget=option %}{% endfor %}{% if group_name %}
+      </optgroup>{% endif %}{% endfor %}
+    </select>
+    <button class="move_all_selector all_to_selected" type="button">{% trans "Select All" %} &#8594;</button>
+  </div>
+  <p class="selected_values_container" hidden>{%for elem in widget.value%}{{elem}},{%endfor%}</p>
+  <div class="btn-group-vertical col-1 btn_col_style">
+    <button class="btn btn-secondary arrow_select2box add_selection h-25 mt-5" type="button">&#8594;</button>
+    <button class="btn btn-secondary arrow_select2box return_selected h-25 mb-5" type="button">&#8592;</button>
+  </div>
+  <div class="col-4 text-center">
+    <select name="{{ widget.name }}" {% include "gentelella/widgets/attrs.html" %}></select>
+    <button class="move_all_selector all_to_available" type="button">&#8592; {% trans "Return All" %}</button>
+  </div>
+  <div class="col-1">
+    <button class="btn btn-info create_btn" type="button">+</button>
+  </div>
+  <div class="modal fade" id="select2box_modal" tabindex="-1" aria-labelledby="select2box_modalLabel" aria-hidden="true">
+
+  </div>
+</div>
+

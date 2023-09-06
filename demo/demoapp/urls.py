@@ -23,6 +23,7 @@ from .tagging import views as tagging
 from .timeline.views import timeline_view
 from .views import knobView, YesNoInputView
 from .wysiwyg import views as tinymce
+from .select2box import views as selectMult
 
 pclss = Personclass()
 countryclss = Countryclass()
@@ -39,6 +40,7 @@ urlpatterns = [
                        name='person_object_management'),
                   path('bt_modal_display', bt_modal_display, name='bt_modal_display'),
                   path('formset', add_formset, name='add_formset'),
+                  path('select2box', selectMult.formSelect2BoxView.as_view(), name='select2box'),
                   path('modelformset', add_model_formset, name='add_model_formset'),
                   path('create/notification', create_notification_view,
                        name='create_notification'),
@@ -51,6 +53,17 @@ urlpatterns = [
                   path('pgroup/<int:pk>/',
                        autocompleteviews.PeopleGroupChange.as_view(),
                        name='pgroup-edit'),
+                  path('select2boxpg/', selectMult.Select2BoxGroupList.as_view(),
+                       name='select2box-group-list'),
+                  path('select2boxpg/create/', selectMult.Select2BoxGroupAdd.as_view(),
+                       name='select2box-group-add'),
+                  path('select2boxpg/getpform/', selectMult.Select2BoxPersonAddView,
+                       name='select2box-group-personform'),
+                  path('select2boxpg/getcform/', selectMult.Select2BoxComunityAddView,
+                       name='select2box-group-comunityform'),
+                  path('select2boxpg/<int:pk>/',
+                       selectMult.Select2BoxGroupChange.as_view(),
+                       name='select2box-group-edit'),
                   path('abcde/', autocompleteviews.ABCDEList.as_view(),
                        name='abcde-list'),
                   path('abcde/create/', autocompleteviews.ABCDECreate.as_view(),
