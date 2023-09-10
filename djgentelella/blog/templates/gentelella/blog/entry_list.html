@@ -71,9 +71,10 @@ datatable_inits = {
         }
     },
     addfilter: true,
-    
+
     rowCallback: function(row, data) {
-        $(row).on('click', function() {
+        $(row).find('.detail-icon').on('click', function(event) {
+            event.stopPropagation(); // Evita que el clic en el icono active el evento de clic en la fila
             ocrud.detailblog(data);
         });
     }
