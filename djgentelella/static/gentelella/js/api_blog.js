@@ -97,7 +97,7 @@ var gt_detail_modals = {}
 var gt_crud_objs = {};
 
 function  gt_show_actions(crud_name){
-     return function(data, type, row, meta){
+     return function(data, type, row, meta, entry){
         var html="";
         if(data != null ){
             if(data.title != undefined){
@@ -105,7 +105,8 @@ function  gt_show_actions(crud_name){
             }
             for(var x=0; x<data.actions.length; x++){
                 let action = data.actions[x];
-                html += '<i onclick="javascript:call_obj_crud_event(\''+crud_name+'\', \''+action.name+'\', '+meta.row+');" class="'+action.i_class+'"></i>';
+                html += '<i onclick="javascript:call_obj_crud_event(\''+crud_name+'\', \''+action.name+'\', '+meta.row+', ' + JSON.stringify(entry) + ');" class="'+action.i_class+'"></i>';
+
             }
         }
         return html;
@@ -711,11 +712,11 @@ function ObjectCRUD(uniqueid, objconfig={}){
     return obj;
 }
 
-function call_obj_crud_event(uniqueid, action_name, row_id){
+function call_obj_crud_event(uniqueid, action_name, row_id, entry){
     if(uniqueid in gt_crud_objs){
         let position = gt_crud_objs[uniqueid].find_object_action_by_name(action_name);
         if(position != undefined){
-            gt_crud_objs[uniqueid].do_object_actions(position, row_id);
+            gt_crud_objs[uniqueid].do_object_actions(position, row_id, entry);
         }
     }
 }

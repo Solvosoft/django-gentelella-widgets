@@ -21,7 +21,6 @@
             <table class="table table-striped w-100" id="blog_table"></table>
         </div>
     </div>
-<div id="slug-data" data-slug="{{ entry.slug }}"></div>
 
 {% url "api-objectbLog-list"  as create_obj_url %}
 {% trans 'Create Blog' as create_obj_tittle %}
@@ -57,24 +56,29 @@ var object_urls ={
 
 
 datatable_inits = {
-			columns: [
+    columns: [
         { data: "id", name: "id", title: gettext("ID"), visible: false },
         { data: "title", name: "title", title: gettext("Title") },
         { data: "author", name: "author", title: gettext("Author") },
         { data: "resume", name: "resume", title: gettext("Resume") },
         { data: "content", name: "content", title: gettext("Content") },
         { data: "categories", name: "categories", title: gettext("Category") },
-							 { data: "actions", name: "actions", title: gettext("Actions"), type: "string", visible: true }
+        { data: "actions", name: "actions", title: gettext("Actions"), type: "string", visible: true }
+    ],
+    events: {
+        filter: function(data) {
+            return data;
+        }
+    },
+    addfilter: true,
+    
+    rowCallback: function(row, data) {
+        $(row).on('click', function() {
+            ocrud.detailblog(data);
+        });
+    }
+};
 
-
-			],
-			events: {
-					filter: function(data){
-							return data;
-						}
-			},
-			addfilter: true
-}
 
 var obj_modalids = {
 	create: "#create_obj_modal",
@@ -84,14 +88,12 @@ var obj_modalids = {
 var obj_actions = {
     table_actions: [],
     object_actions: [
-        {
-            'name': "detailblog",
-            'action': function(data, type, row, entry, slug) {
-                ocrud.detailblog(data, type, row, entry, slug);
-            },
-            'url': null,
-            'i_class': 'fa fa-eye',
-        }
+	 {
+     'name': "detailblog",
+     'action': 'detailblog',
+     'url': null,
+     'i_class': 'fa fa-eye',
+   }
     ],
     title: gettext('Actions'),
     className: "no-export-col"
@@ -108,38 +110,18 @@ let objconfig={
 	relation_render: {'country': 'name' },////
 	delete_display: data => data['name']/////
 }
-//En este código, estamos configurando un evento click en las filas de la tabla (tr) y obteniendo los datos de la fila seleccionada usando
-
-document.addEventListener("DOMContentLoaded", function() {
-
-    // Configura el DataTable para llamar a la función ocrud.detailblog cuando se hace clic en el icono específico
-
-    $('#blog_table tbody').on('click', '.fa-eye', function() {
-        var row = $(this).closest('tr'); // Encuentra la fila más cercana al icono clicado
-        var data = ocrud.datatable.row(row).data(); // Obtiene los datos de la fila
-        ocrud.detailblog(null, null, data); // Llama a detailblog con los datos de la fila
-    });
-
-});
 
 
 
 let ocrud=ObjectCRUD("setmeunique", objconfig)/// setmeunique DISTINTO
 
-//PARA REDIRECCIONAR
-document.addEventListener("DOMContentLoaded", function() {
-    ocrud.detailblog = function(data, type, row) {
-        var slug = row.slug; // Obtén el slug de la fila seleccionada
-        var detailUrl = "/blog/published/" + slug + "/";
-        window.location.href = detailUrl;
-    };
-});
 
-
-
-
-
-
+ocrud.detailblog = function(row) {
+    console.log("El row es:", row);
+    var slug = row.slug;
+    var detailUrl = "{% url 'blog:entrydetail' slug='SLUG' %}".replace("SLUG", slug);
+    window.location.href = detailUrl;
+};
 
 ocrud.init();
 
