@@ -94,7 +94,8 @@ var obj_actions = {
      'action': 'detailblog',
      'url': null,
      'i_class': 'fa fa-eye',
-   }
+   },
+
     ],
     title: gettext('Actions'),
     className: "no-export-col"
@@ -123,6 +124,7 @@ ocrud.detailblog = function(row) {
     var detailUrl = "{% url 'blog:entrydetail' slug='SLUG' %}".replace("SLUG", slug);
     window.location.href = detailUrl;
 };
+
 
 ocrud.init();
 

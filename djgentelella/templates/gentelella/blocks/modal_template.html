@@ -13,6 +13,7 @@
 				<form id="{{form_id}}" method="POST" autocomplete="off" action="{{url}}" enctype="multipart/form-data">
 					{% csrf_token %}
 					{{ form.as_horizontal }}
+
 					<input type="hidden" name="prefix" class="form_prefix" value="{{form.prefix|default_if_none:''}}">
 				</form>
 			</div>

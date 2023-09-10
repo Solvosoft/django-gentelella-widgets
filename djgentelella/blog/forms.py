@@ -10,7 +10,7 @@ from . import models
 
 
 class EntryForm(GTForm, forms.ModelForm):
-    feature_image = forms.FileField(widget=FileChunkedUpload, required=False)
+    #feature_image = forms.FileField(widget=FileChunkedUpload, required=False)
     class Meta:
         model = models.Entry
         exclude = ('published_content', 'author')
@@ -22,7 +22,7 @@ class EntryForm(GTForm, forms.ModelForm):
             'categories': genwidgets.SelectMultipleAdd(attrs={
                 'add_url': reverse_lazy('blog:category_add')
             }),
-            'feature_image': FileChunkedUpload,
+          #  'feature_image': FileChunkedUpload,
         }
 
 

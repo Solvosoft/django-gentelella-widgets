@@ -1,34 +1,41 @@
-function convertFormToJSON(form, prefix="") {
-  const re = new RegExp("^"+prefix);
-  var selectmultipleitems = [];
-  form.find("select").each(function(i,e){
-        if($(e).prop('multiple')){
-            selectmultipleitems.push(e.name.replace(re, ""));
-        }
+function convertFormToJSON(form, prefix = "") {
+  const re = new RegExp("^" + prefix);
+  var selectMultipleItems = new Map();
+  var formData = new FormData();
+
+  form.find("select").each(function (i, e) {
+    if ($(e).prop("multiple")) {
+      selectMultipleItems.set(e.name.replace(re, ""), []);
+    }
   });
 
-  return form
+  form
     .serializeArray()
-    .reduce(function (json, { name, value }) {
-      let clean_name = name.replace(re, "");
-      if(json.hasOwnProperty(clean_name)){
-         if(Array.isArray(json[clean_name])){
-            json[clean_name].push(value);
-         }else{
-            let oldvalue = json[clean_name];
-            json[clean_name]=[];
-            json[clean_name].push(oldvalue);
-         }
-      }else{
-         if(selectmultipleitems.indexOf(clean_name) !== -1){
-            json[clean_name] = [value];
-         }else{
-            json[clean_name] = value;
-         }
+    .forEach(function ({ name, value }) {
+      let cleanName = name.replace(re, "");
+      if (selectMultipleItems.has(cleanName)) {
+        selectMultipleItems.get(cleanName).push(value);
+      } else {
+        formData.append(cleanName, value);
       }
-      return json;
-    }, {});
+    });
+
+  selectMultipleItems.forEach(function (value, key) {
+    if (value.length > 0) {
+      formData.append(key, value);
+    }
+  });
+
+  form.find("input[type=file]").each(function (i, e) {
+    if (e.files.length > 0) {
+      formData.append(e.name.replace(re, ""), e.files[0]);
+    }
+  });
+
+  return formData;
 }
+
+
 
 function convertToStringJson(form, prefix="", extras={}){
     var formjson =convertFormToJSON(form, prefix=prefix);
@@ -151,19 +158,27 @@ function GTBaseFormModal(modal_id, datatable_element,  form_config)  {
             this.instance.find(this.btn_class).on('click', this.add_btn_form(this));
 
         },
-        "add_btn_form": function(instance){
-            return function(event){
-                fetch(instance.url, {
-                    method: instance.type,
-                    body: convertToStringJson(instance.form, prefix=instance.prefix,
-                            extras=instance.config.events.form_submit(instance)),
-                    headers: {'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json'}
-                    }
-                    ).then(response_manage_type_data(instance, instance.error, instance.error_text))
-                    .then(instance.fn_success(instance))
-                    .catch(error => instance.handle_error(instance, error));
-            }
-        },
+    "add_btn_form": function(instance){
+  return function(event){
+    // Crea un objeto FormData en lugar de serializar a JSON
+    const formData = convertFormToJSON(instance.form, instance.prefix);
+
+    // Agrega el token CSRF al encabezado
+    formData.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+
+
+
+    fetch(instance.url, {
+      method: instance.type,
+      body: formData,
+       headers: {'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json'}
+    })
+    .then(response_manage_type_data(instance, instance.error, instance.error_text))
+    .then(instance.fn_success(instance))
+    .catch(error => instance.handle_error(instance, error));
+  }
+},
+
         "success": function(instance, data){
         },
         "fn_success": function(instance){
