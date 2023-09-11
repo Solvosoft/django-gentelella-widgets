@@ -5349,3 +5349,21 @@ div.form-group {
 	border: 0;
 	line-height: 30px;
 }
+/*permissions*/
+.checkboxContainer {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.mainCheckbox {
+    margin-right: 10px;
+}
+
+.mainCheckboxLabel {
+    margin: 0;
+}
+
+.internalCheckboxContainer {
+    margin-left: 10px;
+}
