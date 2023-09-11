@@ -44,7 +44,7 @@ class PermissionRelatedSerializer(serializers.ModelSerializer):
             obj.related_permissions.all().values_list('id', flat=True))
 
         self.find_permission_related(self.list_of_perms)
-        self.remove_permisssion()
+        #self.remove_permisssion()
         list_of_perms = Permission.objects.filter(pk__in=self.list_of_perms)
         return PermissionSerializer(list_of_perms, many=True).data
 

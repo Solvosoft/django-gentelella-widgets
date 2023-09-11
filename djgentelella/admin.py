@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from djgentelella.models import MenuItem, Help, GentelellaSettings, Notification, \
-    ChunkedUpload
+    ChunkedUpload, PermissionRelated
 from djgentelella.models import PermissionsCategoryManagement
 from djgentelella.utils import clean_cache
 
@@ -32,10 +32,13 @@ class ChunkedUploadAdmin(admin.ModelAdmin):
     search_fields = ('filename', 'filename')
     list_filter = ('status',)
 
+class PermissionRelatedAdmin(admin.ModelAdmin):
+    filter_horizontal = ['related_permissions']
 
 admin.site.register(ChunkedUpload, ChunkedUploadAdmin)
 admin.site.register(MenuItem, MenuAdmin)
 admin.site.register(Help)
+#admin.site.register(PermissionRelated, PermissionRelatedAdmin)
 admin.site.register(PermissionsCategoryManagement)
 admin.site.register(GentelellaSettings, GentelellaSettingsAdmin)
 admin.site.register(Notification, NotificationAdmin)
