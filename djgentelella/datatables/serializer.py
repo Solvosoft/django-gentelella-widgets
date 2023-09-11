@@ -30,7 +30,6 @@ class CategorySerializer(serializers.ModelSerializer):
 
 #ESTE ES PARA CATEGORIAS y author
 class BlogSerializer(serializers.ModelSerializer):
-
     categories = serializers.StringRelatedField(many=True)
     author = serializers.StringRelatedField(many=False)
     published_content = serializers.StringRelatedField(required=False)  # Campo no requerido

@@ -171,7 +171,7 @@ function GTBaseFormModal(modal_id, datatable_element,  form_config)  {
     fetch(instance.url, {
       method: instance.type,
       body: formData,
-       headers: {'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json'}
+       headers: {'X-CSRFToken': getCookie('csrftoken')}
     })
     .then(response_manage_type_data(instance, instance.error, instance.error_text))
     .then(instance.fn_success(instance))
