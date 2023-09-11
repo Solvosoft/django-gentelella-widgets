@@ -16,7 +16,6 @@ from djgentelella.fields.drfdatetime import DateRangeTextWidget, DateTimeRangeTe
 
 class BlogFilterSet(FilterSet):
 
-
     class Meta:
         model = Entry
         fields = {'title': ['icontains'], 'resume': ['icontains'], 'content': ['icontains'], }
@@ -35,6 +34,7 @@ class BlogSerializer(serializers.ModelSerializer):
     published_content = serializers.StringRelatedField(required=False)  # Campo no requerido
     actions = serializers.SerializerMethodField()
 
+
     def get_actions(self, obj):
         return {
             'do': True
@@ -45,13 +45,14 @@ class BlogSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-#ESTE ES PARA AUTHOR
+
 class BlogDataTableSerializer(serializers.Serializer):
     data = serializers.ListField(child=BlogSerializer(), required=True)
     draw = serializers.IntegerField(required=True)
     recordsFiltered = serializers.IntegerField(required=True)
     recordsTotal = serializers.IntegerField(required=True)
     published_content = serializers.StringRelatedField(required=False)
+
 
 
 

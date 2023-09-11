@@ -7,10 +7,6 @@ from djgentelella.blog.blog import BaseObjectBlog
 
 from djgentelella.datatables import serializer
 from djgentelella.datatables.serializer import BlogFilterSet
-
-
-
-
 from djgentelella.blog.models import Entry
 
 
@@ -34,6 +30,6 @@ class ObjectBLog(BaseObjectBlog):
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
     search_fields = ['title', 'resume', 'content']   # for the global search
     filterset_class = BlogFilterSet
-    ordering_fields = ['title', 'resume', 'content', 'categories']
+    ordering_fields = ['title', 'author', 'resume', 'content', 'categories']
     ordering = ('-title',)  # default order
     operation_type = ''

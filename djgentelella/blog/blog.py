@@ -52,11 +52,11 @@ class BaseObjectBlog(viewsets.ModelViewSet):
     def detail_template(self, request, *args, **kwargs):
         data = {
             "title": "Title {{it.title}}",
-            "template": "Name: {{it.title}}" #MODAL DE DETALLES
+            "template": "Name: {{it.title}}"
         }
         return Response(data)
 
-
+"""
 class AuthAllPermBaseObjectManagement(BaseObjectBlog):
     authentication_classes = (TokenAuthentication, SessionAuthentication)
     perms = {
@@ -78,4 +78,4 @@ class AuthAnyPermBaseObjectManagement(BaseObjectBlog):
         'retrieve': [],
         'get_values_for_update': []
     }
-    permission_classes = (AnyPermissionByAction,)
+    permission_classes = (AnyPermissionByAction,)"""

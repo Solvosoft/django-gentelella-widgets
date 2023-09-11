@@ -11,11 +11,13 @@
 			</div>
 			<div class="modal-body">
 				<p class="objtext"></p>
+				  {% if perms.blog.delete_entry %}
 				<form id="{{form_id}}" method="POST" autocomplete="off" action="{{url}}">
 					{% csrf_token %}
 					{{ form.as_horizontal }}
 					<input type="hidden" name="prefix" class="form_prefix" value="{{form.prefix|default_if_none:''}}">
 				</form>
+				{% endif %}
 			</div>
 			<div class="modal-footer">
 				<button class="btn btn-secondary" data-bs-dismiss="modal" type="button">{% trans 'Cancel' %}</button>

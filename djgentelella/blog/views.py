@@ -13,21 +13,15 @@ from . import models
 from .forms import EntryForm, CategoryForm
 from .models import Category
 
-from django.shortcuts import render
-from demoapp.forms import PersonForm
 
-from djgentelella.blog.forms import EntryForm #Creo que hay que cambiar el form
+from djgentelella.blog.forms import EntryForm
 from django.urls import reverse
 
 
 
 
 def object_blog(request):
-    context = {
-        'create_form': EntryForm(prefix='create'),
-        'update_form': EntryForm(prefix='update'),
-    }
-
+    context = {'create_form': EntryForm(prefix='create')}
     return request(request, 'entry_list.html', context=context)
 
 
@@ -38,36 +32,21 @@ class EntriesList(ListView):
     paginate_by = 10
     paginate_orphans = 5
 
+  #  def get_query_get_params(self, exclude=[]):
+  #      values = []
+  #      dev = '?'
+  #      for key in self.request.GET.keys():
+  #          if key not in exclude:
+  #              values.append(
+#                    '%s=%s' % (key, self.request.GET.get(key))
+     #           )
 
-    def get_queryset(self):
-        queryset = super(EntriesList, self).get_queryset().filter(
-            Q(is_published=True) | Q(author__isnull=False, author=self.request.user.id))
+    #    if values:
+    #        dev += "&".join(values)
 
-        q = self.request.GET.get('q', '')
-        if q:
-            queryset = queryset.filter(
-                Q(published_content__icontains=q) | Q(title__icontains=q))
-        cat = self.get_category_id()
-        if cat:
-            queryset = queryset.filter(categories__in=[cat])
-        return queryset.order_by('is_published',
-                                 '-published_timestamp')  # Put 'drafts' first.
-
-    def get_query_get_params(self, exclude=[]):
-        values = []
-        dev = '?'
-        for key in self.request.GET.keys():
-            if key not in exclude:
-                values.append(
-                    '%s=%s' % (key, self.request.GET.get(key))
-                )
-
-        if values:
-            dev += "&".join(values)
-
-        if dev != '?':
-            dev += '&'
-        return dev
+     #   if dev != '?':
+      #      dev += '&'
+       # return dev
 
     def get_category_id(self):
         try:
@@ -79,16 +58,12 @@ class EntriesList(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['categories'] = Category.objects.all()
-        context['catparams'] = self.get_query_get_params(exclude=['cat'])
+        #context['catparams'] = self.get_query_get_params(exclude=['cat'])
         context['q'] = self.request.GET.get('q', '')
         context['cat'] = self.get_category_id()
-        context['getparams'] = self.get_query_get_params(exclude=['page'])
+       # context['getparams'] = self.get_query_get_params(exclude=['page'])
         context['entry'] = models.Entry.objects.first()
         context['create_form'] = EntryForm(prefix='create')
-        context['update_form'] = EntryForm(prefix='update')
-
-        for entry in context['entries']:
-            entry.update_url = reverse('blog:entry_update', kwargs={'pk': entry.pk})
 
         return context
 
@@ -111,6 +86,8 @@ class EntryDetail(DetailView):
         return context
 
 
+
+########################################################
 class EntryCreate(PermissionRequiredMixin, CreateView):
     permission_required = 'blog.add_entry'
     model = models.Entry
@@ -130,7 +107,7 @@ class EntryCreate(PermissionRequiredMixin, CreateView):
             self.object.author = self.request.user
         self.object.save()
         return response
-
+########################################################
 
 class EntryUpdate(PermissionRequiredMixin, UpdateView):
     permission_required = 'blog.change_entry'

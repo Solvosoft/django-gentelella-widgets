@@ -57,7 +57,7 @@ var object_urls ={
 
 datatable_inits = {
     columns: [
-        { data: "id", name: "id", title: gettext("ID"), visible: true },
+        { data: "id", name: "id", title: gettext("ID"), visible: false },
         { data: "title", name: "title", title: gettext("Title") },
         { data: "author", name: "author", title: gettext("Author") },
         { data: "resume", name: "resume", title: gettext("Resume") },
@@ -120,8 +120,6 @@ let objconfig={
 	actions: obj_actions,
 	datatable_inits: datatable_inits,
 	add_filter: true,
-	relation_render: {'country': 'name' },////
-	delete_display: data => data['name']/////
 }
 
 
