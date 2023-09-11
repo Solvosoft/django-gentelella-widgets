@@ -866,7 +866,7 @@ a:focus {
 }
 
 .wysiwyg{
-    overflow:scroll; 
+    overflow:scroll;
     max-height:500px;
 }
 .nav>li>a:hover,
@@ -4611,4 +4611,27 @@ border-bottom:2px solid #E6E9ED;
 }
 .menu-top-navbar:hover{
   color:inherit;
+}
+
+.custom-text {
+    font-size: 20px; /* Puedes ajustar el valor según tus necesidades */
+}
+
+/*permissions*/
+.checkboxContainer {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.mainCheckbox {
+    margin-right: 10px;
+}
+
+.mainCheckboxLabel {
+    margin: 0;
+}
+
+.internalCheckboxContainer {
+    margin-left: 10px;
 }

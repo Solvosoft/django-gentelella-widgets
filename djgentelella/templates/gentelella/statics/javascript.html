@@ -94,5 +94,11 @@ var permission_context = {
 
 </script>
 <script src="{% static 'gentelella/js/permissionmanagement.js' %}?v={% get_version %}"></script>
+
+ <script>
+        var apiRelatedPermissionsUrl = "{% url 'api_related_permissions_detail' 0 %}";
+    </script>
+
 {% endif %}
 {% endif %}
+

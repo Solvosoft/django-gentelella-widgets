@@ -5351,3 +5351,26 @@ div.form-group {
 	line-height: 30px;
 }
 
+
+.custom-text {
+    font-size: 20px; /* Puedes ajustar el valor según tus necesidades */
+}
+
+/*permissions*/
+.checkboxContainer {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.mainCheckbox {
+    margin-right: 10px;
+}
+
+.mainCheckboxLabel {
+    margin: 0;
+}
+
+.internalCheckboxContainer {
+    margin-left: 10px;
+}

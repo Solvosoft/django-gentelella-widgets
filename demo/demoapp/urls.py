@@ -1,9 +1,10 @@
 from django.urls import path, include
 from markitup.views import apply_filter
 from rest_framework.routers import DefaultRouter
-
+from . import views
 from demoapp.cruds import Personclass, Countryclass, MenuItemclass
-from demoapp.views import create_notification_view, bt_modal_display
+from demoapp.views import create_notification_view, bt_modal_display, \
+    PermissionRelationList
 from .autocomplete import views as autocompleteviews
 from .calendar.views import calendar_view
 from .chartjs import chart_js_view
@@ -23,6 +24,7 @@ from .tagging import views as tagging
 from .timeline.views import timeline_view
 from .views import knobView, YesNoInputView
 from .wysiwyg import views as tinymce
+
 
 pclss = Personclass()
 countryclss = Countryclass()
@@ -97,6 +99,10 @@ urlpatterns = [
                   path('chunkedupload/<int:pk>',
                        chunckedupload.Updatechunkedupload.as_view(),
                        name='chunkeduploaditem-edit'),
+
+                  path('api/permission-relations/', PermissionRelationList.as_view(),
+                       name='permission-relation-list'),
+
                   path('calendar_view', calendar_view, name="calendar_view"),
                   path('gigapixel_view', gigapixel_view, name="gigapixel_view"),
                   path('mapbased_view', mapbased_view, name="mapbased_view"),

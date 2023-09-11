@@ -1,11 +1,85 @@
-{% for key, value in categories.items %}
-   <a class="btn categories" data-bs-toggle="collapse" data-bs-target="#category{{key|cut:' '}}"><i class="fa fa-plus"></i></a> <strong>{{key}}</strong>
-  <div id="category{{key|cut:' '}}" class="collapse" style="width:100%">
-    {% for item in value %}
-      <div class="row" style="margin-left: 12%;">
-        <p><input type="checkbox" class="flat" name="permission" value="{{item.id}}" style="position: absolute; opacity: 0;"> {{item.name}}</p>
-      </div>
+
+<!--{% for key, value in categories.items %}-->
+<!--   <a class="btn categories" data-bs-toggle="collapse" data-bs-target="#category{{key|cut:' '}}"><i class="fa fa-plus"></i></a> <strong>{{key}}</strong>-->
+<!--  <div id="category{{key|cut:' '}}" class="collapse" style="width:100%">-->
+<!--    {% for item in value %}-->
+<!--      <div class="row" style="margin-left: 12%;">-->
+<!--        <p><input type="checkbox" class="flat"  name="permission" value="{{item.id}}" style="position: absolute; opacity: 0; " > {{item.name}}</p>-->
+<!--      </div>-->
+
+<!--        {% endfor %}-->
+<!--  </div>-->
+<!--<br>-->
+
+<!--{% endfor %}-->
+
+
+
+
+
+
+
+
+
+<!--<div class="container">-->
+<!--    &lt;!&ndash; Agrega los checkboxes principales con nombres de permisos (sin categoría) &ndash;&gt;-->
+<!--    <div class="checkboxes">-->
+<!--        {% for key, value in categories.items %}-->
+<!--        <a class="btn categories" data-bs-toggle="collapse" data-bs-target="#category{{key|cut:' '}}"><i class="fa fa-plus"></i></a> <strong>{{key}}</strong>-->
+<!--        <div id="category{{key|cut:' '}}" class="collapse" style="width:100%">-->
+<!--            {% for item in value %}-->
+<!--            <div class="row" style="margin-left: 12%;">-->
+<!--                <div class="checkboxContainer">-->
+<!--                    <input type="checkbox" name="permission" value="{{item.id}}" class="flat checkboxPrincipal" id="checkbox{{ item.id }}">-->
+<!--                    <label class="checkboxPrincipalLabel" for="checkbox{{ item.id }}">{{ item.name }}</label>-->
+<!--                </div>-->
+<!--                <div class="checkboxesInternos" style="display: none;"></div>-->
+<!--                <div class="checkboxesRelacionadosRelacionados" style="display: none;"></div>-->
+<!--            </div>-->
+<!--            {% endfor %}-->
+<!--        </div>-->
+<!--        <br>-->
+<!--        {% endfor %}-->
+<!--    </div>-->
+<!--    <link rel="stylesheet" type="text/css" href="/static/gentelella/css/permsrelated.css">-->
+<!--    <script src="/static/gentelella/js/relatedperms.js"></script>-->
+<!--    &lt;!&ndash; Campo oculto para almacenar los permisos seleccionados &ndash;&gt;-->
+<!--    <input type="hidden" id="selectedPermissions" name="selectedPermissions" value="">-->
+<!--</div>-->
+
+
+
+
+
+
+
+{% load i18n %}
+
+<div class="container">
+    <!-- Add main checkboxes -->
+    <div class="checkboxes">
+        {% for key, value in categories.items %}
+        <a class="btn categories" data-bs-toggle="collapse" data-bs-target="#category{{key|cut:' '}}"><i class="fa fa-plus"></i></a> <strong>{{key}}</strong>
+        <div id="category{{key|cut:' '}}" class="collapse" style="width:100%">
+            {% for item in value %}
+            <div class="row" style="margin-left: 12%;">
+                <div class="checkboxContainer">
+                    <input type="checkbox" name="permission" value="{{item.id}}" class="flat mainCheckbox" id="checkbox{{ item.id }}">
+                    <label class="mainCheckboxLabel" for="checkbox{{ item.id }}">{{ item.name }}</label>
+                </div>
+                <div class="internalCheckboxes" style="display: none;"></div>
+                <div class="relatedRelatedCheckboxes" style="display: none;"></div>
+            </div>
+            {% endfor %}
+        </div>
+        <br>
         {% endfor %}
-  </div>
-<br>
-{% endfor %}
+    </div>
+
+    <!-- Generate the URL using the Django template -->
+
+
+    <script src="/static/gentelella/js/permissionmanagement.js"></script>
+
+    <input type="hidden" id="selectedPermissions" name="selectedPermissions" value="">
+</div>
