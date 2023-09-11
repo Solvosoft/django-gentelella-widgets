@@ -1,7 +1,7 @@
-{% load  i18n %}
+{% load i18n %}
 <!-- Modal -->
 <div class="modal fade" id="permission_modal" aria-labelledby="permission_modal_label" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="permission_modal_label">{% trans 'Permission Management' %}</h5>
@@ -18,17 +18,40 @@
                         </div>
                         <div style="margin-top:10px;">
                             <div id="user_container">
-                                <select id="select_user" data-dropdownparent="#permission_modal"></select>
+                                <select id="select_user" data-dropdownparent="#permission_modal" style="max-width: 200px;">
+                                    <!-- Options for User dropdown -->
+                                </select>
                             </div>
                             <div id="group_container">
-                                <select id="select_group" data-dropdownparent="#permission_modal"></select>
+                                <select id="select_group" data-dropdownparent="#permission_modal" style="max-width: 200px;">
+                                    <!-- Options for Group dropdown -->
+                                </select>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-7" id="permissionbody" style="max-height:200px; overflow-y: auto;">
-
+                    <div class="col-md-5" id="permissionbody" style="max-height:200px; overflow-y: auto;">
+                        {% for key, value in categories.items %}
+                            <h4><a class="btn categories" data-bs-toggle="collapse" data-bs-target="#category{{key|cut:' '}}"><i class="fa fa-plus"></i></a> {{key}}</h4>
+                            <div id="category{{key|cut:' '}}" class="collapse" style="width:100%">
+                                {% for item in value %}
+                                    <div class="row" style="margin-left: 12%;">
+                                        <p>{{ item.name }}</p>
+                                        <input type="checkbox" class="flat" name="permission" value="{{item.id}}" style="position: absolute; opacity: 0; right: 0;">
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <br>
+                        {% endfor %}
                     </div>
-                    <div>
+                    <div class="col-md-2" style="margin-top: 20px;">
+                        <small>{% trans 'User Permissions' %}</small>
+                        <a class="btn categories" data-bs-toggle="collapse" data-bs-target="#permission_related">&#63;</a>
+
+                        <div class="collapse" id="permission_related">
+                            <p style="font-size: 12px;">{% trans 'For each user or group, there are 2 main permissions: add and edit. If you need more permissions for your user, add the related permissions.' %}</p>
+                            <small>{% trans 'Related Permissions' %}</small>
+                            <p style="font-size: 12px;">{% trans 'Each main permission has related permissions, so if you want to perform multiple actions, assign the main permission and its related permissions.' %}</p>
+                        </div>
                     </div>
                 </div>
             </div>
