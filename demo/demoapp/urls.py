@@ -1,10 +1,9 @@
 from django.urls import path, include
 from markitup.views import apply_filter
 from rest_framework.routers import DefaultRouter
-from . import views
 from demoapp.cruds import Personclass, Countryclass, MenuItemclass
-from demoapp.views import create_notification_view, bt_modal_display, \
-    PermissionRelationList
+from demoapp.views import create_notification_view, bt_modal_display
+
 from .autocomplete import views as autocompleteviews
 from .calendar.views import calendar_view
 from .chartjs import chart_js_view
@@ -100,8 +99,6 @@ urlpatterns = [
                        chunckedupload.Updatechunkedupload.as_view(),
                        name='chunkeduploaditem-edit'),
 
-                  path('api/permission-relations/', PermissionRelationList.as_view(),
-                       name='permission-relation-list'),
 
                   path('calendar_view', calendar_view, name="calendar_view"),
                   path('gigapixel_view', gigapixel_view, name="gigapixel_view"),

@@ -8,10 +8,9 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from djgentelella.notification import create_notification
 from .autocomplete.forms import ABCDEModalGroupForm
-from .datatables.serializer import PermissionSerializer
 from .forms import FooModelForm, YesNoInputAddForm, PersonModalForm
-from .models import YesNoInput, PermissionRelation
-from .serializers import PermissionRelationSerializer
+from .models import YesNoInput
+
 
 
 @login_required
@@ -60,32 +59,7 @@ def bt_modal_display(request):
     return render(request, 'btmodals.html', context=context)
 
 
-# class PermissionList(generics.RetrieveAPIView):
-#     queryset = Permission.objects.all()
-#     serializer_class = PermissionSerializer
-#     def retrieve(self, request, pk, *args, **kwargs):
-#      return super().retrieve(request,  *args, **kwargs)
-
-class PermissionDetail(generics.RetrieveAPIView):
-    queryset = Permission.objects.all()
-    serializer_class = PermissionSerializer
-    permission_classes = [
-        IsAuthenticated]  # Agrega las clases de permisos que necesites
-
-    def retrieve(self, request, *args, **kwargs):
-        return super().retrieve(request, *args, **kwargs)
-
-class PermissionRelationList(generics.ListCreateAPIView):
-    queryset = PermissionRelation.objects.all()
-    serializer_class = PermissionRelationSerializer
 
 
-class RelatedPermissionList(generics.ListAPIView):
-    serializer_class = PermissionRelationSerializer
 
-    def get_queryset(self):
-        permission_id = self.kwargs['pk']
-        # Filtrar los permisos relacionados utilizando la relación en el modelo PermissionRelation
-        return PermissionRelation.objects.filter(
-            main_permission=permission_id)
 
