@@ -1,10 +1,4 @@
 
-
-
-
-
-
-
 $(document).ready(function () {
     // Initialize iCheck for main checkboxes
     $('.mainCheckbox').iCheck({
@@ -344,10 +338,3 @@ $(document).ready(function () {
 
     });
 });
-
-
-
-
-
-
-

@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import Permission
 from djgentelella.models import PermissionRelated
-from djgentelella.permissions import permissions_to_create
+from demo.permissions import permissions_to_create
 
 
 class Command(BaseCommand):
@@ -9,10 +9,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        existing_permissions = Permission.objects.all()
-        self.stdout.write("Existing permissions in the database:")
-        for permission in existing_permissions:
-            self.stdout.write(f"- {permission.content_type.app_label}: {permission.name} ({permission.codename})")
+
 
         for perm_data in permissions_to_create:
             app_label = perm_data['app_label']

@@ -125,26 +125,6 @@ class ChunkedUpload(AbstractChunkedUpload):
     )
 
 
-class PermissionDependency(models.Model):
-    source_permission = models.ForeignKey(
-        Permission,
-        on_delete=models.CASCADE,
-        related_name='dependency_source'
-    )
-    dependent_permission = models.ForeignKey(
-        Permission,
-        on_delete=models.CASCADE,
-        related_name='dependency_dependent'
-    )
-
-    def __str__(self):
-        return f"{self.source_permission} depends on {self.dependent_permission}"
-
-    class Meta:
-        unique_together = ('source_permission', 'dependent_permission')
-
-
-
 
 class PermissionRelated(models.Model):
     main_permission = models.ForeignKey(Permission, on_delete=models.CASCADE)
