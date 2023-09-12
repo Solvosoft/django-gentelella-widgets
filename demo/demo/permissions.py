@@ -32,7 +32,9 @@ permissions_to_create = [
 
 
 #delete permissions
-def remove_related_permission(app_label, main_permission_codename, related_permission_codename):
+def remove_related_permission(app_label, main_permission_codename,
+                              related_permission_codename):
+    global permissions_to_create
     for permission in permissions_to_create:
         if (
             permission['app_label'] == app_label
@@ -47,7 +49,8 @@ def remove_related_permission(app_label, main_permission_codename, related_permi
             permission['related_permissions'] = updated_related_permissions
             return True
 
-
+    # Si no se encontró ninguna coincidencia, devolver False
+    return False
 
 
 #update permissions
@@ -76,6 +79,9 @@ def add_related_permission(main_permission_codename, related_permissions):
             permission['related_permissions'].append(related_permissions)
             return True
     return False
+
+
+
 
 
 
