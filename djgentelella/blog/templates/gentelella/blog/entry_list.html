@@ -68,10 +68,9 @@ datatable_inits = {
     events: {
         filter: function(data) {
             return data;
-        }
+        },
     },
     addfilter: true,
-
     rowCallback: function(row, data) {
         $(row).find('.detail-icon').on('click', function(event) {
             event.stopPropagation(); // Evita que el clic en el icono active el evento de clic en la fila
@@ -104,9 +103,6 @@ var obj_actions = {
      'i_class': 'fa fa-edit',
 
    }
-
-
-
     ],
     title: gettext('Actions'),
     className: "no-export-col"
@@ -120,6 +116,7 @@ let objconfig={
 	actions: obj_actions,
 	datatable_inits: datatable_inits,
 	add_filter: true,
+	delete_display: data => data['title']
 }
 
 
