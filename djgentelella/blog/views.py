@@ -32,36 +32,11 @@ class EntriesList(ListView):
     paginate_by = 10
     paginate_orphans = 5
 
-  #  def get_query_get_params(self, exclude=[]):
-  #      values = []
-  #      dev = '?'
-  #      for key in self.request.GET.keys():
-  #          if key not in exclude:
-  #              values.append(
-#                    '%s=%s' % (key, self.request.GET.get(key))
-     #           )
-
-    #    if values:
-    #        dev += "&".join(values)
-
-     #   if dev != '?':
-      #      dev += '&'
-       # return dev
-
-    def get_category_id(self):
-        try:
-            dev = int(self.request.GET.get('cat', ''))
-        except ValueError:
-            dev = ''
-        return dev
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['categories'] = Category.objects.all()
-        #context['catparams'] = self.get_query_get_params(exclude=['cat'])
         context['q'] = self.request.GET.get('q', '')
-        context['cat'] = self.get_category_id()
-       # context['getparams'] = self.get_query_get_params(exclude=['page'])
         context['entry'] = models.Entry.objects.first()
         context['create_form'] = EntryForm(prefix='create')
 

@@ -1,10 +1,7 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.pagination import LimitOffsetPagination
-
 from djgentelella.blog.blog import BaseObjectBlog
-
-
 from djgentelella.datatables import serializer
 from djgentelella.datatables.serializer import BlogFilterSet
 from djgentelella.blog.models import Entry
