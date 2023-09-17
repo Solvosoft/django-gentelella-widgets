@@ -78,25 +78,39 @@ datatable_inits = {
         });
     }
 };
+
 var obj_modalids = {
+ {% if perms.blog.add_entry %}
 	create: "#create_obj_modal",
+  {% endif %}
+
 	//update: "#update_obj_modal",
+
+
+
+	 {% if perms.blog.delete_entry %}
 	destroy: "#delete_obj_modal",
+	   {% endif %}
 }
+
 var obj_actions = {
     table_actions: [],
     object_actions: [
 	 {
+	  {% if request.user == entry.author %}
      'name': "detailblog",
      'action': 'detailblog',
      'url': null,
      'i_class': 'fa fa-eye',
+   {% endif %}
    },
    {
+   {% if perms.blog.change_entry %}
      'name': "updateblog",
      'action': 'updateblog',
      'url': null,
      'i_class': 'fa fa-edit',
+   {% endif %}
    }
     ],
     title: gettext('Actions'),

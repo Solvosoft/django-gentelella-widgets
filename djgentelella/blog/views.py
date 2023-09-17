@@ -32,6 +32,21 @@ class EntriesList(ListView):
     paginate_by = 10
     paginate_orphans = 5
 
+    #  def get_query_get_params(self, exclude=[]):
+    #      values = []
+    #      dev = '?'
+    #      for key in self.request.GET.keys():
+    #          if key not in exclude:
+    #              values.append(
+    #                    '%s=%s' % (key, self.request.GET.get(key))
+    #           )
+
+    #    if values:
+    #        dev += "&".join(values)
+
+    #   if dev != '?':
+    #      dev += '&'
+    # return dev
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
