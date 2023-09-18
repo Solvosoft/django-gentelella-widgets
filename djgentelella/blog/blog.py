@@ -8,15 +8,17 @@ from rest_framework.response import Response
 
 from djgentelella.permission_management import AllPermissionByAction, \
     AnyPermissionByAction
+from objectmanagement import AuthAllPermBaseObjectManagement
 
 
-class BaseObjectBlog(viewsets.ModelViewSet):
+class BaseObjectBlog(AuthAllPermBaseObjectManagement):
     serializer_class = {
         'list': None,
         'create': None,
         'update': None,
         'retrieve': None,
-        'get_values_for_update': None
+        'get_values_for_update': None,
+
     }
 
     # authentication_classes = (TokenAuthentication, SessionAuthentication)
@@ -56,26 +58,3 @@ class BaseObjectBlog(viewsets.ModelViewSet):
         }
         return Response(data)
 
-"""
-class AuthAllPermBaseObjectManagement(BaseObjectBlog):
-    authentication_classes = (TokenAuthentication, SessionAuthentication)
-    perms = {
-        'list': [],
-        'create': [],
-        'update': [],
-        'retrieve': [],
-        'get_values_for_update': []
-    }
-    permission_classes = (AllPermissionByAction,)
-
-
-class AuthAnyPermBaseObjectManagement(BaseObjectBlog):
-    authentication_classes = (TokenAuthentication, SessionAuthentication)
-    perms = {
-        'list': [],
-        'create': [],
-        'update': [],
-        'retrieve': [],
-        'get_values_for_update': []
-    }
-    permission_classes = (AnyPermissionByAction,)"""

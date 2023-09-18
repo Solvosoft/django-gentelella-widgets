@@ -1,4 +1,5 @@
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import permissions
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.pagination import LimitOffsetPagination
 from djgentelella.blog.blog import BaseObjectBlog
@@ -14,6 +15,14 @@ class ObjectBLog(BaseObjectBlog):
         'update': serializer.BlogCreateSerializer,
         'retrieve': serializer.BlogUpdateSerializer,
         'get_values_for_update': serializer.BlogUpdateSerializer
+    }
+    perms = {
+        'list': ['blog.view_entry'],
+        'create': ['blog.add_category', 'blog.add_entry', 'blog.add_entry_image'],
+        'update': ['blog.change_category', 'blog.change_entry', 'blog.change_entry_image'],
+        'retrieve': ['blog.view_entry', 'blog.view_category', 'blog.view_entry_image'],
+        'get_values_for_update': ['blog.view_entry'],
+        'destroy': ['blog.delete_entry_image', 'blog.delete_category', 'blog.delete_entry']
     }
     #Asigna el author al usuario actual
     def perform_create(self, serializer): # ESTO ASIGNA EL author

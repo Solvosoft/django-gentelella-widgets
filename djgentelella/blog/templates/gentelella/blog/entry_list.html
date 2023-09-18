@@ -87,7 +87,6 @@ var obj_modalids = {
 	//update: "#update_obj_modal",
 
 
-
 	 {% if perms.blog.delete_entry %}
 	destroy: "#delete_obj_modal",
 	   {% endif %}
@@ -95,27 +94,31 @@ var obj_modalids = {
 
 var obj_actions = {
     table_actions: [],
-    object_actions: [
-	 {
-	  {% if perms.blog.view_entry%}
+    object_actions: [],
+    title: gettext('Actions'),
+    className: "no-export-col"
+};
+
+{% if perms.blog.view_entry%}
+   obj_actions.object_actions.push({
      'name': "detailblog",
      'action': 'detailblog',
      'url': null,
      'i_class': 'fa fa-eye',
-   {% endif %}
-   },
-   {
-   {% if perms.blog.change_entry %}
+   })
+ {% endif %}
+
+{% if perms.blog.change_entry %}
+ obj_actions.object_actions.push({
      'name': "updateblog",
      'action': 'updateblog',
      'url': null,
      'i_class': 'fa fa-edit',
-   {% endif %}
-   }
-    ],
-    title: gettext('Actions'),
-    className: "no-export-col"
-};
+ })
+
+ {% endif %}
+
+
 let objconfig={
 	urls: object_urls,
 	datatable_element:  "#blog_table",
