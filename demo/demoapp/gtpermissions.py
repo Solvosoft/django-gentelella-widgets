@@ -1,3 +1,4 @@
+#Related permissions
 permissions_to_create = [
     {
         'app_label': 'demoapp',
@@ -25,6 +26,8 @@ permissions_to_create = [
 
         ],
     },
+    #permisos relacionados de los relacionados
+
 
 
 ]
@@ -49,7 +52,7 @@ def remove_related_permission(app_label, main_permission_codename,
             permission['related_permissions'] = updated_related_permissions
             return True
 
-    # Si no se encontró ninguna coincidencia, devolver False
+    # return false if not found nothing.
     return False
 
 
