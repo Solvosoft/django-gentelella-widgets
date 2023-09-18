@@ -17,7 +17,7 @@ from demoapp.views import create_notification
 from rest_framework import status
 from djgentelella.notification.base import NotificationViewSet
 from rest_framework.test import APIClient
-from rest_framework_datatables.pagination import DatatablesPageNumberPagination
+# from rest_framework_datatables.pagination import DatatablesPageNumberPagination
 from rest_framework.exceptions import NotFound, NotAuthenticated
 
 
@@ -25,7 +25,7 @@ class ApiNotificationsTestCase(TestCase):
     def setUp(self):
         self.api_client = APIClient()
         self.client = Client()
-        NotificationViewSet.pagination_class = DatatablesPageNumberPagination
+        # NotificationViewSet.pagination_class = DatatablesPageNumberPagination
         self.factory = RequestFactory()
         self.first_user = User.objects.create_superuser(
             username='first_user', password='fuser123')

@@ -244,4 +244,22 @@ This template tag check if the user have all permissions in the list of perms
 Happy coding.
 
 
+--------------------------
+Related to permissions management
+--------------------------
+This JavaScript code allows loading related permissions from the related permissions API
+loadRelatedPermissions function
+The loadRelatedPermissions function is used to load the related permissions and restore the states of the checkboxes in the user interface. Below are its main features:
 
+Parameters:
+permissionId: The ID of the parent permission from which to load related permissions.
+internalCheckboxes: The container for internal checkboxes where related permissions will be displayed.
+Functioning:
+
+Make a GET request to a specific API URL to get the related permissions from the parent permission.
+Check if related permissions exist in the response.
+If related permissions exist, generate the necessary HTML to display the check boxes for the related permissions.
+Initialize the iCheck plugin for related permissions.
+Adds ifChecked and ifUnchecked events to the related permission checkboxes.
+If there are no related permissions, displays a message
+indicating that there are no related permissions available.
