@@ -97,7 +97,7 @@ var obj_actions = {
     table_actions: [],
     object_actions: [
 	 {
-	  {% if request.user == entry.author %}
+	  {% if perms.blog.view_entry%}
      'name': "detailblog",
      'action': 'detailblog',
      'url': null,
