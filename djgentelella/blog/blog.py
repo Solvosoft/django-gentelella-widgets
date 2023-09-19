@@ -8,7 +8,8 @@ from rest_framework.response import Response
 
 from djgentelella.permission_management import AllPermissionByAction, \
     AnyPermissionByAction
-from objectmanagement import AuthAllPermBaseObjectManagement
+from djgentelella.objectmanagement import AuthAllPermBaseObjectManagement
+#from objectmanagement import AuthAllPermBaseObjectManagement
 
 
 class BaseObjectBlog(AuthAllPermBaseObjectManagement):
