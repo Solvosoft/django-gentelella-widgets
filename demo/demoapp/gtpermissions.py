@@ -28,7 +28,10 @@ permissions_to_create = [
 
         ],
     },
+<<<<<<< HEAD
 
+=======
+>>>>>>> nueva-rama
 
 ]
 
