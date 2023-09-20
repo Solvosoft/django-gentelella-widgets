@@ -26,9 +26,6 @@ permissions_to_create = [
 
         ],
     },
-    #permisos relacionados de los relacionados
-
-
 
 ]
 
