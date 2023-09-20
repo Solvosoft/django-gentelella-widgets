@@ -1,4 +1,6 @@
 #Related permissions
+from unittest import TestCase
+
 permissions_to_create = [
     {
         'app_label': 'demoapp',
@@ -26,8 +28,6 @@ permissions_to_create = [
 
         ],
     },
-    #permisos relacionados de los relacionados
-
 
 
 ]
@@ -86,5 +86,4 @@ def add_related_permission(main_permission_codename, related_permissions):
 
 
 
-
-
+# Test creation of permissions related
