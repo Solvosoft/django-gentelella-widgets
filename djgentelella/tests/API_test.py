@@ -6,13 +6,14 @@ from django.contrib.auth.models import User, Permission
 from django.contrib.contenttypes.models import ContentType
 import requests
 from django.urls import reverse
-from rest_framework.test import APIClient
+from rest_framework.test import APIClient, APIRequestFactory
 from django.test import TestCase
 from rest_framework import status
 
 from demoapp.tests import unittest
 from djgentelella.models import PermissionRelated
-from djgentelella.permission_management.serializers import PermissionRelatedSerializer
+from djgentelella.permission_management.serializers import PermissionRelatedSerializer, \
+    PermissionSerializer
 from djgentelella.management.commands.show_permissions import Command
 import unittest
 from django.test import TestCase
@@ -24,6 +25,12 @@ from djgentelella.models import PermissionRelated
 >>>>>>> nueva-rama
 from django.core.management import call_command
 from unittest.mock import patch
+
+
+
+#this unit test verifies the error handling behavior of an API view in Django by making a request
+# to a dynamic URL with a specific resource_id value and ensuring that the view responds with a 404 status code
+# if the resource is not found.
 
 class ErrorHandlingAPITestCase(TestCase):
     def setUp(self):
@@ -59,6 +66,10 @@ def update_related_permission(app_label, main_permission_codename, related_permi
                     return True
 
     return False
+
+#this unit test verifies that the update_related_permission function can correctly update
+# existing related permissions and properly handles the situation
+# where the related permission is not found in the list of existing permissions.
 
 class TestUpdateRelatedPermission(unittest.TestCase):
     def setUp(self):
@@ -147,7 +158,9 @@ if __name__ == '__main__':
     unittest.main()
 
 #Delete
-
+#this unit test verifies that the remove_related_permission function can correctly
+# remove existing related permissions and properly handles the situation
+# where the main permission or related permission does not exist in the list of existing permissions.
 def remove_related_permission(app_label, main_permission_codename, related_permission_codename):
     global permissions_to_create
     for permission in permissions_to_create:
@@ -249,7 +262,9 @@ if __name__ == '__main__':
     unittest.main()
 
 #Add
-
+#this unit test verifies that the add_related_permission function can
+# correctly add related permissions to existing main permissions and properly handles the situation
+# where the main permission does not exist in the list of existing permissions.
 def add_related_permission(main_permission_codename, related_permissions):
 
     global permissions_to_create
@@ -353,7 +368,17 @@ class PermissionRelatedAPITestCase(TestCase):
 
 
 #Verifiy if some user has or not permissions.
+#this test checks if an administrator user has at least one of the main permissions or at least one of the related permissions
+# for each application specified in the permissions_to_create list.
+# If the administrator user has at least one of these permissions, the test is considered successful.
+# If it does not have any of the specified permissions, the test fails.
 
+
+#this test checks if an administrator user has at least one of the
+# main permissions or at least one of the related permissions for each
+# application specified in the permissions_to_create list.
+# If the administrator user has at least one of these permissions, the test is considered successful.
+# If it does not have any of the specified permissions, the test fails.
 class AdminPermissionsTestCase(TestCase):
     def setUp(self):
 
@@ -411,7 +436,9 @@ class AdminPermissionsTestCase(TestCase):
 
 
 #Verify if the API has permissions.
-
+#this unit test verifies that the administrator user has proper access to a specific API view (code 200 OK),
+# while the regular user does not have access (code 403 FORBIDDEN).
+# This is achieved by authenticating users and making GET requests to the API view with different user roles.
 class PermissionRelatedAPITestCase(TestCase):
     def setUp(self):
 
@@ -457,7 +484,8 @@ class PermissionRelatedAPITestCase(TestCase):
 
 
 # Input data validation
-
+#these unit tests verify the serializer's ability to validate valid data and identify invalid data,
+# as well as the handling of exceptions and API errors when trying to access non-existent resources.
 class PermissionRelatedSerializerTestCase(TestCase):
     def test_valid_data(self):
         # Create valid input data
@@ -515,6 +543,11 @@ class ExceptionHandlingTest(TestCase):
 
 # Security test for malicious SQL injection
 # Received an OK, passed test
+#this unit test seeks to test the security of the API when
+# attempting to perform SQL injection by including malicious data in a request.
+# The test verifies that the API does not generate an internal server error (HTTP 500) as a result of SQL injection.
+# If the API is properly protected, the test should be successful and the status code of the response
+# should not be 500.
 class SecurityTest(TestCase):
     def setUp(self):
         # Create a test API client
@@ -537,7 +570,10 @@ class SecurityTest(TestCase):
 
 
 # Test for creating related permissions in the command
-
+#this unit test seeks to test the security of the API when attempting to perform
+# SQL injection by including malicious data in a request.
+# The test verifies that the API does not generate an internal server error (HTTP 500) as a result of SQL injection.
+# If the API is properly protected, the test should be successful and the status code of the response should not be 500.
 class TestCreateRelatedPermissionsCommand(TestCase):
 
     def setUp(self):
@@ -596,6 +632,10 @@ class TestCreateRelatedPermissionsCommand(TestCase):
 
 
 # Test to get an empty list of permissions
+#this unit test verifies the behavior of a function that imports and retrieves
+# the list of permissions from a specific module of a Django application.
+# The test focuses on how the function handles the lack of a permission list in the module,
+# making sure that it returns an empty list or None in that case.
 class TestCreateRelatedPermissionsCommand(TestCase):
     @classmethod
     def setUpClass(cls):
@@ -648,6 +688,9 @@ if __name__ == '__main__':
 
 
 # Test to get permissions
+#This test focuses on verifying that the function can correctly retrieve a list of valid permissions
+# from the gtpermissions module. If the function does so successfully,
+# the test will be successful and the retrieved list of permissions should be identical to the list of valid permissions provided.
 class TestCreateRelatedPermissionsCommand(TestCase):
     def test_import_module_app_gt_with_permissions(self):
         # Test that the function returns the correct permissions list when the "gtpermissions" module contains a valid permissions_to_create list.
@@ -705,7 +748,10 @@ if __name__ == '__main__':
 
 
 # Test for non-existent permissions
-
+#this unit test verifies the handling of a custom Django command when it is provided
+# with a dataset containing a non-existent primary permission.
+# The test ensures that the command generates an appropriate warning message and
+# does not create related permissions in the database in this scenario.
 class TestCreateRelatedPermissionsCommand(TestCase):
 
     def setUp(self):
@@ -756,7 +802,10 @@ class TestCreateRelatedPermissionsCommand(TestCase):
 
 
 # Test for missing related permissions
-
+#this unit test verifies the handling of a custom Django command when it is provided
+# with a dataset containing a main permission that references non-existent related permissions.
+# The test ensures that the command generates an appropriate warning message and
+# only creates the main permission in the database in this scenario.
 class TestCreateRelatedPermissionsCommand(TestCase):
 
     def setUp(self):
@@ -811,6 +860,83 @@ class TestCreateRelatedPermissionsCommand(TestCase):
             permission_related = PermissionRelated.objects.filter(main_permission=main_permission)
             self.assertFalse(permission_related.exists())
 
-    # You can add more test methods for other scenarios as needed
 
 
+
+# Get an specific permission to the API
+#this test ensures that the API is able to correctly retrieve the details
+# of a specific PermissionRelated object and that the API response is consistent with
+# the data stored in the database for that object.
+class PermissionRelatedAPITests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.permission_related = PermissionRelated.objects.create(
+            main_permission_id=110,  # Reemplaza con el ID de un objeto existente
+            # Otras propiedades necesarias
+        )
+
+    def test_retrieve_permission_related_detail(self):
+        url = reverse('api_related_permissions_detail', kwargs={'permission_id': self.permission_related.main_permission_id})
+        response = self.client.get(url)
+
+        # Verifica que la respuesta tenga un código de estado 200 (OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Verifica que los datos recuperados sean correctos
+        self.assertEqual(response.data['main_permission'], self.permission_related.main_permission_id)
+        # Agrega más verificaciones según tus campos y datos específicos
+
+    # Otras pruebas de ser necesario
+
+
+ #non existing permission using URL
+#this test ensures that the API correctly handles the request for details
+# of a PermissionRelated object that does not exist in the database,
+# returning a 404 status code to indicate that the resource is not found.
+class PermissionRelatedAPITest(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+
+    def test_retrieve_nonexistent_permission_related_detail(self):
+        # Define un 'permission_id' que no existe en la base de datos
+        nonexistent_permission_id = 9999
+
+        url = reverse('api_related_permissions_detail', kwargs={'permission_id': nonexistent_permission_id})
+        response = self.client.get(url)
+
+        # Verifica que la respuesta tenga un código de estado 404 (Not Found)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+#Test of wiewset of the API
+#this test ensures that the PermissionRelatedDetailView is able to retrieve and display
+# the details of an existing PermissionRelated object in the database in response to a GET request.
+
+class PermissionRelatedDetailViewTestCase(TestCase):
+    def setUp(self):
+        # Crea un objeto PermissionRelated para usar en la prueba
+        self.permission_related = PermissionRelated.objects.create(
+            main_permission_id=103  # Reemplaza con el ID de un permiso existente en tu base de datos
+        )
+
+        # Crea un usuario de prueba (si es necesario)
+        self.user = User.objects.create(username='testuser', password='password')
+
+    def test_permission_related_detail(self):
+        # Crea una instancia de fábrica de solicitud para simular una solicitud GET a la vista
+        factory = APIRequestFactory()
+        url = reverse('api_related_permissions_detail', kwargs={'permission_id': self.permission_related.main_permission_id})
+        request = factory.get(url)
+
+        # Asigna un usuario autenticado a la solicitud (si es necesario)
+        # request.user = self.user
+
+        # Llama a la vista PermissionRelatedDetailView con la solicitud
+        response = self.client.get(url)
+
+        # Verifica que la respuesta tenga un código de estado HTTP 200 (éxito)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Verifica que los datos de la respuesta coincidan con los datos esperados
+        expected_data = PermissionRelatedSerializer(self.permission_related).data
+        self.assertEqual(response.data, expected_data)

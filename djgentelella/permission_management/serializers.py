@@ -1,3 +1,5 @@
+from unittest import TestCase
+
 from django.contrib.auth.models import Permission
 from rest_framework import serializers
 
@@ -53,5 +55,3 @@ class PermissionRelatedSerializer(serializers.ModelSerializer):
     class Meta:
         model = PermissionRelated
         fields = '__all__'
-
-
