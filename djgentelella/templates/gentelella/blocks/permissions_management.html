@@ -1,3 +1,4 @@
+
 {% load i18n %}
 <!-- Modal -->
 <div class="modal fade" id="permission_modal" aria-labelledby="permission_modal_label" aria-hidden="true">
@@ -33,8 +34,14 @@
 
                     </div>
                     <div class="col-md-2" style="margin-top: 20px;">
-                        <small>{% trans 'User Permissions' %}</small>
-                        <a class="btn categories" data-bs-toggle="collapse" data-bs-target="#permission_related">&#63;</a>
+                     <div style="font-size: 15px;">
+                      {% trans 'User Permissions' %}
+                    </div>
+
+
+         										  <a class="btn categories" data-bs-toggle="collapse"
+																								data-bs-target="#permission_related" style="color: blue;">&#63;</a>
+
 
                         <div class="collapse" id="permission_related">
                             <p style="font-size: 12px;">{% trans 'For each user or group, there are 2 main permissions: add and edit. If you need more permissions for your user, add the related permissions.' %}</p>
