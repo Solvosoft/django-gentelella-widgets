@@ -18,11 +18,7 @@ from djgentelella.management.commands.show_permissions import Command
 import unittest
 from django.test import TestCase
 from django.conf import settings
-<<<<<<< HEAD
-from djgentelella.models import PermissionRelated  # Reemplaza 'yourapp' con el nombre real de tu aplicación
-=======
 from djgentelella.models import PermissionRelated
->>>>>>> nueva-rama
 from django.core.management import call_command
 from unittest.mock import patch
 
