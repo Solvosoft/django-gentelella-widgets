@@ -40,17 +40,6 @@ def add_related_permission(main_permission_codename, related_permissions):
             return True
     return False
 
-#add test
-#related_permissions = {
- #   'app_label': 'auth',
-  #  'name': 'Can delete user',
-   # 'codename': 'delete_user',
-#}
-
-#if add_related_permission('change_abcde', related_permissions):
- #   print("Related permission added successfully.")
-#else:
- #   print("Parent permission not found to add related permission.")
 
 
 
@@ -70,12 +59,7 @@ def remove_related_permission(app_label, main_permission_codename, related_permi
             permission['related_permissions'] = updated_related_permissions
             return True
 
-#delete test
-#result_remove = remove_related_permission('demoapp', 'add_abcde', 'add_session')
-#if result_remove:
- #   print("Related permission successfully removed.")
-#else:
- #   print("Related permission not found for delete.")
+
 
 
 #update permissions
@@ -95,9 +79,4 @@ def update_related_permission(app_label, main_permission_codename, related_permi
 
     return False
 
-# update test
-#result_update = update_related_permission('demoapp', 'change_abcde', 'add_user', 'Can view user', 'view_user')
-#if result_update:
- #   print("Related permission successfully updated.")
-#else:
- #   print("Related permission not found for update.")
+

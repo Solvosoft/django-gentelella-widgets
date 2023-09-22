@@ -30,18 +30,7 @@
                         </div>
                     </div>
                     <div class="col-md-5" id="permissionbody" style="max-height:200px; overflow-y: auto;">
-                        {% for key, value in categories.items %}
-                            <h4><a class="btn categories" data-bs-toggle="collapse" data-bs-target="#category{{key|cut:' '}}"><i class="fa fa-plus"></i></a> {{key}}</h4>
-                            <div id="category{{key|cut:' '}}" class="collapse" style="width:100%">
-                                {% for item in value %}
-                                    <div class="row" style="margin-left: 12%;">
-                                        <p>{{ item.name }}</p>
-                                        <input type="checkbox" class="flat" name="permission" value="{{item.id}}" style="position: absolute; opacity: 0; right: 0;">
-                                    </div>
-                                {% endfor %}
-                            </div>
-                            <br>
-                        {% endfor %}
+
                     </div>
                     <div class="col-md-2" style="margin-top: 20px;">
                         <small>{% trans 'User Permissions' %}</small>
