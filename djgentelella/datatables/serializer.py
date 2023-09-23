@@ -5,7 +5,7 @@ from django_filters import FilterSet
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-
+from datatables.fields import GTBase64FileField
 from djgentelella.blog.models import Entry, Category, EntryImage
 from djgentelella.fields.drfdatetime import DateRangeTextWidget, DateTimeRangeTextWidget
 
@@ -58,6 +58,9 @@ class BlogDataTableSerializer(serializers.Serializer):
 
 class BlogCreateSerializer(serializers.ModelSerializer):
     published_content = serializers.StringRelatedField(required=False)
+    feature_image = GTBase64FileField(required=False)  # Corregido el nombre del campo
+
+    feacture_image = GTBase64FileField(required=False)
     class Meta:
         model = Entry
         fields = "__all__"
@@ -77,6 +80,7 @@ class BlogUpdateSerializer(serializers.ModelSerializer):
     published_content = serializers.StringRelatedField(required=False)
     categories = serializers.StringRelatedField(
         many=True)
+    feacture_image = GTBase64FileField(required=False)
 
     class Meta:
         model = Entry

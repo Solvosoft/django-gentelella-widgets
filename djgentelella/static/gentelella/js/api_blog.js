@@ -1,46 +1,73 @@
-function convertFormToJSON(form, prefix = "") {
-  const re = new RegExp("^" + prefix);
-  var selectMultipleItems = new Map();
-  var formData = new FormData();
+function convertFileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
 
-  form.find("select").each(function (i, e) {
-    if ($(e).prop("multiple")) {
-      selectMultipleItems.set(e.name.replace(re, ""), []);
+    reader.onload = () => {
+      const base64String = reader.result.split(',')[1];
+      resolve(base64String);
+    };
+
+    reader.onerror = (error) => {
+      reject(error);
+    };
+
+    reader.readAsDataURL(file);
+   });
+}
+//
+async function obtainFormAsJSON(form, prefix = '', extras={}) {
+  const fields = form.elements;
+  const formData = {};
+  // typeof variable === 'function'
+  for( let key in extras){
+    if(typeof extras[key] === 'function'){
+        formData[key]=extras[key](form, key, prefix);
+    }else{
+        formData[key]=extras[key];
     }
-  });
+  }
 
-  form
-    .serializeArray()
-    .forEach(function ({ name, value }) {
-      let cleanName = name.replace(re, "");
-      if (selectMultipleItems.has(cleanName)) {
-        selectMultipleItems.get(cleanName).push(value);
+  for (let i = 0; i < fields.length; i++) {
+    const field = fields[i];
+
+    if (field.type !== 'submit' && field.type !== 'button') {
+      const fieldName = field.name.replace(prefix, '');
+
+      if (field.type === 'file') {
+        const files = Array.from(field.files);
+        const filesBase64 = [];
+
+        for (let j = 0; j < files.length; j++) {
+          const file = files[j];
+          try {
+            const base64String = await convertFileToBase64(file);
+            filesBase64.push({ name: file.name, value: base64String });
+          } catch (error) {
+            console.error('Error converting file:', error);
+          }
+        }
+
+        formData[fieldName] = filesBase64;
+      } else if (field.multiple) {
+        const selectedOptions = Array.from(field.selectedOptions);
+        const selectedValues = selectedOptions.map((option) => option.value);
+        formData[fieldName] = selectedValues;
       } else {
-        formData.append(cleanName, value);
-      }
-    });
+        formData[fieldName] = field.value;
+       }
 
-  selectMultipleItems.forEach(function (value, key) {
-    if (value.length > 0) {
-      formData.append(key, value);
-    }
-  });
+        }
+  }
 
-  form.find("input[type=file]").each(function (i, e) {
-    if (e.files.length > 0) {
-      formData.append(e.name.replace(re, ""), e.files[0]);
-    }
-  });
-
-  return formData;
+  return JSON.stringify(formData);
 }
 
-
-
 function convertToStringJson(form, prefix="", extras={}){
-    var formjson =convertFormToJSON(form, prefix=prefix);
-    formjson=Object.assign({}, formjson, extras)
-    return JSON.stringify(formjson);
+    //var formjson =convertFormToJSON(form, prefix=prefix);
+    //formjson=Object.assign({}, formjson, extras)
+    //return JSON.stringify(formjson);
+     result=obtainFormAsJSON(form[0], prefix=prefix, extras={});
+     return result;
 }
 
 function load_errors(error_list, obj){
@@ -104,7 +131,7 @@ var gt_detail_modals = {}
 var gt_crud_objs = {};
 
 function  gt_show_actions(crud_name){
-     return function(data, type, row, meta, entry){
+     return function(data, type, row, meta){
         var html="";
         if(data != null ){
             if(data.title != undefined){
@@ -112,8 +139,7 @@ function  gt_show_actions(crud_name){
             }
             for(var x=0; x<data.actions.length; x++){
                 let action = data.actions[x];
-                html += '<i onclick="javascript:call_obj_crud_event(\''+crud_name+'\', \''+action.name+'\', '+meta.row+', ' + JSON.stringify(entry) + ');" class="'+action.i_class+'"></i>';
-
+                html += '<i onclick="javascript:call_obj_crud_event(\''+crud_name+'\', \''+action.name+'\', '+meta.row+');" class="'+action.i_class+'"></i>';
             }
         }
         return html;
@@ -158,27 +184,22 @@ function GTBaseFormModal(modal_id, datatable_element,  form_config)  {
             this.instance.find(this.btn_class).on('click', this.add_btn_form(this));
 
         },
-    "add_btn_form": function(instance){
-  return function(event){
-    // Crea un objeto FormData en lugar de serializar a JSON
-    const formData = convertFormToJSON(instance.form, instance.prefix);
+        "add_btn_form": function(instance){
+            return function(event){
 
-    // Agrega el token CSRF al encabezado
-    formData.append('csrfmiddlewaretoken', getCookie('csrftoken'));
-
-
-
-    fetch(instance.url, {
-      method: instance.type,
-      body: formData,
-       headers: {'X-CSRFToken': getCookie('csrftoken')}
-    })
-    .then(response_manage_type_data(instance, instance.error, instance.error_text))
-    .then(instance.fn_success(instance))
-    .catch(error => instance.handle_error(instance, error));
-  }
-},
-
+               convertToStringJson(instance.form, prefix=instance.prefix,
+               extras=instance.config.events.form_submit(instance)).then((result) => {
+               fetch(instance.url, {
+                    method: instance.type,
+                    body: result,
+                    headers: {'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json'}
+                    }
+                    ).then(response_manage_type_data(instance, instance.error, instance.error_text))
+                    .then(instance.fn_success(instance))
+                    .catch(error => instance.handle_error(instance, error));
+                    });
+            }
+        },
         "success": function(instance, data){
         },
         "fn_success": function(instance){
@@ -727,11 +748,11 @@ function ObjectCRUD(uniqueid, objconfig={}){
     return obj;
 }
 
-function call_obj_crud_event(uniqueid, action_name, row_id, entry){
+function call_obj_crud_event(uniqueid, action_name, row_id){
     if(uniqueid in gt_crud_objs){
         let position = gt_crud_objs[uniqueid].find_object_action_by_name(action_name);
         if(position != undefined){
-            gt_crud_objs[uniqueid].do_object_actions(position, row_id, entry);
+            gt_crud_objs[uniqueid].do_object_actions(position, row_id);
         }
     }
 }
