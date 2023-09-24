@@ -6,6 +6,8 @@ from django.views.decorators.cache import cache_page
 from django.views.i18n import JavaScriptCatalog
 from rest_framework.routers import DefaultRouter
 
+
+
 from djgentelella.chunked_upload.views import ChunkedUploadView, \
     ChunkedUploadCompleteView
 from djgentelella.notification.base import NotificacionAPIView, NotificationViewSet, \
@@ -13,8 +15,14 @@ from djgentelella.notification.base import NotificacionAPIView, NotificationView
 from djgentelella.permission_management import views as permissions
 from djgentelella.widgets.helper import HelperWidgetView
 from djgentelella.wysiwyg import views as wysiwyg
+from django.urls import path
+
+from djgentelella.permission_management.viewsets import PermissionRelatedDetailView
+from . import views
+
 from .groute import routes
 from .templatetags.gtsettings import get_version
+
 
 auth_urls = [
     path('accounts/login/',
@@ -101,6 +109,8 @@ permission_management_urls = [
          name="permissionsmanagement-list"),
     path('permissionsmanagement/save', permissions.save_permcategorymanagement,
          name="permcategorymanagement-save"),
+    path('permsrelated/<int:permission_id>/', PermissionRelatedDetailView.as_view(),
+         name='api_related_permissions_detail'),
 
 ]
 

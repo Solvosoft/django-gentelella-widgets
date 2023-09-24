@@ -105,4 +105,5 @@ urlpatterns = [
                   path('datatable_view', datatableViewExample, name="datatable_view"),
                   path('mediarecord_upload', mediaupload_view, name="mediaupload_view"),
                   path('tableapi/', include(router.urls)),
+
               ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()
