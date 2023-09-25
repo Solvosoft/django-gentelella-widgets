@@ -14,16 +14,14 @@ class EntryForm(GTForm, forms.ModelForm):
         exclude = ('published_content', 'author')
         widgets = {
             'title': genwidgets.TextInput,
-            'content': TextareaWysiwyg,
-            'resume': TextareaWysiwyg,
+            'content': genwidgets.Textarea,
+            'resume': genwidgets.Textarea,
             'is_published': genwidgets.YesNoInput,
             'categories': genwidgets.SelectMultipleAdd(attrs={
                 'add_url': reverse_lazy('blog:category_add')
             }),
 
         }
-
-
 class CategoryForm(CustomForm, forms.ModelForm):
     class Meta:
         model = models.Category

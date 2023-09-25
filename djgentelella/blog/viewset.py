@@ -14,17 +14,19 @@ class ObjectBLog(BaseObjectBlog):
         'create': serializer.BlogCreateSerializer,
         'update': serializer.BlogCreateSerializer,
         'retrieve': serializer.BlogUpdateSerializer,
-        'get_values_for_update': serializer.BlogUpdateSerializer
+        'get_values_for_update': serializer.BlogUpdateSerializer,
+        'destroy': serializer.BlogDestroySerializer
     }
+
     perms = {
-        'list': ['blog.view_entry'],
-        'create': ['blog.add_category', 'blog.add_entry', 'blog.add_entry_image'],
-        'update': ['blog.change_category', 'blog.change_entry', 'blog.change_entry_image'],
-        'retrieve': ['blog.view_entry', 'blog.view_category', 'blog.view_entry_image'],
-        'get_values_for_update': ['blog.view_entry'],
-        'destroy': ['blog.delete_entry_image', 'blog.delete_category', 'blog.delete_entry']
+        'list': ['blog.view_entry', 'blog.view_entry_image', 'blog.view_category'],
+        'create': ['blog.add_entry', 'blog.add_entry_image', 'blog.add_category'],
+        'update': ['blog.change_entry', 'blog.change_entry_image', 'blog.change_category'],
+        'retrieve': ['blog.view_entry', 'blog.view_entry_image', 'blog.view_category'],
+        'get_values_for_update': ['blog.view_entry', 'blog.view_entry_image', 'blog.view_category'],
+        'destroy': ['blog.delete_entry', 'blog.delete_entry_image', 'blog.delete_category']
     }
-    #Asigna el author al usuario actual
+
     def perform_create(self, serializer): # ESTO ASIGNA EL author
         serializer.save(author=self.request.user)
         self.operation_type = 'create'

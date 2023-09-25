@@ -43,6 +43,46 @@
 {{block.super}}
 <script>
 
+document.addEventListener("DOMContentLoaded", function () {
+    tinymce.init({
+        selector: 'textarea.wysiwyg',
+        plugins: 'wordcount',  // Habilita el complemento de contador de palabras
+        // Otras configuraciones generales de TinyMCE
+    });
+
+     tinymce.init({
+    selector: 'textarea#id_create-content',
+    plugins: 'wordcount',  // Configura los complementos que deseas habilitar
+    // Otras configuraciones de TinyMCE
+    setup: function (editor) {
+        editor.on('change', function () {
+            // Captura el contenido actual del editor
+            var content = editor.getContent();
+
+            // Actualiza el valor del campo de texto en el formulario
+            document.getElementById('id_create-content').value = content;
+        });
+    }
+});
+
+
+ tinymce.init({
+    selector: 'textarea#id_create-resume',
+    plugins: 'wordcount',  // Configura los complementos que deseas habilitar
+    setup: function (editor) {
+        editor.on('change', function () {
+            // Captura el contenido actual del editor
+            var content = editor.getContent();
+
+            // Actualiza el valor del campo de texto en el formulario
+            document.getElementById('id_create-resume').value = content;
+        });
+    }
+});
+
+});
+
+
 var object_urls ={
 	list_url: "{% url 'api-objectbLog-list' %}",
 	destroy_url: "{% url 'api-objectbLog-detail' 0 %}",
@@ -84,9 +124,6 @@ var obj_modalids = {
 	create: "#create_obj_modal",
   {% endif %}
 
-	//update: "#update_obj_modal",
-
-
 	 {% if perms.blog.delete_entry %}
 	destroy: "#delete_obj_modal",
 	   {% endif %}
@@ -115,9 +152,7 @@ var obj_actions = {
      'url': null,
      'i_class': 'fa fa-edit',
  })
-
  {% endif %}
-
 
 let objconfig={
 	urls: object_urls,
@@ -132,7 +167,6 @@ let objconfig={
 
 
 let ocrud=ObjectCRUD("setmeunique", objconfig)/// setmeunique DISTINTO
-
 
 ocrud.detailblog = function(row) {
     console.log("El row es:", row);
@@ -149,11 +183,6 @@ ocrud.updateblog = function(row) {
 };
 
 ocrud.init();
-
-
-
-
-
 
 </script>
 

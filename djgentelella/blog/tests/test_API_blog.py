@@ -1,6 +1,6 @@
 from django.test import TestCase
 from djgentelella.blog.forms import EntryForm, CategoryForm
-from djgentelella.blog.models import Entry, Category
+from djgentelella.blog.models import Category
 
 class EntryFormTest(TestCase):
 

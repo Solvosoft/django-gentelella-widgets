@@ -1,3 +1,5 @@
+
+
 function convertFileToBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -63,12 +65,35 @@ async function obtainFormAsJSON(form, prefix = '', extras={}) {
 }
 
 function convertToStringJson(form, prefix="", extras={}){
+
     //var formjson =convertFormToJSON(form, prefix=prefix);
     //formjson=Object.assign({}, formjson, extras)
     //return JSON.stringify(formjson);
      result=obtainFormAsJSON(form[0], prefix=prefix, extras={});
      return result;
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+  tinymce.init({
+    selector: '#editor_content',
+    setup: function (editor) {
+      editor.on('change', function () {
+        var contenido = editor.getContent();
+        document.getElementById('content').value = contenido;
+      });
+    }
+  });
+
+  tinymce.init({
+    selector: '#editor_resume',
+    setup: function (editor) {
+      editor.on('change', function () {
+        var resumen = editor.getContent();
+        document.getElementById('resume').value = resumen;
+      });
+    }
+  });
+});
 
 function load_errors(error_list, obj){
     ul_obj = "<ul class='errorlist form_errors d-flex justify-content-center'>";

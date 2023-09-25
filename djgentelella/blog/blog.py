@@ -9,7 +9,6 @@ from rest_framework.response import Response
 from djgentelella.permission_management import AllPermissionByAction, \
     AnyPermissionByAction
 from djgentelella.objectmanagement import AuthAllPermBaseObjectManagement
-#from objectmanagement import AuthAllPermBaseObjectManagement
 
 
 class BaseObjectBlog(AuthAllPermBaseObjectManagement):
@@ -19,9 +18,9 @@ class BaseObjectBlog(AuthAllPermBaseObjectManagement):
         'update': None,
         'retrieve': None,
         'get_values_for_update': None,
+        'destroy': None
 
     }
-
     # authentication_classes = (TokenAuthentication, SessionAuthentication)
     # queryset =
     pagination_class = LimitOffsetPagination

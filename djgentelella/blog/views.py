@@ -8,12 +8,9 @@ from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, \
     DeleteView
-
 from . import models
 from .forms import EntryForm, CategoryForm
 from .models import Category
-
-
 from djgentelella.blog.forms import EntryForm
 from django.urls import reverse
 
@@ -38,8 +35,8 @@ class EntriesList(ListView):
         context['q'] = self.request.GET.get('q', '')
         context['entry'] = models.Entry.objects.first()
         context['create_form'] = EntryForm(prefix='create')
-
         return context
+
 
 
 class EntryDetail(DetailView):
@@ -60,8 +57,6 @@ class EntryDetail(DetailView):
         return context
 
 
-
-
 class EntryCreate(PermissionRequiredMixin, CreateView):
     permission_required = 'blog.add_entry'
     model = models.Entry
@@ -69,12 +64,14 @@ class EntryCreate(PermissionRequiredMixin, CreateView):
     success_url = reverse_lazy('blog:entrylist')
     form_class = EntryForm
 
-
     def form_valid(self, form):
         response = super().form_valid(form)
         publishbtn = self.request.POST.get('publishbtn', '') == 'publish'
         if publishbtn:
             self.object.is_published = True
+
+        self.object.content = form.cleaned_data['content']
+
         if self.object.is_published and publishbtn:
             self.object.published_content = self.object.content.rendered
         if self.object.author is None:
