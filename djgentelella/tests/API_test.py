@@ -1,27 +1,15 @@
 from io import StringIO
-from unittest.mock import patch, Mock
-
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User, Permission
-from django.contrib.contenttypes.models import ContentType
-import requests
 from django.urls import reverse
 from rest_framework.test import APIClient, APIRequestFactory
-from django.test import TestCase
 from rest_framework import status
-
-from demoapp.tests import unittest
-from djgentelella.models import PermissionRelated
-from djgentelella.permission_management.serializers import PermissionRelatedSerializer, \
-    PermissionSerializer
+from djgentelella.permission_management.serializers import PermissionRelatedSerializer
 from djgentelella.management.commands.show_permissions import Command
 import unittest
 from django.test import TestCase
-from django.conf import settings
 from djgentelella.models import PermissionRelated
-from django.core.management import call_command
 from unittest.mock import patch
-
 
 
 #this unit test verifies the error handling behavior of an API view in Django by making a request
@@ -736,8 +724,6 @@ class TestCreateRelatedPermissionsCommand(TestCase):
             print(f"Attribute error: {str(e)}")
         return []
 
-    # Add the rest of the tests and test methods here...
-
 
 if __name__ == '__main__':
     unittest.main()
@@ -793,8 +779,6 @@ class TestCreateRelatedPermissionsCommand(TestCase):
 
             permission_related = PermissionRelated.objects.filter(main_permission=main_permission)
             self.assertFalse(permission_related.exists())
-
-    # You can add more test methods for other scenarios as needed
 
 
 # Test for missing related permissions
@@ -857,8 +841,6 @@ class TestCreateRelatedPermissionsCommand(TestCase):
             self.assertFalse(permission_related.exists())
 
 
-
-
 # Get an specific permission to the API
 #this test ensures that the API is able to correctly retrieve the details
 # of a specific PermissionRelated object and that the API response is consistent with
@@ -867,22 +849,18 @@ class PermissionRelatedAPITests(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.permission_related = PermissionRelated.objects.create(
-            main_permission_id=110,  # Reemplaza con el ID de un objeto existente
-            # Otras propiedades necesarias
+            main_permission_id=110,
         )
 
     def test_retrieve_permission_related_detail(self):
         url = reverse('api_related_permissions_detail', kwargs={'permission_id': self.permission_related.main_permission_id})
         response = self.client.get(url)
 
-        # Verifica que la respuesta tenga un código de estado 200 (OK)
+        # Verify that the response of the code state be 200 (ok)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        # Verifica que los datos recuperados sean correctos
+        # verifiy that the data is correct
         self.assertEqual(response.data['main_permission'], self.permission_related.main_permission_id)
-        # Agrega más verificaciones según tus campos y datos específicos
-
-    # Otras pruebas de ser necesario
 
 
  #non existing permission using URL
@@ -894,13 +872,13 @@ class PermissionRelatedAPITest(TestCase):
         self.client = APIClient()
 
     def test_retrieve_nonexistent_permission_related_detail(self):
-        # Define un 'permission_id' que no existe en la base de datos
+        # Define a 'permission_id' that does not exist in the data base
         nonexistent_permission_id = 9999
 
         url = reverse('api_related_permissions_detail', kwargs={'permission_id': nonexistent_permission_id})
         response = self.client.get(url)
 
-        # Verifica que la respuesta tenga un código de estado 404 (Not Found)
+        # Verifica taht the answer of the code state be 404 (Not Found)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
@@ -910,29 +888,26 @@ class PermissionRelatedAPITest(TestCase):
 
 class PermissionRelatedDetailViewTestCase(TestCase):
     def setUp(self):
-        # Crea un objeto PermissionRelated para usar en la prueba
+        # Create a PermissionRelated to use the test
         self.permission_related = PermissionRelated.objects.create(
-            main_permission_id=103  # Reemplaza con el ID de un permiso existente en tu base de datos
+            main_permission_id=103
         )
 
-        # Crea un usuario de prueba (si es necesario)
+        # Create a user to the test
         self.user = User.objects.create(username='testuser', password='password')
 
     def test_permission_related_detail(self):
-        # Crea una instancia de fábrica de solicitud para simular una solicitud GET a la vista
+        # Crete a simultation to get the view
         factory = APIRequestFactory()
         url = reverse('api_related_permissions_detail', kwargs={'permission_id': self.permission_related.main_permission_id})
         request = factory.get(url)
 
-        # Asigna un usuario autenticado a la solicitud (si es necesario)
-        # request.user = self.user
-
-        # Llama a la vista PermissionRelatedDetailView con la solicitud
+        # Call the view PermissionRelatedDetailView with the request.
         response = self.client.get(url)
 
-        # Verifica que la respuesta tenga un código de estado HTTP 200 (éxito)
+        # Verify that the response of the code state be 200 (ok)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        # Verifica que los datos de la respuesta coincidan con los datos esperados
+        # Verify that the response data matches the expected data.
         expected_data = PermissionRelatedSerializer(self.permission_related).data
         self.assertEqual(response.data, expected_data)

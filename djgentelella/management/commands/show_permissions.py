@@ -1,6 +1,8 @@
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import Permission
+from django.dispatch.dispatcher import logger
+
 from djgentelella.models import PermissionRelated
 
 
@@ -16,7 +18,7 @@ class Command(BaseCommand):
         except ModuleNotFoundError as e:
             pass
         except AttributeError as e:
-            print(f"Error de atributo: {str(e)}")
+            logger.exception("Attribute error")
         return []
 
     def fill_permission_to_create(self):
