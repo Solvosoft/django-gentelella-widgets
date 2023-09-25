@@ -7,6 +7,8 @@ from django.utils.translation import gettext_lazy as _
 # Create your models here.
 from djgentelella.fields.catalog import GTForeignKey, GTManyToManyField, GTOneToOneField
 
+class selectModel(models.Model):
+    desc = models.CharField(max_length=200)
 
 class Country(models.Model):
     name = models.CharField(max_length=150)
@@ -25,6 +27,19 @@ class Person(models.Model):
     def __str__(self):
         return self.name
 
+class ChoiceItem(models.Model):
+    name = models.CharField(max_length=150)
+
+    def __str__(self):
+        return self.name
+
+class PersonGroup(models.Model):
+
+    items = models.ManyToManyField(ChoiceItem)
+    persons = models.ManyToManyField(Person)
+
+    def __str__(self):
+        return f"Group {self.pk}"
 
 class Catalog(models.Model):
     key = models.CharField(max_length=150)
@@ -223,3 +238,5 @@ class Event(models.Model):
 
     def __str__(self):
         return self.title
+
+

@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-21 14:41-0600\n"
-"PO-Revision-Date: 2023-03-21 14:42-0600\n"
+"POT-Creation-Date: 2023-04-05 13:43-0600\n"
+"PO-Revision-Date: 2023-04-05 13:42-0600\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: es\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 2.4.2\n"
+"X-Generator: Poedit 3.0.1\n"
 
 #: static/gentelella/js/base.js:514 static/gentelella/js/base.js:540
 #: static/gentelella/js/base.js:567
@@ -34,6 +34,24 @@ msgstr "Lo lamentamos hay un problema"
 msgid "Media device is not available"
 msgstr "Dispositivo de multimedia no está disponible"
 
+#: static/gentelella/js/base.js:1580 static/gentelella/js/base.js:1687
+#: static/gentelella/js/base.js:1791
+#: static/gentelella/js/base/mediarecord.js:68
+#: static/gentelella/js/base/mediarecord.js:175
+#: static/gentelella/js/base/mediarecord.js:279
+msgid "Start"
+msgstr "Iniciar"
+
+#: static/gentelella/js/base.js:1586
+#: static/gentelella/js/base/mediarecord.js:74
+msgid "Capture"
+msgstr "Capturar"
+
+#: static/gentelella/js/base.js:1590
+#: static/gentelella/js/base/mediarecord.js:78
+msgid "Save"
+msgstr "Guardar"
+
 #: static/gentelella/js/base.js:1694 static/gentelella/js/base.js:1798
 #: static/gentelella/js/base/mediarecord.js:182
 #: static/gentelella/js/base/mediarecord.js:286
@@ -46,20 +64,20 @@ msgstr "Grabar"
 msgid "Recording..."
 msgstr "Grabando..."
 
-#: static/gentelella/js/base.js:1791
-#: static/gentelella/js/base/mediarecord.js:68
-#: static/gentelella/js/base/mediarecord.js:175
-#: static/gentelella/js/base/mediarecord.js:279
-msgid "Start"
-msgstr "Iniciar"
+#: static/gentelella/js/base.js:1917 static/gentelella/js/base/select2box.js:63
+msgid "Can't get the API Data, verify the url attr"
+msgstr "No se ha podido obtener los datos del API, verifique el atributo url"
 
-#: static/gentelella/js/base/mediarecord.js:74
-msgid "Capture"
-msgstr "Capturar"
+#: static/gentelella/js/base.js:2069
+#: static/gentelella/js/base/select2box.js:215
+msgid "Can't get the API Data, verify the addurl attr"
+msgstr ""
+"No se ha podido obtener los datos del API, verifique el atributo addurl"
 
-#: static/gentelella/js/base/mediarecord.js:78
-msgid "Save"
-msgstr "Guardar"
+#: static/gentelella/js/base.js:2091
+#: static/gentelella/js/base/select2box.js:237
+msgid "Can't POST the Data"
+msgstr "No se pudieron procesar los datos"
 
 #: static/gentelella/js/custom.js:254
 msgid " Records Selected"
@@ -105,7 +123,10 @@ msgstr "Más"
 msgid "Show"
 msgstr "Ver"
 
-#: static/gentelella/js/datatables.js:158
-#: static/gentelella/js/datatables.js:159
+#: static/gentelella/js/datatables.js:162
 msgid "Clear Filters"
 msgstr "Limpiar Filtros"
+
+#: static/vendors/storymapjs/storymap.js:1
+msgid "loading"
+msgstr "cargando"

@@ -15,3 +15,4 @@ Advanced Widgets
 .. include:: storymap.rst
 .. include:: calendar.rst
 .. include:: storyline.rst
+.. include:: select2box.rst

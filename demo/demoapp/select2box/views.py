@@ -1,0 +1,113 @@
+import json
+from django.http import JsonResponse
+from django.template.loader import render_to_string
+from django.urls import reverse_lazy, reverse
+from .forms import PersonSelect2BoxForm, PeopleSelect2BoxForm
+from django.views.generic import FormView, CreateView, UpdateView, ListView
+from ..forms import PersonForm, CityForm, ItemsForm
+from ..models import PeopleGroup, PersonGroup
+from django.http import HttpResponse
+from django.shortcuts import render
+
+class Select2BoxPersonList(ListView):
+    model = PersonGroup
+    template_name = 'person_select2box.html'
+
+class Select2BoxPersonAdd(CreateView):
+    model = PersonGroup
+    success_url = reverse_lazy('select2box-list')
+    form_class = PersonSelect2BoxForm
+    template_name = 'gentelella/index.html'
+
+class Select2BoxPersonChange(UpdateView):
+    model = PersonGroup
+    success_url = reverse_lazy('select2box-list')
+    form_class = PersonSelect2BoxForm
+    template_name = 'gentelella/index.html'
+
+class Select2BoxGroupAdd(CreateView):
+    model = PeopleGroup
+    success_url = reverse_lazy('select2box-group-list')
+    form_class = PeopleSelect2BoxForm
+    template_name = 'gentelella/index.html'
+
+
+class Select2BoxGroupChange(UpdateView):
+    model = PeopleGroup
+    success_url = reverse_lazy('select2box-group-list')
+    form_class = PeopleSelect2BoxForm
+    template_name = 'gentelella/index.html'
+
+
+class Select2BoxGroupList(ListView):
+    model = PeopleGroup
+    template_name = 'people_group_select2box.html'
+
+def Select2BoxPersonAddView(request):
+    form_t = PersonForm(prefix='person_new_data')
+
+    if request.method == "GET":
+        render_str = render_to_string('gentelella/widgets/select2box_modal_body.html', context={'form': form_t})
+
+        return JsonResponse({'result': render_str})
+
+    elif request.method == "POST":
+
+        json_data = json.loads(request.body)
+
+        review_data = PersonForm(json_data, prefix='person_new_data')
+        print(review_data)
+        if review_data.is_valid():
+            try:
+                saved_data = review_data.save()
+                print(saved_data)
+                return JsonResponse({'result': {'id': saved_data.id,
+                                                'text': saved_data.name,
+                                                'selected': False, 'disabled': False}})
+            except (KeyError, PersonForm.errors):
+                return JsonResponse({'error': 'Error'})
+        else:
+            return JsonResponse({'error':'Data Invalid'})
+
+def Select2BoxComunityAddView(request):
+    form_t = CityForm()
+    if request.method == "GET":
+        render_str = render_to_string('gentelella/widgets/select2box_modal_body.html', {'form': form_t})
+        return JsonResponse({'result': render_str})
+
+    elif request.method == "POST":
+        test_yy = json.loads(request.body)
+        print(test_yy)
+        review_data = CityForm(test_yy)
+        print(review_data)
+        if review_data.is_valid():
+            try:
+                saved_data = review_data.save()
+                return JsonResponse({'result': {'id':saved_data.id, 'text':saved_data.name, 'selected':False, 'disabled': False}})
+            except (KeyError, CityForm.errors):
+                return JsonResponse({'error': 'Error'})
+        else:
+            return JsonResponse({'error':'Data Invalid'})
+
+
+def Select2BoxItemAddView(request):
+    form_t = ItemsForm()
+    if request.method == "GET":
+        render_str = render_to_string('gentelella/widgets/select2box_modal_body.html', {'form': form_t})
+        return JsonResponse({'result': render_str})
+
+    elif request.method == "POST":
+        print(request)
+        test_yy = json.loads(request.body)
+        print(test_yy)
+        review_data = ItemsForm(test_yy)
+        print(review_data)
+        if review_data.is_valid():
+            try:
+                saved_data = review_data.save()
+                print("hola: "+saved_data.id_name+" --- "+saved_data.name)
+                return JsonResponse({'result': {'id':saved_data.id, 'text':saved_data.name, 'selected':False, 'disabled': False}})
+            except (KeyError, ItemsForm.errors):
+                return JsonResponse({'error': 'Error'})
+        else:
+            return JsonResponse({'error':'Data Invalid'})
