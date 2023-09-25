@@ -33,8 +33,17 @@ router.register('persontableview', PersonViewSet, 'api-persontable')
 urlpatterns = [
                   path('bt_modal_display', bt_modal_display, name='bt_modal_display'),
                   path('formset', add_formset, name='add_formset'),
-                  path('select2box', selectMult.formSelect2BoxView.as_view(), name='select2box'),
-                  path('select2box/create', selectMult.Select2BoxPersonAddView, name='select2box-create'),
+                  path('select2box', selectMult.Select2BoxPersonList.as_view(), name='select2box-list'),
+                  path('select2box/create/', selectMult.Select2BoxPersonAdd.as_view(),
+                       name='select2box-add'),
+                  path('select2box/getpform/', selectMult.Select2BoxPersonAddView,
+                       name='select2box-personform'),
+                  path('select2box/getiform/', selectMult.Select2BoxItemAddView,
+                       name='select2box-itemform'),
+                  path('select2box/<int:pk>/',
+                       selectMult.Select2BoxPersonChange.as_view(),
+                       name='select2box-edit'),
+
                   path('modelformset', add_model_formset, name='add_model_formset'),
                   path('create/notification', create_notification_view,
                        name='create_notification'),
@@ -47,6 +56,7 @@ urlpatterns = [
                   path('pgroup/<int:pk>/',
                        autocompleteviews.PeopleGroupChange.as_view(),
                        name='pgroup-edit'),
+
                   path('select2boxpg/', selectMult.Select2BoxGroupList.as_view(),
                        name='select2box-group-list'),
                   path('select2boxpg/create/', selectMult.Select2BoxGroupAdd.as_view(),
@@ -58,6 +68,7 @@ urlpatterns = [
                   path('select2boxpg/<int:pk>/',
                        selectMult.Select2BoxGroupChange.as_view(),
                        name='select2box-group-edit'),
+
                   path('abcde/', autocompleteviews.ABCDEList.as_view(),
                        name='abcde-list'),
                   path('abcde/create/', autocompleteviews.ABCDECreate.as_view(),

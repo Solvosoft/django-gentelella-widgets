@@ -373,6 +373,19 @@ class Command(BaseCommand):
             only_icon=False
         )
 
+        chunckedupload = MenuItem.objects.create(
+            parent=cwidget,
+            title='Select2box',
+            url_name='select2box-list',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-mouse-pointer',
+            only_icon=False
+        )
+
         noti = MenuItem.objects.create(
             parent=item,
             title='Create notification',

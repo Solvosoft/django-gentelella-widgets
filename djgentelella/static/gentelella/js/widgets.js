@@ -212,6 +212,7 @@ document.gtwidgets = {
     },
     Select2Box: function (instance) {
         get_select2box(instance);
+
     },
     TextareaWysiwyg: function (instance) {
         $(instance).removeAttr('required');

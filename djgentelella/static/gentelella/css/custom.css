@@ -4656,16 +4656,16 @@ border-bottom:2px solid #E6E9ED;
 }
 
 .add_selection{
-    height: 40px !important;
-    width: 60px !important;
+    height: 35px !important;
+    width: 50px !important;
     border-radius: 5% !important;
     /*align-item: center !important;
     justify-content: center !important;*/
 }
 
 .return_selected{
-    height: 40px !important;
-    width: 60px !important;
+    height: 35px !important;
+    width: 50px !important;
     border-radio: 5% !important;
     /*align-item: center !important;
     justify-content: center !important;*/
@@ -4696,6 +4696,10 @@ button.btn.btn-success.btn-sm.arrow_select2box.return_selected.h-25.mb-lg-5.mb-m
 
 .select2box_available {
     background-color: #EFF1F1 !important;
+}
+
+.select2box_options, .select2box_available{
+    overflow-x: auto;
 }
 
 @media only screen and (min-width: 311px) and (max-width: 768px) {

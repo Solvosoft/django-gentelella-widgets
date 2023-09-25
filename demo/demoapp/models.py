@@ -27,6 +27,19 @@ class Person(models.Model):
     def __str__(self):
         return self.name
 
+class ChoiceItem(models.Model):
+    name = models.CharField(max_length=150)
+
+    def __str__(self):
+        return self.name
+
+class PersonGroup(models.Model):
+
+    items = models.ManyToManyField(ChoiceItem)
+    persons = models.ManyToManyField(Person)
+
+    def __str__(self):
+        return f"Group {self.pk}"
 
 class Catalog(models.Model):
     key = models.CharField(max_length=150)

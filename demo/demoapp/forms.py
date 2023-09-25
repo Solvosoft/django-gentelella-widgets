@@ -5,7 +5,7 @@ from djgentelella.widgets import core as genwidgets
 from djgentelella.widgets import numberknobinput as knobwidget
 from djgentelella.widgets.core import NumberInput
 from djgentelella.widgets.selects import AutocompleteSelect
-from .models import Foo, Person, Comunity, YesNoInput
+from .models import Foo, Person, Comunity, YesNoInput, ChoiceItem
 
 
 class FooModelForm(GTForm, forms.ModelForm):
@@ -92,6 +92,13 @@ class CityForm(GTForm, forms.ModelForm):
             'name': genwidgets.TextInput
         }
 
+class ItemsForm(GTForm, forms.ModelForm):
+    class Meta:
+        model = ChoiceItem
+        fields = '__all__'
+        widgets = {
+            'name': genwidgets.TextInput
+        }
 
 class YesNoInputAddForm(GTForm, forms.ModelForm):
     has_copies = forms.BooleanField(widget=genwidgets.YesNoInput(

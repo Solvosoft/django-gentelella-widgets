@@ -1,4 +1,4 @@
-
+{% load i18n %}
 <!-- Modal -->
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -7,7 +7,8 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
-              <form action="" method="POST" enctype="multipart/form-data">
+              <form action="" method="POST">
+                {% csrf_token %}
                 {{form.as_p}}
                 <input class="btn btn-success" type="submit" value="Save"/>
               </form>

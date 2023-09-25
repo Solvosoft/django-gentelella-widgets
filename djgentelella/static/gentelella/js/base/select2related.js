@@ -20,6 +20,7 @@ function add_selected_option(item, data){
     if(!data.selected) return;
 
     itemjq = $(item.id);
+
     if (itemjq.find("option[value='" + data.id + "']").length) {
         itemjq.find("option[value='" + data.id + "']").attr('selected', 'selected');
 
