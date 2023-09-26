@@ -1,114 +1,190 @@
-{% extends 'gentelella/base_site.html' %}
-{% load blog_tags i18n static urlname_tags %}
+{% extends 'gentelella/base.html' %}
+{% load i18n %}
+{% load static %}
+{% load timejs %}
+{% load urlname_tags %}
+{% load gtsettings %}
 
-{% block content %}
 {% block pre_head %}
-  {% define_urlname_action 'entrylist' %}
-  {% define_urlname_action 'entrycreate' %}
-  {% define_urlname_action 'entry_update' %}
+{% define_urlname_action 'entry_list' %}
 {% endblock %}
-
-<div class="row">
-  <div class="col-md-9 col-sm-12">
-
-<div class="card " xmlns="http://www.w3.org/1999/html">
-    <div class="card-body">
-        <div class="card-title titles">
-            <form id='searchform' class="form-inline" method="get" action="" >
-                <div class="form-group">
-                    <div class="input-group">
-                        <input type="text" class="form-control" value="{{q}}" name="q" id="q" aria-describedby="search">
-                        <div class="input-group-text "id="searchbtn"><i class="fa fa-search green"></i></div>
-                    </div>
-                    <input type="hidden" name="cat" value="{{cat}}" />
+{% block content %}
+    <div class="card">
+        <div class="row">
+            <div class="offset-md-2 col-md-8">
+                <div class="page-header" align="center">
+                    <h3 class="heading-1"><span>{% trans 'List of blogs' %}</span></h3>
                 </div>
-            </form>
-        </div>
-        <ul class="list-unstyled msg_list">
-            {% for entry in entries %}
-            <li style="list-style-type: none; display:block">
-                 <div class="float-end">
-                     <span class="time">{{ entry.published_timestamp|date:"d/m/Y" }}</span>
-                 </div>
-                <br>
-                <div class="d-flex align-items-center card-body">
-                    <div class="flex-shrink-0">
-                        <a href="{{ entry.get_absolute_url }}">
-                            {% if entry.feature_image %}
-                                <img src="{{ entry.feature_image.url }}"  style="max-width: 256px" class="media-object" alt="{% trans 'Preview image for' %} {{ entry.title }}" class="img-responsive"/>
-                            {% else %}
-                                <img src="{% static 'images/article.png' %}" style="width: 128px"  class="media-object" alt="img">
-                            {% endif %}
-                        </a>
-                    </div>
-                    <div class="flex-grow-1 ms-3"style="width:100%">
-                        <div class="container">
-                            <h5><a style="padding:0 !important;" href="{{ entry.get_absolute_url }}">{{entry.title}}</a></h5>
-                            <h2>{% if entry.author %} {% trans 'by' %} {{ entry.author|authordisplay }}{% else %}{% trans 'Anonymous' %}{% endif %}</h2>
-                            <br>
-                            {% if entry.preview_content %}
-                                 {{ entry.preview_content }}
-                            {% else %}
-                                {# Truncate derived from: Avg reading speed (3.33 words/s) * Average attention span (8s) #}
-                                {{ entry.content|truncatewords_html:26 }} <a href="{{ entry.get_absolute_url }}">{% trans '(More...)' %}</a>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-                <div class="float-end p-3">
-                      {% if request.user == entry.author %}
-                                <a class="btn btn-outline-success" style="margin-left: -18px" href="{{ entry.get_absolute_url }}?preview=True" title="{% trans 'This show the last version of the entry (it\'s not necesary the last published entry)' %}">{% trans 'Preview' %}
-                                    <i class=" fa fa-eye dark-green"></i>
-                                </a>
-                            {% endif %}
-                            {% if perms.blog.change_entry %}
-                                <a class="btn btn-outline-warning" href="{% url 'blog:entry_update' entry.pk %}">{% trans 'Update' %}<i class=" fa fa-edit yellow"></i></a>
-                            {% endif %}
-                            {% if perms.blog.delete_entry %}
-                                <a class="btn btn-outline-danger" href="{% url 'blog:entry_delete' entry.pk %}">{% trans 'Delete' %}<i class=" fa fa-trash red"></i></a>
-                            {% endif %}
-                </div>
-                <div class="clearfix"></div>
-            </li>
-            {% endfor %}
-        </ul>
-        {% include 'gentelella/cruds/pagination/enumeration.html' %}
-    </div>
-</div>
-  </div>
-    <div class="col-md-3 col-sm-12">
-        {% if perms.blog.add_entry %}
-        <div class="card " xmlns="http://www.w3.org/1999/html">
-            <div class="card-body">
-                <a class="btn btn-success" href="{% url 'blog:entrycreate' %}">{% trans 'New Post' %} </a>
             </div>
         </div>
-        {% endif %}
-        <div class="card mt-4" xmlns="http://www.w3.org/1999/html">
-            <div class="card-body">
-                <div class="card-title titles"><h2>{% trans 'Categories' %}</h2>
-                    <ul class="nav navbar-right d-flex flex-row-reverse">
-                        <li class="float-end" style="margin-top: -43px;"><a class="close-link" href="{% url 'blog:entrylist' %}{{catparams}}"><i class="fa fa-close red"></i></a></li>
-        </ul>
-         <div class="clearfix"></div>
-    </div>
-
-<ul class="to_do">
-    {% for category in categories %}
-    <li> <a class="{% if category.pk == cat %}green{%endif%}" href="{{catparams}}cat={{category.pk}}"> {{category}} </a></li>
-    {% endfor %}
-</ul>
+        <div class="row">
+            <table class="table table-striped w-100" id="blog_table"></table>
         </div>
     </div>
-</div>
-  </div>
-</div>
+
+{% url "api-objectbLog-list"  as create_obj_url %}
+{% trans 'Create Blog' as create_obj_tittle %}
+{% include 'gentelella/blocks/modal_template.html' with form=create_form id="create_obj_modal" title=create_obj_tittle form_id="create_obj_form" url=create_obj_url %}
+
+{% url "api-objectbLog-detail" 0 as update_obj_url %}
+{% trans 'Update Blog' as update_obj_tittle %}
+{% include 'gentelella/blocks/modal_template.html' with form=update_form id="update_obj_modal" title=update_obj_tittle form_id="update_obj_form" url=update_obj_url %}
+
+{% include 'gentelella/blocks/modal_template_detail.html' with id="detail_obj_modal" %}
+
+{% url "api-objectbLog-detail"  as delete_obj_url %}
+
+{% trans 'Delete Blog' as delete_obj_tittle %}
+{% include 'gentelella/blocks/modal_template_delete.html' with form=delete_form id="delete_obj_modal" title=delete_obj_tittle form_id="delete_obj_form" url=delete_obj_url %}
+
 {% endblock %}
 
 {% block js %}
+{{block.super}}
 <script>
-$("#searchbtn").click(function(){
-    $("#searchform").submit();
+
+document.addEventListener("DOMContentLoaded", function () {
+    tinymce.init({
+        selector: 'textarea.wysiwyg',
+        plugins: 'wordcount',  // Habilita el complemento de contador de palabras
+        // Otras configuraciones generales de TinyMCE
+    });
+
+     tinymce.init({
+    selector: 'textarea#id_create-content',
+    plugins: 'wordcount',  // Configura los complementos que deseas habilitar
+    // Otras configuraciones de TinyMCE
+    setup: function (editor) {
+        editor.on('change', function () {
+            // Captura el contenido actual del editor
+            var content = editor.getContent();
+
+            // Actualiza el valor del campo de texto en el formulario
+            document.getElementById('id_create-content').value = content;
+        });
+    }
 });
+
+
+ tinymce.init({
+    selector: 'textarea#id_create-resume',
+    plugins: 'wordcount',  // Configura los complementos que deseas habilitar
+    setup: function (editor) {
+        editor.on('change', function () {
+            // Captura el contenido actual del editor
+            var content = editor.getContent();
+
+            // Actualiza el valor del campo de texto en el formulario
+            document.getElementById('id_create-resume').value = content;
+        });
+    }
+});
+
+});
+
+
+var object_urls ={
+	list_url: "{% url 'api-objectbLog-list' %}",
+	destroy_url: "{% url 'api-objectbLog-detail' 0 %}",
+	detail_url: "{% url 'api-objectbLog-detail' 0 %}",
+	detail_template_url: "{% url 'api-objectbLog-detail-template' %}",
+	get_values_for_update_url: "{% url 'api-objectbLog-get-values-for-update' 0 %}", // get_object_for_update_url
+	create_url: "{{create_obj_url}}",
+	update_url: "{{update_obj_url}}"
+}
+
+
+
+datatable_inits = {
+    columns: [
+        { data: "id", name: "id", title: gettext("ID"), visible: false },
+        { data: "title", name: "title", title: gettext("Title") },
+        { data: "author", name: "author", title: gettext("Author") },
+        { data: "resume", name: "resume", title: gettext("Resume") },
+        { data: "content", name: "content", title: gettext("Content") },
+        { data: "categories", name: "categories", title: gettext("Category") },
+        { data: "actions", name: "actions", title: gettext("Actions"), type: "string", visible: true }
+    ],
+    events: {
+        filter: function(data) {
+            return data;
+        },
+    },
+    addfilter: true,
+    rowCallback: function(row, data) {
+        $(row).find('.detail-icon').on('click', function(event) {
+            event.stopPropagation(); // Evita que el clic en el icono active el evento de clic en la fila
+            ocrud.detailblog(data);
+        });
+    }
+};
+
+var obj_modalids = {
+ {% if perms.blog.add_entry %}
+	create: "#create_obj_modal",
+  {% endif %}
+
+	 {% if perms.blog.delete_entry %}
+	destroy: "#delete_obj_modal",
+	   {% endif %}
+}
+
+var obj_actions = {
+    table_actions: [],
+    object_actions: [],
+    title: gettext('Actions'),
+    className: "no-export-col"
+};
+
+{% if perms.blog.view_entry%}
+   obj_actions.object_actions.push({
+     'name': "detailblog",
+     'action': 'detailblog',
+     'url': null,
+     'i_class': 'fa fa-eye',
+   })
+ {% endif %}
+
+{% if perms.blog.change_entry %}
+ obj_actions.object_actions.push({
+     'name': "updateblog",
+     'action': 'updateblog',
+     'url': null,
+     'i_class': 'fa fa-edit',
+ })
+ {% endif %}
+
+let objconfig={
+	urls: object_urls,
+	datatable_element:  "#blog_table",
+	modal_ids: obj_modalids,
+	actions: obj_actions,
+	datatable_inits: datatable_inits,
+	add_filter: true,
+	delete_display: data => data['title']
+}
+
+
+
+let ocrud=ObjectCRUD("setmeunique", objconfig)/// setmeunique DISTINTO
+
+ocrud.detailblog = function(row) {
+    console.log("El row es:", row);
+    var slug = row.slug;
+    var detailUrl = "{% url 'blog:entrydetail' slug='SLUG' %}".replace("SLUG", slug);
+    window.location.href = detailUrl;
+};
+
+
+ocrud.updateblog = function(row) {
+    console.log("El id es:", row.id);
+    var updateUrl = "{% url 'blog:entry_update' 0 %}".replace("0", row.id);
+    window.location.href = updateUrl;
+};
+
+ocrud.init();
+
 </script>
+
+
 {% endblock %}

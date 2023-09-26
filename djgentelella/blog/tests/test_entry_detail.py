@@ -9,7 +9,12 @@ from djgentelella.blog import models
 class TestEntryDetail(TestCase):
 
     def setUp(self):
-        self.entry_1 = models.Entry.objects.create(title=u'Welcome!', is_published=True)
+        self.entry_1 = models.Entry.objects.create(
+            title=u'Welcome!',
+            is_published=True,
+            content='### Some Content',
+            resume='This is a resume',
+        )
 
         self.url = self.entry_1.get_absolute_url()
 

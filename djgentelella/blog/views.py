@@ -8,10 +8,18 @@ from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, \
     DeleteView
-
 from . import models
 from .forms import EntryForm, CategoryForm
 from .models import Category
+from djgentelella.blog.forms import EntryForm
+from django.urls import reverse
+
+
+
+
+def object_blog(request):
+    context = {'create_form': EntryForm(prefix='create')}
+    return request(request, 'entry_list.html', context=context)
 
 
 class EntriesList(ListView):
@@ -21,51 +29,14 @@ class EntriesList(ListView):
     paginate_by = 10
     paginate_orphans = 5
 
-    def get_queryset(self):
-        queryset = super(EntriesList, self).get_queryset().filter(
-            Q(is_published=True) | Q(author__isnull=False, author=self.request.user.id))
-
-        q = self.request.GET.get('q', '')
-        if q:
-            queryset = queryset.filter(
-                Q(published_content__icontains=q) | Q(title__icontains=q))
-        cat = self.get_category_id()
-        if cat:
-            queryset = queryset.filter(categories__in=[cat])
-        return queryset.order_by('is_published',
-                                 '-published_timestamp')  # Put 'drafts' first.
-
-    def get_query_get_params(self, exclude=[]):
-        values = []
-        dev = '?'
-        for key in self.request.GET.keys():
-            if key not in exclude:
-                values.append(
-                    '%s=%s' % (key, self.request.GET.get(key))
-                )
-
-        if values:
-            dev += "&".join(values)
-
-        if dev != '?':
-            dev += '&'
-        return dev
-
-    def get_category_id(self):
-        try:
-            dev = int(self.request.GET.get('cat', ''))
-        except ValueError:
-            dev = ''
-        return dev
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['categories'] = Category.objects.all()
-        context['catparams'] = self.get_query_get_params(exclude=['cat'])
         context['q'] = self.request.GET.get('q', '')
-        context['cat'] = self.get_category_id()
-        context['getparams'] = self.get_query_get_params(exclude=['page'])
+        context['entry'] = models.Entry.objects.first()
+        context['create_form'] = EntryForm(prefix='create')
         return context
+
 
 
 class EntryDetail(DetailView):
@@ -81,8 +52,8 @@ class EntryDetail(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['draft'] = self.request.GET.get('preview', '') == 'True' and (
-                self.request.user == context['entry'].author
-                or self.request.user.has_perm('blog.change_entry'))
+            self.request.user == context['entry'].author
+            or self.request.user.has_perm('blog.change_entry'))
         return context
 
 
@@ -98,6 +69,9 @@ class EntryCreate(PermissionRequiredMixin, CreateView):
         publishbtn = self.request.POST.get('publishbtn', '') == 'publish'
         if publishbtn:
             self.object.is_published = True
+
+        self.object.content = form.cleaned_data['content']
+
         if self.object.is_published and publishbtn:
             self.object.published_content = self.object.content.rendered
         if self.object.author is None:
@@ -112,6 +86,14 @@ class EntryUpdate(PermissionRequiredMixin, UpdateView):
     template_name = 'gentelella/blog/entry_form.html'
     success_url = reverse_lazy('blog:entrylist')
     form_class = EntryForm
+    context_object_name = 'entry'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        print(context['entry'])
+        context['update_url'] = reverse('blog:entry_update',
+                                        kwargs={'pk': self.object.pk})
+        return context
 
     def form_valid(self, form):
         response = super().form_valid(form)

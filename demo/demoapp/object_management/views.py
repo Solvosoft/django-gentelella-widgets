@@ -9,3 +9,4 @@ def person_object_management(response):
         'update_form': PersonForm(prefix='update'),
     }
     return render(response, 'object_management.html', context=context)
+
