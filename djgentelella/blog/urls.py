@@ -3,10 +3,8 @@ from rest_framework.routers import DefaultRouter
 from . import views
 
 from djgentelella.datatables.api import BlogViewSet
-
 from djgentelella.blog.views import object_blog
 from djgentelella.blog.viewset import ObjectBLog
-
 from demoapp.cruds import Personclass
 
 
