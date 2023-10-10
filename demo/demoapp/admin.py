@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from .models import WithCatalog, Catalog, OneCatalog, Country, Person, Foo, \
-    Comunity, Employee, \
+    Community, Employee, \
     ChunkedUploadItem, Event, Calendar
 
 admin.site.register(Country)
@@ -10,7 +10,7 @@ admin.site.register(WithCatalog)
 admin.site.register(OneCatalog)
 admin.site.register(Person)
 admin.site.register(Foo)
-admin.site.register(Comunity)
+admin.site.register(Community)
 admin.site.register(Employee)
 admin.site.register(ChunkedUploadItem)
 admin.site.register(Calendar)

@@ -71,14 +71,20 @@ class BaseSelect2View(generics.ListAPIView, viewsets.GenericViewSet):
     text_wrapper = ''
     order_by = 'pk'
 
+    def get_filter_suffix(self, fieldname):
+        if hasattr(self, f'get_filter_suffix_{fieldname}'):
+            return getattr(self, f'get_filter_suffix_{fieldname}')()
+        return '__icontains'
+
     def filter_data(self, queryset, qe):
         filters = None
         for field in self.fields:
+            suffix = self.get_filter_suffix(field)
             for q in qe:
                 if filters is None:
-                    filters = Q(**{field + '__icontains': q})
+                    filters = Q(**{field + suffix: q})
                 else:
-                    filters |= Q(**{field + '__icontains': q})
+                    filters |= Q(**{field + suffix: q})
         return queryset.filter(filters)
 
     def query_get(self, name, default, aslist=False):

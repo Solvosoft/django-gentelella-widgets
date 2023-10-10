@@ -91,6 +91,12 @@ function addSearchInputsAndFooterDataTable(dataTable, tableId, columns) {
                     $(this).html(select);
                     let s2instance = $(this).find('select');
                     let s2context={
+                        allowClear: true,
+                        placeholder: {
+                          id: "none",
+                          text:"------",
+                          selected:'selected'
+                        },
                         ajax: {  url: s2url,  dataType: 'json'}
                     }
                     extract_select2_context(s2context, s2instance);

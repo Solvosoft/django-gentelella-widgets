@@ -44,7 +44,7 @@ except Exception as e:
     from django.contrib.auth.models import User
 
 #####################################################
-#    Chuncked Upload
+#    Chunked Upload
 ############################################
 
 # How long after creation the upload will expire

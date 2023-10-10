@@ -52,6 +52,7 @@ document.gtwidgets = {
     YesNoInput: function (instance) {
         instance.each(function (index, element) {
             switchery = new Switchery(element, { color: '#26B99A' });
+            instance.data('switchery', switchery);
             showHideRelatedFormFields($(element));
         });
     },
@@ -138,7 +139,7 @@ document.gtwidgets = {
     },
     EmailMaskInput: function (instance) {
         instance.inputmask({
-            mask: "*{1,50}[.*{1,20}][.*{1,20}][.*{1,20}]@*{1,20}[.*{2,6}][.*{1,2}]",
+            regex: "[a-zA-Z0-9._%-]+@[a-zA-Z0-9-]+(\.[a-zA-Z]+)+",
             greedy: false,
             onBeforePaste: function (pastedValue, opts) {
                 pastedValue = pastedValue.toLowerCase();

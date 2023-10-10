@@ -1,11 +1,14 @@
 from django import forms
+from django.forms import FileInput
 
 from djgentelella.forms.forms import GTForm
 from djgentelella.widgets import core as genwidgets
+from djgentelella.widgets import files
 from djgentelella.widgets import numberknobinput as knobwidget
-from djgentelella.widgets.core import NumberInput
-from djgentelella.widgets.selects import AutocompleteSelect
-from .models import Foo, Person, Comunity, YesNoInput
+from djgentelella.widgets import tagging
+from djgentelella.widgets import tinymce
+from djgentelella.widgets.selects import AutocompleteSelect, AutocompleteSelectMultiple
+from .models import Foo, Person, Community, YesNoInput, ObjectManagerDemoModel
 
 
 class FooModelForm(GTForm, forms.ModelForm):
@@ -56,7 +59,7 @@ class PersonForm(GTForm, forms.ModelForm):
             'last_time': genwidgets.DateTimeInput,
             'born_date': genwidgets.DateInput,
             'name': genwidgets.TextInput,
-            'num_children': NumberInput,
+            'num_children': genwidgets.NumberInput,
 
         }
 
@@ -86,7 +89,7 @@ class PersonModalForm(GTForm, forms.ModelForm):
 
 class CityForm(GTForm, forms.ModelForm):
     class Meta:
-        model = Comunity
+        model = Community
         fields = '__all__'
         widgets = {
             'name': genwidgets.TextInput
@@ -110,4 +113,35 @@ class YesNoInputAddForm(GTForm, forms.ModelForm):
             'copy_number': genwidgets.NumberInput,
             'year': genwidgets.NumberInput,
             'editorial': genwidgets.TextInput
+        }
+
+
+class ObjectManagementForm(GTForm, forms.ModelForm):
+    class Meta:
+        model = ObjectManagerDemoModel
+        fields = '__all__'
+        widgets = {
+            'name': genwidgets.TextInput,
+            'float_number': genwidgets.FloatInput,
+            'knob_number': knobwidget.NumberKnobInput(
+                attrs={
+                    "value": 10,
+                    "data-min": 1,
+                    "data-step": 1,
+                    "data-max": 50
+                }),
+            'born_date': genwidgets.DateInput,
+            'last_time': genwidgets.DateTimeInput,
+            'livetime_range': genwidgets.DateRangeInput,
+            'description': tinymce.EditorTinymce,
+            'simple_archive': FileInput,
+            # using form input, please do not use with large files
+            'chunked_archive': files.FileChunkedUpload,
+            'radio_elements': genwidgets.RadioSelect,
+            'taging_list': tagging.TaggingInput,
+            'yes_no': genwidgets.YesNoInput,
+            'field_autocomplete': AutocompleteSelect('countrybasename'),
+            'm2m_autocomplete': AutocompleteSelectMultiple('countrybasename'),
+            'field_select': genwidgets.Select,
+            'm2m_multipleselect': genwidgets.SelectMultiple,
         }

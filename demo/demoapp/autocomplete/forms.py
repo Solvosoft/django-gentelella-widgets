@@ -15,7 +15,7 @@ class PeopleGroupForm(CustomForm, forms.ModelForm):
             'people': AutocompleteSelectMultiple("personbasename",
                                                  attrs={
                                                      'data-s2filter-myinput': '#id_name'}),
-            'comunities': AutocompleteSelectMultiple("comunitybasename"),
+            'communities': AutocompleteSelectMultiple("communitybasename"),
             'country': AutocompleteSelect('countrybasename')
         }
 
