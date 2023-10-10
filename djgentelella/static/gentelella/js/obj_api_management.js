@@ -1,39 +1,76 @@
-function convertFormToJSON(form, prefix="") {
-  const re = new RegExp("^"+prefix);
-  var selectmultipleitems = [];
-  form.find("select").each(function(i,e){
-        if($(e).prop('multiple')){
-            selectmultipleitems.push(e.name.replace(re, ""));
-        }
-  });
+function convertFileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
 
-  return form
-    .serializeArray()
-    .reduce(function (json, { name, value }) {
-      let clean_name = name.replace(re, "");
-      if(json.hasOwnProperty(clean_name)){
-         if(Array.isArray(json[clean_name])){
-            json[clean_name].push(value);
-         }else{
-            let oldvalue = json[clean_name];
-            json[clean_name]=[];
-            json[clean_name].push(oldvalue);
-         }
-      }else{
-         if(selectmultipleitems.indexOf(clean_name) !== -1){
-            json[clean_name] = [value];
-         }else{
-            json[clean_name] = value;
-         }
+    reader.onload = () => {
+      const base64String = reader.result.split(',')[1];
+      resolve(base64String);
+    };
+
+    reader.onerror = (error) => {
+      reject(error);
+    };
+
+    reader.readAsDataURL(file);
+  });
+}
+
+async function obtainFormAsJSON(form, prefix = '', extras={}) {
+  const fields = form.elements;
+  const formData = {};
+  // typeof variable === 'function'
+  for( let key in extras){
+    if(typeof extras[key] === 'function'){
+        formData[key]=extras[key](form, key, prefix);
+    }else{
+        formData[key]=extras[key];
+    }
+  }
+
+  for (let i = 0; i < fields.length; i++) {
+    const field = fields[i];
+
+    if (field.type !== 'submit' && field.type !== 'button') {
+      const fieldName = field.name.replace(prefix, '');
+      if(field.type === 'textarea'){
+        formData[fieldName] = $(field).val();
+      }else if(field.type === 'checkbox'){
+        formData[fieldName] = field.checked;
+      }else  if (field.type === 'radio') {
+        if(field.checked){
+          formData[fieldName] =  $(field).val();
+        }
+      }else  if (field.type === 'file') {
+        const files = Array.from(field.files);
+        const filesBase64 = [];
+
+        for (let j = 0; j < files.length; j++) {
+          const file = files[j];
+          try {
+            const base64String = await convertFileToBase64(file);
+            filesBase64.push({ name: file.name, value: base64String });
+          } catch (error) {
+            console.error('Error converting file:', error);
+          }
+        }
+
+        formData[fieldName] = filesBase64;
+      } else if (field.multiple) {
+        const selectedOptions = Array.from(field.selectedOptions);
+        const selectedValues = selectedOptions.map((option) => option.value);
+        formData[fieldName] = selectedValues;
+      } else {
+        formData[fieldName] = field.value;
       }
-      return json;
-    }, {});
+    }
+  }
+
+  return JSON.stringify(formData);
 }
 
 function convertToStringJson(form, prefix="", extras={}){
-    var formjson =convertFormToJSON(form, prefix=prefix);
-    formjson=Object.assign({}, formjson, extras)
-    return JSON.stringify(formjson);
+    result=obtainFormAsJSON(form[0], prefix=prefix, extras={});
+    return result;
 }
 
 function load_errors(error_list, obj){
@@ -85,11 +122,19 @@ function clear_action_form(form){
             $(this).trigger("click").prop("checked", false);
         }
     });
-
+    $(form).find('[data-widget="TaggingInput"],[data-widget="EmailTaggingInput"]').each(function(i, e) {
+         var tg=$(e).data().tagify;
+         tg.removeAllTags();
+    });
+    $(form).find('[data-widget="FileChunkedUpload"],[data-widget="FileInput"]').each(function(i, e) {
+         var tg=$(e).data().fileUploadWidget;
+         tg.resetEmpty();
+    });
     $(form).trigger('reset');
     $(form).find("select option:selected").prop("selected", false);
     $(form).find("select").val(null).trigger('change');
     $(form).find("ul.form_errors").remove();
+    $(form).find(".file-link").remove();
 }
 
 var gt_form_modals = {}
@@ -148,19 +193,21 @@ function GTBaseFormModal(modal_id, datatable_element,  form_config)  {
             var myModalEl = this.instance[0];
             myModalEl.addEventListener('hidden.bs.modal', this.hide_modalevent(this))
             this.instance.find(this.btn_class).on('click', this.add_btn_form(this));
-
+            $(this.form).on('submit', (e)=>{e.preventDefault();})
         },
         "add_btn_form": function(instance){
             return function(event){
-                fetch(instance.url, {
+            convertToStringJson(instance.form, prefix=instance.prefix,
+                            extras=instance.config.events.form_submit(instance)).then((result) => {
+               fetch(instance.url, {
                     method: instance.type,
-                    body: convertToStringJson(instance.form, prefix=instance.prefix,
-                            extras=instance.config.events.form_submit(instance)),
+                    body: result,
                     headers: {'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json'}
                     }
                     ).then(response_manage_type_data(instance, instance.error, instance.error_text))
                     .then(instance.fn_success(instance))
                     .catch(error => instance.handle_error(instance, error));
+            });
             }
         },
         "success": function(instance, data){
@@ -223,7 +270,7 @@ function GTBaseFormModal(modal_id, datatable_element,  form_config)  {
              });
              // do select 2 items
              $.each(select2Items, function(i, e){
-                     var display_name_key = 'display_name';
+                     var display_name_key = 'text';
                      if(instance.relation_render.hasOwnProperty(e)){
                         display_name_key=instance.relation_render[e];
                      }
@@ -248,21 +295,66 @@ function GTBaseFormModal(modal_id, datatable_element,  form_config)  {
         },
         "updateInstanceForm": function (name, value){
             var item = this.form.find('input[name="'+name+'"], textarea[name="'+name+'"]');
-
+            var parent=this;
             item.each(function(i, inputfield){
                 let done=false;
                 inputfield=$(inputfield);
-                if(inputfield.attr('type') === "checkbox" ){
-                    inputfield.prop( "checked", value);
+
+                if(inputfield.attr('class') === "chunkedvalue"){
+                    if(value){
+                         var chunked=parent.form.find('input[name="'+name+'_widget"]').data('fileUploadWidget');
+                         chunked.addRemote(value);
+                    }
+                    done=true;
+                } else if(inputfield.attr('type') === 'file'){
+                    if(value){
+                        var newlink = document.createElement('a');
+                        newlink.href = value.url;
+                        newlink.textContent = value.name;
+                        newlink.target = "_blank";
+                        newlink.classList.add("link-primary");
+                        newlink.classList.add("file-link");
+                        newlink.classList.add("d-block");
+                        inputfield.before(newlink)
+                    }
+                    done=true;
+                } else if(inputfield.attr('type') === "checkbox" ){
+                    if (inputfield.data().widget === "YesNoInput"){
+                        inputfield.prop( "checked", !value);
+                        inputfield.trigger("click");
+                        done=true;
+                    }else{
+                        inputfield.prop( "checked", value);
+                    }
                     done=true;
                 } else if(inputfield.attr('type') === "radio"){
-                    var sel = inputfield.filter(function() { return this.value == value });
-                    sel.prop( "checked", true);
+                    var is_icheck = inputfield.closest('.gtradio').length > 0;
+                    var sel = inputfield.filter(function() { return this.value === value.toString() });
+                    if(sel.length>0){
+                        sel.prop( "checked", true);
+                        if(is_icheck){
+                            sel.iCheck('update');
+                            sel.iCheck('check');
+                        }
+
+                    }else{
+                        inputfield.prop( "checked", false);
+                        if(is_icheck){
+                            inputfield.iCheck('update');
+                            inputfield.iCheck('uncheck');
+                        }
+                    }
                     done=true;
                 }
-                if (inputfield.data().widget === "EditorTinymce"){
+                if (inputfield.data().widget === "EditorTinymce" || inputfield.data().widget === "TextareaWysiwyg"){
                      tinymce.get(inputfield.attr('id')).setContent(value);
                      done=true;
+                }
+                if (inputfield.data().widget === "TaggingInput" || inputfield.data().widget === "EmailTaggingInput"){
+                    var tagifyelement=inputfield.data().tagify;
+                    tagifyelement.removeAllTags();
+                    tagifyelement.loadOriginalValues(value);
+                    done=true;
                 }
                 if(!done) { inputfield.val(value); }
             });
@@ -583,19 +675,25 @@ function ObjectCRUD(uniqueid, objconfig={}){
                     className: this.config.actions.className,
                     orderable: false,
                     render: function(data, type, full, meta){
-                        var edittext = '<div class="d-flex mt-1">';
+                            var edittext = '<div class="d-flex mt-1">';
+                            let do_action=true;
                             for(var x=0; x<instance.object_actions.length; x++){
                                let action = instance.object_actions[x];
                                let display_in_column = true;
-                              if('in_action_column' in action ){
-                                    display_in_column=action.in_action_column;
+                               do_action=true
+                               if(action.name in data ){
+                                    do_action=data[action.name];
+                               }
+                               if(do_action){
+                                  if('in_action_column' in action ){
+                                        display_in_column=action.in_action_column;
+                                  }
+                                  if(display_in_column){
+                                     let params = "'"+instance.uniqueid+"', '"+action.name+"', "+meta.row;
+                                     edittext += '<i onclick="javascript:call_obj_crud_event('+params+');"';
+                                     edittext += ' class="'+instance.object_actions[x].i_class+'" ></i>';
+                                  }
                               }
-                              if(display_in_column){
-                                 let params = "'"+instance.uniqueid+"', '"+action.name+"', "+meta.row;
-                                 edittext += '<i onclick="javascript:call_obj_crud_event('+params+');"';
-                                 edittext += ' class="'+instance.object_actions[x].i_class+'" ></i>';
-                              }
-
                             }
                         edittext += '</div>';
                         return edittext;

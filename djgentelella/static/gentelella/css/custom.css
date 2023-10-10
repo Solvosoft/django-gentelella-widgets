@@ -866,7 +866,7 @@ a:focus {
 }
 
 .wysiwyg{
-    overflow:scroll; 
+    overflow:scroll;
     max-height:500px;
 }
 .nav>li>a:hover,
@@ -4611,4 +4611,10 @@ border-bottom:2px solid #E6E9ED;
 }
 .menu-top-navbar:hover{
   color:inherit;
+}
+
+.file-link {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

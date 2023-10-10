@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Comunity',
+            name='Community',
             fields=[
                 ('id',
                  models.AutoField(auto_created=True, primary_key=True, serialize=False,
@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='peoplegroup',
-            name='comunities',
-            field=models.ManyToManyField(to='demoapp.Comunity'),
+            name='communities',
+            field=models.ManyToManyField(to='demoapp.Community'),
         ),
     ]

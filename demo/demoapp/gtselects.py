@@ -14,9 +14,9 @@ class PersonGModelLookup(BaseSelect2View):
         return obj.pk == 5
 
 
-@register_lookups(prefix="comunity", basename="comunitybasename")
-class ComunityGModelLookup(BaseSelect2View):
-    model = models.Comunity
+@register_lookups(prefix="community", basename="communitybasename")
+class CommunityGModelLookup(BaseSelect2View):
+    model = models.Community
     fields = ['name']
 
 

@@ -3,7 +3,7 @@ from django.forms import formset_factory, modelformset_factory
 from django.shortcuts import render
 
 from demoapp.forms import PersonForm, CityForm
-from demoapp.models import Comunity
+from demoapp.models import Community
 from djgentelella.forms.forms import GTFormSet, GTBaseModelFormSet
 
 
@@ -16,17 +16,17 @@ def add_formset(request):
 
 
 def add_model_formset(request):
-    formset = modelformset_factory(Comunity, form=CityForm, formset=GTBaseModelFormSet,
+    formset = modelformset_factory(Community, form=CityForm, formset=GTBaseModelFormSet,
                                    can_delete=True)
 
     valid = True
     if request.method == 'POST':
-        fset = formset(request.POST, queryset=Comunity.objects.all(), prefix='pff')
+        fset = formset(request.POST, queryset=Community.objects.all(), prefix='pff')
         valid = fset.is_valid()
         if valid:
             r = fset.save()
             messages.success(request, "Formset saved successfully")
     if valid:
-        fset = formset(queryset=Comunity.objects.all(), prefix='pff')
+        fset = formset(queryset=Community.objects.all(), prefix='pff')
 
     return render(request, 'modelformset.html', {'formset': fset})

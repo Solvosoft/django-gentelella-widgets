@@ -163,7 +163,7 @@ class Command(BaseCommand):
         cwidget = MenuItem.objects.create(
             parent=extrawidget,
             title='Object Management',
-            url_name='person_object_management',
+            url_name='object_management_index',
             category='sidebar',  # sidebar, sidebarfooter,
             is_reversed=True,
             reversed_kwargs=None,
@@ -359,9 +359,9 @@ class Command(BaseCommand):
             only_icon=False
         )
 
-        chunckedupload = MenuItem.objects.create(
+        chunkedupload = MenuItem.objects.create(
             parent=cwidget,
-            title='Chuncked Upload',
+            title='Chunked Upload',
             url_name='chunkeduploaditem-list',
             category='sidebar',
             is_reversed=True,
@@ -372,7 +372,7 @@ class Command(BaseCommand):
             only_icon=False
         )
 
-        chunckedupload = MenuItem.objects.create(
+        chunkedupload = MenuItem.objects.create(
             parent=cwidget,
             title='Select in modal',
             url_name='bt_modal_display',
@@ -546,10 +546,10 @@ class Command(BaseCommand):
                 last_time=now()
             )
 
-    def create_comunities(self):
-        models.Comunity.objects.all().delete()
+    def create_communities(self):
+        models.Community.objects.all().delete()
         for x in range(10):
-            models.Comunity.objects.create(name="Comunity " + str(x))
+            models.Community.objects.create(name="Community " + str(x))
 
     def abcde(self):
         models.A.objects.all().delete()
@@ -586,5 +586,5 @@ class Command(BaseCommand):
         self.create_autocomplete_menu()
         self.create_countries()
         self.create_person()
-        self.create_comunities()
+        self.create_communities()
         self.abcde()
