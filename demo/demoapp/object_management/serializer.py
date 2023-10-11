@@ -1,8 +1,10 @@
 from django.utils import formats
-from django_filters import DateFromToRangeFilter, DateTimeFromToRangeFilter, FilterSet
+from django_filters import DateFromToRangeFilter, DateTimeFromToRangeFilter, FilterSet, \
+    ModelMultipleChoiceFilter
+from django_filters.widgets import CSVWidget
 from rest_framework import serializers
 
-from demoapp.models import ObjectManagerDemoModel
+from demoapp.models import ObjectManagerDemoModel, Country
 from djgentelella.fields.drfdatetime import DateRangeTextWidget, DateTimeRangeTextWidget
 from djgentelella.fields.files import GTBase64FileField, ChunkedFileField
 from djgentelella.serializers import GTDateField, GTDateTimeField
@@ -96,6 +98,12 @@ class ObjectManagerDemoModelFilterSet(FilterSet):
         widget=DateTimeRangeTextWidget(attrs={'placeholder': 'YYYY/MM/DD HH:MM:SS'}))
     livetime_range = DateFromToRangeFilter(
         widget=DateRangeTextWidget(attrs={'placeholder': 'YYYY/MM/DD'}))
+    m2m_autocomplete = ModelMultipleChoiceFilter(queryset=Country.objects.all(),
+                                                 widget=CSVWidget()
+                                                 )
+
+    def get_form_class(self):
+        return super().get_form_class()
 
     class Meta:
         model = ObjectManagerDemoModel
