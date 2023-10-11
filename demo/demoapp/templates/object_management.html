@@ -61,9 +61,10 @@
 								{data: "born_date", name: "born_date", title: gettext("Born date"), type: "date",  render: DataTable.render.date(),
 								"dateformat":  document.date_format, visible: true},
 								{data: "field_autocomplete", name: "field_autocomplete", title: "Autocomplete", type: "select2", visible: true,
-								url: "{% url 'countrybasename-list' %}",
-								render: selectobjprint({display_name: "text"}) },
+								url: "{% url 'countrybasename-list' %}", render: selectobjprint({display_name: "text"}) },
 								{data: "float_number", name: "float_number", title: gettext("Float number"), type: "string", visible: true },
+								{data: "m2m_autocomplete", name: "m2m_autocomplete", title: gettext("M2M autocomplete"), type: "select2", visible: true,
+								 url: "{% url 'countrybasename-list' %}", multiple: true, render: gt_print_list_object("text")},
 								{data: "actions", name: "actions", title: gettext("Actions"), type: "string", visible: true }
 
 				],

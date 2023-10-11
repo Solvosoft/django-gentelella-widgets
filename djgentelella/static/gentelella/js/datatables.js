@@ -86,7 +86,11 @@ function addSearchInputsAndFooterDataTable(dataTable, tableId, columns) {
                     $(this).html(select);
                 }else if(columnType === 'select2'){
                     var s2url = dataTable.settings()[0].aoColumns[i].url;
-                    var select = '<select class="form-control form-control-sm"><option value="">--</option>';
+                    let multiple = '';
+                    if ('multiple' in dataTable.settings()[0].aoColumns[i]){
+                        if(dataTable.settings()[0].aoColumns[i].multiple) multiple='multiple=True';
+                    }
+                    var select = '<select class="tableselect form-control form-control-sm" '+multiple+'><option value="">--</option>';
                     select += '</select>';
                     $(this).html(select);
                     let s2instance = $(this).find('select');
@@ -108,8 +112,14 @@ function addSearchInputsAndFooterDataTable(dataTable, tableId, columns) {
                 }
 
                 $('input, select', this).on('keyup change', function () {
-                    if (currentColumn.search() !== this.value) {
-                        currentColumn.search(this.value).draw();
+                    let current_value=this.value;
+                    if('multiple' in this && this.multiple){
+                        let values=[];
+                        $(this).find('option:selected').each(function(i,e){ values.push(e.value)});
+                        current_value=values.toString();
+                    }
+                    if (currentColumn.search() !== current_value) {
+                        currentColumn.search(current_value).draw();
                     }
                 });
             }
@@ -126,6 +136,7 @@ function addSearchInputsAndFooterDataTable(dataTable, tableId, columns) {
 function clearDataTableFilters(dataTable, tableId){
     dataTable.search('').columns().search('').draw();
     $(tableId).find('input, select').val('');
+    $(tableId).find('.tableselect').val(null).trigger('change');
 }
 function yesnoprint(data, type, row, meta){ return data ? "<i class=\"fa fa-check-circle\"></i> "+gettext("Yes") : "<i class=\"fa fa-times-circle\"></i>"+gettext("No"); };
 function emptyprint(data, type, row, meta){ return data ? data : "--"; };
