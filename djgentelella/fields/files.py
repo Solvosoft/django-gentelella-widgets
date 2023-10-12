@@ -1,4 +1,5 @@
 import base64
+import json
 from pathlib import Path
 
 from django.core.files.base import ContentFile
@@ -67,13 +68,29 @@ class GTBase64FileField(serializers.FileField):
 
 
 class ChunkedFileField(serializers.FileField):
-    def to_internal_value(self, data):
+    def parse_value(self, value):
         dev = None
-        if data:
-            tmpupload = ChunkedUpload.objects.filter(upload_id=data).first()
-            if tmpupload:
-                dev = tmpupload.get_uploaded_file()
-                # tmpupload.delete()
+        try:
+            dev = json.loads(value)
+            if not ('url' in dev or 'token' in dev or 'actions' in dev):
+                dev = None
+        except Exception as e:
+            pass
+        return dev
+
+    def to_internal_value(self, data):
+        token = self.parse_value(data)
+        dev = None
+        if token:
+            if 'actions' in token and token['actions'] == 'delete':
+                return False
+            if 'token' in token:
+                tmpupload = ChunkedUpload.objects.filter(
+                    upload_id=token['token']).first()
+                if tmpupload:
+                    dev = tmpupload.get_uploaded_file()
+                    # tmpupload.delete()
+
             else:
                 if self.root.instance:
                     if hasattr(self.root.instance, self.source):
@@ -84,4 +101,4 @@ class ChunkedFileField(serializers.FileField):
         data = super().to_representation(value)
         if data and value.name and value.storage.exists(value.name):
             name = Path(value.name).name
-            return {'name': name, 'url': data}
+            return {'name': value.name, 'url': data, 'display_name': name}

@@ -190,15 +190,9 @@ $.fn.fileuploadwidget = function(){
                         this.uploadfilecontent.show();
                     },
                     addRemote: function(item){
-                        this.parentdiv.find('input [name="'+this.field_name+'"]').val(item.name);
-                        this.div_download.find('a')[0].href=item.url;
-                        this.div_message.html(item.name);
-                        this.div_message.show();
-                        this.div_download.show();
-                        this.div_remove.show();
-                        this.uploadfilecontent.hide();
+                        this.input_field.val(JSON.stringify(item));
+                        this.input_field.trigger('change');
                     }
-
                 };
                 obj.init();
             $this.data('fileUploadWidget', obj);
