@@ -68,7 +68,18 @@ class GTBase64FileField(serializers.FileField):
 
 
 class ChunkedFileField(serializers.FileField):
+    
     def parse_value(self, value):
+        """
+        Parses the given value and returns the parsed result.
+
+        Args:
+            value (str): The value to be parsed.
+
+        Returns:
+            The parsed result if the value is valid and contains the required attributes,
+            one of url, token, or actions otherwise returns None.
+        """
         dev = None
         try:
             dev = json.loads(value)
@@ -79,6 +90,16 @@ class ChunkedFileField(serializers.FileField):
         return dev
 
     def to_internal_value(self, data):
+        """
+        Converts the given data to internal value representation.
+
+        Args:
+            data (str): The data to be converted.
+
+        Returns:
+            The internal value representation of the data, or None if the data is invalid
+            or does not contain the required attributes.
+        """
         token = self.parse_value(data)
         dev = None
         if token:
