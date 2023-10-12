@@ -1,10 +1,12 @@
+from datetime import date, timedelta, datetime
+
+from django import forms
+from django.template import Template, Context
+from django.test import TestCase, RequestFactory
+
 from demoapp.calendar.forms import CalendarModelform
 from demoapp.models import Event, Calendar
-from django.test import TestCase, RequestFactory
-from datetime import date, timedelta, datetime
-from django import forms
 from djgentelella.widgets.calendar import CalendarInput
-from django.template import Template, Context
 
 
 class FormCalendarWidgetTest(TestCase):
@@ -28,17 +30,22 @@ class FormCalendarWidgetTest(TestCase):
             {
                 'title': 'Event 1',
                 'start': datetime.strftime(datetime.now(), "%Y-%m-%d %H:%M:%S.%f"),
-                'end': datetime.strftime(datetime.now() + timedelta(minutes=30), "%Y-%m-%d %H:%M:%S.%f")
+                'end': datetime.strftime(datetime.now() + timedelta(minutes=30),
+                                         "%Y-%m-%d %H:%M:%S.%f")
             },
             {
                 'title': 'Event 2',
-                'start': datetime.strftime(datetime.now() + timedelta(days=1), "%Y-%m-%d %H:%M:%S.%f"),
-                'end': datetime.strftime(datetime.now() + timedelta(days=1, minutes=30), "%Y-%m-%d %H:%M:%S.%f")
+                'start': datetime.strftime(datetime.now() + timedelta(days=1),
+                                           "%Y-%m-%d %H:%M:%S.%f"),
+                'end': datetime.strftime(datetime.now() + timedelta(days=1, minutes=30),
+                                         "%Y-%m-%d %H:%M:%S.%f")
             },
             {
                 'title': 'Event 3',
-                'start': datetime.strftime(datetime.now() + timedelta(days=2), "%Y-%m-%d %H:%M:%S.%f"),
-                'end': datetime.strftime(datetime.now() + timedelta(days=2, minutes=30), "%Y-%m-%d %H:%M:%S.%f")
+                'start': datetime.strftime(datetime.now() + timedelta(days=2),
+                                           "%Y-%m-%d %H:%M:%S.%f"),
+                'end': datetime.strftime(datetime.now() + timedelta(days=2, minutes=30),
+                                         "%Y-%m-%d %H:%M:%S.%f")
             },
         ]
 
@@ -60,4 +67,3 @@ class FormCalendarWidgetTest(TestCase):
             )
         )
         self.assertEquals(calendarWidget.widget.events, self.events)
-

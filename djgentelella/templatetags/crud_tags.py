@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
 import os.path
 
+from django import template
+from django.db import models
 from django.db.models.fields.related import RelatedField
 from django.forms import BooleanField
-
-from djgentelella.cruds import utils
-from django import template
-
 from django.urls import (reverse, NoReverseMatch)  # django2.0
-from django.db import models
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
+from djgentelella.cruds import utils
 from djgentelella.utils import get_settings, set_settings
 
 register = template.Library()
@@ -161,24 +159,27 @@ def get_fields(model, fields=None):
         include
     )
 
+
 def render_boolean_field(obj_field):
     filter = (
         'true' if obj_field else 'false',
         "fa-check-square" if obj_field else 'fa-square-o'
     )
-    return mark_safe("""<div class="text-center %s" ><i class="fa %s"></i></div>"""%filter)
+    return mark_safe(
+        """<div class="text-center %s" ><i class="fa %s"></i></div>""" % filter)
 
 
 @register.simple_tag
 def show_object_field(obj, field, field_name):
     obj_field = getattr(obj, field)
-    if isinstance(obj_field,  RelatedField):
+    if isinstance(obj_field, RelatedField):
         dev = format_many_values(obj, field)
     elif isinstance(obj_field, BooleanField):
         dev = render_boolean_field(obj_field)
     else:
         dev = format_value(obj, field)
     return dev
+
 
 @register.simple_tag(takes_context=True)
 def form_get_form_display(context, form, **kwargs):
@@ -195,11 +196,12 @@ def form_get_form_display(context, form, **kwargs):
     fnc = getattr(form, fnc_name)
     return fnc
 
+
 @register.simple_tag(takes_context=True)
 def icon_fa_tag(context, icon_name, **kwargs):
-    icon="fa fa-meh-o"
+    icon = "fa fa-meh-o"
     if icon_name == "delete":
-        icon="fa fa-times"
+        icon = "fa fa-times"
     elif icon_name == "create":
         icon = 'fa fa-plus-circle'
     elif icon_name == "submit" or icon_name == "save":
@@ -209,8 +211,8 @@ def icon_fa_tag(context, icon_name, **kwargs):
     elif icon_name == "cancel":
         icon = 'fa fa-ban'
     elif icon_name == "show":
-        icon= 'fa fa-eye'
+        icon = 'fa fa-eye'
     elif icon_name == "accept":
-        icon= 'fa fa-check'
-    icon_result="<i class='"+icon+"'></i>"
+        icon = 'fa fa-check'
+    icon_result = "<i class='" + icon + "'></i>"
     return mark_safe(icon_result)

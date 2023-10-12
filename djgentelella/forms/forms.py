@@ -4,6 +4,7 @@ from django.forms import BaseFormSet, HiddenInput
 from django.forms import BaseModelFormSet
 from django.forms.formsets import DELETION_FIELD_NAME
 from django.utils.safestring import mark_safe
+from django.forms import BaseModelFormSet
 
 
 class BaseRepresentation:
@@ -12,7 +13,8 @@ class BaseRepresentation:
         "Returns this form rendered as HTML <tr>s -- excluding the <table></table>."
 
         return self._html_output(
-            normal_row='<div class="as_plain"><div %(html_class_attr)s >%(label)s%(errors)s%(field)s%(help_text)s</div></div>',
+            normal_row='<div class="as_plain"><div %(html_class_attr)s ' +
+                       '>%(label)s%(errors)s%(field)s%(help_text)s</div></div>',
             error_row='%s',
             row_ender=' ',
             help_text_html='<br /><span class="helptext">%s</span>',
@@ -21,18 +23,20 @@ class BaseRepresentation:
     def as_inline(self):
         "Return this form rendered as HTML <tr>s -- excluding the <table></table>."
         return self._html_output(
-            normal_row='<div class="mb-4"><span class="">%(label)s</span> %(errors)s%(field)s%(help_text)s</div>',
+            normal_row='<div class="mb-4"><span class="">%(label)s</span>' +
+                       ' %(errors)s%(field)s%(help_text)s</div>',
             error_row='%s',
             row_ender='</div>',
             help_text_html=' <span class="helptext">%s</span>',
             errors_on_separate_row=False,
         )
 
-
     def as_horizontal(self):
         "Return this form rendered as HTML <tr>s -- excluding the <table></table>."
         return self._html_output(
-            normal_row='<div class="form-group row"><span class="col-sm-3">%(label)s</span> <div class="col-sm-9 " >%(errors)s%(field)s%(help_text)s</div></div>',
+            normal_row='<div class="form-group row"><span class="col-sm-3">' +
+                       '%(label)s</span> <div class="col-sm-9 " ' +
+                       '>%(errors)s%(field)s%(help_text)s</div></div>',
             error_row='%s',
             row_ender='</div>',
             help_text_html=' <span class="helptext">%s</span>',

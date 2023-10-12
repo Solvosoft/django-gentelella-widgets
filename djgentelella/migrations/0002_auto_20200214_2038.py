@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('djgentelella', '0001_initial'),
     ]
@@ -17,11 +16,17 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='menuitem',
             name='reversed_args',
-            field=models.CharField(blank=True, help_text='Comma separed atributes, can access to template context with request.user.pk', max_length=500, null=True),
+            field=models.CharField(
+                blank=True,
+                help_text='Comma separed attributes, can access to template context ' +
+                          'with request.user.pk',
+                max_length=500, null=True),
         ),
         migrations.AlterField(
             model_name='menuitem',
             name='reversed_kwargs',
-            field=models.CharField(blank=True, help_text='Ej key:value,key1:value,key2:value2', max_length=500, null=True),
+            field=models.CharField(blank=True,
+                                   help_text='Ej key:value,key1:value,key2:value2',
+                                   max_length=500, null=True),
         ),
     ]

@@ -1,24 +1,95 @@
-from django.core.management import BaseCommand
-from django.contrib.staticfiles import finders
 import os
+import shutil
 from pathlib import Path
+from threading import Thread, current_thread
 
-FLAGS = ['ad', 'ae', 'af', 'ag', 'ai', 'al', 'am', 'ao', 'aq', 'ar', 'as', 'at', 'au', 'aw', 'ax', 'az', 'ba', 'bb', 'bd', 'be', 'bf', 'bg', 'bh', 'bi', 'bj', 'bl', 'bm', 'bn', 'bo', 'bq', 'br', 'bs', 'bt', 'bv', 'bw', 'by', 'bz', 'ca', 'cc', 'cd', 'cf', 'cg', 'ch', 'ci', 'ck', 'cl', 'cm', 'cn', 'co', 'cr', 'cu', 'cv', 'cw', 'cx', 'cy', 'cz', 'de', 'dj', 'dk', 'dm', 'do', 'dz', 'ec', 'ee', 'eg', 'eh', 'er', 'es-ca', 'es', 'et', 'eu', 'fi', 'fj', 'fk', 'fm', 'fo', 'fr', 'ga', 'gb-eng', 'gb-nir', 'gb-sct', 'gb-wls', 'gb', 'gd', 'ge', 'gf', 'gg', 'gh', 'gi', 'gl', 'gm', 'gn', 'gp', 'gq', 'gr', 'gs', 'gt', 'gu', 'gw', 'gy', 'hk', 'hm', 'hn', 'hr', 'ht', 'hu', 'id', 'ie', 'il', 'im', 'in', 'io', 'iq', 'ir', 'is', 'it', 'je', 'jm', 'jo', 'jp', 'ke', 'kg', 'kh', 'ki', 'km', 'kn',
-         'kp', 'kr', 'kw', 'ky', 'kz', 'la', 'lb', 'lc', 'li', 'lk', 'lr', 'ls', 'lt', 'lu', 'lv', 'ly', 'ma', 'mc', 'md', 'me', 'mf', 'mg', 'mh', 'mk', 'ml', 'mm', 'mn', 'mo', 'mp', 'mq', 'mr', 'ms', 'mt', 'mu', 'mv', 'mw', 'mx', 'my', 'mz', 'na', 'nc', 'ne', 'nf', 'ng', 'ni', 'nl', 'no', 'np', 'nr', 'nu', 'nz', 'om', 'pa', 'pe', 'pf', 'pg', 'ph', 'pk', 'pl', 'pm', 'pn', 'pr', 'ps', 'pt', 'pw', 'py', 'qa', 're', 'ro', 'rs', 'ru', 'rw', 'sa', 'sb', 'sc', 'sd', 'se', 'sg', 'sh', 'si', 'sj', 'sk', 'sl', 'sm', 'sn', 'so', 'sr', 'ss', 'st', 'sv', 'sx', 'sy', 'sz', 'tc', 'td', 'tf', 'tg', 'th', 'tj', 'tk', 'tl', 'tm', 'tn', 'to', 'tr', 'tt', 'tv', 'tw', 'tz', 'ua', 'ug', 'um', 'un', 'us', 'uy', 'uz', 'va', 'vc', 've', 'vg', 'vi', 'vn', 'vu', 'wf', 'ws', 'xk', 'ye', 'yt', 'za', 'zm', 'zw']
+from django.contrib.staticfiles import finders
+from django.core.management import BaseCommand
+
+try:
+    import requests
+except BaseException:
+    print("Requests is required try pip install requests")
+    exit(1)
+
+FLAGS = ['ac', 'ad', 'ae', 'af', 'ag', 'ai', 'al', 'am', 'ao', 'aq', 'ar', 'as', 'at',
+         'au', 'cp', 'dg', 'ea', 'es-ct', 'es-ga', 'ic', 'ta',
+         'aw', 'ax', 'az', 'ba', 'bb', 'bd', 'be', 'bf', 'bg', 'bh', 'bi', 'bj', 'bl',
+         'bm', 'bn', 'bo', 'bq', 'br', 'bs', 'bt', 'bv', 'bw', 'by', 'bz', 'ca', 'cc',
+         'cd', 'cf', 'cg', 'ch', 'ci', 'ck', 'cl', 'cm', 'cn', 'co', 'cr', 'cu', 'cv',
+         'cw', 'cx', 'cy', 'cz', 'de', 'dj', 'dk', 'dm', 'do', 'dz', 'ec', 'ee', 'eg',
+         'eh', 'er', 'es-ca', 'es', 'et', 'eu', 'fi', 'fj', 'fk', 'fm', 'fo', 'fr',
+         'ga', 'gb-eng', 'gb-nir', 'gb-sct', 'gb-wls', 'gb', 'gd', 'ge', 'gf', 'gg',
+         'gh', 'gi', 'gl', 'gm', 'gn', 'gp', 'gq', 'gr', 'gs', 'gt', 'gu', 'gw', 'gy',
+         'hk', 'hm', 'hn', 'hr', 'ht', 'hu', 'id', 'ie', 'il', 'im', 'in', 'io', 'iq',
+         'ir', 'is', 'it', 'je', 'jm', 'jo', 'jp', 'ke', 'kg', 'kh', 'ki', 'km', 'kn',
+         'kp', 'kr', 'kw', 'ky', 'kz', 'la', 'lb', 'lc', 'li', 'lk', 'lr', 'ls', 'lt',
+         'lu', 'lv', 'ly', 'ma', 'mc', 'md', 'me', 'mf', 'mg', 'mh', 'mk', 'ml', 'mm',
+         'mn', 'mo', 'mp', 'mq', 'mr', 'ms', 'mt', 'mu', 'mv', 'mw', 'mx', 'my', 'mz',
+         'na', 'nc', 'ne', 'nf', 'ng', 'ni', 'nl', 'no', 'np', 'nr', 'nu', 'nz', 'om',
+         'pa', 'pe', 'pf', 'pg', 'ph', 'pk', 'pl', 'pm', 'pn', 'pr', 'ps', 'pt', 'pw',
+         'py', 'qa', 're', 'ro', 'rs', 'ru', 'rw', 'sa', 'sb', 'sc', 'sd', 'se', 'sg',
+         'sh', 'si', 'sj', 'sk', 'sl', 'sm', 'sn', 'so', 'sr', 'ss', 'st', 'sv', 'sx',
+         'sy', 'sz', 'tc', 'td', 'tf', 'tg', 'th', 'tj', 'tk', 'tl', 'tm', 'tn', 'to',
+         'tr', 'tt', 'tv', 'tw', 'tz', 'ua', 'ug', 'um', 'un', 'us', 'uy', 'uz', 'va',
+         'vc', 've', 'vg', 'vi', 'vn', 'vu', 'wf', 'ws', 'xk', 'xx', 'ye', 'yt', 'za',
+         'zm', 'zw']
+
+
+def download(urls):
+    thread = current_thread()
+    for url in urls:
+        download_url = url[0]
+        filename = url[1]
+        print("%s) Downloading %s --> %s" % (thread.name, download_url, filename))
+        r = requests.get(download_url)
+        with open(filename, 'wb') as arch:
+            arch.write(r.content)
 
 
 class Command(BaseCommand):
     help = "Load static files for development command"
+    urls = []
+    threads_count = 10
 
-    def get_static_file(self, requests, url, basepath):
+    def get_urls_list(self, urls):
+        if self.threads_count == 1:
+            yield urls[:]
+            return
+        if self.threads_count > len(urls):
+            yield urls[:]
+            return
+        trunk_len = len(urls) // self.threads_count
+        start = 0
+        nextt = trunk_len
+        end = len(urls)
+        while nextt != end:
+            yield urls[start:nextt]
+            start = nextt
+            nextt += trunk_len
+            if nextt > end:
+                yield urls[start:]
+                nextt = end
+
+    def download_urls(self):
+        threads = []
+        for urls_trunk in self.get_urls_list(self.urls):
+            if urls_trunk:
+                t = Thread(target=download, args=[urls_trunk])
+                t.start()
+                threads.append(t)
+
+        for t in threads:
+            t.join()
+
+    def get_static_file(self, url, basepath):
         name = url.split('/')[-1]
         if not os.path.exists(basepath / name):
-            print("Downloading %s --> %s" % (url, basepath / name))
-            r = requests.get(url)
-            with open(basepath / name, 'wb') as arch:
-                arch.write(r.content)
+            self.urls.append(
+                (url, basepath / name)
+            )
 
-    def get_static_list_file(self, requests, files, basepath):
+    def get_static_list_file(self, files, basepath):
         if not os.path.exists(basepath):
             print("Downloading %s " % (basepath,))
             with open(basepath, 'wb') as arch:
@@ -27,13 +98,17 @@ class Command(BaseCommand):
                     arch.write(r.content)
                     arch.write(b'\n')
 
-    def handle(self, *args, **options):
-        try:
-            import requests
-        except:
-            print("Requests is required try pip install requests")
-            exit(1)
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--delete',
+            action='store_true',
+            help='Delete delete before start',
+        )
+        parser.add_argument('--threads', type=int, default=10,
+                            help='Number of downloading threads')
 
+    def handle(self, *args, **options):
+        self.threads_count = options['threads']
         result = finders.find(Path('gentelella/css/custom.css'))
         if result is None:
             print('No static folder found')
@@ -41,6 +116,10 @@ class Command(BaseCommand):
 
         basepath = Path(result.replace(
             str(Path('gentelella/css/custom.css')), 'vendors/'))
+
+        if options['delete']:
+            shutil.rmtree(basepath)
+            basepath.mkdir()
 
         libs = {
             'bootstrap': [
@@ -64,14 +143,16 @@ class Command(BaseCommand):
                 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/fontawesome-webfont.woff2',
             ],
             'font-awesome': [
-
                 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css',
                 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css.map'
             ],
+            'friconix': [
+                "https://friconix.com/cdn/friconix.js"
+            ],
             'bootstrap-daterangepicker': [
-                #'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.1/daterangepicker.min.js',
-                #'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.1/daterangepicker.min.css',
-                #'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.1/moment.min.js',
+                # 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.1/daterangepicker.min.js',
+                # 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.1/daterangepicker.min.css',
+                # 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.1/moment.min.js',
                 '',
                 '',
                 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.0.5/daterangepicker.min.js',
@@ -81,16 +162,22 @@ class Command(BaseCommand):
                 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.0.5/moment.min.js'
             ],
             'bootstrap-datetimepicker': [
-                #'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/6.0.1/css/tempus-dominus.min.css',
-                #'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/6.0.1/js/tempus-dominus.min.js',
+                # 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/6.0.1/css/tempus-dominus.min.css',
+                # 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/6.0.1/js/tempus-dominus.min.js',
 
                 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css.map',
                 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css'
             ],
             'select2': [
-                'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js',
-                'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css'
+                'https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/js/select2.min.js',
+                'https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/css/select2.min.css',
+                'https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css'
+                # 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js',
+                # 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css'
+            ],
+            "squirrelly": [
+                "https://unpkg.com/squirrelly@9.0.0/dist/browser/squirrelly.min.js"
             ],
             'switchery': [
                 'https://cdnjs.cloudflare.com/ajax/libs/switchery/0.8.2/switchery.min.js',
@@ -118,30 +205,30 @@ class Command(BaseCommand):
 
                 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-progressbar/0.9.0/bootstrap-progressbar.min.js',
                 'https://cdn.jsdelivr.net/npm/bootstrap-progressbar@0.9.0/css/bootstrap-progressbar-3.3.4.min.css',
-                ##'https://cdn.jsdelivr.net/npm/bootstrap-progressbar@0.9.0/css/bootstrap-progressbar-3.3.4.min.css',
+                # 'https://cdn.jsdelivr.net/npm/bootstrap-progressbar@0.9.0/css/bootstrap-progressbar-3.3.4.min.css',
             ],
             'nprogress': [
                 'https://cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css',
-                ##'https://cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js',
-                ##'https://cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css',
+                # 'https://cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js',
+                # 'https://cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css',
             ],
             'jquery': [
                 'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.map',
-                #'https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js',
-                #'https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.map'
+                # 'https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js',
+                # 'https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.map'
             ],
             'jquery-ui': [
                 'https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/themes/smoothness/jquery-ui.min.css',
-                #'https://code.jquery.com/ui/1.11.3/themes/smoothness/jquery-ui.css'
+                # 'https://code.jquery.com/ui/1.11.3/themes/smoothness/jquery-ui.css'
             ],
             'jquery-knob': [
                 'https://cdnjs.cloudflare.com/ajax/libs/jQuery-Knob/1.2.13/jquery.knob.min.js',
             ],
             'inputmask': [
-                #'https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.7/inputmask.min.js',
-                #'https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.7/jquery.inputmask.min.js',
+                # 'https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.7/inputmask.min.js',
+                # 'https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.7/jquery.inputmask.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/inputmask/3.3.11/inputmask/inputmask.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/inputmask/3.3.11/inputmask/jquery.inputmask.min.js',
             ],
@@ -156,18 +243,23 @@ class Command(BaseCommand):
             ],
             'bootstrap-maxlength': [
                 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-maxlength/1.10.0/bootstrap-maxlength.min.js',
-                #'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-maxlength/1.9.0/bootstrap-maxlength.min.js'
+                # 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-maxlength/1.9.0/bootstrap-maxlength.min.js'
             ],
             'flag-icon-css': [
                 'https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css',
-                #'https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.4.6/css/flag-icon.min.css',
+                # 'https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.4.6/css/flag-icon.min.css',
             ],
-            'flags/1x1': ['https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.4.6/flags/1x1/%s.svg' % flag for flag in FLAGS],
-            'flags/4x3': ['https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.4.6/flags/4x3/%s.svg' % flag for flag in FLAGS],
+            'flags/1x1': [
+                'https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.4.6/flags/1x1/%s.svg' % flag
+                for flag in FLAGS],
+            'flags/4x3': [
+                'https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.4.6/flags/4x3/%s.svg' % flag
+                for flag in FLAGS],
             'datatables': [
-                'https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/js/jquery.dataTables.min.js',
-                'https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/js/dataTables.bootstrap.min.js',
-                'https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/css/dataTables.bootstrap.min.css',
+                'https://cdn.datatables.net/v/bs5/jszip-2.5.0/dt-1.12.1/af-2.4.0/b-2.2.3/b-colvis-2.2.3/b-html5-2.2.3/b-print-2.2.3/cr-1.5.6/date-1.1.2/fc-4.1.0/fh-3.2.4/kt-2.7.0/r-2.3.0/rg-1.2.0/rr-1.2.8/sc-2.0.7/sb-1.3.4/sp-2.0.2/sl-1.4.0/sr-1.1.1/datatables.min.js',
+                'https://cdn.datatables.net/v/bs5/jszip-2.5.0/dt-1.12.1/af-2.4.0/b-2.2.3/b-colvis-2.2.3/b-html5-2.2.3/b-print-2.2.3/cr-1.5.6/date-1.1.2/fc-4.1.0/fh-3.2.4/kt-2.7.0/r-2.3.0/rg-1.2.0/rr-1.2.8/sc-2.0.7/sb-1.3.4/sp-2.0.2/sl-1.4.0/sr-1.1.1/datatables.min.css',
+                "https://cdn.datatables.net/plug-ins/1.12.1/i18n/en-GB.json",
+                "http://cdn.datatables.net/plug-ins/1.12.1/i18n/es-ES.json"
 
             ],
             'fileupload': [
@@ -182,45 +274,39 @@ class Command(BaseCommand):
                 'https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css',
             ],
             'interact': [
-                #'https://cdnjs.cloudflare.com/ajax/libs/interact.js/1.0.2/interact.min.js'
+                # 'https://cdnjs.cloudflare.com/ajax/libs/interact.js/1.0.2/interact.min.js'
                 'https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js'
             ],
             'timeline/': [],
-            'timeline/css': ["https://cdn.knightlab.com/libs/timeline3/latest/css/timeline.css"],
+            'timeline/css': [
+                "https://cdn.knightlab.com/libs/timeline3/latest/css/timeline.css"],
             'timeline/css/icons/': [
                 "https://cdn.knightlab.com/libs/timeline3/latest/css/icons/tl-icons.eot",
                 "https://cdn.knightlab.com/libs/timeline3/latest/css/icons/tl-icons.ttf",
                 "https://cdn.knightlab.com/libs/timeline3/latest/css/icons/tl-icons.svg",
+                "https://cdn.knightlab.com/libs/timeline3/latest/css/icons/tl-icons.woff",
+                "https://cdn.knightlab.com/libs/timeline3/latest/css/icons/tl-icons.woff2",
             ],
-            'timeline/js': ["https://cdn.knightlab.com/libs/timeline3/latest/js/timeline.js"],
+            'timeline/js': [
+                "https://cdn.knightlab.com/libs/timeline3/latest/js/timeline.js"],
             'storymapjs': [
                 "https://cdn.knightlab.com/libs/storymapjs/latest/js/storymap.js",
                 "https://cdn.knightlab.com/libs/storymapjs/latest/css/storymap.css",
             ],
-            'css/icons/':[
-                'https://cdn.knightlab.com/libs/storymapjs/latest/css/icons/vco-icons.ttf'
+            'css/icons/': [
+                'https://cdn.knightlab.com/libs/storymapjs/latest/css/icons/vco-icons.ttf',
+                'https://cdn.knightlab.com/libs/storymapjs/latest/css/icons/vco-icons.eot',
+                'https://cdn.knightlab.com/libs/storymapjs/latest/css/icons/vco-icons.woff',
+                'https://cdn.knightlab.com/libs/storymapjs/latest/css/icons/vco-icons.woff2',
+                'https://cdn.knightlab.com/libs/storymapjs/latest/css/icons/vco-icons.svg',
+                'https://cdn.knightlab.com/libs/storymapjs/latest/css/icons/layers.png',
+                'https://cdn.knightlab.com/libs/storymapjs/latest/css/icons/layers-2x.png',
             ],
             'chartjs': [
                 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.css'
             ],
-
-            'bootstrap-colorpicker': [
-                #'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/3.4.0/js/bootstrap-colorpicker.min.js',
-                #'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/3.4.0/css/bootstrap-colorpicker.css'
-                'https://colorlib.com/polygon/vendors/mjolnic-bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css',
-                'https://colorlib.com/polygon/vendors/mjolnic-bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min.js'
-            ],
             "img/": [],
-            "img/bootstrap-colorpicker": [
-                'https://colorlib.com/polygon/vendors/mjolnic-bootstrap-colorpicker/dist/img/bootstrap-colorpicker/alpha.png',
-                'https://colorlib.com/polygon/vendors/mjolnic-bootstrap-colorpicker/dist/img/bootstrap-colorpicker/hue.png',
-                'https://colorlib.com/polygon/vendors/mjolnic-bootstrap-colorpicker/dist/img/bootstrap-colorpicker/saturation.png',
-
-                'https://colorlib.com/polygon/vendors/mjolnic-bootstrap-colorpicker/dist/img/bootstrap-colorpicker/alpha-horizontal.png',
-                'https://colorlib.com/polygon/vendors/mjolnic-bootstrap-colorpicker/dist/img/bootstrap-colorpicker/hue-horizontal.png',
-                'https://colorlib.com/polygon/vendors/mjolnic-bootstrap-colorpicker/dist/img/bootstrap-colorpicker/saturation-horizontal.png',
-            ],
             'bootstrap-tree': [
                 'https://github.com/patternfly/patternfly-bootstrap-treeview/raw/master/dist/bootstrap-treeview.min.js',
                 'https://raw.githubusercontent.com/patternfly/patternfly-bootstrap-treeview/master/dist/bootstrap-treeview.min.css'
@@ -337,9 +423,7 @@ class Command(BaseCommand):
                 ],
                 'skin.min.css': [
                     'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide/skin.min.css',
-                ]
-            }
-        }
+                ]}}
 
         if not os.path.exists(basepath / 'flags'):
             (basepath / 'flags').mkdir(parents=True)
@@ -348,10 +432,12 @@ class Command(BaseCommand):
             if not os.path.exists(currentbasepath):
                 os.makedirs(currentbasepath)
             for staticfile in libs[lib]:
-                self.get_static_file(requests, staticfile, currentbasepath)
+                self.get_static_file(staticfile, currentbasepath)
 
         for files in compressed:
             for name in compressed[files]:
                 currentbasepath = basepath / files
                 currentbasepath = currentbasepath / name
-                self.get_static_list_file(requests, compressed[files][name],  currentbasepath)
+                self.get_static_list_file(compressed[files][name],
+                                          currentbasepath)
+        self.download_urls()

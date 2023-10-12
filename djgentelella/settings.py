@@ -1,25 +1,32 @@
-from django.conf import settings
-from django.utils.translation import gettext_lazy as _
-import time
 import os.path
+import time
 from datetime import timedelta
-from django.utils.module_loading import import_string
+
+from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
+from django.templatetags.static import static
+from django.utils.module_loading import import_string
+from django.utils.translation import gettext_lazy as _
 
 NOTIFICATION_DEFAULT_SUBJECT = getattr(settings, 'NOTIFICATION_DEFAULT_SUBJECT',
-                                     _('You have a new notification'))
+                                       _('You have a new notification'))
 NOTIFICATION_DEFAULT_TEMPLATE = getattr(settings, 'NOTIFICATION_DEFAULT_TEMPLATE',
-                                     'gentelella/email/notification.html')
+                                        'gentelella/email/notification.html')
 
 DEFAULT_JS_IMPORTS = getattr(settings, 'DEFAULT_JS_IMPORTS', {})
+DATATABLES_SUPPORT_LANGUAGES = getattr(settings, 'DATATABLES_SUPPORT_LANGUAGES', {
+    'en': static("vendors/datatables/en-GB.json"),
+    'es': static("vendors/datatables/es-ES.json")
+
+})
 
 DEFAULT_GROUP_MODEL_BASE = 'GT_GROUP_MODEL'
 
 DEFAULT_USER_MODEL_BASE = 'GT_USER_MODEL'
 
-DEFAULT_GROUP_MODEL = 'auth.Group'
+DEFAULT_GROUP_MODEL = 'django.contrib.auth.models.Group'
 
-DEFAULT_USER_MODEL = 'auth.User'
+DEFAULT_USER_MODEL = 'django.contrib.auth.models.User'
 
 GROUP_MODEL_BASE = getattr(
     settings, DEFAULT_GROUP_MODEL_BASE, DEFAULT_GROUP_MODEL)
@@ -28,17 +35,16 @@ USER_MODEL_BASE = getattr(
     settings, DEFAULT_USER_MODEL_BASE, DEFAULT_USER_MODEL)
 
 try:
-    from django.contrib.contenttypes.models import ContentType
-    aux_group = ContentType.objects.get(app_label=GROUP_MODEL_BASE.split('.')[0], model=GROUP_MODEL_BASE.split('.')[1].lower())
-    Group = aux_group.model_class()
-
-    aux_user = ContentType.objects.get(app_label=USER_MODEL_BASE.split('.')[0], model=USER_MODEL_BASE.split('.')[1].lower())
-    User = aux_user.model_class()
+    Group = import_string(GROUP_MODEL_BASE)
 except Exception as e:
-    from django.contrib.auth.models import User, Group
+    from django.contrib.auth.models import Group
+try:
+    User = import_string(USER_MODEL_BASE)
+except Exception as e:
+    from django.contrib.auth.models import User
 
 #####################################################
-##    Chuncked Upload
+#    Chuncked Upload
 ############################################
 
 # How long after creation the upload will expire
@@ -62,7 +68,8 @@ UPLOAD_TO = getattr(settings, 'CHUNKED_UPLOAD_TO', default_upload_to)
 try:
     STORAGE = getattr(settings, 'CHUNKED_UPLOAD_STORAGE_CLASS', lambda: None)()
 except TypeError:
-    STORAGE = import_string(getattr(settings, 'CHUNKED_UPLOAD_STORAGE_CLASS', lambda: None))()
+    STORAGE = import_string(
+        getattr(settings, 'CHUNKED_UPLOAD_STORAGE_CLASS', lambda: None))()
 
 # Function used to encode response data. Receives a dict and return a string
 DEFAULT_ENCODER = DjangoJSONEncoder().encode
@@ -78,4 +85,4 @@ DEFAULT_MAX_BYTES = None
 MAX_BYTES = getattr(settings, 'CHUNKED_UPLOAD_MAX_BYTES', DEFAULT_MAX_BYTES)
 
 #############################################################
-####   END UPLOAD CHUNKED
+#   END UPLOAD CHUNKED

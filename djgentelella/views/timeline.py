@@ -1,5 +1,6 @@
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
+
 from djgentelella.serializers.timeline import GTimelineBase
 
 

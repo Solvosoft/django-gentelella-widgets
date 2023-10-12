@@ -1,22 +1,30 @@
-
-<nav class="navbar navbar-expand-lg nav_menu  " >
-    {% load i18n gentelellamenu gtsettings urlname_tags %}
+<nav class="navbar navbar-expand-lg nav_menu">
+  {% load i18n gentelellamenu gtsettings urlname_tags %}
+  <div class="container-fluid">
+    <div class="nav toggle ">
+      <a id="menu_toggle" style="cursor:pointer;"><i class="fa fa-bars"></i></a>
+    </div>
     <div class="container-fluid">
-        <div class="nav toggle">
-            <a id="menu_toggle"><i class="fa fa-bars"></i></a>
-        </div>
-
-        <ul class="nav navbar-nav  d-flex flex-row-reverse ">
-            {% top_menu  %}
-            {% if request.user.is_superuser %}
-            {% get_urlname_action as urlnameactions %}
-            {% validate_context urlnameactions as context %}
-            {% if urlnameactions and context %}
-            <li><a id="btn_perms" title="{% trans 'Add Permission' %}" data-bs-toggle="modal" data-bs-target="#permission_modal" data-parameter="{% get_page_name urlnameactions %}" data-urlname="{{urlnameactions}}"><i class="fa fa-key" aria-hidden="true"></i></a></li>
-            {% endif %}
-            {% endif %}
+      <a class=" float-end menu-top-navbar" style="margin-top:-25px;" role="button" data-bs-toggle="collapse"
+         href="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false"
+         aria-label="Toggle navigation">
+        <i class="fa fa-th-large nav-icon-size"></i>
+      </a>
+      <div class="collapse navbar-collapse float-end" id="navbarNavDropdown">
+        <ul id="items-top-navbar" class="nav navbar-nav d-flex me-4 flex-row-reverse">
+          {% top_menu %}
+          {% if perms.djgentelella.can_manage_permissions %}
+          {% get_urlname_action as urlnameactions %}
+          {% validate_context urlnameactions as context %}
+          {% if urlnameactions and context %}
+          <li><a id="btn_perms" title="{% trans 'Add Permission' %}" data-bs-toggle="modal"
+                 data-bs-target="#permission_modal" data-parameter="{% get_page_name urlnameactions %}"
+                 data-urlname="{{urlnameactions}}"><i class="fa fa-key" aria-hidden="true"></i></a></li>
+          {% endif %}
+          {% endif %}
 
         </ul>
+      </div>
     </div>
+  </div>
 </nav>
-

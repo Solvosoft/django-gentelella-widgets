@@ -1,13 +1,44 @@
 document.formset = [];
 document.gtwidgets = {
+    ImageRecordInput: function(instance){
+        instance.each(function (i, e) {
+            getMediaRecord(e, 'photo');
+        });
+    },
+    VideoRecordInput: function(instance){
+        instance.each(function (i, e) {
+            getMediaRecord(e, 'video');
+        });
+    },
+    AudioRecordInput: function(instance){
+        instance.each(function (i, e) {
+            getMediaRecord(e, 'audio');
+        });
+    },
     Select: function (instance) {
-        instance.select2();
+        instance.each(function (i, e) {
+            let s2instance=$(e);
+            let contexts2={};
+            extract_select2_context(contexts2, s2instance);
+            s2instance.select2(contexts2);
+        });
     },
     SelectMultiple: function (instance) {
-        instance.select2();
+        instance.each(function (i, e) {
+            let s2instance=$(e);
+            let contexts2={};
+            extract_select2_context(contexts2, s2instance);
+            s2instance.select2(contexts2);
+        });
     },
     TreeSelect: function (instance) {
-        instance.select2({ templateResult: decore_select2 });
+
+        instance.each(function (i, e) {
+            let s2instance=$(e);
+            let contexts2={ templateResult: decore_select2 };
+            extract_select2_context(contexts2, s2instance);
+            s2instance.select2(contexts2);
+        });
     },
     CheckboxInput: function (instance) {
 
@@ -71,7 +102,12 @@ document.gtwidgets = {
               } });// "YYYY-MM-DD HH:mm"
     },
     TimeInput: function (instance) {
-        instance.datetimepicker({format: instance.data('format') }); // 'HH:mm'
+         instance.datetimepicker({format : instance.data('format'),
+              sideBySide: true, icons: {
+                  time: "fa fa-clock-o",
+                  up: "fa fa-arrow-up",
+                  down: "fa fa-arrow-down"
+              } }); // 'HH:mm'
     },
     DateInput: function (instance) {
         instance.datetimepicker({format: instance.data('format')  }); //"DD/MM/YYYY"
@@ -118,20 +154,40 @@ document.gtwidgets = {
     },
     SelectWithAdd: function (instance) {
         instance.addselectwidget();
-        instance.select2();
+        instance.each(function (i, e) {
+            let contexts2={};
+            let s2instance=$(e);
+            extract_select2_context(contexts2, s2instance);
+            s2instance.select2(contexts2);
+        });
     },
     SelectMultipleAdd: function (instance) {
         instance.addselectwidget();
-        instance.select2();
+        instance.each(function (i, e) {
+            let contexts2={};
+            let s2instance=$(e);
+            extract_select2_context(contexts2, s2instance);
+            s2instance.select2(contexts2);
+        });
     },
     TreeSelectMultipleWithAdd: function (instance) {
         instance.addselectwidget();
         instance.select2({ templateResult: decore_select2 });
+        instance.each(function (i, e) {
+            let s2instance=$(e);
+            let contexts2={ templateResult: decore_select2 };
+            extract_select2_context(contexts2, s2instance);
+            s2instance.select2(contexts2);
+        });
     },
     TreeSelectWithAdd: function (instance) {
         instance.addselectwidget();
-        instance.select2({ templateResult: decore_select2 });
-
+        instance.each(function (i, e) {
+            let s2instance=$(e);
+            let contexts2={ templateResult: decore_select2 };
+            extract_select2_context(contexts2, s2instance);
+            s2instance.select2(contexts2);
+        });
     },
     FileInput: function (instance) {
         instance.fileuploadwidget();
@@ -153,18 +209,6 @@ document.gtwidgets = {
     },
     NumberKnobInput: function (instance) {
         instance.knob();
-    },
-    DefaultColorInput: function (instance) {
-        instance.colorpicker();
-    },
-    StyleColorInput: function (instance) {
-        instance.parent('.color-input-field').colorpicker();
-    },
-    HorizontalBarColorInput: function (instance) {
-        instance.colorpicker({ horizontal: true });
-    },
-    VerticalBarColorInput: function (instance) {
-        instance.colorpicker({ format: 'rgb' });
     },
     TextareaWysiwyg: function (instance) {
         $(instance).removeAttr('required');
@@ -214,9 +258,6 @@ document.gtwidgets = {
         });
     },
 
-    InlinePickerColor: function (instance) {
-        instance.parent('.color-input-field-inline-picker').css("display", "inline-block").colorpicker({ container: true, inline: true });
-    },
     TaggingInput: function (instance) {
         instance.tagify();
     },

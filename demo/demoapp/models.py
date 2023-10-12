@@ -1,8 +1,8 @@
-from django.db import models
-from django.core.validators import MaxValueValidator, MinValueValidator
-from django.core.exceptions import ValidationError
-from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 # Create your models here.
 from djgentelella.fields.catalog import GTForeignKey, GTManyToManyField, GTOneToOneField
@@ -73,16 +73,6 @@ class Foo(models.Model):
         MinValueValidator(0),
         MaxValueValidator(10)
     ])
-
-
-class Colors(models.Model):
-    color = models.CharField(max_length=150)
-    color2 = models.CharField(max_length=150)
-    color3 = models.CharField(max_length=150)
-    color4 = models.CharField(max_length=150)
-
-    def __str__(self):
-        return f"{self.color} {self.color2} {self.color3} {self.color4}"
 
 
 class PeopleGroup(models.Model):
@@ -212,7 +202,7 @@ class Employee(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     username = models.CharField(max_length=100)
 
-    #username also can be a @property to user.username.
+    # username also can be a @property to user.username.
 
     @property
     def gt_get_permission(self):
@@ -235,9 +225,9 @@ class Calendar(models.Model):
 
 class Event(models.Model):
     calendar = models.ForeignKey(to=Calendar, on_delete=models.CASCADE)
-    title = models.CharField(max_length=255,null=True,blank=True)
-    start = models.DateTimeField(null=True,blank=True)
-    end = models.DateTimeField(null=True,blank=True)
+    title = models.CharField(max_length=255, null=True, blank=True)
+    start = models.DateTimeField(null=True, blank=True)
+    end = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return self.title

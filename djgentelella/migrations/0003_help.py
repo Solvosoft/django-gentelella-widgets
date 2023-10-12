@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('djgentelella', '0002_auto_20200214_2038'),
     ]
@@ -13,11 +12,17 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Help',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id',
+                 models.AutoField(auto_created=True, primary_key=True, serialize=False,
+                                  verbose_name='ID')),
                 ('id_view', models.CharField(help_text='View id', max_length=50)),
-                ('question_name', models.CharField(help_text='Is a identificaction for question label', max_length=250)),
-                ('help_text', models.TextField(blank=True, default='', verbose_name='Help text')),
-                ('help_title', models.CharField(max_length=350, verbose_name='Help title'))
+                ('question_name',
+                 models.CharField(help_text='Is a identificaction for question label',
+                                  max_length=250)),
+                ('help_text',
+                 models.TextField(blank=True, default='', verbose_name='Help text')),
+                ('help_title',
+                 models.CharField(max_length=350, verbose_name='Help title'))
             ],
         ),
     ]

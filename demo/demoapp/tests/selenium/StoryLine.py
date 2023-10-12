@@ -1,7 +1,9 @@
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-from selenium.webdriver.chrome.webdriver import WebDriver
 from django.urls import reverse
 from selenium.webdriver.common.by import By
+# from selenium.webdriver.chrome.webdriver import WebDriver
+from selenium.webdriver.firefox.webdriver import WebDriver
+
 
 class StorylineWidgetSeleniumTest(StaticLiveServerTestCase):
 
@@ -25,12 +27,12 @@ class StorylineWidgetSeleniumTest(StaticLiveServerTestCase):
         url = self.live_server_url + str(reverse('storyline_view'))
         self.selenium.get(url)
         storyline = self.selenium.find_element(By.CLASS_NAME, 'storyline-wrapper')
-        #storyline = self.selenium.find_element_by_class_name()
+        # storyline = self.selenium.find_element_by_class_name()
         # deprecated, change to find element(by='class_name', value= "")
 
         self.assertNotEqual(storyline, None)
         self.assertEqual("/gtapis/storyline/", storyline.get_attribute('data-url'))
         self.assertEqual("storyline-wrapper", storyline.get_attribute('class'))
         self.assertEqual("568", storyline.get_attribute('height'))
-        #self.assertEqual("1112", storyline.get_attribute('width'))
+        # self.assertEqual("1112", storyline.get_attribute('width'))
         self.assertEqual("UrlStoryLineInput", storyline.get_attribute('data-widget'))

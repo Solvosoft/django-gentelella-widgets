@@ -101,6 +101,18 @@ class Command(BaseCommand):
             icon='fa fa-home',
             only_icon=False
         )
+        cwidget = MenuItem.objects.create(
+            parent=extrawidget,
+            title='User Media widget',
+            url_name='mediaupload_view',
+            category='sidebar',  # sidebar, sidebarfooter,
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-camera',
+            only_icon=False
+        )
 
         cwidget = MenuItem.objects.create(
             parent=extrawidget,
@@ -140,6 +152,31 @@ class Command(BaseCommand):
         )
         cwidget = MenuItem.objects.create(
             parent=extrawidget,
+            title='Datatables',
+            url_name='datatable_view',
+            category='sidebar',  # sidebar, sidebarfooter,
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-table',
+            only_icon=False
+        )
+        cwidget = MenuItem.objects.create(
+            parent=extrawidget,
+            title='Object Management',
+            url_name='person_object_management',
+            category='sidebar',  # sidebar, sidebarfooter,
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-microchip',
+            only_icon=False
+        )
+
+        cwidget = MenuItem.objects.create(
+            parent=extrawidget,
             title='Form Widgets',
             url_name='#',
             category='sidebar',  # sidebar, sidebarfooter,
@@ -172,18 +209,6 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-eyedropper',
-            only_icon=False
-        )
-        MenuItem.objects.create(
-            parent=cwidget,
-            title='Color Widgets',
-            url_name='colorwidgets',
-            category='sidebar',  # sidebar, sidebarfooter,
-            is_reversed=True,
-            reversed_kwargs=None,
-            reversed_args=None,
-            is_widget=False,
-            icon='fa fa-diamond',
             only_icon=False
         )
         inputmask = MenuItem.objects.create(
@@ -299,7 +324,6 @@ class Command(BaseCommand):
             only_icon=False
         )
 
-
         chart = MenuItem.objects.create(
             parent=dashboard,
             title='Charts',
@@ -339,7 +363,7 @@ class Command(BaseCommand):
 
         chunckedupload = MenuItem.objects.create(
             parent=cwidget,
-            title='ChunckedUpload',
+            title='Chuncked Upload',
             url_name='chunkeduploaditem-list',
             category='sidebar',
             is_reversed=True,
@@ -350,6 +374,18 @@ class Command(BaseCommand):
             only_icon=False
         )
 
+        chunckedupload = MenuItem.objects.create(
+            parent=cwidget,
+            title='Select in modal',
+            url_name='bt_modal_display',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-mouse-pointer',
+            only_icon=False
+        )
         noti = MenuItem.objects.create(
             parent=item,
             title='Create notification',
@@ -415,7 +451,7 @@ class Command(BaseCommand):
         item = MenuItem.objects.create(
             parent=None,
             title='Logout',
-            url_name='/accounts/logout/', # DO manual
+            url_name='/accounts/logout/',  # DO manual
             category='sidebarfooter',  # sidebar, sidebarfooter,
             is_reversed=False,
             reversed_kwargs=None,
@@ -539,8 +575,9 @@ class Command(BaseCommand):
                             d, c, b, a), id=did, c_id=cid))
                         for e in range(1, 4):
                             eid += 1
-                            el.append(models.E(display="E %d d(%d) c(%d) b(%d) a(%d)" % (
-                                e, d, c, b, a), id=eid, d_id=did))
+                            el.append(
+                                models.E(display="E %d d(%d) c(%d) b(%d) a(%d)" % (
+                                    e, d, c, b, a), id=eid, d_id=did))
         models.A.objects.bulk_create(al)
         models.B.objects.bulk_create(bl)
         models.C.objects.bulk_create(cl)

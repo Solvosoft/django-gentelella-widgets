@@ -1,0 +1,111 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-03-21 14:41-0600\n"
+"PO-Revision-Date: 2023-03-21 14:42-0600\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 2.4.2\n"
+
+#: static/gentelella/js/base.js:514 static/gentelella/js/base.js:540
+#: static/gentelella/js/base.js:567
+#: static/gentelella/js/base/select2related.js:80
+#: static/gentelella/js/base/select2related.js:106
+#: static/gentelella/js/base/select2related.js:133
+msgid "Select an element"
+msgstr "Seleccione un elemento"
+
+#: static/gentelella/js/base.js:1516 static/gentelella/js/base/mediarecord.js:4
+msgid "Sorry, there is a problem"
+msgstr "Lo lamentamos hay un problema"
+
+#: static/gentelella/js/base.js:1517 static/gentelella/js/base/mediarecord.js:5
+msgid "Media device is not available"
+msgstr "Dispositivo de multimedia no está disponible"
+
+#: static/gentelella/js/base.js:1694 static/gentelella/js/base.js:1798
+#: static/gentelella/js/base/mediarecord.js:182
+#: static/gentelella/js/base/mediarecord.js:286
+msgid "Record"
+msgstr "Grabar"
+
+#: static/gentelella/js/base.js:1699 static/gentelella/js/base.js:1802
+#: static/gentelella/js/base/mediarecord.js:187
+#: static/gentelella/js/base/mediarecord.js:290
+msgid "Recording..."
+msgstr "Grabando..."
+
+#: static/gentelella/js/base.js:1791
+#: static/gentelella/js/base/mediarecord.js:68
+#: static/gentelella/js/base/mediarecord.js:175
+#: static/gentelella/js/base/mediarecord.js:279
+msgid "Start"
+msgstr "Iniciar"
+
+#: static/gentelella/js/base/mediarecord.js:74
+msgid "Capture"
+msgstr "Capturar"
+
+#: static/gentelella/js/base/mediarecord.js:78
+msgid "Save"
+msgstr "Guardar"
+
+#: static/gentelella/js/custom.js:254
+msgid " Records Selected"
+msgstr " Grabar seleccionado"
+
+#: static/gentelella/js/custom.js:427
+msgid "Unsupported format "
+msgstr "Formato no soportado "
+
+#: static/gentelella/js/custom.js:429
+msgid "error uploading file"
+msgstr "error subiendo archivo"
+
+#: static/gentelella/js/custom.js:458
+msgid "not a real date"
+msgstr "no es una fecha real"
+
+#: static/gentelella/js/datatables.js:57
+msgid "Select date"
+msgstr "Seleccione una fecha"
+
+#: static/gentelella/js/datatables.js:60
+msgid "Clear"
+msgstr "Limpiar"
+
+#: static/gentelella/js/datatables.js:67 static/gentelella/js/datatables.js:90
+msgid "Search "
+msgstr "Buscar "
+
+#: static/gentelella/js/datatables.js:113
+msgid "Yes"
+msgstr "Si"
+
+#: static/gentelella/js/datatables.js:113
+msgid "No"
+msgstr "No"
+
+#: static/gentelella/js/datatables.js:133
+msgid "More"
+msgstr "Más"
+
+#: static/gentelella/js/datatables.js:134
+msgid "Show"
+msgstr "Ver"
+
+#: static/gentelella/js/datatables.js:158
+#: static/gentelella/js/datatables.js:159
+msgid "Clear Filters"
+msgstr "Limpiar Filtros"

@@ -11,6 +11,7 @@ Welcome to Django gentelella widgets's documentation!
    :caption: Contents:
 
    introduction
+   settings
    demo
    templates
    forms
@@ -20,7 +21,10 @@ Welcome to Django gentelella widgets's documentation!
    blog
    crud
    contents
+   datatables
+   object_management
    permissionmanagement
+   notifications
 
 Indices and tables
 ==================

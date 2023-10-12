@@ -46,7 +46,7 @@ $.fn.notificationWidget = function(){
         }
     }
     create_notification = function(instance, elem){
-        var datedata =  moment(elem.creation_date).fromNow()
+        var datedata =  moment(elem.creation_date, document.date_format).fromNow()
         var base = $("#temp_"+instance.attr('id')).html();
         base = base.replace('$id', elem.id).replace('$message_type', elem.message_type);
         base = base.replace('$link', elem.link).replace('$description', elem.description);
@@ -132,6 +132,7 @@ $.fn.notificationWidget = function(){
     });
 }
 
+
 document.chartcallbacks = {
    doughnutlabels: function (item, data) {
 
@@ -209,7 +210,7 @@ $.fn.listcrudrest = function(){
         list.html(html);
     }
     $(btn).on('click', function(){
-        $(form).closest('.x_content').find('.alert').remove();
+        $(form).closest('.card').find('.alert').remove();
         $.ajax({
             url: url_add, // url where to submit the request
             type : "POST", // type of action POST || GET
@@ -432,6 +433,63 @@ $.fn.fileuploadwidget = function(){
         });
 }
 
+function extract_select2_context(context, instance){
+    let data=instance.data();
+    let dropdownparent=data.dropdownparent;
+    let placeholder=data.placeholder;
+    let theme = data.theme;
+    if( dropdownparent != undefined){
+        context.dropdownParent = $(dropdownparent);
+    }
+    if( placeholder != undefined){
+        context.placeholder=placeholder;
+    }
+    if(theme != undefined){
+        context.theme=theme;
+    }else{
+        context.theme='bootstrap-5'
+    }
+}
+
+function add_selected_option(item, data){
+    if(!data.selected) return;
+
+    itemjq = $(item.id);
+    if (itemjq.find("option[value='" + data.id + "']").length) {
+        itemjq.find("option[value='" + data.id + "']").attr('selected', 'selected');
+
+    } else {
+        // Create a DOM Option and pre-select by default
+        var newOption = new Option(data.text, data.id, true, true);
+        // Append it to the select
+        itemjq.append(newOption).trigger('change');
+    }
+}
+function get_selected_values(obj){
+    var data = [];
+    $.each(obj, function(i, e){
+        if(e.value != "") data.push(e.value);
+    });
+    return data.join(',');
+}
+
+function get_s2filter_parameters(elemid, params){
+    let filters = {
+        selected: get_selected_values($(elemid).find(':selected')),
+        page: params.page || 1,
+    };
+    if ( params.term != undefined){
+        filters['term']=params.term;
+    }
+    $.each($(elemid).data(), function(key, value) {
+        if (key.startsWith("s2filter")){
+            filters[key.replace("s2filter", "").toLowerCase()] = $(value).val();
+        }
+    });
+    return filters;
+}
+
+window.extract_select2_context=extract_select2_context;
 $.fn.select2related = function(action, relatedobjs=[]) {
     /**
         [{ 'id': '#myfield',
@@ -441,81 +499,93 @@ $.fn.select2related = function(action, relatedobjs=[]) {
     **/
         this.relatedobjs = relatedobjs;
         let parent = this;
-        function get_selected_values(obj){
-            var data = [];
-            $.each(obj, function(i, e){
-                if(e.value != "") data.push(e.value);
-            });
-            return data.join(',');
-        }
+
 
         if(action === "simple"){
             for(let x=0; x<this.relatedobjs.length; x++){
-                $(this.relatedobjs[x]['id']).select2();
+                let contexts2={};
+                extract_select2_context(contexts2, $(this.relatedobjs[x]['id']));
+                this.relatedobjs[x]['s2']=$(this.relatedobjs[x]['id']).select2(contexts2);
             }
         }
 
         if(action === 'remote'){
             for(let x=0; x<this.relatedobjs.length; x++){
-                $(this.relatedobjs[x]['id']).select2({
-                      placeholder: 'Select an element',
+                let contexts2={
+                      placeholder: gettext('Select an element'),
                       ajax: {
                         url: this.relatedobjs[x]['url'],
                         type: 'GET',
                         dataType: 'json',
-                        data: function (params) {
-                              var dev= {
-                                selected: get_selected_values($(parent.relatedobjs[x]['id']).find(':selected')),
-                                term: params.term,
-                                page: params.page || 1
-                              };
-                              $(parent.relatedobjs[x]['id']).trigger('relautocompletedata', dev);
-                              return dev;
+                        processResults: function (data, params) {
+                            for(let rx=0; rx<data.results.length; rx++){
+                                add_selected_option(parent.relatedobjs[x], data.results[rx]);
+                            }
+                            return data;
                         },
+                        data: function (params) {
+                            let filters = get_s2filter_parameters($(parent.relatedobjs[x]['id']), params);
+                            $(parent.relatedobjs[x]['id']).trigger('relautocompletedata', filters);
+                            return filters;
+                        }
                       }
-                });
+                };
+                extract_select2_context(contexts2, $(this.relatedobjs[x]['id']));
+                this.relatedobjs[x]['s2']=$(this.relatedobjs[x]['id']).select2(contexts2);
+
             }
         }
         if(action === "related"){
             for(let x=1; x<this.relatedobjs.length; x++){
-                let newselect = $(this.relatedobjs[x]['id']).select2({
-                  placeholder: 'Select an element',
+                let contexts2={
+                  placeholder: gettext('Select an element'),
                   ajax: {
                     url: this.relatedobjs[x]['url'],
                     type: 'GET',
                     dataType: 'json',
+                    processResults: function (data, params) {
+                        for(let rx=0; rx<data.results.length; rx++){
+                            add_selected_option(parent.relatedobjs[x], data.results[rx]);
+                        }
+                        return data;
+                    },
                     data: function (params) {
-                      var dev = {
-                        relfield: get_selected_values($(parent.relatedobjs[x-1]['id']).find(':selected')),
-                        selected: get_selected_values($(parent.relatedobjs[x]['id']).find(':selected')),
-                        term: params.term,
-                        page: params.page || 1
-                      }
-                      $(parent.relatedobjs[x]['id']).trigger('relautocompletedata', dev);
-                      return dev;
+                      let filters = get_s2filter_parameters($(parent.relatedobjs[x]['id']), params);
+                      filters['relfield']= get_selected_values($(parent.relatedobjs[x-1]['id']).find(':selected'));
+                      $(parent.relatedobjs[x]['id']).trigger('relautocompletedata', filters);
+                      return filters;
                     },
                   }
-                });
+                };
+                extract_select2_context(contexts2, $(this.relatedobjs[x]['id']));
+                let newselect = $(this.relatedobjs[x]['id']).select2(contexts2);
+                this.relatedobjs[x]['s2'] = newselect;
                 if(parent.relatedobjs[x]['start_empty']){
                     newselect.val(null).trigger('change');
                 }
             }
-
-            let newselect = $(this.relatedobjs[0]['id']).select2({
-              placeholder: 'Select an element',
+            let contexts2empty = {
+              placeholder: gettext('Select an element'),
               ajax: {
                 url: parent.relatedobjs[0]['url'],
                 type: 'GET',
                 dataType: 'json',
+                processResults: function (data, params) {
+                    for(let rx=0; rx<data.results.length; rx++){
+                            add_selected_option(parent.relatedobjs[0], data.results[rx]);
+                    }
+                    return data;
+                },
                 data: function (params) {
-                      return {
-                        selected: get_selected_values($(parent.relatedobjs[0]['id']).find(':selected')),
-                        term: params.term,
-                        page: params.page || 1
-                      }
-                    },
+                      let filters = get_s2filter_parameters($(parent.relatedobjs[0]['id']), params);
+                      $(parent.relatedobjs[0]['id']).trigger('relautocompletedata', filters);
+                      return filters;
+                },
               }
-            });
+            };
+            extract_select2_context(contexts2empty, $(this.relatedobjs[0]['id']));
+            let newselect = $(this.relatedobjs[0]['id']).select2(contexts2empty);
+            this.relatedobjs[0]['id']=newselect;
             if(this.relatedobjs[0]['start_empty']){
                 newselect.val(null).trigger('change');
             }
@@ -1282,7 +1352,22 @@ function showHideRelatedFormFields(instance){
         });
         instance.trigger('change');
     }
+    var relh = instance.data('relhidden');
+    if(relh != undefined ){
+        var relateditemsh = create_identifiers(relh.split(';'));
+        instance.on('change', function(e){
+            for(var x=0; x<relateditemsh.length; x++){
+                if(this.checked){
+                    $(relateditemsh[x]).closest(parentclass).hide();
+                }else{
+                    $(relateditemsh[x]).closest(parentclass).show();
+                }
+            }
+        });
+         instance.trigger('change');
+    }
 }
+
 
 function upload_files(callback, meta, file, image, video) {
     var csrftoken = getCookie('csrftoken');
@@ -1440,3 +1525,345 @@ function build_timeline(instances){
         })
     });
 }
+
+function show_errors_media_record(error){
+    Swal.fire({
+          icon: 'error',
+          title: gettext('Sorry, there is a problem'),
+          text: gettext('Media device is not available'),
+        })
+}
+function getPhotoRecord(element){
+    let id = element.id
+    let media = {
+          tag: 'video',
+          type: 'image/png',
+          ext: '.png',
+          gUM: {video: true}
+    }
+
+    let v= {
+        id: id,
+        canvas: $("#"+id+"_canvas"),
+        video: $("#"+id+"_video"),
+        btn_control: $("#"+id+"_btn"),
+        btn_cancel: $("#"+id+"_cancel"),
+        width: $("#"+id).data('width') || '320px',
+        height: $("#"+id).data('height') || '240px',
+        recorder: null,
+        media: media,
+        status: 0,
+        initialize: function(){
+            this.btn_control.on('click', this.callClick(this));
+            this.btn_cancel.on('click', this.callCancel(this));
+            this.btn_cancel.hide();
+            this.canvas.hide();
+            this.video.hide();
+            this.canvas[0].style.width=this.width;
+            this.canvas[0].style.height=this.height;
+            this.video[0].style.width=this.width;
+            this.video[0].style.height=this.height;
+            $(window).on('cancelMedia', this.callCancel(this, trigger=true));
+
+        },
+        clickEvent: function(){
+            var video = this.video[0];
+            var parent = this;
+            if(this.status==0){
+                navigator.mediaDevices.getUserMedia(this.media.gUM).then(_stream => {
+                     video.srcObject = _stream;
+                     parent.tracks = _stream.getTracks();
+                }).catch(show_errors_media_record);
+                this.video.show();
+                this.canvas.hide();
+            }else if(this.status==1){
+                let canvas = this.canvas[0];
+                this.video.hide();
+                canvas.getContext('2d').drawImage(this.video[0], 0, 0, canvas.width, canvas.height);
+                this.canvas.show();
+            }else{
+                this.status = -1;
+                this.save_media();
+                if(this.tracks) this.tracks.forEach(track => track.stop());
+            }
+            this.status = this.status+1;
+            this.presentbutton();
+        },
+        presentbutton: function(){
+            if(this.status==0){
+                this.btn_cancel.hide();
+                $("#"+this.id+"_btn i").attr('class', 'fa fa-video-camera');
+                $("#"+this.id+"_btn span").text(gettext('Start'));
+            }else{
+                this.btn_cancel.show();
+            }
+            if(this.status==1){
+                    $("#"+this.id+"_btn i").attr('class', 'fa fa-camera');
+                    $("#"+this.id+"_btn span").text(gettext(gettext('Capture')));
+            }
+            if(this.status==2) {
+                    $("#"+this.id+"_btn i").attr('class', 'fa fa-check');
+                    $("#"+this.id+"_btn span").text(gettext('Save'));
+            }
+        },
+        cancel: function(trigger){
+            this.status=0;
+            if(this.recorder != null) this.recorder.stop();
+            if(this.tracks) this.tracks.forEach(track => track.stop());
+            this.btn_cancel.hide();
+            this.canvas.hide();
+            this.video.hide();
+            this.presentbutton();
+             if(!trigger)$(window).trigger('cancelMedia');
+
+        },
+
+        callCancel: function(instance, trigger=false){
+            return () => { instance.cancel(trigger) };
+        },
+        callClick: function(instance){
+             return () => { instance.clickEvent() };
+        },
+        save_media:function(){
+            var parent = this;
+            this.canvas[0].toBlob((blob) => {
+              let file = new File([blob], "photo"+parent.media.ext, { type: parent.media.type  })
+              let container = new DataTransfer();
+              container.items.add(file);
+            $("#"+parent.id)[0].files = container.files;
+            }, parent.media.type);
+        }
+    }
+
+    v.initialize()
+    return v;
+}
+
+
+function getVideoRecord(element){
+    let id = element.id
+    let media = {
+                  tag: 'video',
+                  type: 'video/webm',
+                  ext: '.mp4',
+                  gUM: {video: true, audio: true}
+                }
+    let v= {
+        id: id,
+        canvas: $("#"+id+"_canvas"),
+        video: $("#"+id+"_video"),
+        btn_control: $("#"+id+"_btn"),
+        btn_cancel: $("#"+id+"_cancel"),
+        width: $("#"+id).data('width') || '320px',
+        height: $("#"+id).data('height') || '240px',
+        chunks: [],
+        recorder: null,
+        media: media,
+        status: 0,
+        initialize: function(){
+            this.btn_control.on('click', this.callClick(this));
+            this.btn_cancel.on('click', this.callCancel(this));
+            this.btn_cancel.hide();
+            this.video[0].style.width=this.width;
+            this.video[0].style.height=this.height;
+            this.video.hide();
+            $(window).on('cancelMedia', this.callCancel(this, trigger=true));
+
+        },
+        clickEvent: function(){
+            var video = this.video[0];
+            var parent = this;
+            if(this.status==0){
+                navigator.mediaDevices.getUserMedia(this.media.gUM).then(_stream => {
+                    video.srcObject = _stream;
+                    parent.tracks = _stream.getTracks();
+                    parent.recorder = new MediaRecorder(_stream);
+                    parent.recorder.ondataavailable = e => {
+                    parent.chunks.push(e.data);
+                    if(parent.recorder.state == 'inactive')  parent.save_media();
+                    };
+                }).catch(show_errors_media_record);
+                this.video.show();
+
+            }else if(this.status==1){
+                this.chunks=[];
+                if(this.recorder) this.recorder.start();
+            }else{
+                if(this.recorder != null && this.recorder.state == 'inactive') this.recorder.stop();
+                this.cancel(true)
+                this.status = -1;
+            }
+            this.status = this.status+1;
+            this.presentbutton();
+        },
+        presentbutton: function(){
+            if(this.status==0){
+                this.btn_cancel.hide();
+                $("#"+this.id+"_btn i").attr('class', 'fa fa-video-camera');
+                $("#"+this.id+"_btn span").text(gettext('Start'));
+
+            }else{
+                this.btn_cancel.show();
+            }
+            if(this.status==1){
+                $("#"+this.id+"_btn i").attr('class', 'fa fa-play');
+                $("#"+this.id+"_btn span").text(gettext('Record'));
+                $("#"+this.id+"_container .mediareproductor").remove();
+            }
+            if(this.status==2) {
+                $("#"+this.id+"_btn i").attr('class', 'fa fa-pause');
+                $("#"+this.id+"_btn span").text(gettext('Recording...'));
+            }
+        },
+        cancel: function(trigger){
+            this.status=0;
+            if(this.recorder != null && this.recorder.state != 'inactive') this.recorder.stop();
+            if(this.tracks) this.tracks.forEach(track => track.stop());
+            this.btn_cancel.hide();
+            this.video.hide();
+            this.presentbutton();
+             if(!trigger)$(window).trigger('cancelMedia');
+
+        },
+
+        callCancel: function(instance, trigger=false){
+            return () => { instance.cancel(trigger) };
+        },
+        callClick: function(instance){
+             return () => { instance.clickEvent() };
+        },
+        save_media:function(){
+            let file = new File(this.chunks, "record"+this.media.ext, {type: this.media.type , lastModified:new Date().getTime()});
+            let container = new DataTransfer();
+            container.items.add(file);
+            $("#"+this.id)[0].files = container.files;
+             let blob = new Blob(this.chunks, {type: this.media.type })
+             let url = URL.createObjectURL(blob)
+             mt = document.createElement(this.media.tag)
+             mt.controls = true;
+             mt.src = url;
+             mt.className = "mediareproductor"
+             mt.style.width=this.width;
+             mt.style.height=this.height;
+             $("#"+this.id+"_container").append(mt);
+        }
+    }
+
+    v.initialize()
+    return v;
+}
+
+
+function getAudioRecord(element){
+    let id = element.id
+    let media = {
+                  tag: 'audio',
+                  type: 'audio/ogg',
+                  ext: '.ogg',
+                  gUM: {video: false, audio: true}
+                }
+    let v= {
+        id: id,
+        canvas: $("#"+id+"_canvas"),
+        btn_control: $("#"+id+"_btn"),
+        btn_cancel: $("#"+id+"_cancel"),
+        chunks: [],
+        recorder: null,
+        media: media,
+        status: 0,
+        initialize: function(){
+            this.btn_control.on('click', this.callClick(this));
+            this.btn_cancel.on('click', this.callCancel(this));
+            this.btn_cancel.hide();
+            $(window).on('cancelMedia', this.callCancel(this, trigger=true));
+
+        },
+        clickEvent: function(){
+            var parent = this;
+            if(this.status==0){
+                navigator.mediaDevices.getUserMedia(this.media.gUM).then(_stream => {
+                    parent.tracks = _stream.getTracks();
+                    parent.recorder = new MediaRecorder(_stream);
+                    parent.recorder.ondataavailable = e => {
+                    parent.chunks.push(e.data);
+                    if(parent.recorder.state == 'inactive')  parent.save_media();
+                    };
+                }).catch(show_errors_media_record);
+            }else if(this.status==1){
+                this.chunks=[];
+                if(this.recorder) this.recorder.start();
+            }else{
+                if(this.recorder != null && this.recorder.state == 'inactive') this.recorder.stop();
+                this.cancel(true)
+                this.status = -1;
+            }
+            this.status = this.status+1;
+            this.presentbutton();
+        },
+        presentbutton: function(){
+            if(this.status==0){
+                this.btn_cancel.hide();
+                $("#"+this.id+"_btn i").attr('class', 'fa fa-video-camera');
+                $("#"+this.id+"_btn span").text(gettext('Start'));
+                $("#"+this.id+"_container .mediareproductor").remove();
+            }else{
+                this.btn_cancel.show();
+            }
+            if(this.status==1){
+                $("#"+this.id+"_btn i").attr('class', 'fa fa-play');
+                $("#"+this.id+"_btn span").text(gettext('Record'));
+            }
+            if(this.status==2) {
+                $("#"+this.id+"_btn i").attr('class', 'fa fa-pause');
+                $("#"+this.id+"_btn span").text(gettext('Recording...'));
+            }
+        },
+        cancel: function(trigger){
+            this.status=0;
+            if(this.recorder != null && this.recorder.state == 'inactive') this.recorder.stop();
+            if(this.tracks) this.tracks.forEach(track => track.stop());
+            this.btn_cancel.hide();
+            this.presentbutton();
+             if(!trigger)$(window).trigger('cancelMedia');
+
+        },
+
+        callCancel: function(instance, trigger=false){
+            return () => { instance.cancel(trigger) };
+        },
+        callClick: function(instance){
+             return () => { instance.clickEvent() };
+        },
+        save_media:function(){
+            let file = new File(this.chunks, "record"+this.media.ext, {type: this.media.type , lastModified:new Date().getTime()});
+            let container = new DataTransfer();
+            container.items.add(file);
+            $("#"+this.id)[0].files = container.files;
+             let blob = new Blob(this.chunks, {type: this.media.type })
+             let url = URL.createObjectURL(blob)
+             mt = document.createElement(this.media.tag)
+             mt.controls = true;
+             mt.src = url;
+             mt.className = "mediareproductor"
+             $("#"+this.id+"_container").append(mt);
+        }
+    }
+
+    v.initialize()
+    return v;
+}
+
+
+
+function getMediaRecord(element, mediatype){
+    if(mediatype=='photo'){
+        return getPhotoRecord(element);
+    }
+    if(mediatype=='video'){
+        return getVideoRecord(element);
+    }
+    if(mediatype === "audio"){
+        return getAudioRecord(element)
+    }
+}
+

@@ -12,29 +12,31 @@
     <div class="col-sm-12 col-md-12">
         <div class="card">
             <div class="card-body">
-            <div class="card-title titles">
-                <h2>Tinymce Editor</h2>
-                <ul class="nav navbar-right d-flex flex-row-reverse" style="margin-top:-40px">
-                    <li><a href="{% url 'tinymce-add' %}" class="collapse-link"><i class="fa fa-plus green"
-                                                                                 style="font-size: 2em"></i></a>
-                    </li>
+                <div class="card-title titles">
+                    <h2>Tinymce Editor</h2>
+                    <ul class="nav navbar-right d-flex flex-row-reverse" style="margin-top:-40px">
+                        <li><a href="{% url 'tinymce-add' %}" class="collapse-link"><i class="fa fa-plus green"
+                                                                                       style="font-size: 2em"></i></a>
+                        </li>
 
-                </ul>
-                <div class="clearfix"></div>
-            </div>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
 
                 <div>
                     <ul class="to_do">
                         {% for obj in object_list %}
-                            <li>
-                                {{obj.id}} 
-                                <a class="btn btn-xs btn-info pull-right" href="{% url 'tinymce-edit' obj.pk %}">
+                        <li class="d-flex">
+                            <div class="p-2 flex-fill"> {{obj.id}} </div>
+                            <div class="p-2 flex-fill">
+
+                                <a class="btn btn-sm btn-outline-warning float-end" href="{% url 'tinymce-edit' obj.pk %}">
                                     <i class="fa fa-edit"></i>
-                                </a>
-                                <a class="btn btn-xs btn-info pull-right" href="{% url 'tinymce-show' obj.pk %}">
-                                    <i class="fa fa-eye"></i>
-                                </a>
-                            </li>
+                                    <a class="btn btn-sm btn-outline-success float-end" href="{% url 'tinymce-show' obj.pk %}">
+                                        <i class="fa fa-eye"></i>
+                                    </a>
+                            </div>
+                        </li>
                         {% endfor %}
                     </ul>
                 </div>

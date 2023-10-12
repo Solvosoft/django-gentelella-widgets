@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('demoapp', '0011_wysiwygmodel_extra_information'),
         ('demoapp', '0011_merge_20201016_1813'),

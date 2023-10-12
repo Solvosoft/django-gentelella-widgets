@@ -1,7 +1,9 @@
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-from selenium.webdriver.chrome.webdriver import WebDriver
 from django.urls import reverse
 from selenium.webdriver.common.by import By
+# from selenium.webdriver.chrome.webdriver import WebDriver
+from selenium.webdriver.firefox.webdriver import WebDriver
+
 
 class StorylineWidgetSeleniumTest(StaticLiveServerTestCase):
 
@@ -25,7 +27,7 @@ class StorylineWidgetSeleniumTest(StaticLiveServerTestCase):
         url = self.live_server_url + str(reverse('timeline_view'))
         self.selenium.get(url)
         timeline = self.selenium.find_element(By.CLASS_NAME, 'tl-timeline')
-        #storyline = self.selenium.find_element_by_class_name()
+        # storyline = self.selenium.find_element_by_class_name()
         # deprecated, change to find element(by='class_name', value= "")
 
         self.assertNotEqual(timeline, None)

@@ -73,13 +73,10 @@ class EventSerializer(serializers.Serializer):
         if data:
             if date_values.issubset(set(data.keys())):
                 if data['start'] > data['end']:
-                    raise serializers.ValidationError("Event end date must occur after start date")
+                    raise serializers.ValidationError(
+                        "Event end date must occur after start date")
             if time_values.issubset(set(data.keys())):
                 if data['startTime'] > data['endTime']:
-                    raise serializers.ValidationError("Event end date must occur after start date")
+                    raise serializers.ValidationError(
+                        "Event end date must occur after start date")
         return data
-
-
-
-
-

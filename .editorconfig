@@ -1,0 +1,63 @@
+# https://editorconfig.org/
+
+root = true
+
+[*]
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+end_of_line = lf
+charset = utf-8
+
+# Docstrings and comments use max_line_length = 79
+[*.py]
+max_line_length = 88
+
+# Use 2 spaces for the HTML files
+[*.html]
+indent_style = tab
+indent_size = 2
+tab_width = 1
+html_alignment_tab_fill_style = optimal_fill
+html_spaces_around_eq_in_pi_attribute = false
+html_space_after_last_pi_attribute = true
+html_blank_line_after_pi = false
+html_spaces_around_eq_in_attribute = false
+html_space_after_last_attribute = true
+space_before_self_closing = true
+html_attribute_indent = align_by_first_attribute
+html_linebreak_before_all_elements = true
+html_linebreaks_inside_tags_for_elements_with_child_elements = true
+html_extra_spaces = remove_all
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+# The JSON files contain newlines inconsistently
+[*.json]
+indent_style                = space
+indent_size                 = 2
+insert_final_newline = true
+
+
+# Minified JavaScript files shouldn't be changed
+[**.min.js]
+max_line_length = off
+indent_size = unset
+indent_style = unset
+charset = unset
+insert_final_newline = unset
+
+# Makefiles always use tabs for indentation
+[Makefile]
+indent_style = tab
+
+# Batch files use tabs for indentation
+[*.bat]
+indent_style = tab
+
+[docs/**.txt]
+max_line_length = 79
+
+[*.yml]
+indent_size = 2

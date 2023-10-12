@@ -1,12 +1,14 @@
 from django import forms
 from django.db import models
 
+
 class GTForeignKey(models.ForeignKey):
 
     def __init__(self, *args, **kwargs):
         self.key_name = kwargs.pop('key_name') if 'key_name' in kwargs else None
         self.key_value = kwargs.pop('key_value') if 'key_value' in kwargs else None
-        self.extra_filters = kwargs.pop('extra_filters') if 'extra_filters' in kwargs else {}
+        self.extra_filters = kwargs.pop(
+            'extra_filters') if 'extra_filters' in kwargs else {}
         return super().__init__(*args, **kwargs)
 
     def formfield(self, *, using=None, **kwargs):
@@ -18,7 +20,7 @@ class GTForeignKey(models.ForeignKey):
         queryset = self.remote_field.model._default_manager.using(using)
         if self.key_name:
             queryset = queryset.filter(**{
-                self.key_name:self.key_value,
+                self.key_name: self.key_value,
                 **self.extra_filters
             })
         return super().formfield(**{
@@ -28,25 +30,27 @@ class GTForeignKey(models.ForeignKey):
             **kwargs,
         })
 
+
 class GTOneToOneField(GTForeignKey, models.OneToOneField):
     pass
+
 
 class GTManyToManyField(models.ManyToManyField):
 
     def __init__(self, *args, **kwargs):
         self.key_name = kwargs.pop('key_name') if 'key_name' in kwargs else None
         self.key_value = kwargs.pop('key_value') if 'key_value' in kwargs else None
-        self.extra_filters = kwargs.pop('extra_filters') if 'extra_filters' in kwargs else {}
+        self.extra_filters = kwargs.pop(
+            'extra_filters') if 'extra_filters' in kwargs else {}
 
         return super().__init__(*args, **kwargs)
-
 
     def formfield(self, *, using=None, **kwargs):
 
         queryset = self.remote_field.model._default_manager.using(using)
         if self.key_name:
             queryset = queryset.filter(**{
-                self.key_name:self.key_value,
+                self.key_name: self.key_value,
                 **self.extra_filters
             })
         defaults = {
