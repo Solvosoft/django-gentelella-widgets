@@ -18,6 +18,8 @@ from django.urls import reverse_lazy
 from django.utils import formats
 from django.utils.translation import gettext as _
 
+from djgentelella.models import ChunkedUpload
+
 
 def update_kwargs(attrs, widget, base_class='form-control '):
     if attrs is not None:
@@ -182,6 +184,22 @@ class FileInput(DJFileInput):
         if 'data-done' not in attrs:
             attrs['data-done'] = reverse_lazy('upload_file_done')
         super().__init__(attrs)
+
+    def format_value(self, value):
+        """File input never renders a value."""
+        return
+
+    def value_from_datadict(self, data, files, name):
+        dev = None
+        token = data.get(name)
+        tmpupload = ChunkedUpload.objects.filter(upload_id=token).first()
+        if tmpupload:
+            dev = tmpupload.get_uploaded_file()
+            tmpupload.delete()
+        return dev
+
+    def value_omitted_from_data(self, data, files, name):
+        return name not in data
 
 
 class ImageRecordInput(DJFileInput):

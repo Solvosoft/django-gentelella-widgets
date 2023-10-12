@@ -360,7 +360,8 @@ $.fn.fileuploadwidget = function(){
 
     $.each($(this), function(i, e){
             var $this=$(e);
-            var $parentdiv=$this.closest('.input-group');
+            var $parentdiv=$this.closest('.fileupload');
+            var input_token=$this.data('inputtoken');
             var obj={
                     parentdiv: $this.closest('.input-group'),
                     upload_url: $this.data('href'),
@@ -370,28 +371,94 @@ $.fn.fileuploadwidget = function(){
                     div_download: $parentdiv.find("#download_"+$this.data('inputtoken') ),
                     div_remove: $parentdiv.find("#remove_"+$this.data('inputtoken') ),
                     url_done: $this.data('done'),
-                    input_token: $this.data('inputtoken'),
+                    current_icon: 'eyes',
+                    input_token: input_token,
+                    input_field: $parentdiv.find('input[name="'+input_token+'"]'),
+                    default_value: "",
                     fileshow: $parentdiv.find('.fileshow'),
                     uploadfilecontent: $parentdiv.find('.uploadfilecontent'),
                     removecheck: $this.closest('.fileupload').find('input[data-widget="CheckboxInput"]'),
+                    change_fn: function(e){
+                        var parent=e;
+                        return function(event){
+                            let current_value=parent.input_field.val();
+                            if(current_value.length==0){
+                                current_value=parent.default_value;
+                            }
+                            let data = JSON.parse(current_value);
+                            parent.render_widget_data(data);
+                        }
+                    },
+                    icon_action_toggle: function(){
+                        if(this.current_icon==='eyes'){
+                            this.show_upload();
+                        }else{
+                            this.show_eyes();
+                        }
+                    },
+                    show_eyes:function(){
+                        this.current_icon='eyes';
+                        this.change_icon_file_show('fa fa-eye');
+                    },
+                    show_upload: function(){
+                        this.current_icon='upload';
+                        this.change_icon_file_show('fa fa-cloud-upload');
+                    },
+                    render_widget_data: function(data){
+                        var parent=this;
+                        if("token" in data ){
+                            //data.display_name
+                            parent.uploadfilecontent.hide();
+                            parent.div_download.hide();
+                            parent.div_remove.hide();
+                            parent.div_message.show();
+                            parent.div_message.html(data.display_name);
+                            parent.show_upload();
+                        }else if ("url" in data){
+                            parent.div_download.show();
+                            parent.div_remove.show();
+                            parent.div_message.show();
+                            parent.uploadfilecontent.hide();
+                            parent.div_download.find('a')[0].href=data.url;
+                            parent.div_message.html(data.display_name);
+                            parent.show_upload();
+                        }else{
+                            parent.div_download.hide();
+                            parent.div_remove.hide();
+                            parent.uploadfilecontent.show();
+                            parent.div_message.hide();
+                            parent.show_eyes();
+                        }
+                    },
+                    change_icon_file_show: function(touseclass){
+                        this.fileshow.find('i').removeClass();
+                        this.fileshow.find('i').addClass(touseclass);
+                    },
                     init: function(){
                         $this.attr("required", false);
                         this.div_message.hide();
+                        this.div_remove.hide();
                         var parent=this;
                         this.fileshow.on('click', function(){
                             parent.uploadfilecontent.toggle();
                             parent.div_message.toggle();
+                            parent.icon_action_toggle();
                        });
+                       this.input_field[0].onchange=this.change_fn(this);
+                       this.default_value=this.input_field.val();
+                       if(this.default_value !== ""){
+                            this.input_field.trigger('change');
+                       }
                        this.removecheck.on('ifToggled', function(event){
+                           let current_data=JSON.parse(parent.input_field.val());
                            if(this.checked){
-                                parent.parentdiv.find('input[name="'+parent.input_token+'"]').val("0");
+                                current_data['actions']="delete";
                            }else{
-                             if( parent.parentdiv.find('input[name="'+parent.input_token+'"]').val() == "0"){
-                                parent.parentdiv.find('input[name="'+parent.input_token+'"]').val("");
-                             }
+                            if('actions' in current_data) delete current_data.actions;
                            }
+                           parent.input_field.val(JSON.stringify(current_data));
                        });
-                            $this.fileupload({
+                       $this.fileupload({
                                   url: parent.upload_url,
                                   dataType: "json",
                                   maxChunkSize: 100000, // Chunks of 100 kB
@@ -420,7 +487,10 @@ $.fn.fileuploadwidget = function(){
                                     parent.div_process.text(  progress + "%");
                                   }
                                 }).bind('fileuploaddone', function (e, data) {
-                                        parent.parentdiv.find('input[name="'+parent.input_token+'"]').val(data.result.upload_id);
+                                        parent.input_field.val(JSON.stringify(
+                                        {'token': data.result.upload_id,
+                                        'display_name': data.files[0].name }));
+                                        parent.input_field.trigger('change');
                                         $.ajax({
                                               type: "POST",
                                               url: parent.url_done,
@@ -442,7 +512,7 @@ $.fn.fileuploadwidget = function(){
                                             'error'
                                             );
                                    });
-                                },
+                       },
                     resetEmpty: function(){
                         this.div_message.html("");
                         this.div_message.hide();
