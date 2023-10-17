@@ -1,4 +1,5 @@
 import json
+from logging import getLogger
 from pathlib import Path
 
 from django.forms import FileInput
@@ -7,6 +8,8 @@ from django.utils.safestring import mark_safe
 
 from djgentelella.models import ChunkedUpload
 from djgentelella.widgets.core import update_kwargs
+
+logger = getLogger('djgentelella')
 
 
 class FileChunkedUpload(FileInput):
@@ -42,8 +45,8 @@ class FileChunkedUpload(FileInput):
             dev = json.loads(value)
             if not ('url' in dev or 'token' in dev or 'actions' in dev):
                 dev = None
-        except Exception as e:
-            pass
+        except json.JSONDecodeError as e:
+            logger.warning("Json error parsing: " + repr(value))
         return dev
 
     def value_from_datadict(self, data, files, name):
