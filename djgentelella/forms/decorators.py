@@ -1,5 +1,5 @@
 from djgentelella.fields import tree
-from djgentelella.forms.forms import CustomForm
+from djgentelella.forms.forms import GTForm
 from djgentelella.widgets import core
 from djgentelella.widgets import trees
 
@@ -55,8 +55,8 @@ def decore_form_instance(form_instance, exclude=()):
             widget = get_field_widget(form_instance.fields[field])
             if widget:
                 form_instance.fields[field].widget = widget
-    for method in CustomForm.exposed_method:
+    for method in GTForm.exposed_method:
         setattr(form_instance, method,
-                _form_instance(getattr(CustomForm, method), form_instance))
+                _form_instance(getattr(GTForm, method), form_instance))
     form_instance.is_customized = True
     return form_instance

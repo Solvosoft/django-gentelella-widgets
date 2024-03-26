@@ -1,12 +1,12 @@
 from django import forms
 
 from demoapp import models
-from djgentelella.forms.forms import CustomForm
+from djgentelella.forms.forms import GTForm
 from djgentelella.widgets.core import TextInput
 from djgentelella.widgets.selects import AutocompleteSelect, AutocompleteSelectMultiple
 
 
-class PeopleGroupForm(CustomForm, forms.ModelForm):
+class PeopleGroupForm(GTForm, forms.ModelForm):
     class Meta:
         model = models.PeopleGroup
         fields = '__all__'
@@ -20,7 +20,7 @@ class PeopleGroupForm(CustomForm, forms.ModelForm):
         }
 
 
-class ABCDEGroupForm(CustomForm, forms.ModelForm):
+class ABCDEGroupForm(GTForm, forms.ModelForm):
     class Meta:
         model = models.ABCDE
         fields = '__all__'
@@ -53,7 +53,7 @@ class ABCDEGroupForm(CustomForm, forms.ModelForm):
         }
 
 
-class ABCDEModalGroupForm(CustomForm, forms.ModelForm):
+class ABCDEModalGroupForm(GTForm, forms.ModelForm):
     class Meta:
         model = models.ABCDE
         fields = '__all__'

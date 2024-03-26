@@ -54,8 +54,13 @@ $.fn.fileuploadwidget = function(){
                             if(current_value.length==0){
                                 current_value=parent.default_value;
                             }
-                            let data = JSON.parse(current_value);
-                            parent.render_widget_data(data);
+                            try{
+                                let data = JSON.parse(current_value);
+                                parent.render_widget_data(data);
+                            }catch(e) {
+                                // do nothing
+                            }
+
                         }
                     },
                     icon_action_toggle: function(){
