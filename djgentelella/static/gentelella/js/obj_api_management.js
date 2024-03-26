@@ -278,6 +278,7 @@ function GTBaseFormModal(modal_id, datatable_element,  form_config)  {
                       if(datainstance[e]){
                         if(Array.isArray(datainstance[e])){
                             for(var x=0; x<datainstance[e].length; x++){
+                                $('#id_'+instance.prefix+e+' option[value="'+datainstance[e][x]['id']+'"]').remove();
                                 var newOption = new Option(datainstance[e][x][display_name_key], datainstance[e][x]['id'], true, true);
                                 $('#id_'+instance.prefix+e).append(newOption);
                             }

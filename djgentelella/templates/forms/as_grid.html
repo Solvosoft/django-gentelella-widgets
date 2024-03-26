@@ -1,0 +1,39 @@
+{% if errors %}
+<div class="alert alert-warning d-flex align-items-center" role="alert">
+	<svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Warning:">
+		<use xlink:href="#exclamation-triangle-fill"/>
+	</svg>
+	<div>
+		{{ errors }}
+		{% if not fields %}
+		{% for field in hidden_fields %}{{ field }}{% endfor %}
+		{% endif %}
+	</div>
+</div>
+
+{% endif %}
+{% for column in form.grid %}
+<div class="row">{% for row in column %}
+	<div class="col">{% for field in row %}
+		<div {% with classes=field.css_classes %}{% if classes %} class="{{ classes }}" {% else %} class="mb-3" {% endif %}
+							{% endwith %}>
+			{{ errors }}
+			{% if field.label %}{{ field.label_tag }}{% endif %}
+			{{ field }}
+			{% if field.help_text %}
+			<div class="feedback text-info" {% if field.auto_id %} id="{{ field.auto_id }}_helptext" {% endif %}>
+				{{ field.help_text|safe }}
+			</div>
+			{% endif %}
+		</div>
+		{% endfor %}
+	</div>
+	{% endfor %}
+	{% if forloop.last %}
+	{% for field in hidden_fields %}{{ field }}{% endfor %}
+	{% endif %}
+</div>{% endfor %}
+
+{% if not fields and not errors %}
+{% for field in hidden_fields %}{{ field }}{% endfor %}
+{% endif %}
