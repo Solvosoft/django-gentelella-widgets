@@ -7,7 +7,32 @@ from django.utils.safestring import mark_safe
 
 class GTForm(forms.Form):
     """
-    Append the next render methods to forms
+    GTForm is the basis of form management, it does the work of django `forms.Form`, including enhancements and boostrap rendering, so it should be inherited from this form, rather than `forms.Form`.
+
+    Example of use:
+
+    .. code:: python
+
+         from djgentelella.forms.forms import GTForm
+         class MyForm(GTForm):
+              myfield = forms.TextField()
+
+    Using with forms.ModelForm
+
+    .. code:: python
+
+         from djgentelella.forms.forms import GTForm
+         class MyForm(GTForm, forms.ModelForm):
+              myfield = forms.TextField()
+              class Meta:
+                model = MyModel
+
+    Creating an instance and specify how render it.
+
+    .. code:: python
+
+        myform = myGTForm(render_type='as_inline', ... )
+
     """
     exposed_method = ('as_plain', 'as_inline', 'as_horizontal')
     default_render_type = None
@@ -47,10 +72,15 @@ class GTForm(forms.Form):
     @property
     def grid(self):
         """
-        [
-            [ [],[], [] ],
-            [ [], [] ],
-        ]
+        Example of return structure:
+
+        .. code:: python
+
+            [
+                [ [forms.Field],[], [] ],
+                [ [], [] ],
+            ]
+
         """
         fields = []
         dic_fields = {}
@@ -77,7 +107,7 @@ class GTForm(forms.Form):
         return [[fields]]
 
     def as_plain(self):
-        "Returns this form rendered as HTML <tr>s -- excluding the <table></table>."
+        "Returns this form rendered as HTML using as_plain bootstrap approach."
         if hasattr(self, '_html_output'):
             return self._html_output(
                 normal_row='<div class="as_plain"><div %(html_class_attr)s ' +
@@ -89,7 +119,7 @@ class GTForm(forms.Form):
         return self.render(self.template_name_plain)
 
     def as_inline(self):
-        "Return this form rendered as HTML <tr>s -- excluding the <table></table>."
+        "Return this form rendered as HTML using as_inline bootstrap approach."
         if hasattr(self, '_html_output'):
             return self._html_output(
                 normal_row='<div class="mb-4"><span class="">%(label)s</span>' +
@@ -102,7 +132,7 @@ class GTForm(forms.Form):
         return self.render(self.template_name_inline)
 
     def as_horizontal(self):
-        "Return this form rendered as HTML <tr>s -- excluding the <table></table>."
+        "Return this form rendered as HTML using as_horizontal bootstrap approach."
         if hasattr(self, '_html_output'):
             return self._html_output(
                 normal_row='<div class="form-group row"><span class="col-sm-3">' +
@@ -116,6 +146,19 @@ class GTForm(forms.Form):
         return self.render(self.template_name_horizontal)
 
     def as_grid(self):
+        """
+        Allow you to arrange the form fields in rows and cols,
+        When you use this render needs to fill  `grid_representation` attribute in your form
+        Return this form rendered as HTML using grid bootstrap approach.,
+
+        .. code:: python
+
+            grid_representation=[
+                [ ['key'],[], [] ],
+                [ [], [] ],
+            ]
+
+        """
         return self.render(self.template_name_grid)
 
     def closediv(self):
@@ -137,6 +180,11 @@ class BaseFormset:
 
 
 class GTFormSet(BaseFormSet, BaseFormset):
+    """
+    This class Allow to manage FormSet using GTForm and Widgets,
+    provide an implementation to integrate with django formset system.
+    """
+
     ordering_widget = HiddenInput
 
     def add_fields(self, form, index):
