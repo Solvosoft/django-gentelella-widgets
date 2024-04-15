@@ -181,12 +181,12 @@ function objshowlink(data, type, row, meta){ return data ? '<a href="'+data.url+
 function objnode(data, type, row, meta){ return data ? '<'+data.tagName+' href="'+data.url+'" '+data.extraattr+' class="'+(data.class!=undefined ? data.class : 'link')+'"> '+data.display_name+ '</'+data.tagName+'>': ''; };
 function objShowBool(data, type, row, meta){ return data ? '<i class="fa fa-check-circle" title="' + data + '">': '<i class="fa fa-times-circle" title="' +  data + '">'; };
 
-document.table_default_dom = "<'row mb-3'<'col-sm-12 col-md-12 mb-1 d-flex align-items-center justify-content-center'f>" +
-                 "<'col-sm-6 col-md-6 mt-1 d-flex align-items-center justify-content-start'B>" +
-                 "<'col-sm-6 col-md-6 mt-1 d-flex align-items-center 'l>>" +
+document.table_default_dom = "<'row mb-1'<'col-sm-4 col-md-4 d-flex align-items-center justify-content-start'f>" +
+                 "<'col-sm-4 col-md-4 d-flex align-items-center justify-content-center'B>" +
+                 "<'col-sm-3 col-md-3 d-flex align-items-center justify-content-end 'l>>" +
                  "<'row'<'col-sm-12'tr>><'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>";
 
-
+$.fn.dataTable.Buttons.defaults.dom.button.className="btn btn-sm";
 
 function gtCreateDataTable(id, url, table_options={}){
     const options = Object.assign({}, {
@@ -215,7 +215,7 @@ function gtCreateDataTable(id, url, table_options={}){
                 action: function ( e, dt, node, config ) {clearDataTableFilters(dt, id)},
                 text: '<i class="fa fa-eraser" aria-hidden="true"></i>',
                 titleAttr: gettext('Clear Filters'),
-                className: 'btn-sm mr-4'
+                className: 'btn-outline-secondary mr-4'
             },
         ],
         ajax: {

@@ -504,7 +504,8 @@ function ObjectCRUD(uniqueid, objconfig={}){
         relation_render: {},
         headers: {'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json'},
         btn_class: {
-            create: 'btn-sm mr-4'
+            create: 'btn-outline-success mr-4',
+            clear_filters: 'btn-outline-secondary mr-4'
         },
         icons: {
             create: '<i class="fa fa-plus" aria-hidden="true"></i>',
@@ -620,7 +621,7 @@ function ObjectCRUD(uniqueid, objconfig={}){
                     action: this.create(this),
                     text: this.config.icons.create,
                     titleAttr: gettext('Create'),
-                    className: this.config.create
+                    className: this.config.btn_class.create
                 })
             }
             if(this.can_list){
@@ -628,7 +629,7 @@ function ObjectCRUD(uniqueid, objconfig={}){
                 action: function ( e, dt, node, config ) {clearDataTableFilters(dt, instance.config.datatable_element)},
                 text: this.config.icons.clear,
                 titleAttr: gettext('Clear Filters'),
-                className: this.header_btn_class
+                className: this.config.btn_class.clear_filters
              })
             }
             if(!config.datatable_inits.hasOwnProperty("buttons")){
@@ -639,6 +640,7 @@ function ObjectCRUD(uniqueid, objconfig={}){
                     {
                      'name': "detail",
                      'action': 'detail',
+                     'title': gettext('Detail'),
                      'url': null,
                      'i_class': this.config.icons.detail,
                     }
@@ -649,6 +651,7 @@ function ObjectCRUD(uniqueid, objconfig={}){
                     {
                      'name': "update",
                      'action': 'update',
+                     'title': gettext("Update"),
                      'url': null,
                      'i_class': this.config.icons.update,
                     }
@@ -659,6 +662,7 @@ function ObjectCRUD(uniqueid, objconfig={}){
                     {
                      'name': 'destroy',
                      'action': 'destroy',
+                     'title': gettext('Delete'),
                      'url': null,
                      'i_class': this.config.icons.destroy,
                     }
@@ -692,6 +696,7 @@ function ObjectCRUD(uniqueid, objconfig={}){
                                   if(display_in_column){
                                      let params = "'"+instance.uniqueid+"', '"+action.name+"', "+meta.row;
                                      edittext += '<i onclick="javascript:call_obj_crud_event('+params+');"';
+                                     edittext += 'title="'+action.title+'"';
                                      edittext += ' class="'+instance.object_actions[x].i_class+'" ></i>';
                                   }
                               }
@@ -762,7 +767,7 @@ function ObjectCRUD(uniqueid, objconfig={}){
                     }
                 ).then(response_manage_type_data(instance, error_fn, instance.error_text))
                 .then(instance.success(instance))
-                .catch(instance.error(instance));
+                .catch(error => instance.handle_error(instance, error));
             }
         },
         'retrieve_data': function(url, method, success){
