@@ -184,6 +184,7 @@ in the actions column so you must called in another column.
       {
         'name': "mycustomaction",  // Action identification, must be unique
         'action': 'mycustomaction', // Name of the function to call to process the action.
+        'title': 'Human descriptor', // Tittle display when mouse is over
         'in_action_column': false, // The action must be displayed in the actions column
         'i_class': 'fa fa-plus', // clase a utilizar para el ícono de la acción.
       }
@@ -209,6 +210,7 @@ Additionally, if you don't want to provide a function and instead prefer to make
         'in_action_column': false, // The action must be displayed in the actions column
         'i_class': 'fa fa-plus', // clase a utilizar para el ícono de la acción.
         'method': 'POST',
+        'title': ''  // Display when mouse is over the icon
         'data_fn': function(data){ return data; }, // Preprocess data before send to server, it's required return data
         'error_fn' function(errors) {} // Optional manage the form errors if exists
       }

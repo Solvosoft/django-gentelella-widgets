@@ -58,12 +58,12 @@
 								{data: "name", name: "name", title: gettext("Name"), type: "string", visible: true},
 								{data: "last_time", name: "last_time", title: gettext("Last Time"), type: "date",  render: DataTable.render.datetime(),
 								"dateformat":  document.datetime_format, visible: true},
-								{data: "born_date", name: "born_date", title: gettext("Born date"), type: "date",  render: DataTable.render.date(),
+								{data: "born_date", name: "born_date", title: gettext("Born Date"), type: "date",  render: DataTable.render.date(),
 								"dateformat":  document.date_format, visible: true},
 								{data: "field_autocomplete", name: "field_autocomplete", title: "Autocomplete", type: "select2", visible: true,
 								url: "{% url 'countrybasename-list' %}", render: selectobjprint({display_name: "text"}) },
-								{data: "float_number", name: "float_number", title: gettext("Float number"), type: "string", visible: true },
-								{data: "m2m_autocomplete", name: "m2m_autocomplete", title: gettext("M2M autocomplete"), type: "select2", visible: true,
+								{data: "float_number", name: "float_number", title: gettext("Float Number"), type: "string", visible: true },
+								{data: "m2m_autocomplete", name: "m2m_autocomplete", title: gettext("M2M Autocomplete"), type: "select2", visible: true,
 								 url: "{% url 'countrybasename-list' %}", multiple: true, render: gt_print_list_object("text")},
 								{data: "actions", name: "actions", title: gettext("Actions"), type: "string", visible: true }
 

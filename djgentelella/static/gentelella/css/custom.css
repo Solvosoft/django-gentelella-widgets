@@ -1454,11 +1454,7 @@ td.details {
 .example_alt_pagination div.dataTables_info {
     width: 40%
 }
-.paging_full_numbers {
-    width: 400px;
-    height: 22px;
-    line-height: 22px
-}
+
 .paging_full_numbers a:active {
     outline: none
 }
@@ -4651,4 +4647,9 @@ input-group > .custom-file {
     height: calc(1.47em + 1rem + 2px);
     margin: 0;
     opacity: 0;
+}
+
+.no-export-col i {
+    margin: 0em 1.2em;
+    font-size: 1.3em;
 }
