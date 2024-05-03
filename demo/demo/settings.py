@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'djgentelella.blog',
     'djgentelella.permission_management',
     'markitup',
+    'djgentelella.reservation',
 
 ]
 
@@ -52,6 +53,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'djgentelella.reservation.middleware.ReservationMiddleware',
 ]
 
 ROOT_URLCONF = 'demo.urls'

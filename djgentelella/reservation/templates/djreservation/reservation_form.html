@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% load static i18n %}
+
+{% block css%} 
+  <link rel="stylesheet" type="text/css" media="screen"
+     href="{% static 'css/bootstrap-datetimepicker.min.css' %}">
+<link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" 
+rel="stylesheet">
+
+ <style>
+ .bootstrap-datetimepicker-widget{
+ 	min-width: 250px;
+ 	width: 270px;
+ }
+ </style>
+ 
+{%endblock%}
+
+
+{% block content %}
+
+{% block content_title%}
+<h1> {% trans "Creating a reservation"%} </h1>
+
+{% endblock %}
+{{form.errors}}
+<form class="form-horizontal" method="post">
+{% csrf_token %} 
+
+{% block form_start %}{% endblock %}	
+	
+<div class="form-group">
+	{{ form.reserved_start_date.errors }}
+	<label id="{{ form.reserved_start_date.id_label_tag }}" class="col-sm-2 control-label" > {% trans 'Reservation start date' %} </label>
+<div id="dtp_reserved_start_date" class="input-append date">
+	<div class="col-sm-2">							
+	      {{ form.reserved_start_date }}
+    </div>
+
+	<div class="col-sm-2">
+		 <span class="add-on">
+	        <i  class="glyphicon glyphicon-calendar"  aria-hidden="true" data-time-icon="icon-time" data-date-icon="icon-calendar"></i>
+	      </span>
+	</div>
+</div>
+</div>
+	
+
+<div class="form-group">
+	{{ form.reserved_end_date.errors }}
+	<label id="{{ form.reserved_end_date.id_label_tag }}" class="col-sm-2 control-label" > {% trans 'Reservation end date' %} </label>
+<div id="dtp_reserved_end_date" class="input-append date">
+	<div class="col-sm-2">							
+	      {{ form.reserved_end_date }}
+    </div>
+
+	<div class="col-sm-2">
+		 <span class="add-on">
+	        <i  class="glyphicon glyphicon-calendar"  aria-hidden="true" data-time-icon="icon-time" data-date-icon="icon-calendar"></i>
+	      </span>
+	</div>
+</div>
+</div>
+{% block form_end %}{% endblock %}	
+	
+<button type="submit" class="btn btn-default">{% trans 'Submit' %}</button>
+</form>
+
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript"
+     src="{% static 'js/bootstrap-datetimepicker.min.js' %}">
+    </script>
+    
+        <script type="text/javascript">
+	      rsd= $('#dtp_reserved_start_date').datetimepicker({
+	        format: 'MM/dd/yyyy hh:mm',
+	        autoclose: true
+	      });
+	      rd= $('#dtp_reserved_end_date').datetimepicker({
+	        format: 'MM/dd/yyyy hh:mm',
+	        autoclose: true
+	      });
+</script>
+    
+{% endblock %}
