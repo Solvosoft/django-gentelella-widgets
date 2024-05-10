@@ -9,7 +9,7 @@
     <div class="panel-heading" role="tab" id="headingOne">
       <h4 class="panel-title">
         <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse{{reservation.pk}}" aria-expanded="true" aria-controls="collapse{{reservation.pk}}">
- {{reservation}}         
+ {{reservation}}
         </a>
       </h4>
     </div>
@@ -18,7 +18,7 @@
       	<ul class="list-group">
       		{% for product in reservation.product_set.all%}
       			<li class="list-group-item">{{product}}
-{% if product.borrowed %}      				
+{% if product.borrowed %}
 <a href="#" style="position: absolute;right: 15px;" >
   <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
 </a>
@@ -26,13 +26,13 @@
 <a href="#" style="position: absolute;right: 15px;" >
   <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
 </a>
-{% endif %}	
+{% endif %}
 </li>
 		{% endfor%}
 </ul>
 
 {% if reservation.observation_set.count %}
-<div class="alert alert-info">
+<div class="alert alert-info" role="alert">
 	<h2> {% trans 'Observations' %}</h2>
 	{% for observation in reservation.observation_set.all %}
 		{{observation.text}}
@@ -45,7 +45,7 @@
   </div>
 
 	{% empty %}
-		 <h2> {% trans 'No reservations saved yet' %}</h2>
+		 <h2 class="text-center title"> {% trans 'No reservations saved yet' %}</h2>
 	{% endfor %}
 </div>
 
@@ -58,11 +58,11 @@
 				<a href="?page={{ page_obj.previous_page_number }}">{% trans 'Previous' %}</a>
 			</li>
 			{% endif %}
-	
+
 			<li>
 				{% trans 'Page' %} {{ page_obj.number }} -- {{ page_obj.paginator.num_pages }}.
 			</li>
-	
+
 			{% if page_obj.has_next %}
 			<li>
 				<a href="?page={{ page_obj.next_page_number }}">{% trans 'Next' %}</a>
