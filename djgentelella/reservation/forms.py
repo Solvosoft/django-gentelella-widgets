@@ -12,6 +12,8 @@ from django import forms
 from django.utils.translation import gettext_lazy as _
 
 from .models import Product, Reservation
+from ..widgets.core import DateTimeInput
+
 
 
 class ReservationForm(forms.ModelForm):
@@ -26,7 +28,12 @@ class ReservationForm(forms.ModelForm):
     class Meta:
         model = Reservation
         fields = '__all__'
+        widgets = {
+            "reserved_start_date": DateTimeInput,
+            "reserved_end_date": DateTimeInput,
+        }
         exclude = ['user', 'status']
+
 
 
 class ProductForm(forms.ModelForm):
