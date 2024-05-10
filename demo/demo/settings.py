@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+from django.conf import settings
+from datetime import datetime
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -61,7 +63,7 @@ ROOT_URLCONF = 'demo.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'demo/templates/')],
+        'DIRS': [os.path.join(BASE_DIR, 'demo/templates/', 'djgentelella/reservation/templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -140,3 +142,19 @@ DEFAULT_JS_IMPORTS = {
     'use_readonlywidgets': True,
     'use_flags': True
 }
+
+TOKENIZE = getattr(settings, 'DJRESERVATION_TOKENIZE', False)
+
+START_RESERVATION_DATETIME = getattr(
+    settings, 'DJRESERVATION_START_RESERVATION_DATETIME', None)
+
+END_RESERVATION_DATETIME = getattr(
+    settings, 'DJRESERVATION_END_RESERVATION_DATETIME', None)
+
+if START_RESERVATION_DATETIME:
+    START_RESERVATION_DATETIME = datetime.strptime(
+        START_RESERVATION_DATETIME, '%d/%m/%Y %H:%M')
+
+if END_RESERVATION_DATETIME:
+    END_RESERVATION_DATETIME = datetime.strptime(
+        END_RESERVATION_DATETIME, '%d/%m/%Y %H:%M')
