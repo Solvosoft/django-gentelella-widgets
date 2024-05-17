@@ -12,9 +12,12 @@ from django import forms
 from django.utils.translation import gettext_lazy as _
 
 from .models import Product, Reservation
+from ..forms.forms import GTForm
+from ..widgets.core import DateTimeInput
 
 
-class ReservationForm(forms.ModelForm):
+
+class ReservationForm(forms.ModelForm, GTForm):
 
     def clean(self):
         if hasattr(self, 'request'):
@@ -26,10 +29,15 @@ class ReservationForm(forms.ModelForm):
     class Meta:
         model = Reservation
         fields = '__all__'
+        widgets = {
+            "reserved_start_date": DateTimeInput,
+            "reserved_end_date": DateTimeInput,
+        }
         exclude = ['user', 'status']
 
 
-class ProductForm(forms.ModelForm):
+
+class ProductForm(forms.ModelForm, GTForm):
     model_instance = forms.CharField(widget=forms.HiddenInput)
     available_amount = forms.FloatField(widget=forms.HiddenInput)
 

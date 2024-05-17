@@ -1,6 +1,9 @@
 from django.shortcuts import render, get_object_or_404,\
     redirect
 from django.views.generic.edit import CreateView
+from rest_framework.reverse import reverse_lazy
+
+from demo.settings import END_RESERVATION_DATETIME
 from .models import Product, Reservation, ReservationToken
 from .forms import ProductForm, ReservationForm
 from django.http.response import HttpResponseRedirect, Http404
@@ -11,10 +14,7 @@ from .email import send_reservation_email
 from django.views.generic.list import ListView
 
 from django.contrib import messages
-from .settings import (END_RESERVATION_DATETIME,
-                       START_RESERVATION_DATETIME,
-                       TOKENIZE)
-
+from django.conf import settings
 
 def get_base_url(request):
     protocol = request.is_secure() and 'https://' or 'http://'
@@ -25,6 +25,7 @@ def get_base_url(request):
 class ReservationList(ListView):
     model = Reservation
     paginate_by = 10
+    template_name = "djreservation/reservation_list.html"
 
     def get_queryset(self):
         queryset = ListView.get_queryset(self)
@@ -36,7 +37,8 @@ class ReservationList(ListView):
 class CreateReservation(CreateView):
     model = Reservation
     form_class = ReservationForm
-    success_url = "/"
+    template_name = "djreservation/reservation_form.html"
+    success_url = reverse_lazy('reservation_list')
 
     def get_success_url(self):
         if self.request.GET.get('next'):
@@ -58,7 +60,7 @@ class CreateReservation(CreateView):
         self.object = form.save(commit=False)
         self.object.user = self.request.user
         self.object.save()
-        if TOKENIZE:
+        if settings.TOKENIZE:
             ReservationToken.objects.create(
                 reservation=self.object,
                 base_url=get_base_url(self.request))
@@ -126,11 +128,11 @@ class SimpleProductReservation(CreateView):
 
     def get_form_kwargs(self):
         kwargs = CreateView.get_form_kwargs(self)
-        if END_RESERVATION_DATETIME:
-            kwargs['initial']['reserved_end_date'] = END_RESERVATION_DATETIME
-        if START_RESERVATION_DATETIME:
+        if settings.END_RESERVATION_DATETIME:
+            kwargs['initial']['reserved_end_date'] = settings.END_RESERVATION_DATETIME
+        if settings.START_RESERVATION_DATETIME:
             kwargs['initial'][
-                'reserved_start_date'] = START_RESERVATION_DATETIME
+                'reserved_start_date'] = settings.START_RESERVATION_DATETIME
         return kwargs
 
     def form_valid(self, form):
@@ -149,7 +151,7 @@ class SimpleProductReservation(CreateView):
         )
         self.object.save()
 
-        if TOKENIZE:
+        if settings.TOKENIZE:
             ReservationToken.objects.create(
                 reservation=reservation,
                 base_url=get_base_url(self.request)

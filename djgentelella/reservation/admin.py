@@ -5,7 +5,7 @@ from django.utils.html import format_html_join
 from django.utils.safestring import mark_safe
 
 from .email import send_reservation_email
-from .models import Reservation, Observation, Product
+from .models import Reservation, Observation, Product, ReservationToken
 from .product_manager import proccess_reservation
 
 # Register your models here.
@@ -101,4 +101,6 @@ class ReservationAdmin(admin.ModelAdmin):
             proccess_reservation(obj, differ_obj, change_status)
         return dev
 
-admin.site.register(Reservation, ReservationAdmin)
+admin.site.register(Reservation)
+admin.site.register(Product)
+admin.site.register(ReservationToken)
