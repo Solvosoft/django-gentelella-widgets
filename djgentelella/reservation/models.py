@@ -10,6 +10,21 @@ import uuid
 auth_user = settings.AUTH_USER_MODEL if getattr(
     settings, "AUTH_USER_MODEL") else User
 
+BUILDING = 0
+REQUESTED = 1
+ACCEPTED = 2
+DENIED = 3
+BORROWED = 4
+RETURNED = 5
+
+STATUS = (
+        (BUILDING, _("Building")),
+        (REQUESTED, _("Requested")),
+        (ACCEPTED, _("Accepted")),
+        (DENIED, _("Denied")),
+        (BORROWED, _("Borrowed")),
+        (RETURNED, _("Returned")),
+    )
 
 class Reservation(models.Model):
     BUILDING = 0
@@ -31,6 +46,10 @@ class Reservation(models.Model):
     reserved_end_date = models.DateTimeField()
     status = models.SmallIntegerField(choices=STATUS, default=BUILDING)
     updated_datetime = models.DateTimeField(auto_now=True)
+    notes = models.TextField(null=True)
+    content_type = models.ForeignKey(ContentType, null=True, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField(null=True)
+    content_object = GenericForeignKey('content_type', 'object_id')
 
     def __str__(self):
         return "%s  %s  (%s to %s)" % (self.user.get_full_name(),
@@ -43,6 +62,19 @@ class Reservation(models.Model):
 
 
 class Product(models.Model):
+    REQUESTED = 0
+    BORROWED = 1
+    DENIED = 2
+    SELECTED = 3
+    RETURNED = 4
+
+    PRODUCT_STATUS = (
+        (REQUESTED, _("Requested")),
+        (BORROWED, _("Borrowed")),
+        (DENIED, _("Denied")),
+        (SELECTED, _("Selected")),
+        (RETURNED, _("Returned")),
+    )
 
     reservation = models.ForeignKey(Reservation,  on_delete=models.CASCADE)
     amount = models.FloatField()
@@ -51,6 +83,7 @@ class Product(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
+    status = models.SmallIntegerField(choices=PRODUCT_STATUS, default=REQUESTED)
 
     @property
     def available_amount(self):
@@ -74,3 +107,14 @@ class ReservationToken(models.Model):
     reservation = models.ForeignKey(Reservation, on_delete=models.CASCADE)
     token = models.UUIDField(default=uuid.uuid4, editable=False)
     base_url = models.URLField(default="http://localhost:8000")
+
+
+class DescriptionTransaction(models.Model):
+    reservation = models.ForeignKey(Reservation, on_delete=models.CASCADE)
+    action = models.SmallIntegerField(choices=STATUS, default=BUILDING)
+    action_user = models.ForeignKey(auth_user, on_delete=models.CASCADE)
+    creation_date = models.DateTimeField(auto_now_add=True)
+    notes = models.TextField(null=True)
+
+    def __str__(self):
+        return "%s" % str(self.reservation)
