@@ -18,13 +18,14 @@ BORROWED = 4
 RETURNED = 5
 
 STATUS = (
-        (BUILDING, _("Building")),
-        (REQUESTED, _("Requested")),
-        (ACCEPTED, _("Accepted")),
-        (DENIED, _("Denied")),
-        (BORROWED, _("Borrowed")),
-        (RETURNED, _("Returned")),
-    )
+    (BUILDING, _("Building")),
+    (REQUESTED, _("Requested")),
+    (ACCEPTED, _("Accepted")),
+    (DENIED, _("Denied")),
+    (BORROWED, _("Borrowed")),
+    (RETURNED, _("Returned")),
+)
+
 
 class Reservation(models.Model):
     BUILDING = 0
@@ -55,10 +56,10 @@ class Reservation(models.Model):
         return "%s  %s  (%s to %s)" % (self.user.get_full_name(),
                                        self.get_status_display(),
                                        self.reserved_start_date.strftime(
-            "%Y/%m/%d %H:%S"),
-            self.reserved_end_date.strftime(
-            "%Y/%m/%d %H:%S"),
-        )
+                                           "%Y/%m/%d %H:%S"),
+                                       self.reserved_end_date.strftime(
+                                           "%Y/%m/%d %H:%S"),
+                                       )
 
 
 class Product(models.Model):
@@ -76,7 +77,7 @@ class Product(models.Model):
         (RETURNED, _("Returned")),
     )
 
-    reservation = models.ForeignKey(Reservation,  on_delete=models.CASCADE)
+    reservation = models.ForeignKey(Reservation, on_delete=models.CASCADE)
     amount = models.FloatField()
     amount_field = models.CharField(max_length=150)
     borrowed = models.BooleanField(default=False)

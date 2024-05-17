@@ -7,7 +7,7 @@ Free as freedom will be 2/9/2016
 '''
 
 from __future__ import unicode_literals
-from djreservation.views import ProductReservationView
+from .views import ProductReservationView
 from django.conf.urls import url
 
 

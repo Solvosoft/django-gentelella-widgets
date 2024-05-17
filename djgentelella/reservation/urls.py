@@ -22,7 +22,7 @@ urlpatterns = [
     path("reservation/delete_product_reservation/<int:pk>/", views.deleteProduct, name="delete_product_reservation"),
     path("reservation/list", views.ReservationList.as_view(), name="reservation_list"),
     path('reservation/api/<str:app_label>/<str:model>/<int:object_id>/', include(router.urls)),
-    path('reservation/api/', include(router.urls)),
+    path('api/', include(router.urls)),
 ]
 
 if TOKENIZE:
