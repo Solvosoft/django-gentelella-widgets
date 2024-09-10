@@ -1,5 +1,9 @@
+import importlib
+
 from django.conf import settings
 from django.contrib.auth.models import Permission, User
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from tree_queries.models import TreeNode
@@ -123,3 +127,87 @@ class ChunkedUpload(AbstractChunkedUpload):
         null=DEFAULT_MODEL_USER_FIELD_NULL,
         blank=DEFAULT_MODEL_USER_FIELD_BLANK
     )
+
+
+REPRESENTATION_LIST = [
+    ('as_table', 'As Table'),
+    ('as_p', 'As P'),
+    ('as_ul', 'As ul'),
+    ('as_inline', 'As Inline'),
+    ('as_horizontal', 'As Horizontal'),
+    ('as_plain', 'As Plain'),
+]
+
+class GTDbForm(models.Model):
+    token = models.CharField(max_length=50, unique=True)
+    prefix = models.CharField(max_length=50, null=True, blank=True)
+    representation_list = models.CharField(choices=REPRESENTATION_LIST, max_length=50, default='as_table')
+    template_name = models.CharField(max_length=100, default='default')
+    def __str__(self):
+        return self.token
+
+class GTDbField(models.Model):
+    form = models.ForeignKey(GTDbForm, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    label = models.CharField(max_length=100, null=True, blank=True)
+    required = models.BooleanField(default=True)
+    label_suffix = models.CharField(max_length=100, null=True, blank=True)
+    help_text = models.CharField(max_length=500, null=True, blank=True)
+    disabled = models.BooleanField(default=False)
+    extra_attr = models.JSONField(blank=True, null=True)
+    extra_kwarg = models.JSONField(blank=True, null=True)
+    order = models.IntegerField(default=0)
+
+    def __str__(self):
+        return self.name
+
+class GTStatus(models.Model):
+
+    name = models.CharField(max_length=100, blank=False, null=False)
+    description = models.TextField(blank=False, null=False)
+    def __str__(self):
+        return self.name
+
+class GTActionsStep(models.Model):
+    name = models.CharField(max_length=100, blank=False, null=False)
+    description = models.TextField(blank=False, null=False)
+
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
+
+    def __str__(self):
+        return self.name
+
+class GTStep(models.Model):
+    name = models.CharField(max_length=100, blank=False, null=False)
+    order = models.PositiveIntegerField(blank=False, null=False)
+    status_id = models.ForeignKey(GTStatus, on_delete=models.CASCADE, blank=False, null=False)
+    form = models.ManyToManyField(GTDbForm, related_name='forms')
+    post_action = models.ManyToManyField(GTActionsStep, related_name='post_steps')
+    pre_action = models.ManyToManyField(GTActionsStep, related_name='pre_steps')
+
+    def __str__(self):
+        return self.name
+
+class GTFlow(models.Model):
+    name = models.CharField(max_length=100, blank=False, null=False)
+    description = models.TextField(blank=False, null=False)
+    step = models.ManyToManyField(GTStep, related_name='steps')
+    def __str__(self):
+        return self.name
+
+
+class GTSkipCondition(models.Model):
+    step_id = models.ForeignKey(GTStep, on_delete=models.CASCADE)
+    condition_field = models.CharField(max_length=100, blank=True, null=True)
+    condition_value = models.CharField(max_length=100, blank=True, null=True)
+    skip_to_step = models.ForeignKey(GTStep, on_delete=models.CASCADE, related_name='target_step')
+
+    def execute_condition(self, context):
+        module, function = self.condition_field.rsplit('.', 1)
+        mod = importlib.import_module(module)
+        func = getattr(mod, function)
+        return func(context)
+
+
