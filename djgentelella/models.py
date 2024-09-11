@@ -5,6 +5,7 @@ from django.contrib.auth.models import Permission, User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy as _
 from tree_queries.models import TreeNode
 
@@ -136,6 +137,8 @@ REPRESENTATION_LIST = [
     ('as_inline', 'As Inline'),
     ('as_horizontal', 'As Horizontal'),
     ('as_plain', 'As Plain'),
+    ('as_grid', _("As grid"))
+
 ]
 
 class GTDbForm(models.Model):
