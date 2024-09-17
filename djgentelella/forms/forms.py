@@ -1,8 +1,12 @@
+from djgentelella.widgets import core as genwidgets
 from django import forms
 from django.forms import BaseFormSet, HiddenInput
 from django.forms import BaseModelFormSet
 from django.forms.formsets import DELETION_FIELD_NAME
 from django.utils.safestring import mark_safe
+
+from djgentelella.models import GTDbForm, GTDbField, GTStatus, GTActionsStep, GTStep, \
+    GTFlow, GTSkipCondition
 
 
 class GTForm(forms.Form):
@@ -202,3 +206,83 @@ class GTBaseModelFormSet(BaseModelFormSet):
         if self.can_delete:
             form.fields[DELETION_FIELD_NAME].widget.attrs['class'] = 'invisible'
             form.fields[DELETION_FIELD_NAME].label = ''
+
+
+class GTDbFormSet(forms.ModelForm):
+    class Meta:
+        model = GTDbForm
+        fields = ['token', 'prefix', 'representation_list', 'template_name']
+        widgets = {
+            'token': genwidgets.TextInput,
+            'prefix': genwidgets.TextInput,
+            'representation_list': genwidgets.Select,
+            'template_name': genwidgets.TextInput,
+        }
+
+class GTDbFieldForm(forms.ModelForm):
+    class Meta:
+        model = GTDbField
+        fields = ['form', 'name', 'label', 'required', 'label_suffix', 'help_text', 'disabled', 'extra_attr', 'extra_kwarg', 'order']
+        widgets = {
+            'form': genwidgets.Select,
+            'name': genwidgets.TextInput,
+            'label': genwidgets.TextInput,
+            'label_suffix': genwidgets.TextInput,
+            'help_text': genwidgets.TextInput,
+            'disabled': genwidgets.CheckboxInput,
+            'extra_attr': genwidgets.Textarea,
+            'extra_kwarg': genwidgets.Textarea,
+            'order': genwidgets.NumberInput,
+        }
+
+class GTStatusForm(forms.ModelForm):
+    class Meta:
+        model = GTStatus
+        fields = ['name', 'description']
+        widgets = {
+            'name': genwidgets.TextInput,
+            'description': genwidgets.Textarea,
+        }
+
+class GTActionsStepForm(forms.ModelForm):
+    class Meta:
+        model = GTActionsStep
+        fields = ['name', 'description', 'content_type', 'object_id']
+        widgets = {
+            'name': genwidgets.TextInput,
+            'description': genwidgets.Textarea,
+        }
+
+class GTStepForm(forms.ModelForm):
+    class Meta:
+        model = GTStep
+        fields = ['name', 'order', 'status_id', 'form', 'post_action', 'pre_action']
+        widgets = {
+            'name': genwidgets.TextInput,
+            'status_id': genwidgets.SelectMultiple,
+            'order': genwidgets.NumberInput,
+            'form': genwidgets.SelectMultiple,
+            'post_action': genwidgets.Select,
+            'pre_action': genwidgets.Select,
+        }
+
+class GTFlowForm(forms.ModelForm):
+    class Meta:
+        model = GTFlow
+        fields = ['name', 'description', 'step']
+        widgets = {
+            'name': genwidgets.TextInput,
+            'description': genwidgets.Textarea,
+            'step': genwidgets.Select,
+        }
+
+class GTSkipConditionForm(forms.ModelForm):
+    class Meta:
+        model = GTSkipCondition
+        fields = ['step_id', 'condition_field', 'condition_value', 'skip_to_step']
+        widgets = {
+            'step_id': genwidgets.Select,
+            'condition_field': genwidgets.TextInput,
+            'condition_value': genwidgets.TextInput,
+            'skip_to_step': genwidgets.Select,
+        }
