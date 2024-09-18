@@ -251,6 +251,8 @@ class GTActionsStepForm(forms.ModelForm):
         widgets = {
             'name': genwidgets.TextInput,
             'description': genwidgets.Textarea,
+            'content_type': genwidgets.Select,
+            'object_id': genwidgets.NumberInput,
         }
 
 class GTStepForm(forms.ModelForm):
