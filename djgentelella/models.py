@@ -5,7 +5,7 @@ from django.contrib.auth.models import Permission, User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from django.utils.translation import gettext as _
+
 from django.utils.translation import gettext_lazy as _
 from tree_queries.models import TreeNode
 
@@ -131,12 +131,12 @@ class ChunkedUpload(AbstractChunkedUpload):
 
 
 REPRESENTATION_LIST = [
-    ('as_table', 'As Table'),
-    ('as_p', 'As P'),
-    ('as_ul', 'As ul'),
-    ('as_inline', 'As Inline'),
-    ('as_horizontal', 'As Horizontal'),
-    ('as_plain', 'As Plain'),
+    ('as_table', _('As Table')),
+    ('as_p', _('As P')),
+    ('as_ul', _('As ul')),
+    ('as_inline', _('As Inline')),
+    ('as_horizontal', _('As Horizontal')),
+    ('as_plain', _('As Plain')),
     ('as_grid', _("As grid"))
 
 ]
@@ -166,14 +166,14 @@ class GTDbField(models.Model):
 
 class GTStatus(models.Model):
 
-    name = models.CharField(max_length=100, blank=False, null=False, verbose_name=_("Name"))
-    description = models.TextField(blank=False, null=False, verbose_name=_("Description"))
+    name = models.CharField(max_length=100, blank=False, verbose_name=_("Name"))
+    description = models.TextField(blank=False, verbose_name=_("Description"))
     def __str__(self):
         return self.name
 
 class GTActionsStep(models.Model):
-    name = models.CharField(max_length=100, blank=False, null=False, verbose_name=_("Name"))
-    description = models.TextField(blank=False, null=False, verbose_name=_("Description"))
+    name = models.CharField(max_length=100, blank=False, verbose_name=_("Name"))
+    description = models.TextField(blank=False, verbose_name=_("Description"))
 
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
@@ -183,9 +183,9 @@ class GTActionsStep(models.Model):
         return self.name
 
 class GTStep(models.Model):
-    name = models.CharField(max_length=100, blank=False, null=False, verbose_name=_("Name"))
-    order = models.PositiveIntegerField(blank=False, null=False, verbose_name=_("Order"))
-    status_id = models.ForeignKey(GTStatus, on_delete=models.CASCADE, blank=False, null=False, verbose_name=_("Status"))
+    name = models.CharField(max_length=100, blank=False, verbose_name=_("Name"))
+    order = models.PositiveIntegerField(blank=False, verbose_name=_("Order"))
+    status_id = models.ForeignKey(GTStatus, on_delete=models.CASCADE, blank=False, verbose_name=_("Status"))
     form = models.ManyToManyField(GTDbForm, related_name='forms', verbose_name=_("Form"))
     post_action = models.ManyToManyField(GTActionsStep, related_name='post_steps', verbose_name=_("Post Action"))
     pre_action = models.ManyToManyField(GTActionsStep, related_name='pre_steps', verbose_name=_("Pre Action"))
@@ -194,8 +194,8 @@ class GTStep(models.Model):
         return self.name
 
 class GTFlow(models.Model):
-    name = models.CharField(max_length=100, blank=False, null=False, verbose_name=_("Name"))
-    description = models.TextField(blank=False, null=False, verbose_name=_("Description"))
+    name = models.CharField(max_length=100, blank=False, verbose_name=_("Name"))
+    description = models.TextField(blank=False, verbose_name=_("Description"))
     step = models.ManyToManyField(GTStep, related_name='steps', verbose_name=_("Step"))
     def __str__(self):
         return self.name

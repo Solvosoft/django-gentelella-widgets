@@ -211,7 +211,7 @@ class GTBaseModelFormSet(BaseModelFormSet):
 class GTDbFormSet(forms.ModelForm):
     class Meta:
         model = GTDbForm
-        fields = ['token', 'prefix', 'representation_list', 'template_name']
+        fields = '__all__'
         widgets = {
             'token': genwidgets.TextInput,
             'prefix': genwidgets.TextInput,
@@ -222,7 +222,7 @@ class GTDbFormSet(forms.ModelForm):
 class GTDbFieldForm(forms.ModelForm):
     class Meta:
         model = GTDbField
-        fields = ['form', 'name', 'label', 'required', 'label_suffix', 'help_text', 'disabled', 'extra_attr', 'extra_kwarg', 'order']
+        fields = '__all__'
         widgets = {
             'form': genwidgets.Select,
             'name': genwidgets.TextInput,
@@ -238,7 +238,7 @@ class GTDbFieldForm(forms.ModelForm):
 class GTStatusForm(forms.ModelForm):
     class Meta:
         model = GTStatus
-        fields = ['name', 'description']
+        fields = '__all__'
         widgets = {
             'name': genwidgets.TextInput,
             'description': genwidgets.Textarea,
@@ -247,7 +247,7 @@ class GTStatusForm(forms.ModelForm):
 class GTActionsStepForm(forms.ModelForm):
     class Meta:
         model = GTActionsStep
-        fields = ['name', 'description', 'content_type', 'object_id']
+        fields = '__all__'
         widgets = {
             'name': genwidgets.TextInput,
             'description': genwidgets.Textarea,
@@ -258,7 +258,7 @@ class GTActionsStepForm(forms.ModelForm):
 class GTStepForm(forms.ModelForm):
     class Meta:
         model = GTStep
-        fields = ['name', 'order', 'status_id', 'form', 'post_action', 'pre_action']
+        fields = '__all__'
         widgets = {
             'name': genwidgets.TextInput,
             'status_id': genwidgets.SelectMultiple,
@@ -271,7 +271,7 @@ class GTStepForm(forms.ModelForm):
 class GTFlowForm(forms.ModelForm):
     class Meta:
         model = GTFlow
-        fields = ['name', 'description', 'step']
+        fields = '__all__'
         widgets = {
             'name': genwidgets.TextInput,
             'description': genwidgets.Textarea,
@@ -281,7 +281,7 @@ class GTFlowForm(forms.ModelForm):
 class GTSkipConditionForm(forms.ModelForm):
     class Meta:
         model = GTSkipCondition
-        fields = ['step_id', 'condition_field', 'condition_value', 'skip_to_step']
+        fields = '__all__'
         widgets = {
             'step_id': genwidgets.Select,
             'condition_field': genwidgets.TextInput,
