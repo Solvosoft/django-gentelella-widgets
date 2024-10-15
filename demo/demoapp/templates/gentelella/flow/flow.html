@@ -1,0 +1,250 @@
+{% extends 'gentelella/base.html' %}
+{% load gtsettings timejs %}
+
+{% block content %}
+<div class="card">
+	<div class="card-body">
+		<div class="card-title titles">
+			<h2>StepFlow Example</h2>
+  <script src="https://unpkg.com/cytoscape@3.30.2/dist/cytoscape.min.js"></script>
+		</div>
+
+		 <button class="btn btn-primary" id="add-step-btn">Add Step</button>
+			<button class="btn btn-primary" id="delete-step-btn">Delete Step</button>
+			<button class="btn btn-primary" id="clear-storage">clear-storage</button>
+   <div id="cy" style="width: 1000; height: 500px; border: 1px solid black;"></div>
+
+			<a class="btn btn-primary my-4 float-end" id="submit_flow" href="{%url 'create_flow' %}">Save</a>
+
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block js %}
+
+  <script>
+
+			document.getElementById('clear-storage').addEventListener('click', function() {
+    sessionStorage.clear();
+    console.log('sessionStorage ha sido limpiado.');
+			});
+
+    var cy = cytoscape({
+      container: document.getElementById('cy'),
+      elements: [
+      ],
+      style: [
+        {
+          selector: 'node',
+          style: {
+            'background-color': '#666',
+            'label': 'data(name)',
+            'width': 50,
+            'height': 50
+          }
+        },
+        {
+          selector: 'edge',
+          style: {
+            'width': 3,
+            'line-color': '#ccc',
+            'target-arrow-color': '#ccc',
+            'target-arrow-shape': 'triangle',
+          }
+        }
+      ],
+      layout: {
+        name: 'grid',
+        rows: 1
+      },
+      zoomingEnabled: true,
+						userZoomingEnabled: false,
+						panningEnabled: true,
+						userPanningEnabled: true
+    });
+
+	 var stepCounter = 0;
+  var sourceStep = null;
+  var deleteStep = null;
+
+
+    function addStep() {
+      stepCounter++;
+      var newStepId = stepCounter;
+
+      add_step_graphics(newStepId);
+      cy.layout({
+        name: 'grid',
+        rows: 1
+      }).run();
+    }
+
+	function add_step_graphics(newStepId){
+		const stepData = {
+        group: 'nodes',
+        data: {
+            "id": newStepId,
+            "name": "Step " + newStepId,
+            "order": newStepId,
+            "preActions": [
+                {
+                    "id": "action_1",
+                    "name": "Pre Action 1",
+                    "description": "Acción previa al step 1",
+                    "content_type": "tipo_de_contenido",
+                    "object_id": 123
+                }
+            ],
+            "postActions": [
+                {
+                    "id": "action_2",
+                    "name": "Post Action 1",
+                    "description": "Acción posterior al step 1",
+                    "content_type": "tipo_de_contenido",
+                    "object_id": 124
+                }
+            ]
+        },
+        grabbable: true
+    };
+
+    cy.add(stepData);
+
+				let steps = sessionStorage.getItem('stepData');
+				steps = steps ? JSON.parse(steps) : [];
+				steps.push(stepData);
+
+    sessionStorage.setItem('stepData', JSON.stringify(steps));
+
+    console.log(cy.elements().jsons());
+				}
+
+    cy.on('tap', 'node', function(evt) {
+      var clickedStep = evt.target;
+
+      if (deleteStep && deleteStep.id() === clickedStep.id()) {
+								deleteStep = null;
+								clickedStep.style('border-width', 0);
+						} else {
+								if (deleteStep) {
+										deleteStep.style('border-width', 0);
+								}
+								deleteStep = clickedStep;
+								deleteStep.style('border-width', 3);
+								deleteStep.style('border-color', '#FF0000');
+						}
+				});
+
+				cy.on('tap', 'node', function(evt) {
+						var clickedStep = evt.target;
+
+						if (sourceStep === null) {
+								sourceStep = clickedStep;
+						} else {
+								var targetStep = clickedStep;
+
+								if (sourceStep.id() !== targetStep.id()) {
+										var newEdgeId = 'edge' + sourceStep.id() + '-' + targetStep.id();
+
+										if (!cy.getElementById(newEdgeId).length) {
+												cy.add({
+														group: 'edges',
+														data: {
+																id: newEdgeId,
+																source: sourceStep.id(),
+																target: targetStep.id()
+														}
+												});
+
+												let edges= JSON.parse(sessionStorage.getItem('edgeData')) || [];
+												edges.push({
+																id: newEdgeId,
+																source: sourceStep.id(),
+																target: targetStep.id()
+												});
+												sessionStorage.setItem('edgeData', JSON.stringify(edges));
+										}
+								}
+								sourceStep = null;
+						}
+    });
+
+    cy.on('tap', 'edge', function(evt) {
+      var clickedEdge = evt.target;
+      clickedEdge.remove();
+    });
+
+	cy.on('dbltap', 'node', function(evt) {
+		var clickedStep = evt.target;
+		var StepId = clickedStep.id();
+
+		var urlBase = "{% url 'step' 0 %}";
+		urlBase = urlBase.replace('0', StepId);
+		urlBase = urlBase.replace('0', StepId);
+		window.location.href = urlBase;
+
+	});
+
+
+    document.getElementById('add-step-btn').addEventListener('click', addStep);
+
+    document.getElementById('delete-step-btn').addEventListener('click', function() {
+      if (deleteStep) {
+								deleteStep.remove();
+								let steps = JSON.parse(sessionStorage.getItem('stepData')) || [];
+								steps = steps.filter(step => step.data.id !== deleteStep.id());
+								sessionStorage.setItem('stepData', JSON.stringify(steps));
+
+								cy.edges().forEach(edge => {
+												if (edge.source().id() === deleteStep.id() || edge.target().id() === deleteStep.id()) {
+																edge.remove();
+												}
+								});
+								deleteStep = null;
+						} else {
+								alert("Please, select one step for delete.");
+						}
+    });
+
+			document.addEventListener("DOMContentLoaded", function() {
+								var stepData = JSON.parse(sessionStorage.getItem('stepData')) || {};
+
+								if (Array.isArray(stepData)) {
+												stepData.forEach(step => {
+																cy.add(step);
+												});
+								} else {
+												console.warn('stepData not is array', stepData);
+								}
+
+								// Cargar aristas desde sessionStorage
+								var edgeData = JSON.parse(sessionStorage.getItem('edgeData'));
+								console.log(edgeData);
+
+								if (Array.isArray(edgeData)) {
+												edgeData.forEach(edge => {
+																cy.add({
+																				group: 'edges',
+																				data: {
+																								id: edge.id,
+																								source: edge.source,
+																								target: edge.target
+																				}
+																});
+												});
+								} else {
+												console.warn('edgeData not exist', edgeData);
+								}
+
+								cy.layout({
+												name: 'grid',
+												rows: 1
+												}).run();
+
+        console.log(stepData);
+    });
+
+  </script>
+
+{% endblock js%}

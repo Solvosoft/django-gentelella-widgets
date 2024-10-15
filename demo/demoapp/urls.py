@@ -11,6 +11,8 @@ from .datatables.api import PersonViewSet
 from .datatables.views import datatableViewExample
 from .date_range import views as date_ranges
 from .filechunkedupload import views as chunkedupload
+from .flow.views import flow_index, step_index, status_index, actions_index, \
+    skip_condition_index, create_flow
 from .formset import add_formset, add_model_formset
 from .grid_slider import views as grid
 from .input_masks import views as input_mask
@@ -104,5 +106,11 @@ urlpatterns = [
                   path('timeline_view', timeline_view, name="timeline_view"),
                   path('datatable_view', datatableViewExample, name="datatable_view"),
                   path('mediarecord_upload', mediaupload_view, name="mediaupload_view"),
+                  path('flow/', flow_index, name='flow'),
+                  path('step/<int:id>/', step_index, name='step'),
+                  path('actions/', actions_index, name='actions'),
+                  path('status/', status_index, name='status'),
+                  path('create_flow/', create_flow, name='create_flow'),
+                  path('skip_condition/', skip_condition_index, name='skip_condition'),
                   path('tableapi/', include(router.urls)),
               ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()

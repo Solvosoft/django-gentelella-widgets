@@ -1,3 +1,4 @@
+from demoapp.flow.utils import RedirectButtonWidget
 from djgentelella.widgets import core as genwidgets
 from django import forms
 from django.forms import BaseFormSet, HiddenInput
@@ -264,18 +265,24 @@ class GTStepForm(forms.ModelForm):
             'status_id': genwidgets.SelectMultiple,
             'order': genwidgets.NumberInput,
             'form': genwidgets.SelectMultiple,
-            'post_action': genwidgets.Select,
-            'pre_action': genwidgets.Select,
+            'post_action': RedirectButtonWidget(),
+            'pre_action': RedirectButtonWidget(),
         }
+
+    def __init__(self, *args, **kwargs):
+        super(GTStepForm, self).__init__(*args, **kwargs)
+        self.fields['status_id'].required = False
+        self.fields['form'].required = False
+        self.fields['post_action'].required = False
+        self.fields['pre_action'].required = False
 
 class GTFlowForm(forms.ModelForm):
     class Meta:
         model = GTFlow
-        fields = '__all__'
+        fields = 'name', 'description'
         widgets = {
             'name': genwidgets.TextInput,
             'description': genwidgets.Textarea,
-            'step': genwidgets.Select,
         }
 
 class GTSkipConditionForm(forms.ModelForm):

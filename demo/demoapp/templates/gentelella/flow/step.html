@@ -1,0 +1,66 @@
+{% extends 'gentelella/base.html' %}
+{% load gtsettings timejs %}
+
+{% block content %}
+<div class="card">
+	<div class="card-body">
+		<div class="card-title titles">
+			<h2 id="step-title"> {{ id }}</h2>
+		</div>
+
+			<form method="post" action="{% url 'step' id=id %}">
+					{% csrf_token %}
+					{{ form.as_p }}
+				 <div id="step-info"></div>
+
+					<button class="btn btn-primary" id="submit" type="submit">Submit</button>
+			</form>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block js %}
+
+  <script>
+
+				var stepData = JSON.parse(sessionStorage.getItem('stepData')) || {};
+    var id = "{{ id }}";
+
+				var step = stepData.find(step => step.data.id == id);
+
+    console.log(step);
+
+    if (step) {
+        document.getElementById('id_name').value = step.data.name || '';
+        document.getElementById('id_order').value = step.data.order || '';
+    }
+
+			document.querySelector('form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        var formData = new FormData(this);
+
+								const preActions = this.querySelector('[name="pre_action"]');
+    				const postActions = this.querySelector('[name="post_action"]');
+
+								const newData = {
+												id: id,
+												name: this.querySelector('[name="name"]').value,
+												order: this.querySelector('[name="order"]').value,
+												preActions: preActions && preActions.value ? JSON.parse(preActions.value) : step.data.preActions ?.pre_action || null,
+        				postActions: postActions && postActions.value ? JSON.parse(postActions.value) : step.data.postActions ?.post_action || null,
+								};
+
+								step.data = newData;
+
+								sessionStorage.setItem('stepData', JSON.stringify(stepData));
+
+								console.log(stepData);
+
+								window.location.href = "{% url 'flow' %}";
+
+    });
+
+		</script>
+
+{% endblock js%}

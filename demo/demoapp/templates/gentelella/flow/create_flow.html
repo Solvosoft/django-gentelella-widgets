@@ -1,0 +1,38 @@
+{% extends 'gentelella/base.html' %}
+{% load gtsettings timejs %}
+
+{% block content %}
+<div class="card">
+	<div class="card-body">
+		<div class="card-title titles">
+			<h2 id="step-title">Create Flow</h2>
+		</div>
+
+			<form method="post" id="flow_form" action="{% url 'create_flow' %}">
+					{% csrf_token %}
+					{{ form.as_p }}
+				 <input type="hidden" id="stepsData" name="stepsData">
+
+					<button class="btn btn-primary" id="create_flow" type="submit">Submit</button>
+			</form>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block js %}
+
+  <script>
+
+			document.getElementById('create_flow').addEventListener('click', function() {
+						event.preventDefault();
+						var stepsData = JSON.parse(sessionStorage.getItem('stepData')) || {};
+						console.log(stepsData);
+						document.getElementById('stepsData').value = JSON.stringify(stepsData);
+						document.getElementById('flow_form').submit();
+						sessionStorage.clear();
+				});
+
+		</script>
+
+{% endblock js%}
