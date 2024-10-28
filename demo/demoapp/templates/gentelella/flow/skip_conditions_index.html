@@ -1,0 +1,85 @@
+{% extends 'gentelella/base.html' %}
+{% load gtsettings timejs %}
+
+{% block content %}
+<div class="card">
+	<div class="card-body">
+		<div class="card-title titles">
+			<h2>Step</h2>
+		</div>
+
+				<div class="col-12">
+						<table id="datatableelement" class="table "></table>
+				</div>
+
+			<form method="post">
+			<a class="btn btn-primary my-4 float-end" id="submit_flow" href="{%url 'create_flow' %}">Continue</a>
+			</form>
+
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block js %}
+
+  <script>
+
+
+		 	var edges = JSON.parse(sessionStorage.getItem('edgeData')) || [];
+				var edgesDataTable = [];
+
+				edges.forEach(function(edge) {
+    			const { elderly, minor } = identify_larger_number(edge.source, edge.target);
+
+    			var resul = parseFloat(elderly) - parseFloat(minor);
+
+    			if(resul >= 2){
+    						edgesDataTable.push(edge);
+    			}
+				});
+
+
+		 	function identify_larger_number(stepId, skipToStep) {
+								let elderly = 0;
+								let minor = 0;
+
+								if (stepId > skipToStep) {
+												elderly = stepId;
+												minor = skipToStep;
+								} else {
+												elderly = skipToStep;
+												minor = stepId;
+								}
+
+								return { elderly, minor };
+				}
+
+							$('#datatableelement').DataTable({
+								data: edgesDataTable,
+								columns: [
+												{data: "id", name: "id", title: "Edge ID", type: "string", visible: true},
+												{data: "source", name: "source", title: "Step ID", type: "string", visible: true},
+												{data: "condition_field", name: "condition_field", title: "Condition Field", type: "string", visible: true},
+												{data: "condition_value", name: "condition_value", title: "Condition Value", type: "string", visible: true},
+												{data: "target", name: "target", title: "Skip to Step", type: "string", visible: true},
+												{
+																data: null,
+																title: "Actions",
+																orderable: false,
+																render: function (data, type, row) {
+																				return '<button class="btn btn-sm btn-primary" onclick="redirectToEditStep(\'' + row.id + '\')">Edit</button>';
+																}
+												}
+								]
+				});
+
+			function redirectToEditStep(id) {
+						 var urlBase = "{% url 'skip_condition_form' '0' %}";
+							urlBase = urlBase.replace('0', id);
+							window.location.href = urlBase;
+			}
+
+		</script>
+
+{% endblock js%}

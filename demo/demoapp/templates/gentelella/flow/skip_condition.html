@@ -1,0 +1,79 @@
+{% extends 'gentelella/base.html' %}
+{% load gtsettings timejs %}
+
+{% block content %}
+<div class="card">
+	<div class="card-body">
+		<div class="card-title titles">
+			<h2> Skip Condition {{id}}</h2>
+		</div>
+
+
+			<form method="post">
+					{% csrf_token %}
+					{{ form.as_p }}
+					<button class="btn btn-primary" type="submit">Submit</button>
+			</form>
+
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block js %}
+
+
+  <script>
+
+			document.addEventListener('DOMContentLoaded', function() {
+
+        const formId = "{{ id }}";
+
+        const skipConditionsData = JSON.parse(sessionStorage.getItem('edgeData')) || [];
+
+        const matchingCondition = skipConditionsData.find(condition => condition.id == formId);
+
+        if (matchingCondition) {
+            document.querySelector('#id_step_id').value = matchingCondition.source;
+            document.querySelector('#id_condition_field').value = matchingCondition.condition_field;
+            document.querySelector('#id_condition_value').value = matchingCondition.condition_value;
+            document.querySelector('#id_skip_to_step').value = matchingCondition.target;
+        }else{
+       		 alert('No se encontro coincidencias.');
+        }
+
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(event) {
+
+            event.preventDefault();
+
+            const stepId = document.querySelector('#id_step_id').value;
+            const conditionField = document.querySelector('#id_condition_field').value;
+            const conditionValue = document.querySelector('#id_condition_value').value;
+            const skipToStep = document.querySelector('#id_skip_to_step').value;
+
+            if (!stepId || !conditionField || !conditionValue || !skipToStep) {
+                alert('Por favor, completa todos los campos antes de guardar.');
+                return;
+            }
+
+            const newCondition = {
+                id: formId,
+                source: stepId,
+                condition_field: conditionField,
+                condition_value: conditionValue,
+                target: skipToStep
+            };
+
+            const updatedSkipConditionsData = skipConditionsData.filter(condition => condition.id !== formId);
+            updatedSkipConditionsData.push(newCondition);
+            sessionStorage.setItem('edgeData', JSON.stringify(updatedSkipConditionsData));
+
+            var urlBase = "{% url 'skip_condition' %}";
+												window.location.href = urlBase;
+        });
+
+    });
+		</script>
+
+{% endblock js%}

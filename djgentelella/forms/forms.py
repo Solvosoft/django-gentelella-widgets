@@ -1,4 +1,4 @@
-from demoapp.flow.utils import RedirectButtonWidget
+
 from djgentelella.widgets import core as genwidgets
 from django import forms
 from django.forms import BaseFormSet, HiddenInput
@@ -265,8 +265,8 @@ class GTStepForm(forms.ModelForm):
             'status_id': genwidgets.SelectMultiple,
             'order': genwidgets.NumberInput,
             'form': genwidgets.SelectMultiple,
-            'post_action': RedirectButtonWidget(),
-            'pre_action': RedirectButtonWidget(),
+            'post_action': HiddenInput,
+            'pre_action': HiddenInput,
         }
 
     def __init__(self, *args, **kwargs):
@@ -277,9 +277,13 @@ class GTStepForm(forms.ModelForm):
         self.fields['pre_action'].required = False
 
 class GTFlowForm(forms.ModelForm):
+
+    stepsData = forms.JSONField(widget=HiddenInput, label=None, error_messages={'required': 'no steps stored.'})
+    edgesData = forms.JSONField(widget=HiddenInput, required=False)
+
     class Meta:
         model = GTFlow
-        fields = 'name', 'description'
+        fields = ['name', 'description', 'stepsData', 'edgesData']
         widgets = {
             'name': genwidgets.TextInput,
             'description': genwidgets.Textarea,
@@ -290,8 +294,8 @@ class GTSkipConditionForm(forms.ModelForm):
         model = GTSkipCondition
         fields = '__all__'
         widgets = {
-            'step_id': genwidgets.Select,
+            'step_id': genwidgets.TextInput(attrs={'disabled': 'disabled'}),
             'condition_field': genwidgets.TextInput,
             'condition_value': genwidgets.TextInput,
-            'skip_to_step': genwidgets.Select,
+            'skip_to_step': genwidgets.TextInput(attrs={'disabled': 'disabled'}),
         }

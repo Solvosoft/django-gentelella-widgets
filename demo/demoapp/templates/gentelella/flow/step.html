@@ -17,7 +17,7 @@
 			</form>
 		</div>
 	</div>
-</div>
+
 {% endblock %}
 
 {% block js %}
@@ -29,7 +29,6 @@
 
 				var step = stepData.find(step => step.data.id == id);
 
-    console.log(step);
 
     if (step) {
         document.getElementById('id_name').value = step.data.name || '';
@@ -54,8 +53,6 @@
 								step.data = newData;
 
 								sessionStorage.setItem('stepData', JSON.stringify(stepData));
-
-								console.log(stepData);
 
 								window.location.href = "{% url 'flow' %}";
 

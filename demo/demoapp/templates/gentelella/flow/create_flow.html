@@ -12,8 +12,10 @@
 					{% csrf_token %}
 					{{ form.as_p }}
 				 <input type="hidden" id="stepsData" name="stepsData">
+				 <input type="hidden" id="edgesData" name="edgesData">
 
-					<button class="btn btn-primary" id="create_flow" type="submit">Submit</button>
+
+					<button class="btn btn-primary" id="create_flow" type="submit">Save</button>
 			</form>
 		</div>
 	</div>
@@ -27,8 +29,9 @@
 			document.getElementById('create_flow').addEventListener('click', function() {
 						event.preventDefault();
 						var stepsData = JSON.parse(sessionStorage.getItem('stepData')) || {};
-						console.log(stepsData);
+						var edgesData = JSON.parse(sessionStorage.getItem('edgeData')) || {};
 						document.getElementById('stepsData').value = JSON.stringify(stepsData);
+						document.getElementById('edgesData').value = JSON.stringify(edgesData);
 						document.getElementById('flow_form').submit();
 						sessionStorage.clear();
 				});

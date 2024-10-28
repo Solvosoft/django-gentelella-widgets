@@ -11,10 +11,10 @@
 
 		 <button class="btn btn-primary" id="add-step-btn">Add Step</button>
 			<button class="btn btn-primary" id="delete-step-btn">Delete Step</button>
-			<button class="btn btn-primary" id="clear-storage">clear-storage</button>
+			<button class="btn btn-primary" id="eliminar">Delete</button>
    <div id="cy" style="width: 1000; height: 500px; border: 1px solid black;"></div>
 
-			<a class="btn btn-primary my-4 float-end" id="submit_flow" href="{%url 'create_flow' %}">Save</a>
+			<a class="btn btn-primary my-4 float-end" id="submit_actions" href="{%url 'actions' %}">Continue</a>
 
 		</div>
 	</div>
@@ -24,10 +24,13 @@
 {% block js %}
 
   <script>
+			let exitWithoutWarning = false;
 
-			document.getElementById('clear-storage').addEventListener('click', function() {
-    sessionStorage.clear();
-    console.log('sessionStorage ha sido limpiado.');
+			document.getElementById('eliminar').addEventListener('click', function() {
+
+ 			sessionStorage.clear();
+    cy.elements().remove();
+
 			});
 
     var cy = cytoscape({
@@ -64,13 +67,15 @@
 						userPanningEnabled: true
     });
 
-	 var stepCounter = 0;
+	 var stepCounter = {{ last_id_step|safe }}
+	 var stepOrder = 0;
   var sourceStep = null;
   var deleteStep = null;
 
 
     function addStep() {
       stepCounter++;
+      stepOrder++;
       var newStepId = stepCounter;
 
       add_step_graphics(newStepId);
@@ -85,8 +90,8 @@
         group: 'nodes',
         data: {
             "id": newStepId,
-            "name": "Step " + newStepId,
-            "order": newStepId,
+            "name": "Step " + stepOrder,
+            "order": stepOrder,
             "preActions": [
                 {
                     "id": "action_1",
@@ -108,7 +113,6 @@
         },
         grabbable: true
     };
-
     cy.add(stepData);
 
 				let steps = sessionStorage.getItem('stepData');
@@ -117,7 +121,6 @@
 
     sessionStorage.setItem('stepData', JSON.stringify(steps));
 
-    console.log(cy.elements().jsons());
 				}
 
     cy.on('tap', 'node', function(evt) {
@@ -146,21 +149,26 @@
 
 								if (sourceStep.id() !== targetStep.id()) {
 										var newEdgeId = 'edge' + sourceStep.id() + '-' + targetStep.id();
-
 										if (!cy.getElementById(newEdgeId).length) {
 												cy.add({
 														group: 'edges',
 														data: {
 																id: newEdgeId,
 																source: sourceStep.id(),
+																condition_field: null,
+																condition_value: null,
 																target: targetStep.id()
 														}
 												});
+
+												var newEdge = cy.getElementById(newEdgeId);
 
 												let edges= JSON.parse(sessionStorage.getItem('edgeData')) || [];
 												edges.push({
 																id: newEdgeId,
 																source: sourceStep.id(),
+																condition_field: null,
+																condition_value: null,
 																target: targetStep.id()
 												});
 												sessionStorage.setItem('edgeData', JSON.stringify(edges));
@@ -176,15 +184,20 @@
     });
 
 	cy.on('dbltap', 'node', function(evt) {
+		exitWithoutWarning = true;
 		var clickedStep = evt.target;
 		var StepId = clickedStep.id();
 
 		var urlBase = "{% url 'step' 0 %}";
 		urlBase = urlBase.replace('0', StepId);
-		urlBase = urlBase.replace('0', StepId);
 		window.location.href = urlBase;
 
 	});
+
+				document.getElementById('submit_actions').addEventListener('click', function() {
+        exitWithoutWarning = true;
+    });
+
 
 
     document.getElementById('add-step-btn').addEventListener('click', addStep);
@@ -208,19 +221,35 @@
     });
 
 			document.addEventListener("DOMContentLoaded", function() {
+
+								window.addEventListener('beforeunload', function(event) {
+        if (!exitWithoutWarning) {
+            const confirmationMessage = 'Are you sure you want to exit? Any unsaved changes will be lost.';
+            event.returnValue = confirmationMessage;
+            return confirmationMessage;
+        }
+								});
+
+								function clearSessionData() {
+												sessionStorage.clear();
+												cy.elements().remove();
+								}
+
+								window.addEventListener('unload', function(event) {
+												if (!exitWithoutWarning) {
+																clearSessionData();
+												}
+								});
+
 								var stepData = JSON.parse(sessionStorage.getItem('stepData')) || {};
 
 								if (Array.isArray(stepData)) {
 												stepData.forEach(step => {
 																cy.add(step);
 												});
-								} else {
-												console.warn('stepData not is array', stepData);
 								}
 
-								// Cargar aristas desde sessionStorage
 								var edgeData = JSON.parse(sessionStorage.getItem('edgeData'));
-								console.log(edgeData);
 
 								if (Array.isArray(edgeData)) {
 												edgeData.forEach(edge => {
@@ -229,12 +258,12 @@
 																				data: {
 																								id: edge.id,
 																								source: edge.source,
+																								condition_field: edge.source,
+																								condition_value: edge.source,
 																								target: edge.target
 																				}
 																});
 												});
-								} else {
-												console.warn('edgeData not exist', edgeData);
 								}
 
 								cy.layout({
@@ -242,7 +271,6 @@
 												rows: 1
 												}).run();
 
-        console.log(stepData);
     });
 
   </script>

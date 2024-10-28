@@ -1,0 +1,66 @@
+{% extends 'gentelella/base.html' %}
+{% load gtsettings timejs %}
+
+{% block content %}
+<div class="card">
+	<div class="card-body">
+		<div class="card-title titles">
+			<h2>PostActions-PreActions</h2>
+		</div>
+
+				<div class="col-12">
+						<table id="datatableelement" class="table "></table>
+				</div>
+
+			<form method="post">
+			<a class="btn btn-primary my-4 float-end" id="submit_skip_conditions" href="{%url 'skip_condition' %}">Continue</a>
+			</form>
+
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block js %}
+
+  <script>
+
+
+		 	var steps = JSON.parse(sessionStorage.getItem('stepData')) || [];
+				var edgesDataTable = [];
+
+							$('#datatableelement').DataTable({
+								data: steps,
+								columns: [
+												{data: "data.id", name: "id", title: "Step ID", type: "string", visible: true},  // ID del paso
+												{data: "data.name", name: "name", title: "Step Name", type: "string", visible: true},  // ID del paso
+												{data: "data.order", name: "order", title: "Step Order", type: "string", visible: true},  // Campo de la condición
+												{
+																data: null,
+																title: "Pre-Action",
+																orderable: false,
+																render: function (data, type, row) {
+																				return '<button class="btn btn-sm btn-primary" onclick="redirectToAddAction(\'' + row.data.id + '\', \'pre_action\')">Edit</button>';
+																}
+												},
+												{
+																data: null,
+																title: "Post-Action",
+																orderable: false,
+																render: function (data, type, row) {
+																				return '<button class="btn btn-sm btn-primary" onclick="redirectToAddAction(\'' + row.data.id + '\', \'post_action\')">Edit</button>';
+																}
+												}
+								]
+				});
+
+			function redirectToAddAction(id, type_action) {
+						 var urlBase = "{% url 'actions_form' '0' 'hi' %}";
+							urlBase = urlBase.replace('0', id);
+							urlBase = urlBase.replace('hi', type_action);
+							window.location.href = urlBase;
+			}
+
+		</script>
+
+{% endblock js%}

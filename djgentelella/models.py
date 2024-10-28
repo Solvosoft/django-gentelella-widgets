@@ -186,9 +186,9 @@ class GTStep(models.Model):
     name = models.CharField(max_length=100, blank=False, verbose_name=_("Name"))
     order = models.PositiveIntegerField(blank=False, verbose_name=_("Order"))
     status_id = models.ForeignKey(GTStatus, on_delete=models.CASCADE, blank=True, null=True, verbose_name=_("Status"))
-    form = models.ManyToManyField(GTDbForm, related_name='forms', verbose_name=_("Form"), null=True)
-    post_action = models.ManyToManyField(GTActionsStep, related_name='post_steps', verbose_name=_("Post Action"), null=True)
-    pre_action = models.ManyToManyField(GTActionsStep, related_name='pre_steps', verbose_name=_("Pre Action"), null=True)
+    form = models.ManyToManyField(GTDbForm, related_name='forms', verbose_name=_("Form"))
+    post_action = models.ManyToManyField(GTActionsStep, related_name='post_steps', verbose_name=_("Post Action"),null=True)
+    pre_action = models.ManyToManyField(GTActionsStep, related_name='pre_steps', verbose_name=_("Pre Action"),null=True,)
 
     def __str__(self):
         return self.name
