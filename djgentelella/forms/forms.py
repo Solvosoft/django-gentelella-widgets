@@ -1,4 +1,6 @@
+from django.core.exceptions import ValidationError
 
+from django.utils.translation import gettext as _
 from djgentelella.widgets import core as genwidgets
 from django import forms
 from django.forms import BaseFormSet, HiddenInput
@@ -278,7 +280,7 @@ class GTStepForm(forms.ModelForm):
 
 class GTFlowForm(forms.ModelForm):
 
-    stepsData = forms.JSONField(widget=HiddenInput, label=None, error_messages={'required': 'no steps stored.'})
+    stepsData = forms.JSONField(widget=HiddenInput, required=False)
     edgesData = forms.JSONField(widget=HiddenInput, required=False)
 
     class Meta:
@@ -289,13 +291,60 @@ class GTFlowForm(forms.ModelForm):
             'description': genwidgets.Textarea,
         }
 
+    def clean_stepsData(self):
+        steps_data = self.cleaned_data.get('stepsData')
+
+        if not steps_data:
+            raise ValidationError(_("No steps stored."))
+
+        if not isinstance(steps_data, list):
+            raise ValidationError(_("Invalid format for stepsData. Expected a list."))
+
+        for step in steps_data:
+            data = step.get('data')
+
+            if not data or not isinstance(data, dict):
+                raise ValidationError(_("Invalid format for each step in stepsData. Expected a dictionary with 'data'."))
+
+            required_keys = {"id", "name", "order", "pre_action", "post_action"}
+            if not required_keys.issubset(data.keys()):
+                missing_keys = required_keys - data.keys()
+                raise ValidationError(_("Missing required keys in stepsData['data']: %s") % ', '.join(missing_keys))
+
+            action_required_keys = {"id", "name", "description", "content_type", "object_id"}
+            for action_type in ['pre_action', 'post_action']:
+                actions = data.get(action_type)
+                if not isinstance(actions, list) or not all(
+                    isinstance(action, dict) for action in actions):
+                    raise ValidationError(_("Invalid format for '%s' in stepsData['data']. Expected a list of dictionaries.") % action_type)
+
+                for action in actions:
+                    if not action_required_keys.issubset(action.keys()):
+                        missing_keys = action_required_keys - action.keys()
+                        raise ValidationError(_("Missing required keys in %s entry: %s") % (action_type, ', '.join(missing_keys)))
+
+        return steps_data
+
+
+
+
+
 class GTSkipConditionForm(forms.ModelForm):
+    condition_field = forms.ChoiceField(choices=[], widget=genwidgets.Select)
+
     class Meta:
         model = GTSkipCondition
         fields = '__all__'
         widgets = {
             'step_id': genwidgets.TextInput(attrs={'disabled': 'disabled'}),
-            'condition_field': genwidgets.TextInput,
             'condition_value': genwidgets.TextInput,
             'skip_to_step': genwidgets.TextInput(attrs={'disabled': 'disabled'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        available_fields = GTDbField.objects.all().order_by('order')
+        self.fields['condition_field'].choices = [
+            (field.name, field.label or field.name) for field in available_fields
+        ]

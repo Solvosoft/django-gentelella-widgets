@@ -24,28 +24,29 @@
 
   <script>
 
-			document.addEventListener('DOMContentLoaded', function() {
+		document.addEventListener('DOMContentLoaded', function() {
 
         const formId = "{{ id }}";
         const type_action = "{{ action }}";
 
-								console.log(formId+'');
-        const actionsData = JSON.parse(sessionStorage.getItem('stepData')) || [];
+        const actionsData = JSON.parse(localStorage.getItem('stepData')) || [];
 
         const matchingCondition = actionsData.find(condition => condition.data.id == formId);
 
         if (matchingCondition) {
 
+        				console.log(matchingCondition);
+
 												if(type_action == 'post_action'){
-															document.querySelector('#id_name').value = matchingCondition.data.postActions[0].name;
-															document.querySelector('#id_description').value = matchingCondition.data.postActions[0].name;
-															document.querySelector('#id_content_type').value = matchingCondition.data.postActions[0].content_type;
-															document.querySelector('#id_object_id').value = matchingCondition.data.postActions[0].object_id;
+															document.querySelector('#id_name').value = matchingCondition.data.post_action[0].name;
+															document.querySelector('#id_description').value = matchingCondition.data.post_action[0].description;
+															document.querySelector('#id_content_type').value = matchingCondition.data.post_action[0].content_type;
+															document.querySelector('#id_object_id').value = matchingCondition.data.post_action[0].object_id;
 												}else{
-															document.querySelector('#id_name').value = matchingCondition.data.preActions[0].name;
-															document.querySelector('#id_description').value = matchingCondition.data.preActions[0].name;
-															document.querySelector('#id_content_type').value = matchingCondition.data.preActions[0].content_type;
-															document.querySelector('#id_object_id').value = matchingCondition.data.preActions[0].object_id;
+															document.querySelector('#id_name').value = matchingCondition.data.pre_action[0].name;
+															document.querySelector('#id_description').value = matchingCondition.data.pre_action[0].description;
+															document.querySelector('#id_content_type').value = matchingCondition.data.pre_action[0].content_type;
+															document.querySelector('#id_object_id').value = matchingCondition.data.pre_action[0].object_id;
 												}
 
         }else{
@@ -73,7 +74,7 @@
 											if(type_action == 'post_action'){
 														post_action = [
 																								{
-																												"id": matchingCondition.data.postActions[0].id,
+																												"id": matchingCondition.data.post_action[0].id,
 																												"name": name,
 																												"description": description,
 																												"content_type": content_type,
@@ -83,27 +84,27 @@
 
 														pre_action = [
 																								{
-																												"id": matchingCondition.data.preActions[0].id,
-																												"name": matchingCondition.data.preActions[0].name,
-																												"description": matchingCondition.data.preActions[0].description,
-																												"content_type": matchingCondition.data.preActions[0].content_type,
-																												"object_id": matchingCondition.data.preActions[0].object_id
+																												"id": matchingCondition.data.pre_action[0].id,
+																												"name": matchingCondition.data.pre_action[0].name,
+																												"description": matchingCondition.data.pre_action[0].description,
+																												"content_type": matchingCondition.data.pre_action[0].content_type,
+																												"object_id": matchingCondition.data.pre_action[0].object_id
 																								}
 																				];
 											}else{
 														post_action = [
 																											{
-																															"id": matchingCondition.data.postActions[0].id,
-																															"name": matchingCondition.data.postActions[0].name,
-																															"description": matchingCondition.data.postActions[0].description,
-																															"content_type": matchingCondition.data.postActions[0].content_type,
-																															"object_id": matchingCondition.data.postActions[0].object_id
+																															"id": matchingCondition.data.post_action[0].id,
+																															"name": matchingCondition.data.post_action[0].name,
+																															"description": matchingCondition.data.post_action[0].description,
+																															"content_type": matchingCondition.data.post_action[0].content_type,
+																															"object_id": matchingCondition.data.post_action[0].object_id
 																											}
 																							];
 
 																	pre_action = [
 																											{
-																												"id": matchingCondition.data.preActions[0].id,
+																												"id": matchingCondition.data.pre_action[0].id,
 																															"name": name,
 																															"description": description,
 																															"content_type": content_type,
@@ -120,8 +121,10 @@
 																				"id": matchingCondition.data.id,
 																				"name": matchingCondition.data.name,
 																				"order": matchingCondition.data.order,
-																				"preActions": pre_action,
-																				"postActions": post_action
+																				"status_id": matchingCondition.data.status_id,
+																				"form": matchingCondition.data.form,
+																				"pre_action": pre_action,
+																				"post_action": post_action
 																},
 																grabbable: true
 												};
@@ -129,7 +132,7 @@
 
             const updatedActionsData = actionsData.filter(condition => condition.data.id !== formId);
             updatedActionsData.push(action);
-            sessionStorage.setItem('stepData', JSON.stringify(updatedActionsData));
+            localStorage.setItem('stepData', JSON.stringify(updatedActionsData));
 
             var urlBase = "{% url 'actions' %}";
 												window.location.href = urlBase;

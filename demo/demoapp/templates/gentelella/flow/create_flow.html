@@ -26,15 +26,48 @@
 
   <script>
 
-			document.getElementById('create_flow').addEventListener('click', function() {
-						event.preventDefault();
-						var stepsData = JSON.parse(sessionStorage.getItem('stepData')) || {};
-						var edgesData = JSON.parse(sessionStorage.getItem('edgeData')) || {};
-						document.getElementById('stepsData').value = JSON.stringify(stepsData);
-						document.getElementById('edgesData').value = JSON.stringify(edgesData);
-						document.getElementById('flow_form').submit();
-						sessionStorage.clear();
-				});
+			document.addEventListener("DOMContentLoaded", function() {
+
+			const editMode = localStorage.getItem('editMode') === 'true';
+										var stepsData = JSON.parse(localStorage.getItem('stepData')) || {};
+										var edgesData = JSON.parse(localStorage.getItem('edgeData')) || {};
+										console.log(stepsData);
+								const flowData = JSON.parse(localStorage.getItem('flowData')) || {};
+
+						if(editMode){
+								document.getElementById('step-title').innerText = "Edit Flow";
+								const steps = JSON.parse(localStorage.getItem('stepData')) || {};
+								const edges = JSON.parse(localStorage.getItem('edgeData')) || {};
+
+								const form = document.getElementById('flow_form');
+            if (flowData) {
+																const flow_id = flowData.id;
+
+																form.action = `{% url 'edit_flow_data' 0 %}`.replace('/0/', `/${flow_id}/`);
+
+            				document.querySelector('#id_name').value = flowData.name;
+            				document.querySelector('#id_description').value = flowData.description;
+
+            }else{
+																document.getElementById('step-title').innerText = "Create Flow";
+																form.action = "{% url 'create_flow' %}";
+            }
+
+						}
+
+
+							document.getElementById('create_flow').addEventListener('click', function() {
+										event.preventDefault();
+										document.getElementById('stepsData').value = JSON.stringify(stepsData);
+										document.getElementById('edgesData').value = JSON.stringify(edgesData);
+										document.getElementById('flow_form').submit();
+										localStorage.clear();
+								});
+
+
+			});
+
+
 
 		</script>
 

@@ -29,7 +29,7 @@
 
         const formId = "{{ id }}";
 
-        const skipConditionsData = JSON.parse(sessionStorage.getItem('edgeData')) || [];
+        const skipConditionsData = JSON.parse(localStorage.getItem('edgeData')) || [];
 
         const matchingCondition = skipConditionsData.find(condition => condition.id == formId);
 
@@ -65,9 +65,15 @@
                 target: skipToStep
             };
 
-            const updatedSkipConditionsData = skipConditionsData.filter(condition => condition.id !== formId);
-            updatedSkipConditionsData.push(newCondition);
-            sessionStorage.setItem('edgeData', JSON.stringify(updatedSkipConditionsData));
+            const existingConditionIndex = skipConditionsData.findIndex(condition => condition.id.toString() === formId);
+														if (existingConditionIndex !== -1) {
+																		skipConditionsData[existingConditionIndex] = newCondition;
+														} else {
+																		alert("Error: La condición no se encontró, por lo tanto, no se pudo actualizar.");
+																		return;
+														}
+
+            localStorage.setItem('edgeData', JSON.stringify(skipConditionsData));
 
             var urlBase = "{% url 'skip_condition' %}";
 												window.location.href = urlBase;

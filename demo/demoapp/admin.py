@@ -1,5 +1,6 @@
 from django.contrib import admin
 
+from djgentelella.models import GTDbField, GTDbForm
 from .models import WithCatalog, Catalog, OneCatalog, Country, Person, Foo, \
     Community, Employee, \
     ChunkedUploadItem, Event, Calendar
@@ -15,3 +16,5 @@ admin.site.register(Employee)
 admin.site.register(ChunkedUploadItem)
 admin.site.register(Calendar)
 admin.site.register(Event)
+admin.site.register(GTDbField)
+admin.site.register(GTDbForm)

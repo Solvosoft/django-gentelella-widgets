@@ -25,41 +25,84 @@
 
   <script>
 
+		 	var steps = JSON.parse(localStorage.getItem('stepData')) || [];
+		 	var documents_urls = {
+												"url_pre_action": "{% url 'actions_form' '0' 'pre_action' %}",
+												"url_post_action": "{% url 'actions_form' '0' 'post_action' %}"
+								};
 
-		 	var steps = JSON.parse(sessionStorage.getItem('stepData')) || [];
-				var edgesDataTable = [];
+    function validateActions() {
+        for (let step of steps) {
+            if (step.data.pre_action) {
+                for (let preAction of step.data.pre_action) {
+                    if (!preAction.content_type || preAction.content_type === "0") {
+                        return false;
+                    }
+                }
+            }
+            if (step.data.post_action) {
+                for (let postAction of step.data.post_action) {
+                    if (!postAction.content_type || postAction.content_type === "0") {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
 
-							$('#datatableelement').DataTable({
-								data: steps,
-								columns: [
-												{data: "data.id", name: "id", title: "Step ID", type: "string", visible: true},  // ID del paso
-												{data: "data.name", name: "name", title: "Step Name", type: "string", visible: true},  // ID del paso
-												{data: "data.order", name: "order", title: "Step Order", type: "string", visible: true},  // Campo de la condición
-												{
-																data: null,
-																title: "Pre-Action",
-																orderable: false,
-																render: function (data, type, row) {
-																				return '<button class="btn btn-sm btn-primary" onclick="redirectToAddAction(\'' + row.data.id + '\', \'pre_action\')">Edit</button>';
-																}
-												},
-												{
-																data: null,
-																title: "Post-Action",
-																orderable: false,
-																render: function (data, type, row) {
-																				return '<button class="btn btn-sm btn-primary" onclick="redirectToAddAction(\'' + row.data.id + '\', \'post_action\')">Edit</button>';
-																}
-												}
-								]
-				});
+    function toggleContinueButton() {
+        const isValid = validateActions();
+        const continueButton = document.getElementById('submit_skip_conditions');
+        if (isValid) {
+            continueButton.removeAttribute('disabled');
+        } else {
+            continueButton.setAttribute('disabled', 'disabled');
+        }
+    }
 
-			function redirectToAddAction(id, type_action) {
-						 var urlBase = "{% url 'actions_form' '0' 'hi' %}";
-							urlBase = urlBase.replace('0', id);
-							urlBase = urlBase.replace('hi', type_action);
-							window.location.href = urlBase;
-			}
+    document.getElementById('submit_skip_conditions').addEventListener('click', function (event) {
+        if (this.hasAttribute('disabled')) {
+            event.preventDefault();
+            alert("No puedes continuar porque algunas acciones no tienen un tipo de contenido válido.");
+        }
+    });
+
+    $(document).ready(function () {
+        $('#datatableelement').DataTable({
+            data: steps,
+            columns: [
+                {data: "data.id", name: "id", title: "Step ID", type: "string", visible: true},
+                {data: "data.name", name: "name", title: "Step Name", type: "string", visible: true},
+                {data: "data.order", name: "order", title: "Step Order", type: "string", visible: true},
+                {
+                    data: null,
+                    title: "Pre-Action",
+                    orderable: false,
+                    render: function (data, type, row) {
+                        var url = documents_urls.url_pre_action;
+                        url = url.replace('0', row.data.id);
+                        return `<a class="btn btn-sm btn-success" href="${url}"><i class="fa fa-plus-square" aria-hidden="true"></i></a>`;
+                    }
+                },
+                {
+                    data: null,
+                    title: "Post-Action",
+                    orderable: false,
+                    render: function (data, type, row) {
+                        var url = documents_urls.url_post_action;
+                        url = url.replace('0', row.data.id);
+                        return `<a class="btn btn-sm btn-success" href="${url}"><i class="fa fa-plus-square" aria-hidden="true"></i></a>`;
+                    }
+                }
+            ]
+        });
+
+        toggleContinueButton();
+    });
+
+    localStorage.setItem('stepData', JSON.stringify(steps));
+    toggleContinueButton();
 
 		</script>
 

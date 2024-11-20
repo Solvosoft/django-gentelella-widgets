@@ -1,0 +1,33 @@
+{% extends 'gentelella/base.html' %}
+{% load gtsettings timejs %}
+{% load static %}
+
+{% block content %}
+
+			<div class="my-3">
+
+						<ul class="nav nav-pills">
+											<li class="nav-item">
+															<a class="nav-link {% if request.resolver_match.url_name == 'flows_index' %}active{% endif %}" href="{% url 'flows_index' %}">FLows</a>
+											</li>
+											<li class="nav-item">
+															<a class="nav-link {% if request.resolver_match.url_name == 'status_index' %}active{% endif %}" href="{% url 'status_index' %}">Status</a>
+											</li>
+							</ul>
+
+			</div>
+
+			{% block content_nav %}
+			{% endblock %}
+
+    <script src="{% static 'path/to/bootstrap.bundle.js' %}"></script>
+
+{% endblock %}
+
+{% block js %}
+
+
+		</script>
+
+{% endblock js%}
+

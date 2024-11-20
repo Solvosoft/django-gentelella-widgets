@@ -11,7 +11,7 @@
 
 		 <button class="btn btn-primary" id="add-step-btn">Add Step</button>
 			<button class="btn btn-primary" id="delete-step-btn">Delete Step</button>
-			<button class="btn btn-primary" id="eliminar">Delete</button>
+			<button class="btn btn-primary" id="eliminar">Clean</button>
    <div id="cy" style="width: 1000; height: 500px; border: 1px solid black;"></div>
 
 			<a class="btn btn-primary my-4 float-end" id="submit_actions" href="{%url 'actions' %}">Continue</a>
@@ -25,10 +25,15 @@
 
   <script>
 			let exitWithoutWarning = false;
+			var editMode = {{ edit_flow|yesno:"true,false" }};
+			var stepCounter = 0
+			var stepOrder = 0;
+			var sourceStep = null;
+			var deleteStep = null;
 
 			document.getElementById('eliminar').addEventListener('click', function() {
 
- 			sessionStorage.clear();
+ 			localStorage.clear();
     cy.elements().remove();
 
 			});
@@ -67,10 +72,6 @@
 						userPanningEnabled: true
     });
 
-	 var stepCounter = {{ last_id_step|safe }}
-	 var stepOrder = 0;
-  var sourceStep = null;
-  var deleteStep = null;
 
 
     function addStep() {
@@ -92,21 +93,23 @@
             "id": newStepId,
             "name": "Step " + stepOrder,
             "order": stepOrder,
-            "preActions": [
+            "status_id": null,
+            "form": null,
+            "pre_action": [
                 {
                     "id": "action_1",
                     "name": "Pre Action 1",
                     "description": "Acción previa al step 1",
-                    "content_type": "tipo_de_contenido",
+                    "content_type": "0",
                     "object_id": 123
                 }
             ],
-            "postActions": [
+            "post_action": [
                 {
                     "id": "action_2",
                     "name": "Post Action 1",
                     "description": "Acción posterior al step 1",
-                    "content_type": "tipo_de_contenido",
+                    "content_type": "0",
                     "object_id": 124
                 }
             ]
@@ -115,11 +118,11 @@
     };
     cy.add(stepData);
 
-				let steps = sessionStorage.getItem('stepData');
+				let steps = localStorage.getItem('stepData');
 				steps = steps ? JSON.parse(steps) : [];
 				steps.push(stepData);
 
-    sessionStorage.setItem('stepData', JSON.stringify(steps));
+    localStorage.setItem('stepData', JSON.stringify(steps));
 
 				}
 
@@ -163,7 +166,7 @@
 
 												var newEdge = cy.getElementById(newEdgeId);
 
-												let edges= JSON.parse(sessionStorage.getItem('edgeData')) || [];
+												let edges= JSON.parse(localStorage.getItem('edgeData')) || [];
 												edges.push({
 																id: newEdgeId,
 																source: sourceStep.id(),
@@ -171,7 +174,7 @@
 																condition_value: null,
 																target: targetStep.id()
 												});
-												sessionStorage.setItem('edgeData', JSON.stringify(edges));
+												localStorage.setItem('edgeData', JSON.stringify(edges));
 										}
 								}
 								sourceStep = null;
@@ -205,9 +208,9 @@
     document.getElementById('delete-step-btn').addEventListener('click', function() {
       if (deleteStep) {
 								deleteStep.remove();
-								let steps = JSON.parse(sessionStorage.getItem('stepData')) || [];
+								let steps = JSON.parse(localStorage.getItem('stepData')) || [];
 								steps = steps.filter(step => step.data.id !== deleteStep.id());
-								sessionStorage.setItem('stepData', JSON.stringify(steps));
+								localStorage.setItem('stepData', JSON.stringify(steps));
 
 								cy.edges().forEach(edge => {
 												if (edge.source().id() === deleteStep.id() || edge.target().id() === deleteStep.id()) {
@@ -222,6 +225,72 @@
 
 			document.addEventListener("DOMContentLoaded", function() {
 
+								var editMode = {{ edit_flow|yesno:"true,false" }};
+								var dataLocal = {{ data_local|yesno:"true,false" }};
+
+								var data = [];
+
+								localStorage.setItem('editMode', editMode);
+
+        if(editMode){
+											var edit_steps = [];
+											var edit_edges = [];
+
+											if(dataLocal){
+														data = JSON.parse(localStorage.getItem('data_complete')) || {};
+											}else{
+														data = {{ data|default:"null"|safe }};
+											}
+
+											if (editMode) {
+															console.log(data)
+															if (data.steps && data.steps.length > 0) {
+																			const maxId = Math.max(...data.steps.map(step => step.id));
+																			const maxOrder = Math.max(...data.steps.map(step => step.order));
+																			stepCounter = maxId;
+																			stepOrder = maxOrder;
+															}
+
+															data.steps.forEach(step => {
+																			edit_step_data = {
+																							group: 'nodes',
+																							data: {
+																											id: step.id,
+																											name: step.name,
+																											order: step.order,
+																											status_id: step.status_id,
+																											form: step.form,
+																											pre_action: step.pre_action,
+																											post_action: step.post_action
+																							}
+																			};
+																			cy.add(edit_step_data);
+																			edit_steps.push(edit_step_data);
+															});
+															localStorage.setItem('stepData', JSON.stringify(edit_steps));
+
+															data.edges.forEach(edge => {
+																			edit_edge_data = {
+																							group: 'edges',
+																							data: {
+																											id: edge.id,
+																											source: edge.source,
+																											target: edge.target,
+																											condition_field: edge.condition_field,
+																											condition_value: edge.condition_value
+																							}
+																			};
+																			cy.add(edit_edge_data);
+																			edit_edges.push(edit_edge_data);
+															});
+
+															localStorage.setItem('edgeData', JSON.stringify(data.edges));
+															localStorage.setItem('flowData', JSON.stringify(data.flow));
+
+															cy.layout({ name: 'grid', rows: 1 }).run();
+											}
+        }
+
 								window.addEventListener('beforeunload', function(event) {
         if (!exitWithoutWarning) {
             const confirmationMessage = 'Are you sure you want to exit? Any unsaved changes will be lost.';
@@ -231,7 +300,7 @@
 								});
 
 								function clearSessionData() {
-												sessionStorage.clear();
+												localStorage.clear();
 												cy.elements().remove();
 								}
 
@@ -241,7 +310,9 @@
 												}
 								});
 
-								var stepData = JSON.parse(sessionStorage.getItem('stepData')) || {};
+						if(!editMode){
+
+									var stepData = JSON.parse(localStorage.getItem('stepData')) || {};
 
 								if (Array.isArray(stepData)) {
 												stepData.forEach(step => {
@@ -249,7 +320,7 @@
 												});
 								}
 
-								var edgeData = JSON.parse(sessionStorage.getItem('edgeData'));
+								var edgeData = JSON.parse(localStorage.getItem('edgeData'));
 
 								if (Array.isArray(edgeData)) {
 												edgeData.forEach(edge => {
@@ -270,6 +341,10 @@
 												name: 'grid',
 												rows: 1
 												}).run();
+
+						}
+
+
 
     });
 
