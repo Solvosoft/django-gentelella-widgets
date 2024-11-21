@@ -31,8 +31,6 @@
 
         var step = stepData.find(step => step.data.id == id);
 
-        console.log(stepData)
-
         if (step) {
             document.getElementById('id_name').value = step.data.name || '';
             document.getElementById('id_order').value = step.data.order || '';

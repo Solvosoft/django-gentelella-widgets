@@ -247,6 +247,28 @@ class GTStatusForm(forms.ModelForm):
             'description': genwidgets.Textarea,
         }
 
+    def clean(self):
+        cleaned_data = super().clean()
+
+        required_fields = ['name', 'description']
+        missing_fields = []
+
+        for field in required_fields:
+            value = cleaned_data.get(field)
+            if not value:
+                missing_fields.append(field)
+
+        if missing_fields:
+            raise ValidationError(
+                _("The following fields are required: %s") % ", ".join(missing_fields))
+
+        if not isinstance(cleaned_data.get('name'), str):
+            raise ValidationError(_("The 'name' field must be a string."))
+        if not isinstance(cleaned_data.get('description'), str):
+            raise ValidationError(_("The 'description' field must be a string."))
+
+        return cleaned_data
+
 class GTActionsStepForm(forms.ModelForm):
     class Meta:
         model = GTActionsStep
@@ -273,8 +295,6 @@ class GTStepForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(GTStepForm, self).__init__(*args, **kwargs)
-        self.fields['status_id'].required = False
-        self.fields['form'].required = False
         self.fields['post_action'].required = False
         self.fields['pre_action'].required = False
 

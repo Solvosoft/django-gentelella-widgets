@@ -35,8 +35,6 @@
 
         if (matchingCondition) {
 
-        				console.log(matchingCondition);
-
 												if(type_action == 'post_action'){
 															document.querySelector('#id_name').value = matchingCondition.data.post_action[0].name;
 															document.querySelector('#id_description').value = matchingCondition.data.post_action[0].description;
@@ -50,7 +48,7 @@
 												}
 
         }else{
-        		alert('No se encontro coincidencias.');
+        		alert('No matches found.');
         }
 
         const form = document.querySelector('form');
@@ -63,7 +61,7 @@
             const object_id = document.querySelector('#id_object_id').value;
 
             if (!name || !description || !content_type || !object_id) {
-                alert('Por favor, completa todos los campos antes de guardar.');
+                alert('Please complete all fields before saving.');
                 return;
             }
 

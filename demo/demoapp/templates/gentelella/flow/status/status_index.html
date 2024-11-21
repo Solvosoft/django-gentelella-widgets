@@ -32,18 +32,18 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">Eliminar Flow</h5>
+                <h5 class="modal-title" id="deleteModalLabel">Delete Status</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 												<form method="post" id="deleteStatusForm">
                 {% csrf_token %}
                 <div class="modal-body">
-                    ¿Estás seguro de que deseas eliminar el estado "<span id="statusName"></span>"?
+                    Are you sure you want to delete the status "<span id="statusName"></span>"?
                     <input type="hidden" name="id" id="deleteStatusId">
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-danger">Delete</button>
                 </div>
             </form>
         </div>
@@ -55,7 +55,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="viewModalLabel">Eliminar Flow</h5>
+                <h5 class="modal-title" id="viewModalLabel">Delete Status</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 												<form method="post" id="viewStatusForm">
@@ -89,7 +89,7 @@
                 {data: "description", title: "Description", type: "string", visible: true},
                 {
 																			data: null,
-																			title: "View FLow",
+																			title: "View Status",
 																			orderable: false,
 																			render: function (data, type, row) {
 																							 return `<button class="btn btn-sm " onclick="openViewModal('${row.name}', '${row.description}')">
@@ -99,7 +99,7 @@
 																},
 																{
 																			data: null,
-																			title: "Edit FLow",
+																			title: "Edit Status",
 																			orderable: false,
 																			render: function (data, type, row) {
 																							var url = "{% url 'status_edit' '0' %}";
@@ -111,7 +111,7 @@
 																},
 																{
 																			data: null,
-																			title: "Delete FLow",
+																			title: "Delete Status",
 																			orderable: false,
 																			render: function (data, type, row) {
 																							var url = "{% url 'status_delete' '0' %}";
@@ -129,16 +129,13 @@
 
 
 function openViewModal(name, description) {
-    // Set data in modal form fields
     document.getElementById('viewModalLabel').innerText = `Viewing Flow: ${name}`;
     document.querySelector('#id_name').value = name;
     document.querySelector('#id_description').value = description;
 
-    // Disable fields to make them non-editable
     document.querySelector('#id_name').readOnly = true;
     document.querySelector('#id_description').readOnly = true;
 
-    // Show the modal
     $('#viewModal').modal('show');
 }
 

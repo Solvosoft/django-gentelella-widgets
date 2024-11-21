@@ -1,17 +1,19 @@
 {% extends 'gentelella/base.html' %}
 {% load gtsettings timejs %}
+{% load static %}
 
 {% block content %}
 <div class="card">
 	<div class="card-body">
 		<div class="card-title titles">
 			<h2>StepFlow Example</h2>
-  <script src="https://unpkg.com/cytoscape@3.30.2/dist/cytoscape.min.js"></script>
+			<script src="{% static 'gentelella/js/cytoscape.min.js' %}"></script>
+
 		</div>
 
 		 <button class="btn btn-primary" id="add-step-btn">Add Step</button>
 			<button class="btn btn-primary" id="delete-step-btn">Delete Step</button>
-			<button class="btn btn-primary" id="eliminar">Clean</button>
+			<button class="btn btn-primary" id="clean">Clean</button>
    <div id="cy" style="width: 1000; height: 500px; border: 1px solid black;"></div>
 
 			<a class="btn btn-primary my-4 float-end" id="submit_actions" href="{%url 'actions' %}">Continue</a>
@@ -31,7 +33,7 @@
 			var sourceStep = null;
 			var deleteStep = null;
 
-			document.getElementById('eliminar').addEventListener('click', function() {
+			document.getElementById('clean').addEventListener('click', function() {
 
  			localStorage.clear();
     cy.elements().remove();
@@ -98,8 +100,8 @@
             "pre_action": [
                 {
                     "id": "action_1",
-                    "name": "Pre Action 1",
-                    "description": "Acción previa al step 1",
+                    "name": "Pre Action",
+                    "description": "pre action of step",
                     "content_type": "0",
                     "object_id": 123
                 }
@@ -107,8 +109,8 @@
             "post_action": [
                 {
                     "id": "action_2",
-                    "name": "Post Action 1",
-                    "description": "Acción posterior al step 1",
+                    "name": "Post Action",
+                    "description": "post action of step",
                     "content_type": "0",
                     "object_id": 124
                 }
@@ -164,8 +166,6 @@
 														}
 												});
 
-												var newEdge = cy.getElementById(newEdgeId);
-
 												let edges= JSON.parse(localStorage.getItem('edgeData')) || [];
 												edges.push({
 																id: newEdgeId,
@@ -208,16 +208,28 @@
     document.getElementById('delete-step-btn').addEventListener('click', function() {
       if (deleteStep) {
 								deleteStep.remove();
-								let steps = JSON.parse(localStorage.getItem('stepData')) || [];
-								steps = steps.filter(step => step.data.id !== deleteStep.id());
-								localStorage.setItem('stepData', JSON.stringify(steps));
+								let storedSteps = JSON.parse(localStorage.getItem('stepData')) || [];
+								storedSteps = storedSteps.filter(step => step.data.id !== deleteStep.id());
+								localStorage.setItem('stepData', JSON.stringify(storedSteps));
 
 								cy.edges().forEach(edge => {
 												if (edge.source().id() === deleteStep.id() || edge.target().id() === deleteStep.id()) {
 																edge.remove();
 												}
 								});
+
+								let edges = JSON.parse(localStorage.getItem('edgeData')) || [];
+        edges = edges.filter(edge => edge.source !== deleteStep.id() && edge.target !== deleteStep.id());
+        localStorage.setItem('edgeData', JSON.stringify(edges));
+
+        deleteStep.remove();
+
+        let steps = JSON.parse(localStorage.getItem('stepData')) || [];
+        steps = steps.filter(step => step.data.id !== deleteStep.id());
+        localStorage.setItem('stepData', JSON.stringify(steps));
+
 								deleteStep = null;
+								sourceStep = null;
 						} else {
 								alert("Please, select one step for delete.");
 						}
@@ -243,7 +255,6 @@
 											}
 
 											if (editMode) {
-															console.log(data)
 															if (data.steps && data.steps.length > 0) {
 																			const maxId = Math.max(...data.steps.map(step => step.id));
 																			const maxOrder = Math.max(...data.steps.map(step => step.order));

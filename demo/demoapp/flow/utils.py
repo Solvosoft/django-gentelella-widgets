@@ -69,7 +69,6 @@ def update_steps(edges_data_json, steps_data_json, step_form, actions_form, skip
 
         update_skip_condition(skip_condition_form, edges_data_json, id_map)
 
-    return steps_instances
 
 def update_actions(step_instance, step_data, actions_form):
 
@@ -253,7 +252,7 @@ def save_actions(step_data, step_instance, actions_form):
                     step_instance.pre_action.add(pre_action)
 
             except ContentType.DoesNotExist:
-                print('no se registro')
+                print('not register')
 
     if 'post_action' in step_data and step_data['post_action']:
         for post_action_data in step_data['post_action']:
@@ -266,17 +265,4 @@ def save_actions(step_data, step_instance, actions_form):
                     step_instance.post_action.add(post_action)
 
             except ContentType.DoesNotExist:
-                print('no se registro ')
-
-
-def steps_skip_condition(steps_instances, step_model):
-
-    steps = []
-
-    for step in steps_instances:
-        step_add = step_model.objects.get(id=step.id)
-        steps.append(step_add)
-
-    steps_details = [{'id': step.id, 'name': step.name, 'order': step.order, 'status_id': step.status_id, }  for step in steps]
-
-    return steps_details
+                print('not register ')

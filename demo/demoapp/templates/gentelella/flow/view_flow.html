@@ -4,8 +4,8 @@
 {% block content %}
 <div class="container mt-5">
     <div class="progress">
-        <div id="progress-bar" class="progress-bar" role="progressbar" style="width: 10%;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100">
-            Paso 1 de 10
+        <div id="progress-bar" class="progress-bar" role="progressbar" style="width: 100%;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100">
+            Not Steps
         </div>
     </div>
 </div>
@@ -19,15 +19,13 @@
             <div id="step_content" class="text-center">
             </div>
 												<div id="gt_db_form_formset" style="display: none;">
-																<!-- Contenido del formset GTDbForm -->
 												</div>
 												<div id="gt_db_field_form" style="display: none;">
-																<!-- Contenido del form GTDbField -->
 												</div>
         </div>
         <div class="card-footer d-flex justify-content-between">
-            <button id="previous-button" class="btn btn-secondary" style="display: none;">Anterior</button>
-            <button id="next-button" class="btn btn-primary ms-auto">Siguiente</button>
+            <button id="previous-button" class="btn btn-secondary" style="display: none;">Back</button>
+            <button id="next-button" class="btn btn-primary ms-auto">Next</button>
         </div>
     </div>
 </div>
@@ -45,8 +43,8 @@
     let currentStepIndex = 0;
 
     document.getElementById("tittle_content").innerHTML = `
-        <h2>${flowData.flow.name || "No existe este flujo"}</h2>
-        <p>${flowData.flow.description || "No hay descripción disponible para este flujo."}</p>`;
+        <h2>${flowData.flow.name || "This flow does not exist"}</h2>
+        <p>${flowData.flow.description || "No description available for this flow."}</p>`;
 
     function displayStep(i) {
         const step = flowData.steps[i];
@@ -54,7 +52,7 @@
             let formHtml = `
                 <h3 class="my-3">${step.name}</h3>
                 <h3 class="my-3">${step.order}</h3>
-                <p>${step.description || "No hay descripción disponible para este paso."}</p>`;
+                <p>${step.description || "No description available for this step."}</p>`;
 
             const formFormsetElement = document.getElementById("gt_db_form_formset");
             const fieldFormElement = document.getElementById("gt_db_field_form");
@@ -65,7 +63,7 @@
 																	step.forms_with_fields.forEach(formWithFields => {
 																					formHtml += `
 																									<div class="form-container">
-																													<h4>Formulario: ${formWithFields.token || "Formulario no disponible"}</h4>`;
+																													<h4>Form: ${formWithFields.token || "Form not available"}</h4>`;
 
 																					formWithFields.fields.forEach(field => {
 																									formHtml += `
@@ -79,15 +77,11 @@
 																	});
 
 																	formHtml += `</div>`;
-            } else {
-                console.error("Los elementos 'gt_db_form_formset' o 'gt_db_field_form' no existen en el DOM.");
             }
 
             document.getElementById("step_content").innerHTML = formHtml;
             updateProgressBar(i);
             updateNavigationButtons(i);
-        } else {
-            console.error("El paso no existe en el índice:", i);
         }
     }
 
@@ -98,7 +92,7 @@
 
         progressBar.style.width = `${progressPercentage}%`;
         progressBar.setAttribute('aria-valuenow', progressPercentage);
-        progressBar.innerText = `Paso ${i + 1} de ${totalSteps}`;
+        progressBar.innerText = `Step ${i + 1} of ${totalSteps}`;
     }
 
     function getNextStepIndex(currentIndex) {
@@ -116,9 +110,9 @@
         previousButton.style.display = i > 0 ? "inline-block" : "none";
 
         if (i === flowData.steps.length - 1) {
-            nextButton.innerText = "Finalizar";
+            nextButton.innerText = "Finish";
         } else {
-            nextButton.innerText = "Siguiente";
+            nextButton.innerText = "Next";
         }
     }
 

@@ -187,15 +187,6 @@ def actions_form(request, id, action):
     return render(request, 'gentelella/flow/action.html', {'form': form, 'id':id, 'action':action})
 
 
-def status_index(request):
-    form = GTStatusForm()
-    if request.method == 'POST':
-        form = GTStatusForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('status')
-
-    return render(request, 'gentelella/flow/status.html', {'form': form})
 
 def skip_conditions_index(request):
 
@@ -230,19 +221,18 @@ def delete_flow(request, id):
 
             flow.delete()
 
-        messages.success(request, 'Flujo eliminado correctamente.')
+        messages.success(request, 'Flow removed successfully.')
 
     except GTFlow.DoesNotExist:
-        messages.error(request, 'Flujo no encontrado.')
+        messages.error(request, 'Flow not found.')
 
     except Exception as e:
-        messages.error(request, f'Error al eliminar el flujo: {str(e)}')
+        messages.error(request, f'Error deleting stream: {str(e)}')
 
     return redirect('flows_index')
 
 
 #Status
-
 
 def status_index(request):
 
@@ -280,7 +270,7 @@ def status_delete(request, id):
 
     if request.method == 'POST':
         status.delete()
-        messages.success(request, 'Flujo eliminado correctamente.')
+        messages.success(request, 'Status successfully removed.')
     else:
         print(status.id)
 
