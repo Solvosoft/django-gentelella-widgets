@@ -295,6 +295,8 @@ class GTStepForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(GTStepForm, self).__init__(*args, **kwargs)
+        self.fields['status_id'].required = False
+        self.fields['form'].required = False
         self.fields['post_action'].required = False
         self.fields['pre_action'].required = False
 
