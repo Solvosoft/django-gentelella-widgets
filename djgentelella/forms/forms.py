@@ -329,7 +329,6 @@ class GTFlowForm(forms.ModelForm):
                 raise ValidationError(_("Invalid format for each step in stepsData. Expected a dictionary with 'data'."))
 
             required_keys = {"id", "name", "order", "pre_action", "post_action"}
-
             if not required_keys.issubset(data.keys()):
                 missing_keys = required_keys - data.keys()
                 raise ValidationError(_("Missing required keys in stepsData['data']: %s") % ', '.join(missing_keys))
