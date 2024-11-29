@@ -1,0 +1,26 @@
+{% extends 'gentelella/base.html' %}
+{% load gtsettings timejs %}
+
+{% block content %}
+<div class="card">
+	<div class="card-body">
+		<div class="card-title titles">
+			<h2>Step</h2>
+		</div>
+
+			<form method="post">
+					{% csrf_token %}
+					{{ form.as_p }}
+					<button class="btn btn-primary" type="submit">Submit</button>
+			</form>
+
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block js %}
+
+  <script></script>
+
+{% endblock js%}
