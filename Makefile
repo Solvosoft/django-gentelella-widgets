@@ -56,3 +56,9 @@ fuzzysdist:
 	cd demo && python manage.py makemigrations && python manage.py loaddevstatic && python manage.py createbasejs
 	cd djgentelella && django-admin compilemessages -l es
 	python3 -m build
+
+messages:
+	cd djgentelella && python ../demo/manage.py makemessages --all --no-location --no-obsolete && django-admin makemessages -d djangojs -l es  --ignore *.min.js --no-location --no-obsolete
+
+trans:
+	cd djgentelella && django-admin compilemessages --locale es
