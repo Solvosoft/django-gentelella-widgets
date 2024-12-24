@@ -12,7 +12,7 @@
 			<div class="modal-body">
 				<form id="{{form_id}}" method="POST" autocomplete="off" action="{{url}}">
 					{% csrf_token %}
-					{{ form.as_horizontal }}
+					{{ form }}
 					<input type="hidden" name="prefix" class="form_prefix" value="{{form.prefix|default_if_none:''}}">
 				</form>
 			</div>
