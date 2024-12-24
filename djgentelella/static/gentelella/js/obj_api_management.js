@@ -69,7 +69,7 @@ async function obtainFormAsJSON(form, prefix = '', extras={}) {
 }
 
 function convertToStringJson(form, prefix="", extras={}){
-    result=obtainFormAsJSON(form[0], prefix=prefix, extras={});
+    result=obtainFormAsJSON(form[0], prefix=prefix, extras=extras);
     return result;
 }
 
