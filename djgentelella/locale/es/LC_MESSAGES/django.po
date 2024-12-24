@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-21 14:55-0600\n"
-"PO-Revision-Date: 2023-03-21 15:04-0600\n"
+"POT-Creation-Date: 2024-12-24 04:28+0000\n"
+"PO-Revision-Date: 2024-12-23 22:33-0600\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: es\n"
@@ -16,467 +16,321 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 2.4.2\n"
+"X-Generator: Poedit 3.2.2\n"
 
-#: blog/models.py:27 blog/models.py:95
 msgid "created"
 msgstr "creado"
 
-#: blog/models.py:28 blog/models.py:96
 msgid "modified"
 msgstr "modificado"
 
-#: blog/templates/gentelella/blog/entry_delete.html:12
 msgid "Deleting "
 msgstr "Eliminando "
 
-#: blog/templates/gentelella/blog/entry_delete.html:16
 msgid "Yes, Delete it"
 msgstr "Si, eliminarlo"
 
-#: blog/templates/gentelella/blog/entry_detail.html:14
 msgid "Draf"
 msgstr "Borrador"
 
-#: blog/templates/gentelella/blog/entry_detail.html:18
-#: blog/templates/gentelella/blog/entry_list.html:60
 msgid "This show the last version of the entry (it\\"
 msgstr "Esto muestra la última versión de la entrada"
 
-#: blog/templates/gentelella/blog/entry_detail.html:33
-#: blog/templates/gentelella/blog/entry_list.html:38
 msgid "Preview image for"
 msgstr "Previsualización de"
 
-#: blog/templates/gentelella/blog/entry_form.html:16
-#: templates/gentelella/blocks/permissions_management.html:37
 msgid "Save"
 msgstr "Guardar"
 
-#: blog/templates/gentelella/blog/entry_form.html:17
 msgid "Publish"
 msgstr "Publicar"
 
-#: blog/templates/gentelella/blog/entry_list.html:47
 msgid "by"
 msgstr "por"
 
-#: blog/templates/gentelella/blog/entry_list.html:47
 msgid "Anonymous"
 msgstr "Anónimo"
 
-#: blog/templates/gentelella/blog/entry_list.html:53
 msgid "(More...)"
 msgstr "(Más...)"
 
-#: blog/templates/gentelella/blog/entry_list.html:60
 msgid "Preview"
 msgstr "Previsualizar"
 
-#: blog/templates/gentelella/blog/entry_list.html:65
-#: templates/gentelella/cruds/update.html:5
-#: templates/gentelella/cruds/update.html:7
-#: templates/gentelella/cruds/update.html:23
 msgid "Update"
 msgstr "Actualizar"
 
-#: blog/templates/gentelella/blog/entry_list.html:68
-#: templates/cruds/ajax/list.html:55
-#: templates/gentelella/blocks/crud_list.html:15
-#: templates/gentelella/cruds/_form.html:23
-#: templates/gentelella/cruds/list.html:117
 msgid "Delete"
 msgstr "Eliminar"
 
-#: blog/templates/gentelella/blog/entry_list.html:83
 msgid "New Post"
 msgstr "Nueva Entrada"
 
-#: blog/templates/gentelella/blog/entry_list.html:89
 msgid "Categories"
 msgstr "Categorías"
 
-#: blog/views.py:145
 msgid "An error happen, please try again"
 msgstr "Un error ocurrió, por favor vuelva a intentarlo"
 
-#: blog/views.py:154
 msgid "Name of new category"
 msgstr "Nombre de la nueva categoría"
 
-#: chunked_upload/constants.py:15
 msgid "Uploading"
 msgstr "Subiendo"
 
-#: chunked_upload/constants.py:16
 msgid "Complete"
 msgstr "Completo"
 
-#: cruds/base.py:649
 #, python-format
 msgid "Can see available %s"
 msgstr "Puede ver los disponibles %s"
 
-#: management/commands/delete_expired_uploads.py:10
+msgid ""
+"A list of elements is expected, ej: [{name: 'name of file', value:'base64 "
+"string representation'}]"
+msgstr ""
+"Se espera una lista de elementos, ej: [{name: 'nombre del archivo', "
+"value:'representación en cadena base64'}]"
+
+#, python-brace-format
+msgid "Too many elements, max_file = {self.max_files}"
+msgstr "Demasiados elementos, max_file = {self.max_files}"
+
+msgid ""
+"Invalid structure you need to provide {name: 'name of file', value:'base64 "
+"string representation'}"
+msgstr ""
+"Estructura inválida, necesitas proporcionar {name: 'nombre del archivo', "
+"value:'representación en cadena base64'}"
+
 #, python-brace-format
 msgid "Do you want to delete {obj}?"
 msgstr "¿Desea eliminar {obj}?"
 
-#: models.py:55
 msgid "Help title"
 msgstr "Título de ayuda"
 
-#: models.py:56
 msgid "Help text"
 msgstr "Texto de ayuda"
 
-#: models.py:63
 msgid "Visible"
 msgstr "Visible"
 
-#: models.py:64
 msgid "Hidden"
 msgstr "Oculto"
 
-#: models.py:67
 msgid "Default"
 msgstr "Por defecto"
 
-#: models.py:68
 msgid "Information"
 msgstr "Información"
 
-#: models.py:69
 msgid "Success"
 msgstr "Éxito"
 
-#: models.py:70
 msgid "Warning"
 msgstr "Precaución"
 
-#: models.py:71
 msgid "Danger"
 msgstr "Peligro"
 
-#: models.py:74 templates/gentelella/menu/notification_list.html:24
 msgid "Description"
 msgstr "Descripción"
 
-#: models.py:75 templates/gentelella/menu/notification_list.html:25
 msgid "Link"
 msgstr "Enlace"
 
-#: models.py:76 templates/gentelella/base.html:220
-#: templates/gentelella/blocks/permissions_management.html:16
 msgid "User"
 msgstr "Usuario"
 
-#: models.py:79
 msgid "Message Type"
 msgstr "Tipo de mensaje"
 
-#: models.py:81 templates/gentelella/menu/notification_list.html:26
 msgid "State"
 msgstr "Estado"
 
-#: models.py:82 models.py:95
 msgid "Category"
 msgstr "Categoría"
 
-#: models.py:94
 msgid "Name"
 msgstr "Nombre"
 
-#: models.py:96
 msgid "Url Name"
 msgstr "Nombre de la url"
 
-#: models.py:98
 msgid "Permission"
 msgstr "Permiso"
 
-#: notification/__init__.py:95
 msgid "This is a html email, please use a visor with HTML support"
 msgstr "Este es un correo HTML, por favor use un cliente con soporte HTML"
 
-#: settings.py:11
 msgid "You have a new notification"
 msgstr "Usted tiene una nueva notificación"
 
-#: templates/cruds/ajax/_form.html:36 templates/cruds/ajax/delete.html:29
-#: templates/gentelella/widgets/record_audio.html:7
-#: templates/gentelella/widgets/record_photo.html:9
-#: templates/gentelella/widgets/record_video.html:8
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: templates/cruds/ajax/_form.html:41 templates/gentelella/cruds/_form.html:25
-#: templates/gentelella/registration/password_change_form.html:17
-#: templates/gentelella/registration/password_reset_confirm.html:18
-#: templates/gentelella/registration/registration_form.html:17
-#: templates/gentelella/widgets/addselect.html:23
-#: templates/gentelella/widgets/addtreeselect.html:26
 msgid "Submit"
 msgstr "Enviar"
 
-#: templates/cruds/ajax/create.html:8 templates/gentelella/cruds/create.html:21
 msgid "New"
 msgstr "Nuevo"
 
-#: templates/cruds/ajax/delete.html:7 templates/gentelella/cruds/delete.html:19
-#: templates/gentelella/cruds/delete.html:34
 msgid "Remove"
 msgstr "Eliminar"
 
-#: templates/cruds/ajax/delete.html:11
 msgid "Do you really want to remove"
 msgstr "¿Está seguro de eliminar"
 
-#: templates/cruds/ajax/delete.html:24
-#: templates/gentelella/cruds/delete.html:39
 msgid "Confirm remove"
 msgstr "Confirmar eliminación"
 
-#: templates/cruds/ajax/list.html:16 templates/gentelella/cruds/list.html:93
 msgid "Actions"
 msgstr "Acciones"
 
-#: templates/cruds/ajax/list.html:35 templates/gentelella/cruds/list.html:109
-#: templates/gentelella/email/notification.html:10
-#: templates/gentelella/menu/notification_list.html:35
 msgid "Show"
 msgstr "Ver"
 
-#: templates/cruds/ajax/list.html:44 templates/cruds/ajax/update.html:8
-#: templates/gentelella/cruds/delete.html:25
-#: templates/gentelella/cruds/detail.html:30
-#: templates/gentelella/cruds/list.html:113
 msgid "Edit"
 msgstr "Editar"
 
-#: templates/cruds/ajax/list.html:64 templates/gentelella/cruds/list.html:127
 msgid "No items yet."
 msgstr "Sin elementos."
 
-#: templates/gentelella/app/footer.html:6
-#: templates/gentelella/registration/footer.html:7
-#: templates/gentelella/registration/password_reset_form.html:32
 msgid "All Rights Reserved."
 msgstr "Todos los derechos reservados."
 
-#: templates/gentelella/app/top_navigation.html:20
 msgid "Add Permission"
 msgstr "Agregar Permisos"
 
-#: templates/gentelella/base.html:216
-msgid "Select an User"
-msgstr "Seleccione a un Usuario"
-
-#: templates/gentelella/base.html:217
-msgid "Select a Group"
-msgstr "Seleccione un grupo"
-
-#: templates/gentelella/base.html:221
-msgid "There are fields with invalid options"
-msgstr "Hay campos con opciones no válidas"
-
-#: templates/gentelella/base.html:222
-msgid "Not found"
-msgstr "No se encontró"
-
-#: templates/gentelella/base.html:223
-#: templates/gentelella/blocks/permissions_management.html:17
-msgid "Group"
-msgstr "Grupo"
-
-#: templates/gentelella/base.html:224
-msgid "This view has not permissions associated."
-msgstr "Esta vista no tiene permisos asociados."
-
-#: templates/gentelella/base.html:225
-msgid "You have not selected a valid option."
-msgstr "No ha seleccionado una opción valida."
-
-#: templates/gentelella/base.html:226
-msgid "Permission have been successfully saved."
-msgstr "Se han guardado exitosamente los permisos."
-
-#: templates/gentelella/base.html:227
-msgid "An error occurred while saving."
-msgstr "Ha ocurrido un error al guardar."
-
-#: templates/gentelella/blocks/permissions_management.html:7
-msgid "Permission Management"
-msgstr "Gestion de Permisos"
-
-#: templates/gentelella/blocks/permissions_management.html:14
-msgid "Permission Type"
-msgstr "Tipo de Permiso"
-
-#: templates/gentelella/blocks/permissions_management.html:36
-#: templates/gentelella/menu/palette_modal.html:22
-#: templates/gentelella/menu/palette_modal.html:46
-#: templates/gentelella/widgets/addselect.html:22
-#: templates/gentelella/widgets/addtreeselect.html:25
 msgid "Close"
 msgstr "Cerrar"
 
-#: templates/gentelella/cruds/403.html:5 templates/gentelella/cruds/403.html:6
-msgid "Error 403"
-msgstr "Error 403"
-
-#: templates/gentelella/cruds/403.html:11
-msgid "Return to Main Page"
-msgstr "Volver a inicio"
-
-#: templates/gentelella/cruds/create.html:4
-#: templates/gentelella/cruds/create.html:6
-msgid "Create new"
-msgstr "Nuevo"
-
-#: templates/gentelella/cruds/create.html:16
-#: templates/gentelella/cruds/delete.html:13
-#: templates/gentelella/cruds/detail.html:19
-#: templates/gentelella/cruds/update.html:17
-msgid "Back to"
-msgstr "Atrás"
-
-#: templates/gentelella/cruds/detail.html:5
-#: templates/gentelella/cruds/detail.html:7
-#: templates/gentelella/cruds/detail.html:25
-msgid "Detail of"
-msgstr "Detalle de"
-
-#: templates/gentelella/cruds/detail.html:41
-msgid "Label"
-msgstr "Etiqueta"
-
-#: templates/gentelella/cruds/detail.html:41
-msgid "Value"
-msgstr "Valor"
-
-#: templates/gentelella/cruds/list.html:5
-#: templates/gentelella/cruds/list.html:7
-#: templates/gentelella/cruds/list.html:17
-msgid "List of"
-msgstr "Lista de"
-
-#: templates/gentelella/cruds/list.html:24
-msgid "Create new "
-msgstr "Crear nuevo "
-
-#: templates/gentelella/cruds/list.html:41
-msgid "Search for..."
-msgstr "Búsqueda para ..."
-
-#: templates/gentelella/cruds/list.html:58
-msgid "Filters"
-msgstr "Flitros"
-
-#: templates/gentelella/cruds/list.html:72
-msgid "Filter"
-msgstr "Filtro"
-
-#: templates/gentelella/cruds/list.html:73
-msgid "Clean filter"
-msgstr "Limpiar filtros"
-
-#: templates/gentelella/cruds/pagination/prev_next.html:8
-msgid "Previous"
-msgstr "Anterior"
-
-#: templates/gentelella/cruds/pagination/prev_next.html:12
-msgid "Page"
-msgstr "Página"
-
-#: templates/gentelella/cruds/pagination/prev_next.html:12
-msgid "of"
-msgstr "de"
-
-#: templates/gentelella/cruds/pagination/prev_next.html:16
-msgid "Next"
-msgstr "Siguiente"
-
-#: templates/gentelella/cruds/update.html:64
-msgid "Create"
-msgstr "Crear"
-
-#: templates/gentelella/menu/notificacion.html:30
-msgid "Show all notifications"
-msgstr "Ver todas las notificaciones"
-
-#: templates/gentelella/menu/notification_list.html:13
-msgid "List of notifications"
-msgstr "Lista de notificaciones"
-
-#: templates/gentelella/menu/notification_list.html:22
-msgid "Type"
-msgstr "Tipo"
-
-#: templates/gentelella/menu/notification_list.html:23
-msgid "Creation date"
-msgstr "Fecha de creación"
-
-#: templates/gentelella/menu/palette.html:8
-msgid "Help"
-msgstr "Ayuda"
-
-#: templates/gentelella/menu/palette_modal.html:23
 msgid "Save changes"
 msgstr "Guardar cambios"
 
-#: templates/gentelella/menu/palette_modal.html:34
+msgid "Confirmation for delete. Are you sure?"
+msgstr "Confirmación de borrado, ¿está seguro?"
+
+msgid "Confirm"
+msgstr "Confirmar"
+
+msgid "Permission Management"
+msgstr "Gestion de Permisos"
+
+msgid "Permission Type"
+msgstr "Tipo de Permiso"
+
+msgid "Group"
+msgstr "Grupo"
+
+msgid "Error 403"
+msgstr "Error 403"
+
+msgid "Return to Main Page"
+msgstr "Volver a inicio"
+
+msgid "Create new"
+msgstr "Nuevo"
+
+msgid "Back to"
+msgstr "Atrás"
+
+msgid "Detail of"
+msgstr "Detalle de"
+
+msgid "Label"
+msgstr "Etiqueta"
+
+msgid "Value"
+msgstr "Valor"
+
+msgid "List of"
+msgstr "Lista de"
+
+msgid "Create new "
+msgstr "Crear nuevo "
+
+msgid "Search for..."
+msgstr "Búsqueda para ..."
+
+msgid "Filters"
+msgstr "Flitros"
+
+msgid "Filter"
+msgstr "Filtro"
+
+msgid "Clean filter"
+msgstr "Limpiar filtros"
+
+msgid "Previous"
+msgstr "Anterior"
+
+msgid "Page"
+msgstr "Página"
+
+msgid "of"
+msgstr "de"
+
+msgid "Next"
+msgstr "Siguiente"
+
+msgid "Create"
+msgstr "Crear"
+
+msgid "Show all notifications"
+msgstr "Ver todas las notificaciones"
+
+msgid "List of notifications"
+msgstr "Lista de notificaciones"
+
+msgid "Type"
+msgstr "Tipo"
+
+msgid "Creation date"
+msgstr "Fecha de creación"
+
+msgid "Help"
+msgstr "Ayuda"
+
 msgid "Deleting help instance"
 msgstr "Eliminar instancia de ayuda"
 
-#: templates/gentelella/menu/palette_modal.html:41
 msgid "You are deleting the next helping item"
 msgstr "Está eliminando el siguiente elemento de ayuda"
 
-#: templates/gentelella/menu/palette_modal.html:43
 msgid "Are you sure you want to continue?"
 msgstr "¿Está seguro que desea continuar?"
 
-#: templates/gentelella/menu/palette_modal.html:47
 msgid "Yes, delete it"
 msgstr "Si eliminarlo"
 
-#: templates/gentelella/registration/activate.html:11
 msgid "Account activation failed"
 msgstr "Activación de cuentas falló"
 
-#: templates/gentelella/registration/activation_complete.html:12
 msgid "Your account is now activated."
 msgstr "Su cuenta está activada."
 
-#: templates/gentelella/registration/activation_email.txt:2
 msgid "Activate account at"
 msgstr "Cuenta activada el"
 
-#: templates/gentelella/registration/activation_email.txt:6
 #, python-format
 msgid "Link is valid for %(expiration_days)s days."
 msgstr "Enlace es válido por %(expiration_days)s días."
 
-#: templates/gentelella/registration/activation_email_subject.txt:1
 msgid "Account activation on"
 msgstr "Activación de cuentas"
 
-#: templates/gentelella/registration/login.html:5
 msgid "vendors/animate.css/animate.min.css"
 msgstr "vendors/animate.css/animate.min.css"
 
-#: templates/gentelella/registration/login.html:19
-#: templates/gentelella/registration/logout.html:20
 msgid "Login"
 msgstr "Iniciar sesión"
 
-#: templates/gentelella/registration/login.html:22
 msgid "Your username and password didn't match. Please try again."
 msgstr ""
 "Nombre de usuario o contraseña no concuerdan. Por favor intente de nuevo."
 
-#: templates/gentelella/registration/login.html:27
 msgid ""
 "Your account doesn't have access to this page. To proceed,\n"
 "                        please login with an account that has access."
@@ -485,57 +339,43 @@ msgstr ""
 "                        por favor inicie sesión con otra cuenta con permisos "
 "suficientes."
 
-#: templates/gentelella/registration/login.html:30
 msgid "Please login to see this page."
 msgstr "Por favor inicie sesión para ver esta página."
 
-#: templates/gentelella/registration/login.html:36
 msgid "Username"
 msgstr "Nombre de usuario"
 
-#: templates/gentelella/registration/login.html:39
 msgid "Password"
 msgstr "Contraseña"
 
-#: templates/gentelella/registration/login.html:42
-#: templates/gentelella/registration/password_reset_complete.html:15
 msgid "Log in"
 msgstr "Ingresar"
 
-#: templates/gentelella/registration/login.html:43
 msgid "Lost your password?"
 msgstr "¿Olvidó su contraseña?"
 
-#: templates/gentelella/registration/logout.html:15
 msgid "Logged out"
 msgstr "Salir"
 
-#: templates/gentelella/registration/logout.html:16
 msgid "Do you want to login again?"
 msgstr "¿Desea iniciar sesión nuevamente?"
 
-#: templates/gentelella/registration/logout.html:17
 msgid "or maybe you want to"
 msgstr "o tal vez quiera"
 
-#: templates/gentelella/registration/logout.html:17
 msgid "go home"
 msgstr "ir a inicio"
 
-#: templates/gentelella/registration/new_user.html:5
 msgid "Welcome"
 msgstr "Bienvenida"
 
-#: templates/gentelella/registration/new_user.html:8
 msgid "This email was sent because someone create an user with your email in "
 msgstr ""
 "Este correo fue enviado porque alguien creó un usuario con su correo en "
 
-#: templates/gentelella/registration/new_user.html:10
 msgid "Your username is: "
 msgstr "Su usuario de ingreso es: "
 
-#: templates/gentelella/registration/new_user.html:11
 msgid ""
 "for security reason password was create randomly and it is not provided "
 "here, please use this link"
@@ -543,52 +383,40 @@ msgstr ""
 "por razones de seguridad la contraseña fue creada aleatoriamente y no está "
 "agregada en este correo, por favor use el siguiente enlace"
 
-#: templates/gentelella/registration/new_user.html:13
 msgid "to regenerate new password and login on platform"
 msgstr "para regenerar una nueva contraseña e ingresá a la plataforma"
 
-#: templates/gentelella/registration/password_change_done.html:12
 msgid "Password changed"
 msgstr "Contraseña modificada"
 
-#: templates/gentelella/registration/password_reset_complete.html:13
 msgid "Password reset successfully"
 msgstr "Contraseña modificada con éxito"
 
-#: templates/gentelella/registration/password_reset_confirm.html:14
 msgid "Password change"
 msgstr "Contraseña Modificada"
 
-#: templates/gentelella/registration/password_reset_confirm.html:23
 msgid "Password reset failed"
 msgstr "Cambio de contraseña falló"
 
-#: templates/gentelella/registration/password_reset_done.html:12
 msgid "Password reseted"
 msgstr "Contraseña reiniciada"
 
-#: templates/gentelella/registration/password_reset_done.html:13
 msgid "Email with password reset instructions has been sent."
 msgstr "Correo con el cambio de contraseña ha sido enviado."
 
-#: templates/gentelella/registration/password_reset_done.html:15
 msgid "Go to home"
 msgstr "Ir a inicio"
 
-#: templates/gentelella/registration/password_reset_email.html:5
 #, python-format
 msgid "Reseting password at %(site_name)s"
 msgstr "Reiniciar contraseña en %(site_name)s"
 
-#: templates/gentelella/registration/password_reset_email.html:8
 msgid "Use the follow link to reset the password in the platform"
 msgstr "Use el siguiente enlace para reiniciar la contraseña en la plataforma"
 
-#: templates/gentelella/registration/password_reset_email.html:10
 msgid "Here"
 msgstr "Aquí"
 
-#: templates/gentelella/registration/password_reset_email.html:13
 msgid ""
 "This email was send because someone try to reset your password, if you "
 "didn't request a reset, please delete this email and do not more actions\n"
@@ -599,55 +427,64 @@ msgstr ""
 "elimine este correo y no realice ninguna otra acción\n"
 "   "
 
-#: templates/gentelella/registration/password_reset_form.html:16
 msgid "Reset password"
 msgstr "Recuperar contraseña"
 
-#: templates/gentelella/registration/password_reset_form.html:18
 msgid "Please insert the user email registered in platform"
 msgstr "Por favor ingrese un correo válido registrado en la plataforma"
 
-#: templates/gentelella/registration/password_reset_form.html:23
 msgid "We will send you a email to verify you are were you say you are"
 msgstr "Vamos a enviarle un correo para verificar que usted es quien dice ser"
 
-#: templates/gentelella/registration/password_reset_form.html:27
 msgid "Send email"
 msgstr "Enviar correo"
 
-#: templates/gentelella/registration/password_reset_subject.txt:3
 #, python-format
 msgid "Password reset on %(site_name)s"
 msgstr "Contraseña reiniciada en %(site_name)s"
 
-#: templates/gentelella/registration/registration_closed.html:12
 msgid "Registration is currently closed."
 msgstr "Registro está cerrado."
 
-#: templates/gentelella/registration/registration_complete.html:12
 msgid "You are now registered. Activation email sent."
 msgstr ""
 "Usted fue registrado adecuadamente. Un correo de activación ha sido enviado."
 
-#: templates/gentelella/widgets/checkyesno.html:2 widgets/core.py:473
+msgid "Select an User"
+msgstr "Seleccione a un Usuario"
+
+msgid "Select a Group"
+msgstr "Seleccione un grupo"
+
+msgid "There are fields with invalid options"
+msgstr "Hay campos con opciones no válidas"
+
+msgid "Not found"
+msgstr "No se encontró"
+
+msgid "This view has not permissions associated."
+msgstr "Esta vista no tiene permisos asociados."
+
+msgid "You have not selected a valid option."
+msgstr "No ha seleccionado una opción valida."
+
+msgid "Permission have been successfully saved."
+msgstr "Se han guardado exitosamente los permisos."
+
+msgid "An error occurred while saving."
+msgstr "Ha ocurrido un error al guardar."
+
 msgid "No"
 msgstr "No"
 
-#: templates/gentelella/widgets/checkyesno.html:4 widgets/core.py:472
 msgid "Yes"
 msgstr "Sí"
 
-#: templates/gentelella/widgets/chunkedupload.html:24
-#: templates/gentelella/widgets/file.html:25
 msgid "Delete this file"
 msgstr "Eliminar este archivo"
 
-#: templates/gentelella/widgets/record_audio.html:5
-#: templates/gentelella/widgets/record_photo.html:7
-#: templates/gentelella/widgets/record_video.html:6
 msgid "Start"
 msgstr "Iniciar"
 
-#: widgets/core.py:471
 msgid "Unknown"
 msgstr "Desconocido"
