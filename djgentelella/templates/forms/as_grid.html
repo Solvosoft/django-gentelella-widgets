@@ -15,7 +15,9 @@
 {% for column in form.grid %}
 <div class="row">{% for row in column %}
 	<div class="col">{% for field in row %}
-		<div {% with classes=field.css_classes %}{% if classes %} class="{{ classes }}" {% else %} class="mb-3" {% endif %}
+		<div {% with classes=field.css_classes %}{% if classes %} class="{{ classes }} asgrid gtformfield" {% else %}
+							class="mb-3 asgrid gtformfield"
+							{% endif %}
 							{% endwith %}>
 			{{ errors }}
 			{% if field.label %}{{ field.label_tag }}{% endif %}

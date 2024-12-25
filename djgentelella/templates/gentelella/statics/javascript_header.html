@@ -12,25 +12,21 @@
 {% endif %}
 
 <script>
-function getCookie(name) {
-		var cookieValue = null;
-		if (document.cookie && document.cookie !== '') {
-						var cookies = document.cookie.split(';');
-						for (var i = 0; i < cookies.length; i++) {
-										var cookie = cookies[i].trim();
-										// Does this cookie string begin with the name we want?
-										if (cookie.substring(0, name.length + 1) === (name + '=')) {
-														cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-														break;
-										}
-						}
-		}
-		return cookieValue;
-}
-document.datetime_format="{% get_datetime_format %}";
-document.date_format="{% get_date_format %}";
-
-
-
-
+	function getCookie(name) {
+			var cookieValue = null;
+			if (document.cookie && document.cookie !== '') {
+							var cookies = document.cookie.split(';');
+							for (var i = 0; i < cookies.length; i++) {
+											var cookie = cookies[i].trim();
+											// Does this cookie string begin with the name we want?
+											if (cookie.substring(0, name.length + 1) === (name + '=')) {
+															cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+															break;
+											}
+							}
+			}
+			return cookieValue;
+	}
+	document.datetime_format="{% get_datetime_format %}";
+	document.date_format="{% get_date_format %}";
 </script>

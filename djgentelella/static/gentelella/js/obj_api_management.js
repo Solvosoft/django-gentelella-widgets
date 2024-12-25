@@ -73,22 +73,22 @@ function convertToStringJson(form, prefix="", extras={}){
     return result;
 }
 
-function load_errors(error_list, obj){
+function load_errors(error_list, obj, parentdiv){
     ul_obj = "<ul class='errorlist form_errors d-flex justify-content-center'>";
     error_list.forEach((item)=>{
         ul_obj += "<li>"+item+"</li>";
     });
     ul_obj += "</ul>"
-    $(obj).parents('.form-group').prepend(ul_obj);
+    $(obj).parents(parentdiv).prepend(ul_obj);
     return ul_obj;
 }
 
-function form_field_errors(target_form, form_errors, prefix){
+function form_field_errors(target_form, form_errors, prefix, parentdiv){
     var item = "";
     for (const [key, value] of Object.entries(form_errors)) {
         item = " #id_" +prefix+key;
         if(target_form.find(item).length > 0){
-            load_errors(form_errors[key], item);
+            load_errors(form_errors[key], item, parentdiv);
         }
     }
 }
@@ -173,7 +173,8 @@ function GTBaseFormModal(modal_id, datatable_element,  form_config)  {
                    'error_form': function(errors){}
 
                   },
-        "relation_render": {}
+        "relation_render": {},
+        "parentdiv": ".gtformfield"
    }
 
 
@@ -189,6 +190,7 @@ function GTBaseFormModal(modal_id, datatable_element,  form_config)  {
         "prefix": prefix,
         "type": config.type,
         "btn_class": config.btn_class,
+        "parentdiv": config.parentdiv,
         "init": function(){
             var myModalEl = this.instance[0];
             myModalEl.addEventListener('hidden.bs.modal', this.hide_modalevent(this))
@@ -239,7 +241,7 @@ function GTBaseFormModal(modal_id, datatable_element,  form_config)  {
                 Swal.fire({ icon: 'error', title: gettext('Error'), text: errors.detail });
             }
             instance.form.find('ul.form_errors').remove();
-            form_field_errors(instance.form, errors, instance.prefix);
+            form_field_errors(instance.form, errors, instance.prefix, instance.parentdiv);
         },
         "handle_error": function(instance, error){
             Swal.fire({ icon: 'error', title: gettext('Error'), text: error.message });
