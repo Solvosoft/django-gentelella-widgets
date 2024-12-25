@@ -191,6 +191,7 @@ ____________________________
 To fix use vendors files need to update the line 53
 
 .. code:: python
+
     await asyncio.wait(map(lambda runner: asyncio.create_task(runner.future), running))
 
 in the root ``{venv}/lib/python3.11/site-packages/pylp/cli/cli.py``.
