@@ -10,11 +10,10 @@
 		{% endif %}
 	</div>
 </div>
-
 {% endif %}
 {% for field, errors in fields %}
-<div {% with classes=field.css_classes %}{% if classes %} class="{{ classes }}" {% else %}class="col-12"
-					{% endif %}{% endwith %}>
+<div {% with classes=field.css_classes %}{% if classes %} class="{{ classes }} asplain gtformfield"
+					{% else %} class="col-12 asplain gtformfield" {% endif %}{% endwith %}>
 	{{ errors }}
 	{% if field.label %}{{ field.label_tag }}{% endif %}
 	{{ field }}

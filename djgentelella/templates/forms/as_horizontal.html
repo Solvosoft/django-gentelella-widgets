@@ -13,8 +13,8 @@
 
 {% endif %}
 {% for field, errors in fields %}
-<div {% with classes=field.css_classes %}{% if classes %} class="{{ classes }}" {% else %}class="row form-group mb-3"
-					{% endif %}{% endwith %}>
+<div {% with classes=field.css_classes %}{% if classes %} class="{{ classes }} ashorizontal gtformfield" {% else %}
+					class="row form-group mb-3 ashorizontal gtformfield" {% endif %}{% endwith %}>
 	{{ errors }}
 	{% if field.label %}<label for="{{ field.id_for_label }}" class="col-sm-2 col-form-label">{{ field.label }} </label>
 	{% endif %}

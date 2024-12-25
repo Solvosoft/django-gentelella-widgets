@@ -14,8 +14,8 @@
 {% endif %}
 <div class="row">
 	{% for field, errors in fields %}
-	<div {% with classes=field.css_classes %}{% if classes %} class="{{ classes }}" {% else %}class="col"
-						{% endif %}{% endwith %}>
+	<div {% with classes=field.css_classes %}{% if classes %} class="{{ classes }} asinline gtformfield"
+						{% else %} class="col asinline gtformfield" {% endif %}{% endwith %}>
 		{{ errors }}
 		{% if field.label %}{{ field.label_tag }}{% endif %}
 
