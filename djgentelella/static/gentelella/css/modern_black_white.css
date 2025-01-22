@@ -5351,3 +5351,24 @@ div.form-group {
 	line-height: 30px;
 }
 
+.plainfooter {
+        width: 100%;
+        margin-left: 0px;
+        background: #F7F7F7;
+        padding: 15px 20px;
+        display: block;
+        height: 15vh;
+}
+.plain_main{
+     height: 80vh;
+     display: flex;
+    justify-content: center; /* Centrar horizontalmente */
+    align-items: center; /* Centrar verticalmente */
+}
+
+.logout_content {
+    padding: 20px;
+    background-color: #fff; /* Color de fondo para el contenido */
+    border: 1px solid #1ABB9C;; /* Bordes */
+    border-radius: 5px; /* Esquinas redondeadas */
+}

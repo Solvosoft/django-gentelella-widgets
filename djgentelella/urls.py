@@ -15,15 +15,11 @@ from djgentelella.widgets.helper import HelperWidgetView
 from djgentelella.wysiwyg import views as wysiwyg
 from .groute import routes
 from .templatetags.gtsettings import get_version
+from .views import auth
 
 auth_urls = [
-    path('accounts/login/',
-         auth_views.LoginView.as_view(
-             template_name='gentelella/registration/login.html'),
-         name="login"),
-    path('accounts/logout/', auth_views.LogoutView.as_view(
-        template_name='gentelella/registration/logout.html'),
-         name='logout'),
+    path('accounts/login/', auth.GentelellaLoginView.as_view(), name="login"),
+    path('accounts/logout/', auth.GentelellaLogoutView.as_view(), name='logout'),
     path('accounts/password_change/',
          auth_views.PasswordChangeView.as_view(
              template_name='gentelella/registration/change-password.html',
