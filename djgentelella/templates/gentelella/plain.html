@@ -33,59 +33,43 @@
 	{% include 'gentelella/statics/javascript_header.html' %}
 	{% block extra_head %}{% endblock %}
 </head>
-
 <body class="{% block body_class %}nav-md {% endblock body_class %}">
 {% block body %}
-<div class="body">
-	<div class="main_container">
-		{% block sidebar %}
-		<div class="col-md-3 left_col {% block sidebar_class %} {% endblock sidebar_class %}">
-			{% include "gentelella/app/sidebar.html" %}
-		</div>
-		{% endblock sidebar %}
-		{% block top_navigation %}
-		<div class="top_nav ">
-			{% include "gentelella/app/top_navigation.html" %}
-		</div>
-		{% endblock top_navigation %}
-		{% block content_wrapper %}
-		<div class="right_col" role="main">
-			{% block messages %}
-			{% if messages %}
-			{% include "gentelella/app/messages.html" %}
-			{% endif %}
-			{% endblock %}
-			{% block breadcrumbs %}
-			{% endblock %}
-			{% block content_block_wrap %}
-			{% block content %}
-			<!-- {{ content }} -->
-			{% endblock content %}
-			{% endblock content_block_wrap %}
-		</div>
-		{% endblock content_wrapper %}
-		{% block footer %}
 
-		<footer>
-			{% include "gentelella/app/footer.html" %}
-
-		</footer>
-		{% if perms.djgentelella.can_manage_permissions %}
-		{% include 'gentelella/blocks/permissions_management.html' %}
-		{% endif %}
-		{% endblock footer %}
-	</div>
+<div class="plain_main" role="main">
+	{% block messages %}
+	{% if messages %}
+	{% include "gentelella/app/messages.html" %}
+	{% endif %}
+	{% endblock %}
+	{% block breadcrumbs %}
+	{% endblock %}
+	{% block content_block_wrap %}
+	{% block content %}
+	<!-- {{ content }} -->
+	{% endblock content %}
+	{% endblock content_block_wrap %}
 </div>
+
 <div class="jsmessage"></div>
 {% render_external_widget %}
 {% block javascript %}
 {% include 'gentelella/statics/javascript.html' %}
 {% render_menu_js_widget %}
-{% endblock %}
+{% endblock javascript %}
 
-
+</body>
 {% endblock body %}
 {% block js %}{% endblock %}
 {% render_extra_html_menu %}
-</body>
+{% block footer %}
+<footer class="plainfooter">
+	{% include "gentelella/app/footer.html" %}
+</footer>
+{% if perms.djgentelella.can_manage_permissions %}
+{% include 'gentelella/blocks/permissions_management.html' %}
+{% endif %}
+{% endblock footer %}
 </html>
+
+
