@@ -41,10 +41,13 @@ INSTALLED_APPS = [
     'djgentelella.blog',
     'djgentelella.permission_management',
     'markitup',
-
+    "corsheaders",
+    "channels",
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.security.SecurityMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -103,6 +106,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+CORS_ALLOW_ALL_ORIGINS = True
+
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 
@@ -138,3 +143,20 @@ DEFAULT_JS_IMPORTS = {
     'use_readonlywidgets': True,
     'use_flags': True
 }
+
+# FIRMADOR DIGITAL
+DJANGO_ASETTINGS_MODULE = "demo.asettings"
+GUNICORN_BIND = "localhost:9022" if DEBUG else "unix:/run/supervisor/gunicorn_asgi.sock"
+GUNICORN_ASGI_APP = "demo.asgi:application"
+GUNICORN_WSGI_APP = "demo.wsgi:application"
+GUNICORN_WORKERS = 1 if DEBUG else 2
+GUNICORN_WORKER_CLASS = "demo.asgi_worker.UvicornWorker"
+GUNICORN_USER = "demo"
+GUNICORN_GROUP = "demo"
+
+FIRMADOR_WS = os.getenv("FIRMADOR_WS", "ws://127.0.0.1:9022/async/")
+FIRMADOR_DOMAIN = os.getenv("FIRMADOR_DOMAIN", "http://localhost:9001")
+FIRMADOR_VALIDA_URL = FIRMADOR_DOMAIN + "/valida/"
+FIRMADOR_SIGN_URL = FIRMADOR_DOMAIN + "/firma/firme"
+FIRMADOR_SIGN_COMPLETE = FIRMADOR_DOMAIN + "/firma/completa"
+FIRMADOR_DELETE_FILE_URL = FIRMADOR_DOMAIN + "/firma/delete"

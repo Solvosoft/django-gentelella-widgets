@@ -1,5 +1,6 @@
 from django.contrib import admin
 
+from djgentelella.firmador_digital.models import UserSignatureConfig
 from djgentelella.models import MenuItem, Help, GentelellaSettings, Notification, \
     ChunkedUpload
 from djgentelella.models import PermissionsCategoryManagement
@@ -8,7 +9,6 @@ from djgentelella.utils import clean_cache
 
 class MenuAdmin(admin.ModelAdmin):
     filter_horizontal = ['permission']
-
 
 class GentelellaSettingsAdmin(admin.ModelAdmin):
     list_display = ['key', 'value']
@@ -21,18 +21,19 @@ class GentelellaSettingsAdmin(admin.ModelAdmin):
 
     clean_settings_cache.short_description = "Clean settings cache"
 
-
 class NotificationAdmin(admin.ModelAdmin):
     list_display = ['description', 'state', 'message_type']
     list_editable = ['state']
-
 
 class ChunkedUploadAdmin(admin.ModelAdmin):
     list_display = ('upload_id', 'filename', 'status', 'created_on')
     search_fields = ('filename', 'filename')
     list_filter = ('status',)
 
+class UserSignatureConfigAdmin(admin.ModelAdmin):
+    list_display = ('user', 'config')
 
+admin.site.register(UserSignatureConfig, UserSignatureConfigAdmin)
 admin.site.register(ChunkedUpload, ChunkedUploadAdmin)
 admin.site.register(MenuItem, MenuAdmin)
 admin.site.register(Help)
