@@ -7,10 +7,10 @@ For more information on this file, see
 https://docs.djangoproject.com/en/3.0/howto/deployment/asgi/
 """
 
-import os
+# os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'demo.settings')
 
-from django.core.asgi import get_asgi_application
+# application = get_asgi_application()
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'demo.settings')
-
-application = get_asgi_application()
+#  Para usar firmador_digital
+from djgentelella.firmador_digital.config.asgi_config import AsgiConfig
+application = AsgiConfig("demo.settings").application

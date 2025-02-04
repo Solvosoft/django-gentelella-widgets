@@ -11,6 +11,10 @@ help:
 	@echo "docs - generate Sphinx HTML documentation, including API docs"
 	@echo "release - package and upload a release"
 	@echo "sdist - package"
+	@echo "fuzzysdist - package"
+	@echo "messages - load translations"
+	@echo "trans - compile translations"
+	@echo "start_sign - start sign server"
 
 clean: clean-build clean-pyc
 
@@ -62,3 +66,6 @@ messages:
 
 trans:
 	cd djgentelella && django-admin compilemessages --locale es
+
+start_sign:
+	docker run -d --rm  --name firmadorserver -p 9001:9999 -d firmadorlibreserver
