@@ -63,14 +63,14 @@ class Command(BaseCommand):
         )
         dashboard = MenuItem.objects.create(
             parent=item,
-            title='Dashboard',
+            title='Data',
             url_name='#',
             category='sidebar',  # sidebar, sidebarfooter,
             is_reversed=False,
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='',
+            icon='fa fa-file-text',
             only_icon=False
         )
         item = MenuItem.objects.create(
@@ -82,7 +82,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='',
+            icon='fa fa-plus-circle',
             only_icon=False
         )
 
@@ -95,19 +95,19 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-home',
+            icon='',
             only_icon=False
         )
         cwidget = MenuItem.objects.create(
             parent=extrawidget,
-            title='User Media widget',
+            title='Media widget',
             url_name='mediaupload_view',
             category='sidebar',  # sidebar, sidebarfooter,
             is_reversed=True,
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-camera',
+            icon='fa fa-play',
             only_icon=False
         )
 
@@ -120,7 +120,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-cab',
+            icon='fa fa-server',
             only_icon=False
         )
         c1widget = MenuItem.objects.create(
@@ -132,7 +132,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-subway',
+            icon='fa fa-plus-square',
             only_icon=False
         )
         c2widget = MenuItem.objects.create(
@@ -144,7 +144,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-plane',
+            icon='fa fa-list-alt',
             only_icon=False
         )
         cwidget = MenuItem.objects.create(
@@ -168,7 +168,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-microchip',
+            icon='fa fa-stop',
             only_icon=False
         )
 
@@ -181,7 +181,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-home',
+            icon='fa fa-tasks',
             only_icon=False
         )
         readonlywidget = MenuItem.objects.create(
@@ -193,7 +193,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-list-alt',
+            icon='fa fa-newspaper-o',
             only_icon=False
         )
         MenuItem.objects.create(
@@ -205,7 +205,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-eyedropper',
+            icon='fa fa-adjust',
             only_icon=False
         )
         inputmask = MenuItem.objects.create(
@@ -217,7 +217,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-cutlery',
+            icon='fa fa-ellipsis-h',
             only_icon=False
         )
         daterange = MenuItem.objects.create(
@@ -229,7 +229,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-balance-scale',
+            icon='fa fa-calendar-plus-o',
             only_icon=False
         )
         tagging = MenuItem.objects.create(
@@ -241,7 +241,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-superpowers',
+            icon='fa fa-sticky-note-o',
             only_icon=False
         )
         Tinymce = MenuItem.objects.create(
@@ -253,7 +253,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-sticky-note',
+            icon='fa fa-text-width',
             only_icon=False
         )
 
@@ -279,7 +279,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-map-marker',
+            icon='fa fa-picture-o',
             only_icon=False
         )
 
@@ -305,7 +305,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-vine',
+            icon='fa fa-area-chart',
             only_icon=False
         )
         TimeLine = MenuItem.objects.create(
@@ -342,7 +342,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-power-off',
+            icon='fa fa-plus-square-o',
             only_icon=False)
 
         daterange = MenuItem.objects.create(
@@ -354,7 +354,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-home',
+            icon='fa fa-sliders',
             only_icon=False
         )
 
@@ -383,18 +383,6 @@ class Command(BaseCommand):
             icon='fa fa-mouse-pointer',
             only_icon=False
         )
-        noti = MenuItem.objects.create(
-            parent=item,
-            title='Create notification',
-            url_name='/create/notification',
-            category='sidebar',
-            is_reversed=False,
-            reversed_kwargs=None,
-            reversed_args=None,
-            is_widget=False,
-            icon='fa fa-power-off',
-            only_icon=False
-        )
 
         MenuItem.objects.create(
             parent=item,
@@ -405,7 +393,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-power-off',
+            icon='fa fa-envelope-o',
             only_icon=False
         )
 
@@ -418,7 +406,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-power-off',
+            icon='fa fa-list',
             only_icon=False
         )
         MenuItem.objects.create(
@@ -430,7 +418,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-power-off',
+            icon='fa fa-list-ol',
             only_icon=False
         )
         MenuItem.objects.create(
@@ -486,26 +474,26 @@ class Command(BaseCommand):
     def create_autocomplete_menu(self):
         item = MenuItem.objects.create(
             parent=None,
-            title='Remote autocomplete Widgets',
+            title='Autocomplete Widgets',
             url_name='/',
             category='sidebar',  # sidebar, sidebarfooter,
             is_reversed=False,
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-home',
+            icon='',
             only_icon=False
         )
         MenuItem.objects.create(
             parent=item,
-            title='People group (Autocomplete)',
+            title='Autocomplete',
             url_name='pgroup-list',
             category='sidebar',  # sidebar, sidebarfooter,
             is_reversed=True,
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-power-off',
+            icon='fa fa-sort-desc',
             only_icon=False
         )
         MenuItem.objects.create(
@@ -517,7 +505,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-power-off',
+            icon='fa fa-sort',
             only_icon=False
         )
 
@@ -590,7 +578,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-home',
+            icon='',
             only_icon=False
         )
 
@@ -600,10 +588,10 @@ class Command(BaseCommand):
             url_name='digital_signature_view',
             category='sidebar',
             is_reversed=True,
-            reversed_kwargs="pk:default",
+            reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-subway',
+            icon='fa fa-vine',
             only_icon=False
         )
 

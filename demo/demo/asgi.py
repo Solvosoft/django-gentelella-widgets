@@ -11,6 +11,6 @@ https://docs.djangoproject.com/en/3.0/howto/deployment/asgi/
 
 # application = get_asgi_application()
 
-#  Para usar firmador_digital
+#  Para usar digital_signature
 from djgentelella.firmador_digital.config.asgi_config import AsgiConfig
 application = AsgiConfig("demo.settings").application
