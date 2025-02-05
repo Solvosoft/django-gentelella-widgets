@@ -1,16 +1,19 @@
-{% extends 'base.html' %}
+{% extends 'gentelella/base.html' %}
+
 {% load urlname_tags %}
-{% load gtsettings %}
+{% load gentelellamenu gtsettings %}
 {% load i18n %}
 {% load static %}
 
 {% block extra_css %}
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/pdf_viewer.min.css">
-	<link rel="stylesheet" href="{% static 'gentelella/css/pdfviewer.css' %}?v={% get_current_version %}">
+	<link rel="stylesheet" href="{% static 'gentelella/css/pdfviewer.css' %}">
 {% endblock %}
 
+{% block title %}Django Gentelella widgets{% endblock %}
+
 {% block content %}
-	<h1 class="text-center">{% trans 'Test Flow' %}: <span class="text-dark">{{ test.test_code }}</span></h1>
+	<h1 class="text-center">{% trans 'Document' %}: <span class="text-dark">{{ test.test_code }}</span></h1>
 	<div class="">
 
 		<div class="my-3 d-flex align-items-center justify-content-evenly">
@@ -43,12 +46,6 @@
 		</div>
 
 		<div class="d-flex justify-content-evenly">
-			<div class="">
-				<button class="btn btn-danger btn-sm" data-bs-toggle="modal"
-												data-bs-target="#analysisModal">{% trans 'Send to analysis' %}</button>
-				<button class="btn btn-primary  btn-sm" data-bs-toggle="modal"
-												data-bs-target="#closed_testflow">{% trans 'Closed' %}</button>
-			</div>
 
 			{% if permission %}
 				<button class="btn btn-success btn-sm" id="signer_btn" data-org="{{ org_pk }}"
@@ -70,19 +67,17 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/interact.js/1.10.27/interact.min.js"></script>
 	<script>
 		const urls = {
-			analysis: "{% url 'send_analysis' org_pk test.pk %}",
-			close: "{% url 'closed_testflow' org_pk test.pk %}",
-			return_verification: "{% url 'test_flow' org_pk=org_pk status=test.status %}",
-			sign_ws: "{% get_websocket_url 'sign_document' %}"
+
+			{#sign_ws: "{% get_websocket_url 'sign_document' %}"#}
 		}
 
 		const pdf_document = "{{test.signature_file.url}}";
 
 	</script>
 
-	<script src="{% static 'gentelella/js/firmador_digital/pdfviewer.js' %}?v={% get_current_version %}" type="module"></script>
-	<script src="{% static 'gentelella/js/firmador_digital/firmador.js' %}?v={% get_current_version %}"></script>
-	<script src="{% static 'gentelella/js/firmador_digital/doc_signer.js' %}?v={% get_current_version %}"></script>
+	<script src="{% static 'gentelella/js/firmador_digital/pdfviewer.js' %}" type="module"></script>
+	<script src="{% static 'gentelella/js/firmador_digital/firmador.js' %}"></script>
+	<script src="{% static 'gentelella/js/firmador_digital/doc_signer.js' %}"></script>
 	<script src="{% static 'gentelella/js/firmador_digital/alerts_signers.js' %}"></script>
 
 {% endblock %}

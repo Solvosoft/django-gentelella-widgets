@@ -13,7 +13,6 @@ class Command(BaseCommand):
 
     def create_menu(self):
 
-        MenuItem.objects.all().delete()
         item = MenuItem.objects.create(
             parent=None,
             title='Home',
@@ -177,7 +176,7 @@ class Command(BaseCommand):
             parent=extrawidget,
             title='Form Widgets',
             url_name='#',
-            category='sidebar',  # sidebar, sidebarfooter,
+            category='sidebar',
             is_reversed=False,
             reversed_kwargs=None,
             reversed_args=None,
@@ -189,7 +188,7 @@ class Command(BaseCommand):
             parent=extrawidget,
             title='ReadOnly Widgets',
             url_name='#',
-            category='sidebar',  # sidebar, sidebarfooter,
+            category='sidebar',
             is_reversed=False,
             reversed_kwargs=None,
             reversed_args=None,
@@ -201,7 +200,7 @@ class Command(BaseCommand):
             parent=cwidget,
             title='Knob Widgets',
             url_name='knobwidgets',
-            category='sidebar',  # sidebar, sidebarfooter,
+            category='sidebar',
             is_reversed=True,
             reversed_kwargs=None,
             reversed_args=None,
@@ -326,7 +325,7 @@ class Command(BaseCommand):
             parent=dashboard,
             title='Charts',
             url_name='chartjs_view',
-            category='sidebar',  # sidebar, sidebarfooter,
+            category='sidebar',
             is_reversed=True,
             reversed_kwargs=None,
             reversed_args=None,
@@ -338,7 +337,7 @@ class Command(BaseCommand):
             parent=item,
             title='Create notification',
             url_name='/create/notification',
-            category='sidebar',  # sidebar, sidebarfooter,
+            category='sidebar',
             is_reversed=False,
             reversed_kwargs=None,
             reversed_args=None,
@@ -388,7 +387,7 @@ class Command(BaseCommand):
             parent=item,
             title='Create notification',
             url_name='/create/notification',
-            category='sidebar',  # sidebar, sidebarfooter,
+            category='sidebar',
             is_reversed=False,
             reversed_kwargs=None,
             reversed_args=None,
@@ -401,7 +400,7 @@ class Command(BaseCommand):
             parent=item,
             title='Create notification email',
             url_name='/create/notification?email=1',
-            category='sidebar',  # sidebar, sidebarfooter,
+            category='sidebar',
             is_reversed=False,
             reversed_kwargs=None,
             reversed_args=None,
@@ -414,7 +413,7 @@ class Command(BaseCommand):
             parent=item,
             title='Country list',
             url_name='demoapp_country_list',
-            category='sidebar',  # sidebar, sidebarfooter,
+            category='sidebar',
             is_reversed=True,
             reversed_kwargs=None,
             reversed_args=None,
@@ -426,7 +425,7 @@ class Command(BaseCommand):
             parent=item,
             title='Person list',
             url_name='demoapp_person_list',
-            category='sidebar',  # sidebar, sidebarfooter,
+            category='sidebar',
             is_reversed=True,
             reversed_kwargs=None,
             reversed_args=None,
@@ -438,7 +437,7 @@ class Command(BaseCommand):
             parent=dashboard,
             title='Element widgets',
             url_name='dashboard',
-            category='sidebar',  # sidebar, sidebarfooter,
+            category='sidebar',
             is_reversed=True,
             reversed_kwargs=None,
             reversed_args=None,
@@ -449,8 +448,8 @@ class Command(BaseCommand):
         item = MenuItem.objects.create(
             parent=None,
             title='Logout',
-            url_name='/accounts/logout/',  # DO manual
-            category='sidebarfooter',  # sidebar, sidebarfooter,
+            url_name='/accounts/logout/',
+            category='sidebarfooter',
             is_reversed=False,
             reversed_kwargs=None,
             reversed_args=None,
@@ -581,10 +580,43 @@ class Command(BaseCommand):
         models.D.objects.bulk_create(dl)
         models.E.objects.bulk_create(el)
 
+    def create_avanced(self):
+        parent_item = MenuItem.objects.create(
+            parent=None,
+            title='Avanced Widgets',
+            url_name='/',
+            category='sidebar',
+            is_reversed=False,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-home',
+            only_icon=False
+        )
+
+        item1 = MenuItem.objects.create(
+            parent=parent_item,
+            title='Digital Signature',
+            url_name='digital_signature_view',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs="pk:default",
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-subway',
+            only_icon=False
+        )
+
+
     def handle(self, *args, **options):
+
+        MenuItem.objects.all().delete()
+
         self.create_menu()
         self.create_autocomplete_menu()
         self.create_countries()
         self.create_person()
         self.create_communities()
         self.abcde()
+        self.create_avanced()
+

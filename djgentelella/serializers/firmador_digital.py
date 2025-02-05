@@ -16,7 +16,6 @@ class RequestInitialDoc(serializers.Serializer):
 class WSRequest(serializers.Serializer):
     action = serializers.CharField()
 
-
 class CardSerializer(serializers.Serializer):
     certificate = serializers.CharField()
     commonName = serializers.CharField()
@@ -25,26 +24,9 @@ class CardSerializer(serializers.Serializer):
     lastName = serializers.CharField()
     tokenSerialNumber = serializers.CharField()
 
-
-# class TestFlowPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedField):
-#     def get_queryset(self):
-#         from controlsample.models import TestFlow
-#
-#         return TestFlow.objects.all()
-
-
-# class OrganizationPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedField):
-#     def get_queryset(self):
-#         from corebase.models import Organization
-#
-#         return Organization.objects.all()
-
-
 class InitialSignatureSerializer(serializers.Serializer):
     action = serializers.CharField()
     docsettings = DocumentSettingsSerializer()
-    # organization = OrganizationPrimaryKeyRelatedField(queryset=None)
-    # instance = TestFlowPrimaryKeyRelatedField(queryset=None)
     card = CardSerializer()
 
 
@@ -57,6 +39,4 @@ class CompleteSignatureSerializer(serializers.Serializer):
     action = serializers.CharField()
     documentid = serializers.CharField()
     certificate = serializers.CharField()
-    # organization = OrganizationPrimaryKeyRelatedField(queryset=None)
-    # instance = TestFlowPrimaryKeyRelatedField(queryset=None)
     signature = SignatureSerializer()
