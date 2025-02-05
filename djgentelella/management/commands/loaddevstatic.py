@@ -369,7 +369,13 @@ class Command(BaseCommand):
             'storylinejs': [
                 'https://cdn.knightlab.com/libs/storyline/1.1.0/css/storyline.css',
                 'https://cdn.knightlab.com/libs/storyline/1.1.0/js/storyline.js',
-            ]
+            ],
+            'pdfjs': [
+                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/pdf_viewer.min.css',
+                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/pdf.min.mjs',
+                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/pdf.worker.min.mjs',
+                'https://cdnjs.cloudflare.com/ajax/libs/interact.js/1.10.27/interact.min.js',
+            ],
         }
         compressed = {
             'tinymce': {
