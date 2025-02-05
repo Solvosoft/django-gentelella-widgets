@@ -2,14 +2,21 @@
 
 
 {% block content %}
-
+{#	contenedor #}
 	<div class="row">
 		<div class='col-12'>
 			<div class="card">
 				<div class="card-body">
+					{#		title page			#}
 					<div class="card-title titles">
 						<h2 class="text-center"> Digital Signature </h2>
 					</div>
+			  {#					main content #}
+					<main>
+
+						{% include 'gentelella/digital_signature/signature.html' %}
+
+					</main>
 
 				</div>
 			</div>
