@@ -23,6 +23,7 @@ from .tagging import views as tagging
 from .timeline.views import timeline_view
 from .views import knobView, YesNoInputView
 from .wysiwyg import views as tinymce
+from .digital_signature.views import digital_signature_view
 
 pclss = Personclass()
 countryclss = Countryclass()
@@ -105,4 +106,6 @@ urlpatterns = [
                   path('datatable_view', datatableViewExample, name="datatable_view"),
                   path('mediarecord_upload', mediaupload_view, name="mediaupload_view"),
                   path('tableapi/', include(router.urls)),
+                  path('digital_signature_view/', digital_signature_view, name="digital_signature_view"),
+
               ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()

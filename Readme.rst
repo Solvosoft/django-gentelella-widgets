@@ -140,8 +140,16 @@ Run the demo
     python manage.py createdemo
     python manage.py demomenu
 
-
 And More see demo app.
+
+Run the demo with Makefile
+---------------
+.. code:: bash
+
+    make init_demo
+
+
+
 
 Notes for development
 ____________________________
