@@ -16,6 +16,7 @@ from djgentelella.wysiwyg import views as wysiwyg
 from .groute import routes
 from .templatetags.gtsettings import get_version
 from .views import auth
+from djgentelella.firmador_digital.views import digital_signature_view
 
 auth_urls = [
     path('accounts/login/', auth.GentelellaLoginView.as_view(), name="login"),
@@ -55,6 +56,9 @@ wysiwyg_urls = [
             name="tinymce_upload_video"),
 ]
 
+digital_signature_urls = [
+    path("digital_signature/document/<str:pk>", digital_signature_view, name="digital_signature_view"),
+]
 
 def import_module_app_gt(app, name):
     try:
@@ -100,7 +104,8 @@ permission_management_urls = [
 
 ]
 
-urlpatterns = auth_urls + base_urlpatterns + wysiwyg_urls + permission_management_urls
+urlpatterns = auth_urls + base_urlpatterns + wysiwyg_urls + permission_management_urls + digital_signature_urls
+
 if settings.DEBUG:
     urlpatterns += [
         path('djsi18n/', JavaScriptCatalog.as_view(), name='djgentelella-js-catalog'),
