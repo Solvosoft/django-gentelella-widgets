@@ -137,7 +137,6 @@ signer_btn.addEventListener('click', function () {
     startSign();
 });
 
-
 function startSign() {
     if (socket_error) {
         alertSimple(errorInterpreter(3), gettext("Error"), "error");
@@ -156,7 +155,6 @@ function startSign() {
     // inicio de firma
     firmador.start_sign(signer_btn.dataset.org, signer_btn.dataset.pk);
 }
-
 
 function alertSimple(text, title="Error", icon = "error") {
     Swal.fire({
