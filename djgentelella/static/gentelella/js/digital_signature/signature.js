@@ -136,7 +136,6 @@ function FirmadorLibreLocal(docmanager, abortSignal) {
     }
 }
 
-
 function FirmadorLibreWS(docmanager, url) {
     var firmador = {
         "url": url,
