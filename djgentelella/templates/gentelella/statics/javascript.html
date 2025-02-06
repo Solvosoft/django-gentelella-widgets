@@ -59,6 +59,7 @@
 
 {% if use_compress == 'true' %}
 <script src="{% static 'gentelella/js/datatables.js' %}?v={% get_version %}"></script>
+
 <script src="{% static 'gentelella/js/obj_api_management.js' %}?v={% get_version %}"></script>
 {% else %}
 <script src="{% static 'vendors/datatables/datatables.min.js' %}?v={% get_version %}"></script>
@@ -70,6 +71,7 @@
 <script src="{% static 'gentelella/js/base.js' %}?v={% get_version %}"></script>
 <script src="{% static 'gentelella/js/widgets.js' %}?v={% get_version %}"></script>
 <script src="{% static 'gentelella/js/custom.js' %}?v={% get_version %}"></script>
+
 {% if perms.djgentelella.can_manage_permissions %}
 {% get_urlname_action as urlnameactions %}
 {% if urlnameactions %}

@@ -4676,3 +4676,34 @@ input-group > .custom-file {
     border: 1px solid #1ABB9C;; /* Bordes */
     border-radius: 5px; /* Esquinas redondeadas */
 }
+
+/*
+ CSS del template cardtable
+*/
+
+.delete-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    border: none;
+    background: red;
+    color: white;
+    cursor: pointer;
+    border-radius: 50%;
+}
+
+.card-actions button {
+    margin-top: 10px;
+    margin-right: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.modal.active {
+    display: flex; /* Se mostrará solo cuando tenga la clase 'active' */
+}
+
+#saveChangesBtn {
+    display: none;
+    margin-top: 10px;
+}
