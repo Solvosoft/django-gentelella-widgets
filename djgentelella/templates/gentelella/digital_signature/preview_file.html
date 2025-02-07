@@ -3,11 +3,12 @@
 {% load i18n %}
 {% load static %}
 
-<div class="pdf-signature-container" id="pdf-signature-container_{{ widget.attrs.id }}">
+<div class="pdf-signature-container" id="pdf-signature-container">
 	{#	actions for change page#}
 	<div class="my-3 d-flex align-items-center justify-content-evenly">
 		<input type="hidden" name="{{ widget.name }}_page_number" class="page_number">
-		<input type="hidden" name="{{ widget.name }}_file">
+		<input type="hidden" data-filename="{{ widget.attrs.id }}.pdf" name="{{ widget.name }}" {% if widget.value != None %} value="{{ widget.value|stringformat:'s' }}"{% endif %} {% include "gentelella/widgets/attrs.html" %}>
+
 		{#		button to change page #}
 		<div>
 			<button type="button" class="btn btn-light px-3 shadow-sm border btn-sm prev" title="{% trans 'Previous' %} ">
@@ -44,11 +45,3 @@
 	</div>
 
 </div>
-
-	<script type="module" src="{% static 'vendors/pdfjs/pdf.min.mjs' %}?v={% get_version %}"></script>
-	<script type="module" src="{% static 'vendors/pdfjs/pdf.worker.min.mjs' %}?v={% get_version %}"></script>
-	<script src="{% static 'vendors/pdfjs/interact.min.js' %}?v={% get_version %}"></script>
-
-<script type="module" src="{% static 'gentelella/js/digital_signature/pdfviewer.js' %}"></script>
-{#<script src="{% static 'gentelella/js/digital_signature/signature.js' %}"></script>#}
-{#<script src="{% static 'gentelella/js/digital_signature/document_manager.js' %}"></script>#}

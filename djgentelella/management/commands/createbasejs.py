@@ -27,7 +27,8 @@ class Command(BaseCommand):
             'storyline.js',
             'calendar.js',
             'timeline.js',
-            'mediarecord.js'
+            'mediarecord.js',
+            'digital_signature.js',
         ]
         jquery_plugins = [
             'notifications.js',

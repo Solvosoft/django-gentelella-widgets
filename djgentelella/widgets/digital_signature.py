@@ -5,15 +5,15 @@ from django.utils.translation import gettext as _
 from djgentelella.widgets.core import update_kwargs
 
 
-class DigitalSignature(FileInput):
+class DigitalSignatureInput(FileInput):
     template_name = 'gentelella/digital_signature/signature.html'
     input_type = 'file'
 
 
-    def __init__(self, attrs=None,  extraskwargs=True):
+    def __init__(self, attrs=None,  extraskwargs=True, ws_url=None):
         attrs = attrs or {}
-        if 'id' not in attrs:
-            attrs['id'] = uuid.uuid4().hex[:8]
+
+        attrs['data-ws-url'] = ws_url
 
         if extraskwargs:
             attrs = update_kwargs(

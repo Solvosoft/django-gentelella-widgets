@@ -1,32 +1,32 @@
 document.formset = [];
 document.gtwidgets = {
-    ImageRecordInput: function(instance){
+    ImageRecordInput: function (instance) {
         instance.each(function (i, e) {
             getMediaRecord(e, 'photo');
         });
     },
-    VideoRecordInput: function(instance){
+    VideoRecordInput: function (instance) {
         instance.each(function (i, e) {
             getMediaRecord(e, 'video');
         });
     },
-    AudioRecordInput: function(instance){
+    AudioRecordInput: function (instance) {
         instance.each(function (i, e) {
             getMediaRecord(e, 'audio');
         });
     },
     Select: function (instance) {
         instance.each(function (i, e) {
-            let s2instance=$(e);
-            let contexts2={};
+            let s2instance = $(e);
+            let contexts2 = {};
             extract_select2_context(contexts2, s2instance);
             s2instance.select2(contexts2);
         });
     },
     SelectMultiple: function (instance) {
         instance.each(function (i, e) {
-            let s2instance=$(e);
-            let contexts2={};
+            let s2instance = $(e);
+            let contexts2 = {};
             extract_select2_context(contexts2, s2instance);
             s2instance.select2(contexts2);
         });
@@ -34,8 +34,8 @@ document.gtwidgets = {
     TreeSelect: function (instance) {
 
         instance.each(function (i, e) {
-            let s2instance=$(e);
-            let contexts2={ templateResult: decore_select2 };
+            let s2instance = $(e);
+            let contexts2 = {templateResult: decore_select2};
             extract_select2_context(contexts2, s2instance);
             s2instance.select2(contexts2);
         });
@@ -43,7 +43,7 @@ document.gtwidgets = {
     CheckboxInput: function (instance) {
 
         var checkklass = instance.data('checkboxclass') || 'icheckbox_flat-green';
-        var radioklass  = instance.data('radioclass') || 'iradio_flat-green';
+        var radioklass = instance.data('radioclass') || 'iradio_flat-green';
         instance.iCheck({
             checkboxClass: checkklass,
             radioClass: radioklass
@@ -51,14 +51,14 @@ document.gtwidgets = {
     },
     YesNoInput: function (instance) {
         instance.each(function (index, element) {
-            switchery = new Switchery(element, { color: '#26B99A' });
+            switchery = new Switchery(element, {color: '#26B99A'});
             instance.data('switchery', switchery);
             showHideRelatedFormFields($(element));
         });
     },
-    NullBooleanSelect: function(instance){
+    NullBooleanSelect: function (instance) {
         var checkklass = instance.data('checkboxclass') || 'icheckbox_flat-green';
-        var radioklass  = instance.data('radioclass') || 'iradio_flat-green';
+        var radioklass = instance.data('radioclass') || 'iradio_flat-green';
         instance.iCheck({
             checkboxClass: checkklass,
             radioClass: radioklass
@@ -66,11 +66,11 @@ document.gtwidgets = {
     },
     DateRangeInput: function (instance) {
         format = instance.attr('data-format')
-        instance.each((i,element)=>{
-        $(element).daterangepicker(load_date_range(instance), (from_date, to_date) => {
-            $(element).val(from_date.format(format) + ' - ' + to_date.format(format));
+        instance.each((i, element) => {
+            $(element).daterangepicker(load_date_range(instance), (from_date, to_date) => {
+                $(element).val(from_date.format(format) + ' - ' + to_date.format(format));
+            });
         });
-    });
     },
 
     GridSlider: function (instance) {
@@ -86,56 +86,62 @@ document.gtwidgets = {
         instance.daterangepicker(load_date_range_custom(instance));
     },
     RadioVerticalSelect: function (instance) {
-        instance.find('input').iCheck({ radioClass: 'iradio_flat-green' });
+        instance.find('input').iCheck({radioClass: 'iradio_flat-green'});
     },
     RadioHorizontalSelect: function (instance) {
-        instance.find('input').iCheck({ radioClass: 'iradio_flat-green' });
+        instance.find('input').iCheck({radioClass: 'iradio_flat-green'});
     },
     DateRangeTimeInput: function (instance) {
         instance.daterangepicker(load_datetime_range(instance));
     },
     DateTimeInput: function (instance) {
-        instance.datetimepicker({format : instance.data('format'),
-              sideBySide: true, icons: {
-                  time: "fa fa-clock-o",
-                  up: "fa fa-arrow-up",
-                  down: "fa fa-arrow-down"
-              } });// "YYYY-MM-DD HH:mm"
+        instance.datetimepicker({
+            format: instance.data('format'),
+            sideBySide: true, icons: {
+                time: "fa fa-clock-o",
+                up: "fa fa-arrow-up",
+                down: "fa fa-arrow-down"
+            }
+        });// "YYYY-MM-DD HH:mm"
     },
     TimeInput: function (instance) {
-         instance.datetimepicker({format : instance.data('format'),
-              sideBySide: true, icons: {
-                  time: "fa fa-clock-o",
-                  up: "fa fa-arrow-up",
-                  down: "fa fa-arrow-down"
-              } }); // 'HH:mm'
+        instance.datetimepicker({
+            format: instance.data('format'),
+            sideBySide: true, icons: {
+                time: "fa fa-clock-o",
+                up: "fa fa-arrow-up",
+                down: "fa fa-arrow-down"
+            }
+        }); // 'HH:mm'
     },
     DateInput: function (instance) {
-        instance.datetimepicker({format: instance.data('format')  }); //"DD/MM/YYYY"
+        instance.datetimepicker({format: instance.data('format')}); //"DD/MM/YYYY"
     },
     Textarea: function (instance) {
         autosize(instance);
         instance.each(function (i, e) {
             if ($(e).attr('maxlength') != undefined) {
-                $(e).maxlength({ alwaysShow: true, warningClass: "label label-success" });
+                $(e).maxlength({alwaysShow: true, warningClass: "label label-success"});
             }
         });
     },
     PhoneNumberMaskInput: function (instance) {
-        instance.inputmask({ "mask": "(999)9999-9999" });
+        instance.inputmask({"mask": "(999)9999-9999"});
     },
     PhoneNumberTwoDigitMaskInput: function (instance) {
-        instance.inputmask({ "mask": "(99)9999-9999" });
+        instance.inputmask({"mask": "(99)9999-9999"});
     },
     PhoneNumberFourDigitMaskInput: function (instance) {
-        instance.inputmask({ "mask": "(9999)9999-9999" });
+        instance.inputmask({"mask": "(9999)9999-9999"});
     },
     DateMaskInput: function (instance) {
-        instance.inputmask("99/99/9999", { "placeholder": "dd/mm/yyyy" });
+        instance.inputmask("99/99/9999", {"placeholder": "dd/mm/yyyy"});
     },
     DateTimeMaskInput: function (instance) {
-        instance.inputmask("99/99/9999 99:99", { "placeholder": "dd/mm/yyyy HH:mm",
-         format: "YYYY-MM-DD HH:mm"});
+        instance.inputmask("99/99/9999 99:99", {
+            "placeholder": "dd/mm/yyyy HH:mm",
+            format: "YYYY-MM-DD HH:mm"
+        });
     },
     EmailMaskInput: function (instance) {
         instance.inputmask({
@@ -156,8 +162,8 @@ document.gtwidgets = {
     SelectWithAdd: function (instance) {
         instance.addselectwidget();
         instance.each(function (i, e) {
-            let contexts2={};
-            let s2instance=$(e);
+            let contexts2 = {};
+            let s2instance = $(e);
             extract_select2_context(contexts2, s2instance);
             s2instance.select2(contexts2);
         });
@@ -165,18 +171,18 @@ document.gtwidgets = {
     SelectMultipleAdd: function (instance) {
         instance.addselectwidget();
         instance.each(function (i, e) {
-            let contexts2={};
-            let s2instance=$(e);
+            let contexts2 = {};
+            let s2instance = $(e);
             extract_select2_context(contexts2, s2instance);
             s2instance.select2(contexts2);
         });
     },
     TreeSelectMultipleWithAdd: function (instance) {
         instance.addselectwidget();
-        instance.select2({ templateResult: decore_select2 });
+        instance.select2({templateResult: decore_select2});
         instance.each(function (i, e) {
-            let s2instance=$(e);
-            let contexts2={ templateResult: decore_select2 };
+            let s2instance = $(e);
+            let contexts2 = {templateResult: decore_select2};
             extract_select2_context(contexts2, s2instance);
             s2instance.select2(contexts2);
         });
@@ -184,8 +190,8 @@ document.gtwidgets = {
     TreeSelectWithAdd: function (instance) {
         instance.addselectwidget();
         instance.each(function (i, e) {
-            let s2instance=$(e);
-            let contexts2={ templateResult: decore_select2 };
+            let s2instance = $(e);
+            let contexts2 = {templateResult: decore_select2};
             extract_select2_context(contexts2, s2instance);
             s2instance.select2(contexts2);
         });
@@ -200,13 +206,13 @@ document.gtwidgets = {
         build_select2_init(instance);
     },
     SerialNumberMaskInput: function (instance) {
-        instance.inputmask({ "mask": "9999-9999-9999-9999-999" });
+        instance.inputmask({"mask": "9999-9999-9999-9999-999"});
     },
     TaxIDMaskInput: function (instance) {
-        instance.inputmask({ "mask": "99-99999999" });
+        instance.inputmask({"mask": "99-99999999"});
     },
     CreditCardMaskInput: function (instance) {
-        instance.inputmask({ "mask": "9999-9999-9999-9999" });
+        instance.inputmask({"mask": "9999-9999-9999-9999"});
     },
     NumberKnobInput: function (instance) {
         instance.knob();
@@ -217,7 +223,7 @@ document.gtwidgets = {
             menubar: false,
             toolbar: 'undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist checklist | forecolor backcolor casechange permanentpen formatpainter removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media pageembed template link anchor codesample | a11ycheck ltr rtl | showcomments addcomment',
             plugins: ['autolink', 'codesample', 'link', 'lists', 'media', 'quickbars', "advlist autolink lists link image charmap print preview anchor",
-                "searchreplace visualblocks code fullscreen","insertdatetime media table paste imagetools wordcount",
+                "searchreplace visualblocks code fullscreen", "insertdatetime media table paste imagetools wordcount",
                 "autoresize", "hr", "image",
             ],
             quickbars_insert_toolbar: 'quicktable | hr pagebreak',
@@ -228,7 +234,7 @@ document.gtwidgets = {
                 input.onchange = function () {
                     var file = this.files[0];
                     upload_files(callback, meta, file, instance.attr('data-option-image'),
-                    instance.attr('data-option-video'));
+                        instance.attr('data-option-video'));
                 };
                 input.click();
             },
@@ -241,7 +247,7 @@ document.gtwidgets = {
             menubar: false,
             toolbar: 'undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist checklist | forecolor backcolor casechange permanentpen formatpainter removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media pageembed template link anchor codesample | a11ycheck ltr rtl | showcomments addcomment',
             plugins: ['autolink', 'codesample', 'link', 'lists', 'media', 'quickbars', "advlist autolink lists link image charmap print preview anchor",
-                "searchreplace visualblocks code fullscreen","insertdatetime media table paste imagetools wordcount",
+                "searchreplace visualblocks code fullscreen", "insertdatetime media table paste imagetools wordcount",
                 "autoresize", "hr", "image",
             ],
             quickbars_insert_toolbar: 'quicktable | hr pagebreak',
@@ -252,7 +258,7 @@ document.gtwidgets = {
                 input.onchange = function () {
                     var file = this.files[0];
                     upload_files(callback, meta, file, instance.attr('data-option-image'),
-                    instance.attr('data-option-video'));
+                        instance.attr('data-option-video'));
                 };
                 input.click();
             },
@@ -270,12 +276,12 @@ document.gtwidgets = {
     DJGraph: function (instance) {
         instance.gentelella_chart();
     },
-    NullBooleanSelect: function(instance){
-	    instance.iCheck({
+    NullBooleanSelect: function (instance) {
+        instance.iCheck({
             checkboxClass: 'icheckbox_flat-green',
             radioClass: 'iradio_flat-green'
         });
-     },
+    },
     UrlTimeLineInput: function (instance) {
         build_timeline(instance);
     },
@@ -293,7 +299,10 @@ document.gtwidgets = {
         build_storyline(instance)
     },
     DigitalSignatureInput: function (instance) {
-        build_digital_signature(instance)
+        // instancia del dom = e
+        instance.each(function (i, e) {
+            build_digital_signature(e);
+        });
     },
 }
 
