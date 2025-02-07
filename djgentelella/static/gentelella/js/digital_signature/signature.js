@@ -309,13 +309,14 @@ function DocumentClient(modal_id) {
         },
         "do_sign_remote": function () {
             let selected_card = document.querySelector(`#${this.modal_id} form select`).value;
-
+            const containerSelector = "#signature";
             if(selected_card && this.certificates) {
                 let data = {
                     'organization': this.org,
                     'instance': this.pk,
                     'card': this.certificates[selected_card],
-                    "docsettings": document.get_document_settings()
+                    // "docsettings": document.get_document_settings()
+                    "docsettings": document.get_document_settings(".pdf-signature-container[data-id='123']")
                 }
                 this.remotesigner.sign(data);
             }else if( !selected_card && !this.certificates){

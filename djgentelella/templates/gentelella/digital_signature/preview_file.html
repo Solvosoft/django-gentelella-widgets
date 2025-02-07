@@ -1,2 +1,54 @@
+{% load urlname_tags %}
+{% load gentelellamenu gtsettings %}
+{% load i18n %}
+{% load static %}
 
+<div class="pdf-signature-container" id="pdf-signature-container_{{ widget.attrs.id }}">
+	{#	actions for change page#}
+	<div class="my-3 d-flex align-items-center justify-content-evenly">
+		<input type="hidden" name="{{ widget.name }}_page_number" class="page_number">
+		<input type="hidden" name="{{ widget.name }}_file">
+		{#		button to change page #}
+		<div>
+			<button type="button" class="btn btn-light px-3 shadow-sm border btn-sm prev" title="{% trans 'Previous' %} ">
+				<i class="fa fa-angle-double-left" aria-hidden="true"></i>
+			</button>
+			<button type="button" class="btn btn-light px-3 shadow-sm border btn-sm next" title="{% trans 'Next' %} ">
+				<i class="fa fa-angle-double-right" aria-hidden="true"></i>
+			</button>
+		</div>
 
+		{#		number of pages #}
+		<div class="border  rounded px-3 py-1 shadow-sm ">
+			<span class="">Page: <span class="page_num"></span> / <span class="page_count"></span></span>
+		</div>
+	</div>
+
+	{#	preview document	#}
+	<div class="d-flex justify-content-center canvas_container">
+		<div class="sub_canvas_container">
+			<div  class="signature">
+				<div class="image"></div>
+				<div class="text"></div>
+			</div>
+			<canvas class="pdfviewer"></canvas>
+		</div>
+	</div>
+
+	{# warning message #}
+	<div class="text-muted text-center my-3">
+		<p class="small">
+			<i class="fa fa-exclamation-circle me-2" aria-hidden="true"></i>
+			{% trans "Please go to the last page, in the signature space, try to place your signature vertically centered." %}
+		</p>
+	</div>
+
+</div>
+
+	<script type="module" src="{% static 'vendors/pdfjs/pdf.min.mjs' %}?v={% get_version %}"></script>
+	<script type="module" src="{% static 'vendors/pdfjs/pdf.worker.min.mjs' %}?v={% get_version %}"></script>
+	<script src="{% static 'vendors/pdfjs/interact.min.js' %}?v={% get_version %}"></script>
+
+<script type="module" src="{% static 'gentelella/js/digital_signature/pdfviewer.js' %}"></script>
+{#<script src="{% static 'gentelella/js/digital_signature/signature.js' %}"></script>#}
+{#<script src="{% static 'gentelella/js/digital_signature/document_manager.js' %}"></script>#}

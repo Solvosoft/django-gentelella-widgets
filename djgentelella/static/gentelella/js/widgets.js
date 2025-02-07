@@ -291,7 +291,10 @@ document.gtwidgets = {
     },
     UrlStoryLineInput: function (instance) {
         build_storyline(instance)
-    }
+    },
+    DigitalSignatureInput: function (instance) {
+        build_digital_signature(instance)
+    },
 }
 
 function gt_find_initialize(instance) {

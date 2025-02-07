@@ -36,11 +36,11 @@ class Command(BaseCommand):
             'fileupload.widget.js',
             'select2related.js',
         ]
-        digital_signature = [
-            'pdfviewer.js',
-            'signature.js',
-            'document_manager.js',
-        ]
+        # digital_signature = [
+        #     'pdfviewer.js',
+        #     'signature.js',
+        #     'document_manager.js',
+        # ]
 
         with open(basepath / 'base.js', 'w') as fwriter:
             # load jquery plugins
@@ -56,6 +56,6 @@ class Command(BaseCommand):
                     fwriter.write("\n%s\n" % (rfile.read()))
 
             # load digital signature files
-            for f in digital_signature:
-                with open(basepath / 'digital_signature' / f, 'r') as rfile:
-                    fwriter.write("\n%s\n" % (rfile.read()))
+            # for f in digital_signature:
+            #     with open(basepath / 'digital_signature' / f, 'r') as rfile:
+            #         fwriter.write("\n%s\n" % (rfile.read()))

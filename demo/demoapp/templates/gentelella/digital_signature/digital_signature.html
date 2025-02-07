@@ -1,25 +1,28 @@
 {% extends 'gentelella/base_site.html' %}
-
+{% load gtsettings %}
+{% load static %}
 
 {% block content %}
-{#	contenedor #}
+	{#	contenedor #}
 	<div class="row">
 		<div class='col-12'>
 			<div class="card">
 				<div class="card-body">
 					{#		title page			#}
 					<div class="card-title titles">
-						<h2 class="text-center"> Digital Signature </h2>
+						<h1 class="text-center"> Digital Signature </h1>
 					</div>
-			  {#					main content #}
+					{#	main content #}
 					<main>
-
-						{% include 'gentelella/digital_signature/signature.html' %}
-
-
-							{{ form.as_p}}
-
-
+						{# form #}
+						<div class="my-3">
+							<form action="" method="POST">
+								{% csrf_token %}
+								{#		widget				#}
+								{{ form }}
+{#								<input class="btn btn-success" type="submit" value="Save"/>#}
+							</form>
+						</div>
 
 					</main>
 
@@ -31,4 +34,15 @@
 {% endblock %}
 
 {% block js %}
+	<script>
+
+		// define urls\s
+		const urls = {
+			// websocket
+			sign_ws: "{% get_websocket_url 'sign_document' %}",
+			// file to sign
+			sign_doc: window.location.origin + "{% static 'gentelella/report.pdf' %}"
+		}
+
+	</script>
 {% endblock %}

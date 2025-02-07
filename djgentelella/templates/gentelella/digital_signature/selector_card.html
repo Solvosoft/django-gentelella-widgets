@@ -1,0 +1,55 @@
+{% load urlname_tags %}
+{% load gentelellamenu gtsettings %}
+{% load i18n %}
+{% load static %}
+
+<div>
+	{#	selector card #}
+	<div class="d-flex justify-content-center flex-column">
+		<div class="d-flex justify-content-between my-3">
+			<label for="select_card_{{ widget.attrs.id }}" class="text-center  h6">
+				{% trans 'Select your card' %}
+			</label>
+			<i class="fa fa-refresh text-muted fs-5 cursor-pointer refresh_signature"
+						title="{% trans 'Refresh' %}"
+						aria-hidden="true"></i>
+		</div>
+
+		<input type="hidden" name="prefix" class="form_prefix" value="{{ form.prefix|default_if_none:'' }}">
+
+		<select id="select_card_{{ widget.attrs.id }}" class="form-select select_card" name="{{ widget.name }}_select">
+		</select>
+	</div>
+
+	{#	actions buttons#}
+	<div class="my-3 d-flex align-items-center justify-content-evenly">
+		<button class="btn btn-success formadd btn-sm px-3" id="btn_sign" type="button">{% trans 'Sign' %}</button>
+	</div>
+
+	{#	info messages #}
+	<div class="row m-1">
+		<p class="text-muted fw-bold m-0 p-0">
+			<i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+			{% trans 'Notices' %}
+		</p>
+		<ul class="m-0 p-0 ms-2">
+			<li>
+				<a class="d-flex align-items-center text-muted"
+							title="{% trans 'Download' %}"
+							href="https://firmador.libre.cr/descargar.html" target="_blank">
+					<small>Firmador Libre</small>
+					<img src="{% static 'gentelella/images/firmador.ico' %}" width="20" alt="Firmador Libre">
+				</a>
+			</li>
+			<li>
+				<small> {% trans 'You need to run Firmador Libre to sign' %} </small>
+			</li>
+
+		</ul>
+	</div>
+
+	{#	error messages #}
+	<div id="signature-errors">
+	</div>
+
+</div>
