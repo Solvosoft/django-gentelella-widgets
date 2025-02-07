@@ -2,8 +2,9 @@ from django.contrib import admin
 
 from .models import WithCatalog, Catalog, OneCatalog, Country, Person, Foo, \
     Community, Employee, \
-    ChunkedUploadItem, Event, Calendar
+    ChunkedUploadItem, Event, Calendar, DigitalSignature
 
+admin.site.register(DigitalSignature)
 admin.site.register(Country)
 admin.site.register(Catalog)
 admin.site.register(WithCatalog)

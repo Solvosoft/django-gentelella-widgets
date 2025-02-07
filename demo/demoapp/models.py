@@ -1,8 +1,10 @@
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+import uuid
 
 # Create your models here.
 from djgentelella.fields.catalog import GTForeignKey, GTManyToManyField, GTOneToOneField
@@ -254,3 +256,22 @@ class ObjectManagerDemoModel(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class DigitalSignature(models.Model):
+    file_code = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    filename = models.CharField(max_length=50, null=True, blank=True)
+    file = models.FileField(upload_to='digital_signature/')
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        #  add name to filename
+        if not self.filename and self.file:
+            self.filename = self.file.name.split('/')[-1]
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.filename or str(self.file_code)
+
+
