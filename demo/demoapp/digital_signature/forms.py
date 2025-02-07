@@ -1,10 +1,9 @@
 from django import forms
+from django.conf import settings
 
 from djgentelella.models import ChunkedUpload
 from djgentelella.forms.forms import GTForm
-from djgentelella.widgets import core as GTWidgets
-from djgentelella.widgets.digital_signature import DigitalSignature
-from django.utils.translation import gettext_lazy as _
+from djgentelella.widgets.digital_signature import DigitalSignatureInput
 
 class DigitalSignatureForm(GTForm, forms.ModelForm):
 
@@ -13,5 +12,7 @@ class DigitalSignatureForm(GTForm, forms.ModelForm):
         fields = ['file', 'filename']
         widgets = {
             'filename': forms.HiddenInput,
-            'file': DigitalSignature
+            'file': DigitalSignatureInput(
+                ws_url=settings.FIRMADOR_WS
+            )
         }
