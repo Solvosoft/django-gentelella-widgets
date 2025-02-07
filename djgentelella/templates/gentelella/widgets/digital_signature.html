@@ -1,0 +1,110 @@
+{% load urlname_tags %}
+{% load gentelellamenu gtsettings %}
+{% load i18n %}
+{% load static %}
+
+<div class="row my-3">
+
+	{#	select card #}
+	<div class="col-12 col-md-4">
+		{#	selector card #}
+		<div class="d-flex justify-content-center flex-column">
+			<div class="d-flex justify-content-between my-3">
+				<label for="select_card_{{ widget.attrs.id }}" class="text-center  h6">
+					{% trans 'Select your card' %}
+				</label>
+				<i class="fa fa-refresh text-muted fs-5 cursor-pointer refresh_signature"
+							title="{% trans 'Refresh' %}"
+							aria-hidden="true"></i>
+			</div>
+
+			<input type="hidden" name="prefix" class="form_prefix" value="{{ form.prefix|default_if_none:'' }}">
+
+			<select id="select_card_{{ widget.attrs.id }}" class="form-select select_card" name="{{ widget.name }}_select">
+			</select>
+		</div>
+
+		{#	actions buttons#}
+		<div class="my-3 d-flex align-items-center justify-content-evenly">
+			<button class="btn btn-success formadd btn-sm px-3" id="btn_sign" type="button">{% trans 'Sign' %}</button>
+		</div>
+
+		{#	info messages #}
+		<div class="row m-1">
+			<p class="text-muted fw-bold m-0 p-0">
+				<i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+				{% trans 'Notices' %}
+			</p>
+			<ul class="m-0 p-0 ms-2">
+				<li>
+					<a class="d-flex align-items-center text-muted"
+								title="{% trans 'Download' %}"
+								href="https://firmador.libre.cr/descargar.html" target="_blank">
+						<small>Firmador Libre</small>
+						<img src="{% static 'gentelella/images/firmador.ico' %}" width="20" alt="Firmador Libre">
+					</a>
+				</li>
+				<li>
+					<small> {% trans 'You need to run Firmador Libre to sign' %} </small>
+				</li>
+
+			</ul>
+		</div>
+
+		{#	error messages #}
+		<div id="signature-errors">
+		</div>
+
+	</div>
+
+	{#	preview file #}
+	<div class="col-12 col-md-8">
+		<div class="pdf-signature-container" id="pdf-signature-container">
+			{#	actions for change page#}
+			<div class="my-3 d-flex align-items-center justify-content-evenly">
+				<input type="hidden" name="{{ widget.name }}_page_number" class="page_number">
+				<input type="hidden" data-filename="{{ widget.attrs.id }}.pdf" name="{{ widget.name }}"
+					{% if widget.value != None %}
+											value="{{ widget.value|stringformat:'s' }}"{% endif %} {% include "gentelella/widgets/attrs.html" %}>
+
+				{#		button to change page #}
+				<div>
+					<button type="button" class="btn btn-light px-3 shadow-sm border btn-sm prev" title="{% trans 'Previous' %} ">
+						<i class="fa fa-angle-double-left" aria-hidden="true"></i>
+					</button>
+					<button type="button" class="btn btn-light px-3 shadow-sm border btn-sm next" title="{% trans 'Next' %} ">
+						<i class="fa fa-angle-double-right" aria-hidden="true"></i>
+					</button>
+				</div>
+
+				{#		number of pages #}
+				<div class="border  rounded px-3 py-1 shadow-sm ">
+					<span class="">Page: <span class="page_num"></span> / <span class="page_count"></span></span>
+				</div>
+			</div>
+
+			{#	preview document	#}
+			<div class="d-flex justify-content-center canvas_container">
+				<div class="sub_canvas_container">
+					<div class="signature">
+						<div class="image"></div>
+						<div class="text"></div>
+					</div>
+					<canvas class="pdfviewer"></canvas>
+				</div>
+			</div>
+
+			{# warning message #}
+			<div class="text-muted text-center my-3">
+				<p class="small">
+					<i class="fa fa-exclamation-circle me-2" aria-hidden="true"></i>
+					{% trans "Please go to the last page, in the signature space, try to place your signature vertically centered." %}
+				</p>
+			</div>
+
+		</div>
+	</div>
+	<hr>
+</div>
+
+
