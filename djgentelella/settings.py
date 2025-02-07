@@ -43,7 +43,7 @@ try:
 except Exception as e:
     from django.contrib.auth.models import User
 
-#####################################################
+############################################
 #    Chunked Upload
 ############################################
 
@@ -84,5 +84,21 @@ CONTENT_TYPE = getattr(settings, 'CHUNKED_UPLOAD_CONTENT_TYPE',
 DEFAULT_MAX_BYTES = None
 MAX_BYTES = getattr(settings, 'CHUNKED_UPLOAD_MAX_BYTES', DEFAULT_MAX_BYTES)
 
-#############################################################
+############################################
 #   END UPLOAD CHUNKED
+
+
+############################################
+#    Digital Signature
+############################################
+
+FIRMADOR_WS = os.getenv("FIRMADOR_WS", "ws://127.0.0.1:9022/async/")
+FIRMADOR_DOMAIN = os.getenv("FIRMADOR_DOMAIN", "http://localhost:9001")
+FIRMADOR_VALIDA_URL = FIRMADOR_DOMAIN + "/valida/"
+FIRMADOR_SIGN_URL = FIRMADOR_DOMAIN + "/firma/firme"
+FIRMADOR_SIGN_COMPLETE = FIRMADOR_DOMAIN + "/firma/completa"
+FIRMADOR_DELETE_FILE_URL = FIRMADOR_DOMAIN + "/firma/delete"
+
+
+############################################
+#   END DIGITAL SIGNATURE

@@ -1,13 +1,31 @@
-#canvas_container {
+.canvas_container {
     border-radius: 4px;
 }
 
-#sub_canvas_container {
-    overflow: hidden;
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.cursor-pointer:hover{
+    transform: scale(1.1);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.sub_canvas_container {
     position: relative;
+    max-width: 100%;
+    max-height: 300px;
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+    overflow-y: auto;
     /*max-width: 770px;*/
     /*max-height: 950px;*/
 }
+
+.pdfviewer {
+    width: 100%;
+    height: auto;
+}
+
 .signature {
     display: grid;
     grid-template-areas:
@@ -21,8 +39,8 @@
     transform: translate(0px, 0px);
     border: 1px solid #ccc;
     border-radius: 0px !important;
-    min-width: 200px;
-    min-height: 100px;
+    min-width: 25%;
+    min-height: 20%;
 }
 
 .image {

@@ -52,3 +52,7 @@ def get_define(context, val):
         value = settings.DEFAULT_JS_IMPORTS[val]
     value = getattr(context['request'], val, value)
     return value
+
+@register.simple_tag(takes_context=True)
+def get_websocket_url(context, name, *args, default="sign_document", **kwargs):
+    return settings.FIRMADOR_WS + name
