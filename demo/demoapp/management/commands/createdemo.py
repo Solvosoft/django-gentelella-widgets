@@ -164,7 +164,7 @@ class Command(BaseCommand):
         cwidget = MenuItem.objects.create(
             parent=extrawidget,
             title='CardTables',
-            url_name='cardtable_view',
+            url_name='cardlist_view',
             category='sidebar',  # sidebar, sidebarfooter,
             is_reversed=True,
             reversed_kwargs=None,
