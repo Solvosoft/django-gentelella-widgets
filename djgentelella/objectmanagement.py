@@ -55,8 +55,8 @@ class BaseObjectManagement(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def detail_template(self, request, *args, **kwargs):
         data = {
-            "title": "Title {{it.title}}",
-            "template": "Name: {{it.name}}"
+            "title": "Name <% it.name %>",
+            "template": "Description: <% it.description | safe  %>"
         }
         return Response(data)
 
