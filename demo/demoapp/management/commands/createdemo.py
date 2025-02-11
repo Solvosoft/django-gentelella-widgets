@@ -160,6 +160,20 @@ class Command(BaseCommand):
             icon='fa fa-table',
             only_icon=False
         )
+        # CardTable
+        cwidget = MenuItem.objects.create(
+            parent=extrawidget,
+            title='CardTables',
+            url_name='cardlist_view',
+            category='sidebar',  # sidebar, sidebarfooter,
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-table',
+            only_icon=False
+        )
+
         cwidget = MenuItem.objects.create(
             parent=extrawidget,
             title='Object Management',

@@ -9,6 +9,8 @@ from .calendar.views import calendar_view
 from .chartjs import chart_js_view
 from .datatables.api import PersonViewSet
 from .datatables.views import datatableViewExample
+from .cardlist.views import cardListViewExample
+from .cardlist.api import PersonViewSet as PersonCard
 from .date_range import views as date_ranges
 from .filechunkedupload import views as chunkedupload
 from .formset import add_formset, add_model_formset
@@ -30,6 +32,7 @@ menuclss = MenuItemclass()
 
 router = DefaultRouter()
 router.register('persontableview', PersonViewSet, 'api-persontable')
+router.register('personcardview', PersonCard, 'api-personcard')
 router.register('objectmanagement', ObjectManagerDemoModelManagement,
                 'api-objectmanagement')
 
@@ -103,6 +106,9 @@ urlpatterns = [
                   path('storyline_view', storyline_view, name="storyline_view"),
                   path('timeline_view', timeline_view, name="timeline_view"),
                   path('datatable_view', datatableViewExample, name="datatable_view"),
+                  # CardTable
+                  path('cardlist_view', cardListViewExample, name="cardlist_view"),
                   path('mediarecord_upload', mediaupload_view, name="mediaupload_view"),
                   path('tableapi/', include(router.urls)),
+                  path('cardapi/', include(router.urls)),
               ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()
