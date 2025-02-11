@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     'djgentelella.blog',
     'djgentelella.permission_management',
     'markitup',
-    'markdown'
 
 ]
 
