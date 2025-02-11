@@ -110,19 +110,16 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.threads_count = options['threads']
         result = finders.find(Path('gentelella/css/custom.css'))
-        print(f"Result css {result}")
         if result is None:
             print('No static folder found')
             exit(1)
 
         basepath = Path(result.replace(
             str(Path('gentelella/css/custom.css')), 'vendors/'))
-        # print(f"Archivo css {basepath}")
 
         if options['delete']:
             shutil.rmtree(basepath)
             basepath.mkdir()
-            # print(f"Creando la ruta: {basepath.mkdir()} removiendo: {shutil.rmtree(basepath)}")
 
         libs = {
             'bootstrap': [
