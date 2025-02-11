@@ -1,45 +1,24 @@
 {% extends 'gentelella/base.html' %}
 {% load static i18n %}
 
-{% block extra_css %}
-	<link href="{% static 'gentelella/css/custom.css' %}" rel="stylesheet">
-{% endblock %}
-
 {% block content %}
 <div class="card">
 	<div class="card-body">
 		<div class="card-title titles">
-			<h2>CardList Example</h2>
+			<h2>{% trans 'CardList Example' %}</h2>
 		</div>
-
-	<!-- 	<div class="col-12"> -->
-			<div id="cardListContainer"></div>
-
-	<!--	</div> -->
-	</div>
-</div>
-
-<div class="card">
-	<div class="card-body">
-		<div class="card-title titles">
-			<h2>CardList Example</h2>
-		</div>
-
 		<div class="col-12">
-			<div id="cardListContainer1"></div>
-
+			<div id="cardListContainer"></div>
 		</div>
 	</div>
 </div>
 {% endblock %}
 
 {% block js %}
-<script src="https://unpkg.com/squirrelly@9.0.0/dist/browser/squirrelly.min.js"></script>
-<script src="{% static 'gentelella/js/cardList.js' %}"></script>
+{{block.super}}
+<script src="{% static 'gentelella/js/base/cardList.js' %}"></script>
 <script>
-
-const cardList = new CardList("cardListContainer", "{% url 'api-personcard-list' %}");
-	const cardList1 = new CardList("cardListContainer1", "{% url 'api-personcard-list' %}");
+	const cardList = new CardList("cardListContainer", "{% url 'api-personcard-list' %}");
 </script>
 
 {% endblock js %}

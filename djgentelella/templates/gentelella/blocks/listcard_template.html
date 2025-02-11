@@ -1,0 +1,30 @@
+{% load i18n %}
+
+<div class="row container mt-3">
+	{% if with_top_navigation %}
+	{% include 'gentelella/blocks/squirrelly_pagination.html' %}
+	{% endif %}
+	<form id="{{id}}_filter_form" class="row filter_form" onsubmit="return false;">
+		{{form}}
+	</form>
+	<!-- Contenedor de Cards -->
+	<div class="row row-cols-1 row-cols-md-3 g-2 mb-2 list_area" id="{{id}}_list_area">
+		{% block listarea %}
+		<% @each(it.data) => element %>
+		<div class="card {{card_class}}">
+			<% @if(element.image != undefined) %>
+			<img src="<% element.image %>" class="card-img-top" alt="">
+			<% /if %>
+			<div class="card-body">
+				<h5 class="card-title"><% element.title %></h5>
+				<% element.body %>
+			</div>
+			{% if with_actions %}
+			<div class="card-footer action_area" id="{{id}}_action_area"></div>
+			{% endif %}
+		</div>
+		{{/each}}
+		{% endblock %}
+	</div>
+	{% include 'gentelella/blocks/squirrelly_pagination.html' %}
+</div>
