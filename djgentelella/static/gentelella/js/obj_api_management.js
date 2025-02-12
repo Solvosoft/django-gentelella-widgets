@@ -423,7 +423,7 @@ function BaseDetailModal(modalid, base_detail_url, template_url, form_config={})
 
                  var result = Sqrl.render(instance.template,  data, Sqrl.getConfig({ tags: ["<%", "%>"] }));
                  instance.modal.find(".modal-body").html(result);
-                 var result = Sqrl.render(instance.title,  data, Sqrl.getConfig({ tags: ["<%", "%>"], autoEscape: false }));
+                 var result = Sqrl.render(instance.title,  data, Sqrl.getConfig({ tags: ["<%", "%>"] }));
                  instance.modal.find(".modal-title").html(result);
                  instance.show();
             }

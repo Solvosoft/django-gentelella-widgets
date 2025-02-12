@@ -15,3 +15,4 @@ class PersonCardListViewSet(ListAreaViewset):
     ordering = ('-num_children',)
     html_id = 'cardListContainer'
     template_name = 'gentelella/cardlist/person_list.html'
+    extra_template_context = {'card_col_class': 'col col-md-4 p-2'}

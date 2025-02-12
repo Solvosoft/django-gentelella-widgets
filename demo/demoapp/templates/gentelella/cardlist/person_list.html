@@ -2,17 +2,19 @@
 
 {% block listarea %}
 <% @each(it.data) => element %>
-<div class="card {{card_class}}">
-	<% @if(element.image != undefined) %>
-	<img src="<% element.image %>" class="card-img-top" alt="">
-	<% /if %>
-	<div class="card-body">
-		<h5 class="card-title"><% element.title %></h5>
-		<% element.body %>
+<div class="{{card_col_class}}">
+	<div class="card {{card_class}}">
+		<% @if(element.image != undefined) %>
+		<img src="<% element.image %>" class="card-img-top" alt="">
+		<% /if %>
+		<div class="card-body">
+			<h5 class="card-title"><% element.name %></h5>
+			<% element.country.name %> <% element.num_children %>
+		</div>
+		{% if with_actions %}
+		<div class="card-footer action_area" id="{{id}}_action_area"></div>
+		{% endif %}
 	</div>
-	{% if with_actions %}
-	<div class="card-footer action_area" id="{{id}}_action_area"></div>
-	{% endif %}
 </div>
-{{/each}}
+<% /each %>
 {% endblock %}

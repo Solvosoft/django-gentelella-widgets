@@ -3,7 +3,7 @@ class CardList {
     this.container = document.getElementById(containerId);
     this.apiUrl = apiUrl;
     this.page = 1;
-    this.paginate = 10;
+    this.page_size = 10;
     this.totalPages = 1;
     this.recordsTotal = 0;
     this.template = '';
@@ -15,7 +15,7 @@ class CardList {
     try {
         const queryParams = new URLSearchParams({
             page: this.page,
-            paginate: this.paginate,
+            page_size: this.page_size,
             ...(this.filters || {}),
         }).toString();
 
@@ -39,14 +39,33 @@ class CardList {
       console.error("No template found!");
       return;
     }
-
-    this.container.innerHTML = Sqrl.render(this.template, data);
+    this.container.innerHTML = Sqrl.render(this.template, data,  Sqrl.getConfig({ tags: ["<%", "%>"] }));
+    gt_find_initialize_from_dom(this.container);
+    this.doPagination();
+    this.dofiltering();
   }
 
-  changePage(newPage) {
-    if (newPage >= 1 && newPage <= this.totalPages) {
-      this.page = newPage;
-      this.fetchData();
-    }
+  getFilters(){
+    const form = this.container.querySelectorAll('.filter_form');
+
+  }
+  dofiltering(){
+    const forminput = this.container.querySelectorAll('.filter_form input');
+        const parent=this;
+        forminput.forEach(input => {
+            input.onchange=function(event){
+                parent.getFilters();
+            }
+       });
+  }
+  doPagination(){
+    const alink = this.container.querySelectorAll('.pagination a');
+    const parent=this;
+    alink.forEach(link => {
+         link.onclick = function(event) {
+         parent.page=event.target.dataset.page;
+         parent.fetchData();
+         }
+    });
   }
 }
