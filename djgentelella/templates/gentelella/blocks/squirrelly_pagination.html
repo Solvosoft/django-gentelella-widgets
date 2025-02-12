@@ -1,11 +1,15 @@
 {% load i18n %}
-<nav aria-label="page navigation">
+<nav aria-label="page navigation" class="m-2">
 	<ul class="pagination">
-		<li class="page-item"><a class="page-link" href="#" data-page="1">{% trans 'First' %}</a></li>
+		<li class="page-item <% it.currentPage == 1 ? 'disabled' : '' %>">
+			<a class="page-link" href="#" data-page="1">{% trans 'First' %}</a>
+		</li>
 		<% @each([...Array(it.totalPages).keys()]) => page %>
 		<li class="page-item <% page+1 == it.currentPage ? 'active' : '' %>">
 			<a class="page-link" href="#" data-page="<% page +1 %>"><% page+1 %></a></li>
 		<% /each %>
-		<li class="page-item"><a class="page-link" href="#" data-page="<% it.totalPages+1 %>">{% trans 'Last' %}</a></li>
+		<li class="page-item <% it.totalPages == it.currentPage ? 'disabled' : '' %>">
+			<a class="page-link" href="#" data-page="<% it.totalPages %>">{% trans 'Last' %}</a>
+		</li>
 	</ul>
 </nav>
