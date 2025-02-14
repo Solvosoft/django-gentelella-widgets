@@ -26,7 +26,22 @@ class ListAreaViewset(mixins.ListModelMixin, GenericViewSet):
         return str(uuid.uuid4())[:4]
 
     def get_filter_form(self, request):
-        return self.filter_form
+        return self.filter_form(data=request.GET)
+
+    def get_page_size_options(self, request):
+        pagesize = self.paginator.get_page_size(request)
+        sizes = [5, 10, 15, 25, 50, 100, 500]
+        page_size_opt = []
+        found = False
+        for size in sizes:
+            page_size_opt.append(
+                {'id': size, 'selected': size == pagesize}
+            )
+            if size == pagesize:
+                found = True
+        if not found:
+            page_size_opt.append({'id': pagesize, 'selected': True})
+        return page_size_opt
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -42,6 +57,7 @@ class ListAreaViewset(mixins.ListModelMixin, GenericViewSet):
         context = {'with_top_navigation': self.pagination_top,
                    'with_actions': self.with_actions,
                    'id': self.get_html_id(),
+                   'page_size_options': self.get_page_size_options(request),
                    'form': self.get_filter_form(request)}
         if self.extra_template_context:
             context.update(self.extra_template_context)
@@ -51,4 +67,8 @@ class ListAreaViewset(mixins.ListModelMixin, GenericViewSet):
             request=request)
 
         response_data["template"] = rendered_template  # Agregar plantilla renderizada
+        response_data["actions"] = self.get_actions()
         return Response(response_data)
+
+    def get_actions(self):
+        return []

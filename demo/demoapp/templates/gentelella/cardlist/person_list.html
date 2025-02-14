@@ -12,7 +12,14 @@
 			<% element.country.name %> <% element.num_children %>
 		</div>
 		{% if with_actions %}
-		<div class="card-footer action_area" id="{{id}}_action_area"></div>
+		<div class="card-footer action_area" id="{{id}}_action_area">
+			<% @each(element.actions) => action %>
+			<a href="#" class="obj_action" data-instance="<% element.id %>" data-action="<% action.name %>"
+						title="<% action.title %>">
+				<i class="<% action.icon %>" aria-hidden="true"></i>
+			</a>
+			<% /each %>
+		</div>
 		{% endif %}
 	</div>
 </div>

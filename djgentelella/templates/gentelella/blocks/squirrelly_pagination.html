@@ -1,15 +1,38 @@
 {% load i18n %}
-<nav aria-label="page navigation" class="m-2">
-	<ul class="pagination">
-		<li class="page-item <% it.currentPage == 1 ? 'disabled' : '' %>">
-			<a class="page-link" href="#" data-page="1">{% trans 'First' %}</a>
-		</li>
-		<% @each([...Array(it.totalPages).keys()]) => page %>
-		<li class="page-item <% page+1 == it.currentPage ? 'active' : '' %>">
-			<a class="page-link" href="#" data-page="<% page +1 %>"><% page+1 %></a></li>
-		<% /each %>
-		<li class="page-item <% it.totalPages == it.currentPage ? 'disabled' : '' %>">
-			<a class="page-link" href="#" data-page="<% it.totalPages %>">{% trans 'Last' %}</a>
-		</li>
-	</ul>
-</nav>
+<div class="gtnavigator p-0">
+	<div class="col col-md-6 pt-2">
+		<nav aria-label="page navigation">
+			<ul class="pagination">
+				<li class="page-item <% it.currentPage == 1 ? 'disabled' : '' %>">
+					<a class="page-link" href="#" data-page="1">{% trans 'First' %}</a>
+				</li>
+				<% @each([...Array(it.totalPages).keys()]) => page %>
+				<li class="page-item <% page+1 == it.currentPage ? 'active' : '' %>">
+					<a class="page-link" href="#" data-page="<% page +1 %>"><% page+1 %></a></li>
+				<% /each %>
+				<li class="page-item <% it.totalPages == it.currentPage ? 'disabled' : '' %>">
+					<a class="page-link" href="#" data-page="<% it.totalPages %>">{% trans 'Last' %}</a>
+				</li>
+			</ul>
+		</nav>
+	</div>
+	<div class="col col-md-4 pt-2">
+		<% @if(it.actions) %>
+		<div class="btn-group" role="group" aria-label="General actions">
+			<% @each(it.actions) => action %>
+			<button type="button" class="btn general_action <% action.class %>" title="<% action.title %>"
+											data-action="<% action.name %>">
+				<i class="<% action.icon %>"></i>
+			</button>
+			<% /each %>
+		</div>
+		<% /if %>
+	</div>
+	<div class="col col-md-2 pt-2">
+		<select class="page_size_select" name="page_size" data-widget="Select">
+			{% for page_s in page_size_options %}
+			<option value="{{page_s.id}}" {% if page_s.selected %}selected{% endif %}>{{page_s.id}}</option>
+			{% endfor %}
+		</select>
+	</div>
+</div>

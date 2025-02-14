@@ -27,6 +27,23 @@ class PersonSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class PersonCardSerializer(serializers.ModelSerializer):
+    country = CountrySerializer()
+    actions = serializers.SerializerMethodField()
+
+    def get_actions(self, obj):
+        return [{
+            'id': obj.pk,
+            'name': 'example',
+            'icon': 'fa fa-edit',
+            'title': 'example of action'
+        }]
+
+    class Meta:
+        model = Person
+        fields = "__all__"
+
+
 class PersonCardListSerializer(serializers.Serializer):
     data = PersonSerializer(many=True)  # Enviar datos estructurados
     draw = serializers.IntegerField(required=True)
