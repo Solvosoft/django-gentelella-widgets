@@ -699,6 +699,150 @@ $.fn.select2related = function(action, relatedobjs=[]) {
 
 })(jQuery)
 
+function convertFileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      const base64String = reader.result.split(',')[1];
+      resolve(base64String);
+    };
+
+    reader.onerror = (error) => {
+      reject(error);
+    };
+
+    reader.readAsDataURL(file);
+  });
+}
+
+async function obtainFormAsJSON(form, prefix = '', extras={}) {
+  const fields = form.elements;
+  const formData = {};
+  // typeof variable === 'function'
+  for( let key in extras){
+    if(typeof extras[key] === 'function'){
+        formData[key]=extras[key](form, key, prefix);
+    }else{
+        formData[key]=extras[key];
+    }
+  }
+
+  for (let i = 0; i < fields.length; i++) {
+    const field = fields[i];
+
+    if (field.type !== 'submit' && field.type !== 'button') {
+      const fieldName = field.name.replace(prefix, '');
+      if(field.type === 'textarea'){
+        formData[fieldName] = $(field).val();
+      }else if(field.type === 'checkbox'){
+        formData[fieldName] = field.checked;
+      }else  if (field.type === 'radio') {
+        if(field.checked){
+          formData[fieldName] =  $(field).val();
+        }
+      }else  if (field.type === 'file') {
+        const files = Array.from(field.files);
+        const filesBase64 = [];
+
+        for (let j = 0; j < files.length; j++) {
+          const file = files[j];
+          try {
+            const base64String = await convertFileToBase64(file);
+            filesBase64.push({ name: file.name, value: base64String });
+          } catch (error) {
+            console.error('Error converting file:', error);
+          }
+        }
+
+        formData[fieldName] = filesBase64;
+      } else if (field.multiple) {
+        const selectedOptions = Array.from(field.selectedOptions);
+        const selectedValues = selectedOptions.map((option) => option.value);
+        formData[fieldName] = selectedValues;
+      } else {
+        formData[fieldName] = field.value;
+      }
+    }
+  }
+
+  return JSON.stringify(formData);
+}
+
+function convertToStringJson(form, prefix="", extras={}){
+    result=obtainFormAsJSON(form[0], prefix=prefix, extras=extras);
+    return result;
+}
+
+function load_errors(error_list, obj, parentdiv){
+    ul_obj = "<ul class='errorlist form_errors d-flex justify-content-center'>";
+    error_list.forEach((item)=>{
+        ul_obj += "<li>"+item+"</li>";
+    });
+    ul_obj += "</ul>"
+    $(obj).parents(parentdiv).prepend(ul_obj);
+    return ul_obj;
+}
+
+function form_field_errors(target_form, form_errors, prefix, parentdiv){
+    var item = "";
+    for (const [key, value] of Object.entries(form_errors)) {
+        item = " #id_" +prefix+key;
+        if(target_form.find(item).length > 0){
+            load_errors(form_errors[key], item, parentdiv);
+        }
+    }
+}
+
+function response_manage_type_data(instance, err_json_fn, error_text_fn){
+    return function(response) {
+        const contentType = response.headers.get("content-type");
+        if(response.ok){
+             if (contentType && contentType.indexOf("application/json") !== -1) {
+                return response.json();
+            }else{
+                return response.text();
+            }
+        }else{
+            if (contentType && contentType.indexOf("application/json") !== -1) {
+                response.json().then(data => err_json_fn(instance, data));
+            }else{
+                response.text().then(data => error_text_fn(instance, data));
+            }
+            return Promise.resolve(false);
+        }
+
+        return Promise.reject(response);  // then it will go to the catch if it is an error code
+    }
+}
+
+function clear_action_form(form){
+    // clear switchery before the form reset so the check status doesn't get changed before the validation
+    $(form).find("input[data-switchery=true]").each(function() {
+        if($(this).prop("checked")){  // only reset it if it is checked
+            $(this).trigger("click").prop("checked", false);
+        }
+    });
+    $(form).find('[data-widget="TaggingInput"],[data-widget="EmailTaggingInput"]').each(function(i, e) {
+         var tg=$(e).data().tagify;
+         tg.removeAllTags();
+    });
+    $(form).find('[data-widget="FileChunkedUpload"],[data-widget="FileInput"]').each(function(i, e) {
+         var tg=$(e).data().fileUploadWidget;
+         tg.resetEmpty();
+    });
+    $(form).trigger('reset');
+    $(form).find("select option:selected").prop("selected", false);
+    $(form).find("select").val(null).trigger('change');
+    $(form).find("ul.form_errors").remove();
+    $(form).find(".file-link").remove();
+}
+
+var gt_form_modals = {}
+var gt_detail_modals = {}
+var gt_crud_objs = {};
+
+
 function gtforms(index,manager, formList, extra=true)  {
     return {
         index: index,
@@ -1968,5 +2112,142 @@ function getMediaRecord(element, mediatype){
     if(mediatype === "audio"){
         return getAudioRecord(element)
     }
+}
+
+
+class CardList {
+  constructor(containerId, apiUrl, actions={}) {
+    this.container = document.getElementById(containerId);
+    this.apiUrl = apiUrl;
+    this.page = 1;
+    this.data=null;
+    this.page_size = 10;
+    this.totalPages = 1;
+    this.recordsTotal = 0;
+    this.template = '';
+    this.filters = {};
+    this.actions=actions;
+    this.fetchData();
+
+  }
+
+  async fetchData() {
+    try {
+        const queryParams = new URLSearchParams({
+            page: this.page,
+            page_size: this.page_size,
+            ...(this.filters || {}),
+        }).toString();
+
+        const url = `${this.apiUrl}?${queryParams}`;
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+
+        const data = await response.json();
+        this.template =  data.template || this.template;
+        this.totalPages = data.totalPages || 1;
+        this.recordsTotal = data.recordsTotal || 0;
+        this.process_data(data);
+        this.render(data);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+  }
+
+  process_data(data){
+    this.data={};
+    data.data.forEach(item => {
+            this.data[item.id]=item;
+    })
+  }
+
+  render(data) {
+    if (!this.template) {
+      console.error("No template found!");
+      return;
+    }
+    this.container.innerHTML = Sqrl.render(this.template, data,  Sqrl.getConfig({ tags: ["<%", "%>"] }));
+    gt_find_initialize_from_dom(this.container);
+    this.doPagination();
+    this.dofiltering();
+    this.doPageSizeOptions();
+    this.doObjActions()
+  }
+
+  async getFilters(){
+    const form = this.container.querySelectorAll('.filter_form');
+
+    const result = await convertToStringJson(form);
+    this.filters = JSON.parse(result);
+    this.fetchData();
+  }
+  dofiltering(){
+  /**
+    const forminput = this.container.querySelectorAll('.filter_form input, .filter_form select');
+    const parent=this;
+    forminput.forEach(input => {
+            input.onchange=function(event){
+                parent.getFilters();
+            }
+       });
+   **/
+  }
+  doPageSizeOptions(){
+    const formselect = this.container.querySelectorAll('.page_size_select');
+    const parent=this;
+    parent.page_size=parseInt(formselect[0].value);
+    formselect.forEach(input => {
+            input.onchange=function(event){
+                parent.page_size=event.target.value
+                parent.getFilters();
+            }
+       });
+
+  }
+  doPagination(){
+    const alink = this.container.querySelectorAll('.pagination a');
+    const parent=this;
+    alink.forEach(link => {
+         link.onclick = function(event) {
+         parent.page=event.target.dataset.page;
+         parent.fetchData();
+         }
+    });
+  }
+  doObjActions(){
+    const actions = this.container.querySelectorAll('.obj_action');
+    const parent=this;
+    actions.forEach(action => {
+         action.onclick = function(event) {
+            event.preventDefault();
+            var pk = action.dataset.instance;
+            var name = action.dataset.action;
+            if (typeof parent.actions[name] === 'function') {
+                parent.actions[name](pk, parent.data[pk]);
+            }
+         }
+    })
+    const generalactions = this.container.querySelectorAll('.general_action');
+    generalactions.forEach(action => {
+         action.onclick = function(event) {
+            event.preventDefault();
+            var name = action.dataset.action;
+            if (typeof parent.actions[name] === 'function') {
+                parent.actions[name]();
+            }else{
+                 if (typeof parent[name] === 'function') parent[name]();
+            }
+         }
+    })
+  }
+  search(){
+     this.getFilters();
+  }
+  clean(){
+    const form = this.container.querySelectorAll('.filter_form');
+    clear_action_form(form);
+    this.container.querySelectorAll('.filter_form input').forEach(i=>{i.value="";});
+    this.getFilters();
+  }
 }
 
