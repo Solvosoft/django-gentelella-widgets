@@ -18,7 +18,15 @@
 {{block.super}}
 <script src="{% static 'gentelella/js/base/cardList.js' %}"></script>
 <script>
-	const cardList = new CardList("cardListContainer", "{% url 'api-personcard-list' %}");
+	const cardList = new CardList("cardListContainer", "{% url 'api-personcard-list' %}",
+	{
+	'example': function(pk, data, target){
+			console.log(data);
+		},
+	 'generalexample': function(){
+	 				console.log("general example");
+	 }
+	 });
 </script>
 
 {% endblock js %}

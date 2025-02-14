@@ -2,9 +2,26 @@
 
 <div class="row container mt-3">
 
-	<form id="{{id}}_filter_form" class="row filter_form" onsubmit="return false;">
-		{{form}}
-	</form>
+	{% if form %}
+	<div class="col col-md-9">
+		<form id="{{id}}_filter_form" class="row filter_form" onsubmit="return false;">
+			{{form}}
+		</form>
+	</div>
+	<div class="col col-md-3 p-3 ">
+		<div class="btn-group" role="group" aria-label="search">
+			<button type="button" class="btn general_action btn-outline-primary" title="{% trans 'Search' %}"
+											data-action="search">
+				<i class="fa fa-search"></i>
+			</button>
+			<button type="button" class="btn general_action btn-outline-secondary" title="{% trans 'Clean' %}"
+											data-action="clean">
+				<i class="fa fa fa-eraser"></i>
+			</button>
+		</div>
+	</div>
+
+	{% endif %}
 	{% if with_top_navigation %}
 	{% include 'gentelella/blocks/squirrelly_pagination.html' %}
 	{% endif %}
@@ -21,7 +38,14 @@
 				<% element.body %>
 			</div>
 			{% if with_actions %}
-			<div class="card-footer action_area" id="{{id}}_action_area"></div>
+			<div class="card-footer action_area" id="{{id}}_action_area">
+				<% @each(element.actions) => action %>
+				<a href="#" class="obj_action" data-instance="<% element.id %>" data-action="<% action.name %>"
+							title="<% action.title %>">
+					<i class="<% action.icon %>" aria-hidden="true"></i>
+				</a>
+				<% /each %>
+			</div>
 			{% endif %}
 		</div>
 		<% /each %>

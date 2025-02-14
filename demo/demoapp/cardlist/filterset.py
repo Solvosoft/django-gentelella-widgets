@@ -1,4 +1,4 @@
-from django_filters import DateFromToRangeFilter, DateTimeFromToRangeFilter
+from django_filters import DateFromToRangeFilter, DateTimeFromToRangeFilter, filterset
 from django_filters import FilterSet
 
 from demoapp.models import Person
@@ -15,3 +15,12 @@ class PersonFilterSet(FilterSet):
         model = Person
         fields = {'name': ['icontains'], 'num_children': ['exact'],
                   'country__name': ['icontains']}
+
+
+class PersonCardListFilterSet(FilterSet):
+    name = filterset.CharFilter(lookup_expr='icontains')
+
+    class Meta:
+        model = Person
+        fields = {'name': ['icontains'], 'num_children': ['exact'],
+                  'country': ['exact']}
