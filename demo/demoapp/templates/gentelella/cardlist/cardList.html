@@ -16,7 +16,6 @@
 
 {% block js %}
 {{block.super}}
-<script src="{% static 'gentelella/js/base/cardList.js' %}"></script>
 <script>
 	const cardList = new CardList("cardListContainer", "{% url 'api-personcard-list' %}",
 	{
@@ -28,5 +27,4 @@
 	 }
 	 });
 </script>
-
 {% endblock js %}
