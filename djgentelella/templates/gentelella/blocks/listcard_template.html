@@ -18,6 +18,11 @@
 											data-action="clean">
 				<i class="fa fa fa-eraser"></i>
 			</button>
+			<select class="btn page_size_select" name="page_size" data-widget="Select">
+				{% for page_s in page_size_options %}
+				<option value="{{page_s.id}}" {% if page_s.selected %}selected{% endif %}>{{page_s.id}}</option>
+				{% endfor %}s
+			</select>
 		</div>
 	</div>
 
