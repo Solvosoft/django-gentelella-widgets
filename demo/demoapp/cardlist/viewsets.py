@@ -19,7 +19,6 @@ class PersonCardListViewSet(ListAreaViewset):
 
     def filter_queryset(self, queryset):
         queryset = super().filter_queryset(queryset)
-        print(queryset.query)
         return queryset
 
     def get_actions(self):
