@@ -35,7 +35,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-edit',
+            icon='fa fa-quote-left',
             only_icon=False
         )
         blogentry = MenuItem.objects.create(
@@ -47,7 +47,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-build',
+            icon='fa fa-wordpress',
             only_icon=False
         )
         blogentry = MenuItem.objects.create(
@@ -59,7 +59,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-build',
+            icon='fa fa-pencil-square-o',
             only_icon=False
         )
         dashboard = MenuItem.objects.create(
@@ -71,7 +71,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='',
+            icon='fa fa-tachometer',
             only_icon=False
         )
         item = MenuItem.objects.create(
@@ -83,7 +83,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='',
+            icon='fa fa-plus-circle',
             only_icon=False
         )
 
@@ -96,7 +96,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-home',
+            icon='',
             only_icon=False
         )
         cwidget = MenuItem.objects.create(
@@ -108,7 +108,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-camera',
+            icon='fa fa-play',
             only_icon=False
         )
 
@@ -121,7 +121,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-cab',
+            icon='fa fa-server',
             only_icon=False
         )
         c1widget = MenuItem.objects.create(
@@ -133,7 +133,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-subway',
+            icon='fa fa-plus-square',
             only_icon=False
         )
         c2widget = MenuItem.objects.create(
@@ -145,7 +145,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-plane',
+            icon='fa fa-list-alt',
             only_icon=False
         )
         cwidget = MenuItem.objects.create(
@@ -182,7 +182,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-home',
+            icon='fa fa-tasks',
             only_icon=False
         )
         readonlywidget = MenuItem.objects.create(
@@ -194,7 +194,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-list-alt',
+            icon='fa fa-newspaper-o',
             only_icon=False
         )
         MenuItem.objects.create(
@@ -206,7 +206,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-eyedropper',
+            icon='fa fa-adjust',
             only_icon=False
         )
         inputmask = MenuItem.objects.create(
@@ -218,7 +218,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-cutlery',
+            icon='fa fa-ellipsis-h',
             only_icon=False
         )
         daterange = MenuItem.objects.create(
@@ -230,7 +230,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-balance-scale',
+            icon='fa-calendar-plus-o',
             only_icon=False
         )
         tagging = MenuItem.objects.create(
@@ -242,7 +242,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-superpowers',
+            icon='fa fa-sticky-note-o',
             only_icon=False
         )
         Tinymce = MenuItem.objects.create(
@@ -254,7 +254,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-sticky-note',
+            icon='fa fa-text-width',
             only_icon=False
         )
 
@@ -280,7 +280,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-map-marker',
+            icon='fa fa-picture-o',
             only_icon=False
         )
 
@@ -306,7 +306,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-vine',
+            icon='fa fa-area-chart',
             only_icon=False
         )
         TimeLine = MenuItem.objects.create(
@@ -347,17 +347,6 @@ class Command(BaseCommand):
             icon='fa fa-line-chart',
             only_icon=False
         )
-        noti = MenuItem.objects.create(
-            parent=item,
-            title='Create notification',
-            url_name='/create/notification',
-            category='sidebar',  # sidebar, sidebarfooter,
-            is_reversed=False,
-            reversed_kwargs=None,
-            reversed_args=None,
-            is_widget=False,
-            icon='fa fa-power-off',
-            only_icon=False)
 
         daterange = MenuItem.objects.create(
             parent=cwidget,
@@ -368,7 +357,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-home',
+            icon='fa fa-calendar-plus-o',
             only_icon=False
         )
 
@@ -406,20 +395,20 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-power-off',
+            icon='fa fa-plus-square-o',
             only_icon=False
         )
 
         MenuItem.objects.create(
             parent=item,
-            title='Create notification email',
+            title='Create email notification',
             url_name='/create/notification?email=1',
             category='sidebar',  # sidebar, sidebarfooter,
             is_reversed=False,
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-power-off',
+            icon='fa fa-envelope-o',
             only_icon=False
         )
 
@@ -432,7 +421,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-power-off',
+            icon='fa fa-list',
             only_icon=False
         )
         MenuItem.objects.create(
@@ -444,7 +433,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-power-off',
+            icon='fa fa-list-ol',
             only_icon=False
         )
         MenuItem.objects.create(
@@ -519,7 +508,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-power-off',
+            icon='fa fa-sort-desc',
             only_icon=False
         )
         MenuItem.objects.create(
@@ -531,7 +520,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-power-off',
+            icon='fa fa-sort',
             only_icon=False
         )
 

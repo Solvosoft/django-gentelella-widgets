@@ -143,6 +143,13 @@ Run the demo
 
 And More see demo app.
 
+Run the demo with Makefile
+-----------------------------
+
+.. code:: bash
+
+    make init_demo
+
 Notes for development
 ____________________________
 
@@ -194,4 +201,4 @@ To fix use vendors files need to update the line 53
 
     await asyncio.wait(map(lambda runner: asyncio.create_task(runner.future), running))
 
-in the root ``{venv}/lib/python3.11/site-packages/pylp/cli/cli.py``.
+in the root ``{venv}/lib/python3.11/site-packages/pylp/cli/run.py``.

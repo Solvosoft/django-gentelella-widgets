@@ -11,6 +11,10 @@ help:
 	@echo "docs - generate Sphinx HTML documentation, including API docs"
 	@echo "release - package and upload a release"
 	@echo "sdist - package"
+	@echo "fuzzysdist - package"
+	@echo "messages - load translations"
+	@echo "trans - compile translations"
+	@echo "start_sign - start sign server"
 
 clean: clean-build clean-pyc
 
@@ -55,6 +59,7 @@ sdist: clean
 fuzzysdist:
 	cd demo && python manage.py makemigrations && python manage.py loaddevstatic && python manage.py createbasejs
 	cd djgentelella && django-admin compilemessages -l es
+	python -m pylp
 	python3 -m build
 
 messages:
@@ -62,3 +67,12 @@ messages:
 
 trans:
 	cd djgentelella && django-admin compilemessages --locale es
+
+
+init_demo:
+	cd demo && \
+	rm db.sqlite3 && \
+	python manage.py migrate && \
+	python manage.py createdemo && \
+	python manage.py demomenu && \
+	python manage.py createsuperuser

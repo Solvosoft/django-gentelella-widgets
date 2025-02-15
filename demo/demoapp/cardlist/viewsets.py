@@ -26,5 +26,5 @@ class PersonCardListViewSet(ListAreaViewset):
             'name': 'generalexample',
             'icon': 'fa fa-plus',
             'title': 'general of action',
-            'class': 'btn-primary'
+            'class': 'btn-outline-success'
         }]
