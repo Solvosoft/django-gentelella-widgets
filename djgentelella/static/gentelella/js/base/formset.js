@@ -2,6 +2,7 @@ function gtforms(index,manager, formList, extra=true)  {
     return {
         index: index,
         order: index,
+        deleted: false,
         manager: manager,
         formList: formList,
         extra: extra,
@@ -11,6 +12,7 @@ function gtforms(index,manager, formList, extra=true)  {
             this.manager.notify('error', 'You can not delete this form, minimum form validation failed' )
             return;
           }
+            this.deleted=true;
             this.instance.hide();
             this.instance.find('input[name="'+this.manager.prefix+'-'+this.index+'-DELETE"]').prop( "checked", true );
             this.manager.deleteForm(this.order);
@@ -80,32 +82,37 @@ function gtformSetManager(instance) {
          this.addFormDom();
         },
         addBtnForm: function(instance){
-            return () => { instance.addEmtpyForm()  };
+            return (e) => { instance.addEmtpyForm(e)  };
         },
-        addEmtpyForm: function(){
+        addEmtpyForm: function(e){
             if(this.validateAddForm()){
                 var form = gtforms(this.index, this, this.formList);
                 form.render();
                 this.forms.push(form);
+                this.addForm(this, form, true, e);
                 this.index += 1;
                 this.updateTotalForms(+1);
             }else{
                 this.notify('error', 'You cannot add new form, limit is exceded')
             }
         },
-        addForm: function(object){},
+        addForm: function(parent, object, isempty, event){},
         addFormDom: function(){
             this.formList.children().each((i, element) =>{
                  var form = gtforms(this.index, this, this.formList, extra=false);
                  form.instance = $(element);
                  form.registerBtns();
                  this.forms.push(form);
+                 this.addForm(this, form, false, null);
                  this.index += 1;
             });
+        },
+        delForm: function(parent, index, form){
         },
         deleteForm: function(index){
             if( !this.validateDeleteForm()) return;
             if(index>=0 && index < this.forms.length){
+                this.delForm(this, index, this.forms[index]);
                 if(this.forms[index].extra){
                     this.forms.splice(index, 1);
                     this.updateTotalForms(-1);
