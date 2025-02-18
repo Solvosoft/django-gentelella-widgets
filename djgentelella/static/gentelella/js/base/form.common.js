@@ -140,3 +140,77 @@ function clear_action_form(form){
 var gt_form_modals = {}
 var gt_detail_modals = {}
 var gt_crud_objs = {};
+
+function updateInstanceValuesForm(form, name, value){
+            var item = form.find('input[name="'+name+'"], textarea[name="'+name+'"]');
+            item.each(function(i, inputfield){
+                let done=false;
+                inputfield=$(inputfield);
+
+                if(inputfield.attr('class') === "chunkedvalue"){
+                    if(value){
+                         var chunked=form.find('input[name="'+name+'_widget"]').data('fileUploadWidget');
+                         chunked.addRemote(value);
+                    }
+                    done=true;
+                } else if(inputfield.attr('type') === 'file'){
+                    if(value){
+                        var newlink = document.createElement('a');
+                        newlink.href = value.url;
+                        newlink.textContent = value.name;
+                        newlink.target = "_blank";
+                        newlink.classList.add("link-primary");
+                        newlink.classList.add("file-link");
+                        newlink.classList.add("d-block");
+                        inputfield.before(newlink)
+                    }
+                    done=true;
+                } else if(inputfield.attr('type') === "checkbox" ){
+                    if (inputfield.data().widget === "YesNoInput"){
+                        inputfield.prop( "checked", !value);
+                        inputfield.trigger("click");
+                        done=true;
+                    }else{
+                        inputfield.prop( "checked", value);
+                    }
+                    done=true;
+                } else if(inputfield.attr('type') === "radio"){
+                    var is_icheck = inputfield.closest('.gtradio').length > 0;
+                    var sel = inputfield.filter(function() { return this.value === value.toString() });
+                    if(sel.length>0){
+                        sel.prop( "checked", true);
+                        if(is_icheck){
+                            sel.iCheck('update');
+                            sel.iCheck('check');
+                        }
+
+                    }else{
+                        inputfield.prop( "checked", false);
+                        if(is_icheck){
+                            inputfield.iCheck('update');
+                            inputfield.iCheck('uncheck');
+                        }
+                    }
+                    done=true;
+                }
+                if (inputfield.data().widget === "EditorTinymce" || inputfield.data().widget === "TextareaWysiwyg"){
+                     tinymce.get(inputfield.attr('id')).setContent(value);
+                     done=true;
+                }
+                if (inputfield.data().widget === "TaggingInput" || inputfield.data().widget === "EmailTaggingInput"){
+                    var tagifyelement=inputfield.data().tagify;
+                    tagifyelement.removeAllTags();
+                    tagifyelement.loadOriginalValues(value);
+                    done=true;
+                }
+                if(!done) { inputfield.val(value); }
+            });
+}
+
+function updateInstanceForm(form, data){
+    for (let key in data) {
+        if (data.hasOwnProperty(key)) {
+            updateInstanceValuesForm(form, key, data[key])
+        }
+    }
+}

@@ -842,11 +842,86 @@ var gt_form_modals = {}
 var gt_detail_modals = {}
 var gt_crud_objs = {};
 
+function updateInstanceValuesForm(form, name, value){
+            var item = form.find('input[name="'+name+'"], textarea[name="'+name+'"]');
+            item.each(function(i, inputfield){
+                let done=false;
+                inputfield=$(inputfield);
+
+                if(inputfield.attr('class') === "chunkedvalue"){
+                    if(value){
+                         var chunked=form.find('input[name="'+name+'_widget"]').data('fileUploadWidget');
+                         chunked.addRemote(value);
+                    }
+                    done=true;
+                } else if(inputfield.attr('type') === 'file'){
+                    if(value){
+                        var newlink = document.createElement('a');
+                        newlink.href = value.url;
+                        newlink.textContent = value.name;
+                        newlink.target = "_blank";
+                        newlink.classList.add("link-primary");
+                        newlink.classList.add("file-link");
+                        newlink.classList.add("d-block");
+                        inputfield.before(newlink)
+                    }
+                    done=true;
+                } else if(inputfield.attr('type') === "checkbox" ){
+                    if (inputfield.data().widget === "YesNoInput"){
+                        inputfield.prop( "checked", !value);
+                        inputfield.trigger("click");
+                        done=true;
+                    }else{
+                        inputfield.prop( "checked", value);
+                    }
+                    done=true;
+                } else if(inputfield.attr('type') === "radio"){
+                    var is_icheck = inputfield.closest('.gtradio').length > 0;
+                    var sel = inputfield.filter(function() { return this.value === value.toString() });
+                    if(sel.length>0){
+                        sel.prop( "checked", true);
+                        if(is_icheck){
+                            sel.iCheck('update');
+                            sel.iCheck('check');
+                        }
+
+                    }else{
+                        inputfield.prop( "checked", false);
+                        if(is_icheck){
+                            inputfield.iCheck('update');
+                            inputfield.iCheck('uncheck');
+                        }
+                    }
+                    done=true;
+                }
+                if (inputfield.data().widget === "EditorTinymce" || inputfield.data().widget === "TextareaWysiwyg"){
+                     tinymce.get(inputfield.attr('id')).setContent(value);
+                     done=true;
+                }
+                if (inputfield.data().widget === "TaggingInput" || inputfield.data().widget === "EmailTaggingInput"){
+                    var tagifyelement=inputfield.data().tagify;
+                    tagifyelement.removeAllTags();
+                    tagifyelement.loadOriginalValues(value);
+                    done=true;
+                }
+                if(!done) { inputfield.val(value); }
+            });
+}
+
+function updateInstanceForm(form, data){
+    for (let key in data) {
+        if (data.hasOwnProperty(key)) {
+            updateInstanceValuesForm(form, key, data[key])
+        }
+    }
+}
+
 
 function gtforms(index,manager, formList, extra=true)  {
     return {
         index: index,
         order: index,
+        deleted: false,
         manager: manager,
         formList: formList,
         extra: extra,
@@ -856,6 +931,7 @@ function gtforms(index,manager, formList, extra=true)  {
             this.manager.notify('error', 'You can not delete this form, minimum form validation failed' )
             return;
           }
+            this.deleted=true;
             this.instance.hide();
             this.instance.find('input[name="'+this.manager.prefix+'-'+this.index+'-DELETE"]').prop( "checked", true );
             this.manager.deleteForm(this.order);
@@ -925,32 +1001,37 @@ function gtformSetManager(instance) {
          this.addFormDom();
         },
         addBtnForm: function(instance){
-            return () => { instance.addEmtpyForm()  };
+            return (e) => { instance.addEmtpyForm(e)  };
         },
-        addEmtpyForm: function(){
+        addEmtpyForm: function(e){
             if(this.validateAddForm()){
                 var form = gtforms(this.index, this, this.formList);
                 form.render();
                 this.forms.push(form);
+                this.addForm(this, form, true, e);
                 this.index += 1;
                 this.updateTotalForms(+1);
             }else{
                 this.notify('error', 'You cannot add new form, limit is exceded')
             }
         },
-        addForm: function(object){},
+        addForm: function(parent, object, isempty, event){},
         addFormDom: function(){
             this.formList.children().each((i, element) =>{
                  var form = gtforms(this.index, this, this.formList, extra=false);
                  form.instance = $(element);
                  form.registerBtns();
                  this.forms.push(form);
+                 this.addForm(this, form, false, null);
                  this.index += 1;
             });
+        },
+        delForm: function(parent, index, form){
         },
         deleteForm: function(index){
             if( !this.validateDeleteForm()) return;
             if(index>=0 && index < this.forms.length){
+                this.delForm(this, index, this.forms[index]);
                 if(this.forms[index].extra){
                     this.forms.splice(index, 1);
                     this.updateTotalForms(-1);
