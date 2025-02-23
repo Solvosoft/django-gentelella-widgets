@@ -700,113 +700,116 @@ $.fn.select2related = function(action, relatedobjs=[]) {
 })(jQuery)
 
 function convertFileToBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
 
-    reader.onload = () => {
-      const base64String = reader.result.split(',')[1];
-      resolve(base64String);
-    };
+        reader.onload = () => {
+            const base64String = reader.result.split(',')[1];
+            resolve(base64String);
+        };
 
-    reader.onerror = (error) => {
-      reject(error);
-    };
+        reader.onerror = (error) => {
+            reject(error);
+        };
 
-    reader.readAsDataURL(file);
-  });
+        reader.readAsDataURL(file);
+    });
 }
 
-async function obtainFormAsJSON(form, prefix = '', extras={}) {
-  const fields = form.elements;
-  const formData = {};
-  // typeof variable === 'function'
-  for( let key in extras){
-    if(typeof extras[key] === 'function'){
-        formData[key]=extras[key](form, key, prefix);
-    }else{
-        formData[key]=extras[key];
-    }
-  }
-
-  for (let i = 0; i < fields.length; i++) {
-    const field = fields[i];
-
-    if (field.type !== 'submit' && field.type !== 'button') {
-      const fieldName = field.name.replace(prefix, '');
-      if(field.type === 'textarea'){
-        formData[fieldName] = $(field).val();
-      }else if(field.type === 'checkbox'){
-        formData[fieldName] = field.checked;
-      }else  if (field.type === 'radio') {
-        if(field.checked){
-          formData[fieldName] =  $(field).val();
+async function obtainFormAsJSON(form, prefix = '', extras = {}, format = true) {
+    const fields = form.elements;
+    const formData = {};
+    // typeof variable === 'function'
+    for (let key in extras) {
+        if (typeof extras[key] === 'function') {
+            formData[key] = extras[key](form, key, prefix);
+        } else {
+            formData[key] = extras[key];
         }
-      }else  if (field.type === 'file') {
-        const files = Array.from(field.files);
-        const filesBase64 = [];
-
-        for (let j = 0; j < files.length; j++) {
-          const file = files[j];
-          try {
-            const base64String = await convertFileToBase64(file);
-            filesBase64.push({ name: file.name, value: base64String });
-          } catch (error) {
-            console.error('Error converting file:', error);
-          }
-        }
-
-        formData[fieldName] = filesBase64;
-      } else if (field.multiple) {
-        const selectedOptions = Array.from(field.selectedOptions);
-        const selectedValues = selectedOptions.map((option) => option.value);
-        formData[fieldName] = selectedValues;
-      } else {
-        formData[fieldName] = field.value;
-      }
     }
-  }
 
-  return JSON.stringify(formData);
+    for (let i = 0; i < fields.length; i++) {
+        const field = fields[i];
+
+        if (field.type !== 'submit' && field.type !== 'button') {
+            const fieldName = field.name.replace(prefix, '');
+            if (field.type === 'textarea') {
+                formData[fieldName] = $(field).val();
+            } else if (field.type === 'checkbox') {
+                formData[fieldName] = field.checked;
+            } else if (field.type === 'radio') {
+                if (field.checked) {
+                    formData[fieldName] = $(field).val();
+                }
+            } else if (field.type === 'file') {
+                const files = Array.from(field.files);
+                const filesBase64 = [];
+
+                for (let j = 0; j < files.length; j++) {
+                    const file = files[j];
+                    try {
+                        const base64String = await convertFileToBase64(file);
+                        filesBase64.push({name: file.name, value: base64String});
+                    } catch (error) {
+                        console.error('Error converting file:', error);
+                    }
+                }
+
+                formData[fieldName] = filesBase64;
+            } else if (field.multiple) {
+                const selectedOptions = Array.from(field.selectedOptions);
+                const selectedValues = selectedOptions.map((option) => option.value);
+                formData[fieldName] = selectedValues;
+            } else {
+                formData[fieldName] = field.value;
+            }
+        }
+    }
+
+    if (format) {
+        return JSON.stringify(formData);
+    }
+
+    return formData;
 }
 
-function convertToStringJson(form, prefix="", extras={}){
-    result=obtainFormAsJSON(form[0], prefix=prefix, extras=extras);
-    return result;
+function convertToStringJson(form, prefix = "", extras = {}, format = true) {
+    return obtainFormAsJSON(form[0], prefix, extras, format);
 }
 
-function load_errors(error_list, obj, parentdiv){
+function load_errors(error_list, obj, parentdiv) {
     ul_obj = "<ul class='errorlist form_errors d-flex justify-content-center'>";
-    error_list.forEach((item)=>{
-        ul_obj += "<li>"+item+"</li>";
+    error_list.forEach((item) => {
+        ul_obj += "<li>" + item + "</li>";
     });
     ul_obj += "</ul>"
     $(obj).parents(parentdiv).prepend(ul_obj);
     return ul_obj;
 }
 
-function form_field_errors(target_form, form_errors, prefix, parentdiv){
+function form_field_errors(target_form, form_errors, prefix, parentdiv) {
     var item = "";
     for (const [key, value] of Object.entries(form_errors)) {
-        item = " #id_" +prefix+key;
-        if(target_form.find(item).length > 0){
+        item = " #id_" + prefix + key;
+        if (target_form.find(item).length > 0) {
             load_errors(form_errors[key], item, parentdiv);
         }
     }
 }
 
-function response_manage_type_data(instance, err_json_fn, error_text_fn){
-    return function(response) {
+function response_manage_type_data(instance, err_json_fn, error_text_fn) {
+    return function (response) {
         const contentType = response.headers.get("content-type");
-        if(response.ok){
-             if (contentType && contentType.indexOf("application/json") !== -1) {
+        if (response.ok) {
+            if (contentType && contentType.indexOf("application/json") !== -1) {
                 return response.json();
-            }else{
+            } else {
                 return response.text();
             }
-        }else{
+        } else {
             if (contentType && contentType.indexOf("application/json") !== -1) {
                 response.json().then(data => err_json_fn(instance, data));
-            }else{
+            } else {
                 response.text().then(data => error_text_fn(instance, data));
             }
             return Promise.resolve(false);
@@ -816,20 +819,20 @@ function response_manage_type_data(instance, err_json_fn, error_text_fn){
     }
 }
 
-function clear_action_form(form){
+function clear_action_form(form) {
     // clear switchery before the form reset so the check status doesn't get changed before the validation
-    $(form).find("input[data-switchery=true]").each(function() {
-        if($(this).prop("checked")){  // only reset it if it is checked
+    $(form).find("input[data-switchery=true]").each(function () {
+        if ($(this).prop("checked")) {  // only reset it if it is checked
             $(this).trigger("click").prop("checked", false);
         }
     });
-    $(form).find('[data-widget="TaggingInput"],[data-widget="EmailTaggingInput"]').each(function(i, e) {
-         var tg=$(e).data().tagify;
-         tg.removeAllTags();
+    $(form).find('[data-widget="TaggingInput"],[data-widget="EmailTaggingInput"]').each(function (i, e) {
+        var tg = $(e).data().tagify;
+        tg.removeAllTags();
     });
-    $(form).find('[data-widget="FileChunkedUpload"],[data-widget="FileInput"]').each(function(i, e) {
-         var tg=$(e).data().fileUploadWidget;
-         tg.resetEmpty();
+    $(form).find('[data-widget="FileChunkedUpload"],[data-widget="FileInput"]').each(function (i, e) {
+        var tg = $(e).data().fileUploadWidget;
+        tg.resetEmpty();
     });
     $(form).trigger('reset');
     $(form).find("select option:selected").prop("selected", false);
@@ -842,73 +845,109 @@ var gt_form_modals = {}
 var gt_detail_modals = {}
 var gt_crud_objs = {};
 
-function updateInstanceValuesForm(form, name, value){
-            var item = form.find('input[name="'+name+'"], textarea[name="'+name+'"]');
-            item.each(function(i, inputfield){
-                let done=false;
-                inputfield=$(inputfield);
+function updateInstanceValuesForm(form, name, value) {
+    var item = form.find(
+        'input[name="' + name + '"], ' +
+        'textarea[name="' + name + '"], ' +
+        'select[name="' + name + '"]'
+    );
+    item.each(function (i, inputfield) {
+        let done = false;
+        inputfield = $(inputfield);
 
-                if(inputfield.attr('class') === "chunkedvalue"){
-                    if(value){
-                         var chunked=form.find('input[name="'+name+'_widget"]').data('fileUploadWidget');
-                         chunked.addRemote(value);
-                    }
-                    done=true;
-                } else if(inputfield.attr('type') === 'file'){
-                    if(value){
-                        var newlink = document.createElement('a');
-                        newlink.href = value.url;
-                        newlink.textContent = value.name;
-                        newlink.target = "_blank";
-                        newlink.classList.add("link-primary");
-                        newlink.classList.add("file-link");
-                        newlink.classList.add("d-block");
-                        inputfield.before(newlink)
-                    }
-                    done=true;
-                } else if(inputfield.attr('type') === "checkbox" ){
-                    if (inputfield.data().widget === "YesNoInput"){
-                        inputfield.prop( "checked", !value);
-                        inputfield.trigger("click");
-                        done=true;
-                    }else{
-                        inputfield.prop( "checked", value);
-                    }
-                    done=true;
-                } else if(inputfield.attr('type') === "radio"){
-                    var is_icheck = inputfield.closest('.gtradio').length > 0;
-                    var sel = inputfield.filter(function() { return this.value === value.toString() });
-                    if(sel.length>0){
-                        sel.prop( "checked", true);
-                        if(is_icheck){
-                            sel.iCheck('update');
-                            sel.iCheck('check');
-                        }
-
-                    }else{
-                        inputfield.prop( "checked", false);
-                        if(is_icheck){
-                            inputfield.iCheck('update');
-                            inputfield.iCheck('uncheck');
-                        }
-                    }
-                    done=true;
-                }
-                if (inputfield.data().widget === "EditorTinymce" || inputfield.data().widget === "TextareaWysiwyg"){
-                     tinymce.get(inputfield.attr('id')).setContent(value);
-                     done=true;
-                }
-                if (inputfield.data().widget === "TaggingInput" || inputfield.data().widget === "EmailTaggingInput"){
-                    var tagifyelement=inputfield.data().tagify;
-                    tagifyelement.removeAllTags();
-                    tagifyelement.loadOriginalValues(value);
-                    done=true;
-                }
-                if(!done) { inputfield.val(value); }
+        if (inputfield.attr('class') === "chunkedvalue") {
+            if (value) {
+                var chunked = form.find('input[name="' + name + '_widget"]').data('fileUploadWidget');
+                chunked.addRemote(value);
+            }
+            done = true;
+        } else if (inputfield.attr('type') === 'file') {
+            if (value) {
+                var newlink = document.createElement('a');
+                newlink.href = value.url;
+                newlink.textContent = value.name;
+                newlink.target = "_blank";
+                newlink.classList.add("link-primary");
+                newlink.classList.add("file-link");
+                newlink.classList.add("d-block");
+                inputfield.before(newlink)
+            }
+            done = true;
+        } else if (inputfield.attr('type') === "checkbox") {
+            if (inputfield.data().widget === "YesNoInput") {
+                inputfield.prop("checked", !value);
+                inputfield.trigger("click");
+                done = true;
+            } else {
+                inputfield.prop("checked", value);
+            }
+            done = true;
+        } else if (inputfield.attr('type') === "radio") {
+            var is_icheck = inputfield.closest('.gtradio').length > 0;
+            var sel = inputfield.filter(function () {
+                return this.value === value.toString()
             });
+            if (sel.length > 0) {
+                sel.prop("checked", true);
+                if (is_icheck) {
+                    sel.iCheck('update');
+                    sel.iCheck('check');
+                }
+
+            } else {
+                inputfield.prop("checked", false);
+                if (is_icheck) {
+                    inputfield.iCheck('update');
+                    inputfield.iCheck('uncheck');
+                }
+            }
+            done = true;
+        }
+        if (inputfield.data().widget === "EditorTinymce" || inputfield.data().widget === "TextareaWysiwyg") {
+            tinymce.get(inputfield.attr('id')).setContent(value);
+            done = true;
+        }
+        if (inputfield.data().widget === "TaggingInput" || inputfield.data().widget === "EmailTaggingInput") {
+            var tagifyelement = inputfield.data().tagify;
+            tagifyelement.removeAllTags();
+            tagifyelement.loadOriginalValues(value);
+            done = true;
+        }
+
+        // New code for testing  (*** start ***)
+        // data loading in select, autocompleteselect, autocompletemultiselect
+        else if (inputfield.is('select') && inputfield.data().widget === "Select") {
+            inputfield.val(value).trigger('change');
+            done = true;
+        } else if (inputfield.is('select') && inputfield.data().widget === "AutocompleteSelect") {
+            let data = value;
+            let select2Obj = inputfield.data('select2');
+            if (select2Obj) {
+                inputfield.select2('trigger', 'select', {
+                    data: data
+                });
+            }
+            done = true;
+        } else if (inputfield.is('select') && inputfield.data().widget === "AutocompleteSelectMultiple") {
+
+            if (Array.isArray(value)) {
+                value.forEach(item => {
+                    let newOption = new Option(item.text, item.id, true, true);
+                    inputfield.append(newOption);
+                });
+                inputfield.trigger('change');
+            }
+            done = true;
+        }
+        // New code for testing  (*** end ***)
+
+        if (!done) {
+            inputfield.val(value);
+        }
+    });
 }
 
-function updateInstanceForm(form, data){
+function updateInstanceForm(form, data) {
     for (let key in data) {
         if (data.hasOwnProperty(key)) {
             updateInstanceValuesForm(form, key, data[key])
@@ -917,7 +956,7 @@ function updateInstanceForm(form, data){
 }
 
 
-function gtforms(index,manager, formList, extra=true)  {
+function gtforms(index, manager, formList, extra = true) {
     return {
         index: index,
         order: index,
@@ -926,17 +965,17 @@ function gtforms(index,manager, formList, extra=true)  {
         formList: formList,
         extra: extra,
         instance: null,
-        deleteForm: function(){
-          if( !this.manager.validateDeleteForm()) {
-            this.manager.notify('error', 'You can not delete this form, minimum form validation failed' )
-            return;
-          }
-            this.deleted=true;
+        deleteForm: function () {
+            if (!this.manager.validateDeleteForm()) {
+                this.manager.notify('error', 'You can not delete this form, minimum form validation failed')
+                return;
+            }
+            this.deleted = true;
             this.instance.hide();
-            this.instance.find('input[name="'+this.manager.prefix+'-'+this.index+'-DELETE"]').prop( "checked", true );
+            this.instance.find('input[name="' + this.manager.prefix + '-' + this.index + '-DELETE"]').prop("checked", true);
             this.manager.deleteForm(this.order);
         },
-        render: function(){
+        render: function () {
             var html = this.manager.template.replace(/__prefix__/gi, this.index);
             this.instance = $(html);
             formList.append(this.instance);
@@ -944,37 +983,42 @@ function gtforms(index,manager, formList, extra=true)  {
             this.registerBtns();
 
         },
-        reorder: function(oper){
-            var brother = this.manager.getForm(this.order+oper);
-            this.manager.switchFrom(this.order, this.order+oper);
-            if(brother != null){
-                if(oper == 1 ){
+        reorder: function (oper) {
+            var brother = this.manager.getForm(this.order + oper);
+            this.manager.switchFrom(this.order, this.order + oper);
+            if (brother != null) {
+                if (oper == 1) {
                     this.instance.before(brother.instance);
-                }else{
+                } else {
                     brother.instance.before(this.instance);
                 }
             }
         },
-        registerBtns: function(){
+        registerBtns: function () {
             this.instance.find('.deletebtn').on('click', this.callDelete(this));
             // down increment order and up decrement order when forms are inserted in bottom
             this.instance.find('.btndown').on('click', this.callReorder(this, 1));
             this.instance.find('.btnup').on('click', this.callReorder(this, -1));
         },
-        callDelete: function(instance){
-            return () => { instance.deleteForm() };
+        callDelete: function (instance) {
+            return () => {
+                instance.deleteForm()
+            };
         },
-        initializeWidgets: function(instance){
+        initializeWidgets: function (instance) {
             gt_find_initialize(instance);
         },
-        callReorder: function(instance, oper){
-            return () => { instance.reorder(oper) }
+        callReorder: function (instance, oper) {
+            return () => {
+                instance.reorder(oper)
+            }
         },
-        updateOrder: function(){
-            this.instance.find('input[name="'+this.manager.prefix+'-'+this.index+'-ORDER"]').val(this.order);
+        updateOrder: function () {
+            this.instance.find('input[name="' + this.manager.prefix + '-' + this.index + '-ORDER"]').val(this.order);
         }
     }
 }
+
 function gtformSetManager(instance) {
     var obj = {
         index: 0,
@@ -991,54 +1035,61 @@ function gtformSetManager(instance) {
         formList: instance.find('.formlist'),
         template: '',
         prefix: 'form-',
-        initialize: function(){
-         this.template = this.formsetControl.find(".formsettemplate").contents()[0].data;
-         this.prefix = this.formsetControl.data('prefix');
-         this.validateMax = this.formsetControl.data('validate-max') == '1';
-         this.validateMin = this.formsetControl.data('validate-min') == '1';
-         this.loadManagementForm();
-         this.instance.find('.formsetadd').on('click', this.addBtnForm(this));
-         this.addFormDom();
+        initialize: function () {
+            this.template = this.formsetControl.find(".formsettemplate").contents()[0].data;
+            this.prefix = this.formsetControl.data('prefix');
+            this.validateMax = this.formsetControl.data('validate-max') == '1';
+            this.validateMin = this.formsetControl.data('validate-min') == '1';
+            this.loadManagementForm();
+            this.instance.find('.formsetadd').on('click', this.addBtnForm(this));
+            this.addFormDom();
         },
-        addBtnForm: function(instance){
-            return (e) => { instance.addEmtpyForm(e)  };
+        addBtnForm: function (instance) {
+            return (e) => {
+                instance.addEmtpyForm(e)
+            };
         },
-        addEmtpyForm: function(e){
-            if(this.validateAddForm()){
+        addEmtpyForm: function (e) {
+            if (this.validateAddForm()) {
+                this.activeForms += 1;
                 var form = gtforms(this.index, this, this.formList);
                 form.render();
                 this.forms.push(form);
                 this.addForm(this, form, true, e);
                 this.index += 1;
                 this.updateTotalForms(+1);
-            }else{
+            } else {
                 this.notify('error', 'You cannot add new form, limit is exceded')
             }
         },
-        addForm: function(parent, object, isempty, event){},
-        addFormDom: function(){
-            this.formList.children().each((i, element) =>{
-                 var form = gtforms(this.index, this, this.formList, extra=false);
-                 form.instance = $(element);
-                 form.registerBtns();
-                 this.forms.push(form);
-                 this.addForm(this, form, false, null);
-                 this.index += 1;
+        addForm: function (parent, object, isempty, event) {
+        },
+        addFormDom: function () {
+            this.formList.children().each((i, element) => {
+                this.activeForms += 1;
+                var form = gtforms(this.index, this, this.formList, extra = false);
+                form.instance = $(element);
+                form.registerBtns();
+                this.forms.push(form);
+                this.addForm(this, form, false, null);
+                this.index += 1;
             });
         },
-        delForm: function(parent, index, form){
+        delForm: function (parent, index, form) {
         },
-        deleteForm: function(index){
-            if( !this.validateDeleteForm()) return;
-            if(index>=0 && index < this.forms.length){
+        deleteForm: function (index) {
+            if (!this.validateDeleteForm()) return;
+            this.activeForms = Math.max(0, this.activeForms - 1);
+
+            if (index >= 0 && index < this.forms.length) {
                 this.delForm(this, index, this.forms[index]);
-                if(this.forms[index].extra){
+                if (this.forms[index].extra) {
                     this.forms.splice(index, 1);
                     this.updateTotalForms(-1);
-                    if(index == this.forms.length){
+                    if (index == this.forms.length) {
                         this.index -= 1;
-                    }else{
-                        for(var x=0; x<this.forms.length; x++){
+                    } else {
+                        for (var x = 0; x < this.forms.length; x++) {
                             this.forms[x].order = x;
                             this.forms[x].updateOrder();
                         }
@@ -1047,40 +1098,40 @@ function gtformSetManager(instance) {
 
             }
         },
-        validateAddForm: function(){
-            if(!this.validateMax) return true;
+        validateAddForm: function () {
+            if (!this.validateMax) return true;
             return this.MAX_NUM_FORMS == -1 || this.TOTAL_FORMS < this.MAX_NUM_FORMS;
         },
-        validateDeleteForm: function(){
-            if(!this.validateMin) return true;
+        validateDeleteForm: function () {
+            if (!this.validateMin) return true;
             return this.MIN_NUM_FORMS == -1 || this.TOTAL_FORMS > this.MIN_NUM_FORMS;
         },
-        loadManagementForm: function(){
-            this.TOTAL_FORMS = parseInt(this.formsetControl.find('input[name="'+this.prefix+'-TOTAL_FORMS"]').val());
-            this.INITIAL_FORMS = parseInt(this.formsetControl.find('input[name="'+this.prefix+'-INITIAL_FORMS"]').val());
-            this.MIN_NUM_FORMS = parseInt(this.formsetControl.find('input[name="'+this.prefix+'-MIN_NUM_FORMS"]').val());
-            this.MAX_NUM_FORMS = parseInt(this.formsetControl.find('input[name="'+this.prefix+'-MAX_NUM_FORMS"]').val());
+        loadManagementForm: function () {
+            this.TOTAL_FORMS = parseInt(this.formsetControl.find('input[name="' + this.prefix + '-TOTAL_FORMS"]').val());
+            this.INITIAL_FORMS = parseInt(this.formsetControl.find('input[name="' + this.prefix + '-INITIAL_FORMS"]').val());
+            this.MIN_NUM_FORMS = parseInt(this.formsetControl.find('input[name="' + this.prefix + '-MIN_NUM_FORMS"]').val());
+            this.MAX_NUM_FORMS = parseInt(this.formsetControl.find('input[name="' + this.prefix + '-MAX_NUM_FORMS"]').val());
         },
-        updateManagementForm: function(){
-            this.formsetControl.find('input[name="'+this.prefix+'-TOTAL_FORMS"]').val(this.TOTAL_FORMS);
-            this.formsetControl.find('input[name="'+this.prefix+'-INITIAL_FORMS"]').val(this.INITIAL_FORMS);
-            this.formsetControl.find('input[name="'+this.prefix+'-MIN_NUM_FORMS"]').val(this.MIN_NUM_FORMS);
-            this.formsetControl.find('input[name="'+this.prefix+'-MAX_NUM_FORMS"]').val(this.MAX_NUM_FORMS);
+        updateManagementForm: function () {
+            this.formsetControl.find('input[name="' + this.prefix + '-TOTAL_FORMS"]').val(this.TOTAL_FORMS);
+            this.formsetControl.find('input[name="' + this.prefix + '-INITIAL_FORMS"]').val(this.INITIAL_FORMS);
+            this.formsetControl.find('input[name="' + this.prefix + '-MIN_NUM_FORMS"]').val(this.MIN_NUM_FORMS);
+            this.formsetControl.find('input[name="' + this.prefix + '-MAX_NUM_FORMS"]').val(this.MAX_NUM_FORMS);
         },
-        updateTotalForms: function(oper){
-            this.TOTAL_FORMS = this.TOTAL_FORMS+oper;
-            this.formsetControl.find('input[name="'+this.prefix+'-TOTAL_FORMS"]').val(this.TOTAL_FORMS);
+        updateTotalForms: function (oper) {
+            this.TOTAL_FORMS = this.TOTAL_FORMS + oper;
+            this.formsetControl.find('input[name="' + this.prefix + '-TOTAL_FORMS"]').val(this.TOTAL_FORMS);
         },
-        getForm: function(index){
-            if(index>=0 && index < this.forms.length){
+        getForm: function (index) {
+            if (index >= 0 && index < this.forms.length) {
                 return this.forms[index];
             }
             return null;
         },
-        switchFrom: function(fref, fswap){
+        switchFrom: function (fref, fswap) {
             var freform = this.getForm(fref);
             var fswapform = this.getForm(fswap);
-            if(freform != null && fswapform != null){
+            if (freform != null && fswapform != null) {
                 var tmporder = freform.order;
                 freform.order = fswapform.order;
                 fswapform.order = tmporder;
@@ -1092,23 +1143,23 @@ function gtformSetManager(instance) {
             }
 
         },
-        redrawOrdering: function(){
-            for(var x=0; x<this.forms.length; x++){
-                 this.formList.append(this.forms[x].instance);
+        redrawOrdering: function () {
+            for (var x = 0; x < this.forms.length; x++) {
+                this.formList.append(this.forms[x].instance);
             }
         },
-        notify: function(type, text){
+        notify: function (type, text) {
             console.log(text);
         },
-        clean: function(){
-            while(this.forms.length>0){
+        clean: function () {
+            while (this.forms.length > 0) {
                 var f = this.forms.pop();
                 f.instance.remove();
             }
-            this.TOTAL_FORMS=0;
-            this.INITIAL_FORMS=0;
-            this.TOTAL_FORMS=0;
-            this.index=0;
+            this.TOTAL_FORMS = 0;
+            this.INITIAL_FORMS = 0;
+            this.TOTAL_FORMS = 0;
+            this.index = 0;
             this.updateManagementForm();
         }
     }
