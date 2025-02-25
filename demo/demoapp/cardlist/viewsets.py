@@ -16,6 +16,7 @@ class PersonCardListViewSet(ListAreaViewset):
     html_id = 'cardListContainer'
     template_name = 'gentelella/cardlist/person_list.html'
     extra_template_context = {'card_col_class': 'col col-md-4 p-2'}
+    distribution_value = "2/1p"
 
     def filter_queryset(self, queryset):
         queryset = super().filter_queryset(queryset)
