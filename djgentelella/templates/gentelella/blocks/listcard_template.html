@@ -3,12 +3,12 @@
 <div class="row container mt-3">
 
 	{% if form %}
-	<div class="col col-md-9">
+	<div class="col-12 {{ distribution.0 }}">
 		<form id="{{id}}_filter_form" class="row filter_form" onsubmit="return false;">
 			{{form}}
 		</form>
 	</div>
-	<div class="col col-md-3 p-3 ">
+	<div class="col-12 {{ distribution.1 }}">
 		<div class="btn-group" role="group" aria-label="search">
 			<button type="button" class="btn general_action btn-outline-primary" title="{% trans 'Search' %}"
 											data-action="search">
