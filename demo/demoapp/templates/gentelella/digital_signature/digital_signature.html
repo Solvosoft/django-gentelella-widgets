@@ -36,12 +36,9 @@
 {% block js %}
 	<script>
 
-		// define urls\s
 		const urls = {
-			// websocket
-			sign_ws: "{% get_websocket_url 'sign_document' %}",
 			// file to sign
-			sign_doc: window.location.origin + "{% static 'gentelella/report.pdf' %}"
+			sign_doc: "{% url 'digital_signature_file_api' pk=2 %}"
 		}
 
 	</script>

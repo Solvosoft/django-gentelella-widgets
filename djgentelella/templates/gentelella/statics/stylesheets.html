@@ -3,6 +3,7 @@
 <script> datatables_lang = "{% get_datatables_translation %}"; </script>
 {% get_settings 'use_compress_static' as use_compress %}
 {% if use_compress == 'true' %}
+	<link href="{% static 'gentelella/css/pdfviewer.css' %}?v={% get_version %}" rel="stylesheet">
 	<link href="{% static 'djgentelella.vendors.min.css' %}?v={% get_version %}" rel="stylesheet">
 	{% get_define 'use_flags' as use_flags %}
 	{% if use_flags %}
@@ -39,5 +40,4 @@
 	<link href="{% static 'vendors/chartjs/Chart.min.css' %}?v={% get_version %}" rel="stylesheet">
 	<link href="{% static 'vendors/datatables/datatables.min.css' %}?v={% get_version %}" rel="stylesheet"/>
 	<link href="{% static 'vendors/pdfjs/pdf_viewer.min.css' %}?v={% get_version %}" rel="stylesheet"/>
-	<link href="{% static 'gentelella/css/pdfviewer.css' %}?v={% get_version %}" rel="stylesheet">
 {% endif %}

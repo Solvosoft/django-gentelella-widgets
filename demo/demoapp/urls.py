@@ -10,6 +10,7 @@ from .chartjs import chart_js_view
 from .datatables.api import PersonViewSet
 from .datatables.views import datatableViewExample
 from .date_range import views as date_ranges
+from .digital_signature.api import DigitalSignatureFileAPIView
 from .filechunkedupload import views as chunkedupload
 from .formset import add_formset, add_model_formset
 from .grid_slider import views as grid
@@ -23,7 +24,9 @@ from .tagging import views as tagging
 from .timeline.views import timeline_view
 from .views import knobView, YesNoInputView
 from .wysiwyg import views as tinymce
+# from .digital_signature.views import digital_signature_view, digital_signature_file
 from .digital_signature.views import digital_signature_view
+from .digital_signature.api import DigitalSignatureFileAPIView
 
 pclss = Personclass()
 countryclss = Countryclass()
@@ -107,5 +110,9 @@ urlpatterns = [
                   path('mediarecord_upload', mediaupload_view, name="mediaupload_view"),
                   path('tableapi/', include(router.urls)),
                   path('digital_signature_view/', digital_signature_view, name="digital_signature_view"),
+                  # path('api/digital_signature_file/<int:pk>/',digital_signature_file, name='digital_signature_file'),
+                  path('api/digital_signature_file/<int:pk>/',
+                       DigitalSignatureFileAPIView.as_view(),
+                       name='digital_signature_file_api'),
 
               ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()
