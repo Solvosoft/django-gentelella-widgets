@@ -369,8 +369,8 @@ function GTBaseFormModal(modal_id, datatable_element,  form_config)  {
 
 function BaseDetailModal(modalid, base_detail_url, template_url, form_config={}){
     const default_config = {
-        "base_template": "{{it.display_text}}",
-        "title": "{{it.title}}",
+        "base_template": "<% it.display_text %>",
+        "title": "<% it.title %>",
         "template_max_tries": 1,
         "detail_max_tries": 1,
         "headers": {'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json'},
@@ -420,9 +420,10 @@ function BaseDetailModal(modalid, base_detail_url, template_url, form_config={})
             return function(data){
                  data = instance.config.events.update_detail_event(data);
                  instance.detail_tries=0;
-                 var result = Sqrl.render(instance.template,  data);
+
+                 var result = Sqrl.render(instance.template,  data, Sqrl.getConfig({ tags: ["<%", "%>"] }));
                  instance.modal.find(".modal-body").html(result);
-                 var result = Sqrl.render(instance.title,  data);
+                 var result = Sqrl.render(instance.title,  data, Sqrl.getConfig({ tags: ["<%", "%>"], autoEscape: false }));
                  instance.modal.find(".modal-title").html(result);
                  instance.show();
             }
