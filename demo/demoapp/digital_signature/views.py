@@ -1,11 +1,8 @@
+
 from django.shortcuts import render
 from .forms import DigitalSignatureForm
 
-
-
-
 def digital_signature_view(request):
-
 
     return render(
         request,
@@ -14,3 +11,4 @@ def digital_signature_view(request):
             'form': DigitalSignatureForm(prefix='update'),
         }
     )
+

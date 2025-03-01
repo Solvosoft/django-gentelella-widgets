@@ -3,7 +3,7 @@
 {% load i18n %}
 {% load static %}
 
-<div class="row my-3">
+<div class="row my-3 widget-digital-signature">
 
 	{#	select card #}
 	<div class="col-12 col-md-4">
@@ -13,7 +13,7 @@
 				<label for="select_card_{{ widget.attrs.id }}" class="text-center  h6">
 					{% trans 'Select your card' %}
 				</label>
-				<i class="fa fa-refresh text-muted fs-5 cursor-pointer refresh_signature"
+				<i class="fa fa-refresh text-muted fs-5 cursor-pointer btn_signer_refresh"
 							title="{% trans 'Refresh' %}"
 							aria-hidden="true"></i>
 			</div>
@@ -26,7 +26,7 @@
 
 		{#	actions buttons#}
 		<div class="my-3 d-flex align-items-center justify-content-evenly">
-			<button class="btn btn-success formadd btn-sm px-3" id="btn_sign" type="button">{% trans 'Sign' %}</button>
+			<button class="btn btn-success formadd btn-sm px-3 btn_signer" type="button">{% trans 'Sign' %}</button>
 		</div>
 
 		{#	info messages #}
@@ -40,7 +40,7 @@
 					<a class="d-flex align-items-center text-muted"
 								title="{% trans 'Download' %}"
 								href="https://firmador.libre.cr/descargar.html" target="_blank">
-						<small>Firmador Libre</small>
+						<small>{% trans 'Download' %} Firmador Libre</small>
 						<img src="{% static 'gentelella/images/firmador.ico' %}" width="20" alt="Firmador Libre">
 					</a>
 				</li>
@@ -52,7 +52,7 @@
 		</div>
 
 		{#	error messages #}
-		<div id="signature-errors">
+		<div id="signature-errors" class="errors_signer">
 		</div>
 
 	</div>
