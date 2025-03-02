@@ -1,5 +1,3 @@
-selenium==4.5.0
-selenium-screenshot==2.0.0
 pylp
 pylpconcat
 css-html-js-minify
