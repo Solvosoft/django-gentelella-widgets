@@ -24,10 +24,8 @@ SECRET_KEY = '@438vu@4s#@juwf6b*s@u&%9hv&_pgk_g1%s$pp2)(+x7br-ta'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -104,6 +102,13 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
+]
+
+ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+CSRF_TRUSTED_SCHEME = "http"
+CSRF_TRUSTED_ORIGINS = [
+    f"{CSRF_TRUSTED_SCHEME}://localhost",
+    f"{CSRF_TRUSTED_SCHEME}://127.0.0.1",
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
