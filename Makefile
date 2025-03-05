@@ -67,7 +67,7 @@ messages:
 trans:
 	cd djgentelella && django-admin compilemessages --locale es
 
-start_sign:
+docker_sign:
 	docker run -d --rm  --name firmadorserver -p 9001:9999 -d firmadorlibreserver
 
 init_demo:
