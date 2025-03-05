@@ -9,8 +9,7 @@ from django.core.files.base import ContentFile
 from django.utils.timezone import now
 from requests import HTTPError, Timeout, RequestException
 
-logger = logging.getLogger("opentracelab")
-
+logger = logging.getLogger(__name__)
 
 class RemoteSignerClient:
     def __init__(self, user):
@@ -18,7 +17,6 @@ class RemoteSignerClient:
 
     def load_settings(self, docsettings):
         from models import UserSignatureConfig
-        # from firmador.models import UserSignatureConfig
 
         sc = UserSignatureConfig.objects.filter(user=self.user).first()
         settings = {}
