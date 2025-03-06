@@ -213,7 +213,8 @@ function updateInstanceValuesForm(form, name, value) {
             done = true;
         }
 
-            // New code for testing  (*** start ***)
+
+        // New code for testing  (*** start ***)
         // data loading in select, autocompleteselect, autocompletemultiselect
         else if (inputfield.is('select') && inputfield.data().widget === "Select") {
             inputfield.val(value).trigger('change');
