@@ -109,7 +109,7 @@ urlpatterns = [
                   path('datatable_view', datatableViewExample, name="datatable_view"),
                   path('mediarecord_upload', mediaupload_view, name="mediaupload_view"),
                   path('tableapi/', include(router.urls)),
-                  path('digital_signature_view/', digital_signature_view, name="digital_signature_view"),
+                  path('digital_signature_view', digital_signature_view, name="digital_signature_view"),
                   # path('api/digital_signature_file/<int:pk>/',digital_signature_file, name='digital_signature_file'),
                   path('api/digital_signature_file/<int:pk>/',
                        DigitalSignatureFileAPIView.as_view(),
