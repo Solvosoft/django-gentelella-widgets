@@ -7,7 +7,8 @@ build_digital_signature = function (instance) {
     const widgetId = instance.getAttribute("id");
     const url_ws = instance.getAttribute("data-ws-url");
     const container = instance.closest(".widget-digital-signature");
-    container.setAttribute("data-widget-id", `container-${widgetId}`);
+    const container_tag = `container-${widgetId}`;
+    container.setAttribute("data-widget-id", container_tag);
 
     // pdfviewer
     const defaultPage = instance.getAttribute("data-default-page") || "first";
@@ -24,10 +25,14 @@ build_digital_signature = function (instance) {
         window.pdfSignatureComponents = {};
     }
 
+    console.log(container_tag);
+
     // Agregar la instancia al objeto global si no existe
-    if (!window.pdfSignatureComponents[widgetId]) {
-        window.pdfSignatureComponents[widgetId] = pdfInstance;
+    if (!window.pdfSignatureComponents[container_tag]) {
+        window.pdfSignatureComponents[container_tag] = pdfInstance;
     }
+
+    console.log(window.pdfSignatureComponents[container_tag]);
 
     // guardado de pdf
 
@@ -338,7 +343,7 @@ class SignatureManager {
 
     initEvents() {
         if (this.signerBtn) {
-            this.signerBtn.addEventListener('click', () => this.startSign());
+            this.signerBtn.addEventListener('click', () => this.sign());
         }
         if (this.refreshBtn) {
             this.refreshBtn.addEventListener('click', () => this.startSign());
@@ -354,6 +359,10 @@ class SignatureManager {
         this.clearErrors(); // Limpiar errores
 
         this.firmador.start_sign()
+    }
+
+    sign() {
+        this.firmador.do_sign_remote();
     }
 
     // **Agregar errores en la vista**
@@ -406,13 +415,13 @@ function responseManageTypeData(instance, err_json_fn, error_text_fn) {
     }
 }
 
-function SocketManager(socket) {
+function SocketManager(socket, signatureManager) {
     // Si ocurre algún error durante la conexión
     socket.onerror = (event) => {
         // console.error("WebSocket error");
         // Aquí puedes invocar tu lógica de error, por ejemplo:
         alertSimple(errorInterpreter(3), gettext("Error"), "error");
-        socket_error = true;
+        signatureManager.socketError = true;
     };
 
     // Si la conexión se cierra
@@ -423,7 +432,7 @@ function SocketManager(socket) {
     // Si la conexión se abre
     socket.onopen = (event) => {
         // console.log("WebSocket conectado");
-        socket_error = false;
+        signatureManager.socket_error = false;
     };
 }
 
@@ -513,7 +522,7 @@ function FirmadorLibreLocal(docmanager, signatureManager) {
                 },
             };
 
-            callFetch(fetch_instance, abortSignal);
+            callFetch(fetch_instance);
         }
     }
 }
@@ -534,17 +543,66 @@ function FirmadorLibreWS(docmanager, url, signatureManager) {
             };
         },
         "receive_json": function (data) {
+            // console.log(data);
+            // validar errores del socket
             if (data.result === false && data.error) {
-                if (typeof data.details === "string" && data.details.includes("Connection refused")) {
-                    signatureManager.addError(3);
+
+                if (typeof data.details === "string") {
+                    // problemas de conexion con la API del firmador libre
+                    if (data.details.includes("Connection refused")) {
+                        signatureManager.addError(3);
+                    }
+                } else if (data.code) {
+                    switch (data.code) {
+                        case 0:
+                            // cuando ocurre un error desconocido en el servidor
+                            alertSimple(errorInterpreter(0), gettext("Error"), "error");
+                            break;
+                        case 6:
+                            // cuando ocurre un solapamiento de la firma
+                            alertSimple(errorInterpreter(6), gettext("Error"), "error");
+                            break;
+                        case 7:
+                            // cuanda la firma se encuentra fuera de los limites de la pagina
+                            alertSimple(errorInterpreter(7), gettext("Error"), "error");
+                            break;
+                        case 8:
+                            // cuando ocurre un error debido a una libreria incompatible
+                            alertSimple(errorInterpreter(8), gettext("Error"), "error");
+                            break;
+                        case 9:
+                            // cuando ocurre un error debido a un proveedor de criptografía
+                            alertSimple(errorInterpreter(9), gettext("Error"), "error");
+                            break;
+                        case 10:
+                            // cuando ocurre un error debido a un algoritmo de firma
+                            alertSimple(errorInterpreter(10), gettext("Error"), "error");
+                            break;
+                        case 11:
+                            // cuando hay errores al serializar datos
+                            alertSimple(errorInterpreter(11), gettext("Error"), "error");
+                            break;
+                        case 12:
+                            // cuando ocurre un error debido a un servicio de firma
+                            alertSimple(errorInterpreter(12), gettext("Error"), "error");
+                            break;
+                        default:
+                            // cuando ocurre un error desconocido
+                            alertSimple(errorInterpreter(999), gettext("Error"), "error");
+                            break;
+                    }
                 }
             }
+
             docmanager.do_sign_local(data);
         },
         "inicialize": function () {
             this.websocket = new WebSocket(url);
-            SocketManager(this.websocket);
+            SocketManager(this.websocket, signatureManager);
             this.websocket.onmessage = this.trans_received(this);
+        },
+        "local_done": function (data) {
+            // console.log("local_done", data);
         },
         "sign": function (data) {
             data["action"] = "initial_signature";
@@ -569,15 +627,14 @@ function DocumentClient(container, widgetId, signatureManager, url_ws) {
         "localsigner": null,
         "certificates": null,
 
-        "start_sign": function (org, pk) {
-            this.org = org;
-            this.pk = pk;
+        "start_sign": function () {
             this.localsigner.get_certificates();
+            this.signatureManager.clearErrors();
         },
         "success_certificates": function (data) {
-            let id_card = container.querySelector(`#select_card_${widgetId}`);
+            let id_card = container.querySelector("#select_card_id_update-file");
             if (!id_card) {
-                console.warn(`No se encontró el select para el widget ${widgetId}`);
+                console.error(`No se encontró el select para el widget ${widgetId}`);
                 return;
             }
             id_card.innerHTML = "";
@@ -599,7 +656,7 @@ function DocumentClient(container, widgetId, signatureManager, url_ws) {
             }
         },
         "do_sign_remote": function () {
-            let select = container.querySelector(`#select_card_${widgetId}`);
+            let select = container.querySelector("#select_card_id_update-file");
             let selected_card = select ? select.value : null;
 
             if (selected_card && this.certificates) {
@@ -610,11 +667,37 @@ function DocumentClient(container, widgetId, signatureManager, url_ws) {
                     "docsettings": window.pdfSignatureComponents[widgetId].getDocumentSettings()
                 };
                 this.remotesigner.sign(data);
-            } else {
+            } else if (!selected_card && !this.certificates) {
                 alertSimple(errorInterpreter(1), gettext("Error"), "error");
                 this.signatureManager.addError(1);
+            } else if (!selected_card && this.certificates) {
+                alertSimple(errorInterpreter(2), gettext("Error"), "error");
+                this.signatureManager.addError(2);
             }
-        }
+
+        },
+        "do_sign_local": function (data) {
+            // console.log(data);
+            this.localsigner.sign(data);
+            // firmado exitosamente
+            if (data.result === true) {
+                alertFunction(
+                    gettext("The signing was successfully completed."),
+                    gettext("Success"),
+                    "success", false, this.signatureManager.reloadPage
+                );
+            }
+        },
+        "local_done": function (data) {
+            this.remotesigner.complete_sign(data);
+        },
+        "remote_done": function (data) {
+            // console.log('remote_done', data);
+            if (data.result === true) {
+                document.location.reload();
+            }
+        },
+
     };
 
     docmanager["remotesigner"] = new FirmadorLibreWS(docmanager, url_ws, signatureManager);
@@ -622,7 +705,6 @@ function DocumentClient(container, widgetId, signatureManager, url_ws) {
 
     return docmanager;
 }
-
 
 ///////////////////////////////////////////////
 //  Manage errors
@@ -706,8 +788,8 @@ function alertSimple(text, title = "Error", icon = "error") {
     });
 }
 
-function alertFunction(text, title = "Error", icon = "error", cancelButton = false, callback = () => {
-}) {
+function alertFunction(text, title = "Error", icon = "error", cancelButton = false,
+                       callback = () => {}) {
     Swal.fire({
         icon: icon,
         title: title,

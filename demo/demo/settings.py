@@ -159,7 +159,7 @@ GUNICORN_WORKER_CLASS = "demo.asgi_worker.UvicornWorker"
 GUNICORN_USER = "demo"
 GUNICORN_GROUP = "demo"
 
-FIRMADOR_WS = os.getenv("FIRMADOR_WS", "ws://127.0.0.1:9022/async/")
+FIRMADOR_WS = os.getenv("FIRMADOR_WS", "ws://localhost:9022/async/")
 FIRMADOR_DOMAIN = os.getenv("FIRMADOR_DOMAIN", "http://localhost:9001")
 FIRMADOR_VALIDA_URL = FIRMADOR_DOMAIN + "/valida/"
 FIRMADOR_SIGN_URL = FIRMADOR_DOMAIN + "/firma/firme"
