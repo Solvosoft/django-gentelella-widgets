@@ -7,6 +7,9 @@ Pillow
 django>=4.0
 django_filter>=22.1
 django-cors-headers==4.6.0
+# firmador
 uvicorn==0.32.1
 uvicorn-worker==0.2.0
 channels==4.2.0
+wsproto==1.2.0
+requests==2.32.3
