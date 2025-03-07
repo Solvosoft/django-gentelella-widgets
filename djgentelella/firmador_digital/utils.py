@@ -16,9 +16,12 @@ class RemoteSignerClient:
         self.user = user
 
     def load_settings(self, docsettings):
-        from models import UserSignatureConfig
+        from djgentelella.firmador_digital.models import UserSignatureConfig
+        print("User", self.user.id)
 
-        sc = UserSignatureConfig.objects.filter(user=self.user).first()
+        # sc = UserSignatureConfig.objects.filter(user=self.user).first()
+        sc = UserSignatureConfig.objects.filter(user_id=self.user.id).first()
+
         settings = {}
         settings.update(sc.config)
         settings.update(docsettings)
@@ -28,9 +31,15 @@ class RemoteSignerClient:
         return certtoken["certificate"]
 
     def get_b64document(self, document):
-        return base64.b64encode(document.signature_file.read()).decode()
+        return base64.b64encode(document.file.read()).decode()
 
     def send_document_to_sign(self, instance, usertoken, docsettings):
+        print("send_document_to_sign 1", instance)
+        print("send_document_to_sign 2", usertoken)
+        print("send_document_to_sign 3", docsettings)
+        print("send_document_to_sign 4", instance.pk)
+        print("send_document_to_sign 5", instance.filename)
+        print("send_document_to_sign 6", instance.file)
         b64doc = self.get_b64document(instance)
         files = {
             "b64Document": b64doc,
@@ -107,20 +116,23 @@ class RemoteSignerClient:
             "code": code,
         }
 
-    def complete_signature(self, instance, data_to_sign):
+    # def complete_signature(self, instance, data_to_sign):
+    def complete_signature(self, data_to_sign):
+        print("complete_signature 1", data_to_sign)
+        # print("complete_signature 2", instance)
         datatosign = {
             "signature": data_to_sign["signature"],
             "documentid": data_to_sign["documentid"],
             "certificate": data_to_sign["certificate"],
         }
+        instance = data_to_sign["instance"]
         doc_info = self._finalize_signature(datatosign, instance)
         if doc_info:
-            instance.signature_file = self.convert_to_django_file(
+            instance.file = self.convert_to_django_file(
                 doc_info["bytes"],
-                "%s_%s_%s_%s.pdf"
+                "%s_%s_%s.pdf"
                 % (
                     instance.pk,
-                    instance.test_code,
                     self.user.pk,
                     now().strftime("%m%d%Y"),
                 ),

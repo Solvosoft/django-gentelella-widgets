@@ -38,8 +38,14 @@
 
 		const urls = {
 			// file to sign
-			sign_doc: "{% url 'digital_signature_file_api' pk=2 %}"
+			sign_doc: "{% url 'digital_signature_file_api' pk=2 %}",
+			logo: "{% static 'gentelella/images/firmador.ico' %}",
 		}
-
+		const doc_instance = {
+			"pk": 2,
+			"model": "DigitalSignature",
+			"app": "demoapp",
+		}
+		
 	</script>
 {% endblock %}

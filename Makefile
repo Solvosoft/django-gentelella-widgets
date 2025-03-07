@@ -43,7 +43,6 @@ docs:
 	sphinx-build -b linkcheck ./docs/source docs/build/
 	sphinx-build -b html ./docs/source docs/build/
 
-
 release:
 	git tag -a "v`python setup.py --version`" -m "Bump version `python setup.py --version`"
 	git push origin "v`python setup.py --version`"
@@ -68,10 +67,8 @@ messages:
 trans:
 	cd djgentelella && django-admin compilemessages --locale es
 
-
 docker_sign:
 	docker run -d --rm  --name firmadorserver -p 9001:9999 -d firmadorlibreserver
-
 
 init_demo:
 	cd demo && \

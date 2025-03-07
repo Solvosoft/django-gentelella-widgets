@@ -5,7 +5,6 @@ from io import BytesIO
 from PIL import Image, ImageOps
 from PIL.Image import Resampling
 
-
 from channels.generic.websocket import WebsocketConsumer, JsonWebsocketConsumer
 from django.utils.translation import gettext_lazy as _
 from djgentelella.serializers.firmador_digital import (
@@ -13,7 +12,8 @@ from djgentelella.serializers.firmador_digital import (
     InitialSignatureSerializer,
     CompleteSignatureSerializer,
 )
-from ..utils import RemoteSignerClient
+# from ..utils import RemoteSignerClient
+from djgentelella.firmador_digital.utils import RemoteSignerClient
 
 
 class SignConsumer(JsonWebsocketConsumer):
@@ -27,6 +27,7 @@ class SignConsumer(JsonWebsocketConsumer):
 
     def get_serializer(self, content):
         serializer = WSRequest(data=content)
+        print("SignConsumer - get_serializer", content)
 
         if serializer.is_valid():
             if serializer.validated_data["action"] == "initial_signature":
@@ -43,16 +44,19 @@ class SignConsumer(JsonWebsocketConsumer):
         """
         try:
             serializer = self.get_serializer(content)
+            print("SignConsumer - receive_json", serializer)
             if serializer.is_valid():
+                print(serializer.validated_data["action"])
                 match serializer.validated_data["action"]:
                     case "initial_signature":
                         self.do_initial_signature(serializer)
                     case "complete_signature":
+                        print("Entro aca - complete_signature")
                         self.do_complete_signature(serializer)
                     case _:
                         self.do_default(serializer)
             else:
-                print(serializer.errors)
+                print("SignConsumer - receive_json - errors", serializer.errors)
                 # errores al serializar datos
                 self.send_json({
                     "result": False,
@@ -73,6 +77,8 @@ class SignConsumer(JsonWebsocketConsumer):
             })
 
     def do_initial_signature(self, serializer):
+        print(self.scope)
+        print("do_initial_signature - user", self.scope["user"])
         signer = RemoteSignerClient(self.scope["user"])
         # peticion a firmador
         response = signer.send_document_to_sign(
@@ -80,36 +86,44 @@ class SignConsumer(JsonWebsocketConsumer):
             serializer.validated_data["card"],
             serializer.validated_data["docsettings"],
         )
+
+        print("do_initial_signature", response)
+
+        print(serializer.validated_data["instance"].pk)
+
         # elimina imagen de firmador
         if "imageIcon" in response:
             del response["imageIcon"]
 
         # sobre escribir la respuesta para agregar b64image
-        if "b64image" in response:
-            org = serializer.validated_data["organization"]
-            response["b64image"] = self.get_logo_base64(org)
+        logo_url = serializer.validated_data["logo_url"]
+        if "b64image" in response and logo_url:
+            response["b64image"] = self.get_logo_base64(logo_url)
+
+        print("SignConsumer - do_initial_signature", response)
 
         self.send_json(response)
 
     def do_complete_signature(self, serializer):
+        print("do_complete_signature - user", self.scope["user"])
         signer = RemoteSignerClient(self.scope["user"])
         data = dict(serializer.validated_data)
-        instance = data.pop("instance")
-        response = signer.complete_signature(instance, data)
+        # instance = data.pop("instance")
+        # response = signer.complete_signature(instance, data)
+        response = signer.complete_signature(data)
         self.send_json({"result": response})
 
     def do_default(self, serializer):
         pass
 
-    def get_logo_base64(self, org, target_width=128) :
+    def get_logo_base64(self, path_logo, target_width=128):
 
-        if not org.logo:
+        if not path_logo:
+            print("Do not have logo")
             return ""
 
-        path = org.logo.path
-
         try:
-            with Image.open(path) as img:
+            with Image.open(path_logo) as img:
                 # calcular la altura de forma proporcional
                 ratio = target_width / float(img.width)
                 target_height = int(img.height * ratio)
@@ -128,6 +142,3 @@ class SignConsumer(JsonWebsocketConsumer):
         except Exception as e:
             print("Error leyendo logo:", e)
             return ""
-
-
-
