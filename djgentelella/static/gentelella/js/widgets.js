@@ -319,6 +319,9 @@ function gt_find_initialize(instance) {
         document.gtwidgets['GTAutocompleteSelect'](autocomplete);
     }
 }
+function gt_find_initialize_from_dom(instance) {
+    gt_find_initialize($(instance));
+}
 
 $(document).ready(function () {
     $(".formset").each(function (index, elem) {

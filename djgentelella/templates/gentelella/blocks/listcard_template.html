@@ -1,0 +1,60 @@
+{% load i18n %}
+
+<div class="row container mt-3">
+
+	{% if form %}
+	<div class="col-12 {{ distribution.0 }}">
+		<form id="{{id}}_filter_form" class="row filter_form" onsubmit="return false;">
+			{{form}}
+		</form>
+	</div>
+	<div class="col-12 {{ distribution.1 }}">
+		<div class="btn-group" role="group" aria-label="search">
+			<button type="button" class="btn general_action btn-outline-primary" title="{% trans 'Search' %}"
+											data-action="search">
+				<i class="fa fa-search"></i>
+			</button>
+			<button type="button" class="btn general_action btn-outline-secondary" title="{% trans 'Clean' %}"
+											data-action="clean">
+				<i class="fa fa fa-eraser"></i>
+			</button>
+			<select class="btn page_size_select" name="page_size" data-widget="Select">
+				{% for page_s in page_size_options %}
+				<option value="{{page_s.id}}" {% if page_s.selected %}selected{% endif %}>{{page_s.id}}</option>
+				{% endfor %}s
+			</select>
+		</div>
+	</div>
+
+	{% endif %}
+	{% if with_top_navigation %}
+	{% include 'gentelella/blocks/squirrelly_pagination.html' %}
+	{% endif %}
+	<!-- Contenedor de Cards -->
+	<div class="row list_area" id="{{id}}_list_area">
+		{% block listarea %}
+		<% @each(it.data) => element %>
+		<div class="card {{card_class}}">
+			<% @if(element.image != undefined) %>
+			<img src="<% element.image %>" class="card-img-top" alt="">
+			<% /if %>
+			<div class="card-body">
+				<h5 class="card-title"><% element.title %></h5>
+				<% element.body %>
+			</div>
+			{% if with_actions %}
+			<div class="card-footer action_area" id="{{id}}_action_area">
+				<% @each(element.actions) => action %>
+				<a href="#" class="obj_action" data-instance="<% element.id %>" data-action="<% action.name %>"
+							title="<% action.title %>">
+					<i class="<% action.icon %>" aria-hidden="true"></i>
+				</a>
+				<% /each %>
+			</div>
+			{% endif %}
+		</div>
+		<% /each %>
+		{% endblock %}
+	</div>
+	{% include 'gentelella/blocks/squirrelly_pagination.html' %}
+</div>

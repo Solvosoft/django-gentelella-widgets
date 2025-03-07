@@ -59,6 +59,7 @@ sdist: clean
 fuzzysdist:
 	cd demo && python manage.py makemigrations && python manage.py loaddevstatic && python manage.py createbasejs
 	cd djgentelella && django-admin compilemessages -l es
+	python -m pylp
 	python3 -m build
 
 messages:
@@ -67,8 +68,10 @@ messages:
 trans:
 	cd djgentelella && django-admin compilemessages --locale es
 
+
 docker_sign:
 	docker run -d --rm  --name firmadorserver -p 9001:9999 -d firmadorlibreserver
+
 
 init_demo:
 	cd demo && \

@@ -1,31 +1,29 @@
+import datetime
 import re
 import uuid
-import datetime
 
-import pytz
 from django.conf import settings
-from django.test import TestCase, RequestFactory
 from django.contrib.auth.models import User
 from django.test import Client
+from django.test import TestCase, RequestFactory
 from django.urls import reverse
 from django.utils import formats
-
-from demo.settings import TIME_ZONE
-from djgentelella.models import Notification
+from django.utils.timezone import now
+from rest_framework import status
+from rest_framework.exceptions import NotFound, NotAuthenticated
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.test import APIClient
 
 from demoapp.views import create_notification
-from rest_framework import status
+from djgentelella.models import Notification
 from djgentelella.notification.base import NotificationViewSet
-from rest_framework.test import APIClient
-from rest_framework_datatables.pagination import DatatablesPageNumberPagination
-from rest_framework.exceptions import NotFound, NotAuthenticated
 
 
 class ApiNotificationsTestCase(TestCase):
     def setUp(self):
         self.api_client = APIClient()
         self.client = Client()
-        NotificationViewSet.pagination_class = DatatablesPageNumberPagination
+        NotificationViewSet.pagination_class = PageNumberPagination
         self.factory = RequestFactory()
         self.first_user = User.objects.create_superuser(
             username='first_user', password='fuser123')
@@ -238,9 +236,8 @@ class ApiNotificationsTestCase(TestCase):
         self.assertEqual(result['recordsTotal'], total_expected)
 
     def test_creation_date_input_filter_returns_one_record(self):
-        start_date = datetime.datetime.now(
-            pytz.timezone(TIME_ZONE)) + datetime.timedelta(-3)
-        end_date = datetime.datetime.now(pytz.timezone(TIME_ZONE))
+        start_date = now() + datetime.timedelta(-3)
+        end_date = now()
         user_notification = Notification.objects.filter(user=self.third_user)[0]
         user_notification.creation_date += datetime.timedelta(-2)
         user_notification.save()
@@ -268,10 +265,8 @@ class ApiNotificationsTestCase(TestCase):
         self.assertEqual(result['recordsTotal'], total_expected)
 
     def test_creation_date_input_filter_returns_no_records(self):
-        start_date = datetime.datetime.now(
-            pytz.timezone(TIME_ZONE)) + datetime.timedelta(-3)
-        end_date = datetime.datetime.now(
-            pytz.timezone(TIME_ZONE)) + datetime.timedelta(-2)
+        start_date = now() + datetime.timedelta(-3)
+        end_date = now() + datetime.timedelta(-2)
 
         range_datetime = start_date.strftime(
             formats.get_format('DATETIME_INPUT_FORMATS')[0]) + ' - ' + \

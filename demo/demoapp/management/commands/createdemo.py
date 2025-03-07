@@ -34,7 +34,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-edit',
+            icon='fa fa-quote-left',
             only_icon=False
         )
         blogentry = MenuItem.objects.create(
@@ -46,7 +46,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-build',
+            icon='fa fa-wordpress',
             only_icon=False
         )
         blogentry = MenuItem.objects.create(
@@ -58,7 +58,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-build',
+            icon='fa fa-pencil-square-o',
             only_icon=False
         )
         dashboard = MenuItem.objects.create(
@@ -70,7 +70,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-file-text',
+            icon='fa fa-tachometer',
             only_icon=False
         )
         item = MenuItem.objects.create(
@@ -229,7 +229,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-calendar-plus-o',
+            icon='fa-calendar-plus-o',
             only_icon=False
         )
         tagging = MenuItem.objects.create(
@@ -320,6 +320,19 @@ class Command(BaseCommand):
             icon='fa fa-clock-o',
             only_icon=False
         )
+        # CardList
+        cardwidget = MenuItem.objects.create(
+            parent=readonlywidget,
+            title='Card List',
+            url_name='cardlist_view',
+            category='sidebar',  # sidebar, sidebarfooter,
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-list-alt',
+            only_icon=False
+        )
 
         chart = MenuItem.objects.create(
             parent=dashboard,
@@ -333,17 +346,6 @@ class Command(BaseCommand):
             icon='fa fa-line-chart',
             only_icon=False
         )
-        noti = MenuItem.objects.create(
-            parent=item,
-            title='Create notification',
-            url_name='/create/notification',
-            category='sidebar',
-            is_reversed=False,
-            reversed_kwargs=None,
-            reversed_args=None,
-            is_widget=False,
-            icon='fa fa-plus-square-o',
-            only_icon=False)
 
         daterange = MenuItem.objects.create(
             parent=cwidget,
@@ -354,7 +356,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-sliders',
+            icon='fa fa-calendar-plus-o',
             only_icon=False
         )
 
@@ -383,10 +385,22 @@ class Command(BaseCommand):
             icon='fa fa-mouse-pointer',
             only_icon=False
         )
+        noti = MenuItem.objects.create(
+            parent=item,
+            title='Create notification',
+            url_name='/create/notification',
+            category='sidebar',  # sidebar, sidebarfooter,
+            is_reversed=False,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-plus-square-o',
+            only_icon=False
+        )
 
         MenuItem.objects.create(
             parent=item,
-            title='Create notification email',
+            title='Create email notification',
             url_name='/create/notification?email=1',
             category='sidebar',
             is_reversed=False,

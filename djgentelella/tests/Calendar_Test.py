@@ -55,7 +55,7 @@ class CalendarWidgetTest(TestCase):
         )
 
     def test_widget_events(self):
-        self.assertEquals(self.calendarWidget.widget.events, self.events)
+        self.assertEqual(self.calendarWidget.widget.events, self.events)
 
     def test_calendar_attrs(self):
         self.assertDictEqual(self.calendarWidget.widget.calendar_attrs,
@@ -122,11 +122,11 @@ class FormCalendarWidgetTest(TestCase):
 
     def test_widget_id_form(self):
         calendar_id = self.render('{{form.calendar.id_for_label}}', {'form': self.form})
-        self.assertEquals(calendar_id, 'id_calendar')
+        self.assertEqual(calendar_id, 'id_calendar')
 
     def test_events_src_input(self):
         calendar_name = self.render('{{form.calendar.html_name}}', {'form': self.form})
-        self.assertEquals(calendar_name, 'calendar')
+        self.assertEqual(calendar_name, 'calendar')
 
     def test_widget_name_form(self):
         calendar_input = self.render('{{form}}', {'form': self.form})

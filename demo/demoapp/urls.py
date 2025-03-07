@@ -6,6 +6,8 @@ from demoapp.cruds import Personclass, Countryclass, MenuItemclass
 from demoapp.views import create_notification_view, bt_modal_display
 from .autocomplete import views as autocompleteviews
 from .calendar.views import calendar_view
+from .cardlist.views import cardListViewExample
+from .cardlist.viewsets import PersonCardListViewSet
 from .chartjs import chart_js_view
 from .datatables.api import PersonViewSet
 from .datatables.views import datatableViewExample
@@ -34,11 +36,11 @@ menuclss = MenuItemclass()
 
 router = DefaultRouter()
 router.register('persontableview', PersonViewSet, 'api-persontable')
+router.register('personlistcardview', PersonCardListViewSet, 'api-personcard')
 router.register('objectmanagement', ObjectManagerDemoModelManagement,
                 'api-objectmanagement')
 
 urlpatterns = [
-
                   path('object_management', object_management,
                        name='object_management_index'),
                   path('bt_modal_display', bt_modal_display, name='bt_modal_display'),
@@ -107,6 +109,8 @@ urlpatterns = [
                   path('storyline_view', storyline_view, name="storyline_view"),
                   path('timeline_view', timeline_view, name="timeline_view"),
                   path('datatable_view', datatableViewExample, name="datatable_view"),
+                  # CardTable
+                  path('cardlist_view', cardListViewExample, name="cardlist_view"),
                   path('mediarecord_upload', mediaupload_view, name="mediaupload_view"),
                   path('tableapi/', include(router.urls)),
                   path('digital_signature_view', digital_signature_view, name="digital_signature_view"),

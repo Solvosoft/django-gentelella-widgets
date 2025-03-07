@@ -143,11 +143,11 @@ Run the demo
 And More see demo app.
 
 Run the demo with Makefile
----------------
+-----------------------------
+
 .. code:: bash
 
     make init_demo
-
 
 
 

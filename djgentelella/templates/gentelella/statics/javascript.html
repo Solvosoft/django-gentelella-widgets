@@ -54,13 +54,25 @@
 	<!-- Pdf js -->
 	<script src="{% static 'vendors/pdfjs/interact.min.js' %}?v={% get_version %}"></script>
 
-	{% if use_readonlywidgets %}
-		<script src="{% static 'vendors/timeline/js/timeline.js' %}?v={% get_version %}"></script>
-		<script src="{% static 'vendors/fullcalendar/main.min.js' %}?v={% get_version %}"></script>
-		<script src="{% static 'vendors/storymapjs/storymap.js' %}?v={% get_version %}"></script>
-		<script src="{% static 'vendors/storylinejs/storyline.js' %}?v={% get_version %}"></script>
-		<script src="{% static 'vendors/bootstrap-tree/bootstrap-treeview.min.js' %}?v={% get_version %}"></script>
-	{% endif %}
+<script src="{% static 'vendors/fileupload/jquery.iframe-transport.min.js' %}?v={% get_version %}"></script>
+<!-- The basic File Upload plugin -->
+<script src="{% static 'vendors/fileupload/jquery.fileupload.min.js' %}?v={% get_version %}"></script>
+<!-- Calculate md5 -->
+<script src="{% static 'vendors/fileupload/spark-md5.min.js' %}?v={% get_version %}"></script>
+<script src="{% static 'vendors/tagify/tagify.min.js' %}?v={% get_version %}"></script>
+<script src="{% static 'vendors/tagify/jQuery.tagify.min.js' %}?v={% get_version %}"></script>
+<script src="{% static 'vendors/tinymce/tinymce.min.js' %}?v={% get_version %}"></script>
+<script src="{% static 'vendors/tinymce/jquery.tinymce.min.js' %}?v={% get_version %}"></script>
+<script src="{% static 'vendors/tinymce/tinymce-all.js' %}?v={% get_version %}"></script>
+<script src="{% static 'vendors/sweetalert2/sweetalert2.all.min.js' %}?v={% get_version %}"></script>
+<script src="{% static 'vendors/pdfjs/interact.min.js' %}?v={% get_version %}"></script>
+{% if use_readonlywidgets %}
+<script src="{% static 'vendors/timeline/js/timeline.js' %}?v={% get_version %}"></script>
+<script src="{% static 'vendors/fullcalendar/main.min.js' %}?v={% get_version %}"></script>
+<script src="{% static 'vendors/storymapjs/storymap.js' %}?v={% get_version %}"></script>
+<script src="{% static 'vendors/storylinejs/storyline.js' %}?v={% get_version %}"></script>
+<script src="{% static 'vendors/bootstrap-tree/bootstrap-treeview.min.js' %}?v={% get_version %}"></script>
+{% endif %}
 {% endif %}
 
 {% if use_compress == 'true' %}

@@ -1,0 +1,30 @@
+{% extends 'gentelella/base.html' %}
+{% load static i18n %}
+
+{% block content %}
+<div class="card">
+	<div class="card-body">
+		<div class="card-title titles">
+			<h2>{% trans 'CardList Example' %}</h2>
+		</div>
+		<div class="col-12">
+			<div id="cardListContainer"></div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block js %}
+{{block.super}}
+<script>
+	const cardList = new CardList("cardListContainer", "{% url 'api-personcard-list' %}",
+	{
+	'example': function(pk, data, target){
+			console.log(data);
+		},
+	 'generalexample': function(){
+	 				console.log("general example");
+	 }
+	 });
+</script>
+{% endblock js %}
