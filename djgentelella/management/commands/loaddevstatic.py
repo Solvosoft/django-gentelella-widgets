@@ -376,6 +376,10 @@ class Command(BaseCommand):
                 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/pdf.worker.min.mjs',
                 'https://cdnjs.cloudflare.com/ajax/libs/interact.js/1.10.27/interact.min.js',
             ],
+
+            'htmlx': [
+                'https://unpkg.com/htmx.org@2.0.4/dist/htmx.min.js'
+            ]
         }
         compressed = {
             'tinymce': {

@@ -1,5 +1,3 @@
-import base64
-
 from django.core.files.base import ContentFile
 from django.test import TestCase
 from rest_framework import serializers
@@ -12,11 +10,11 @@ class GTBase64FileFieldTestCase(TestCase):
         field = GTBase64FileField()
         data = {
             "name": "test.txt",
-            "value": base64.b64encode(b"Test content").decode("utf-8"),
+            "value": 'VGVzdCBjb250ZW50',
         }
-        expected_content = ContentFile(b"Test content")
+        expected_content = ContentFile(b"Test content", name="test.txt")
 
-        result = field.to_internal_value(data)
+        result = field.to_internal_value([data])
 
         self.assertEqual(result.read(), expected_content.read())
         self.assertEqual(result.name, expected_content.name)

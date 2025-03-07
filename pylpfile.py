@@ -141,6 +141,7 @@ JS_FILES = [str(BASE_PATH / path) for path in [
     'vendors/datatables/datatables.min.js',
     'vendors/chartjs/Chart.min.js',
     'vendors/pdfjs/interact.min.js',
+    'vendors/htmlx/htmx.min.js',
 ]]
 
 READONLY_WIDGETS_JS = [str(BASE_PATH / path) for path in [

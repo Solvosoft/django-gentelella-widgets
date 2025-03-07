@@ -66,4 +66,4 @@ class FormCalendarWidgetTest(TestCase):
                 events=calendar.events['events']
             )
         )
-        self.assertEquals(calendarWidget.widget.events, self.events)
+        self.assertEqual(calendarWidget.widget.events, self.events)

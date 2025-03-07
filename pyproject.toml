@@ -17,7 +17,7 @@ name = "djgentelella"  # Required
 #
 # For a discussion on single-sourcing the version, see
 # https://packaging.python.org/guides/single-sourcing-package-version/
-version = "0.3.24"  # Required
+version = "0.3.27"  # Required
 
 # This is a one-line description or tagline of what your project does. This
 # corresponds to the "Summary" metadata field:
@@ -128,9 +128,7 @@ dependencies = [# Optional
 # Similar to `dependencies` above, these must be valid existing
 # projects.
 [project.optional-dependencies] # Optional
-test = ["selenium==4.5.0",
-    "selenium-screenshot==2.0.0"
-]
+test = []
 dev = [
     'pylp', 'pylpconcat', 'css-html-js-minify'
 ]
