@@ -2252,7 +2252,6 @@ function getMediaRecord(element, mediatype){
 ///////////////////////////////////////////////
 build_digital_signature = function (instance) {
 
-    console.log(instance);
     const widgetId = instance.getAttribute("id");
     const url_ws = instance.getAttribute("data-ws-url");
     const container = instance.closest(".widget-digital-signature");
@@ -2264,31 +2263,29 @@ build_digital_signature = function (instance) {
     // Crear una nueva instancia del visor de PDF con la configuración adecuada
     const pdfInstance = new PdfSignatureComponent(container, defaultPage);
 
+    if (!doc_instance) {
+        console.error("You must define the doc_instance variable.");
+        return;
+    }
+
     // Signature
     let signatureManager = new SignatureManager(container, url_ws);
-    signatureManager.startSign();
+    signatureManager.startSign(doc_instance, urls['logo']);
 
-
-    // Almacenar la instancia en un objeto global con clave por widget ID
+    // Store the instance in a global object with key per widget ID
     if (!window.pdfSignatureComponents) {
         window.pdfSignatureComponents = {};
     }
-
-    console.log(container_tag);
 
     // Agregar la instancia al objeto global si no existe
     if (!window.pdfSignatureComponents[container_tag]) {
         window.pdfSignatureComponents[container_tag] = pdfInstance;
     }
 
-    console.log(window.pdfSignatureComponents[container_tag]);
-
-    // guardado de pdf
-
 }
 
 ///////////////////////////////////////////////
-//  PDF preview
+//  PDF preview Digtal Signature
 ///////////////////////////////////////////////
 class PdfSignatureComponent {
     constructor(container, defaultPage) {
@@ -2339,9 +2336,9 @@ class PdfSignatureComponent {
     }
 
     initPDFViewer() {
-        console.log(urls['sign_doc']);
+
         if (typeof urls['sign_doc'] === 'undefined') {
-            console.warn("La variable 'pdf_document' no está definida.");
+            console.warn("The variable 'sign_doc' is not defined.");
             return;
         }
         pdfjsLib.getDocument(urls['sign_doc']).promise.then((pdfDoc_) => {
@@ -2576,12 +2573,12 @@ class PdfSignatureComponent {
 }
 
 ///////////////////////////////////////////////
-//  Signature manager
+//  Signature manager Digital Signature
 ///////////////////////////////////////////////
 class SignatureManager {
     constructor(container, url_ws) {
         this.container = container;
-        this.firmador = new DocumentClient(container, container.getAttribute("data-widget-id"), this, url_ws);
+        this.firmador = new DocumentClient(container, container.getAttribute("data-widget-id"), this, url_ws, this.doc_instance);
         this.signerBtn = container.querySelector(".btn_signer");
         this.errorsContainer = container.querySelector(".errors_signer");
         this.refreshBtn = container.querySelector(".btn_signer_refresh");
@@ -2599,22 +2596,21 @@ class SignatureManager {
         }
     }
 
-    startSign() {
+    startSign(doc_instance, logo_url = null,) {
         if (this.socketError) {
             alertSimple(errorInterpreter(3), gettext("Error"), "error");
             return;
         }
 
-        this.clearErrors(); // Limpiar errores
+        this.clearErrors();
 
-        this.firmador.start_sign()
+        this.firmador.start_sign(doc_instance, logo_url)
     }
 
     sign() {
         this.firmador.do_sign_remote();
     }
 
-    // **Agregar errores en la vista**
     addError(errorCode) {
         let title = document.createElement('p');
         title.classList.add('mt-2', 'text-danger', 'mb-0');
@@ -2626,7 +2622,6 @@ class SignatureManager {
         this.errorsContainer.appendChild(errorElement);
     }
 
-    // **Limpiar los errores**
     clearErrors() {
         this.errorsContainer.innerHTML = '';
     }
@@ -2637,7 +2632,7 @@ class SignatureManager {
 }
 
 ///////////////////////////////////////////////
-//  signer socket and response
+//   Socket Digital Signature
 ///////////////////////////////////////////////
 function responseManageTypeData(instance, err_json_fn, error_text_fn) {
     return function (response) {
@@ -2668,7 +2663,6 @@ function SocketManager(socket, signatureManager) {
     // Si ocurre algún error durante la conexión
     socket.onerror = (event) => {
         // console.error("WebSocket error");
-        // Aquí puedes invocar tu lógica de error, por ejemplo:
         alertSimple(errorInterpreter(3), gettext("Error"), "error");
         signatureManager.socketError = true;
     };
@@ -2697,10 +2691,6 @@ function callFetch(instance) {
     }).then(responseManageTypeData(instance, instance.error_json, instance.error_text))
         .then(data => instance.success(data))
         .catch(error => {
-            if (error.name === 'AbortError') {
-                console.log("Aborted");
-                return;
-            }
             instance.error(error);
         });
 }
@@ -2748,7 +2738,7 @@ function FirmadorLibreLocal(docmanager, signatureManager) {
                     // si el resultado es diferente a un string, es posible que hay un error
                     // console.log(data)
                     if (typeof data !== 'string') { //prevent option call
-                        // console.log("manager.local_done(data)", data);
+                        console.log("manager.local_done(data)", data);
                         manager.local_done(data);
                     }
 
@@ -2861,7 +2851,17 @@ function FirmadorLibreWS(docmanager, url, signatureManager) {
                 alertSimple(errorInterpreter(2), gettext("Error"), "error");
                 signatureManager.addError(2);
             }
-        }
+        },
+        "complete_sign": function (data) {
+            data["action"] = "complete_signature";
+            console.log("complete_sign", data);
+            try {
+                this.websocket.send(JSON.stringify(data));
+            } catch (e) {
+                // console.error("Error de comunicación WS");
+                alertFunction(errorInterpreter(3), gettext("Error"), "error", false, closeModalSignature);
+            }
+        },
     };
     firmador.inicialize();
     return firmador;
@@ -2875,8 +2875,12 @@ function DocumentClient(container, widgetId, signatureManager, url_ws) {
         "remotesigner": null,
         "localsigner": null,
         "certificates": null,
+        "doc_instance": null,
+        "logo_url": null,
 
-        "start_sign": function () {
+        "start_sign": function (doc_instance, logo_url = null) {
+            this.doc_instance = doc_instance;
+            this.logo_url = logo_url;
             this.localsigner.get_certificates();
             this.signatureManager.clearErrors();
         },
@@ -2910,8 +2914,8 @@ function DocumentClient(container, widgetId, signatureManager, url_ws) {
 
             if (selected_card && this.certificates) {
                 let data = {
-                    'organization': this.org,
-                    'instance': this.pk,
+                    'logo_url': this.logo_url,
+                    'instance': this.doc_instance,
                     'card': this.certificates[selected_card],
                     "docsettings": window.pdfSignatureComponents[widgetId].getDocumentSettings()
                 };
@@ -2938,6 +2942,8 @@ function DocumentClient(container, widgetId, signatureManager, url_ws) {
             }
         },
         "local_done": function (data) {
+            data['instance'] = this.doc_instance;
+            data['logo_url'] = this.logo_url;
             this.remotesigner.complete_sign(data);
         },
         "remote_done": function (data) {
@@ -2956,7 +2962,7 @@ function DocumentClient(container, widgetId, signatureManager, url_ws) {
 }
 
 ///////////////////////////////////////////////
-//  Manage errors
+//  Manage Errors Digital Signature
 ///////////////////////////////////////////////
 function errorInterpreter(error) {
 
@@ -3026,7 +3032,7 @@ function errorInterpreter(error) {
 }
 
 ///////////////////////////////////////////////
-//  Alerts
+//  Alerts Digital Signature
 ///////////////////////////////////////////////
 function alertSimple(text, title = "Error", icon = "error") {
     Swal.fire({
@@ -3038,7 +3044,8 @@ function alertSimple(text, title = "Error", icon = "error") {
 }
 
 function alertFunction(text, title = "Error", icon = "error", cancelButton = false,
-                       callback = () => {}) {
+                       callback = () => {
+                       }) {
     Swal.fire({
         icon: icon,
         title: title,
@@ -3055,6 +3062,9 @@ function alertFunction(text, title = "Error", icon = "error", cancelButton = fal
     });
 }
 
+///////////////////////////////////////////////
+//  End widgets digital signature
+///////////////////////////////////////////////
 
 
 class CardList {
