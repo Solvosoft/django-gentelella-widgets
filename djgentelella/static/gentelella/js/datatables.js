@@ -31,6 +31,16 @@ function formatDataTableParams(dataTableParams, settings){
 }
 
 var default_table_columns_display = {}
+function toggle_select_all(e){
+    let tinstance = $(e.target);
+    if(tinstance[0].checked){
+        tinstance.closest('table').find('.gtcheckable').prop('checked', true);
+        tinstance.closest('table').find('.checkableall').prop('checked', true);
+    }else{
+        tinstance.closest('table').find('.gtcheckable').prop('checked', false);
+        tinstance.closest('table').find('.checkableall').prop('checked', false);
+    }
+}
 function addSearchInputsAndFooterDataTable(dataTable, tableId, columns) {
     // takes care of adding the search inputs to each of the columns of the datatable, it will
     // hide/display them according to how the table changes in the responsive mode
@@ -45,7 +55,7 @@ function addSearchInputsAndFooterDataTable(dataTable, tableId, columns) {
     if($(tableId + ' thead tr').length < 2){  // clone the tr only if it wasn't cloned before
        $(tableId + ' thead tr').clone(false).appendTo(tableId + ' thead');
     }
-
+    let checkable_count=0;
     $(tableId + ' thead tr:eq(1) th').each(function (i) { // add search fields if they are not there already and the column is visible
         var currentColumn = dataTable.column(i);
         var is_display = true
@@ -54,7 +64,7 @@ function addSearchInputsAndFooterDataTable(dataTable, tableId, columns) {
         }
         var columnType = dataTable.settings()[0].aoColumns[i].type; // get the field type
         //currentColumn.responsiveHidden()
-        if (is_display && currentColumn.visible() && columnType !== 'actions') {  // column is visible
+        if (is_display && currentColumn.visible() && columnType !== 'actions' ) {  // column is visible
             $(this).css('display', ''); // when it was cloned it might have had display:none specified
             if($(this).find('input').length === 0 && $(this).find('select').length === 0) {  // add the input/select just if it doesn't exist already
                 var title = currentColumn.header().textContent;  // get the field name
@@ -127,10 +137,24 @@ function addSearchInputsAndFooterDataTable(dataTable, tableId, columns) {
             $(this).css('display', 'none');
         }
 
+        if(columnType === 'checkable'){
+             $(this).html("");
+             checkable_count=1;
+             if($(dataTable.context[0].nTable).data()['checkable']==undefined){
+                 $(dataTable.context[0].nTable).find('.checkableall').click(toggle_select_all);
+                 $(dataTable.context[0].nTable).data()['checkable']=true;
+             }
+        }
+
+
     });
     // add the footer to the table according to the current header - delete previous one before
     $(tableId).find('tfoot').remove();
     $(tableId).append($('<tfoot/>').append( $(tableId + " thead tr:eq(0)").clone()));
+    if(checkable_count>0){
+        $(tableId).children().last().find('.checkableall').click(toggle_select_all);
+        $(tableId).children().last().find('.checkableall').prop('width', 'unset');
+    }
 }
 
 function clearDataTableFilters(dataTable, tableId){
