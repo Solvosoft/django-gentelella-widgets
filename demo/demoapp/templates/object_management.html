@@ -83,7 +83,12 @@
 		destroy: "#delete_obj_modal",
 	}
 	var obj_actions = {
-			table_actions: [],  //table_actions
+			table_actions: [{
+                    action: (e, dt, node, config) => { console.log( get_selected_items(dt, dt.context[0].nTable)); },
+                    text:  '<i class="fa fa-eye" aria-hidden="true"></i>',
+                    titleAttr: gettext('Apply selected action'),
+                    className: "btn btn-success"
+                }],  //table_actions
 			object_actions: [],  // object_actions
 			title: gettext('Actions'),
 			className:  "no-export-col"
@@ -96,6 +101,7 @@
 		actions: obj_actions,
 		datatable_inits: datatable_inits,
 		add_filter: true,
+		checkable: true,
 		relation_render: {'field_autocomplete': 'text' },
 		delete_display: data => data['name']
 	}

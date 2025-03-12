@@ -15,7 +15,9 @@ html , body{
  height:100%;
  }
 
-
+.checkableall{
+    width: unset;
+}
 
 
 .daterangepicker .ranges li {

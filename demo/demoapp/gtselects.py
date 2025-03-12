@@ -1,6 +1,5 @@
 from demoapp import models
 from djgentelella.groute import register_lookups
-from djgentelella.settings import Group, User
 from djgentelella.views.select2autocomplete import BaseSelect2View
 
 
@@ -58,15 +57,3 @@ class ELookup(BaseSelect2View):
     model = models.E
     fields = ['display']
     ref_field = 'd'
-
-
-@register_lookups(prefix="userbase", basename="userbase")
-class User(BaseSelect2View):
-    model = User
-    fields = ['username']
-
-
-@register_lookups(prefix="groupbase", basename="groupbase")
-class Group(BaseSelect2View):
-    model = Group
-    fields = ['name']
