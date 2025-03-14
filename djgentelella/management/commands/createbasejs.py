@@ -29,7 +29,8 @@ class Command(BaseCommand):
             'calendar.js',
             'timeline.js',
             'mediarecord.js',
-            'api_list.js'
+            'api_list.js',
+            'tagify.js'
         ]
         jquery_plugins = [
             'notifications.js',

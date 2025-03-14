@@ -135,7 +135,6 @@ JS_FILES = [str(BASE_PATH / path) for path in [
     'vendors/fileupload/jquery.fileupload.min.js',
     'vendors/fileupload/spark-md5.min.js',
     'vendors/tagify/tagify.min.js',
-    'vendors/tagify/jQuery.tagify.min.js',
     'vendors/sweetalert2/sweetalert2.all.min.js',
     'vendors/datatables/datatables.min.js',
     'vendors/chartjs/Chart.min.js',
