@@ -312,9 +312,8 @@ class Command(BaseCommand):
                 'https://raw.githubusercontent.com/patternfly/patternfly-bootstrap-treeview/master/dist/bootstrap-treeview.min.css'
             ],
             'tagify': [
-                'https://cdnjs.cloudflare.com/ajax/libs/tagify/3.18.1/tagify.min.js',
-                'https://cdnjs.cloudflare.com/ajax/libs/tagify/3.18.1/jQuery.tagify.min.js',
-                'https://cdnjs.cloudflare.com/ajax/libs/tagify/3.18.1/tagify.min.css'
+                'https://cdn.jsdelivr.net/npm/@yaireo/tagify@4.33.2/dist/tagify.min.js',
+                'https://cdn.jsdelivr.net/npm/@yaireo/tagify@4.33.2/dist/tagify.min.css'
             ],
             'grid-slider': [
                 'https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/js/ion.rangeSlider.min.js',

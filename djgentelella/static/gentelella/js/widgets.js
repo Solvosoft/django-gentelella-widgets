@@ -260,12 +260,10 @@ document.gtwidgets = {
     },
 
     TaggingInput: function (instance) {
-        instance.tagify();
+        build_tagginginput(instance);
     },
     EmailTaggingInput: function (instance) {
-        instance.tagify({
-            pattern: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-        });
+        build_tagging_email(instance);
     },
     DJGraph: function (instance) {
         instance.gentelella_chart();
@@ -291,6 +289,9 @@ document.gtwidgets = {
     },
     UrlStoryLineInput: function (instance) {
         build_storyline(instance)
+    },
+    RemoteAutocompleteEmailTagifyWidget: function(instance){
+        build_remote_tagify_email(instance)
     }
 }
 
