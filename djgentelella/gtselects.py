@@ -1,23 +1,19 @@
 from django.contrib.auth.models import User, Group
 
 from djgentelella.groute import register_lookups
-from djgentelella.objectmanagement import AuthAllPermBaseObjectManagement
+from djgentelella.permission_management import AllPermission
 from djgentelella.views.select2autocomplete import BaseSelect2View
 
 
 @register_lookups(prefix="userbase", basename="userbase")
-class User(AuthAllPermBaseObjectManagement, BaseSelect2View):
+class User(BaseSelect2View, AllPermission):
     model = User
     fields = ['username']
-    perms = {
-        'list': ['auth.change_user'],
-    }
+    perms = ['auth.change_user']
 
 
 @register_lookups(prefix="groupbase", basename="groupbase")
-class Group(AuthAllPermBaseObjectManagement, BaseSelect2View):
+class Group(BaseSelect2View, AllPermission):
     model = Group
     fields = ['name']
-    perms = {
-        'list': ['auth.change_group'],
-    }
+    perms = ['auth.change_group']
