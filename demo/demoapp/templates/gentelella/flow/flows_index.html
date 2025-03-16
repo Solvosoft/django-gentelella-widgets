@@ -1,0 +1,122 @@
+{% extends 'gentelella/flow/base_nav.html' %}
+{% load gtsettings timejs %}
+
+{% block content_nav %}
+
+{% if messages %}
+        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+            {{ message }}
+        </div>
+{% endif %}
+
+<div class="card">
+
+		<form method="get">
+			<a class="btn btn-success m-4 float-end" href="{%url 'flow' %}"><i class="fa fa-plus-square" aria-hidden="true"></i></a>
+			</form>
+
+	<div class="card-body">
+		<div class="card-title titles">
+			<h2>PostActions-PreActions</h2>
+		</div>
+
+				<div class="col-12">
+						<table id="datatableelement" class="table "></table>
+				</div>
+
+
+		</div>
+	</div>
+</div>
+
+
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Delete Flow</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+																Are you sure you want to remove the flow "<span id="flowName"></span>"?
+                <input type="hidden" id="deleteFlowId">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a class="btn btn-danger" id="deleteFlowButton" href="">Delete</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+
+  <script>
+
+
+	    $(document).ready(function() {
+        var flows = {{ flows_data|safe }};
+
+        $('#datatableelement').DataTable({
+            data: flows,
+            columns: [
+                {data: "id", title: "Flow ID", type: "string", visible: true},
+                {data: "name", title: "Flow Name", type: "string", visible: true},
+                {data: "description", title: "Description", type: "string", visible: true},
+                {
+																			data: null,
+																			title: "View FLow",
+																			orderable: false,
+																			render: function (data, type, row) {
+																							var url = "{% url 'view_flow' '0' %}";
+																							url = url.replace('0', row.id);
+																							return `<a class="btn btn-sm" href="${url}">
+																							<span style="font-size: 28px; color: #007bff;"><i class="fa fa-eye" aria-hidden="true"></i>
+																							</span></a>`;
+																			}
+																},
+																{
+																			data: null,
+																			title: "Edit FLow",
+																			orderable: false,
+																			render: function (data, type, row) {
+																							var url = "{% url 'edit_flow' '0' %}";
+																							url = url.replace('0', row.id);
+																							return `<a class="btn btn-sm" href="${url}">
+																							<span style="font-size: 28px; color: #ffc107;"><i class="fa fa-pencil-square" aria-hidden="true"></i>
+																							</span></a>`;
+																			}
+																},
+																{
+																			data: null,
+																			title: "Delete FLow",
+																			orderable: false,
+																			render: function (data, type, row) {
+																							var url = "{% url 'edit_flow' '0' %}";
+																							url = url.replace('0', row.id);
+																							return `<button class="btn btn-sm" onclick="openDeleteModal(${row.id}, '${row.name}')">
+																							<span style="font-size: 28px; color: #dc3545;"><i class="fa fa-trash" aria-hidden="true"></i>
+																							</span></button>`;
+																			}
+																}
+
+
+            ]
+        });
+    });
+
+function openDeleteModal(id, flowName) {
+    document.getElementById('deleteFlowId').value = id;
+    document.getElementById('flowName').innerText = flowName;
+
+    var deleteUrl = "{% url 'delete_flow' '0' %}".replace('0', id);
+    document.getElementById('deleteFlowButton').setAttribute('href', deleteUrl);
+
+    $('#deleteModal').modal('show');
+}
+		</script>
+
+{% endblock js%}
+
