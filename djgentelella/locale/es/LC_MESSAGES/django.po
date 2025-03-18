@@ -519,3 +519,96 @@ msgstr "Iniciar"
 
 msgid "Unknown"
 msgstr "Desconocido"
+
+msgid "Choose your signature card"
+msgstr "Selecciona tu tarjeta de firma"
+
+msgid "Electronic signature card"
+msgstr "Tarjeta de firma electrónica"
+
+msgid "Sign"
+msgstr "Firmar"
+
+msgid "Notices"
+msgstr "Avisos"
+
+msgid "Reload"
+msgstr "Recargar"
+
+msgid "Please go to the last page, in the signature space, try to place your signature vertically centered."
+msgstr "Por favor, vaya a la última página, en el espacio de firma, intente colocar su firma verticalmente centrada."
+
+msgid "Copied to clipboard"
+msgstr "Copiado al portapapeles"
+
+msgid "Copy to clipboard"
+msgstr "Copiar al portapapeles"
+
+msgid "Show command"
+msgstr "Mostrar comando"
+
+msgid "If the autolauncher doesn't work, I used this command line."
+msgstr "Si el lanzador automático no funciona, usé esta línea de comandos."
+
+msgid "Download Firmador Libre"
+msgstr "Descargar Firmador Libre"
+
+msgid "Download app"
+msgstr "Descargar aplicación"
+
+msgid "Run app"
+msgstr "Ejecutar aplicación"
+
+msgid "Run Firmador Libre"
+msgstr "Ejecutar Firmador Libre"
+
+msgid "You need Firmador Libre installed in order to sign."
+msgstr "Necesitas instalar Firmador Libre para firmar."
+
+msgid "Make sure your version is 1.9.8 or later."
+msgstr "Asegúrate de que tu versión sea 1.9.8 o posterior."
+
+msgid "Run the application before proceeding with the signature."
+msgstr "Ejecuta la aplicación antes de proceder con la firma."
+
+msgid "An error has occurred in the internal server of the uncontrolled 'Firmador Libre'."
+msgstr "Ha ocurrido un error en el servidor interno del no controlado 'Firmador Libre'."
+
+msgid "Make sure to start the 'Firmador Libre' application. If it is already running, please press the reload button."
+msgstr "Asegúrate de iniciar la aplicación 'Firmador Libre'. Si ya está en ejecución, presiona el botón de recarga."
+
+msgid "There is no card connected to the device. Please press the reload button and connect your card."
+msgstr "No hay tarjeta conectada al dispositivo. Presiona el botón de recarga y conecta tu tarjeta."
+
+msgid "The internal signature service does not work. Please contact the support."
+msgstr "El servicio de firma interna no funciona. Contacta con el soporte."
+
+msgid "Authentication failed because the PIN entry window was detected closed, please try again."
+msgstr "La autenticación falló porque la ventana de entrada PIN fue detectada cerrada, intenta de nuevo."
+
+msgid "The device was disconnected, possibly the window was closed for signature. Please close the window for the authentication PIN."
+msgstr "El dispositivo se desconectó, posiblemente la ventana para la firma se cerró. Cierra la ventana para la autenticación PIN."
+
+msgid "The new signature field position overlaps with an existing signature."
+msgstr "El nuevo campo de firma se superpone con una firma existente."
+
+msgid "The new signature field position is outside the page dimensions."
+msgstr "El nuevo campo de firma está fuera de los límites de la página."
+
+msgid "The version of one or more libraries is incompatible."
+msgstr "La versión de una o más bibliotecas es incompatible."
+
+msgid "The cryptographic provider is not available."
+msgstr "El proveedor de criptografía no está disponible."
+
+msgid "The signing algorithm is not available."
+msgstr "El algoritmo de firma no está disponible."
+
+msgid "Errors have been encountered in the data to be sent to the 'Free Signer'. Please press the reload button and try again."
+msgstr "Se han encontrado errores en los datos que se enviarán al 'Firmador Libre'. Presiona el botón de recarga y intenta de nuevo."
+
+msgid "The request to the signing service timed out. Please, press the reload button and try again."
+msgstr "El tiempo de espera del servicio de firma ha expirado. Presiona el botón de recarga y intenta de nuevo."
+
+msgid "We're sorry, an unexpected error occurred. Please, press the reload button and try again."
+msgstr "Lo sentimos, ha ocurrido un error inesperado. Presiona el botón de recarga y intenta de nuevo."
