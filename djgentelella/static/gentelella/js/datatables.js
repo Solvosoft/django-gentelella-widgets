@@ -269,7 +269,7 @@ function gtCreateDataTable(id, url, table_options={}){
 
 function createDataTable(id, url, extraoptions={}, addfilter=false, formatDataTableParamsfnc=formatDataTableParams){
     const options = Object.assign({}, {
-       formatDataTableParamsfnc : formatDataTableParams,
+       formatDataTableParamsfnc : formatDataTableParamsfnc,
        addfilter: addfilter
     }, extraoptions);
     return gtCreateDataTable(id, url, options);

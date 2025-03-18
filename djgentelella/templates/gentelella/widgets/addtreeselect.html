@@ -1,5 +1,5 @@
 {% load i18n %}
-<div class="input-group">
+<div class="input-group flex-nowrap">
   <div id="add_{{ widget.name }}_id" data-toggle="modal" data-bs-target="#modal_{{ widget.name }}_id" class="input-group-addon gentelella_select_add"><i class="fa fa-plus"></i></div>
 <select name="{{ widget.name }}" data-modalname="#modal_{{ widget.name }}_id" {% include "gentelella/widgets/attrs.html" %} >
 {% for group_name, group_choices, group_index in widget.optgroups %}
