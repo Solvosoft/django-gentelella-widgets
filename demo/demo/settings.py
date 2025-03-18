@@ -161,7 +161,6 @@ GUNICORN_WORKER_CLASS = "demo.asgi_worker.UvicornWorker"
 GUNICORN_USER = "demo"
 GUNICORN_GROUP = "demo"
 
-
 FIRMADOR_CORS = "http://127.0.0.1:8000"
 FIRMADOR_WS = "ws://127.0.0.1:9022/async/"
 FIRMADOR_WS_URL = FIRMADOR_WS + "sign_document"

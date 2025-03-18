@@ -612,3 +612,6 @@ msgstr "El tiempo de espera del servicio de firma ha expirado. Presiona el botó
 
 msgid "We're sorry, an unexpected error occurred. Please, press the reload button and try again."
 msgstr "Lo sentimos, ha ocurrido un error inesperado. Presiona el botón de recarga y intenta de nuevo."
+
+msgid "Widget Digital Signature"
+msgstr "Widget Firma Digital"
