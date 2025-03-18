@@ -1,0 +1,27 @@
+{% extends 'gentelella/blocks/listcard_template.html' %}
+
+{% block listarea %}
+<% @each(it.data) => element %>
+<div class="{{card_col_class}}">
+	<div class="card {{card_class}}">
+		<% @if(element.image != undefined) %>
+		<img src="<% element.image %>" class="card-img-top" alt="">
+		<% /if %>
+		<div class="card-body">
+			<h5 class="card-title"><% element.name %></h5>
+			<% element.country.name %> <% element.num_children %>
+		</div>
+		{% if with_actions %}
+		<div class="card-footer action_area" id="{{id}}_action_area">
+			<% @each(element.actions) => action %>
+			<a href="#" class="obj_action" data-instance="<% element.id %>" data-action="<% action.name %>"
+						title="<% action.title %>">
+				<i class="<% action.icon %>" aria-hidden="true"></i>
+			</a>
+			<% /each %>
+		</div>
+		{% endif %}
+	</div>
+</div>
+<% /each %>
+{% endblock %}

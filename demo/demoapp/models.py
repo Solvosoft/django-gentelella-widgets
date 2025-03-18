@@ -78,7 +78,7 @@ class Foo(models.Model):
 class PeopleGroup(models.Model):
     name = models.CharField(max_length=150)
     people = models.ManyToManyField(Person)
-    comunities = models.ManyToManyField('Comunity')
+    communities = models.ManyToManyField('Community')
     country = models.ForeignKey(
         Country, null=True, blank=True, on_delete=models.CASCADE)
 
@@ -86,7 +86,7 @@ class PeopleGroup(models.Model):
         return self.name
 
 
-class Comunity(models.Model):
+class Community(models.Model):
     name = models.CharField(max_length=150)
 
     def __str__(self):
@@ -231,3 +231,34 @@ class Event(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class ObjectManagerDemoModel(models.Model):
+    ELEMENTS = (
+        (1, "A"),
+        (2, "B"),
+        (3, "C"),
+        (4, "D"),
+
+    )
+    name = models.CharField(max_length=150)
+    float_number = models.FloatField(default=0)
+    knob_number = models.IntegerField(default=0)
+    born_date = models.DateField()
+    last_time = models.DateTimeField()
+    livetime_range = models.CharField(max_length=256)  # daterange field
+    description = models.TextField()  # wysiwyg
+    simple_archive = models.FileField(upload_to='files')
+    chunked_archive = models.FileField(upload_to='chunked_files')
+    radio_elements = models.IntegerField(choices=ELEMENTS)
+    taging_list = models.CharField(max_length=256)
+    yes_no = models.BooleanField(default=False)
+
+    field_autocomplete = models.ForeignKey(Country, related_name='ct',
+                                           on_delete=models.CASCADE)
+    m2m_autocomplete = models.ManyToManyField(Country, related_name='autocomplext')
+    field_select = models.ForeignKey('Community', on_delete=models.CASCADE)
+    m2m_multipleselect = models.ManyToManyField(A)
+
+    def __str__(self):
+        return self.name

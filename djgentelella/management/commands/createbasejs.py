@@ -14,6 +14,7 @@ class Command(BaseCommand):
         basepath = Path(result.replace('widgets.js', ''))
 
         basefiles = [
+            'form.common.js',
             'formset.js',
             'helper_widget.js',
             'autocompleteSelect2.js',
@@ -27,7 +28,9 @@ class Command(BaseCommand):
             'storyline.js',
             'calendar.js',
             'timeline.js',
-            'mediarecord.js'
+            'mediarecord.js',
+            'api_list.js',
+            'tagify.js'
         ]
         jquery_plugins = [
             'notifications.js',

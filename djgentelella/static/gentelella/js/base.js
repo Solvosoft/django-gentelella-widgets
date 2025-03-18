@@ -358,80 +358,184 @@ $.fn.fileuploadwidget = function(){
         }
 
 
-        $.each($(this), function(i, e){
-            var $this=$(e),
-                $parentdiv=$this.closest('.input-group'),
-                upload_url = $this.data('href'),
-                field_name = $this.attr('name'),
-                div_message = $parentdiv.find($this.data('message')),
-                div_process = $parentdiv.find($this.data('process')),
-                url_done = $this.data('done'),
-                input_token = $this.data('inputtoken'),
-                fileshow = $parentdiv.find('.fileshow'),
-                uploadfilecontent = $parentdiv.find('.uploadfilecontent'),
-                removecheck = $this.closest('.fileupload').find('input[data-widget="CheckboxInput"]');
+    $.each($(this), function(i, e){
+            var $this=$(e);
+            var $parentdiv=$this.closest('.fileupload');
+            var input_token=$this.data('inputtoken');
+            var obj={
+                    parentdiv: $this.closest('.input-group'),
+                    upload_url: $this.data('href'),
+                    field_name: $this.attr('name'),
+                    div_message: $parentdiv.find($this.data('message')),
+                    div_process: $parentdiv.find($this.data('process')),
+                    div_download: $parentdiv.find("#download_"+$this.data('inputtoken') ),
+                    div_remove: $parentdiv.find("#remove_"+$this.data('inputtoken') ),
+                    url_done: $this.data('done'),
+                    current_icon: 'eyes',
+                    input_token: input_token,
+                    input_field: $parentdiv.find('input[name="'+input_token+'"]'),
+                    default_value: "",
+                    fileshow: $parentdiv.find('.fileshow'),
+                    uploadfilecontent: $parentdiv.find('.uploadfilecontent'),
+                    removecheck: $this.closest('.fileupload').find('input[data-widget="CheckboxInput"]'),
+                    change_fn: function(e){
+                        var parent=e;
+                        return function(event){
+                            let current_value=parent.input_field.val();
+                            if(current_value.length==0){
+                                current_value=parent.default_value;
+                            }
+                            try{
+                                let data = JSON.parse(current_value);
+                                parent.render_widget_data(data);
+                            }catch(e) {
+                                // do nothing
+                            }
 
-           $this.attr("required", false);
-           div_message.hide();
-           fileshow.on('click', function(){
-                uploadfilecontent.toggle();
-                div_message.toggle();
-           });
-           removecheck.on('ifToggled', function(event){
-               if(this.checked){
-                    $parentdiv.find('input[name="'+input_token+'"]').val("0");
-               }else{
-                 if( $parentdiv.find('input[name="'+input_token+'"]').val() == "0"){
-                    $parentdiv.find('input[name="'+input_token+'"]').val("");
-                 }
-               }
-           });
-           $this.fileupload({
-              url: upload_url,
-              dataType: "json",
-              maxChunkSize: 100000, // Chunks of 100 kB
-              formData: form_data,
-              dropZone: $this,
-              add: function(e, data) { // Called before starting upload
+                        }
+                    },
+                    icon_action_toggle: function(){
+                        if(this.current_icon==='eyes'){
+                            this.show_upload();
+                        }else{
+                            this.show_eyes();
+                        }
+                    },
+                    show_eyes:function(){
+                        this.current_icon='eyes';
+                        this.change_icon_file_show('fa fa-eye');
+                    },
+                    show_upload: function(){
+                        this.current_icon='upload';
+                        this.change_icon_file_show('fa fa-cloud-upload');
+                    },
+                    render_widget_data: function(data){
+                        var parent=this;
+                        if("token" in data ){
+                            //data.display_name
+                            parent.uploadfilecontent.hide();
+                            parent.div_download.hide();
+                            parent.div_remove.hide();
+                            parent.div_message.show();
+                            parent.div_message.html(data.display_name);
+                            parent.show_upload();
+                        }else if ("url" in data){
+                            parent.div_download.show();
+                            parent.div_remove.show();
+                            parent.div_message.show();
+                            parent.uploadfilecontent.hide();
+                            parent.div_download.find('a')[0].href=data.url;
+                            parent.div_message.html(data.display_name);
+                            parent.show_upload();
+                        }else{
+                            parent.div_download.hide();
+                            parent.div_remove.hide();
+                            parent.uploadfilecontent.show();
+                            parent.div_message.hide();
+                            parent.show_eyes();
+                        }
+                    },
+                    change_icon_file_show: function(touseclass){
+                        this.fileshow.find('i').removeClass();
+                        this.fileshow.find('i').addClass(touseclass);
+                    },
+                    init: function(){
+                        $this.attr("required", false);
+                        this.div_message.hide();
+                        this.div_remove.hide();
+                        var parent=this;
+                        this.fileshow.on('click', function(){
+                            parent.uploadfilecontent.toggle();
+                            parent.div_message.toggle();
+                            parent.icon_action_toggle();
+                       });
+                       this.input_field[0].onchange=this.change_fn(this);
+                       this.default_value=this.input_field.val();
+                       if(this.default_value !== ""){
+                            this.input_field.trigger('change');
+                       }
+                       this.removecheck.on('ifToggled', function(event){
+                           let current_data=JSON.parse(parent.input_field.val());
+                           if(this.checked){
+                                current_data['actions']="delete";
+                           }else{
+                            if('actions' in current_data) delete current_data.actions;
+                           }
+                           parent.input_field.val(JSON.stringify(current_data));
+                       });
+                       $this.fileupload({
+                                  url: parent.upload_url,
+                                  dataType: "json",
+                                  maxChunkSize: 100000, // Chunks of 100 kB
+                                  formData: form_data,
+                                  dropZone: $this,
+                                  add: function(e, data) { // Called before starting upload
 
-                div_message.empty();
-                // If this is the second file you're uploading we need to remove the
-                // old upload_id and just keep the csrftoken (which is always first).
-                form_data.splice(1);
-                calculate_md5(data.files[0], 100000);  // Again, chunks of 100 kB
-                data.paramName='file';
-                data.submit();
-                uploadfilecontent.hide();
-                div_message.show();
-                div_message.html(data.files[0].name);
-              },
-              chunkdone: function (e, data) { // Called after uploading each chunk
-                if (form_data.length < 2) {
-                  form_data.push(
-                    {"name": "upload_id", "value": data.result.upload_id}
-                  );
-                }
-                 var progress = parseInt(data.loaded / data.total * 100.0, 10);
-                div_process.text(  progress + "%");
-              }
-            }).bind('fileuploaddone', function (e, data) {
-                $parentdiv.find('input[name="'+input_token+'"]').val(data.result.upload_id);
-                $.ajax({
-                      type: "POST",
-                      url: url_done,
-                      data: {
-                        csrfmiddlewaretoken: csrf,
-                        upload_id: data.result.upload_id,
-                        md5: md5
-                      },
-                      dataType: "json",
-                      success: function(data) {
-                        div_process.html(' <i class="fa fa-check"></i>');
-                      }
-                });
-            });
-        });
+                                    parent.div_message.empty();
+                                    // If this is the second file you're uploading we need to remove the
+                                    // old upload_id and just keep the csrftoken (which is always first).
+                                    form_data.splice(1);
+                                    calculate_md5(data.files[0], 100000);  // Again, chunks of 100 kB
+                                    data.paramName='file';
+                                    data.submit();
+                                    parent.uploadfilecontent.hide();
+                                    parent.div_message.show();
+                                    parent.div_message.html(data.files[0].name);
+                                  },
+                                  chunkdone: function (e, data) { // Called after uploading each chunk
+                                    if (form_data.length < 2) {
+                                      form_data.push(
+                                        {"name": "upload_id", "value": data.result.upload_id}
+                                      );
+                                    }
+                                     var progress = parseInt(data.loaded / data.total * 100.0, 10);
+                                    parent.div_process.text(  progress + "%");
+                                  }
+                                }).bind('fileuploaddone', function (e, data) {
+                                        parent.input_field.val(JSON.stringify(
+                                        {'token': data.result.upload_id,
+                                        'display_name': data.files[0].name }));
+                                        parent.input_field.trigger('change');
+                                        $.ajax({
+                                              type: "POST",
+                                              url: parent.url_done,
+                                              data: {
+                                                csrfmiddlewaretoken: csrf,
+                                                upload_id: data.result.upload_id,
+                                                md5: md5
+                                              },
+                                              dataType: "json",
+                                              success: function(data) {
+                                                parent.div_process.html(' <i class="fa fa-check"></i>');
+                                              }
+                                        });
+                                   }).bind('fileuploadchunkfail', function (e, data) {
+                                   parent.resetEmpty();
+                                   Swal.fire(
+                                            gettext('Problem in the Internet?'),
+                                            data.errorThrown,
+                                            'error'
+                                            );
+                                   });
+                       },
+                    resetEmpty: function(){
+                        this.div_message.html("");
+                        this.div_message.hide();
+                        this.div_download.hide();
+                        this.div_remove.hide();
+                        this.uploadfilecontent.show();
+                    },
+                    addRemote: function(item){
+                        this.input_field.val(JSON.stringify(item));
+                        this.input_field.trigger('change');
+                    }
+                };
+                obj.init();
+            $this.data('fileUploadWidget', obj);
+
+ });
 }
+
 
 function extract_select2_context(context, instance){
     let data=instance.data();
@@ -595,24 +699,284 @@ $.fn.select2related = function(action, relatedobjs=[]) {
 
 })(jQuery)
 
-function gtforms(index,manager, formList, extra=true)  {
+function convertFileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onload = () => {
+            const base64String = reader.result.split(',')[1];
+            resolve(base64String);
+        };
+
+        reader.onerror = (error) => {
+            reject(error);
+        };
+
+        reader.readAsDataURL(file);
+    });
+}
+
+async function obtainFormAsJSON(form, prefix = '', extras = {}, format = true) {
+    const fields = form.elements;
+    const formData = {};
+    // typeof variable === 'function'
+    for (let key in extras) {
+        if (typeof extras[key] === 'function') {
+            formData[key] = extras[key](form, key, prefix);
+        } else {
+            formData[key] = extras[key];
+        }
+    }
+
+    for (let i = 0; i < fields.length; i++) {
+        const field = fields[i];
+
+        if (field.type !== 'submit' && field.type !== 'button') {
+            const fieldName = field.name.replace(prefix, '');
+            if (field.type === 'textarea') {
+                formData[fieldName] = $(field).val();
+            } else if (field.type === 'checkbox') {
+                formData[fieldName] = field.checked;
+            } else if (field.type === 'radio') {
+                if (field.checked) {
+                    formData[fieldName] = $(field).val();
+                }
+            } else if (field.type === 'file') {
+                const files = Array.from(field.files);
+                const filesBase64 = [];
+
+                for (let j = 0; j < files.length; j++) {
+                    const file = files[j];
+                    try {
+                        const base64String = await convertFileToBase64(file);
+                        filesBase64.push({name: file.name, value: base64String});
+                    } catch (error) {
+                        console.error('Error converting file:', error);
+                    }
+                }
+
+                formData[fieldName] = filesBase64;
+            } else if (field.multiple) {
+                const selectedOptions = Array.from(field.selectedOptions);
+                const selectedValues = selectedOptions.map((option) => option.value);
+                formData[fieldName] = selectedValues;
+            } else {
+                formData[fieldName] = field.value;
+            }
+        }
+    }
+
+    if (format) {
+        return JSON.stringify(formData);
+    }
+
+    return formData;
+}
+
+function convertToStringJson(form, prefix = "", extras = {}, format = true) {
+    return obtainFormAsJSON(form[0], prefix, extras, format);
+}
+
+function load_errors(error_list, obj, parentdiv) {
+    ul_obj = "<ul class='errorlist form_errors d-flex justify-content-center'>";
+    error_list.forEach((item) => {
+        ul_obj += "<li>" + item + "</li>";
+    });
+    ul_obj += "</ul>"
+    $(obj).parents(parentdiv).prepend(ul_obj);
+    return ul_obj;
+}
+
+function form_field_errors(target_form, form_errors, prefix, parentdiv) {
+    var item = "";
+    for (const [key, value] of Object.entries(form_errors)) {
+        item = " #id_" + prefix + key;
+        if (target_form.find(item).length > 0) {
+            load_errors(form_errors[key], item, parentdiv);
+        }
+    }
+}
+
+function response_manage_type_data(instance, err_json_fn, error_text_fn) {
+    return function (response) {
+        const contentType = response.headers.get("content-type");
+        if (response.ok) {
+            if (contentType && contentType.indexOf("application/json") !== -1) {
+                return response.json();
+            } else {
+                return response.text();
+            }
+        } else {
+            if (contentType && contentType.indexOf("application/json") !== -1) {
+                response.json().then(data => err_json_fn(instance, data));
+            } else {
+                response.text().then(data => error_text_fn(instance, data));
+            }
+            return Promise.resolve(false);
+        }
+
+        return Promise.reject(response);  // then it will go to the catch if it is an error code
+    }
+}
+
+function clear_action_form(form) {
+    // clear switchery before the form reset so the check status doesn't get changed before the validation
+    $(form).find("input[data-switchery=true]").each(function () {
+        if ($(this).prop("checked")) {  // only reset it if it is checked
+            $(this).trigger("click").prop("checked", false);
+        }
+    });
+    $(form).find('[data-widget="TaggingInput"],[data-widget="EmailTaggingInput"]').each(function (i, e) {
+        var tg = $(e).data().tagify;
+        tg.removeAllTags();
+    });
+    $(form).find('[data-widget="FileChunkedUpload"],[data-widget="FileInput"]').each(function (i, e) {
+        var tg = $(e).data().fileUploadWidget;
+        tg.resetEmpty();
+    });
+    $(form).trigger('reset');
+    $(form).find("select option:selected").prop("selected", false);
+    $(form).find("select").val(null).trigger('change');
+    $(form).find("ul.form_errors").remove();
+    $(form).find(".file-link").remove();
+}
+
+var gt_form_modals = {}
+var gt_detail_modals = {}
+var gt_crud_objs = {};
+
+function updateInstanceValuesForm(form, name, value) {
+    var item = form.find(
+        'input[name="' + name + '"], ' +
+        'textarea[name="' + name + '"], ' +
+        'select[name="' + name + '"]'
+    );
+    item.each(function (i, inputfield) {
+        let done = false;
+        inputfield = $(inputfield);
+
+        if (inputfield.attr('class') === "chunkedvalue") {
+            if (value) {
+                var chunked = form.find('input[name="' + name + '_widget"]').data('fileUploadWidget');
+                chunked.addRemote(value);
+            }
+            done = true;
+        } else if (inputfield.attr('type') === 'file') {
+            if (value) {
+                var newlink = document.createElement('a');
+                newlink.href = value.url;
+                newlink.textContent = value.name;
+                newlink.target = "_blank";
+                newlink.classList.add("link-primary");
+                newlink.classList.add("file-link");
+                newlink.classList.add("d-block");
+                inputfield.before(newlink)
+            }
+            done = true;
+        } else if (inputfield.attr('type') === "checkbox") {
+            if (inputfield.data().widget === "YesNoInput") {
+                inputfield.prop("checked", !value);
+                inputfield.trigger("click");
+                done = true;
+            } else {
+                inputfield.prop("checked", value);
+            }
+            done = true;
+        } else if (inputfield.attr('type') === "radio") {
+            var is_icheck = inputfield.closest('.gtradio').length > 0;
+            var sel = inputfield.filter(function () {
+                return this.value === value.toString()
+            });
+            if (sel.length > 0) {
+                sel.prop("checked", true);
+                if (is_icheck) {
+                    sel.iCheck('update');
+                    sel.iCheck('check');
+                }
+
+            } else {
+                inputfield.prop("checked", false);
+                if (is_icheck) {
+                    inputfield.iCheck('update');
+                    inputfield.iCheck('uncheck');
+                }
+            }
+            done = true;
+        }
+        if (inputfield.data().widget === "EditorTinymce" || inputfield.data().widget === "TextareaWysiwyg") {
+            tinymce.get(inputfield.attr('id')).setContent(value);
+            done = true;
+        }
+        if (inputfield.data().widget === "TaggingInput" || inputfield.data().widget === "EmailTaggingInput") {
+            var tagifyelement = inputfield.data().tagify;
+            tagifyelement.removeAllTags();
+            tagifyelement.loadOriginalValues(value);
+            done = true;
+        }
+
+
+        // New code for testing  (*** start ***)
+        // data loading in select, autocompleteselect, autocompletemultiselect
+        else if (inputfield.is('select') && inputfield.data().widget === "Select") {
+            inputfield.val(value).trigger('change');
+            done = true;
+        } else if (inputfield.is('select') && inputfield.data().widget === "AutocompleteSelect") {
+            let data = value;
+
+            if (data) {
+                let newOption = new Option(data.text, data.id, true, true);
+                inputfield.append(newOption).trigger('change');
+            }
+
+            done = true;
+        } else if (inputfield.is('select') && inputfield.data().widget === "AutocompleteSelectMultiple") {
+
+            if (Array.isArray(value)) {
+                value.forEach(item => {
+                    let newOption = new Option(item.text, item.id, true, true);
+                    inputfield.append(newOption);
+                });
+                inputfield.trigger('change');
+            }
+            done = true;
+        }
+        // New code for testing  (*** end ***)
+
+        if (!done) {
+            inputfield.val(value);
+        }
+    });
+}
+
+function updateInstanceForm(form, data) {
+    for (let key in data) {
+        if (data.hasOwnProperty(key)) {
+            updateInstanceValuesForm(form, key, data[key])
+        }
+    }
+}
+
+
+function gtforms(index, manager, formList, extra = true) {
     return {
         index: index,
         order: index,
+        deleted: false,
         manager: manager,
         formList: formList,
         extra: extra,
         instance: null,
-        deleteForm: function(){
-          if( !this.manager.validateDeleteForm()) {
-            this.manager.notify('error', 'You can not delete this form, minimum form validation failed' )
-            return;
-          }
+        deleteForm: function () {
+            if (!this.manager.validateDeleteForm()) {
+                this.manager.notify('error', 'You can not delete this form, minimum form validation failed')
+                return;
+            }
+            this.deleted = true;
             this.instance.hide();
-            this.instance.find('input[name="'+this.manager.prefix+'-'+this.index+'-DELETE"]').prop( "checked", true );
+            this.instance.find('input[name="' + this.manager.prefix + '-' + this.index + '-DELETE"]').prop("checked", true);
             this.manager.deleteForm(this.order);
         },
-        render: function(){
+        render: function () {
             var html = this.manager.template.replace(/__prefix__/gi, this.index);
             this.instance = $(html);
             formList.append(this.instance);
@@ -620,37 +984,42 @@ function gtforms(index,manager, formList, extra=true)  {
             this.registerBtns();
 
         },
-        reorder: function(oper){
-            var brother = this.manager.getForm(this.order+oper);
-            this.manager.switchFrom(this.order, this.order+oper);
-            if(brother != null){
-                if(oper == 1 ){
+        reorder: function (oper) {
+            var brother = this.manager.getForm(this.order + oper);
+            this.manager.switchFrom(this.order, this.order + oper);
+            if (brother != null) {
+                if (oper == 1) {
                     this.instance.before(brother.instance);
-                }else{
+                } else {
                     brother.instance.before(this.instance);
                 }
             }
         },
-        registerBtns: function(){
+        registerBtns: function () {
             this.instance.find('.deletebtn').on('click', this.callDelete(this));
             // down increment order and up decrement order when forms are inserted in bottom
             this.instance.find('.btndown').on('click', this.callReorder(this, 1));
             this.instance.find('.btnup').on('click', this.callReorder(this, -1));
         },
-        callDelete: function(instance){
-            return () => { instance.deleteForm() };
+        callDelete: function (instance) {
+            return () => {
+                instance.deleteForm()
+            };
         },
-        initializeWidgets: function(instance){
+        initializeWidgets: function (instance) {
             gt_find_initialize(instance);
         },
-        callReorder: function(instance, oper){
-            return () => { instance.reorder(oper) }
+        callReorder: function (instance, oper) {
+            return () => {
+                instance.reorder(oper)
+            }
         },
-        updateOrder: function(){
-            this.instance.find('input[name="'+this.manager.prefix+'-'+this.index+'-ORDER"]').val(this.order);
+        updateOrder: function () {
+            this.instance.find('input[name="' + this.manager.prefix + '-' + this.index + '-ORDER"]').val(this.order);
         }
     }
 }
+
 function gtformSetManager(instance) {
     var obj = {
         index: 0,
@@ -667,49 +1036,61 @@ function gtformSetManager(instance) {
         formList: instance.find('.formlist'),
         template: '',
         prefix: 'form-',
-        initialize: function(){
-         this.template = this.formsetControl.find(".formsettemplate").contents()[0].data;
-         this.prefix = this.formsetControl.data('prefix');
-         this.validateMax = this.formsetControl.data('validate-max') == '1';
-         this.validateMin = this.formsetControl.data('validate-min') == '1';
-         this.loadManagementForm();
-         this.instance.find('.formsetadd').on('click', this.addBtnForm(this));
-         this.addFormDom();
+        initialize: function () {
+            this.template = this.formsetControl.find(".formsettemplate").contents()[0].data;
+            this.prefix = this.formsetControl.data('prefix');
+            this.validateMax = this.formsetControl.data('validate-max') == '1';
+            this.validateMin = this.formsetControl.data('validate-min') == '1';
+            this.loadManagementForm();
+            this.instance.find('.formsetadd').on('click', this.addBtnForm(this));
+            this.addFormDom();
         },
-        addBtnForm: function(instance){
-            return () => { instance.addEmtpyForm()  };
+        addBtnForm: function (instance) {
+            return (e) => {
+                instance.addEmtpyForm(e)
+            };
         },
-        addEmtpyForm: function(){
-            if(this.validateAddForm()){
+        addEmtpyForm: function (e) {
+            if (this.validateAddForm()) {
+                this.activeForms += 1;
                 var form = gtforms(this.index, this, this.formList);
                 form.render();
                 this.forms.push(form);
+                this.addForm(this, form, true, e);
                 this.index += 1;
                 this.updateTotalForms(+1);
-            }else{
+            } else {
                 this.notify('error', 'You cannot add new form, limit is exceded')
             }
         },
-        addForm: function(object){},
-        addFormDom: function(){
-            this.formList.children().each((i, element) =>{
-                 var form = gtforms(this.index, this, this.formList, extra=false);
-                 form.instance = $(element);
-                 form.registerBtns();
-                 this.forms.push(form);
-                 this.index += 1;
+        addForm: function (parent, object, isempty, event) {
+        },
+        addFormDom: function () {
+            this.formList.children().each((i, element) => {
+                this.activeForms += 1;
+                var form = gtforms(this.index, this, this.formList, extra = false);
+                form.instance = $(element);
+                form.registerBtns();
+                this.forms.push(form);
+                this.addForm(this, form, false, null);
+                this.index += 1;
             });
         },
-        deleteForm: function(index){
-            if( !this.validateDeleteForm()) return;
-            if(index>=0 && index < this.forms.length){
-                if(this.forms[index].extra){
+        delForm: function (parent, index, form) {
+        },
+        deleteForm: function (index) {
+            if (!this.validateDeleteForm()) return;
+            this.activeForms = Math.max(0, this.activeForms - 1);
+
+            if (index >= 0 && index < this.forms.length) {
+                this.delForm(this, index, this.forms[index]);
+                if (this.forms[index].extra) {
                     this.forms.splice(index, 1);
                     this.updateTotalForms(-1);
-                    if(index == this.forms.length){
+                    if (index == this.forms.length) {
                         this.index -= 1;
-                    }else{
-                        for(var x=0; x<this.forms.length; x++){
+                    } else {
+                        for (var x = 0; x < this.forms.length; x++) {
                             this.forms[x].order = x;
                             this.forms[x].updateOrder();
                         }
@@ -718,40 +1099,40 @@ function gtformSetManager(instance) {
 
             }
         },
-        validateAddForm: function(){
-            if(!this.validateMax) return true;
+        validateAddForm: function () {
+            if (!this.validateMax) return true;
             return this.MAX_NUM_FORMS == -1 || this.TOTAL_FORMS < this.MAX_NUM_FORMS;
         },
-        validateDeleteForm: function(){
-            if(!this.validateMin) return true;
+        validateDeleteForm: function () {
+            if (!this.validateMin) return true;
             return this.MIN_NUM_FORMS == -1 || this.TOTAL_FORMS > this.MIN_NUM_FORMS;
         },
-        loadManagementForm: function(){
-            this.TOTAL_FORMS = parseInt(this.formsetControl.find('input[name="'+this.prefix+'-TOTAL_FORMS"]').val());
-            this.INITIAL_FORMS = parseInt(this.formsetControl.find('input[name="'+this.prefix+'-INITIAL_FORMS"]').val());
-            this.MIN_NUM_FORMS = parseInt(this.formsetControl.find('input[name="'+this.prefix+'-MIN_NUM_FORMS"]').val());
-            this.MAX_NUM_FORMS = parseInt(this.formsetControl.find('input[name="'+this.prefix+'-MAX_NUM_FORMS"]').val());
+        loadManagementForm: function () {
+            this.TOTAL_FORMS = parseInt(this.formsetControl.find('input[name="' + this.prefix + '-TOTAL_FORMS"]').val());
+            this.INITIAL_FORMS = parseInt(this.formsetControl.find('input[name="' + this.prefix + '-INITIAL_FORMS"]').val());
+            this.MIN_NUM_FORMS = parseInt(this.formsetControl.find('input[name="' + this.prefix + '-MIN_NUM_FORMS"]').val());
+            this.MAX_NUM_FORMS = parseInt(this.formsetControl.find('input[name="' + this.prefix + '-MAX_NUM_FORMS"]').val());
         },
-        updateManagementForm: function(){
-            this.formsetControl.find('input[name="'+this.prefix+'-TOTAL_FORMS"]').val(this.TOTAL_FORMS);
-            this.formsetControl.find('input[name="'+this.prefix+'-INITIAL_FORMS"]').val(this.INITIAL_FORMS);
-            this.formsetControl.find('input[name="'+this.prefix+'-MIN_NUM_FORMS"]').val(this.MIN_NUM_FORMS);
-            this.formsetControl.find('input[name="'+this.prefix+'-MAX_NUM_FORMS"]').val(this.MAX_NUM_FORMS);
+        updateManagementForm: function () {
+            this.formsetControl.find('input[name="' + this.prefix + '-TOTAL_FORMS"]').val(this.TOTAL_FORMS);
+            this.formsetControl.find('input[name="' + this.prefix + '-INITIAL_FORMS"]').val(this.INITIAL_FORMS);
+            this.formsetControl.find('input[name="' + this.prefix + '-MIN_NUM_FORMS"]').val(this.MIN_NUM_FORMS);
+            this.formsetControl.find('input[name="' + this.prefix + '-MAX_NUM_FORMS"]').val(this.MAX_NUM_FORMS);
         },
-        updateTotalForms: function(oper){
-            this.TOTAL_FORMS = this.TOTAL_FORMS+oper;
-            this.formsetControl.find('input[name="'+this.prefix+'-TOTAL_FORMS"]').val(this.TOTAL_FORMS);
+        updateTotalForms: function (oper) {
+            this.TOTAL_FORMS = this.TOTAL_FORMS + oper;
+            this.formsetControl.find('input[name="' + this.prefix + '-TOTAL_FORMS"]').val(this.TOTAL_FORMS);
         },
-        getForm: function(index){
-            if(index>=0 && index < this.forms.length){
+        getForm: function (index) {
+            if (index >= 0 && index < this.forms.length) {
                 return this.forms[index];
             }
             return null;
         },
-        switchFrom: function(fref, fswap){
+        switchFrom: function (fref, fswap) {
             var freform = this.getForm(fref);
             var fswapform = this.getForm(fswap);
-            if(freform != null && fswapform != null){
+            if (freform != null && fswapform != null) {
                 var tmporder = freform.order;
                 freform.order = fswapform.order;
                 fswapform.order = tmporder;
@@ -763,23 +1144,23 @@ function gtformSetManager(instance) {
             }
 
         },
-        redrawOrdering: function(){
-            for(var x=0; x<this.forms.length; x++){
-                 this.formList.append(this.forms[x].instance);
+        redrawOrdering: function () {
+            for (var x = 0; x < this.forms.length; x++) {
+                this.formList.append(this.forms[x].instance);
             }
         },
-        notify: function(type, text){
+        notify: function (type, text) {
             console.log(text);
         },
-        clean: function(){
-            while(this.forms.length>0){
+        clean: function () {
+            while (this.forms.length > 0) {
                 var f = this.forms.pop();
                 f.instance.remove();
             }
-            this.TOTAL_FORMS=0;
-            this.INITIAL_FORMS=0;
-            this.TOTAL_FORMS=0;
-            this.index=0;
+            this.TOTAL_FORMS = 0;
+            this.INITIAL_FORMS = 0;
+            this.TOTAL_FORMS = 0;
+            this.index = 0;
             this.updateManagementForm();
         }
     }
@@ -1254,7 +1635,6 @@ function grid_slider(instance) {
         'onChange': function (data) {
             $("input[name=" + obj.attr('data-target-from') + "]").val(data.from);
             $("input[name=" + obj.attr('data-target-to') + "]").val(data.to);
-            console.log(obj.attr('data-target-to'));
         }
     }
     return option;
@@ -1307,7 +1687,7 @@ function date_grid_slider(instance) {
         });
     }
 
-    instance.ionRangeSlider({
+    return instance.ionRangeSlider({
         type: "single",
         hide_min_max: false,
         min: dateToTS(new Date(obj.attr('data_min'))),
@@ -1865,5 +2245,189 @@ function getMediaRecord(element, mediatype){
     if(mediatype === "audio"){
         return getAudioRecord(element)
     }
+}
+
+
+class CardList {
+  constructor(containerId, apiUrl, actions={}) {
+    this.container = document.getElementById(containerId);
+    this.apiUrl = apiUrl;
+    this.page = 1;
+    this.data=null;
+    this.page_size = 10;
+    this.totalPages = 1;
+    this.recordsTotal = 0;
+    this.template = '';
+    this.filters = {};
+    this.actions=actions;
+    this.fetchData();
+
+  }
+
+  async fetchData() {
+    try {
+        const queryParams = new URLSearchParams({
+            page: this.page,
+            page_size: this.page_size,
+            ...(this.filters || {}),
+        }).toString();
+
+        const url = `${this.apiUrl}?${queryParams}`;
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+
+        const data = await response.json();
+        this.template =  data.template || this.template;
+        this.totalPages = data.totalPages || 1;
+        this.recordsTotal = data.recordsTotal || 0;
+        this.process_data(data);
+        this.render(data);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+  }
+
+  process_data(data){
+    this.data={};
+    data.data.forEach(item => {
+            this.data[item.id]=item;
+    })
+  }
+
+  render(data) {
+    if (!this.template) {
+      console.error("No template found!");
+      return;
+    }
+    this.container.innerHTML = Sqrl.render(this.template, data,  Sqrl.getConfig({ tags: ["<%", "%>"] }));
+    gt_find_initialize_from_dom(this.container);
+    this.doPagination();
+    this.dofiltering();
+    this.doPageSizeOptions();
+    this.doObjActions()
+  }
+
+  async getFilters(){
+    const form = this.container.querySelectorAll('.filter_form');
+
+    const result = await convertToStringJson(form);
+    this.filters = JSON.parse(result);
+    this.fetchData();
+  }
+  dofiltering(){
+  /**
+    const forminput = this.container.querySelectorAll('.filter_form input, .filter_form select');
+    const parent=this;
+    forminput.forEach(input => {
+            input.onchange=function(event){
+                parent.getFilters();
+            }
+       });
+   **/
+  }
+  doPageSizeOptions(){
+    const formselect = this.container.querySelectorAll('.page_size_select');
+    const parent=this;
+    parent.page_size=parseInt(formselect[0].value);
+    formselect.forEach(input => {
+            input.onchange=function(event){
+                parent.page_size=event.target.value
+                parent.getFilters();
+            }
+       });
+
+  }
+  doPagination(){
+    const alink = this.container.querySelectorAll('.pagination a');
+    const parent=this;
+    alink.forEach(link => {
+         link.onclick = function(event) {
+         parent.page=event.target.dataset.page;
+         parent.fetchData();
+         }
+    });
+  }
+  doObjActions(){
+    const actions = this.container.querySelectorAll('.obj_action');
+    const parent=this;
+    actions.forEach(action => {
+         action.onclick = function(event) {
+            event.preventDefault();
+            var pk = action.dataset.instance;
+            var name = action.dataset.action;
+            if (typeof parent.actions[name] === 'function') {
+                parent.actions[name](pk, parent.data[pk]);
+            }
+         }
+    })
+    const generalactions = this.container.querySelectorAll('.general_action');
+    generalactions.forEach(action => {
+         action.onclick = function(event) {
+            event.preventDefault();
+            var name = action.dataset.action;
+            if (typeof parent.actions[name] === 'function') {
+                parent.actions[name]();
+            }else{
+                 if (typeof parent[name] === 'function') parent[name]();
+            }
+         }
+    })
+  }
+  search(){
+     this.getFilters();
+  }
+  clean(){
+    const form = this.container.querySelectorAll('.filter_form');
+    clear_action_form(form);
+    this.container.querySelectorAll('.filter_form input').forEach(i=>{i.value="";});
+    this.getFilters();
+  }
+}
+
+
+function build_tagginginput(instances){
+    instances.each(function(index, element){
+         let tagify = new Tagify(element, {});
+         //element.dataset.tagify = JSON.stringify(tagify);
+    });
+}
+function build_tagging_email(instances){
+    instances.each(function(index, element){
+        let p = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        let tagify = new Tagify(element, {
+            pattern: p
+        });
+    });
+}
+
+function build_remote_tagify_email(inputs){
+    inputs.each(function(index, element){
+       let url = element.dataset['url'];
+
+       let tagify = new Tagify(element, {whitelist:[],
+        pattern: /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})*$/,
+         dropdown: {
+            searchKeys: ["value", "name"] //  fuzzy-search matching for those whitelist items' properties
+         }
+       }),
+        controller;
+
+        function onInput( e ){
+            var value = e.detail.value
+              tagify.whitelist = null // reset the whitelist
+              // https://developer.mozilla.org/en-US/docs/Web/API/AbortController/abort
+              controller && controller.abort()
+              controller = new AbortController()
+              // show loading animation and hide the suggestions dropdown
+              tagify.loading(true);
+            fetch(url+'?value=' + value, {signal:controller.signal})
+                .then(RES => RES.json())
+                .then(function(newWhitelist){
+                  tagify.whitelist = newWhitelist // update whitelist Array in-place
+                  tagify.loading(false); // render the suggestions dropdown
+            })
+        }
+        tagify.on('input', onInput)
+    })
 }
 

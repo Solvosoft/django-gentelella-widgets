@@ -9,17 +9,19 @@ from demoapp.views import person_reltable_view
 from . import api
 from .autocomplete import views as autocompleteviews
 from .calendar.views import calendar_view
+from .cardlist.views import cardListViewExample
+from .cardlist.viewsets import PersonCardListViewSet
 from .chartjs import chart_js_view
 from .datatables.api import PersonViewSet
 from .datatables.views import datatableViewExample
 from .date_range import views as date_ranges
-from .filechunckedupload import views as chunckedupload
+from .filechunkedupload import views as chunkedupload
 from .formset import add_formset, add_model_formset
 from .grid_slider import views as grid
 from .input_masks import views as input_mask
 from .media_upload.views import mediaupload_view
-from .object_management.views import person_object_management
-from .object_management.viewset import PersonObjectMangement
+from .object_management.views import object_management
+from .object_management.viewset import ObjectManagerDemoModelManagement
 from .storyLine.views import storyline_view
 from .storymap.views import gigapixel_view, mapbased_view
 from .tagging import views as tagging
@@ -33,13 +35,13 @@ menuclss = MenuItemclass()
 
 router = DefaultRouter()
 router.register('persontableview', PersonViewSet, 'api-persontable')
-router.register('personobjectmanagement', PersonObjectMangement,
-                'api-personobjectmanagement')
+router.register('personlistcardview', PersonCardListViewSet, 'api-personcard')
+router.register('objectmanagement', ObjectManagerDemoModelManagement,
+                'api-objectmanagement')
 
 urlpatterns = [
-
-                  path('person_object_management', person_object_management,
-                       name='person_object_management'),
+                  path('object_management', object_management,
+                       name='object_management_index'),
                   path('bt_modal_display', bt_modal_display, name='bt_modal_display'),
                   path('formset', add_formset, name='add_formset'),
                   path('modelformset', add_model_formset, name='add_model_formset'),
@@ -94,12 +96,12 @@ urlpatterns = [
                        name='grid-slider-list'),
                   path('gridslider/<int:pk>', grid.UpdateGrid.as_view(),
                        name='grid-slider-edit'),
-                  path('chunkedupload/', chunckedupload.Addchunkedupload.as_view(),
+                  path('chunkedupload/', chunkedupload.Addchunkedupload.as_view(),
                        name='chunkeduploaditem-add'),
-                  path('chunkedupload/list', chunckedupload.Listchunkedupload.as_view(),
+                  path('chunkedupload/list', chunkedupload.Listchunkedupload.as_view(),
                        name='chunkeduploaditem-list'),
                   path('chunkedupload/<int:pk>',
-                       chunckedupload.Updatechunkedupload.as_view(),
+                       chunkedupload.Updatechunkedupload.as_view(),
                        name='chunkeduploaditem-edit'),
                   path('calendar_view', calendar_view, name="calendar_view"),
                   path('gigapixel_view', gigapixel_view, name="gigapixel_view"),
@@ -107,6 +109,8 @@ urlpatterns = [
                   path('storyline_view', storyline_view, name="storyline_view"),
                   path('timeline_view', timeline_view, name="timeline_view"),
                   path('datatable_view', datatableViewExample, name="datatable_view"),
+                  # CardTable
+                  path('cardlist_view', cardListViewExample, name="cardlist_view"),
                   path('mediarecord_upload', mediaupload_view, name="mediaupload_view"),
                   path('tableapi/', include(router.urls)),
               ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()

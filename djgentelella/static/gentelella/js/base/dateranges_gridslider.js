@@ -104,7 +104,6 @@ function grid_slider(instance) {
         'onChange': function (data) {
             $("input[name=" + obj.attr('data-target-from') + "]").val(data.from);
             $("input[name=" + obj.attr('data-target-to') + "]").val(data.to);
-            console.log(obj.attr('data-target-to'));
         }
     }
     return option;
@@ -157,7 +156,7 @@ function date_grid_slider(instance) {
         });
     }
 
-    instance.ionRangeSlider({
+    return instance.ionRangeSlider({
         type: "single",
         hide_min_max: false,
         min: dateToTS(new Date(obj.attr('data_min'))),

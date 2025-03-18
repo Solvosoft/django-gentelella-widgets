@@ -11,6 +11,10 @@ help:
 	@echo "docs - generate Sphinx HTML documentation, including API docs"
 	@echo "release - package and upload a release"
 	@echo "sdist - package"
+	@echo "fuzzysdist - package"
+	@echo "messages - load translations"
+	@echo "trans - compile translations"
+	@echo "start_sign - start sign server"
 
 clean: clean-build clean-pyc
 
@@ -40,7 +44,7 @@ docs:
 	sphinx-build -b html ./docs/source docs/build/
 
 
-release: sdist
+release:
 	git tag -a "v`python setup.py --version`" -m "Bump version `python setup.py --version`"
 	git push origin "v`python setup.py --version`"
 	twine upload -s dist/*
@@ -55,4 +59,20 @@ sdist: clean
 fuzzysdist:
 	cd demo && python manage.py makemigrations && python manage.py loaddevstatic && python manage.py createbasejs
 	cd djgentelella && django-admin compilemessages -l es
+	python -m pylp
 	python3 -m build
+
+messages:
+	cd djgentelella && python ../demo/manage.py makemessages --all --no-location --no-obsolete && django-admin makemessages -d djangojs -l es  --ignore *.min.js --no-location --no-obsolete
+
+trans:
+	cd djgentelella && django-admin compilemessages --locale es
+
+
+init_demo:
+	cd demo && \
+	rm db.sqlite3 && \
+	python manage.py migrate && \
+	python manage.py createdemo && \
+	python manage.py demomenu && \
+	python manage.py createsuperuser

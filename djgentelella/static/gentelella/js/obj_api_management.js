@@ -1,101 +1,10 @@
-function convertFormToJSON(form, prefix="") {
-  const re = new RegExp("^"+prefix);
-  var selectmultipleitems = [];
-  form.find("select").each(function(i,e){
-        if($(e).prop('multiple')){
-            selectmultipleitems.push(e.name.replace(re, ""));
-        }
-  });
-
-  return form
-    .serializeArray()
-    .reduce(function (json, { name, value }) {
-      let clean_name = name.replace(re, "");
-      if(json.hasOwnProperty(clean_name)){
-         if(Array.isArray(json[clean_name])){
-            json[clean_name].push(value);
-         }else{
-            let oldvalue = json[clean_name];
-            json[clean_name]=[];
-            json[clean_name].push(oldvalue);
-         }
-      }else{
-         if(selectmultipleitems.indexOf(clean_name) !== -1){
-            json[clean_name] = [value];
-         }else{
-            json[clean_name] = value;
-         }
-      }
-      return json;
-    }, {});
-}
-
-function convertToStringJson(form, prefix="", extras={}){
-    var formjson =convertFormToJSON(form, prefix=prefix);
-    formjson=Object.assign({}, formjson, extras)
-    return JSON.stringify(formjson);
-}
-
-function load_errors(error_list, obj){
-    ul_obj = "<ul class='errorlist form_errors d-flex justify-content-center'>";
-    error_list.forEach((item)=>{
-        ul_obj += "<li>"+item+"</li>";
+function get_selected_items(dt, table){
+    let values = [];
+    $(table).find(".gtcheckable:checked").each(function() {
+        values.push(this.value);
     });
-    ul_obj += "</ul>"
-    $(obj).parents('.form-group').prepend(ul_obj);
-    return ul_obj;
+    return values;
 }
-
-function form_field_errors(target_form, form_errors, prefix){
-    var item = "";
-    for (const [key, value] of Object.entries(form_errors)) {
-        item = " #id_" +prefix+key;
-        if(target_form.find(item).length > 0){
-            load_errors(form_errors[key], item);
-        }
-    }
-}
-
-function response_manage_type_data(instance, err_json_fn, error_text_fn){
-    return function(response) {
-        const contentType = response.headers.get("content-type");
-        if(response.ok){
-             if (contentType && contentType.indexOf("application/json") !== -1) {
-                return response.json();
-            }else{
-                return response.text();
-            }
-        }else{
-            if (contentType && contentType.indexOf("application/json") !== -1) {
-                response.json().then(data => err_json_fn(instance, data));
-            }else{
-                response.text().then(data => error_text_fn(instance, data));
-            }
-            return Promise.resolve(false);
-        }
-
-        return Promise.reject(response);  // then it will go to the catch if it is an error code
-    }
-}
-
-function clear_action_form(form){
-    // clear switchery before the form reset so the check status doesn't get changed before the validation
-    $(form).find("input[data-switchery=true]").each(function() {
-        if($(this).prop("checked")){  // only reset it if it is checked
-            $(this).trigger("click").prop("checked", false);
-        }
-    });
-
-    $(form).trigger('reset');
-    $(form).find("select option:selected").prop("selected", false);
-    $(form).find("select").val(null).trigger('change');
-    $(form).find("ul.form_errors").remove();
-}
-
-var gt_form_modals = {}
-var gt_detail_modals = {}
-var gt_crud_objs = {};
-
 function  gt_show_actions(crud_name){
      return function(data, type, row, meta){
         var html="";
@@ -128,7 +37,8 @@ function GTBaseFormModal(modal_id, datatable_element,  form_config)  {
                    'error_form': function(errors){}
 
                   },
-        "relation_render": {}
+        "relation_render": {},
+        "parentdiv": ".gtformfield"
    }
 
 
@@ -144,23 +54,26 @@ function GTBaseFormModal(modal_id, datatable_element,  form_config)  {
         "prefix": prefix,
         "type": config.type,
         "btn_class": config.btn_class,
+        "parentdiv": config.parentdiv,
         "init": function(){
             var myModalEl = this.instance[0];
             myModalEl.addEventListener('hidden.bs.modal', this.hide_modalevent(this))
             this.instance.find(this.btn_class).on('click', this.add_btn_form(this));
-
+            $(this.form).on('submit', (e)=>{e.preventDefault();})
         },
         "add_btn_form": function(instance){
             return function(event){
-                fetch(instance.url, {
+            convertToStringJson(instance.form, prefix=instance.prefix,
+                            extras=instance.config.events.form_submit(instance)).then((result) => {
+               fetch(instance.url, {
                     method: instance.type,
-                    body: convertToStringJson(instance.form, prefix=instance.prefix,
-                            extras=instance.config.events.form_submit(instance)),
+                    body: result,
                     headers: {'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json'}
                     }
                     ).then(response_manage_type_data(instance, instance.error, instance.error_text))
                     .then(instance.fn_success(instance))
                     .catch(error => instance.handle_error(instance, error));
+            });
             }
         },
         "success": function(instance, data){
@@ -192,7 +105,7 @@ function GTBaseFormModal(modal_id, datatable_element,  form_config)  {
                 Swal.fire({ icon: 'error', title: gettext('Error'), text: errors.detail });
             }
             instance.form.find('ul.form_errors').remove();
-            form_field_errors(instance.form, errors, instance.prefix);
+            form_field_errors(instance.form, errors, instance.prefix, instance.parentdiv);
         },
         "handle_error": function(instance, error){
             Swal.fire({ icon: 'error', title: gettext('Error'), text: error.message });
@@ -223,7 +136,7 @@ function GTBaseFormModal(modal_id, datatable_element,  form_config)  {
              });
              // do select 2 items
              $.each(select2Items, function(i, e){
-                     var display_name_key = 'display_name';
+                     var display_name_key = 'text';
                      if(instance.relation_render.hasOwnProperty(e)){
                         display_name_key=instance.relation_render[e];
                      }
@@ -231,6 +144,7 @@ function GTBaseFormModal(modal_id, datatable_element,  form_config)  {
                       if(datainstance[e]){
                         if(Array.isArray(datainstance[e])){
                             for(var x=0; x<datainstance[e].length; x++){
+                                $('#id_'+instance.prefix+e+' option[value="'+datainstance[e][x]['id']+'"]').remove();
                                 var newOption = new Option(datainstance[e][x][display_name_key], datainstance[e][x]['id'], true, true);
                                 $('#id_'+instance.prefix+e).append(newOption);
                             }
@@ -248,21 +162,66 @@ function GTBaseFormModal(modal_id, datatable_element,  form_config)  {
         },
         "updateInstanceForm": function (name, value){
             var item = this.form.find('input[name="'+name+'"], textarea[name="'+name+'"]');
-
+            var parent=this;
             item.each(function(i, inputfield){
                 let done=false;
                 inputfield=$(inputfield);
-                if(inputfield.attr('type') === "checkbox" ){
-                    inputfield.prop( "checked", value);
+
+                if(inputfield.attr('class') === "chunkedvalue"){
+                    if(value){
+                         var chunked=parent.form.find('input[name="'+name+'_widget"]').data('fileUploadWidget');
+                         chunked.addRemote(value);
+                    }
+                    done=true;
+                } else if(inputfield.attr('type') === 'file'){
+                    if(value){
+                        var newlink = document.createElement('a');
+                        newlink.href = value.url;
+                        newlink.textContent = value.name;
+                        newlink.target = "_blank";
+                        newlink.classList.add("link-primary");
+                        newlink.classList.add("file-link");
+                        newlink.classList.add("d-block");
+                        inputfield.before(newlink)
+                    }
+                    done=true;
+                } else if(inputfield.attr('type') === "checkbox" ){
+                    if (inputfield.data().widget === "YesNoInput"){
+                        inputfield.prop( "checked", !value);
+                        inputfield.trigger("click");
+                        done=true;
+                    }else{
+                        inputfield.prop( "checked", value);
+                    }
                     done=true;
                 } else if(inputfield.attr('type') === "radio"){
-                    var sel = inputfield.filter(function() { return this.value == value });
-                    sel.prop( "checked", true);
+                    var is_icheck = inputfield.closest('.gtradio').length > 0;
+                    var sel = inputfield.filter(function() { return this.value === value.toString() });
+                    if(sel.length>0){
+                        sel.prop( "checked", true);
+                        if(is_icheck){
+                            sel.iCheck('update');
+                            sel.iCheck('check');
+                        }
+
+                    }else{
+                        inputfield.prop( "checked", false);
+                        if(is_icheck){
+                            inputfield.iCheck('update');
+                            inputfield.iCheck('uncheck');
+                        }
+                    }
                     done=true;
                 }
-                if (inputfield.data().widget === "EditorTinymce"){
+                if (inputfield.data().widget === "EditorTinymce" || inputfield.data().widget === "TextareaWysiwyg"){
                      tinymce.get(inputfield.attr('id')).setContent(value);
                      done=true;
+                }
+                if (inputfield.data().widget === "TaggingInput" || inputfield.data().widget === "EmailTaggingInput"){
+                    var tagifyelement=inputfield.data().tagify;
+                    tagifyelement.removeAllTags();
+                    tagifyelement.loadOriginalValues(value);
+                    done=true;
                 }
                 if(!done) { inputfield.val(value); }
             });
@@ -274,8 +233,8 @@ function GTBaseFormModal(modal_id, datatable_element,  form_config)  {
 
 function BaseDetailModal(modalid, base_detail_url, template_url, form_config={}){
     const default_config = {
-        "base_template": "{{it.display_text}}",
-        "title": "{{it.title}}",
+        "base_template": "<% it.display_text %>",
+        "title": "<% it.title %>",
         "template_max_tries": 1,
         "detail_max_tries": 1,
         "headers": {'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json'},
@@ -325,9 +284,10 @@ function BaseDetailModal(modalid, base_detail_url, template_url, form_config={})
             return function(data){
                  data = instance.config.events.update_detail_event(data);
                  instance.detail_tries=0;
-                 var result = Sqrl.render(instance.template,  data);
+
+                 var result = Sqrl.render(instance.template,  data, Sqrl.getConfig({ tags: ["<%", "%>"] }));
                  instance.modal.find(".modal-body").html(result);
-                 var result = Sqrl.render(instance.title,  data);
+                 var result = Sqrl.render(instance.title,  data, Sqrl.getConfig({ tags: ["<%", "%>"] }));
                  instance.modal.find(".modal-title").html(result);
                  instance.show();
             }
@@ -399,6 +359,7 @@ function ObjectCRUD(uniqueid, objconfig={}){
         uls: null,
         datatable_element: null,
         modal_ids: null,
+        checkable: false,
         events: {
              'update_data': function(data){ return data; }
         },
@@ -411,7 +372,8 @@ function ObjectCRUD(uniqueid, objconfig={}){
         relation_render: {},
         headers: {'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json'},
         btn_class: {
-            create: 'btn-sm mr-4'
+            create: 'btn-outline-success mr-4',
+            clear_filters: 'btn-outline-secondary mr-4'
         },
         icons: {
             create: '<i class="fa fa-plus" aria-hidden="true"></i>',
@@ -452,6 +414,7 @@ function ObjectCRUD(uniqueid, objconfig={}){
         "can_update": config.modal_ids.hasOwnProperty("update"),
         "use_get_values_for_update": config.urls.hasOwnProperty("get_values_for_update_url"),
         "create_btn_class": config.btn_class.create,
+        "checkable": config.checkable,
         "datatable": null,
         "create_form": null,
         "update_form": null,
@@ -527,7 +490,7 @@ function ObjectCRUD(uniqueid, objconfig={}){
                     action: this.create(this),
                     text: this.config.icons.create,
                     titleAttr: gettext('Create'),
-                    className: this.config.create
+                    className: this.config.btn_class.create
                 })
             }
             if(this.can_list){
@@ -535,7 +498,7 @@ function ObjectCRUD(uniqueid, objconfig={}){
                 action: function ( e, dt, node, config ) {clearDataTableFilters(dt, instance.config.datatable_element)},
                 text: this.config.icons.clear,
                 titleAttr: gettext('Clear Filters'),
-                className: this.header_btn_class
+                className: this.config.btn_class.clear_filters
              })
             }
             if(!config.datatable_inits.hasOwnProperty("buttons")){
@@ -546,6 +509,7 @@ function ObjectCRUD(uniqueid, objconfig={}){
                     {
                      'name': "detail",
                      'action': 'detail',
+                     'title': gettext('Detail'),
                      'url': null,
                      'i_class': this.config.icons.detail,
                     }
@@ -556,6 +520,7 @@ function ObjectCRUD(uniqueid, objconfig={}){
                     {
                      'name': "update",
                      'action': 'update',
+                     'title': gettext("Update"),
                      'url': null,
                      'i_class': this.config.icons.update,
                     }
@@ -566,6 +531,7 @@ function ObjectCRUD(uniqueid, objconfig={}){
                     {
                      'name': 'destroy',
                      'action': 'destroy',
+                     'title': gettext('Delete'),
                      'url': null,
                      'i_class': this.config.icons.destroy,
                     }
@@ -583,25 +549,49 @@ function ObjectCRUD(uniqueid, objconfig={}){
                     className: this.config.actions.className,
                     orderable: false,
                     render: function(data, type, full, meta){
-                        var edittext = '<div class="d-flex mt-1">';
+                            var edittext = '<div class="d-flex mt-1">';
+                            let do_action=true;
                             for(var x=0; x<instance.object_actions.length; x++){
                                let action = instance.object_actions[x];
                                let display_in_column = true;
-                              if('in_action_column' in action ){
-                                    display_in_column=action.in_action_column;
+                               do_action=true
+                               if(action.name in data ){
+                                    do_action=data[action.name];
+                               }
+                               if(do_action){
+                                  if('in_action_column' in action ){
+                                        display_in_column=action.in_action_column;
+                                  }
+                                  if(display_in_column){
+                                     let params = "'"+instance.uniqueid+"', '"+action.name+"', "+meta.row;
+                                     edittext += '<i onclick="javascript:call_obj_crud_event('+params+');"';
+                                     edittext += 'title="'+action.title+'"';
+                                     edittext += ' class="'+instance.object_actions[x].i_class+'" ></i>';
+                                  }
                               }
-                              if(display_in_column){
-                                 let params = "'"+instance.uniqueid+"', '"+action.name+"', "+meta.row;
-                                 edittext += '<i onclick="javascript:call_obj_crud_event('+params+');"';
-                                 edittext += ' class="'+instance.object_actions[x].i_class+'" ></i>';
-                              }
-
                             }
                         edittext += '</div>';
                         return edittext;
                      }
                 }
                 ]
+                if(this.checkable){
+                    config.datatable_inits['columnDefs'].push(
+                     {
+                        targets: 0,
+                        title: "Checkable",
+                        type: 'checkable',
+                        className: "no-export-col",
+                        orderable: false,
+                        render: function(data, type, full, meta){
+                            return '<input type="checkbox" class="gtcheckable" name="checkable" value="'+full.id+'" title="'+full.name+'"/>'
+                        }
+                    })
+
+                    config.datatable_inits.columns.unshift(
+                        {data: "id", name: "checkable", title: '<input type="checkbox" class="checkableall"> ', type: "checkable", visible: true}
+                    )
+                }
             }
          this.datatable = gtCreateDataTable(this.config.datatable_element, this.config.urls.list_url,
                                             this.config.datatable_inits);
@@ -663,7 +653,7 @@ function ObjectCRUD(uniqueid, objconfig={}){
                     }
                 ).then(response_manage_type_data(instance, error_fn, instance.error_text))
                 .then(instance.success(instance))
-                .catch(instance.error(instance));
+                .catch(error => instance.handle_error(instance, error));
             }
         },
         'retrieve_data': function(url, method, success){

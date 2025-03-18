@@ -24,6 +24,7 @@ Welcome to Django gentelella widgets's documentation!
    datatables
    object_management
    permissionmanagement
+   drf_serializers
    notifications
 
 Indices and tables

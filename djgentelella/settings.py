@@ -23,9 +23,8 @@ DATATABLES_SUPPORT_LANGUAGES = getattr(settings, 'DATATABLES_SUPPORT_LANGUAGES',
 DEFAULT_GROUP_MODEL_BASE = 'GT_GROUP_MODEL'
 
 DEFAULT_USER_MODEL_BASE = 'GT_USER_MODEL'
-
+REGISTER_DEFAULT_USER_API = getattr(settings, 'REGISTER_DEFAULT_USER_API', True)
 DEFAULT_GROUP_MODEL = 'django.contrib.auth.models.Group'
-
 DEFAULT_USER_MODEL = 'django.contrib.auth.models.User'
 
 GROUP_MODEL_BASE = getattr(
@@ -44,7 +43,7 @@ except Exception as e:
     from django.contrib.auth.models import User
 
 #####################################################
-#    Chuncked Upload
+#    Chunked Upload
 ############################################
 
 # How long after creation the upload will expire

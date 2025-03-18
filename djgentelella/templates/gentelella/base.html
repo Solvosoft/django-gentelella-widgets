@@ -8,7 +8,7 @@
 	{% endblock %}
 	{% block head %}
 	{% block meta-keywords %} {% endblock %}
-	{% block extrameta%} {% endblock %}
+	{% block extrameta %} {% endblock %}
 	{% block meta %}
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<!-- Meta, title, CSS, favicons, etc. -->
@@ -23,6 +23,10 @@
 	{% endblock stylesheets %}
 	{% get_settings 'site_theme' as theme %}
 	<link href="{% static theme %}?v={% get_version %}" rel="stylesheet">
+	{% get_settings 'site_extracss' as extracss %}
+	{% if extracss %}
+	<link href="{% static extracss %}?v={% get_version %}" rel="stylesheet">
+	{% endif %}
 	{% endblock head %}
 	{% block extra_css %} {% endblock %}
 	<script src="{% url 'djgentelella-js-catalog' %}?v={% get_version %}"></script>

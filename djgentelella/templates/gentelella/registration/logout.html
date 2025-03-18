@@ -1,25 +1,41 @@
-{% extends 'gentelella/base.html' %}
+{% extends 'gentelella/plain.html' %}
 {% load static i18n %}
+{% block sidebar %}{% endblock %}
+{% block top_navigation %}{% endblock%}
+
+{% block body_class %}login{% endblock body_class %}
+
+{% block content  %}
+
+<div class="container">
+	<div class="row justify-content-md-center">
+		<section class="logout_content text-center">
+
+			{% if user.is_authenticated %}
+			<h4 class="m-2">{% trans "Are you sure that you want to logout?" %}</h4>
 
 
-{% block body_class %}{% endblock body_class %}
-{% block sidebar %}  {% endblock sidebar %}
-{% block top_navigation %} {% endblock top_navigation %}
-{% block content %}
+			<p>{% trans 'Thank you for using our system; we hope you found it satisfactory.' %}</p>
+			<p>{% trans 'You are very close to logging out; to do so, please click the logout button.' %}</p>
 
-<div class="main_container">
+			<p>{% trans 'We look forward to seeing you again soon.' %}</p>
 
-<div class="col-md-8 offset-md-2">
-<div class="col-middle">
-<div class="text-center ">
-<h1 class="error-number">{% trans "Logged out" %}</h1>
-<h2>{% trans 'Do you want to login again?' %}</h2>
-<p>{% trans 'or maybe you want to' %} <a href="/">{% trans 'go home' %}</a> </p>
-<div class="mid_center">
-    <a href="{% url 'login' %}" class="btn btn-secondary submit" >
- {% trans 'Login'  %}
-    </a>
-</div>
-</div>
+			<form id="logout-form" method="post" action="{% url 'logout' %}">
+				{% csrf_token %}
+				<button type="submit" class="btn btn-danger">{% trans "Log out" %}</button>
+			</form>
+			{% else %}
+
+			<h1 class="error-number">{% trans "Logged out" %}</h1>
+			<h2>{% trans 'Do you want to login again?' %}</h2>
+			<p>{% trans 'or maybe you want to' %} <a href="/">{% trans 'go home' %}</a></p>
+			<div class="mid_center">
+				<a href="{% url 'login' %}" class="btn btn-secondary submit">
+					{% trans 'Login' %}
+				</a>
+			</div>
+			{% endif %}
+		</section>
+	</div>
 </div>
 {% endblock %}

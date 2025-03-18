@@ -119,6 +119,21 @@ class NumberInput(Input):
         super().__init__(attrs, extraskwargs=extraskwargs)
 
 
+class FloatInput(Input):
+    input_type = 'number'
+    template_name = 'gentelella/widgets/number.html'
+
+    # min_value y max_value
+
+    def __init__(self, attrs=None, extraskwargs=True):
+        if extraskwargs:
+            attrs = update_kwargs(attrs, self.__class__.__name__)
+        if 'step' not in attrs:
+            attrs['step'] = "0.1"
+        attrs['inputmode'] = "decimal"
+        super().__init__(attrs, extraskwargs=extraskwargs)
+
+
 class EmailInput(Input):
     input_type = 'email'
     template_name = 'gentelella/widgets/email.html'

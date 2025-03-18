@@ -143,6 +143,13 @@ Run the demo
 
 And More see demo app.
 
+Run the demo with Makefile
+-----------------------------
+
+.. code:: bash
+
+    make init_demo
+
 Notes for development
 ____________________________
 
@@ -153,9 +160,6 @@ ____________________________
     python manage.py createbasejs
 
 Remember update the package version before make deploy it on server.
-
-
-sudo apt install node-babel-cli npm webpack
 
 Translation
 ____________________________
@@ -187,3 +191,14 @@ Here is an example of ``gettext`` implementation:
 .. code:: js
 
     alert(gettext("new_word"))
+
+Notes for releases
+____________________________
+
+To fix use vendors files need to update the line 53
+
+.. code:: python
+
+    await asyncio.wait(map(lambda runner: asyncio.create_task(runner.future), running))
+
+in the root ``{venv}/lib/python3.11/site-packages/pylp/cli/run.py``.

@@ -91,6 +91,7 @@ CSS_FILES = [str(BASE_PATH / path) for path in [
     'vendors/sweetalert2/sweetalert2.min.css',
     'vendors/chartjs/Chart.min.css',
     'vendors/datatables/datatables.min.css',
+    'vendors/pdfjs/pdf_viewer.min.css'
 ]]
 
 READONLY_WIDGETS_CSS = [str(BASE_PATH / path) for path in [
@@ -134,11 +135,11 @@ JS_FILES = [str(BASE_PATH / path) for path in [
     'vendors/fileupload/jquery.fileupload.min.js',
     'vendors/fileupload/spark-md5.min.js',
     'vendors/tagify/tagify.min.js',
-    'vendors/tagify/jQuery.tagify.min.js',
     'vendors/sweetalert2/sweetalert2.all.min.js',
     'vendors/datatables/datatables.min.js',
     'vendors/chartjs/Chart.min.js',
-
+    'vendors/pdfjs/interact.min.js',
+    'vendors/htmlx/htmx.min.js',
 ]]
 
 READONLY_WIDGETS_JS = [str(BASE_PATH / path) for path in [

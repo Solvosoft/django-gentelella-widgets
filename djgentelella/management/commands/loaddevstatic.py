@@ -312,9 +312,8 @@ class Command(BaseCommand):
                 'https://raw.githubusercontent.com/patternfly/patternfly-bootstrap-treeview/master/dist/bootstrap-treeview.min.css'
             ],
             'tagify': [
-                'https://cdnjs.cloudflare.com/ajax/libs/tagify/3.18.1/tagify.min.js',
-                'https://cdnjs.cloudflare.com/ajax/libs/tagify/3.18.1/jQuery.tagify.min.js',
-                'https://cdnjs.cloudflare.com/ajax/libs/tagify/3.18.1/tagify.min.css'
+                'https://cdn.jsdelivr.net/npm/@yaireo/tagify@4.33.2/dist/tagify.min.js',
+                'https://cdn.jsdelivr.net/npm/@yaireo/tagify@4.33.2/dist/tagify.min.css'
             ],
             'grid-slider': [
                 'https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/js/ion.rangeSlider.min.js',
@@ -369,6 +368,15 @@ class Command(BaseCommand):
             'storylinejs': [
                 'https://cdn.knightlab.com/libs/storyline/1.1.0/css/storyline.css',
                 'https://cdn.knightlab.com/libs/storyline/1.1.0/js/storyline.js',
+            ],
+            'pdfjs': [
+                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/pdf_viewer.min.css',
+                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/pdf.min.mjs',
+                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/pdf.worker.min.mjs',
+                'https://cdnjs.cloudflare.com/ajax/libs/interact.js/1.10.27/interact.min.js',
+            ],
+            'htmlx': [
+                'https://unpkg.com/htmx.org@2.0.4/dist/htmx.min.js'
             ]
         }
         compressed = {

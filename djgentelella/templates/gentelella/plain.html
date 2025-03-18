@@ -1,0 +1,75 @@
+<!doctype html>
+{% load static i18n %}
+{% load  gentelellamenu gtsettings  %}
+{% get_current_language as LANGUAGE_CODE %}
+<html lang="{{LANGUAGE_CODE}}">
+<head>
+	{% block pre_head %}
+	{% endblock %}
+	{% block head %}
+	{% block meta-keywords %} {% endblock %}
+	{% block extrameta %} {% endblock %}
+	{% block meta %}
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<!-- Meta, title, CSS, favicons, etc. -->
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" type="image/png" href="{% static 'favicon.png' %}">
+	{% endblock meta %}
+	<title>{% block title %}{% get_settings 'site_title' %} {% endblock %}</title>
+	{% block stylesheets %}
+	{% include 'gentelella/statics/stylesheets.html' %}
+	{% endblock stylesheets %}
+	{% get_settings 'site_theme' as theme %}
+	<link href="{% static theme %}?v={% get_version %}" rel="stylesheet">
+	{% get_settings 'site_extracss' as extracss %}
+	{% if extracss %}
+	<link href="{% static extracss %}?v={% get_version %}" rel="stylesheet">
+	{% endif %}
+	{% endblock head %}
+	{% block extra_css %} {% endblock %}
+	<script src="{% url 'djgentelella-js-catalog' %}?v={% get_version %}"></script>
+	{% include 'gentelella/statics/javascript_header.html' %}
+	{% block extra_head %}{% endblock %}
+</head>
+<body class="{% block body_class %}nav-md {% endblock body_class %}">
+{% block body %}
+
+<div class="plain_main" role="main">
+	{% block messages %}
+	{% if messages %}
+	{% include "gentelella/app/messages.html" %}
+	{% endif %}
+	{% endblock %}
+	{% block breadcrumbs %}
+	{% endblock %}
+	{% block content_block_wrap %}
+	{% block content %}
+	<!-- {{ content }} -->
+	{% endblock content %}
+	{% endblock content_block_wrap %}
+</div>
+
+<div class="jsmessage"></div>
+{% render_external_widget %}
+{% block javascript %}
+{% include 'gentelella/statics/javascript.html' %}
+{% render_menu_js_widget %}
+{% endblock javascript %}
+
+</body>
+{% endblock body %}
+{% block js %}{% endblock %}
+{% render_extra_html_menu %}
+{% block footer %}
+<footer class="plainfooter">
+	{% include "gentelella/app/footer.html" %}
+</footer>
+{% if perms.djgentelella.can_manage_permissions %}
+{% include 'gentelella/blocks/permissions_management.html' %}
+{% endif %}
+{% endblock footer %}
+</html>
+
+
