@@ -24,6 +24,7 @@ def get_signature_default():
         "signX": "40",
         "signY": "60",
         "xAdESLevel": "LTA",
+        "isVisibleSignature": True,
     }
 
 
