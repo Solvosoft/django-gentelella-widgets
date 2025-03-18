@@ -31,7 +31,7 @@ class ChunkedUploadAdmin(admin.ModelAdmin):
     list_filter = ('status',)
 
 class UserSignatureConfigAdmin(admin.ModelAdmin):
-    list_display = ('user', 'config')
+    list_display = ('id', 'user', 'config')
 
 admin.site.register(UserSignatureConfig, UserSignatureConfigAdmin)
 admin.site.register(ChunkedUpload, ChunkedUploadAdmin)

@@ -138,7 +138,7 @@ function clearDataTableFilters(dataTable, tableId){
     $(tableId).find('input, select').val('');
     $(tableId).find('.tableselect').val(null).trigger('change');
 }
-function yesnoprint(data, type, row, meta){ return data ? "<i class=\"fa fa-check-circle\"></i> "+gettext("Yes") : "<i class=\"fa fa-times-circle\"></i>"+gettext("No"); };
+function yesnoprint(data, type, row, meta){ return data ? "<i class=\"fa fa-check-circle\"></i> "+gettext("Yes") : "<i class=\"fa fa-times-circle\"></i> "+gettext("No"); };
 function emptyprint(data, type, row, meta){ return data ? data : "--"; };
 // hacer que se pueda definir el tipo el objeto ej data.name
 

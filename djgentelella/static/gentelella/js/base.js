@@ -3067,6 +3067,38 @@ function alertFunction(text, title = "Error", icon = "error", cancelButton = fal
 ///////////////////////////////////////////////
 
 
+////////////////////////////////////////////////////////////////
+// copy action
+////////////////////////////////////////////////////////////////
+document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById("copy-command-line").addEventListener("click", function () {
+        let commandText = document.getElementById("command-line").innerText.trim();
+
+        navigator.clipboard.writeText(commandText)
+            .then(() => {
+                let text = document.getElementById("text-copy")
+                text.classList.remove("d-none")
+                setTimeout(() => {
+                    text.classList.add("d-none")
+                }, 1500)
+            })
+            .catch(err => {
+                console.error("Error al copiar el texto: ", err);
+            });
+    });
+
+    document.getElementById("show-command-line").addEventListener("click", () => {
+        let container = document.getElementById("container-command-line")
+
+        if (container.classList.contains("d-none")) {
+            container.classList.remove("d-none");
+        } else {
+            container.classList.add("d-none");
+        }
+    })
+});
+
+
 class CardList {
   constructor(containerId, apiUrl, actions={}) {
     this.container = document.getElementById(containerId);

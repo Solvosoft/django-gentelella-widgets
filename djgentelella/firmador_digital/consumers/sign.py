@@ -4,7 +4,7 @@ import os
 from io import BytesIO
 from PIL import Image, ImageOps
 from PIL.Image import Resampling
-
+from django.contrib.staticfiles import finders
 from channels.generic.websocket import WebsocketConsumer, JsonWebsocketConsumer
 from django.utils.translation import gettext_lazy as _
 from djgentelella.serializers.firmador_digital import (
@@ -22,6 +22,7 @@ class SignConsumer(JsonWebsocketConsumer):
         self.data = None
 
     def connect(self):
+        #! validar que hay un user en el scope
         self.accept()
         self.signclient = RemoteSignerClient(None)
 
@@ -44,11 +45,13 @@ class SignConsumer(JsonWebsocketConsumer):
         """
         try:
             serializer = self.get_serializer(content)
-            print("SignConsumer - receive_json", serializer)
+            # print("SignConsumer - receive_json", serializer)
+            print("SignConsumer - receive_json")
             if serializer.is_valid():
-                print(serializer.validated_data["action"])
+
                 match serializer.validated_data["action"]:
                     case "initial_signature":
+                        print("Entro aca - initial_signature")
                         self.do_initial_signature(serializer)
                     case "complete_signature":
                         print("Entro aca - complete_signature")
@@ -77,9 +80,10 @@ class SignConsumer(JsonWebsocketConsumer):
             })
 
     def do_initial_signature(self, serializer):
-        print(self.scope)
-        print("do_initial_signature - user", self.scope["user"])
+
         signer = RemoteSignerClient(self.scope["user"])
+        print("do_initial_signature - make response")
+        print(serializer.validated_data["logo_url"])
         # peticion a firmador
         response = signer.send_document_to_sign(
             serializer.validated_data["instance"],
@@ -116,15 +120,25 @@ class SignConsumer(JsonWebsocketConsumer):
     def do_default(self, serializer):
         pass
 
-    def get_logo_base64(self, path_logo, target_width=128):
 
+    def get_logo_base64(self, path_logo, target_width=128):
         if not path_logo:
             print("Do not have logo")
             return ""
 
+        # Si la ruta contiene el prefijo /static/, lo removemos
+        if path_logo.startswith('/static/'):
+            path_logo = path_logo[len('/static/'):]
+
+        # Buscar la ruta real del archivo en los directorios estáticos
+        real_path = finders.find(path_logo)
+        if not real_path:
+            print("Logo file not found in static directories.")
+            return ""
+
         try:
-            with Image.open(path_logo) as img:
-                # calcular la altura de forma proporcional
+            with Image.open(real_path) as img:
+                # Calcular la altura de forma proporcional
                 ratio = target_width / float(img.width)
                 target_height = int(img.height * ratio)
 

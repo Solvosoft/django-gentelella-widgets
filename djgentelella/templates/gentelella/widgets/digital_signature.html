@@ -5,28 +5,42 @@
 
 <div class="row my-3 widget-digital-signature">
 
-	{#	select card #}
+	{#	optional title #}
+	{% if widget.attrs.title %}
+		<h5 class="text-center mb-3 mt-2 text-secondary fw-bold">
+			{{ widget.attrs.title }}
+		</h5>
+	{% endif %}
+
+	{#	digital signature card #}
 	<div class="col-12 col-md-4">
-		{#	selector card #}
-		<div class="d-flex justify-content-center flex-column">
-			<div class="d-flex justify-content-between my-3">
-				<label for="select_card_{{ widget.attrs.id }}" class="text-center  h6">
-					{% trans 'Select your card' %}
+
+		<div class="d-flex justify-content-center flex-column  p-2">
+			<div class="d-flex justify-content-between align-items-center my-3">
+				<label for="select_card_{{ widget.attrs.id }}" class="text-center fw-bold">
+					{% trans 'Choose your signature card' %}
 				</label>
+
+				{#		btn refresh #}
 				<i class="fa fa-refresh text-muted fs-5 cursor-pointer btn_signer_refresh"
-							title="{% trans 'Refresh' %}"
+							title="{% trans 'Reload' %}"
 							aria-hidden="true"></i>
+			</div>
+
+			{#			select card #}
+			<div class="select-container" title="{% trans 'Electronic signature card' %}">
+				<i class="fa fa-credit-card-alt ms-2" aria-hidden="true"></i>
+				<select id="select_card_{{ widget.attrs.id }}" class="form-select select_card" name="{{ widget.name }}_select">
+				</select>
 			</div>
 
 			<input type="hidden" name="prefix" class="form_prefix" value="{{ form.prefix|default_if_none:'' }}">
 
-			<select id="select_card_{{ widget.attrs.id }}" class="form-select select_card" name="{{ widget.name }}_select">
-			</select>
-		</div>
-
-		{#	actions buttons#}
-		<div class="my-3 d-flex align-items-center justify-content-evenly">
-			<button class="btn btn-success formadd btn-sm px-3 btn_signer" type="button">{% trans 'Sign' %}</button>
+			{#	btn sign #}
+			<div class="my-3 d-flex align-items-center justify-content-evenly">
+				<button class="btn btn-primary w-50 rounded formadd btn-sm px-3 btn_signer"
+												type="button">{% trans 'Sign' %}</button>
+			</div>
 		</div>
 
 		{#	info messages #}
@@ -37,25 +51,68 @@
 			</p>
 			<ul class="m-0 p-0 ms-2">
 				<li>
-					<a class="d-flex align-items-center text-muted"
-								title="{% trans 'Download' %}"
+					<small> 1) {% trans 'You need Firmador Libre installed in order to sign.' %} </small>
+				</li>
+				<li>
+					<small> 2) {% trans 'Make sure your version is 1.9.8 or later.' %}
+					</small>
+				</li>
+				<li>
+					<small> 3) {% trans 'Run the application before proceeding with the signature.' %} </small>
+				</li>
+				<li>
+					<small>
+						4)
+						{% trans "If the autolauncher doesn't work, I used this command line." %}
+						<i class="fa fa-info-circle cursor-pointer" title="{% trans 'Show command' %}" id="show-command-line" aria-hidden="true"></i>
+					</small>
+				</li>
+			</ul>
+
+			<div class="row">
+				<p id="text-copy" class="text-center text-muted p-0 m-0 small d-none">
+					{% trans 'Copied to clipboard' %}
+				</p>
+				<div id="container-command-line" class="text-wrap bg-light text-center p-2 rounded shadow-sm d-none">
+					<div class="d-flex justify-content-end">
+								<i class="fa fa-clipboard cursor-pointer text-black" id="copy-command-line" title="{% trans 'Copy to clipboard' %}" aria-hidden="true"></i>
+					</div>
+					<pre id="command-line" class="text-wrap small">
+																	java --add-exports=jdk.crypto.cryptoki/sun.security.pkcs11.wrapper=ALL-UNNAMED -Djnlp.remoteOrigin={{ request.scheme }}://{{ request.get_host }} -jar firmador.jar -dremote
+							</pre>
+				</div>
+			</div>
+		</div>
+
+
+		{#	firmador messages #}
+		<div class="row m-1 pt-2">
+			<p class="text-muted fw-bold m-0 p-0 d-flex align-items-center">
+				<span class="me-2">	Firmador Libre </span>
+				<img src="{% static 'gentelella/images/firmador.ico' %}" width="20" alt="Firmador Libre">
+			</p>
+			<ul class="m-0 p-0 ms-2">
+				<li>
+					<a class="small"
+								title="{% trans 'Download Firmador Libre' %}"
 								href="https://firmador.libre.cr/descargar.html" target="_blank">
-						<small>{% trans 'Download' %} Firmador Libre</small>
-						<img src="{% static 'gentelella/images/firmador.ico' %}" width="20" alt="Firmador Libre">
+						{% trans 'Download app' %}
+						<i class="fa fa-download" aria-hidden="true"></i>
 					</a>
 				</li>
 				<li>
-					<small> {% trans 'You need to run Firmador Libre to sign' %} </small>
+					<a class="small"
+								title="{% trans 'Run Firmador Libre' %}"
+								href="firmador:{{ widget.attrs.cors }}">
+						{% trans 'Run app' %}
+						<i class="fa fa-cog" aria-hidden="true"></i>
+					</a>
 				</li>
-							<li>
-								<small> {% trans 'If you want to run Firmador Libre 1.9.8 to sign please' %}</small>
-								<a class="fw-bold" href="firmador:{{request.scheme}}://{{request.get_host}}">{% trans 'click here to run' %}</a>
-							</li>
 			</ul>
 		</div>
 
 		{#	error messages #}
-		<div id="signature-errors" class="errors_signer">
+		<div id="signature-errors" class="errors_signer row m-1">
 		</div>
 
 	</div>
@@ -82,7 +139,8 @@
 
 				{#		number of pages #}
 				<div class="border  rounded px-3 py-1 shadow-sm ">
-					<span class="">Page: <span class="page_num"></span> / <span class="page_count"></span></span>
+					<i class="fa fa-file-o me-1" aria-hidden="true" title="{% trans 'Page' %}"></i>
+					<span class="page_num"></span> / <span class="page_count"></span>
 				</div>
 			</div>
 
@@ -107,7 +165,6 @@
 
 		</div>
 	</div>
-	<hr>
 </div>
 
 
