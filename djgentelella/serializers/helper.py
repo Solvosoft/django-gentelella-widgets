@@ -1,5 +1,7 @@
-from djgentelella.models import Help
 from rest_framework import serializers
+
+from djgentelella.models import Help
+
 
 class HelperSerializer(serializers.ModelSerializer):
     class Meta:

@@ -1,5 +1,7 @@
 import json
 
+from django.forms import Widget
+
 from djgentelella.widgets.core import Input
 
 
@@ -19,6 +21,7 @@ class TaggingInput(Input):
             value = ", ".join([item['value'] for item in data])
         return value
 
+
 class EmailTaggingInput(Input):
     input_type = 'text'
     template_name = 'gentelella/widgets/tagging.html'
@@ -34,3 +37,21 @@ class EmailTaggingInput(Input):
             data = json.loads(value)
             value = ", ".join([item['value'] for item in data])
         return value
+
+
+class RemoteAutocompleteEmailTagifyWidget(Widget):
+    template_name = "gentelella/widgets/tagifyselect.html"
+
+    def build_attrs(self, base_attrs, extra_attrs=None):
+        """Build an attribute dictionary."""
+        dev = {**base_attrs, **(extra_attrs or {})}
+        dev["data-url"] = self.base_url
+        dev["data-widget"] = self.__class__.__name__
+        return dev
+
+    @classmethod
+    def newwidget(cls, url):
+        widget = type("RemoteAutocompleteEmailTagifyWidget", cls.__bases__,
+                      dict(cls.__dict__))
+        widget.base_url = url
+        return widget

@@ -1,20 +1,35 @@
 Django Gentelella widgets
 ############################
 
+.. image:: https://img.shields.io/readthedocs/django-gentelella-widgets?label=Read%20the%20Docs&logo=read%20the%20docs&logoColor=white
+  :alt: Gentelella documentation
+
+.. image:: https://img.shields.io/pypi/pyversions/django
+  :alt: Gentelella supported python version
+
+.. image:: https://github.com/Solvosoft/django-gentelella-widgets/actions/workflows/django.yml/badge.svg
+  :alt: Gentelella test status
+
+
+
+This application is a set of utilities that will make developing applications with django and bootstrap 5 easier, as it provides a set of Javascript libraries such as select2, icheck, datatables and more nicely integrated as widgets or utilities that simplify application creation.
+
 This app helps you to integrate Django apps with `Gentelella <https://colorlib.com/polygon/gentelella/index.html>`_ building extra widgets for forms and speciall methods to render forms in templates.
+
+.. image:: docs/source/_static/readme/logo.png
+  :width: 200
+  :alt: Gentelella Logo
+
+Documentation
+________________
 
 See `Documentation <https://django-gentelella-widgets.readthedocs.io/>`_
 
 Installation
 ________________
 
-Installing from repository (Updated frequently, most of great functionalities are not in pip yet ).
+Installing from pypi
 
-.. code:: bash
-
-   pip install git+https://github.com/luisza/django-gentelella-widgets.git#egg=djgentelella
-
-An stable version on pip, but not all available widget are in this release (new release comming soon)
 
 .. code:: bash
 
@@ -27,33 +42,16 @@ Configure your settings
 
     INSTALLED_APPS = [ ..
         'djgentelella',
-        'mptt',
         'rest_framework',
-        'chunked_upload',
         'markitup',
     ]
-
-    USE_L10N = False
-
     MARKITUP_FILTER = ('markdown.markdown', {'safe_mode': True})
     MARKITUP_SET = 'markitup/sets/markdown/'
     JQUERY_URL = None
 
-    DATE_INPUT_FORMATS=[
-        '%Y-%m-%d', '%d/%m/%Y', '%d/%m/%y'
-    ]
-    DATE_FORMAT= ['%d/%m/%Y',]
 
-    DATETIME_INPUT_FORMATS = [
-        '%m/%d/%Y %H:%M',
-        '%d/%m/%Y %H:%M',
-        '%Y-%m-%d %H:%M',
-        '%d/%m/%y %H:%M'
-    ]
- 
-.. note:: Date format on Django uses localization and depends on USE_L10N, but we can not configure yet JS date widgets to change based on Django representation so USE_L10N need to be false.
 
-Run migrations 
+Run migrations
 
 .. code:: bash
 
@@ -75,12 +73,12 @@ Add djgentelella urls in your project urls.py file
     urlpatterns = djgentelellaurls + [
                     ...
                   ]
-     
+
 Usage
 _________
 
 
-In forms 
+In forms
 
 .. code:: python
 
@@ -110,46 +108,27 @@ In templates using base template
 .. code:: html
 
     {% extends 'gentelella/base.html' %}
-    
+
 Take a look this file to note the template block that you can overwrite
 
-widgets
+Test
 __________
 
-There are several widgets implemented this is a list of what you can use
+To run the all test use:
 
-- TextInput
-- NumberInput
-- EmailInput
-- URLInput
-- PasswordInput
-- Textarea
-- TextareaWysiwyg (not working yet)
-- DateInput
-- DateTimeInput
-- TimeInput
-- CheckboxInput
-- YesNoInput
-- Select  (jquery select2)
-- SelectMultiple (jquery select2)
-- SelectTail
-- SelectMultipleTail
-- RadioSelect
-- NullBooleanSelect
-- CheckboxSelectMultiple
-- SplitDateTimeWidget (not ready)
-- SplitHiddenDateTimeWidget (not ready)
-- SelectDateWidget (not ready)
-- PhoneNumberMaskInput
-- DateMaskInput
-- DateTimeMaskInput
-- EmailMaskInput
-- DateRangeTimeInput
-- DateRangeInput
-- AutocompleteSelect
-- AutocompleteSelectMultiple
-- Formset implementation
-- Remote select2 views.
+.. code:: bash
+
+    cd demo
+    python manage.py test
+
+
+To run the responsive test use:
+
+.. code:: bash
+
+    cd demo
+    python manage.py test demoapp.tests.selenium.responsive
+
 
 Run the demo
 ---------------
@@ -160,9 +139,16 @@ Run the demo
     python manage.py migrate
     python manage.py createdemo
     python manage.py demomenu
-    python manage.py createsuperuser
+
 
 And More see demo app.
+
+Run the demo with Makefile
+-----------------------------
+
+.. code:: bash
+
+    make init_demo
 
 Notes for development
 ____________________________
@@ -175,5 +161,44 @@ ____________________________
 
 Remember update the package version before make deploy it on server.
 
+Translation
+____________________________
 
-sudo apt install node-babel-cli npm webpack
+To add a new translation for a word there are two options:
+
+.. code:: bash
+
+    django-admin makemessages --all
+
+This command adds words that are inside django templates to ``locale/es/LC_MESSAGES/django.po``, there these words can be translated.
+
+To add a word you can use the following syntax.
+
+.. code:: html
+
+    {% trans "new_word" %}
+
+For words used in JavaScript files, the following command must be executed.
+
+.. code:: bash
+
+    django-admin makemessages -d djangojs -l es  --ignore *.min.js
+
+This command adds words that are inside the ``gettext`` js function, to ``locale/es/LC_MESSAGES/djangojs.po``, there these words can be translated.
+
+Here is an example of ``gettext`` implementation:
+
+.. code:: js
+
+    alert(gettext("new_word"))
+
+Notes for releases
+____________________________
+
+To fix use vendors files need to update the line 53
+
+.. code:: python
+
+    await asyncio.wait(map(lambda runner: asyncio.create_task(runner.future), running))
+
+in the root ``{venv}/lib/python3.11/site-packages/pylp/cli/run.py``.

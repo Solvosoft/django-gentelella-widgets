@@ -1,5 +1,6 @@
 from django.utils.safestring import mark_safe
 
+
 class Element:
     def __init__(self, position, brothers):
         self.position = position
@@ -11,13 +12,14 @@ class Element:
         pass
 
     def get_columns(self):
-        pos = int(12/self.brothers)
-        if pos<2:
+        pos = int(12 / self.brothers)
+        if pos < 2:
             pos = 2
-        pos_sm = pos*2
+        pos_sm = pos * 2
         if pos_sm > 12:
             pos_sm = 12
-        return "col-md-%d col-sm-%d"%(pos,pos_sm)
+        return "col-md-%d col-sm-%d" % (pos, pos_sm)
+
 
 class StatsElement(Element):
     def render(self):
@@ -25,10 +27,10 @@ class StatsElement(Element):
         dev = self.get_top()
         dev += self._get_count()
         dev += self.get_bottom()
-        return  dev
+        return dev
 
     def get_top(self):
-        dev = """<span class="count_top">%s %s</span>"""%(
+        dev = """<span class="count_top">%s %s</span>""" % (
             self._get_top_icon(),
             self.get_top_text()
         )
@@ -37,7 +39,7 @@ class StatsElement(Element):
     def get_bottom(self):
         dev = """
         <span class="count_bottom"><i class="%s">%s %s</i> %s</span>
-        """%(
+        """ % (
             self.get_bottom_color(),
             self._get_bottom_icon(),
             self.get_bottom_icon_text(),
@@ -47,8 +49,10 @@ class StatsElement(Element):
 
     def get_bottom_icon_text(self):
         return ""
+
     def get_top_icon(self):
         return ""
+
     def get_top_text(self):
         return ""
 
@@ -57,7 +61,6 @@ class StatsElement(Element):
 
     def get_count_color(self):
         return ""
-
 
     def get_bottom_color(self):
         return "green"
@@ -69,30 +72,34 @@ class StatsElement(Element):
         return ""
 
     def _get_count(self):
-        return """<div class="count %s">%s</div>"""%(
+        return """<div class="count %s">%s</div>""" % (
             self.get_count_color(),
             self.get_count()
         )
+
     def _get_top_icon(self):
         icon = self.get_top_icon()
         if icon:
-            return '<i class="%s"></i>'%(icon,)
+            return '<i class="%s"></i>' % (icon,)
         return ""
 
     def _get_bottom_icon(self):
         icon = self.get_bottom_icon()
         if icon:
-            return '<i class="%s"></i>'%(icon,)
+            return '<i class="%s"></i>' % (icon,)
         return ""
 
 
 class BoxTileElement(Element):
     def get_icon(self):
         return ""
+
     def get_number(self):
         return ""
+
     def get_title(self):
         return ""
+
     def get_subtitle(self):
         return ""
 
@@ -106,7 +113,7 @@ class BoxTileElement(Element):
 <p>%(subtitle)s</p>
 </div>
 </div>
-        """%{
+        """ % {
             'icon': self.get_icon(),
             'number': self.get_number(),
             'title': self.get_title(),
@@ -115,24 +122,25 @@ class BoxTileElement(Element):
         }
 
 
-
 class BaseListElement:
     stats_views = []
     css_class = ''
     css_class = ''
 
     def render(self):
-        dev = """<div class="row"><div class="%s">"""%self.css_class
+        dev = """<div class="row"><div class="%s">""" % self.css_class
         for i, stat in enumerate(self.stats_views):
             view = stat(i, len(self.stats_views))
-            dev += '<div class="'+view.get_columns()+' tile_stats_count">'
+            dev += '<div class="' + view.get_columns() + ' tile_stats_count">'
             dev += view.render()
             dev += '</div>'
         dev += "</div></div>"
         return mark_safe(dev)
 
+
 class StatsCountList(BaseListElement):
     css_class = 'tile_count'
+
 
 class BoxStatsCountList(BaseListElement):
     css_class = 'tile_stats'

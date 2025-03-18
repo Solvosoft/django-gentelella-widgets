@@ -35,7 +35,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-edit',
+            icon='fa fa-quote-left',
             only_icon=False
         )
         blogentry = MenuItem.objects.create(
@@ -47,7 +47,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-build',
+            icon='fa fa-wordpress',
             only_icon=False
         )
         blogentry = MenuItem.objects.create(
@@ -59,7 +59,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-build',
+            icon='fa fa-pencil-square-o',
             only_icon=False
         )
         dashboard = MenuItem.objects.create(
@@ -71,7 +71,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='',
+            icon='fa fa-tachometer',
             only_icon=False
         )
         item = MenuItem.objects.create(
@@ -83,7 +83,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='',
+            icon='fa fa-plus-circle',
             only_icon=False
         )
 
@@ -96,7 +96,19 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-home',
+            icon='',
+            only_icon=False
+        )
+        cwidget = MenuItem.objects.create(
+            parent=extrawidget,
+            title='User Media widget',
+            url_name='mediaupload_view',
+            category='sidebar',  # sidebar, sidebarfooter,
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-play',
             only_icon=False
         )
 
@@ -109,7 +121,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-cab',
+            icon='fa fa-server',
             only_icon=False
         )
         c1widget = MenuItem.objects.create(
@@ -121,7 +133,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-subway',
+            icon='fa fa-plus-square',
             only_icon=False
         )
         c2widget = MenuItem.objects.create(
@@ -133,9 +145,34 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-plane',
+            icon='fa fa-list-alt',
             only_icon=False
         )
+        cwidget = MenuItem.objects.create(
+            parent=extrawidget,
+            title='Datatables',
+            url_name='datatable_view',
+            category='sidebar',  # sidebar, sidebarfooter,
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-table',
+            only_icon=False
+        )
+        cwidget = MenuItem.objects.create(
+            parent=extrawidget,
+            title='Object Management',
+            url_name='object_management_index',
+            category='sidebar',  # sidebar, sidebarfooter,
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-microchip',
+            only_icon=False
+        )
+
         cwidget = MenuItem.objects.create(
             parent=extrawidget,
             title='Form Widgets',
@@ -145,7 +182,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-home',
+            icon='fa fa-tasks',
             only_icon=False
         )
         readonlywidget = MenuItem.objects.create(
@@ -157,7 +194,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-list-alt',
+            icon='fa fa-newspaper-o',
             only_icon=False
         )
         MenuItem.objects.create(
@@ -169,19 +206,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-eyedropper',
-            only_icon=False
-        )
-        MenuItem.objects.create(
-            parent=cwidget,
-            title='Color Widgets',
-            url_name='colorwidgets',
-            category='sidebar',  # sidebar, sidebarfooter,
-            is_reversed=True,
-            reversed_kwargs=None,
-            reversed_args=None,
-            is_widget=False,
-            icon='fa fa-diamond',
+            icon='fa fa-adjust',
             only_icon=False
         )
         inputmask = MenuItem.objects.create(
@@ -193,7 +218,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-cutlery',
+            icon='fa fa-ellipsis-h',
             only_icon=False
         )
         daterange = MenuItem.objects.create(
@@ -205,7 +230,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-balance-scale',
+            icon='fa-calendar-plus-o',
             only_icon=False
         )
         tagging = MenuItem.objects.create(
@@ -217,7 +242,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-superpowers',
+            icon='fa fa-sticky-note-o',
             only_icon=False
         )
         Tinymce = MenuItem.objects.create(
@@ -229,7 +254,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-sticky-note',
+            icon='fa fa-text-width',
             only_icon=False
         )
 
@@ -255,7 +280,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-map-marker',
+            icon='fa fa-picture-o',
             only_icon=False
         )
 
@@ -281,7 +306,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-vine',
+            icon='fa fa-area-chart',
             only_icon=False
         )
         TimeLine = MenuItem.objects.create(
@@ -296,7 +321,19 @@ class Command(BaseCommand):
             icon='fa fa-clock-o',
             only_icon=False
         )
-
+        # CardList
+        cardwidget = MenuItem.objects.create(
+            parent=readonlywidget,
+            title='Card List',
+            url_name='cardlist_view',
+            category='sidebar',  # sidebar, sidebarfooter,
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-list-alt',
+            only_icon=False
+        )
 
         chart = MenuItem.objects.create(
             parent=dashboard,
@@ -310,17 +347,6 @@ class Command(BaseCommand):
             icon='fa fa-line-chart',
             only_icon=False
         )
-        noti = MenuItem.objects.create(
-            parent=item,
-            title='Create notification',
-            url_name='/create/notification',
-            category='sidebar',  # sidebar, sidebarfooter,
-            is_reversed=False,
-            reversed_kwargs=None,
-            reversed_args=None,
-            is_widget=False,
-            icon='fa fa-power-off',
-            only_icon=False)
 
         daterange = MenuItem.objects.create(
             parent=cwidget,
@@ -331,13 +357,13 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-home',
+            icon='fa fa-calendar-plus-o',
             only_icon=False
         )
 
-        chunckedupload = MenuItem.objects.create(
+        chunkedupload = MenuItem.objects.create(
             parent=cwidget,
-            title='ChunckedUpload',
+            title='Chunked Upload',
             url_name='chunkeduploaditem-list',
             category='sidebar',
             is_reversed=True,
@@ -348,6 +374,18 @@ class Command(BaseCommand):
             only_icon=False
         )
 
+        chunkedupload = MenuItem.objects.create(
+            parent=cwidget,
+            title='Select in modal',
+            url_name='bt_modal_display',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-mouse-pointer',
+            only_icon=False
+        )
         noti = MenuItem.objects.create(
             parent=item,
             title='Create notification',
@@ -357,20 +395,20 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-power-off',
+            icon='fa fa-plus-square-o',
             only_icon=False
         )
 
         MenuItem.objects.create(
             parent=item,
-            title='Create notification email',
+            title='Create email notification',
             url_name='/create/notification?email=1',
             category='sidebar',  # sidebar, sidebarfooter,
             is_reversed=False,
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-power-off',
+            icon='fa fa-envelope-o',
             only_icon=False
         )
 
@@ -383,7 +421,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-power-off',
+            icon='fa fa-list',
             only_icon=False
         )
         MenuItem.objects.create(
@@ -395,7 +433,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-power-off',
+            icon='fa fa-list-ol',
             only_icon=False
         )
         MenuItem.objects.create(
@@ -413,7 +451,7 @@ class Command(BaseCommand):
         item = MenuItem.objects.create(
             parent=None,
             title='Logout',
-            url_name='/accounts/logout/', # DO manual
+            url_name='/accounts/logout/',  # DO manual
             category='sidebarfooter',  # sidebar, sidebarfooter,
             is_reversed=False,
             reversed_kwargs=None,
@@ -470,7 +508,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-power-off',
+            icon='fa fa-sort-desc',
             only_icon=False
         )
         MenuItem.objects.create(
@@ -482,7 +520,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-power-off',
+            icon='fa fa-sort',
             only_icon=False
         )
 
@@ -510,10 +548,10 @@ class Command(BaseCommand):
                 last_time=now()
             )
 
-    def create_comunities(self):
-        models.Comunity.objects.all().delete()
+    def create_communities(self):
+        models.Community.objects.all().delete()
         for x in range(10):
-            models.Comunity.objects.create(name="Comunity " + str(x))
+            models.Community.objects.create(name="Community " + str(x))
 
     def abcde(self):
         models.A.objects.all().delete()
@@ -536,8 +574,9 @@ class Command(BaseCommand):
                             d, c, b, a), id=did, c_id=cid))
                         for e in range(1, 4):
                             eid += 1
-                            el.append(models.E(display="E %d d(%d) c(%d) b(%d) a(%d)" % (
-                                e, d, c, b, a), id=eid, d_id=did))
+                            el.append(
+                                models.E(display="E %d d(%d) c(%d) b(%d) a(%d)" % (
+                                    e, d, c, b, a), id=eid, d_id=did))
         models.A.objects.bulk_create(al)
         models.B.objects.bulk_create(bl)
         models.C.objects.bulk_create(cl)
@@ -549,5 +588,5 @@ class Command(BaseCommand):
         self.create_autocomplete_menu()
         self.create_countries()
         self.create_person()
-        self.create_comunities()
+        self.create_communities()
         self.abcde()

@@ -1,6 +1,6 @@
 from django.core.exceptions import FieldDoesNotExist
-from django.forms.models import modelform_factory
 from django.db import models
+from django.forms.models import modelform_factory
 
 
 class FormFilter:
@@ -41,7 +41,7 @@ class FormFilter:
 
     def get_build_param(self, value, data, params):
         if isinstance(data, models.base.Model):
-                    data = str(data.pk)
+            data = str(data.pk)
         params.append("%s=%s" % (value, str(data)))
         return params
 

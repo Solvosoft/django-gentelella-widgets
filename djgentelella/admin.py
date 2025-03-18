@@ -1,23 +1,24 @@
 from django.contrib import admin
 
-from mptt.admin import DraggableMPTTAdmin
-from djgentelella.models import MenuItem, Help, GentelellaSettings, Notification, ChunkedUpload, GTDbForm, GTDbField
-from djgentelella.utils import clean_cache
+from djgentelella.models import MenuItem, Help, GentelellaSettings, Notification, \
+    ChunkedUpload, GTDbField
 from djgentelella.models import PermissionsCategoryManagement
+from djgentelella.utils import clean_cache
 
 
-class MenuAdmin(DraggableMPTTAdmin):
+class MenuAdmin(admin.ModelAdmin):
     filter_horizontal = ['permission']
 
 
 class GentelellaSettingsAdmin(admin.ModelAdmin):
     list_display = ['key', 'value']
-    search_fields =  ['key']
+    search_fields = ['key']
     list_editable = ['value']
     actions = ['clean_settings_cache']
 
     def clean_settings_cache(self, request, queryset):
         clean_cache(queryset.values_list('key', flat=True))
+
     clean_settings_cache.short_description = "Clean settings cache"
 
 
@@ -48,4 +49,3 @@ admin.site.register(PermissionsCategoryManagement)
 admin.site.register(GentelellaSettings, GentelellaSettingsAdmin)
 admin.site.register(Notification, NotificationAdmin)
 admin.site.register(GTDbForm, GTDbFormAdmin)
-

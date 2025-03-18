@@ -17,54 +17,74 @@ const Toast = Swal.mixin({
 });
 
 $(document).ready(function(){
-    $('#select_user').select2({
-      ajax: {
-        url: permission_context.select_user_url,
-        dataType: 'json',
-      },
-      width: '100%',
-      placeholder:   permission_context.user_placeholder ,
-    });
-    $('#select_group').select2({
-      ajax: {
-        url: permission_context.select_group_url,
-        dataType: 'json',
-      },
-      width: '100%',
-      placeholder: permission_context.group_placeholder,
-    });
-    $('.btn-toggle').click(function() {
+
+    let selectuser = $('#select_user');
+    let selectgroup = $('#select_group');
+
+    if(selectuser.length>0){
+        let selectusercontext={
+          ajax: {
+            url: permission_context.select_user_url,
+            dataType: 'json',
+          },
+          width: '100%'
+        };
+        extract_select2_context(selectusercontext, selectuser);
+        selectusercontext.placeholder=permission_context.user_placeholder;
+        selectuser.select2(selectusercontext);
+        $("#group_container").hide();
+        $('#btn_user').click(function(){
+            selected_user_or_group = false;
+            $("#user_container").show();
+            $("#group_container").hide();
+            var checkboxes = $('input[type="checkbox"][name="permission"]');
+            checkboxchecked = checkboxes.filter(':checked');
+            checkboxchecked.iCheck('uncheck');
+            $("#select_user").empty().trigger('change')
+            $("#select_group").empty().trigger('change')
+            option = 1
+        });
+
+
+    }
+
+    if(selectgroup.length>0){
+        let selectgroupcontext={
+          ajax: {
+            url: permission_context.select_group_url,
+            dataType: 'json',
+          },
+          width: '100%'
+        };
+
+        extract_select2_context(selectgroupcontext, selectgroup);
+        selectgroupcontext.placeholder=permission_context.group_placeholder;
+        selectgroup.select2(selectgroupcontext);
+        $("#btn_group").click(function(){
+            $("#group_container").show();
+            selected_user_or_group = false;
+            $("#user_container").hide();
+            var checkboxes = $('input[type="checkbox"][name="permission"]');
+            checkboxchecked = checkboxes.filter(':checked');
+            checkboxchecked.iCheck('uncheck');
+            $("#select_user").empty().trigger('change')
+            $("#select_group").empty().trigger('change')
+            option = 2
+        });
+        if(selectuser.length==0){
+            option = 2;
+        }
+    }
+
+
+
+    $('.btn-bs-toggle').click(function() {
       $(this).find('.btn').toggleClass('active');
       if ($(this).find('.btn-primary').length>0) {
           $(this).find('.btn').toggleClass('btn-primary');
         }
       $(this).find('.btn').toggleClass('btn-default');
      });
-    $("#group_container").hide();
-    $('#btn_user').click(function(){
-        selected_user_or_group = false;
-        $("#user_container").show();
-        $("#group_container").hide();
-        var checkboxes = $('input[type="checkbox"][name="permission"]');
-        checkboxchecked = checkboxes.filter(':checked');
-        checkboxchecked.iCheck('uncheck');
-        $("#select_user").empty().trigger('change')
-        $("#select_group").empty().trigger('change')
-        option = 1
-    });
-
-    $("#btn_group").click(function(){
-        $("#group_container").show();
-        selected_user_or_group = false;
-        $("#user_container").hide();
-        var checkboxes = $('input[type="checkbox"][name="permission"]');
-        checkboxchecked = checkboxes.filter(':checked');
-        checkboxchecked.iCheck('uncheck');
-        $("#select_user").empty().trigger('change')
-        $("#select_group").empty().trigger('change')
-        option = 2
-    });
-
 
     $('#select_user, #select_group').on('select2:select', function (evt) {
       selected_user_or_group = true;
@@ -102,7 +122,7 @@ $(document).ready(function(){
       });
     });
 
-function update_categorieicon_collapsed(){
+    function update_categorieicon_collapsed(){
 
     Array.from($('a.categories')).forEach(function(categorie){
 
@@ -160,7 +180,7 @@ function update_categorieicon_collapsed(){
 
     });
 
-  $("#btn_savepermissions").click(function(){
+    $("#btn_savepermissions").click(function(){
 
     if($('#btn_perms').data("urlname")!=""){
       if(selected_user_or_group){

@@ -1,7 +1,6 @@
 import json
 
 from django.template.loader import render_to_string
-from django.templatetags import static
 
 from djgentelella.forms.models import HelpForm
 
@@ -21,9 +20,9 @@ class PalleteWidget:
             help_url = ''
         permissions = {}
         if self.context['item'].reversed_kwargs:
-            item_permissions =self.context['item'].reversed_kwargs.split(',')
+            item_permissions = self.context['item'].reversed_kwargs.split(',')
         else:
-            item_permissions = ["djgentelella.add_help",  "djgentelella.change_help",
+            item_permissions = ["djgentelella.add_help", "djgentelella.change_help",
                                 "djgentelella.view_help", "djgentelella.delete_help"]
 
         for item in item_permissions:
@@ -35,29 +34,32 @@ class PalleteWidget:
             "permissions": permissions
         }
         return """
-<script>document.help_widget=%(data)s; 
+<script>document.help_widget=%(data)s;
  var menu=$("#fsb_%(item_pk)s");
  $(document).ready(function(){
     $('#helper_box').helper_box("%(id)s");
  });
-</script>    
-        """%{'data':json.dumps(data),
-             'id': self.context['id'],
-             'item_pk': self.context['item'].pk  }
+</script>
+        """ % {'data': json.dumps(data),
+               'id': self.context['id'],
+               'item_pk': self.context['item'].pk}
 
     def render_external_html(self):
         self.context['form'] = HelpForm()
-        return render_to_string('gentelella/menu/palette_modal.html', context=self.context)
+        return render_to_string('gentelella/menu/palette_modal.html',
+                                context=self.context)
 
     def get_menu_item(self):
         dev = {
-            'id': "fsb_%s"%self.context['item'].id,
+            'id': "fsb_%s" % self.context['item'].id,
             'title': 'Help',
-            'link': "#content_%s"%self.context['id'],
-            'divref': "content_%s"%self.context['id'],
+            'link': "#content_%s" % self.context['id'],
+            'divref': "content_%s" % self.context['id'],
             'icon': self.context['item'].icon
         }
         return """
-            <a id="%(id)s" title="%(title)s" aria-controls="divref" data-toggle="collapse" aria-expanded="false" data-target="%(link)s" href="%(link)s">
+            <a id="%(id)s" title="%(title)s" aria-controls="divref"
+            data-bs-toggle="collapse" aria-expanded="false"
+            data-bs-target="%(link)s" href="%(link)s">
       <span class="%(icon)s" aria-hidden="true"></span></a>
-        """%dev
+        """ % dev

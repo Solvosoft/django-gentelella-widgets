@@ -47,21 +47,21 @@ def get_fields(model, include=None):
                 related_model, field_name = name.split('__', 1)
                 try:
                     selected[name] = \
-                        info.get_field_by_name(related_model)[0].\
+                        info.get_field_by_name(related_model)[0]. \
                         related_model._meta.get_field_by_name(name)[0]
-                except:
-                    selected[name] = info.get_field(related_model).\
-                            related_model._meta.get_field(field_name)
+                except BaseException:
+                    selected[name] = info.get_field(related_model). \
+                        related_model._meta.get_field(field_name)
             else:
                 try:
                     selected[name] = info.get_field_by_name(name)[0]
-                except:
+                except BaseException:
                     selected[name] = info.get_field(name)
     else:
         try:
             selected = {field.name: field for field in info.fields
                         if field.editable}
-        except:
+        except BaseException:
             # Python < 2.7
             selected = dict((field.name, field) for field in info.fields
                             if field.editable)

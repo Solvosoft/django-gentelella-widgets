@@ -1,0 +1,25 @@
+{% load static i18n %}
+
+<div aria-hidden="true" id="{{id}}" class="modal fade {{principal_class}}" aria-labelledby="{{id}}_title"
+					data-bs-focus="false" role="dialog" tabindex="-1">
+	<div class="modal-dialog {{modal_class}}" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="{{id}}_title">{{title}}</h5>
+				<button aria-label="{% trans 'Close' %}" class="btn-close" data-bs-dismiss="modal" type="button">
+				</button>
+			</div>
+			<div class="modal-body">
+				<form id="{{form_id}}" method="POST" autocomplete="off" action="{{url}}">
+					{% csrf_token %}
+					{{ form }}
+					<input type="hidden" name="prefix" class="form_prefix" value="{{form.prefix|default_if_none:''}}">
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-secondary" data-bs-dismiss="modal" type="button">{% trans 'Close' %}</button>
+				<button class="btn btn-primary formadd" type="button">{% trans 'Save changes' %}</button>
+			</div>
+		</div>
+	</div>
+</div>

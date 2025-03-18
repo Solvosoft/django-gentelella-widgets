@@ -1,5 +1,3 @@
-import json
-
 from django.urls import reverse_lazy
 
 from djgentelella.widgets.core import Select, update_kwargs, SelectMultiple
@@ -7,8 +5,9 @@ from djgentelella.widgets.core import Select, update_kwargs, SelectMultiple
 
 class BaseAutocomplete:
     def get_context(self, name, value, attrs):
-        context = super().get_context(name,value,attrs)
-        context['url'] = reverse_lazy(self.baseurl)
+        context = super().get_context(name, value, attrs)
+        context['url'] = reverse_lazy(self.baseurl, args=self.extra_url_args,
+                                      kwargs=self.extra_url_kwargs)
         return context
 
     def optgroups(self, name, value, attrs=None):
@@ -25,7 +24,8 @@ class AutocompleteSelectBase(BaseAutocomplete, Select):
 
     def __init__(self, attrs=None, choices=(), extraskwargs=True):
         if extraskwargs:
-            attrs = update_kwargs(attrs, 'AutocompleteSelect', base_class='form-control ')
+            attrs = update_kwargs(attrs, 'AutocompleteSelect',
+                                  base_class='form-control ')
         if self.baseurl is None:
             raise ValueError('Autocomplete requires baseurl to work')
         else:
@@ -35,7 +35,8 @@ class AutocompleteSelectBase(BaseAutocomplete, Select):
         }
         attrsn.update(attrs)
         attrsn.update(self.extra_attrs)
-        super(AutocompleteSelectBase, self).__init__(attrsn,  choices=choices, extraskwargs=False)
+        super(AutocompleteSelectBase, self).__init__(attrsn, choices=choices,
+                                                     extraskwargs=False)
 
 
 class AutocompleteSelectMultipleBase(BaseAutocomplete, SelectMultiple):
@@ -44,30 +45,38 @@ class AutocompleteSelectMultipleBase(BaseAutocomplete, SelectMultiple):
 
     def __init__(self, attrs=None, choices=(), extraskwargs=True):
         if extraskwargs:
-            attrs = update_kwargs(attrs, 'AutocompleteSelectMultiple',  base_class='form-control ')
+            attrs = update_kwargs(attrs, 'AutocompleteSelectMultiple',
+                                  base_class='form-control ')
         if self.baseurl is None:
             raise ValueError('Autocomplete requires baseurl to work')
         else:
             self.baseurl = self.baseurl
         attrsn = {
             'data-start_empty': 'false'
+
         }
         attrsn.update(attrs)
         attrsn.update(self.extra_attrs)
-        super(AutocompleteSelectMultipleBase, self).__init__(attrsn, choices=choices, extraskwargs=False)
+        super(AutocompleteSelectMultipleBase, self).__init__(attrsn, choices=choices,
+                                                             extraskwargs=True)
 
-def AutocompleteSelect(url, attrs={}):
+
+def AutocompleteSelect(url, url_suffix="-list", url_args=[], url_kwargs={}, attrs={}):
     class AutocompleteSelect(AutocompleteSelectBase):
-        baseurl = url+"-list"
+        baseurl = url + url_suffix
         extra_attrs = attrs.copy()
+        extra_url_kwargs = url_kwargs.copy()
+        extra_url_args = url_args.copy()
 
     return AutocompleteSelect
 
 
-def AutocompleteSelectMultiple(url, attrs={}):
+def AutocompleteSelectMultiple(url, url_suffix="-list", url_args=[], url_kwargs={},
+                               attrs={}):
     class AutocompleteSelectMultiple(AutocompleteSelectMultipleBase):
-        baseurl = url+"-list"
+        baseurl = url + url_suffix
         extra_attrs = attrs.copy()
-
+        extra_url_kwargs = url_kwargs.copy()
+        extra_url_args = url_args.copy()
 
     return AutocompleteSelectMultiple

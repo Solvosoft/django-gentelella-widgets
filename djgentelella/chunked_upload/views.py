@@ -1,15 +1,15 @@
 import re
 
-from django.views.generic import View
-from django.shortcuts import get_object_or_404
 from django.core.files.base import ContentFile
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from django.views.generic import View
 
-from djgentelella.settings import MAX_BYTES
-from djgentelella.models import ChunkedUpload
-from .response import Response
-from .constants import http_status, COMPLETE
 from djgentelella.exceptions import ChunkedUploadError
+from djgentelella.models import ChunkedUpload
+from djgentelella.settings import MAX_BYTES
+from .constants import http_status, COMPLETE
+from .response import Response
 
 
 def is_authenticated(user):
@@ -25,7 +25,9 @@ class ChunkedUploadBaseView(View):
 
     # Has to be a ChunkedUpload subclass
     model = ChunkedUpload
-    user_field_name = 'user'  # the field name that point towards the AUTH_USER in ChunkedUpload class or its subclasses
+    # the field name that point towards the AUTH_USER in ChunkedUpload class
+    # or its subclasses
+    user_field_name = 'user'
 
     def get_queryset(self, request):
         """
@@ -33,7 +35,12 @@ class ChunkedUploadBaseView(View):
         By default, users can only continue uploading their own uploads.
         """
         queryset = self.model.objects.all()
-        if hasattr(self.model, self.user_field_name) and hasattr(request, 'user') and is_authenticated(request.user):
+        if hasattr(
+                self.model,
+                self.user_field_name) and hasattr(
+                request,
+                'user') and is_authenticated(
+                request.user):
             queryset = queryset.filter(**{self.user_field_name: request.user})
         return queryset
 
@@ -125,7 +132,12 @@ class ChunkedUploadView(ChunkedUploadBaseView):
         Should return a dictionary-like object.
         """
         attrs = {}
-        if hasattr(self.model, self.user_field_name) and hasattr(request, 'user') and is_authenticated(request.user):
+        if hasattr(
+                self.model,
+                self.user_field_name) and hasattr(
+                request,
+                'user') and is_authenticated(
+                request.user):
             attrs[self.user_field_name] = request.user
         return attrs
 

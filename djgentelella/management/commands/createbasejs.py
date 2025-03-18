@@ -1,6 +1,7 @@
-from django.core.management import BaseCommand
-from django.contrib.staticfiles import finders
 from pathlib import Path
+
+from django.contrib.staticfiles import finders
+from django.core.management import BaseCommand
 
 
 class Command(BaseCommand):
@@ -13,6 +14,7 @@ class Command(BaseCommand):
         basepath = Path(result.replace('widgets.js', ''))
 
         basefiles = [
+            'form.common.js',
             'formset.js',
             'helper_widget.js',
             'autocompleteSelect2.js',
@@ -25,7 +27,10 @@ class Command(BaseCommand):
             'mapbased_storymap.js',
             'storyline.js',
             'calendar.js',
-            'timeline.js'
+            'timeline.js',
+            'mediarecord.js',
+            'api_list.js',
+            'tagify.js'
         ]
         jquery_plugins = [
             'notifications.js',
@@ -39,9 +44,9 @@ class Command(BaseCommand):
             fwriter.write("(function($){\n")
             for f in jquery_plugins:
                 with open(basepath / 'base' / f, 'r') as rfile:
-                    fwriter.write("\n%s\n"%(rfile.read()))
+                    fwriter.write("\n%s\n" % (rfile.read()))
             fwriter.write("})(jQuery)\n")
 
             for f in basefiles:
                 with open(basepath / 'base' / f, 'r') as rfile:
-                    fwriter.write("\n%s\n"%(rfile.read()))
+                    fwriter.write("\n%s\n" % (rfile.read()))

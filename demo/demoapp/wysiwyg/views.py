@@ -1,9 +1,8 @@
-from django.shortcuts import render
 from django.urls import reverse_lazy
-from .forms import EditorTinymce
-from demoapp.models import WysiwygModel
-from datetime import datetime
 from django.views.generic import CreateView, ListView, UpdateView, DetailView
+
+from demoapp.models import WysiwygModel
+from .forms import EditorTinymce
 
 
 class InsertTinymce(CreateView):
@@ -11,6 +10,7 @@ class InsertTinymce(CreateView):
     form_class = EditorTinymce
     template_name = 'gentelella/editorTinymce/inputs.html'
     success_url = reverse_lazy('tinymce-list')
+
 
 class ListTinymce(ListView):
     model = WysiwygModel

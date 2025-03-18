@@ -1,7 +1,7 @@
-
 from rest_framework.routers import SimpleRouter
 
 routes = SimpleRouter()
+
 
 def register_lookups(prefix='', basename=None):
     """
@@ -10,11 +10,17 @@ def register_lookups(prefix='', basename=None):
     :param basename:
     :return:
     """
+
     def wrap(func):
         return func
+
     @wrap
     def decore(klass):
-        routes.register(prefix, klass, basename=basename)
+        if basename in ['userbase', 'groupbase']:
+            from djgentelella import settings
+            if settings.REGISTER_DEFAULT_USER_API:
+                routes.register(prefix, klass, basename=basename)
+        else:
+            routes.register(prefix, klass, basename=basename)
 
     return decore
-

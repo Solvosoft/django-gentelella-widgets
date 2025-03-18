@@ -1,21 +1,25 @@
+from django import forms
 from django.core.exceptions import ImproperlyConfigured
+from django.forms import formset_factory
 from django.template import Template, Context
 from django.test import TestCase
-from django.forms import formset_factory
-from django import forms
 
 from djgentelella.widgets.timeline import UrlTimeLineInput
 
-attrs={"data-url": 'exampletimeline-url/',  "height": 568}
+attrs = {"data-url": 'exampletimeline-url/', "height": 568}
 
 
 class FormClass(forms.Form):
     timeline = forms.CharField(widget=UrlTimeLineInput(attrs))
 
+
 class MultiItemsFormClass(forms.Form):
-    timelineone = forms.CharField(widget=UrlTimeLineInput(attrs), disabled=True, required=True)
-    timelinetwo = forms.CharField(widget=UrlTimeLineInput(attrs), disabled=True, required=False)
-    timelinethree = forms.CharField(widget=UrlTimeLineInput(attrs), disabled=False, required=False)
+    timelineone = forms.CharField(widget=UrlTimeLineInput(attrs), disabled=True,
+                                  required=True)
+    timelinetwo = forms.CharField(widget=UrlTimeLineInput(attrs), disabled=True,
+                                  required=False)
+    timelinethree = forms.CharField(widget=UrlTimeLineInput(attrs), disabled=False,
+                                    required=False)
 
 
 class UrlTimeWidgetUnitTest(TestCase):
@@ -67,7 +71,8 @@ class UrlTimeWidgetUnitTest(TestCase):
         reason: help user to identify error when code
         """
 
-        with self.assertRaisesRegex(ImproperlyConfigured, "You must add data-url on attrs"):
+        with self.assertRaisesRegex(ImproperlyConfigured,
+                                    "You must add data-url on attrs"):
             class InvalidForm(forms.Form):
                 storyline = forms.CharField(widget=UrlTimeLineInput)
                 storytwo = forms.CharField(widget=UrlTimeLineInput({"height": 20}))
@@ -81,4 +86,3 @@ class UrlTimeWidgetUnitTest(TestCase):
             self.assertNotIn("required", form_str)
             self.assertNotIn("disabled", form_str)
             self.assertIn('data-widget="UrlTimeLineInput"', form_str)
-

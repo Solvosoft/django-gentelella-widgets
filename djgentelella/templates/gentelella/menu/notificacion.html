@@ -5,7 +5,7 @@
     <span class=" badge bg-success notificacionnumero">0</span>
 </a>
 <div id="temp_{{id}}" class="visually-hidden" >
-    <div class="">
+    <div class="container-fluid">
 
         <span class="image btn btn-sm">
             <i data-action="hide" class="clk fa fa-eye-slash text-$message_type"></i>
@@ -15,22 +15,22 @@
         </span>
 
         <a href="$link" target="_blank" style="margin-top: 10px; ">
-            <span class="time" style="margin-right:40px; margin-top: 8px; ">$datedata</span>
+            <span class="time " >$datedata</span>
             <span class="message text-center">$description</span>
         </a>
     </div>
 </div>
-<ul id="ddm_{{id}}" class="dropdown-menu list-unstyled msg_list gentelellamenu" role="menu" style="left:-150px !important">
+<ul id="ddm_{{id}}" class="dropdown-menu list-unstyled msg_list gentelellamenu scrollbar size-notifications" role="menu" >
     <li id="showall_{{id}}">
-        <div class="d-flex justify-content-center view_notification">
-            <btn id="prev_{{id}}" data-url="false"  class="pull-left btn btn-sm btn-success">
+        <div class="d-flex justify-content-center view_notification container-fluid">
+            <btn id="prev_{{id}}" data-url="false"  class="float-start btn btn-sm btn-success">
                 <i class="fa fa-angle-left "></i>
             </btn>
             <a href="{{view_url}}" class="text-center">
                 <strong>{% trans 'Show all notifications' %} </strong>
 
             </a>
-            <btn id="next_{{id}}" data-url="false" class="pull-right btn btn-sm btn-success">
+            <btn id="next_{{id}}" data-url="false" class="float-end btn btn-sm btn-success">
                 <i class="fa fa-angle-right "></i>
             </btn>
         </div>

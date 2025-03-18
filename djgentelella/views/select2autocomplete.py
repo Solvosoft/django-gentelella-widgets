@@ -1,9 +1,9 @@
 from collections import OrderedDict
 
 from django.db.models import Q
-from rest_framework import mixins, viewsets
 from rest_framework import generics
 from rest_framework import serializers
+from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
@@ -71,14 +71,20 @@ class BaseSelect2View(generics.ListAPIView, viewsets.GenericViewSet):
     text_wrapper = ''
     order_by = 'pk'
 
+    def get_filter_suffix(self, fieldname):
+        if hasattr(self, f'get_filter_suffix_{fieldname}'):
+            return getattr(self, f'get_filter_suffix_{fieldname}')()
+        return '__icontains'
+
     def filter_data(self, queryset, qe):
         filters = None
         for field in self.fields:
+            suffix = self.get_filter_suffix(field)
             for q in qe:
                 if filters is None:
-                    filters = Q(**{field + '__icontains': q})
+                    filters = Q(**{field + suffix: q})
                 else:
-                    filters |= Q(**{field + '__icontains': q})
+                    filters |= Q(**{field + suffix: q})
         return queryset.filter(filters)
 
     def query_get(self, name, default, aslist=False):
@@ -92,14 +98,16 @@ class BaseSelect2View(generics.ListAPIView, viewsets.GenericViewSet):
                 q = []
         return q
 
-
     def filter_queryset(self, queryset):
         q = self.query_get('term', '')
-        self.selected = self.query_get('selected', '')
+        if hasattr(self, 'selected'):
+            self.selected += self.query_get('selected', '')
+        else:
+            self.selected = self.query_get('selected', '')
         if self.ref_field is not None:
             relq = self.query_get(self.ref_name, '')
             if relq:
-                queryset = queryset.filter(**{self.ref_field+'__in': relq})
+                queryset = queryset.filter(**{self.ref_field + '__in': relq})
             else:
                 queryset = queryset.none()
 
@@ -109,9 +117,9 @@ class BaseSelect2View(generics.ListAPIView, viewsets.GenericViewSet):
 
     def get_queryset(self):
         assert self.model is not None, (
-                "'%s' should either include a `model` attribute, "
-                "or override the `get_queryset()` method."
-                % self.__class__.__name__
+            "'%s' should either include a `model` attribute, "
+            "or override the `get_queryset()` method."
+            % self.__class__.__name__
         )
         return self.model.objects.all().order_by(self.order_by)
 
@@ -136,7 +144,7 @@ class BaseSelect2View(generics.ListAPIView, viewsets.GenericViewSet):
         if func is not None:
             dev = func(dev)
         if self.text_wrapper:
-            dev = self.text_wrapper%dev
+            dev = self.text_wrapper % dev
         return dev
 
     def get_id_display(self, obj):

@@ -1,64 +1,61 @@
 {% extends 'gentelella/base_site.html' %}
 {% load static i18n gtsettings %}
-
-{% block extra_css %}
-    <link href="{% static 'vendors/datatables/dataTables.bootstrap.min.css' %}?v={% get_version %}" />
-{% endblock  %}
+{% load gtsettings timejs %}
 
 {% block content %}
 <div class="container">
-    <div class="row">
+	<div class="row">
 
-        <div class='col-md-12 col-sm-12'>
-            <h1 class="text-center"> {% trans 'List of notifications' %}</h1>
+		<div class='col-md-12 col-sm-12'>
+			<h1 class="text-center"> {% trans 'List of notifications' %}</h1>
 
-            <div class="card">
+			<div class="card">
 
-                <div class="card-body" style="display: block;">
-                    <div class="dashboard-widget-content table-responsive">
-                        <table id="notificationtable" class="table table-striped table-bordered" style="width:100%">
-                            <thead>
-                            <tr>
-                                <th>{% trans 'Type' %}</th>
-                                <th>{% trans 'Creation date' %}</th>
-                                <th>{% trans 'Description' %}</th>
-                                <th>{% trans 'Link' %}</th>
-                                <th>{% trans 'State' %}</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for obj in object_list %}
-                            <tr>
-                                <td><span title="{{obj.get_message_type_display}}" style="font-size: 1.5em;" class="text-{{obj.message_type}} fa fa-circle"></span></td>
-                                <td>{{obj.creation_date}}</td>
-                                <td class="text-justify">{{ obj.description}}</td>
-                                <td><a href="{{obj.link}}" target="_blank">{% trans 'Show' %} </a> </td>
-                                <td>{{ obj.get_state_display }}</td>
-                            </tr>
-                            {% endfor %}
-                            </tbody>
-
-                            <tbody>
-
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+				<div class="card-body" style="display:block;">
+					<div class="dashboard-widget-content table-responsive">
+						<table id="notificationdatatable" class="table table-striped table-bordered" style="width:100%"></table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
-    {% endblock content %}
-{% block javascripts %}
-{{ block.super }}
-    <script src="{% static 'vendors/datatables/jquery.dataTables.min.js' %}?v={% get_version %}"></script>
-    <script src="{% static 'vendors/datatables/dataTables.bootstrap.min.js' %}?v={% get_version %}"></script>
+{% endblock content %}
+{% block js %}
+
 <script>
-(function(){
-    $("#notificationtable").DataTable({
-        "language": {
-            "url": "{% get_datatables_translation %}"
-        }
+    document.table_default_dom = "<'row'<'col-sm-12 col-md-12 mb-1 d-flex' f>" +
+                 "<'col-sm-11 col-md-11 mt-1 p-0 d-flex align-items-center justify-content-start'l>" +
+                 "<'col-sm-1 col-md-1 mt-1 d-flex align-items-center justify-content-end 'B>>" +
+                 "<'row'<'col-sm-12'tr>><'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>";
+
+    notificationdatatable=createDataTable('#notificationdatatable', '{% url "api-notificationtable-list" %}', {
+     columns: [
+            {data: "message_type", name: "message_type", title: "{% trans 'Type' %}", className: "col-1", type: "string", visible: true,
+            render: function (data, type, row) {
+              return '<span style="font-size: 1.5em;" class="text-'+data+' fa fa-circle"></span>'
+            }},
+            {data: "creation_date", name: "creation_date", title: "{% trans 'Creation date' %}", className: "col-4", type: "date", visible: true, "dateformat":  "{% get_datetime_format %}"},
+            {data: "description", name: "description", title: "{% trans 'Description' %}", className: "col-5", type: "string", visible: true},
+            {data: "link", name: "link", title: "{% trans 'Link' %}", className: "col-1", type: "string", visible: true,
+            render: function (data, type, row) {
+              return '<a href='+data+'>'+'Ver'+'</a>';
+            }},
+            {data: "state", name: "state", title: "{% trans 'State' %}", className: "col-1", type: "string", visible: true,
+            render: function (data, type, row) {
+              return '<div>'+data.charAt(0).toUpperCase() + data.slice(1)+'</div>'
+            }},
+      ]
+    }, addfilter=true);
+
+    $(document).ready(function() {
+      $('.dataTables_filter').addClass('w-100');
+      $('.dataTables_filter input').addClass('filter-input').css('width', '96%');
+      $('.dataTables_filter label').addClass('filter-label').css('width', '100%');
+      $('.dataTables_paginate').removeClass('paging_full_numbers');
+      $('.dataTables_paginate').addClass('paging_simple_numbers');
+      $('#notificationdatatable').removeClass('dtr-inline');
     });
-})(jQuery);
+
 </script>
-{% endblock %}
+{% endblock js %}

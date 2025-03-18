@@ -11,7 +11,8 @@ Icon
 
 # Thumbnails
 ._*
-
+_build/
+build
 # Files that might appear on external disk
 .Spotlight-V100
 .Trashes
@@ -34,6 +35,7 @@ __pycache__/
 
 # Distribution / packaging
 .Python
+demo/tmp/
 env/
 build/
 develop-eggs/
@@ -85,9 +87,10 @@ target/
 __pycache__/
 local_settings.py
 
+
 .env
 demo/db.sqlite3
-
+demo/temp/
 venv/
 .idea/
 djgentelella/static/vendors/
@@ -95,3 +98,6 @@ djgentelella/static/vendors/
 #ignore vscode settins
 .vscode/
 demo/media
+djgentelella/static/djgentelella.vendors.header.min.js
+djgentelella/static/djgentelella.vendors.min.css
+djgentelella/static/djgentelella.vendors.min.js

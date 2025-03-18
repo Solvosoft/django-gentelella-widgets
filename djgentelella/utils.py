@@ -9,20 +9,21 @@ def get_settings(key, none_asdefault=False):
         return _cache
     value = GentelellaSettings.objects.filter(key=key).values('value')
     if value:
-        value=value[0]['value']
+        value = value[0]['value']
         cache.set(key, value, timeout=None)
     else:
         if none_asdefault:
-            value=None
+            value = None
         else:
             value = ''
     return value
 
+
 def set_settings(key, value):
     instance = GentelellaSettings.objects.filter(key=key, value=value).first()
     if instance:
-        instance.key=key
-        instance.value=value
+        instance.key = key
+        instance.value = value
         instance.save()
     else:
         GentelellaSettings.objects.create(key=key, value=value)

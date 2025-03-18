@@ -1,8 +1,8 @@
-from django.db import models
-from django.core.validators import MaxValueValidator, MinValueValidator
-from django.core.exceptions import ValidationError
-from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 # Create your models here.
 from djgentelella.fields.catalog import GTForeignKey, GTManyToManyField, GTOneToOneField
@@ -67,20 +67,10 @@ class Foo(models.Model):
     ])
 
 
-class Colors(models.Model):
-    color = models.CharField(max_length=150)
-    color2 = models.CharField(max_length=150)
-    color3 = models.CharField(max_length=150)
-    color4 = models.CharField(max_length=150)
-
-    def __str__(self):
-        return f"{self.color} {self.color2} {self.color3} {self.color4}"
-
-
 class PeopleGroup(models.Model):
     name = models.CharField(max_length=150)
     people = models.ManyToManyField(Person)
-    comunities = models.ManyToManyField('Comunity')
+    communities = models.ManyToManyField('Community')
     country = models.ForeignKey(
         Country, null=True, blank=True, on_delete=models.CASCADE)
 
@@ -88,7 +78,7 @@ class PeopleGroup(models.Model):
         return self.name
 
 
-class Comunity(models.Model):
+class Community(models.Model):
     name = models.CharField(max_length=150)
 
     def __str__(self):
@@ -204,7 +194,7 @@ class Employee(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     username = models.CharField(max_length=100)
 
-    #username also can be a @property to user.username.
+    # username also can be a @property to user.username.
 
     @property
     def gt_get_permission(self):
@@ -227,9 +217,40 @@ class Calendar(models.Model):
 
 class Event(models.Model):
     calendar = models.ForeignKey(to=Calendar, on_delete=models.CASCADE)
-    title = models.CharField(max_length=255,null=True,blank=True)
-    start = models.DateTimeField(null=True,blank=True)
-    end = models.DateTimeField(null=True,blank=True)
+    title = models.CharField(max_length=255, null=True, blank=True)
+    start = models.DateTimeField(null=True, blank=True)
+    end = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return self.title
+
+
+class ObjectManagerDemoModel(models.Model):
+    ELEMENTS = (
+        (1, "A"),
+        (2, "B"),
+        (3, "C"),
+        (4, "D"),
+
+    )
+    name = models.CharField(max_length=150)
+    float_number = models.FloatField(default=0)
+    knob_number = models.IntegerField(default=0)
+    born_date = models.DateField()
+    last_time = models.DateTimeField()
+    livetime_range = models.CharField(max_length=256)  # daterange field
+    description = models.TextField()  # wysiwyg
+    simple_archive = models.FileField(upload_to='files')
+    chunked_archive = models.FileField(upload_to='chunked_files')
+    radio_elements = models.IntegerField(choices=ELEMENTS)
+    taging_list = models.CharField(max_length=256)
+    yes_no = models.BooleanField(default=False)
+
+    field_autocomplete = models.ForeignKey(Country, related_name='ct',
+                                           on_delete=models.CASCADE)
+    m2m_autocomplete = models.ManyToManyField(Country, related_name='autocomplext')
+    field_select = models.ForeignKey('Community', on_delete=models.CASCADE)
+    m2m_multipleselect = models.ManyToManyField(A)
+
+    def __str__(self):
+        return self.name

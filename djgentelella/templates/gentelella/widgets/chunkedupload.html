@@ -6,24 +6,19 @@
             <input class="chunkedupload-input" style="" type="{{ widget.type }}" data-inputtoken="{{ widget.name }}" data-process=".{{ widget.name }}_progress"  data-message=".{{ widget.name }}_messages"  name="{{ widget.name }}_widget" {% include "gentelella/widgets/attrs.html" %}>
         </div>
         <div   class="form-control {{ widget.name }}_messages" style="display:none;"></div>
-        <input type="hidden" name="{{ widget.name }}" value="" />
+        <input class="chunkedvalue" type="hidden" name="{{ widget.name }}" value='{{widget.value}}' autocomplete="off"/>
         <div class="input-group-text fileshow" ><i class="fa fa-eye"></i></div>
-        {% if widget.value %}
-        <div id="download_{{ widget.name }}" class="input-group-text bg-danger" >
-            <a href="{{widget.value.url}}" target="_blank"><i class="fa fa-download text-light"></i></a>
+        <div id="download_{{ widget.name }}" class="input-group-text bg-danger" {% if not widget.value %}style="display:none;"{% endif %} >
+            <a href="" target="_blank"><i class="fa fa-download text-light"></i></a>
         </div>
-        {% endif %}
     </div>
-
-    {% if widget.value and not widget.required %}
-    <div class="checkbox">
+    <div id="remove_{{ widget.name }}" class="checkbox">
         <label class="">
-            <div class="icheckbox_flat-green checked" style="position: relative;">
-                <input type="checkbox" autocomplete="off" data-widget="CheckboxInput"  class="flat"  style="position: absolute; opacity: 0;">
+            <div class="icheckbox_flat-green" style="position: relative;">
+                <input id="id_remove_{{ widget.name }}" type="checkbox" autocomplete="off" data-widget="CheckboxInput" name="remove_{{ widget.name }}_gt"  class="flat"  style="position: absolute; opacity: 0;">
                 <ins class="iCheck-helper"  ></ins></div>
-            {% trans 'Delete this file' %}
-
+            				{% trans 'Delete this file' %}
         </label>
     </div>
-    {% endif %}
+
 </div>

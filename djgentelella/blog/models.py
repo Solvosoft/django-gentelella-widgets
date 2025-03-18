@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 import time
 
-from django.urls import reverse
+from django.conf import settings
 from django.db import models
 from django.template.defaultfilters import truncatechars
+from django.urls import reverse
+from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.text import slugify
-from django.utils import timezone
-from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from markitup.fields import MarkupField
 
@@ -17,6 +17,7 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class Entry(models.Model):
     """
@@ -32,11 +33,11 @@ class Entry(models.Model):
     content = MarkupField()
     is_published = models.BooleanField(default=False)
     published_timestamp = models.DateTimeField(blank=True, null=True, editable=False)
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, editable=True, on_delete=models.CASCADE)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, editable=True,
+                               on_delete=models.CASCADE)
     categories = models.ManyToManyField(Category)
     feature_image = models.ImageField(blank=True, upload_to='blog/images')
     published_content = models.TextField()
-
 
     def __str__(self):
         return self.title

@@ -8,10 +8,12 @@ class Personclass(CRUDView):
     check_login = False
     check_perms = False
 
+
 class Countryclass(CRUDView):
     model = Country
     check_login = False
     check_perms = False
+
 
 class MenuItemclass(CRUDView):
     model = MenuItem

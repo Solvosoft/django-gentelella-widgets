@@ -15,7 +15,6 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
@@ -26,7 +25,6 @@ SECRET_KEY = '@438vu@4s#@juwf6b*s@u&%9hv&_pgk_g1%s$pp2)(+x7br-ta'
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -39,7 +37,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'djgentelella',
     'rest_framework',
-    'mptt',
     'demoapp',
     'djgentelella.blog',
     'djgentelella.permission_management',
@@ -77,7 +74,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'demo.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
@@ -88,13 +84,13 @@ DATABASES = {
     }
 }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        'NAME':
+            'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
@@ -107,7 +103,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 
@@ -117,21 +112,10 @@ TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
-USE_L10N = False
+USE_L10N = True
 
 USE_TZ = True
 
-DATE_INPUT_FORMATS=[
-    '%Y-%m-%d', '%d/%m/%Y', '%d/%m/%y'
-]
-DATE_FORMAT= ['%d/%m/%Y',]
-
-DATETIME_INPUT_FORMATS = [
-    '%m/%d/%Y %H:%M',
-    '%d/%m/%Y %H:%M',
-    '%Y-%m-%d %H:%M',
-    '%d/%m/%y %H:%M'
-]
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
@@ -139,8 +123,8 @@ STATIC_URL = os.getenv('STATIC_URL', '/static/')
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 MEDIA_URL = os.getenv('MEDIA_URL', '/media/')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
-TINYMCE_UPLOAD_PATH =os.path.join(MEDIA_ROOT, 'tinymce')
-SUMMERNOTE_UPLOAD_PATH =os.path.join(MEDIA_ROOT, 'summernote')
+TINYMCE_UPLOAD_PATH = os.path.join(MEDIA_ROOT, 'tinymce')
+SUMMERNOTE_UPLOAD_PATH = os.path.join(MEDIA_ROOT, 'summernote')
 
 EMAIL_HOST = 'localhost'
 EMAIL_PORT = '1025'
@@ -150,6 +134,7 @@ MARKITUP_SET = 'markitup/sets/markdown/'
 JQUERY_URL = None
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
-# DEFAULT_JS_IMPORTS = {
-#     'use_bootstraptree': True
-# }
+DEFAULT_JS_IMPORTS = {
+    'use_readonlywidgets': True,
+    'use_flags': True
+}

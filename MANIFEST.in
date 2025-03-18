@@ -1,5 +1,5 @@
 include Readme.rst
-include LICENSE
+include LICENSE.txt
 include requirements.txt
 graft djgentelella/templates
 graft djgentelella/static

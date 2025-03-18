@@ -1,0 +1,116 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-12-23 22:28-0600\n"
+"PO-Revision-Date: 2024-12-23 22:35-0600\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.2.2\n"
+
+msgid "Problem in the Internet?"
+msgstr "¿Problemas de conexión ?"
+
+msgid "Select an element"
+msgstr "Seleccione un elemento"
+
+msgid "Sorry, there is a problem"
+msgstr "Lo lamentamos hay un problema"
+
+msgid "Media device is not available"
+msgstr "Dispositivo de multimedia no está disponible"
+
+msgid "Start"
+msgstr "Iniciar"
+
+msgid "Capture"
+msgstr "Capturar"
+
+msgid "Save"
+msgstr "Guardar"
+
+msgid "Record"
+msgstr "Grabar"
+
+msgid "Recording..."
+msgstr "Grabando..."
+
+msgid " Records Selected"
+msgstr " Grabar seleccionado"
+
+msgid "Unsupported format "
+msgstr "Formato no soportado "
+
+msgid "error uploading file"
+msgstr "error subiendo archivo"
+
+msgid "not a real date"
+msgstr "no es una fecha real"
+
+msgid "Select date"
+msgstr "Seleccione una fecha"
+
+msgid "Clear"
+msgstr "Limpiar"
+
+msgid "Search "
+msgstr "Buscar "
+
+msgid "Yes"
+msgstr "Si"
+
+msgid "No"
+msgstr "No"
+
+msgid "More"
+msgstr "Más"
+
+msgid "Download"
+msgstr "Descargar"
+
+msgid "Clear Filters"
+msgstr "Limpiar Filtros"
+
+msgid "Success"
+msgstr "Éxito"
+
+msgid "Error"
+msgstr "Error"
+
+msgid "Actions"
+msgstr "Acciones"
+
+msgid "This Object"
+msgstr "Este objeto"
+
+msgid "Create"
+msgstr "Crear"
+
+msgid "Detail"
+msgstr "Detalles"
+
+msgid "Update"
+msgstr "Actualizar"
+
+msgid "Delete"
+msgstr "Borrar"
+
+msgid ""
+"There was a problem performing your request. Please try again later or "
+"contact the administrator."
+msgstr ""
+"Hubo un problema al realizar tu solicitud. Por favor, intenta nuevamente más "
+"tarde o contacta al administrador."
+
+msgid "loading"
+msgstr "Cargando"

@@ -1,6 +1,10 @@
-from django.contrib.auth.views import LoginView
-from django.shortcuts import render
+from django.contrib.auth.views import LoginView, LogoutView
+
 
 class GentelellaLoginView(LoginView):
-    pass
+    template_name = 'gentelella/registration/login.html'
 
+
+class GentelellaLogoutView(LogoutView):
+    http_method_names = ["get", "post", "options"]
+    template_name = "gentelella/registration/logout.html"

@@ -1,11 +1,12 @@
-from django.core.exceptions import ImproperlyConfigured
-from django.test import TestCase
 from django import forms
+from django.core.exceptions import ImproperlyConfigured
+from django.forms import formset_factory
+from django.template import Template, Context
+from django.test import TestCase
 
 from djgentelella.widgets.storymap import GigaPixelStoryMapInput, MapBasedStoryMapInput
-from django.template import Template, Context
-from django.forms import formset_factory
-attrs={"data-url": 'storymap-url/'}
+
+attrs = {"data-url": 'storymap-url/'}
 
 
 class FormClass(forms.Form):
@@ -14,13 +15,19 @@ class FormClass(forms.Form):
 
 
 class MultiItemsFormClass(forms.Form):
-    gigapixelone = forms.CharField(widget=GigaPixelStoryMapInput(attrs), disabled=True, required=True)
-    gigapixeltwo = forms.CharField(widget=GigaPixelStoryMapInput(attrs), disabled=True, required=False)
-    gigapixelthree = forms.CharField(widget=GigaPixelStoryMapInput(attrs), disabled=False, required=False)
+    gigapixelone = forms.CharField(widget=GigaPixelStoryMapInput(attrs), disabled=True,
+                                   required=True)
+    gigapixeltwo = forms.CharField(widget=GigaPixelStoryMapInput(attrs), disabled=True,
+                                   required=False)
+    gigapixelthree = forms.CharField(widget=GigaPixelStoryMapInput(attrs),
+                                     disabled=False, required=False)
 
-    mapbasedone = forms.CharField(widget=MapBasedStoryMapInput(attrs), disabled=True, required=True)
-    mapbasedtwo = forms.CharField(widget=MapBasedStoryMapInput(attrs), disabled=True, required=False)
-    mapbasedthree = forms.CharField(widget=MapBasedStoryMapInput(attrs), disabled=False, required=False)
+    mapbasedone = forms.CharField(widget=MapBasedStoryMapInput(attrs), disabled=True,
+                                  required=True)
+    mapbasedtwo = forms.CharField(widget=MapBasedStoryMapInput(attrs), disabled=True,
+                                  required=False)
+    mapbasedthree = forms.CharField(widget=MapBasedStoryMapInput(attrs), disabled=False,
+                                    required=False)
 
 
 class StoryMapFormWidgetTest(TestCase):
@@ -48,7 +55,6 @@ class StoryMapFormWidgetTest(TestCase):
         self.assertIn('id="id_mb_storymap"', noprefix)
         self.assertIn('id="id_newname-mb_storymap"', withprefix)
 
-
     def test_check_disable_required(self):
         """
         required and disabled are fields not required because widget is readonly.
@@ -64,11 +70,11 @@ class StoryMapFormWidgetTest(TestCase):
         reason: help user to identify error when code
         """
 
-        with self.assertRaisesRegex(ImproperlyConfigured, "You must add data-url on attrs"):
+        with self.assertRaisesRegex(ImproperlyConfigured,
+                                    "You must add data-url on attrs"):
             class InvalidForm(forms.Form):
                 storyline = forms.CharField(widget=MapBasedStoryMapInput)
                 storytwo = forms.CharField(widget=GigaPixelStoryMapInput)
-
 
     def test_widget_formset(self):
         gigaPixelStoryMapFormSet = formset_factory(FormClass, extra=2)
@@ -77,9 +83,9 @@ class StoryMapFormWidgetTest(TestCase):
         for formIndex in range(len(formset)):
             self.assertIn(f'id_form-{formIndex}-gp_storymap', form_str)
             self.assertIn(f'id_form-{formIndex}-mb_storymap', form_str)
-       # managementform
-       # self.assertIn(f'id_form-_PREFIX_-gp_storymap', form_str)
-       # self.assertIn(f'id_form-_PREFIX_-mb_storymap', form_str)
+        # managementform
+        # self.assertIn(f'id_form-_PREFIX_-gp_storymap', form_str)
+        # self.assertIn(f'id_form-_PREFIX_-mb_storymap', form_str)
         self.assertNotIn("required", form_str)
         self.assertNotIn("disabled", form_str)
         self.assertIn('data-widget="GigaPixelStoryMapInput"', form_str)

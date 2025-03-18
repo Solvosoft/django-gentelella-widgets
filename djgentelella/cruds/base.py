@@ -6,27 +6,26 @@ Free as freedom will be 26/8/2016
 @author: luisza
 '''
 
+import types
+
 from django.conf.urls import include
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
+from django.db.models.query_utils import Q
 from django.http.response import HttpResponseRedirect, HttpResponseForbidden
+from django.shortcuts import get_object_or_404
+from django.template.loader import render_to_string
 from django.urls import re_path
 from django.urls.base import reverse_lazy, reverse
 from django.urls.exceptions import NoReverseMatch
+from django.utils.translation import gettext_lazy as _
 from django.views import View
 from django.views.generic import (ListView, CreateView, DeleteView,
                                   UpdateView, DetailView)
+
 from . import utils
 from .filter import get_filters
-
-from django.contrib.auth.models import Permission
-from django.contrib.contenttypes.models import ContentType
-from django.utils.translation import gettext_lazy as _
-from django.db.models.query_utils import Q
-from django.shortcuts import get_object_or_404
-
-from django.template.loader import render_to_string
-import types
-
 from ..forms.decorators import decore_form_instance
 
 
@@ -389,11 +388,11 @@ class CRUDView(object):
 
             def get_form(self):
                 form = super().get_form()
-                form = decore_form_instance(form, exclude=self.form_widget_exclude)
+                form = decore_form_instance(
+                    form, exclude=self.form_widget_exclude)
                 return form
 
         return OCreateView
-
 
     def get_detail_view_class(self):
         return DetailView
@@ -458,10 +457,13 @@ class CRUDView(object):
                 if (self.getparams):  # fixed filter edit action
                     url += '?' + self.getparams
                 return url
+
             def get_form(self):
                 form = super().get_form()
-                form = decore_form_instance(form, exclude=self.form_widget_exclude)
+                form = decore_form_instance(
+                    form, exclude=self.form_widget_exclude)
                 return form
+
         return OEditView
 
     def get_list_view_class(self):
@@ -562,7 +564,7 @@ class CRUDView(object):
 
         return ODeleteView
 
-#  INITIALIZERS
+    #  INITIALIZERS
     def initialize_create(self, basename):
         OCreateView = self.get_create_view()
         url = utils.crud_url_name(
@@ -636,11 +638,11 @@ class CRUDView(object):
         try:
             model, created = ContentType.objects.get_or_create(
                 app_label=applabel, model=name)
-        except:
+        except BaseException:
             notfollow = True
-        if not notfollow and not Permission.objects.filter(content_type=model,
-                                                           codename="view_%s" %
-                                                           (name, )).exists():
+        if not notfollow and not Permission.objects.filter(
+            content_type=model, codename="view_%s" %
+                                         (name,)).exists():
             Permission.objects.create(
                 content_type=model,
                 codename="view_%s" % (name,),
@@ -715,34 +717,35 @@ class CRUDView(object):
                                  self.model.__name__.lower())
         myurls = []
         if 'list' in self.views_available:
-            myurls.append(re_path("^%s/list$" % (base_name,),
-                              self.list,
-                              name=utils.crud_url_name(
-                                  self.model, 'list', prefix=self.urlprefix)))
+            myurls.append(
+                re_path(
+                    "^%s/list$" %
+                    (base_name,), self.list, name=utils.crud_url_name(
+                        self.model, 'list', prefix=self.urlprefix)))
         if 'create' in self.views_available:
-            myurls.append(re_path("^%s/create$" % (base_name,),
-                              self.create,
-                              name=utils.crud_url_name(
-                                  self.model, 'create', prefix=self.urlprefix))
-                          )
+            myurls.append(
+                re_path(
+                    "^%s/create$" %
+                    (base_name,), self.create, name=utils.crud_url_name(
+                        self.model, 'create', prefix=self.urlprefix)))
         if 'detail' in self.views_available:
-            myurls.append(re_path('^%s/(?P<pk>[^/]+)$' % (base_name,),
-                              self.detail,
-                              name=utils.crud_url_name(
-                                  self.model, 'detail', prefix=self.urlprefix))
-                          )
+            myurls.append(
+                re_path(
+                    '^%s/(?P<pk>[^/]+)$' %
+                    (base_name,), self.detail, name=utils.crud_url_name(
+                        self.model, 'detail', prefix=self.urlprefix)))
         if 'update' in self.views_available:
-            myurls.append(re_path("^%s/(?P<pk>[^/]+)/update$" % (base_name,),
-                              self.update,
-                              name=utils.crud_url_name(
-                                  self.model, 'update', prefix=self.urlprefix))
-                          )
+            myurls.append(
+                re_path(
+                    "^%s/(?P<pk>[^/]+)/update$" %
+                    (base_name,), self.update, name=utils.crud_url_name(
+                        self.model, 'update', prefix=self.urlprefix)))
         if 'delete' in self.views_available:
-            myurls.append(re_path(r"^%s/(?P<pk>[^/]+)/delete$" % (base_name,),
-                              self.delete,
-                              name=utils.crud_url_name(
-                                  self.model, 'delete', prefix=self.urlprefix))
-                          )
+            myurls.append(
+                re_path(
+                    r"^%s/(?P<pk>[^/]+)/delete$" %
+                    (base_name,), self.delete, name=utils.crud_url_name(
+                        self.model, 'delete', prefix=self.urlprefix)))
 
         myurls += self.add_inlines(base_name)
         return myurls
@@ -754,15 +757,15 @@ class CRUDView(object):
                 klass = inline
                 if isinstance(klass, type):
                     # FIXME: This is a dirty hack to act on repeated calls to get_urls()
-                    #        as those mean that inline is a type instance not a class from
-                    #        the second run onwars.
+                    #        as those mean that inline is a type instance not a
+                    #        class from the second run onwars.
                     klass = klass()
                 self.inlines[i] = klass
                 if self.namespace:
                     dev.append(
                         re_path('^inline/',
-                            include(klass.get_urls(),
-                                    namespace=self.namespace))
+                                include(klass.get_urls(),
+                                        namespace=self.namespace))
                     )
                 else:
                     dev.append(
@@ -784,6 +787,7 @@ class UserCRUDView(CRUDView):
                 self.object.user = self.request.user
                 self.object.save()
                 return HttpResponseRedirect(self.get_success_url())
+
         return UCreateView
 
     def get_update_view(self):
@@ -796,6 +800,7 @@ class UserCRUDView(CRUDView):
                 self.object.user = self.request.user
                 self.object.save()
                 return HttpResponseRedirect(self.get_success_url())
+
         return UUpdateView
 
     def get_list_view(self):
@@ -807,4 +812,5 @@ class UserCRUDView(CRUDView):
                 queryset = super(UListView, self).get_queryset()
                 queryset = queryset.filter(user=self.request.user)
                 return queryset
+
         return UListView

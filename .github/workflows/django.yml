@@ -13,33 +13,23 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        python-version: [3.7] #, 3.8, 3.9
+        python-version: ['3.11', '3.12'] #, 3.8, 3.9, '3.10'
+
 
     steps:
-    - name: Download and install google-chrome-stable
-      run: |
-        sudo apt update
-        sudo apt install -y gdebi-core wget xvfb
-        wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-        sudo gdebi --quiet --non-interactive google-chrome-stable_current_amd64.deb
-    - name: Install chomedriver
-      uses: nanasess/setup-chromedriver@v1
+
     - name: Add Actions checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v3
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: create X11 display
-      run: |
-        export DISPLAY=:99
-        chromedriver --url-base=/wd/hub &
-        sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 & # optional
     - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+        pip install -r test_requirements.txt
         pip install requests
     - name: Run Tests
       run: |
@@ -47,5 +37,5 @@ jobs:
         python manage.py createbasejs
         python manage.py loaddevstatic
         python manage.py test
-      env:
-        DISPLAY: :99
+        python manage.py test djgentelella.tests
+

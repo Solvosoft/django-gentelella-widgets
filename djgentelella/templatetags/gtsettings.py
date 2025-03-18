@@ -1,25 +1,29 @@
-from django import template
-from django.utils.safestring import mark_safe
-from django.conf import settings
-from django.utils.translation import get_language
-from djgentelella.utils import get_settings as get_settings_utils
-from djgentelella import settings
-import uuid
 import sys
+import uuid
 
+from django import template
+from django.templatetags.static import static
+from django.utils.safestring import mark_safe
+from django.utils.translation import get_language
+
+from djgentelella import settings
+from djgentelella.utils import get_settings as get_settings_utils
 
 register = template.Library()
 
+
 @register.simple_tag(takes_context=True)
-def get_settings(context,  name, default='', **kwargs):
-    settings=get_settings_utils(name)
+def get_settings(context, name, default='', **kwargs):
+    settings = get_settings_utils(name)
     if settings:
         return mark_safe(settings)
     return default
 
+
 @register.simple_tag
 def get_random_uuid():
     return str(uuid.uuid4())
+
 
 @register.simple_tag
 def get_version():
@@ -32,13 +36,14 @@ def get_datatables_translation(context):
     if lang and hasattr(settings, 'DATATABLES_SUPPORT_LANGUAGES'):
         if lang in settings.DATATABLES_SUPPORT_LANGUAGES:
             return settings.DATATABLES_SUPPORT_LANGUAGES[lang]
-    return "//cdn.datatables.net/plug-ins/1.10.20/i18n/English.json"
+    return static("vendors/datatables/en-GB.json")
 
 
 @register.simple_tag(takes_context=True)
 def define_true(context, val):
     setattr(context['request'], val, True)
     return ""
+
 
 @register.simple_tag(takes_context=True)
 def get_define(context, val):

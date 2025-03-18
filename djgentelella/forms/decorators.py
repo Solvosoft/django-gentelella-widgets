@@ -1,7 +1,5 @@
-from mptt import forms as treeforms
-import types
 from djgentelella.fields import tree
-from djgentelella.forms.forms import CustomForm
+from djgentelella.forms.forms import GTForm
 from djgentelella.widgets import core
 from djgentelella.widgets import trees
 
@@ -19,8 +17,9 @@ def get_field_widget(widget_type):
 
     return widget
 
+
 def decore_treenode(form_instance, field):
-    if type(form_instance.fields[field]) == treeforms.TreeNodeChoiceField:
+    if type(form_instance.fields[field]) == 'TreeNodeChoiceField':
         form_instance.fields[field] = tree.GentelellaTreeNodeChoiceField(
             queryset=form_instance.fields[field].queryset,
             required=form_instance.fields[field].required,
@@ -28,7 +27,7 @@ def decore_treenode(form_instance, field):
                 attrs=form_instance.fields[field].widget.attrs,
                 choices=form_instance.fields[field].widget.choices)
         )
-    elif type(form_instance.fields[field]) == treeforms.TreeNodeMultipleChoiceField:
+    elif type(form_instance.fields[field]) == 'TreeNodeMultipleChoiceField':
         form_instance.fields[field] = tree.GentelellaTreeNodeMultipleChoiceField(
             queryset=form_instance.fields[field].queryset,
             required=form_instance.fields[field].required,
@@ -37,24 +36,27 @@ def decore_treenode(form_instance, field):
                 choices=form_instance.fields[field].widget.choices)
         )
 
+
 def _form_instance(fnc, instance):
     def new_fnc():
         return fnc(instance)
+
     return new_fnc
+
 
 def decore_form_instance(form_instance, exclude=()):
     for field in form_instance.fields:
         if field in exclude:
             continue
-        if type(form_instance.fields[field]) in [treeforms.TreeNodeChoiceField,
-                                                 treeforms.TreeNodeMultipleChoiceField]:
+        if type(form_instance.fields[field]) in ['TreeNodeChoiceField',
+                                                 'TreeNodeMultipleChoiceField']:
             decore_treenode(form_instance, field)
         else:
             widget = get_field_widget(form_instance.fields[field])
             if widget:
                 form_instance.fields[field].widget = widget
-    for method in CustomForm.exposed_method:
+    for method in GTForm.exposed_method:
         setattr(form_instance, method,
-                _form_instance(getattr(CustomForm, method),form_instance))
+                _form_instance(getattr(GTForm, method), form_instance))
     form_instance.is_customized = True
     return form_instance

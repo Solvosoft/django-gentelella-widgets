@@ -1,14 +1,24 @@
-from django.forms import (PasswordInput as DJPasswordInput, FileInput as DJFileInput,
-                          ClearableFileInput as DJClearableFileInput, Textarea as DJTextarea,
-                          DateInput as DJDateInput, DateTimeInput as DJDateTimeInput,
-                          TimeInput as DJTimeInput, CheckboxInput as DJCheckboxInput, Select as DJSelect,
-                          SplitHiddenDateTimeWidget as DJSplitHiddenDateTimeWidget,
-                          CheckboxSelectMultiple as DJCheckboxSelectMultiple, SelectMultiple as DJSelectMultiple,
-                          SelectDateWidget as DJSelectDateWidget, SplitDateTimeWidget as DJSplitDateTimeWidget)
+from django.forms import (
+    PasswordInput as DJPasswordInput,
+    FileInput as DJFileInput,
+    ClearableFileInput as DJClearableFileInput,
+    Textarea as DJTextarea,
+    DateInput as DJDateInput,
+    DateTimeInput as DJDateTimeInput,
+    TimeInput as DJTimeInput,
+    CheckboxInput as DJCheckboxInput,
+    Select as DJSelect,
+    SplitHiddenDateTimeWidget as DJSplitHiddenDateTimeWidget,
+    CheckboxSelectMultiple as DJCheckboxSelectMultiple,
+    SelectMultiple as DJSelectMultiple,
+    SelectDateWidget as DJSelectDateWidget,
+    SplitDateTimeWidget as DJSplitDateTimeWidget)
 from django.forms.widgets import Input as DJInput
-from django.urls import reverse_lazy,reverse
+from django.urls import reverse_lazy
 from django.utils import formats
 from django.utils.translation import gettext as _
+
+from djgentelella.models import ChunkedUpload
 
 
 def update_kwargs(attrs, widget, base_class='form-control '):
@@ -18,7 +28,7 @@ def update_kwargs(attrs, widget, base_class='form-control '):
     if attrs is None:
         attrs = {}
     if 'class' in attrs:
-        attrs.update({'class':  base_class + attrs['class']})
+        attrs.update({'class': base_class + attrs['class']})
     else:
         attrs.update({'class': base_class})
     attrs['data-widget'] = widget
@@ -41,6 +51,12 @@ class TextInput(Input):
     input_type = 'text'
     template_name = 'gentelella/widgets/text.html'
 
+
+class ColorInput(Input):
+    input_type = 'color'
+    template_name = 'gentelella/widgets/input.html'
+
+
 class HiddenInput(Input):
     input_type = 'hidden'
     template_name = 'gentelella/widgets/text.html'
@@ -57,6 +73,7 @@ def GridSlider(attrs={}):
             if self.extra_attrs:
                 attrs.update(self.extra_attrs)
             super().__init__(attrs)
+
     return GridSlider
 
 
@@ -71,7 +88,9 @@ def DateGridSlider(attrs={}):
             if self.extra_attrs:
                 attrs.update(self.extra_attrs)
             super().__init__(attrs)
+
     return DateGridSlider
+
 
 def SingleGridSlider(attrs={}):
     class SingleGridSlider(Input):
@@ -84,17 +103,34 @@ def SingleGridSlider(attrs={}):
             if self.extra_attrs:
                 attrs.update(self.extra_attrs)
             super().__init__(attrs)
+
     return SingleGridSlider
 
 
 class NumberInput(Input):
     input_type = 'number'
     template_name = 'gentelella/widgets/number.html'
+
     # min_value y max_value
 
     def __init__(self, attrs=None, extraskwargs=True):
         if extraskwargs:
             attrs = update_kwargs(attrs, self.__class__.__name__)
+        super().__init__(attrs, extraskwargs=extraskwargs)
+
+
+class FloatInput(Input):
+    input_type = 'number'
+    template_name = 'gentelella/widgets/number.html'
+
+    # min_value y max_value
+
+    def __init__(self, attrs=None, extraskwargs=True):
+        if extraskwargs:
+            attrs = update_kwargs(attrs, self.__class__.__name__)
+        if 'step' not in attrs:
+            attrs['step'] = "0.1"
+        attrs['inputmode'] = "decimal"
         super().__init__(attrs, extraskwargs=extraskwargs)
 
 
@@ -127,6 +163,8 @@ class PasswordInput(DJPasswordInput):
         if extraskwargs:
             attrs = update_kwargs(attrs, self.__class__.__name__)
         super().__init__(attrs)
+
+
 # Fixme: do upload view
 
 
@@ -137,12 +175,77 @@ class FileInput(DJFileInput):
 
     def __init__(self, attrs=None, extraskwargs=True):
         if extraskwargs:
-            attrs = update_kwargs(attrs, self.__class__.__name__,
-                                  base_class='djgentelella-file-inputt form-control')
+            attrs = update_kwargs(
+                attrs,
+                self.__class__.__name__,
+                base_class='djgentelella-file-inputt form-control')
         if 'data-href' not in attrs:
             attrs.update({'data-href': reverse_lazy('upload_file_view')})
         if 'data-done' not in attrs:
             attrs['data-done'] = reverse_lazy('upload_file_done')
+        super().__init__(attrs)
+
+    def format_value(self, value):
+        """File input never renders a value."""
+        return
+
+    def value_from_datadict(self, data, files, name):
+        dev = None
+        token = data.get(name)
+        tmpupload = ChunkedUpload.objects.filter(upload_id=token).first()
+        if tmpupload:
+            dev = tmpupload.get_uploaded_file()
+            tmpupload.delete()
+        return dev
+
+    def value_omitted_from_data(self, data, files, name):
+        return name not in data
+
+
+class ImageRecordInput(DJFileInput):
+    """
+    You can set the preview size using data-width and data-height.
+    """
+    needs_multipart_form = True
+    template_name = 'gentelella/widgets/record_photo.html'
+
+    def __init__(self, attrs=None, extraskwargs=True):
+        if extraskwargs:
+            attrs = update_kwargs(
+                attrs,
+                self.__class__.__name__,
+                base_class='d-none')
+        super().__init__(attrs)
+
+
+class VideoRecordInput(DJFileInput):
+    """
+    You can set the preview size using data-width and data-height.
+
+    .. note:: Size of video depends on camera default configuration.
+    """
+    needs_multipart_form = True
+    template_name = 'gentelella/widgets/record_video.html'
+
+    def __init__(self, attrs=None, extraskwargs=True):
+        if extraskwargs:
+            attrs = update_kwargs(
+                attrs,
+                self.__class__.__name__,
+                base_class='d-none')
+        super().__init__(attrs)
+
+
+class AudioRecordInput(DJFileInput):
+    needs_multipart_form = True
+    template_name = 'gentelella/widgets/record_audio.html'
+
+    def __init__(self, attrs=None, extraskwargs=True):
+        if extraskwargs:
+            attrs = update_kwargs(
+                attrs,
+                self.__class__.__name__,
+                base_class='d-none')
         super().__init__(attrs)
 
 
@@ -168,41 +271,64 @@ class Textarea(DJTextarea):
 
 class DateFormatConverter:
     JS_FORMATS = {
-      '%A': 'dddd',                           #Weekday as locale’s full name: (In English: Sunday, .., Saturday)(Auf Deutsch: Sonntag, .., Samstag)
-      '%a': 'ddd',                            #Weekday abbreivated: (In English: Sun, .., Sat)(Auf Deutsch: So, .., Sa)
-      '%B': 'MMMM',                           #Month name: (In English: January, .., December)(Auf Deutsch: Januar, .., Dezember)
-      '%b': 'MMM',                            #Month name abbreviated: (In English: Jan, .., Dec)(Auf Deutsch: Jan, .., Dez)
-      '%c': 'ddd MMM DD HH:mm:ss YYYY',       #Locale’s appropriate date and time representation: (English: Sun Oct 13 23:30:00 1996)(Deutsch: So 13 Oct 22:30:00 1996)
-      '%d': 'DD',                             #Day 0 padded: (01, .., 31)
-      '%f': 'SSS',                            #Microseconds 0 padded: (000000, .., 999999)
-      '%H': 'HH',                             #Hour (24-Hour) 0 padded: (00, .., 23)
-      '%I': 'hh',                             #Hour (12-Hour) 0 padded: (01, .., 12)
-      '%j': 'DDDD',                           #Day of Year 0 padded: (001, .., 366)
-      '%M': 'mm',                             #Minute 0 padded: (01, .. 59)
-      '%m': 'MM',                             #Month 0 padded: (01, .., 12)
-      '%p': 'A',                              #Locale equivalent of AM/PM: (EN: AM, PM)(DE: am, pm)
-      '%S': 'ss',                             #Second 0 padded: (00, .., 59)
-      '%U': 'ww',                             #Week  of Year (Sunday): (00, .., 53)  All days in a new year preceding the first Sunday are considered to be in week 0.
-      '%W': 'ww',                             #Week  of Year (Monday): (00, .., 53)  All days in a new year preceding the first Monday are considered to be in week 0.
-      '%w': 'd',                              #Weekday as : (0, 6)
-      '%X': 'HH:mm:ss',                       #Locale's appropriate time representation: (EN: 23:30:00)(DE: 23:30:00)
-      '%x': 'MM/DD/YYYY',                     #Locale's appropriate date representation: (None: 02/14/16)(EN: 02/14/16)(DE: 14.02.16)
-      '%Y': 'YYYY',                           #Year as : (1970, 2000, 2038, 292,277,026,596)
-      '%y': 'YY',                             #Year without century 0 padded: (00, .., 99)
-      '%Z': 'z',                              #Time zone name: ((empty), UTC, EST, CST) (empty string if the object is naive).
-      '%z': 'ZZ',                             #UTC offset in the form +HHMM or -HHMM: ((empty), +0000, -0400, +1030) Empty string if the the object is naive.
-      '%%': '%'                               #A literal '%' character: (%)
+        '%A': 'dddd',
+        # Weekday as locale’s full name: (In English: Sunday, .., Saturday)(Auf
+        # Deutsch: Sonntag, .., Samstag)
+        '%a': 'ddd',
+        # Weekday abbreivated: (In English: Sun, .., Sat)(Auf Deutsch: So, ..,
+        # Sa)
+        '%B': 'MMMM',
+        # Month name: (In English: January, .., December)(Auf Deutsch: Januar,
+        # .., Dezember)
+        '%b': 'MMM',
+        # Month name abbreviated: (In English: Jan, .., Dec)(Auf Deutsch: Jan,
+        # .., Dez)
+        '%c': 'ddd MMM DD HH:mm:ss YYYY',
+        # Locale’s appropriate date and time representation: (English: Sun Oct
+        # 13 23:30:00 1996)(Deutsch: So 13 Oct 22:30:00 1996)
+        '%d': 'DD',  # Day 0 padded: (01, .., 31)
+        '%f': 'SSS',  # Microseconds 0 padded: (000000, .., 999999)
+        '%H': 'HH',  # Hour (24-Hour) 0 padded: (00, .., 23)
+        '%I': 'hh',  # Hour (12-Hour) 0 padded: (01, .., 12)
+        '%j': 'DDDD',  # Day of Year 0 padded: (001, .., 366)
+        '%M': 'mm',  # Minute 0 padded: (01, .. 59)
+        '%m': 'MM',  # Month 0 padded: (01, .., 12)
+        '%p': 'A',  # Locale equivalent of AM/PM: (EN: AM, PM)(DE: am, pm)
+        '%S': 'ss',  # Second 0 padded: (00, .., 59)
+        '%U': 'ww',
+        # Week  of Year (Sunday): (00, .., 53)  All days in a new year
+        # preceding the first Sunday are considered to be in week 0.
+        '%W': 'ww',
+        # Week  of Year (Monday): (00, .., 53)  All days in a new year
+        # preceding the first Monday are considered to be in week 0.
+        '%w': 'd',  # Weekday as : (0, 6)
+        '%X': 'HH:mm:ss',
+        # Locale's appropriate time representation: (EN: 23:30:00)(DE:
+        # 23:30:00)
+        '%x': 'MM/DD/YYYY',
+        # Locale's appropriate date representation: (None: 02/14/16)(EN:
+        # 02/14/16)(DE: 14.02.16)
+        '%Y': 'YYYY',  # Year as : (1970, 2000, 2038, 292,277,026,596)
+        '%y': 'YY',  # Year without century 0 padded: (00, .., 99)
+        '%Z': 'z',
+        # Time zone name: ((empty), UTC, EST, CST) (empty string if the object
+        # is naive).
+        '%z': 'ZZ',
+        # UTC offset in the form +HHMM or -HHMM: ((empty), +0000, -0400, +1030)
+        # Empty string if the the object is naive.
+        '%%': '%'  # A literal '%' character: (%)
     }
 
     def convert_python_to_js(self, value):
         for key in self.JS_FORMATS:
-            js_key=self.JS_FORMATS[key]
+            js_key = self.JS_FORMATS[key]
             value = js_key.join(value.split(key))
         return value
 
     def get_format_js(self):
         self.format = formats.get_format(self.format_key)[0]
         return self.convert_python_to_js(self.format)
+
 
 class DateInput(DJDateInput, DateFormatConverter):
     """
@@ -241,7 +367,6 @@ class DateTimeInput(DJDateTimeInput, DateFormatConverter):
     template_name = 'gentelella/widgets/datetime.html'
 
     def __init__(self, attrs=None, format=None):
-
         attrs = update_kwargs(attrs, self.__class__.__name__)
         format_js = self.get_format_js()
         attrs['data-format'] = format_js
@@ -257,6 +382,7 @@ class TimeInput(DJTimeInput, DateFormatConverter):
         format_js = self.get_format_js()
         attrs['data-format'] = format_js
         super().__init__(attrs, format or self.format)
+
 
 class CheckboxInput(DJCheckboxInput):
     input_type = 'checkbox'
@@ -280,6 +406,9 @@ class YesNoInput(DJCheckboxInput):
         if 'rel' in attrs:
             rel = attrs.pop('rel')
             attrs['data-rel'] = ';'.join(rel)
+        if 'rel_start_hidden' in attrs:
+            rel = attrs.pop('rel_start_hidden')
+            attrs['data-relhidden'] = ';'.join(rel)
         attrs['data-shparent'] = shparent
         super().__init__(attrs)
         self.format = format or None
@@ -296,8 +425,9 @@ class Select(DJSelect):
     def __init__(self, attrs=None, choices=(), extraskwargs=True):
         if extraskwargs:
             attrs = update_kwargs(
-                attrs, self.__class__.__name__, base_class='select2_single form-control ')
-        super().__init__(attrs,  choices=choices)
+                attrs, self.__class__.__name__,
+                base_class='select2_single form-control ')
+        super().__init__(attrs, choices=choices)
 
 
 class SelectWithAdd(Select):
@@ -310,7 +440,7 @@ class SelectWithAdd(Select):
                                   base_class='form-control ')
         if 'add_url' not in attrs:
             raise ValueError('SelectWithAdd requires add_url in attrs')
-        super().__init__(attrs,  choices=choices, extraskwargs=False)
+        super().__init__(attrs, choices=choices, extraskwargs=False)
 
 
 class SelectMultiple(DJSelectMultiple):
@@ -358,11 +488,18 @@ class RadioVerticalSelect(Select):
         super().__init__(attrs, choices=choices, extraskwargs=False)
 
     def get_context(self, name, value, attrs):
-        context = super(RadioVerticalSelect, self).get_context(name, value, attrs)
+        context = super(
+            RadioVerticalSelect,
+            self).get_context(
+            name,
+            value,
+            attrs)
         context['widget']['br'] = True
         return context
 
+
 RadioSelect = RadioHorizontalSelect
+
 
 class NullBooleanSelect(RadioSelect):
 
@@ -537,6 +674,7 @@ class PhoneNumberMaskInput(TextInput):
         attrs = update_kwargs(attrs, self.__class__.__name__)
 
         super().__init__(attrs)
+
 
 class PhoneNumberMaskInput(TextInput):
     input_type = 'text'

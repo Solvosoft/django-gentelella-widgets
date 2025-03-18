@@ -5,8 +5,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="permission_modal_label">{% trans 'Permission Management' %}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <div class="modal-body">
@@ -19,10 +18,10 @@
                         </div>
                         <div style="margin-top:10px;">
                             <div id="user_container">
-                                <select id="select_user"></select>
+                                <select id="select_user" data-dropdownparent="#permission_modal"></select>
                             </div>
                             <div id="group_container">
-                                <select id="select_group"></select>
+                                <select id="select_group" data-dropdownparent="#permission_modal"></select>
                             </div>
                         </div>
                     </div>
