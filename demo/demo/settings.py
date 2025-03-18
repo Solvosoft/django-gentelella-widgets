@@ -104,14 +104,16 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "0.0.0.0"]
 CSRF_TRUSTED_SCHEME = "http"
 CSRF_TRUSTED_ORIGINS = [
     f"{CSRF_TRUSTED_SCHEME}://localhost",
     f"{CSRF_TRUSTED_SCHEME}://127.0.0.1",
+    f"{CSRF_TRUSTED_SCHEME}://0.0.0.0",
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
@@ -151,7 +153,7 @@ DEFAULT_JS_IMPORTS = {
 
 # FIRMADOR DIGITAL
 DJANGO_ASETTINGS_MODULE = "demo.asettings"
-GUNICORN_BIND = "localhost:9022" if DEBUG else "unix:/run/supervisor/gunicorn_asgi.sock"
+GUNICORN_BIND = "127.0.0.1:9022" if DEBUG else "unix:/run/supervisor/gunicorn_asgi.sock"
 GUNICORN_ASGI_APP = "demo.asgi:application"
 GUNICORN_WSGI_APP = "demo.wsgi:application"
 GUNICORN_WORKERS = 1 if DEBUG else 2
@@ -159,8 +161,11 @@ GUNICORN_WORKER_CLASS = "demo.asgi_worker.UvicornWorker"
 GUNICORN_USER = "demo"
 GUNICORN_GROUP = "demo"
 
-FIRMADOR_WS = os.getenv("FIRMADOR_WS", "ws://localhost:9022/async/")
-FIRMADOR_DOMAIN = os.getenv("FIRMADOR_DOMAIN", "http://localhost:9001")
+
+FIRMADOR_CORS = "http://127.0.0.1:8000"
+FIRMADOR_WS = "ws://127.0.0.1:9022/async/"
+FIRMADOR_WS_URL = FIRMADOR_WS + "sign_document"
+FIRMADOR_DOMAIN = "http://localhost:9001"
 FIRMADOR_VALIDA_URL = FIRMADOR_DOMAIN + "/valida/"
 FIRMADOR_SIGN_URL = FIRMADOR_DOMAIN + "/firma/firme"
 FIRMADOR_SIGN_COMPLETE = FIRMADOR_DOMAIN + "/firma/completa"
