@@ -53,8 +53,9 @@ Djgentelella already implements the required libraries for the following configu
     e) Add variables in ``settings.py``::
 
         # change the value demo for your project in all variables
+        # websocket
         DJANGO_ASETTINGS_MODULE = "demo.asettings"
-        GUNICORN_BIND = "localhost:9022" if DEBUG else "unix:/run/supervisor/gunicorn_asgi.sock"
+        GUNICORN_BIND = "127.0.0.1:9022" if DEBUG else "unix:/run/supervisor/gunicorn_asgi.sock"
         GUNICORN_ASGI_APP = "demo.asgi:application"
         GUNICORN_WSGI_APP = "demo.wsgi:application"
         GUNICORN_WORKERS = 1 if DEBUG else 2
@@ -62,8 +63,11 @@ Djgentelella already implements the required libraries for the following configu
         GUNICORN_USER = "demo"
         GUNICORN_GROUP = "demo"
 
-        FIRMADOR_WS = os.getenv("FIRMADOR_WS", "ws://127.0.0.1:9022/async/")
-        FIRMADOR_DOMAIN = os.getenv("FIRMADOR_DOMAIN", "http://localhost:9001")
+        # firmador libre
+        FIRMADOR_CORS = "http://127.0.0.1:8000"
+        FIRMADOR_WS = "ws://127.0.0.1:9022/async/"
+        FIRMADOR_WS_URL = FIRMADOR_WS + "sign_document"
+        FIRMADOR_DOMAIN = "http://localhost:9001"
         FIRMADOR_VALIDA_URL = FIRMADOR_DOMAIN + "/valida/"
         FIRMADOR_SIGN_URL = FIRMADOR_DOMAIN + "/firma/firme"
         FIRMADOR_SIGN_COMPLETE = FIRMADOR_DOMAIN + "/firma/completa"
@@ -96,3 +100,44 @@ Djgentelella already implements the required libraries for the following configu
         ROOT_URLCONF = "my_main_app.aurls"
 
 
+
+
+
+Widget Variables
+----------------
+- **ws_url**:
+  The URL of the WebSocket that connects to the digital signing service.
+
+- **cors**:
+  The URL and port where the application is running, which communicates with the signing service. This setting configures the necessary CORS permissions.
+
+- **title**:
+  An optional title displayed in the widget's HTML interface, allowing customization of the widget's presentation.
+
+- **default_page**:
+  Specifies the default page to load when displaying the document. Accepted values include:
+
+  - ``"last"``: Loads the last page of the document.
+  - ``"first"``: Loads the first page of the document.
+  - A numeric value: Loads the page corresponding to the given number.
+
+Example Implementation in a Form
+--------------------------------
+
+Below is an example of how the ``DigitalSignatureForm`` is implemented:
+
+.. code-block:: python
+
+    class DigitalSignatureForm(GTForm, forms.ModelForm):
+
+        class Meta:
+            model = DigitalSignature
+            fields = ['file']
+            widgets = {
+                'file': DigitalSignatureInput(
+                    ws_url="%s" % settings.FIRMADOR_WS_URL,
+                    cors="%s" % settings.FIRMADOR_CORS,
+                    title=_("Widget Digital Signature"),
+                    default_page="last"
+                )
+            }
