@@ -4,7 +4,11 @@ from .models import WithCatalog, Catalog, OneCatalog, Country, Person, Foo, \
     Community, Employee, \
     ChunkedUploadItem, Event, Calendar, DigitalSignature
 
-admin.site.register(DigitalSignature)
+
+class DigitalSignatureAdmin(admin.ModelAdmin):
+    list_display = ('id', 'filename', 'file_code', 'created', 'updated')
+
+admin.site.register(DigitalSignature, DigitalSignatureAdmin)
 admin.site.register(Country)
 admin.site.register(Catalog)
 admin.site.register(WithCatalog)
