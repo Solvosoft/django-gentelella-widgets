@@ -108,3 +108,19 @@
     display: none;
 }
 
+.select-container {
+  position: relative;
+  display: inline-block;
+}
+
+.select-container i {
+  position: absolute;
+  left: 3px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.select-container select {
+  padding-left: 40px;
+}

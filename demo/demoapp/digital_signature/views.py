@@ -10,7 +10,6 @@ def digital_signature_view(request):
         'gentelella/digital_signature/digital_signature.html',
         context={
             'form': DigitalSignatureForm(prefix='update'),
-            'user': request.user,
         }
     )
 

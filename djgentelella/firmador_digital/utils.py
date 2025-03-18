@@ -17,10 +17,9 @@ class RemoteSignerClient:
 
     def load_settings(self, docsettings):
         from djgentelella.firmador_digital.models import UserSignatureConfig
-        print("User", self.user.id)
+        sc = UserSignatureConfig.objects.filter(user=self.user).first()
 
-        # sc = UserSignatureConfig.objects.filter(user=self.user).first()
-        sc = UserSignatureConfig.objects.filter(user_id=self.user.id).first()
+        #! Agergar validacion para indicar que el usuario no tiene configuracion
 
         settings = {}
         settings.update(sc.config)
@@ -34,13 +33,14 @@ class RemoteSignerClient:
         return base64.b64encode(document.file.read()).decode()
 
     def send_document_to_sign(self, instance, usertoken, docsettings):
-        print("send_document_to_sign 1", instance)
-        print("send_document_to_sign 2", usertoken)
-        print("send_document_to_sign 3", docsettings)
-        print("send_document_to_sign 4", instance.pk)
-        print("send_document_to_sign 5", instance.filename)
-        print("send_document_to_sign 6", instance.file)
+        print("send_document_to_sign 1", instance) # instancia str
+        print("send_document_to_sign 2", usertoken) #info de certificado
+        print("send_document_to_sign 3", docsettings) # document settings
+        print("send_document_to_sign 4", instance.pk) # pk del archivo
+        print("send_document_to_sign 5", instance.filename) # filename
+        print("send_document_to_sign 6", instance.file) # url del archivo
         b64doc = self.get_b64document(instance)
+        # print(b64doc)
         files = {
             "b64Document": b64doc,
             "DocumentExtension": ".pdf",
