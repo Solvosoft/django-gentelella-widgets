@@ -1,3 +1,10 @@
+function get_selected_items(dt, table){
+    let values = [];
+    $(table).find(".gtcheckable:checked").each(function() {
+        values.push(this.value);
+    });
+    return values;
+}
 function  gt_show_actions(crud_name){
      return function(data, type, row, meta){
         var html="";
@@ -352,6 +359,7 @@ function ObjectCRUD(uniqueid, objconfig={}){
         uls: null,
         datatable_element: null,
         modal_ids: null,
+        checkable: false,
         events: {
              'update_data': function(data){ return data; }
         },
@@ -406,6 +414,7 @@ function ObjectCRUD(uniqueid, objconfig={}){
         "can_update": config.modal_ids.hasOwnProperty("update"),
         "use_get_values_for_update": config.urls.hasOwnProperty("get_values_for_update_url"),
         "create_btn_class": config.btn_class.create,
+        "checkable": config.checkable,
         "datatable": null,
         "create_form": null,
         "update_form": null,
@@ -566,6 +575,23 @@ function ObjectCRUD(uniqueid, objconfig={}){
                      }
                 }
                 ]
+                if(this.checkable){
+                    config.datatable_inits['columnDefs'].push(
+                     {
+                        targets: 0,
+                        title: "Checkable",
+                        type: 'checkable',
+                        className: "no-export-col",
+                        orderable: false,
+                        render: function(data, type, full, meta){
+                            return '<input type="checkbox" class="gtcheckable" name="checkable" value="'+full.id+'" title="'+full.name+'"/>'
+                        }
+                    })
+
+                    config.datatable_inits.columns.unshift(
+                        {data: "id", name: "checkable", title: '<input type="checkbox" class="checkableall"> ', type: "checkable", visible: true}
+                    )
+                }
             }
          this.datatable = gtCreateDataTable(this.config.datatable_element, this.config.urls.list_url,
                                             this.config.datatable_inits);

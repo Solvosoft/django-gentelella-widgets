@@ -213,6 +213,7 @@ function updateInstanceValuesForm(form, name, value) {
             done = true;
         }
 
+
         // New code for testing  (*** start ***)
         // data loading in select, autocompleteselect, autocompletemultiselect
         else if (inputfield.is('select') && inputfield.data().widget === "Select") {
@@ -220,12 +221,12 @@ function updateInstanceValuesForm(form, name, value) {
             done = true;
         } else if (inputfield.is('select') && inputfield.data().widget === "AutocompleteSelect") {
             let data = value;
-            let select2Obj = inputfield.data('select2');
-            if (select2Obj) {
-                inputfield.select2('trigger', 'select', {
-                    data: data
-                });
+
+            if (data) {
+                let newOption = new Option(data.text, data.id, true, true);
+                inputfield.append(newOption).trigger('change');
             }
+
             done = true;
         } else if (inputfield.is('select') && inputfield.data().widget === "AutocompleteSelectMultiple") {
 
