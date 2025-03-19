@@ -615,3 +615,18 @@ msgstr "Lo sentimos, ha ocurrido un error inesperado. Presiona el botón de reca
 
 msgid "Widget Digital Signature"
 msgstr "Widget Firma Digital"
+
+msgid "Loading..."
+msgstr "Cargando..."
+
+msgid "Please wait while the document is being signed."
+msgstr "Por favor, espere mientras se firma el documento."
+
+msgid "The signed option is not available."
+msgstr "La opción firmada no está disponible."
+
+msgid "We did not find an electronic signature card."
+msgstr "No encontramos una tarjeta de firma electrónica."
+
+msgid "Please make sure to comply with the notices or resolve the errors."
+msgstr "Asegúrese de cumplir con los avisos o resuelva los errores."

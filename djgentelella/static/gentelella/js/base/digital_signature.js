@@ -329,6 +329,7 @@ class PdfSignatureComponent {
 class SignatureManager {
     constructor(container, url_ws) {
         this.container = container;
+        this.modal = new bootstrap.Modal(container.querySelector("#loading_sign"));
         this.firmador = new DocumentClient(container, container.getAttribute("data-widget-id"), this, url_ws, this.doc_instance);
         this.signerBtn = container.querySelector(".btn_signer");
         this.errorsContainer = container.querySelector(".errors_signer");
@@ -392,6 +393,16 @@ class SignatureManager {
     reloadPage() {
         window.location.reload();
     }
+
+    showLoading() {
+        this.modal.show();
+    }
+
+    hideLoading() {
+        setTimeout(() => {
+            this.modal.hide();
+        }, 500);
+    }
 }
 
 ///////////////////////////////////////////////
@@ -426,6 +437,7 @@ function SocketManager(socket, signatureManager) {
     // Si ocurre algún error durante la conexión
     socket.onerror = (event) => {
         // console.error("WebSocket error");
+        signatureManager.hideLoading();
         alertSimple(errorInterpreter(3), gettext("Error"), "error");
         signatureManager.socketError = true;
     };
@@ -493,6 +505,7 @@ function FirmadorLibreLocal(docmanager, signatureManager) {
         "sign": function (data) {
             let json = JSON.stringify(data);
             let manager = docmanager;
+
             const fetch_instance = {
                 'url': this.sign_url,
                 'type': 'POST',
@@ -501,13 +514,14 @@ function FirmadorLibreLocal(docmanager, signatureManager) {
                     // si el resultado es diferente a un string, es posible que hay un error
                     // console.log(data)
                     if (typeof data !== 'string') { //prevent option call
-                        console.log("manager.local_done(data)", data);
+                        // console.log("manager.local_done(data)", data);
                         manager.local_done(data);
                     }
-
+                    // signatureManager.hideLoading();
                 },
                 "error": function (error) {
                     // console.log(error);
+                    signatureManager.hideLoading();
                     if (typeof error === "object") {
                         // cierre de ventana para ingresar el PIN
                         if (error.status === 406 && error.statusText === "Not Acceptable") {
@@ -517,10 +531,11 @@ function FirmadorLibreLocal(docmanager, signatureManager) {
                 },
                 "error_text": function (message) {
                     console.error("error_text", message);
-
+                    signatureManager.hideLoading();
                 },
                 "error_json": function (error) {
                     console.error("error_json", error);
+                    signatureManager.hideLoading();
                 },
             };
 
@@ -548,7 +563,7 @@ function FirmadorLibreWS(docmanager, url, signatureManager) {
             // console.log(data);
             // validar errores del socket
             if (data.result === false && data.error) {
-
+                signatureManager.hideLoading();
                 if (typeof data.details === "string") {
                     // problemas de conexion con la API del firmador libre
                     if (data.details.includes("Connection refused")) {
@@ -610,6 +625,7 @@ function FirmadorLibreWS(docmanager, url, signatureManager) {
             data["action"] = "initial_signature";
             if (data.card !== undefined) {
                 this.websocket.send(JSON.stringify(data));
+                signatureManager.showLoading();
             } else {
                 alertSimple(errorInterpreter(2), gettext("Error"), "error");
                 signatureManager.addError(2);
@@ -617,11 +633,12 @@ function FirmadorLibreWS(docmanager, url, signatureManager) {
         },
         "complete_sign": function (data) {
             data["action"] = "complete_signature";
-            console.log("complete_sign", data);
+
             try {
                 this.websocket.send(JSON.stringify(data));
             } catch (e) {
                 // console.error("Error de comunicación WS");
+               signatureManager.hideLoading();
                 alertFunction(errorInterpreter(3), gettext("Error"), "error", false, closeModalSignature);
             }
         },
@@ -650,12 +667,11 @@ function DocumentClient(container, widgetId, signatureManager, url_ws) {
         "success_certificates": function (data) {
 
             if (data.length > 0) {
-                console.log(data)
                 container.querySelector("#container_select_card").classList.remove("d-none");
                 container.querySelector("#container_select_card_tem").classList.add("d-none");
 
                 let id_card = container.querySelector("#select_card_id_update-file");
-                console.log(id_card)
+
                 if (!id_card) {
                     console.error(`No se encontró el select para el widget ${widgetId}`);
                     return;
@@ -664,7 +680,6 @@ function DocumentClient(container, widgetId, signatureManager, url_ws) {
                 this.certificates = {};
 
                 data.forEach((element) => {
-                    console.log(element)
                     this.certificates[element.tokenSerialNumber] = element;
                     let start_token = element.tokenSerialNumber.substring(0, 4);
                     let newOption = new Option(
@@ -694,9 +709,11 @@ function DocumentClient(container, widgetId, signatureManager, url_ws) {
                 };
                 this.remotesigner.sign(data);
             } else if (!selected_card && !this.certificates) {
+                signatureManager.hideLoading();
                 alertSimple(errorInterpreter(1), gettext("Error"), "error");
                 this.signatureManager.addError(1);
             } else if (!selected_card && this.certificates) {
+              signatureManager.hideLoading();
                 alertSimple(errorInterpreter(2), gettext("Error"), "error");
                 this.signatureManager.addError(2);
             }
@@ -713,6 +730,7 @@ function DocumentClient(container, widgetId, signatureManager, url_ws) {
                     "success", false, this.signatureManager.reloadPage
                 );
             }
+           // signatureManager.hideLoading();
         },
         "local_done": function (data) {
             data['instance'] = this.doc_instance;

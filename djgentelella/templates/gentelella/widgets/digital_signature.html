@@ -15,7 +15,7 @@
 	{#	digital signature card #}
 	<div class="col-12 col-md-4">
 
-		<div id="container_select_card_tem" >
+		<div id="container_select_card_tem">
 			<div class="d-flex justify-content-end">
 				{#		btn refresh #}
 				<i class="fa fa-refresh text-muted fs-5 cursor-pointer btn_signer_refresh"
@@ -28,7 +28,7 @@
 			</h6>
 
 			<p class="fw-bold mx-1">
-				 {% trans "We did not find an electronic signature card." %}
+				{% trans "We did not find an electronic signature card." %}
 			</p>
 
 			<p class="mx-1">
@@ -189,6 +189,23 @@
 
 		</div>
 	</div>
+	{# loading #}
+	<div class="modal fade" id="loading_sign" style="background-color: rgba(0, 0, 0, 0.3);" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+						aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content bg-transparent border-0">
+				<div class="d-flex flex-column justify-content-center align-items-center text-white">
+					<span class="spinner-border" style="width: 3rem; height: 3rem;" role="status" aria-hidden="true"></span>
+					<h6 class="text-center fw-bold mt-3 loading-animation"> {% trans "Loading..." %} </h6>
+
+					<p class="text-center mt-3 fw-bold">
+						{% trans "Please wait while the document is being signed." %}
+					</p>
+				</div>
+			</div>
+		</div>
+	</div>
+
 </div>
 
 
