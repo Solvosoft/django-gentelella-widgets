@@ -2593,19 +2593,31 @@ class SignatureManager {
             this.signerBtn.addEventListener('click', () => this.sign());
         }
         if (this.refreshBtn) {
-            this.refreshBtn.addEventListener('click', () => this.startSign());
+            this.refreshBtn.addEventListener('click', () => this.refresh());
         }
     }
 
-    startSign(doc_instance, logo_url = null,) {
+    startSign(doc_instance, logo_url = null) {
         if (this.socketError) {
             alertSimple(errorInterpreter(3), gettext("Error"), "error");
             return;
         }
 
+        this.doc_instance = doc_instance;
+        this.logo_url = logo_url;
+
         this.clearErrors();
 
         this.firmador.start_sign(doc_instance, logo_url)
+    }
+
+    refresh() {
+        this.socketError = false;
+        // this.firmador.inicialize();
+        this.firmador.remotesigner.inicialize();
+
+        this.clearErrors();
+        this.firmador.start_sign(this.doc_instance, this.logo_url);
     }
 
     sign() {
@@ -2886,29 +2898,39 @@ function DocumentClient(container, widgetId, signatureManager, url_ws) {
             this.signatureManager.clearErrors();
         },
         "success_certificates": function (data) {
-            let id_card = container.querySelector("#select_card_id_update-file");
-            if (!id_card) {
-                console.error(`No se encontró el select para el widget ${widgetId}`);
-                return;
-            }
-            id_card.innerHTML = "";
-            this.certificates = {};
 
-            data.forEach((element) => {
-                this.certificates[element.tokenSerialNumber] = element;
-                let start_token = element.tokenSerialNumber.substring(0, 4);
-                let newOption = new Option(
-                    `${start_token} ${element.commonName}`,
-                    element.tokenSerialNumber,
-                    false, false
-                );
-                id_card.appendChild(newOption);
-            });
+            if (data.length > 0) {
+                console.log(data)
+                container.querySelector("#container_select_card").classList.remove("d-none");
+                container.querySelector("#container_select_card_tem").classList.add("d-none");
 
-            if (data.length === 0) {
+                let id_card = container.querySelector("#select_card_id_update-file");
+                console.log(id_card)
+                if (!id_card) {
+                    console.error(`No se encontró el select para el widget ${widgetId}`);
+                    return;
+                }
+                id_card.innerHTML = "";
+                this.certificates = {};
+
+                data.forEach((element) => {
+                    console.log(element)
+                    this.certificates[element.tokenSerialNumber] = element;
+                    let start_token = element.tokenSerialNumber.substring(0, 4);
+                    let newOption = new Option(
+                        `${start_token} ${element.commonName}`,
+                        element.tokenSerialNumber,
+                        false, false
+                    );
+                    id_card.appendChild(newOption);
+                });
+            } else {
+                container.querySelector("#container_select_card").classList.add("d-none");
+                container.querySelector("#container_select_card_tem").classList.remove("d-none");
                 this.signatureManager.addError(2);
             }
         },
+
         "do_sign_remote": function () {
             let select = container.querySelector("#select_card_id_update-file");
             let selected_card = select ? select.value : null;
