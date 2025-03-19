@@ -15,7 +15,29 @@
 	{#	digital signature card #}
 	<div class="col-12 col-md-4">
 
-		<div class="d-flex justify-content-center flex-column  p-2">
+		<div id="container_select_card_tem" >
+			<div class="d-flex justify-content-end">
+				{#		btn refresh #}
+				<i class="fa fa-refresh text-muted fs-5 cursor-pointer btn_signer_refresh"
+							title="{% trans 'Reload' %}"
+							aria-hidden="true"></i>
+			</div>
+
+			<h6 class="text-danger fw-bold my-2">
+				{% trans 'The signed option is not available.' %}
+			</h6>
+
+			<p class="fw-bold mx-1">
+				 {% trans "We did not find an electronic signature card." %}
+			</p>
+
+			<p class="mx-1">
+				{% trans 'Please make sure to comply with the notices or resolve the errors.' %}
+			</p>
+
+		</div>
+
+		<div id="container_select_card" class="d-flex justify-content-center flex-column d-none  p-2">
 			<div class="d-flex justify-content-between align-items-center my-3">
 				<label for="select_card_{{ widget.attrs.id }}" class="text-center fw-bold">
 					{% trans 'Choose your signature card' %}
@@ -64,7 +86,8 @@
 					<small>
 						4)
 						{% trans "If the autolauncher doesn't work, I used this command line." %}
-						<i class="fa fa-info-circle cursor-pointer" title="{% trans 'Show command' %}" id="show-command-line" aria-hidden="true"></i>
+						<i class="fa fa-info-circle cursor-pointer" title="{% trans 'Show command' %}" id="show-command-line"
+									aria-hidden="true"></i>
 					</small>
 				</li>
 			</ul>
@@ -75,7 +98,8 @@
 				</p>
 				<div id="container-command-line" class="text-wrap bg-light text-center p-2 rounded shadow-sm d-none">
 					<div class="d-flex justify-content-end">
-								<i class="fa fa-clipboard cursor-pointer text-black" id="copy-command-line" title="{% trans 'Copy to clipboard' %}" aria-hidden="true"></i>
+						<i class="fa fa-clipboard cursor-pointer text-black" id="copy-command-line"
+									title="{% trans 'Copy to clipboard' %}" aria-hidden="true"></i>
 					</div>
 					<pre id="command-line" class="text-wrap small">
 																	java --add-exports=jdk.crypto.cryptoki/sun.security.pkcs11.wrapper=ALL-UNNAMED -Djnlp.remoteOrigin={{ request.scheme }}://{{ request.get_host }} -jar firmador.jar -dremote
