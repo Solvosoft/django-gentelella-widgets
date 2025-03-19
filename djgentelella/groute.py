@@ -16,6 +16,11 @@ def register_lookups(prefix='', basename=None):
 
     @wrap
     def decore(klass):
-        routes.register(prefix, klass, basename=basename)
+        if basename in ['userbase', 'groupbase']:
+            from djgentelella import settings
+            if settings.REGISTER_DEFAULT_USER_API:
+                routes.register(prefix, klass, basename=basename)
+        else:
+            routes.register(prefix, klass, basename=basename)
 
     return decore

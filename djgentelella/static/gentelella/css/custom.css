@@ -15,7 +15,9 @@ html , body{
  height:100%;
  }
 
-
+.checkableall{
+    width: unset;
+}
 
 
 .daterangepicker .ranges li {
@@ -2556,6 +2558,9 @@ span.tag a {
     clear: both;
     width: 100%;
     height: 0px
+}
+.tagify {
+    width: 100%;
 }
 .not_valid {
     background: #FBD8DB !important;
