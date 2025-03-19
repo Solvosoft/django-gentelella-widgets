@@ -314,12 +314,16 @@ class PdfSignatureComponent {
     }
 
     getDocumentSettings() {
+        const xPdf = this.signX / this.scale;
+        const yPdf = this.signY / this.scale;
+        const wPdf = this.signWidth / this.scale;
+        const hPdf = this.signHeight / this.scale;
         return {
-            pageNumber: Math.round(this.pageNum),
-            signWidth: Math.round(this.signWidth),
-            signHeight: Math.round(this.signHeight),
-            signX: Math.round(this.signX),
-            signY: Math.round(this.signY)
+            pageNumber: this.pageNum,
+            signWidth: Math.round(wPdf),
+            signHeight: Math.round(hPdf),
+            signX: Math.round(xPdf),
+            signY: Math.round(yPdf),
         };
     }
 }
@@ -865,31 +869,34 @@ function alertFunction(text, title = "Error", icon = "error", cancelButton = fal
 // copy action
 ////////////////////////////////////////////////////////////////
 document.addEventListener("DOMContentLoaded", function () {
-    document.getElementById("copy-command-line").addEventListener("click", function () {
-        let commandText = document.getElementById("command-line").innerText.trim();
 
-        navigator.clipboard.writeText(commandText)
-            .then(() => {
-                let text = document.getElementById("text-copy")
-                text.classList.remove("d-none")
-                setTimeout(() => {
-                    text.classList.add("d-none")
-                }, 1500)
-            })
-            .catch(err => {
-                console.error("Error al copiar el texto: ", err);
-            });
-    });
+    if (document.getElementById("copy-command-line")) {
+        document.getElementById("copy-command-line").addEventListener("click", function () {
+            let commandText = document.getElementById("command-line").innerText.trim();
 
-    document.getElementById("show-command-line").addEventListener("click", () => {
-        let container = document.getElementById("container-command-line")
+            navigator.clipboard.writeText(commandText)
+                .then(() => {
+                    let text = document.getElementById("text-copy")
+                    text.classList.remove("d-none")
+                    setTimeout(() => {
+                        text.classList.add("d-none")
+                    }, 1500)
+                })
+                .catch(err => {
+                    console.error("Error al copiar el texto: ", err);
+                });
+        });
 
-        if (container.classList.contains("d-none")) {
-            container.classList.remove("d-none");
-        } else {
-            container.classList.add("d-none");
-        }
-    })
+        document.getElementById("show-command-line").addEventListener("click", () => {
+            let container = document.getElementById("container-command-line")
+
+            if (container.classList.contains("d-none")) {
+                container.classList.remove("d-none");
+            } else {
+                container.classList.add("d-none");
+            }
+        })
+    }
 });
 
 ////////////////////////////////////////////////////////////////
