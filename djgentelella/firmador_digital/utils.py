@@ -33,12 +33,10 @@ class RemoteSignerClient:
         return base64.b64encode(document.file.read()).decode()
 
     def send_document_to_sign(self, instance, usertoken, docsettings):
-        print("send_document_to_sign 1", instance) # instancia str
-        print("send_document_to_sign 2", usertoken) #info de certificado
+        # print("send_document_to_sign 1", instance) # instancia str
+        # print("send_document_to_sign 2", usertoken) #info de certificado
         print("send_document_to_sign 3", docsettings) # document settings
-        print("send_document_to_sign 4", instance.pk) # pk del archivo
-        print("send_document_to_sign 5", instance.filename) # filename
-        print("send_document_to_sign 6", instance.file) # url del archivo
+
         b64doc = self.get_b64document(instance)
         # print(b64doc)
         files = {
@@ -119,7 +117,7 @@ class RemoteSignerClient:
     # def complete_signature(self, instance, data_to_sign):
     def complete_signature(self, data_to_sign):
         print("complete_signature 1", data_to_sign)
-        # print("complete_signature 2", instance)
+
         datatosign = {
             "signature": data_to_sign["signature"],
             "documentid": data_to_sign["documentid"],

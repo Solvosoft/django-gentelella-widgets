@@ -11,6 +11,7 @@ build_digital_signature = function (instance) {
 
     // pdfviewer
     const defaultPage = instance.getAttribute("data-default-page") || "first";
+
     // Crear una nueva instancia del visor de PDF con la configuración adecuada
     const pdfInstance = new PdfSignatureComponent(container, defaultPage);
 
@@ -314,11 +315,11 @@ class PdfSignatureComponent {
 
     getDocumentSettings() {
         return {
-            pageNumber: this.pageNum,
-            signWidth: this.signWidth,
-            signHeight: this.signHeight,
-            signX: this.signX,
-            signY: this.signY
+            pageNumber: Math.round(this.pageNum),
+            signWidth: Math.round(this.signWidth),
+            signHeight: Math.round(this.signHeight),
+            signX: Math.round(this.signX),
+            signY: Math.round(this.signY)
         };
     }
 }
@@ -560,7 +561,6 @@ function FirmadorLibreWS(docmanager, url, signatureManager) {
             };
         },
         "receive_json": function (data) {
-            // console.log(data);
             // validar errores del socket
             if (data.result === false && data.error) {
                 signatureManager.hideLoading();
@@ -568,7 +568,10 @@ function FirmadorLibreWS(docmanager, url, signatureManager) {
                     // problemas de conexion con la API del firmador libre
                     if (data.details.includes("Connection refused")) {
                         signatureManager.addError(3);
+                    } else {
+                        alertSimple(errorInterpreter(999), gettext("Error"), "error");
                     }
+
                 } else if (data.code) {
                     switch (data.code) {
                         case 0:
@@ -603,7 +606,6 @@ function FirmadorLibreWS(docmanager, url, signatureManager) {
                             // cuando ocurre un error debido a un servicio de firma
                             alertSimple(errorInterpreter(12), gettext("Error"), "error");
                             break;
-                        default:
                             // cuando ocurre un error desconocido
                             alertSimple(errorInterpreter(999), gettext("Error"), "error");
                             break;
@@ -638,7 +640,7 @@ function FirmadorLibreWS(docmanager, url, signatureManager) {
                 this.websocket.send(JSON.stringify(data));
             } catch (e) {
                 // console.error("Error de comunicación WS");
-               signatureManager.hideLoading();
+                signatureManager.hideLoading();
                 alertFunction(errorInterpreter(3), gettext("Error"), "error", false, closeModalSignature);
             }
         },
@@ -701,6 +703,7 @@ function DocumentClient(container, widgetId, signatureManager, url_ws) {
             let selected_card = select ? select.value : null;
 
             if (selected_card && this.certificates) {
+                console.log(window.pdfSignatureComponents[widgetId].getDocumentSettings())
                 let data = {
                     'logo_url': this.logo_url,
                     'instance': this.doc_instance,
@@ -713,7 +716,7 @@ function DocumentClient(container, widgetId, signatureManager, url_ws) {
                 alertSimple(errorInterpreter(1), gettext("Error"), "error");
                 this.signatureManager.addError(1);
             } else if (!selected_card && this.certificates) {
-              signatureManager.hideLoading();
+                signatureManager.hideLoading();
                 alertSimple(errorInterpreter(2), gettext("Error"), "error");
                 this.signatureManager.addError(2);
             }
@@ -730,7 +733,7 @@ function DocumentClient(container, widgetId, signatureManager, url_ws) {
                     "success", false, this.signatureManager.reloadPage
                 );
             }
-           // signatureManager.hideLoading();
+            // signatureManager.hideLoading();
         },
         "local_done": function (data) {
             data['instance'] = this.doc_instance;
@@ -888,3 +891,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     })
 });
+
+////////////////////////////////////////////////////////////////
+// End copy action
+////////////////////////////////////////////////////////////////
