@@ -1,9 +1,5 @@
-import uuid
-
 from django.conf import settings
 from django.forms import HiddenInput
-from django.urls import reverse_lazy
-from django.utils.translation import gettext as _
 from djgentelella.widgets.core import update_kwargs
 
 

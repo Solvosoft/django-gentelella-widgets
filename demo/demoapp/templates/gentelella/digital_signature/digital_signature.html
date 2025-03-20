@@ -19,7 +19,7 @@
 								{% csrf_token %}
 								{#		widget				#}
 								{{ form }}
-         <input type="submit" id="hidden-submit" style="display: none;">
+								<input type="submit" id="hidden-submit" style="display: none;">
 							</form>
 						</div>
 
@@ -35,11 +35,33 @@
 {% block js %}
 	<script>
 
+		/**
+			* The 'urls' object contains URLs used by the digital signature widget:
+			*
+			* - sign_doc: This URL is used to retrieve the document (PDF) to be signed.
+			*             It enables the preview functionality by fetching the file from the API.
+			*
+			* - logo: (Optional) This URL points to a logo image that will be displayed
+			*         in the PIN entry window during the signing process.
+			*/
+
 		const urls = {
-			// file to sign
 			sign_doc: "{% url 'digital_signature_file_api' pk=3 %}",
 			logo: "{% static 'gentelella/images/firmador.ico' %}",
 		}
+
+		/**
+			* The 'doc_instance' object defines the document context for the digital signature:
+			*
+			* - pk: The primary key of the document.
+			* - model: The name of the model (in this case "DigitalSignature") that represents
+			*          the document to be signed.
+			* - app: The Django application ("demoapp") where the model is defined.
+			*
+			* Note: The DigitalSignature model requires two mandatory fields:
+			*       • file: A FileField containing the document.
+			*       • filename: A CharField with the name of the file.
+			*/
 		const doc_instance = {
 			"pk": 3,
 			"model": "DigitalSignature",
