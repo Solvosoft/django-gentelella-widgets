@@ -1,5 +1,6 @@
-from uvicorn_worker import UvicornWorker as BaseUvicornWorker
+
+from djgentelella.firmador_digital.config.asgi_worker import DjgentelellaUvicornWorker
 
 
-class UvicornWorker(BaseUvicornWorker):
-    CONFIG_KWARGS = {"lifespan": "off", "loop": "auto", "http": "auto"}
+class UvicornWorker(DjgentelellaUvicornWorker):
+    pass
