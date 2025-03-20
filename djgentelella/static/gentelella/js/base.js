@@ -2627,6 +2627,7 @@ class SignatureManager {
     }
 
     sign() {
+        this.clearErrors();
         this.firmador.do_sign_remote();
     }
 
