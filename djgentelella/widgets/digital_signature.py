@@ -1,4 +1,6 @@
 import uuid
+
+from django.conf import settings
 from django.forms import HiddenInput
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
@@ -14,15 +16,27 @@ class DigitalSignatureInput(HiddenInput):
         attrs = attrs or {}
         attrs['data-ws-url'] = ws_url
         attrs['cors'] = cors
+        attrs['title'] = title
 
-        if title:
-            attrs['title'] = title
+        self.validate_attrs(attrs, ws_url, cors, default_page)
 
+        if extraskwargs:
+            attrs = update_kwargs(
+                attrs, self.__class__.__name__, )
+        super().__init__(attrs)
+
+    def validate_attrs(self, attrs, ws_url, cors, default_page):
         if not ws_url:
-            raise ValueError("Must provide a ws_url in attrs of DigitalSignatureInput.")
+            if not ws_url and settings.FIRMADOR_WS_URL:
+                attrs['data-ws-url'] = settings.FIRMADOR_WS_URL
+            else:
+                raise ValueError("Must provide a ws_url in attrs of DigitalSignatureInput.")
 
         if not cors:
-            raise ValueError("Must provide a cors in attrs of DigitalSignatureInput.")
+            if not cors and settings.FIRMADOR_CORS:
+                attrs['cors'] = settings.FIRMADOR_CORS
+            else:
+                raise ValueError("Must provide a cors in attrs of DigitalSignatureInput.")
 
         if isinstance(default_page, int) and default_page > 0:
             attrs['data-default-page'] = str(
@@ -32,8 +46,3 @@ class DigitalSignatureInput(HiddenInput):
         else:
             raise ValueError(
                 "The default_page attrs in DigitalSignatureInput, must be 'first', 'last' or a positive number.")
-
-        if extraskwargs:
-            attrs = update_kwargs(
-                attrs, self.__class__.__name__, )
-        super().__init__(attrs)

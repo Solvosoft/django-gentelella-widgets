@@ -314,32 +314,12 @@ class PdfSignatureComponent {
     }
 
     getDocumentSettings() {
-        // const xPdf = this.signX / this.scale;
-        // const yPdf = this.signY / this.scale;
-        // const wPdf = this.signWidth / this.scale;
-        // const hPdf = this.signHeight / this.scale;
-        // return {
-        //     pageNumber: this.pageNum,
-        //     signWidth: Math.round(wPdf),
-        //     signHeight: Math.round(hPdf),
-        //     signX: Math.round(xPdf),
-        //     signY: Math.round(yPdf),
-        // };
-        // return {
-        //     pageNumber: this.pageNum,
-        //     signWidth: Math.round(this.signWidth),
-        //     signHeight: Math.round(this.signHeight),
-        //     signX: Math.round(this.signX),
-        //     signY: Math.round(this.signY),
-        // };
-        // p.ej. calculas en el momento de guardar:
         const displayScale = this.canvas.getBoundingClientRect().width / this.canvas.width;
         const xReal = this.signX / displayScale;
         const yReal = this.signY / displayScale;
         const wReal = this.signWidth / displayScale;
         const hReal = this.signHeight / displayScale;
 
-        // Y recién ahí conviertes a coords PDF (dividiendo por this.scale)
         const xPdf = xReal / this.scale;
         const yPdf = yReal / this.scale;
         const wPdf = wReal / this.scale;
