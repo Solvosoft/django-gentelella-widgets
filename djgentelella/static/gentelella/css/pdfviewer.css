@@ -1,17 +1,17 @@
-.canvas_container {
+.widget-digital-signature .canvas_container {
     border-radius: 4px;
 }
 
-.cursor-pointer {
+.widget-digital-signature .cursor-pointer {
     cursor: pointer;
 }
 
-.cursor-pointer:hover{
+.widget-digital-signature .cursor-pointer:hover{
     transform: scale(1.1);
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
-.sub_canvas_container {
+.widget-digital-signature .sub_canvas_container {
     position: relative;
     max-width: 100%;
     max-height: 300px;
@@ -21,13 +21,13 @@
     /*max-height: 950px;*/
 }
 
-.pdfviewer {
+.widget-digital-signature .pdfviewer {
     /*width: 100%;*/
     /*height: auto;*/
     display: block;
 }
 
-.signature {
+.widget-digital-signature .signature {
     display: grid;
     grid-template-areas:
     "top top top"
@@ -44,77 +44,77 @@
     min-height: 20%;
 }
 
-.image {
+.widget-digital-signature .image {
     grid-area: left;
 }
 
-.image img {
+.widget-digital-signature .image img {
     display: block;
     object-fit: contain;
     max-width: 150px;
     max-height: 100px;
 }
 
-.text {
+.widget-digital-signature .text {
     grid-area: right;
     overflow: hidden;
     white-space: pre-line;
 }
 
-.signature.right .image {
+.widget-digital-signature .signature.right .image {
     grid-area: left;
 }
 
-.signature.left .image {
+.widget-digital-signature .signature.left .image {
     grid-area: right;
 }
 
-.signature.top .image {
+.widget-digital-signature .signature.top .image {
     grid-area: bottom;
 }
 
-.signature.bottom .image {
+.widget-digital-signature .signature.bottom .image {
     grid-area: top;
 }
 
-.signature.full .image {
+.widget-digital-signature .signature.full .image {
     display: none;
 }
 
-.signature.none .image {
+.widget-digital-signature .signature.none .image {
     display: block;
 }
 
-.signature.right .text {
+.widget-digital-signature .signature.right .text {
     grid-area: right;
 }
 
-.signature.left .text {
+.widget-digital-signature .signature.left .text {
     grid-area: left;
 }
 
-.signature.top .text {
+.widget-digital-signature .signature.top .text {
     grid-area: top;
 }
 
-.signature.bottom .text {
+.widget-digital-signature .signature.bottom .text {
     grid-area: bottom;
 }
 
-.signature.full .text {
+.widget-digital-signature .signature.full .text {
     grid-area: full;
 }
 
-.signature.none .text {
+.widget-digital-signature .signature.none .text {
     display: none;
 }
 
-.select-container {
+.widget-digital-signature .select-container {
   position: relative;
   display: inline-block;
 }
 
-.select-container i {
+.widget-digital-signature .select-container i {
   position: absolute;
   left: 3px;
   top: 50%;
@@ -122,11 +122,11 @@
   pointer-events: none;
 }
 
-.select-container select {
+.widget-digital-signature .select-container select {
   padding-left: 40px;
 }
 
-.loading-animation {
+.widget-digital-signature .loading-animation {
   display: inline-block;
   animation: pulse 1.5s infinite ease-in-out;
 }

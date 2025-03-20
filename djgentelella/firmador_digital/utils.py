@@ -66,6 +66,7 @@ class RemoteSignerClient:
                 "HTTPError during signature finalization for task %s: %s",
                 task,
                 str(errh),
+                exc_info=errh
             )
             error_msg = _(
                 "An error occurred while communicating with the signing service."
@@ -77,31 +78,37 @@ class RemoteSignerClient:
                 "ConnectionError during signature finalization for task %s: %s",
                 task,
                 str(errc),
+                exc_info=errc
             )
             error_msg = _("Unable to connect to the signing service.")
             result = self.get_error_response(error_msg, str(errc), 503, 2)
         except Timeout as errt:
             logger.error(
-                "Timeout during signature finalization for task %s: %s", task, str(errt)
+                "Timeout during signature finalization for task %s: %s",
+                task,
+                str(errt),
+                exc_info=errt
             )
             error_msg = _("The request to the signing service timed out.")
             result = self.get_error_response(error_msg, str(errt), 408, 12)
-        except RequestException as err:
+        except RequestException as errr:
             logger.error(
                 "RequestException during signature finalization for task %s: %s",
                 task,
-                str(err),
+                str(errr),
+                exc_info=errr
             )
             error_msg = _("An exception ocurred el request to the signing service.")
-            result = self.get_error_response(error_msg, str(err), 500, 999)
-        except Exception as err:
+            result = self.get_error_response(error_msg, str(errr), 500, 999)
+        except Exception as erre:
             logger.error(
                 "Exception during signature finalization for task %s: %s",
                 task,
-                str(err),
+                str(erre),
+                exc_info=erre
             )
             error_msg = _("An unexpected error occurred during the signing process.")
-            result = self.get_error_response(error_msg, str(err), 500, 999)
+            result = self.get_error_response(error_msg, str(erre), 500, 999)
 
         return result
 

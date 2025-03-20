@@ -13,8 +13,6 @@ class DigitalSignatureForm(GTForm, forms.ModelForm):
         fields = ['file']
         widgets = {
             'file': DigitalSignatureInput(
-                ws_url="%s" % settings.FIRMADOR_WS_URL,
-                cors="%s" % settings.FIRMADOR_CORS,
                 title=_("Widget Digital Signature"),
                 default_page = "last"
             )
