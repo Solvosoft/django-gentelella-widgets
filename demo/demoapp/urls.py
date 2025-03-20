@@ -17,6 +17,7 @@ from .formset import add_formset, add_model_formset
 from .grid_slider import views as grid
 from .input_masks import views as input_mask
 from .media_upload.views import mediaupload_view
+from .multiwidget import views as multiwidget
 from .object_management.views import object_management
 from .object_management.viewset import ObjectManagerDemoModelManagement
 from .storyLine.views import storyline_view
@@ -46,6 +47,14 @@ urlpatterns = [
                        name='create_notification'),
                   path('preview/', apply_filter, name='markitup_preview'),
                   path('knobwidget/testform', knobView, name="knobwidgets"),
+                  path('multiwidget/', multiwidget.MultiWidgetListView.as_view(),
+                       name='multiwidget-list'),
+                  path('multiwidget/create/',
+                       multiwidget.MultiWidgetAddView.as_view(),
+                       name='multiwidget-add'),
+                  path('multiwidget/<int:pk>/',
+                       multiwidget.MultiWidgetChangeView.as_view(),
+                       name='multiwidget-edit'),
                   path('pgroup/', autocompleteviews.PeopleGroupList.as_view(),
                        name='pgroup-list'),
                   path('pgroup/create/', autocompleteviews.PeopleGroupAdd.as_view(),

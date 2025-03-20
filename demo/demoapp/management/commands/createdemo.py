@@ -209,6 +209,20 @@ class Command(BaseCommand):
             icon='fa fa-adjust',
             only_icon=False
         )
+
+        MenuItem.objects.create(
+            parent=cwidget,
+            title='Multi Widget field',
+            url_name='multiwidget-list',
+            category='sidebar',  # sidebar, sidebarfooter,
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-cubes',
+            only_icon=False
+        )
+
         inputmask = MenuItem.objects.create(
             parent=cwidget,
             title='Input Mask',

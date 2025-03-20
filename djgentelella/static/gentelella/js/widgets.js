@@ -292,6 +292,9 @@ document.gtwidgets = {
     },
     RemoteAutocompleteEmailTagifyWidget: function(instance){
         build_remote_tagify_email(instance)
+    },
+    MultiWidgetWidget: function(instance){
+        console.log(instance);
     }
 }
 

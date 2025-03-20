@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 
 # Create your models here.
 from djgentelella.fields.catalog import GTForeignKey, GTManyToManyField, GTOneToOneField
+from djgentelella.fields.multiwidget import MultiWidgetJsonField
 
 
 class Country(models.Model):
@@ -251,6 +252,15 @@ class ObjectManagerDemoModel(models.Model):
     m2m_autocomplete = models.ManyToManyField(Country, related_name='autocomplext')
     field_select = models.ForeignKey('Community', on_delete=models.CASCADE)
     m2m_multipleselect = models.ManyToManyField(A)
+
+    def __str__(self):
+        return self.name
+
+
+class MultiWidgetModel(models.Model):
+    name = models.CharField(max_length=150, default="a name")
+    widget_type = models.CharField(max_length=150, default="NumberInput")
+    json_field = MultiWidgetJsonField(null=True, blank=True)
 
     def __str__(self):
         return self.name

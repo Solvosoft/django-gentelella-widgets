@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from .models import WithCatalog, Catalog, OneCatalog, Country, Person, Foo, \
     Community, Employee, \
-    ChunkedUploadItem, Event, Calendar
+    ChunkedUploadItem, Event, Calendar, MultiWidgetModel
 
 admin.site.register(Country)
 admin.site.register(Catalog)
@@ -15,3 +15,4 @@ admin.site.register(Employee)
 admin.site.register(ChunkedUploadItem)
 admin.site.register(Calendar)
 admin.site.register(Event)
+admin.site.register(MultiWidgetModel)
