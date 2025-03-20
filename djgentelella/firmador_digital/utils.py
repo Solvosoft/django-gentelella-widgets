@@ -18,9 +18,6 @@ class RemoteSignerClient:
     def load_settings(self, docsettings):
         from djgentelella.firmador_digital.models import UserSignatureConfig
         sc = UserSignatureConfig.objects.filter(user=self.user).first()
-
-        #! Agergar validacion para indicar que el usuario no tiene configuracion
-
         settings = {}
         settings.update(sc.config)
         settings.update(docsettings)
@@ -33,12 +30,8 @@ class RemoteSignerClient:
         return base64.b64encode(document.file.read()).decode()
 
     def send_document_to_sign(self, instance, usertoken, docsettings):
-        # print("send_document_to_sign 1", instance) # instancia str
-        # print("send_document_to_sign 2", usertoken) #info de certificado
-        print("send_document_to_sign 3", docsettings) # document settings
-
         b64doc = self.get_b64document(instance)
-        # print(b64doc)
+
         files = {
             "b64Document": b64doc,
             "DocumentExtension": ".pdf",
@@ -123,15 +116,16 @@ class RemoteSignerClient:
 
     # def complete_signature(self, instance, data_to_sign):
     def complete_signature(self, data_to_sign):
-        print("complete_signature 1", data_to_sign)
 
         datatosign = {
             "signature": data_to_sign["signature"],
             "documentid": data_to_sign["documentid"],
             "certificate": data_to_sign["certificate"],
         }
+
         instance = data_to_sign["instance"]
         doc_info = self._finalize_signature(datatosign, instance)
+
         if doc_info:
             instance.file = self.convert_to_django_file(
                 doc_info["bytes"],
@@ -144,6 +138,7 @@ class RemoteSignerClient:
             )
             instance.save()
             return True
+
         return False
 
     def convert_to_django_file(self, data, name):

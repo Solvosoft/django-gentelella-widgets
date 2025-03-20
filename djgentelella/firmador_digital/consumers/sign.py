@@ -53,8 +53,7 @@ class SignConsumer(JsonWebsocketConsumer):
                     case _:
                         self.do_default(serializer)
             else:
-                print("SignConsumer - receive_json - errors", serializer.errors)
-                # errores al serializar datos
+                # errors when serializing data
                 self.send_json({
                     "result": False,
                     "error": str(_("Invalid request.")),
@@ -64,7 +63,7 @@ class SignConsumer(JsonWebsocketConsumer):
                 })
 
         except Exception as e:
-            # errores no controlados del serializar de datos
+            # uncontrolled data serializing errors
             self.send_json({
                 "result": False,
                 "error": str(_("An unexpected error occurred.")),
@@ -77,18 +76,18 @@ class SignConsumer(JsonWebsocketConsumer):
 
         signer = RemoteSignerClient(self.scope["user"])
 
-        # peticion a firmador
+        # data for the request to Firmador server
         response = signer.send_document_to_sign(
             serializer.validated_data["instance"],
             serializer.validated_data["card"],
             serializer.validated_data["docsettings"],
         )
 
-        # elimina imagen de firmador
+        # remove signer image
         if "imageIcon" in response:
             del response["imageIcon"]
 
-        # sobre escribir la respuesta para agregar b64image
+        # about writing the answer to add b64image
         logo_url = serializer.validated_data["logo_url"]
         if "b64image" in response and logo_url:
             response["b64image"] = self.get_logo_base64(logo_url)
