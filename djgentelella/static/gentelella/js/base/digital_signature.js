@@ -12,7 +12,7 @@ build_digital_signature = function (instance) {
     // pdfviewer
     const defaultPage = instance.getAttribute("data-default-page") || "first";
 
-    // Crear una nueva instancia del visor de PDF con la configuración adecuada
+    // Create a new instance of the PDF viewer with the appropriate settings
     const pdfInstance = new PdfSignatureComponent(container, defaultPage);
 
     if (!doc_instance) {
@@ -29,7 +29,7 @@ build_digital_signature = function (instance) {
         window.pdfSignatureComponents = {};
     }
 
-    // Agregar la instancia al objeto global si no existe
+    // Add the instance to the global object if it does not exist
     if (!window.pdfSignatureComponents[container_tag]) {
         window.pdfSignatureComponents[container_tag] = pdfInstance;
     }
@@ -46,7 +46,7 @@ class PdfSignatureComponent {
         this.widgetId = container.getAttribute("data-widget-id");
 
 
-        // Elementos internos (usando selectores relativos)
+        // Internal elements
         this.signature = container.querySelector('.signature');
         this.canvas = container.querySelector('.pdfviewer');
         this.btn_prev = container.querySelector('.prev');
@@ -56,13 +56,13 @@ class PdfSignatureComponent {
         this.page_count = container.querySelector('.page_count');
         this.sub_canvas_container = container.querySelector('.sub_canvas_container');
 
-        // Verifica que existan todos los elementos requeridos
+        // Verify that all required elements are present
         if (!this.signature || !this.canvas || !this.btn_prev || !this.btn_next || !this.page_num || !this.page_number || !this.page_count || !this.sub_canvas_container) {
             console.warn("Falta alguno de los elementos requeridos en este componente. Se omite su inicialización.");
             return;
         }
 
-        // Variables propias del componente
+        // Variables specific to the component
         this.pdfDoc = null;
         this.pageNum = 1;
         this.pageRendering = false;
@@ -73,7 +73,7 @@ class PdfSignatureComponent {
         this.signWidth = 133;
         this.signHeight = 133;
 
-        // Inicializa cada parte
+        // Initializes the processes
         this.initEvents();
         this.initPDFViewer();
         this.initInteract();
@@ -162,7 +162,7 @@ class PdfSignatureComponent {
     }
 
     initInteract() {
-        // Primera instancia de draggable y resizable con interact.js
+        // First instance of draggable and resizable with interact.js
         interact(this.signature)
             .draggable({
                 inertia: true, modifiers: [interact.modifiers.restrictRect({
@@ -201,7 +201,7 @@ class PdfSignatureComponent {
                 })], inertia: true
             });
 
-        // Segunda instancia de draggable con autoScroll sobre el contenedor
+        // Second instance of draggable with autoScroll over the container
         interact(this.signature)
             .draggable({
                 inertia: true, modifiers: [interact.modifiers.restrictRect({
@@ -244,7 +244,7 @@ class PdfSignatureComponent {
     }
 
     initSignatureSettings() {
-        // Se aplica una configuración base clonando el elemento de firma
+        // A base configuration is applied by cloning the signature element
         const tempSignature = this.signature.cloneNode(true);
         tempSignature.style = '';
         tempSignature.classList.remove("right", "left", "top", "bottom", "full", "none");
@@ -273,8 +273,7 @@ class PdfSignatureComponent {
         if (imageContainer) imageContainer.innerHTML = '';
         if (textContainer) textContainer.innerHTML = '';
         try {
-            // Aquí podrías cargar la imagen o actualizar el texto de la firma
-            // Por ejemplo:
+            // Here you can load the image or update the text of the signature
             // await this.loadSignatureImage(signatureImageURL, imageContainer);
         } catch (error) {
             console.error(gettext("Error loading content: "), error);
@@ -293,7 +292,7 @@ class PdfSignatureComponent {
         return tempSignature;
     }
 
-    // Si se requiere, se puede definir un método para cargar una imagen
+    // If required, you can define a method for loading an image
     loadSignatureImage(signatureImage, imageContainer) {
         return new Promise((resolve, reject) => {
             if (!signatureImage) {
@@ -376,7 +375,6 @@ class SignatureManager {
 
     refresh() {
         this.socketError = false;
-        // this.firmador.inicialize();
         this.firmador.remotesigner.inicialize();
 
         this.clearErrors();
@@ -447,7 +445,7 @@ function responseManageTypeData(instance, err_json_fn, error_text_fn) {
 }
 
 function SocketManager(socket, signatureManager) {
-    // Si ocurre algún error durante la conexión
+    // If an error occurs during the connection
     socket.onerror = (event) => {
         // console.error("WebSocket error");
         signatureManager.hideLoading();
@@ -455,12 +453,12 @@ function SocketManager(socket, signatureManager) {
         signatureManager.socketError = true;
     };
 
-    // Si la conexión se cierra
+    // If the connection is closed
     socket.onclose = (event) => {
         // console.warn("WebSocket cerrado");
     };
 
-    // Si la conexión se abre
+    // If the connection is opened
     socket.onopen = (event) => {
         // console.log("WebSocket conectado");
         signatureManager.socket_error = false;
@@ -475,7 +473,7 @@ function callFetch(instance) {
             'X-CSRFToken': getCookie('csrftoken'),
             'Content-Type': 'application/json'
         },
-        cache: 'no-cache', // no usar cache
+        cache: 'no-cache', // do not use cache
     }).then(responseManageTypeData(instance, instance.error_json, instance.error_text))
         .then(data => instance.success(data))
         .catch(error => {
@@ -507,7 +505,7 @@ function FirmadorLibreLocal(docmanager, signatureManager) {
                     // console.log(error);
                 },
                 error: function (error) {
-                    // No reconoce el firmador libre
+                    // Unrecognized Firmador Libre
                     if (String(error) === "TypeError: NetworkError when attempting to fetch resource.") {
                         signatureManager.addError(1);
                     }
@@ -524,19 +522,18 @@ function FirmadorLibreLocal(docmanager, signatureManager) {
                 'type': 'POST',
                 'data': json,
                 "success": function (data) {
-                    // si el resultado es diferente a un string, es posible que hay un error
+                    // if the result is different from a string, it is possible that there is an error.
                     // console.log(data)
                     if (typeof data !== 'string') { //prevent option call
-                        // console.log("manager.local_done(data)", data);
                         manager.local_done(data);
                     }
-                    // signatureManager.hideLoading();
+
                 },
                 "error": function (error) {
                     // console.log(error);
                     signatureManager.hideLoading();
                     if (typeof error === "object") {
-                        // cierre de ventana para ingresar el PIN
+                        // close window for PIN entry
                         if (error.status === 406 && error.statusText === "Not Acceptable") {
                             alertSimple(errorInterpreter(4), gettext("Warning"), "warning");
                         }
@@ -573,11 +570,11 @@ function FirmadorLibreWS(docmanager, url, signatureManager) {
             };
         },
         "receive_json": function (data) {
-            // validar errores del socket
+            // validate socket errors
             if (data.result === false && data.error) {
                 signatureManager.hideLoading();
                 if (typeof data.details === "string") {
-                    // problemas de conexion con la API del firmador libre
+                    // connection issues with the Firmador Libre API
                     if (data.details.includes("Connection refused")) {
                         signatureManager.addError(3);
                     } else {
@@ -587,38 +584,38 @@ function FirmadorLibreWS(docmanager, url, signatureManager) {
                 } else if (data.code) {
                     switch (data.code) {
                         case 0:
-                            // cuando ocurre un error desconocido en el servidor
+                            // when an unknown error occurs on the server
                             alertSimple(errorInterpreter(0), gettext("Error"), "error");
                             break;
                         case 6:
-                            // cuando ocurre un solapamiento de la firma
+                            // when the new signature field position overlaps with an existing signature
                             alertSimple(errorInterpreter(6), gettext("Error"), "error");
                             break;
                         case 7:
-                            // cuanda la firma se encuentra fuera de los limites de la pagina
+                            // when the signature field is outside the page boundaries
                             alertSimple(errorInterpreter(7), gettext("Error"), "error");
                             break;
                         case 8:
-                            // cuando ocurre un error debido a una libreria incompatible
+                            // when an error occurs due to an incompatible library
                             alertSimple(errorInterpreter(8), gettext("Error"), "error");
                             break;
                         case 9:
-                            // cuando ocurre un error debido a un proveedor de criptografía
+                            // when an error occurs due to an unavailable cryptographic provider
                             alertSimple(errorInterpreter(9), gettext("Error"), "error");
                             break;
                         case 10:
-                            // cuando ocurre un error debido a un algoritmo de firma
+                            // when an error occurs due to the signing algorithm
                             alertSimple(errorInterpreter(10), gettext("Error"), "error");
                             break;
                         case 11:
-                            // cuando hay errores al serializar datos
+                            // when there are errors serializing data
                             alertSimple(errorInterpreter(11), gettext("Error"), "error");
                             break;
                         case 12:
-                            // cuando ocurre un error debido a un servicio de firma
+                            // when an error occurs due to a signing service timeout
                             alertSimple(errorInterpreter(12), gettext("Error"), "error");
                             break;
-                            // cuando ocurre un error desconocido
+                            // when an unknown error occurs
                             alertSimple(errorInterpreter(999), gettext("Error"), "error");
                             break;
                     }
@@ -627,6 +624,7 @@ function FirmadorLibreWS(docmanager, url, signatureManager) {
 
             docmanager.do_sign_local(data);
         },
+
         "inicialize": function () {
             this.websocket = new WebSocket(url);
             SocketManager(this.websocket, signatureManager);
@@ -684,13 +682,13 @@ function DocumentClient(container, widgetId, signatureManager, url_ws) {
                 container.querySelector("#container_select_card").classList.remove("d-none");
                 container.querySelector("#container_select_card_tem").classList.add("d-none");
 
-                let id_card = container.querySelector("#select_card_id_update-file");
+                let select_card = container.querySelector("#select_card_id_update-file");
 
-                if (!id_card) {
-                    console.error(`No se encontró el select para el widget ${widgetId}`);
+                if (!select_card) {
+                    console.error(`Select not found for widget ${widgetId}`);
                     return;
                 }
-                id_card.innerHTML = "";
+                select_card.innerHTML = "";
                 this.certificates = {};
 
                 data.forEach((element) => {
@@ -701,7 +699,7 @@ function DocumentClient(container, widgetId, signatureManager, url_ws) {
                         element.tokenSerialNumber,
                         false, false
                     );
-                    id_card.appendChild(newOption);
+                    select_card.appendChild(newOption);
                 });
             } else {
                 container.querySelector("#container_select_card").classList.add("d-none");
@@ -715,7 +713,6 @@ function DocumentClient(container, widgetId, signatureManager, url_ws) {
             let selected_card = select ? select.value : null;
 
             if (selected_card && this.certificates) {
-                console.log(window.pdfSignatureComponents[widgetId].getDocumentSettings())
                 let data = {
                     'logo_url': this.logo_url,
                     'instance': this.doc_instance,
@@ -745,7 +742,6 @@ function DocumentClient(container, widgetId, signatureManager, url_ws) {
                     "success", false, this.signatureManager.reloadPage
                 );
             }
-            // signatureManager.hideLoading();
         },
         "local_done": function (data) {
             data['instance'] = this.doc_instance;
@@ -776,66 +772,66 @@ function errorInterpreter(error) {
 
     switch (error) {
         case 0:
-            // cuando ocurre un error no controlado en el servidor de firma
+            // when an uncontrolled error occurs in the signing server
             textError = gettext("An error has occurred in the internal server of the uncontrolled 'Firmador Libre'.");
             break;
         case 1:
-            // cuando no abre la aplicación firmador libre
+            // when the 'Firmador Libre' application fails to open
             textError = gettext("Make sure to start the 'Firmador Libre' application. If it is already running, please press the reload button.");
             break;
         case 2:
-            // cuando no hay tarjeta conectada
+            // when there is no card connected
             textError = gettext("There is no card connected to the device. Please press the reload button and connect your card.");
             break;
         case 3:
-            // cuando el servicio de firma no funciona
+            // when the signing service is not functioning
             textError = gettext("The internal signature service does not work. Please contact the support.");
             break;
         case 4:
-            // cuando cierra el modal y deja la ventana abierta del PIN (Firmador Libre)
+            // when the modal is closed but the PIN entry window remains open
             textError = gettext("Authentication failed because the PIN entry window was detected closed, please try again.");
             break;
         case 5:
-            // cuando desconecta la tarjeta
-            //! Este error debe solucionarse en el Firmador Libre
+            // when the card is disconnected
+            //! This error should be resolved within Firmador Libre
             textError = gettext("The device was disconnected, possibly the window was closed for signature. Please close the window for the authentication PIN.");
             break;
         case 6:
-            // cuando ocurre un solapamiento de la firma
+            // when the new signature field position overlaps with an existing signature
             textError = gettext("The new signature field position overlaps with an existing signature.");
             break;
         case 7:
-            // cuanda la firma se encuentra fuera de los limites de la pagina
+            // when the signature is positioned outside the page boundaries
             textError = gettext("The new signature field position is outside the page dimensions.");
             break;
         case 8:
-            // cuando ocurre un error debido a una libreria incompatible
+            // when an error occurs due to an incompatible library
             textError = gettext("The version of one or more libraries is incompatible.");
             break;
         case 9:
-            // cuando ocurre un error debido a un proveedor de criptografía
+            // when an error occurs due to an unavailable cryptographic provider
             textError = gettext("The cryptographic provider is not available.");
             break;
         case 10:
-            // cuando ocurre un error debido a un algoritmo de firma
+            // when an error occurs due to the signing algorithm
             textError = gettext("The signing algorithm is not available.");
             break;
         case 11:
-            // cuando hay errores al serializar datos
+            // when errors occur while serializing data
             textError = gettext("Errors have been encountered in the data to be sent to the 'Free Signer'. Please press the reload button and try again.");
             break;
         case 12:
-            // cuando ocurre un error debido a un servicio de firma por tiempo de espera
+            // when an error occurs due to a signing service timeout
             textError = gettext("The request to the signing service timed out. Please, press the reload button and try again.");
             break;
         default:
-            // cuando ocurre un error desconocido
+            // when an unknown error occurs
             textError = gettext("We're sorry, an unexpected error occurred. Please, press the reload button and try again.");
     }
 
     return textError;
-
 }
+
 
 ///////////////////////////////////////////////
 //  Alerts Digital Signature
