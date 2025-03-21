@@ -9,15 +9,17 @@ Attributes:
     renderer_classes (list): A list of renderer classes to format the response.
                              Here, PDFRenderer is used to handle PDF output.
 """
-
-from rest_framework.views import APIView
-from rest_framework.response import Response
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from demoapp.models import DigitalSignature
 from djgentelella.firmador_digital.consumers.pdf_render import PDFRenderer
 
 
+@method_decorator(login_required, name='dispatch')
 class DigitalSignatureFileAPIView(APIView):
     renderer_classes = [PDFRenderer]
 
@@ -38,7 +40,8 @@ class DigitalSignatureFileAPIView(APIView):
         try:
             signature = DigitalSignature.objects.get(pk=pk)
         except DigitalSignature.DoesNotExist:
-            return Response({"detail": "File not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"detail": "File not found"},
+                            status=status.HTTP_404_NOT_FOUND)
 
         file_path = signature.file.path
         with open(file_path, 'rb') as f:

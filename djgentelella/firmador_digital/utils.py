@@ -1,15 +1,15 @@
-import requests
 import base64
-
-from django.utils.translation import gettext_lazy as _
-from django.conf import settings
 import logging
 
+import requests
+from django.conf import settings
 from django.core.files.base import ContentFile
 from django.utils.timezone import now
+from django.utils.translation import gettext_lazy as _
 from requests import HTTPError, Timeout, RequestException
 
 logger = logging.getLogger(__name__)
+
 
 class RemoteSignerClient:
     def __init__(self, user):
@@ -19,7 +19,8 @@ class RemoteSignerClient:
         from djgentelella.firmador_digital.models import UserSignatureConfig
         sc = UserSignatureConfig.objects.filter(user=self.user).first()
         settings = {}
-        settings.update(sc.config)
+        if sc:
+            settings.update(sc.config)
         settings.update(docsettings)
         return settings
 

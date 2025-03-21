@@ -12,6 +12,7 @@ from .chartjs import chart_js_view
 from .datatables.api import PersonViewSet
 from .datatables.views import datatableViewExample
 from .date_range import views as date_ranges
+from .digital_signature import views as digitalsignature
 from .digital_signature.api import DigitalSignatureFileAPIView
 from .filechunkedupload import views as chunkedupload
 from .formset import add_formset, add_model_formset
@@ -26,9 +27,6 @@ from .tagging import views as tagging
 from .timeline.views import timeline_view
 from .views import knobView, YesNoInputView
 from .wysiwyg import views as tinymce
-# from .digital_signature.views import digital_signature_view, digital_signature_file
-from .digital_signature.views import digital_signature_view
-from .digital_signature.api import DigitalSignatureFileAPIView
 
 pclss = Personclass()
 countryclss = Countryclass()
@@ -50,6 +48,15 @@ urlpatterns = [
                        name='create_notification'),
                   path('preview/', apply_filter, name='markitup_preview'),
                   path('knobwidget/testform', knobView, name="knobwidgets"),
+                  path('digitalsignature/',
+                       digitalsignature.DigitalSignatureList.as_view(),
+                       name='digitalsignature-list'),
+                  path('digitalsignature/create/',
+                       digitalsignature.DigitalSignatureAdd.as_view(),
+                       name='digitalsignature-add'),
+                  path('digitalsignature/<int:pk>/',
+                       digitalsignature.DigitalSignatureChange.as_view(),
+                       name='digitalsignature-edit'),
                   path('pgroup/', autocompleteviews.PeopleGroupList.as_view(),
                        name='pgroup-list'),
                   path('pgroup/create/', autocompleteviews.PeopleGroupAdd.as_view(),
@@ -113,7 +120,7 @@ urlpatterns = [
                   path('cardlist_view', cardListViewExample, name="cardlist_view"),
                   path('mediarecord_upload', mediaupload_view, name="mediaupload_view"),
                   path('tableapi/', include(router.urls)),
-                  path('digital_signature_view', digital_signature_view, name="digital_signature_view"),
+
                   # path('api/digital_signature_file/<int:pk>/',digital_signature_file, name='digital_signature_file'),
                   path('api/digital_signature_file/<int:pk>/',
                        DigitalSignatureFileAPIView.as_view(),

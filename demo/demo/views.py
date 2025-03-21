@@ -1,12 +1,60 @@
+import mimetypes
+import posixpath
+from pathlib import Path
+
 from django import forms
 from django.contrib.auth.decorators import login_required
+from django.contrib.staticfiles import finders
+from django.http import Http404, HttpResponseNotModified, FileResponse
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
+from django.utils.http import http_date
+from django.utils.translation import gettext_lazy as _
+from django.views.decorators.csrf import csrf_exempt
+from django.views.static import directory_index
+from django.views.static import was_modified_since
 
 from djgentelella.forms.forms import GTForm
 from djgentelella.widgets import core as genwidgets
 from djgentelella.widgets import numberknobinput as knobwidget
 from djgentelella.widgets.files import FileChunkedUpload
+
+
+@csrf_exempt
+def serve_static(request, path, show_indexes=False):
+    try:
+        normalized_path = posixpath.normpath(path).lstrip('/')
+        fullpath = finders.find(normalized_path)
+
+        # Convert fullpath to a Path object
+        fullpath = Path(fullpath)
+
+        if fullpath.is_dir():
+            if show_indexes:
+                return directory_index(path, fullpath)
+            raise Http404(_("Directory indexes are not allowed here."))
+
+        if not fullpath.exists():
+            raise Http404(_("“%(path)s” does not exist") % {"path": fullpath})
+
+        # Respect the If-Modified-Since header.
+        statobj = fullpath.stat()
+        if not was_modified_since(
+            request.META.get("HTTP_IF_MODIFIED_SINCE"), statobj.st_mtime
+        ):
+            return HttpResponseNotModified()
+
+        content_type, encoding = mimetypes.guess_type(str(fullpath))
+        content_type = content_type or "application/octet-stream"
+
+        response = FileResponse(fullpath.open("rb"), content_type=content_type)
+        response.headers["Last-Modified"] = http_date(statobj.st_mtime)
+        if encoding:
+            response.headers["Content-Encoding"] = encoding
+
+        return response
+    except Exception as e:
+        raise Http404()
 
 
 class ExampleForm(GTForm):

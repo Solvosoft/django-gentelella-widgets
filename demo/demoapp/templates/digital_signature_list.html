@@ -1,0 +1,43 @@
+{% extends 'gentelella/base.html' %}
+{% load urlname_tags %}
+
+{% block pre_head %}
+{% get_or_create_permission_context 'digitalsignature-edit,digitalsignature-add,digitalsignature-list' 'demoapp' 'change_digitalsignature,add_digitalsignature,view_digitalsignature' 'Edit Digital Signature,Create Digital Signature,List Digital Signature' 'DigitalSignature' %}
+{% define_urlname_action 'digitalsignature-add'%}
+{% define_urlname_action 'digitalsignature-edit'%}
+{% define_urlname_action 'digitalsignature-list'%}
+{% endblock%}
+
+{% block content %}
+
+<div class="card">
+	<div class="card-body">
+		<div class="card-title titles">
+			<h2>Digital Signature</h2>
+			<ul class="nav navbar-right d-flex flex-row-reverse" style="margin-top:-40px">
+				<li><a href="{% url 'digitalsignature-add' %}" class="collapse-link"><i class="fa fa-plus green"
+																																																																												style="font-size: 2em"></i></a>
+				</li>
+
+			</ul>
+			<div class="clearfix"></div>
+		</div>
+
+		<div>
+			<ul class="to_do">
+				{% for obj in object_list %}
+				<li class="d-flex">
+					<div class="p-2 flex-fill"> {{obj}}</div>
+					<div class="p-2 flex-fill">
+						<a class="btn btn-sm btn-outline-warning float-end" href="{% url 'digitalsignature-edit' obj.pk %}"><i
+							class="fa fa-edit"></i></a>
+					</div>
+				</li>
+				{% endfor %}
+			</ul>
+		</div>
+	</div>
+</div>
+
+
+{% endblock %}

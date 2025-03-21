@@ -24,7 +24,6 @@ SECRET_KEY = '@438vu@4s#@juwf6b*s@u&%9hv&_pgk_g1%s$pp2)(+x7br-ta'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -112,8 +111,7 @@ CSRF_TRUSTED_ORIGINS = [
     f"{CSRF_TRUSTED_SCHEME}://0.0.0.0",
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True
-
+CORS_ALLOW_ALL_ORIGINS = False
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
@@ -152,19 +150,24 @@ DEFAULT_JS_IMPORTS = {
 }
 
 # FIRMADOR DIGITAL
+DO_STATIC = os.getenv('DO_STATIC', default='True').lower() == 'true'
 DJANGO_ASETTINGS_MODULE = "demo.asettings"
-GUNICORN_BIND = "127.0.0.1:9022" if DEBUG else "unix:/run/supervisor/gunicorn_asgi.sock"
+GUNICORN_BIND = os.getenv('GUNICORN_BIND', "127.0.0.1:9022")
 GUNICORN_ASGI_APP = "demo.asgi:application"
 GUNICORN_WSGI_APP = "demo.wsgi:application"
 GUNICORN_WORKERS = 1 if DEBUG else 2
-GUNICORN_WORKER_CLASS = "demo.asgi_worker.UvicornWorker"
-GUNICORN_USER = "demo"
-GUNICORN_GROUP = "demo"
+GUNICORN_WORKER_CLASS = "sync"
+GUNICORN_USER = os.getenv('GUNICORN_USER', "demo")
+GUNICORN_GROUP = os.getenv('GUNICORN_GROUP', "demo")
 
-FIRMADOR_CORS = "http://127.0.0.1:8000"
-FIRMADOR_WS = "ws://127.0.0.1:9022/async/"
+UVICORN_BIND = os.getenv('UVICORN_BIND', "127.0.0.1:8022")
+UVICORN_WORKER = 1 if DEBUG else 2
+UVICORN_WORKER_CLASS = "demo.asgi_worker.UvicornWorker"
+
+FIRMADOR_CORS = os.getenv('FIRMADOR_CORS', f"{CSRF_TRUSTED_SCHEME}://{GUNICORN_BIND}")
+FIRMADOR_WS = os.getenv('FIRMADOR_WS', "ws://%s/async/" % UVICORN_BIND)
 FIRMADOR_WS_URL = FIRMADOR_WS + "sign_document"
-FIRMADOR_DOMAIN = "http://localhost:9001"
+FIRMADOR_DOMAIN = os.getenv('FIRMADOR_DOMAIN', "http://localhost:9001")
 FIRMADOR_VALIDA_URL = FIRMADOR_DOMAIN + "/valida/"
 FIRMADOR_SIGN_URL = FIRMADOR_DOMAIN + "/firma/firme"
 FIRMADOR_SIGN_COMPLETE = FIRMADOR_DOMAIN + "/firma/completa"

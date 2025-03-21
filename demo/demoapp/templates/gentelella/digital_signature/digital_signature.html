@@ -2,70 +2,33 @@
 {% load static %}
 
 {% block content %}
-	{#	contenedor #}
-	<div class="row">
-		<div class='col-12'>
-			<div class="card">
-				<div class="card-body">
-					{#		title page			#}
-					<div class="card-title titles">
-						<h1 class="text-center"> Digital Signature </h1>
-					</div>
-					{#	main content #}
-					<main>
-						{# form #}
-						<div class="my-3">
-							<form action="" method="POST">
-								{% csrf_token %}
-								{#		widget				#}
-								{{ form }}
-								<input type="submit" id="hidden-submit" style="display: none;">
-							</form>
-						</div>
-
-					</main>
-
+{# contenedor #}
+<div class="row">
+	<div class='col-12'>
+		<div class="card">
+			<div class="card-body">
+				{# title page #}
+				<div class="card-title titles">
+					<h1 class="text-center"> Digital Signature </h1>
 				</div>
+				{# main content #}
+				<main>
+					{# form #}
+					<div class="my-3">
+						<form action="" method="POST">
+							{% csrf_token %}
+							{# widget #}
+							{{ form }}
+							<input type="submit" id="hidden-submit" style="display: none;">
+						</form>
+					</div>
+
+				</main>
+
 			</div>
 		</div>
 	</div>
+</div>
 
 {% endblock %}
 
-{% block js %}
-	<script>
-
-		/**
-			* The 'urls' object contains URLs used by the digital signature widget:
-			*
-			* - sign_doc: This URL is used to retrieve the document (PDF) to be signed.
-			*             It enables the preview functionality by fetching the file from the API.
-			*
-			* - logo: (Optional) This URL points to a logo image that will be displayed
-			*         in the PIN entry window during the signing process.
-			*/
-
-		const urls = {
-			sign_doc: "{% url 'digital_signature_file_api' pk=3 %}",
-			logo: "{% static 'gentelella/images/firmador.ico' %}",
-		}
-
-		/**
-			* The 'doc_instance' object defines the document context for the digital signature:
-			*
-			* - pk: The primary key of the document.
-			* - model: The name of the model (in this case "DigitalSignature") that represents
-			*          the document to be signed.
-			* - app: The Django application ("demoapp") where the model is defined.
-			*
-			* Note: The DigitalSignature model requires two mandatory fields:
-			*       • file: A FileField containing the document.
-			*       • filename: A CharField with the name of the file.
-			*/
-		const doc_instance = {
-			"pk": 3,
-			"model": "DigitalSignature",
-			"app": "demoapp",
-		}
-	</script>
-{% endblock %}
