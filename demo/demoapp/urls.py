@@ -125,5 +125,8 @@ urlpatterns = [
                   path('api/digital_signature_file/<int:pk>/',
                        DigitalSignatureFileAPIView.as_view(),
                        name='digital_signature_file_api'),
+                  path('formset/digital_signature/',
+                       digitalsignature.digital_signature_formset,
+                       name="digital_signature_formset")
 
               ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()
