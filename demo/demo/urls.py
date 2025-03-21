@@ -16,12 +16,12 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 
 from demoapp.urls import urlpatterns as demourls
 from djgentelella.urls import urlpatterns as djgentelellaurls
 from .dashboad import show_top_counts
-from .views import home, logeado, add_view_select
+from .views import home, logeado, add_view_select, serve_static
 
 urlpatterns = djgentelellaurls + [
     path('admin/', admin.site.urls),
@@ -31,3 +31,8 @@ urlpatterns = djgentelellaurls + [
     path('add_view_select', add_view_select, name='add_view_select'),
     path('blog/', include('djgentelella.blog.urls')),
 ] + demourls + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+if settings.DO_STATIC:
+    urlpatterns += [
+        re_path(r'^static/(?P<path>.*)$', serve_static),
+    ]

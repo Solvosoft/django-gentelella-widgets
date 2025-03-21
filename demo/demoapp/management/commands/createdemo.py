@@ -599,7 +599,7 @@ class Command(BaseCommand):
         item1 = MenuItem.objects.create(
             parent=parent_item,
             title='Digital Signature',
-            url_name='digital_signature_view',
+            url_name='digitalsignature-list',
             category='sidebar',
             is_reversed=True,
             reversed_kwargs=None,
@@ -608,7 +608,6 @@ class Command(BaseCommand):
             icon='fa fa-vine',
             only_icon=False
         )
-
 
     def handle(self, *args, **options):
 
@@ -621,4 +620,3 @@ class Command(BaseCommand):
         self.create_communities()
         self.abcde()
         self.create_avanced()
-

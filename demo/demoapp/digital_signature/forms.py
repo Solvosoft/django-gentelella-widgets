@@ -32,20 +32,32 @@ The DigitalSignatureInput widget accepts several key parameters:
 """
 
 from django import forms
+from django.utils.translation import gettext_lazy as _
 
 from demoapp.models import DigitalSignature
 from djgentelella.forms.forms import GTForm
+from djgentelella.widgets.core import FileInput, TextInput
 from djgentelella.widgets.digital_signature import DigitalSignatureInput
-from django.utils.translation import gettext_lazy as _
+
+
+class DigitalSignatureAddForm(GTForm, forms.ModelForm):
+    class Meta:
+        model = DigitalSignature
+        fields = ['filename', 'file']
+        widgets = {
+            'filename': TextInput,
+            'file': FileInput
+        }
+
 
 class DigitalSignatureForm(GTForm, forms.ModelForm):
-
     class Meta:
         model = DigitalSignature
         fields = ['file']
         widgets = {
             'file': DigitalSignatureInput(
                 title=_("Widget Digital Signature"),
-                default_page = "last"
+                default_page="last",
+                render_basename="digital_signature_file_api"
             )
         }

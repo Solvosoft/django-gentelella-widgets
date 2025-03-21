@@ -2257,13 +2257,23 @@ build_digital_signature = function (instance) {
     const url_ws = instance.getAttribute("data-ws-url");
     const container = instance.closest(".widget-digital-signature");
     const container_tag = `container-${widgetId}`;
+    const doc_instance = {
+		"pk":  instance.getAttribute("data-pk"),
+		"model": instance.getAttribute("data-modelname"),
+		"app": instance.getAttribute("data-applabel"),
+	}
+    const urls = {
+        "logo": instance.getAttribute("data-logo"),
+        "sign_doc": instance.getAttribute("data-renderurl")
+    }
+    instance.getAttribute("data-ws-url")
     container.setAttribute("data-widget-id", container_tag);
 
     // pdfviewer
     const defaultPage = instance.getAttribute("data-default-page") || "first";
 
     // Create a new instance of the PDF viewer with the appropriate settings
-    const pdfInstance = new PdfSignatureComponent(container, defaultPage);
+    const pdfInstance = new PdfSignatureComponent(container, defaultPage, urls, doc_instance);
 
     if (!doc_instance) {
         console.error("You must define the doc_instance variable.");
@@ -2290,11 +2300,12 @@ build_digital_signature = function (instance) {
 //  PDF preview Digtal Signature
 ///////////////////////////////////////////////
 class PdfSignatureComponent {
-    constructor(container, defaultPage) {
+    constructor(container, defaultPage, urls, doc_instance) {
         this.container = container;
         this.defaultPage = defaultPage;
         this.widgetId = container.getAttribute("data-widget-id");
-
+        this.urls=urls;
+        this.doc_instance=doc_instance;
 
         // Internal elements
         this.signature = container.querySelector('.signature');
@@ -2339,11 +2350,11 @@ class PdfSignatureComponent {
 
     initPDFViewer() {
 
-        if (typeof urls['sign_doc'] === 'undefined') {
+        if (typeof this.urls['sign_doc'] === 'undefined') {
             console.warn("The variable 'sign_doc' is not defined.");
             return;
         }
-        pdfjsLib.getDocument(urls['sign_doc']).promise.then((pdfDoc_) => {
+        pdfjsLib.getDocument(this.urls['sign_doc']).promise.then((pdfDoc_) => {
             this.pdfDoc = pdfDoc_;
             this.page_count.textContent = pdfDoc_.numPages;
 
@@ -2932,7 +2943,7 @@ function DocumentClient(container, widgetId, signatureManager, url_ws) {
                 container.querySelector("#container_select_card").classList.remove("d-none");
                 container.querySelector("#container_select_card_tem").classList.add("d-none");
 
-                let select_card = container.querySelector("#select_card_id_update-file");
+                let select_card = container.querySelector(".select_card");
 
                 if (!select_card) {
                     console.error(`Select not found for widget ${widgetId}`);
@@ -2959,7 +2970,7 @@ function DocumentClient(container, widgetId, signatureManager, url_ws) {
         },
 
         "do_sign_remote": function () {
-            let select = container.querySelector("#select_card_id_update-file");
+            let select = container.querySelector(".select_card");
             let selected_card = select ? select.value : null;
 
             if (selected_card && this.certificates) {

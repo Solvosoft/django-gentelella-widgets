@@ -1,3 +1,5 @@
+import json
+
 from django.forms import (
     PasswordInput as DJPasswordInput,
     FileInput as DJFileInput,
@@ -192,7 +194,8 @@ class FileInput(DJFileInput):
     def value_from_datadict(self, data, files, name):
         dev = None
         token = data.get(name)
-        tmpupload = ChunkedUpload.objects.filter(upload_id=token).first()
+        load_token = json.loads(token)
+        tmpupload = ChunkedUpload.objects.filter(upload_id=load_token['token']).first()
         if tmpupload:
             dev = tmpupload.get_uploaded_file()
             tmpupload.delete()
