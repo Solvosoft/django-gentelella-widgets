@@ -16,7 +16,6 @@ build_digital_signature = function (instance) {
         "logo": instance.getAttribute("data-logo"),
         "sign_doc": instance.getAttribute("data-renderurl")
     }
-    instance.getAttribute("data-ws-url")
     container.setAttribute("data-widget-id", container_tag);
 
     // pdfviewer

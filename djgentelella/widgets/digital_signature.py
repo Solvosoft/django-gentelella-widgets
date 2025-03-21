@@ -63,13 +63,13 @@ class DigitalSignatureInput(HiddenInput):
         return static(self.icon_url)
 
     def get_context(self, name, value, attrs):
-
-        attrs['data-pk'] = value.instance.pk
-        attrs['data-applabel'] = value.instance._meta.app_label
-        attrs['data-modelname'] = value.instance._meta.model_name
-        attrs['data-renderurl'] = reverse(self.render_basename,
-                                          args=[value.instance.pk])
-        attrs['data-logo'] = self.get_icon_url(value)
+        if value:
+            attrs['data-pk'] = value.instance.pk
+            attrs['data-applabel'] = value.instance._meta.app_label
+            attrs['data-modelname'] = value.instance._meta.model_name
+            attrs['data-renderurl'] = reverse(self.render_basename,
+                                              args=[value.instance.pk])
+            attrs['data-logo'] = self.get_icon_url(value)
         context = super().get_context(name, value, attrs)
         context["widget"]["type"] = self.input_type
         return context

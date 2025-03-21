@@ -608,6 +608,18 @@ class Command(BaseCommand):
             icon='fa fa-vine',
             only_icon=False
         )
+        item1 = MenuItem.objects.create(
+            parent=parent_item,
+            title='Sign Formset',
+            url_name='digital_signature_formset',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-vine',
+            only_icon=False
+        )
 
     def handle(self, *args, **options):
 
