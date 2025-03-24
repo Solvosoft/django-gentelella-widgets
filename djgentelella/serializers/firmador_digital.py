@@ -1,6 +1,6 @@
 from django.apps import apps
 from rest_framework import serializers
-
+from django.db.models import FileField
 
 class DocumentSettingsSerializer(serializers.Serializer):
     pageNumber = serializers.IntegerField(min_value=1, default=1)
@@ -13,11 +13,13 @@ class InstanceSerializer(serializers.Serializer):
     pk = serializers.IntegerField()
     model = serializers.CharField()
     app = serializers.CharField()
+    field_name  = serializers.CharField()
 
     def validate(self, attrs):
         app_label = attrs.get("app")
         model_name = attrs.get("model")
         pk = attrs.get("pk")
+        field_name = attrs.get("field_name")
 
         try:
             ModelClass = apps.get_model(app_label=app_label, model_name=model_name)
@@ -29,8 +31,20 @@ class InstanceSerializer(serializers.Serializer):
         except ModelClass.DoesNotExist:
             raise serializers.ValidationError({"pk": "Instance not found."})
 
+        if not hasattr(instance, field_name):
+            raise serializers.ValidationError({
+                "field_name": "The instance does not have field: %s" % field_name
+            })
+
+        field_obj = instance._meta.get_field(field_name)
+        if not isinstance(field_obj, FileField):
+            raise serializers.ValidationError({
+                "field_name": "Field %s is not a FileField." % field_name
+            })
+
         attrs["instance_obj"] = instance
         attrs["model_class"] = ModelClass
+        attrs["field_name"] = field_name
         return attrs
 
 
@@ -65,6 +79,8 @@ class InitialSignatureSerializer(serializers.Serializer):
         instance_data = data.pop('instance')
         data['instance'] = instance_data['instance_obj']
         data['model_class'] = instance_data['model_class']
+        data['field_name'] = instance_data['field_name']
+
         return data
 
 class CompleteSignatureSerializer(serializers.Serializer):
@@ -79,4 +95,6 @@ class CompleteSignatureSerializer(serializers.Serializer):
         instance_data = data.pop('instance')
         data['instance'] = instance_data['instance_obj']
         data['model_class'] = instance_data['model_class']
+        data['field_name'] = instance_data['field_name']
+
         return data

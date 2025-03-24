@@ -11,6 +11,7 @@ build_digital_signature = function (instance) {
 		"pk":  instance.getAttribute("data-pk"),
 		"model": instance.getAttribute("data-modelname"),
 		"app": instance.getAttribute("data-applabel"),
+        "field_name": instance.getAttribute("data-field-name"),
 	}
     const urls = {
         "logo": instance.getAttribute("data-logo"),

@@ -56,6 +56,7 @@ class DigitalSignatureForm(GTForm, forms.ModelForm):
         fields = ['file']
         widgets = {
             'file': DigitalSignatureInput(
+                field_name='file',
                 title=_("Widget Digital Signature"),
                 default_page="last",
                 render_basename="digital_signature_file_api"

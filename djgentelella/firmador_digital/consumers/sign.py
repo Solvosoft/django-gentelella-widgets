@@ -73,14 +73,14 @@ class SignConsumer(JsonWebsocketConsumer):
             })
 
     def do_initial_signature(self, serializer):
-
         signer = RemoteSignerClient(self.scope["user"])
 
         # data for the request to Firmador server
         response = signer.send_document_to_sign(
-            serializer.validated_data["instance"],
-            serializer.validated_data["card"],
-            serializer.validated_data["docsettings"],
+            instance=serializer.validated_data["instance"],
+            field_name=serializer.validated_data["field_name"],
+            usertoken=serializer.validated_data["card"],
+            docsettings=serializer.validated_data["docsettings"],
         )
 
         # remove signer image

@@ -15,12 +15,14 @@ class DigitalSignatureInput(HiddenInput):
     input_type = 'hidden'
 
     def __init__(self, attrs=None, extraskwargs=True, ws_url=None, cors=None,
-                 title=None, render_basename=None, icon_url=None,
+                 title=None, render_basename=None, icon_url=None, field_name=None,
                  default_page="first"):
         attrs = attrs or {}
         attrs['data-ws-url'] = ws_url
         attrs['cors'] = cors
         attrs['title'] = title
+        attrs['data-field-name'] = field_name
+
         self.render_basename = render_basename
         self.icon_url = icon_url
         if self.icon_url is None:
@@ -28,14 +30,14 @@ class DigitalSignatureInput(HiddenInput):
         if self.render_basename is None:
             logger.warning(
                 "No base name for DigitalSignatureInput, this will generate a 500 error in the future")
-        self.validate_attrs(attrs, ws_url, cors, default_page)
+        self.validate_attrs(attrs, ws_url, cors, field_name, default_page)
 
         if extraskwargs:
             attrs = update_kwargs(
                 attrs, self.__class__.__name__, )
         super().__init__(attrs)
 
-    def validate_attrs(self, attrs, ws_url, cors, default_page):
+    def validate_attrs(self, attrs, ws_url, cors, field_name, default_page):
         if not ws_url:
             if not ws_url and settings.FIRMADOR_WS_URL:
                 attrs['data-ws-url'] = settings.FIRMADOR_WS_URL
@@ -49,6 +51,10 @@ class DigitalSignatureInput(HiddenInput):
             else:
                 raise ValueError(
                     "Must provide a cors in attrs of DigitalSignatureInput.")
+
+        if not field_name:
+            raise ValueError(
+                "Must provide a field_name in attrs of DigitalSignatureInput.")
 
         if isinstance(default_page, int) and default_page > 0:
             attrs['data-default-page'] = str(
