@@ -27,11 +27,16 @@ class RemoteSignerClient:
     def load_certificate(self, certtoken):
         return certtoken["certificate"]
 
-    def get_b64document(self, document):
-        return base64.b64encode(document.file.read()).decode()
+    def get_b64document(self, instance, field_name):
+        file_obj = getattr(instance, field_name, None)
 
-    def send_document_to_sign(self, instance, usertoken, docsettings):
-        b64doc = self.get_b64document(instance)
+        if not file_obj:
+            return None
+        return base64.b64encode(file_obj.read()).decode()
+
+
+    def send_document_to_sign(self, instance,field_name, usertoken, docsettings):
+        b64doc = self.get_b64document(instance, field_name)
 
         files = {
             "b64Document": b64doc,
@@ -115,7 +120,6 @@ class RemoteSignerClient:
             "code": code,
         }
 
-    # def complete_signature(self, instance, data_to_sign):
     def complete_signature(self, data_to_sign):
 
         datatosign = {
