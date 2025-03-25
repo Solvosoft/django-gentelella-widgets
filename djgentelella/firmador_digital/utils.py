@@ -1,4 +1,5 @@
 import base64
+import io
 import logging
 
 import requests
@@ -133,22 +134,21 @@ class RemoteSignerClient:
                 self.user.pk,
                 now().strftime("%m%d%Y"),
             )
-            djfile = self.convert_to_django_file(
+            chunk = self.convert_to_django_file(
                 doc_info["bytes"],
                 name,
             )
             chfile = ChunkedUpload.objects.create(
                 filename=name,
-                file=djfile,
+                file=ContentFile(b'', name=name),
                 completed_on=now(),
                 created_on=now(),
                 user=self.user,
                 status=2  # this is complete, but I can import constants here
             )
-
+            chfile.append_chunk(chunk, save=True)
             return chfile.upload_id
-
         return False
 
     def convert_to_django_file(self, data, name):
-        return ContentFile(base64.b64decode(data), name=name)
+        return io.BytesIO(base64.b64decode(data))
