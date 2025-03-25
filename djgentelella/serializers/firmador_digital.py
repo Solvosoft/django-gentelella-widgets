@@ -1,6 +1,11 @@
-from django.apps import apps
+import base64
+import json
+import logging
+
 from rest_framework import serializers
-from django.db.models import FileField
+
+logger = logging.getLogger('djgentelella')
+
 
 class DocumentSettingsSerializer(serializers.Serializer):
     pageNumber = serializers.IntegerField(min_value=1, default=1)
@@ -9,50 +14,63 @@ class DocumentSettingsSerializer(serializers.Serializer):
     signX = serializers.IntegerField(min_value=0, default=198)
     signY = serializers.IntegerField(min_value=0, default=0)
 
+
 class InstanceSerializer(serializers.Serializer):
     pk = serializers.IntegerField()
-    model = serializers.CharField()
-    app = serializers.CharField()
-    field_name  = serializers.CharField()
+    cc = serializers.IntegerField()
+    value = serializers.CharField()
+
+    def get_json_file(self, value):
+        jsondata = None
+        try:
+            instance = base64.b64decode(value.encode())
+            jsondata = json.loads(instance.decode())
+        except Exception as e:
+            logger.error("Validation of value on digital signature fail", exc_info=e)
+        return jsondata
+
+    def get_file_from_token(self, token):
+        from djgentelella.models import ChunkedUpload
+        tmpupload = ChunkedUpload.objects.filter(upload_id=token).first()
+        dev = None
+        if tmpupload:
+            dev = tmpupload.get_uploaded_file()
+        return dev
+
+    def get_instance_file(self, instance, fieldname):
+        file_path = getattr(instance, fieldname)
+        file_data = None
+        with open(file_path.path, 'rb') as f:
+            file_data = f.read()
+        return file_data
+
+    def validate_value(self, data):
+        jsonparse = self.get_json_file(data)
+        if not jsonparse:
+            raise serializers.ValidationError("Invalid encode value")
+        return jsonparse
 
     def validate(self, attrs):
-        app_label = attrs.get("app")
-        model_name = attrs.get("model")
+        from django.contrib.contenttypes.models import ContentType
+        cc = attrs.get("cc")
         pk = attrs.get("pk")
-        field_name = attrs.get("field_name")
-
-        try:
-            ModelClass = apps.get_model(app_label=app_label, model_name=model_name)
-        except LookupError:
-            raise serializers.ValidationError({"model": "Invalid model provided."})
-
-        try:
-            instance = ModelClass.objects.get(pk=pk)
-        except ModelClass.DoesNotExist:
-            raise serializers.ValidationError({"pk": "Instance not found."})
-
-        if not hasattr(instance, field_name):
-            raise serializers.ValidationError({
-                "field_name": "The instance does not have field: %s" % field_name
-            })
-
-        field_obj = instance._meta.get_field(field_name)
-        if not isinstance(field_obj, FileField):
-            raise serializers.ValidationError({
-                "field_name": "Field %s is not a FileField." % field_name
-            })
-
-        attrs["instance_obj"] = instance
-        attrs["model_class"] = ModelClass
-        attrs["field_name"] = field_name
+        ccinstance = ContentType.objects.get_for_id(cc)
+        instance = ccinstance.get_object_for_this_type(pk=pk)
+        value = attrs.get("value")
+        if 'token' in value:
+            attrs['value'] = self.get_file_from_token(value['token'])
+        elif 'field_name' in value:
+            attrs['value'] = self.get_instance_file(instance, value['field_name'])
         return attrs
 
 
 class RequestInitialDoc(serializers.Serializer):
     docsettings = DocumentSettingsSerializer()
 
+
 class WSRequest(serializers.Serializer):
     action = serializers.CharField()
+
 
 class CardSerializer(serializers.Serializer):
     certificate = serializers.CharField()
@@ -75,13 +93,6 @@ class InitialSignatureSerializer(serializers.Serializer):
     logo_url = serializers.CharField(required=False, allow_null=True, allow_blank=True)
     instance = InstanceSerializer()
 
-    def validate(self, data):
-        instance_data = data.pop('instance')
-        data['instance'] = instance_data['instance_obj']
-        data['model_class'] = instance_data['model_class']
-        data['field_name'] = instance_data['field_name']
-
-        return data
 
 class CompleteSignatureSerializer(serializers.Serializer):
     action = serializers.CharField()
@@ -90,11 +101,3 @@ class CompleteSignatureSerializer(serializers.Serializer):
     signature = SignatureSerializer()
     logo_url = serializers.CharField(required=False, allow_null=True, allow_blank=True)
     instance = InstanceSerializer()
-
-    def validate(self, data):
-        instance_data = data.pop('instance')
-        data['instance'] = instance_data['instance_obj']
-        data['model_class'] = instance_data['model_class']
-        data['field_name'] = instance_data['field_name']
-
-        return data

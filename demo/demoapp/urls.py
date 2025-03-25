@@ -122,7 +122,7 @@ urlpatterns = [
                   path('tableapi/', include(router.urls)),
 
                   # path('api/digital_signature_file/<int:pk>/',digital_signature_file, name='digital_signature_file'),
-                  path('api/digital_signature_file/<int:pk>/',
+                  path('api/digital_signature_file/<int:cc>/<int:pk>/',
                        DigitalSignatureFileAPIView.as_view(),
                        name='digital_signature_file_api'),
                   path('formset/digital_signature/',

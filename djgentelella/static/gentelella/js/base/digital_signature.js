@@ -9,13 +9,13 @@ build_digital_signature = function (instance) {
     const container_tag = `container-${widgetId}`;
     const doc_instance = {
 		"pk":  instance.getAttribute("data-pk"),
-		"model": instance.getAttribute("data-modelname"),
-		"app": instance.getAttribute("data-applabel"),
-        "field_name": instance.getAttribute("data-field-name"),
+		"cc":  instance.getAttribute("data-cc"),
+		"value": instance.getAttribute("data-value")
 	}
     const urls = {
         "logo": instance.getAttribute("data-logo"),
-        "sign_doc": instance.getAttribute("data-renderurl")
+        "sign_doc": instance.getAttribute("data-renderurl"),
+        "renderattr": instance.getAttribute("data-renderattr")
     }
     container.setAttribute("data-widget-id", container_tag);
 
@@ -31,7 +31,7 @@ build_digital_signature = function (instance) {
     }
 
     // Signature
-    let signatureManager = new SignatureManager(container, url_ws);
+    let signatureManager = new SignatureManager(container, url_ws, pdfInstance);
     signatureManager.startSign(doc_instance, urls['logo']);
 
     // Store the instance in a global object with key per widget ID
@@ -104,7 +104,7 @@ class PdfSignatureComponent {
             console.warn("The variable 'sign_doc' is not defined.");
             return;
         }
-        pdfjsLib.getDocument(this.urls['sign_doc']).promise.then((pdfDoc_) => {
+        pdfjsLib.getDocument(this.urls['sign_doc']+"?"+this.urls['renderattr']).promise.then((pdfDoc_) => {
             this.pdfDoc = pdfDoc_;
             this.page_count.textContent = pdfDoc_.numPages;
 
@@ -349,7 +349,7 @@ class PdfSignatureComponent {
 //  Signature manager Digital Signature
 ///////////////////////////////////////////////
 class SignatureManager {
-    constructor(container, url_ws) {
+    constructor(container, url_ws, pdfvisor) {
         this.container = container;
         this.modal = new bootstrap.Modal(container.querySelector("#loading_sign"));
         this.firmador = new DocumentClient(container, container.getAttribute("data-widget-id"), this, url_ws, this.doc_instance);
@@ -357,6 +357,7 @@ class SignatureManager {
         this.errorsContainer = container.querySelector(".errors_signer");
         this.refreshBtn = container.querySelector(".btn_signer_refresh");
         this.socketError = false;
+        this.pdfvisor = pdfvisor;
 
         this.initEvents();
     }
@@ -631,9 +632,13 @@ function FirmadorLibreWS(docmanager, url, signatureManager) {
                             break;
                     }
                 }
+            }else{
+                if(data.hasOwnProperty('tobesigned')){
+                    docmanager.do_sign_local(data);
+                }else{
+                    docmanager.remote_done(data)
+                }
             }
-
-            docmanager.do_sign_local(data);
         },
 
         "inicialize": function () {
@@ -743,16 +748,7 @@ function DocumentClient(container, widgetId, signatureManager, url_ws) {
 
         },
         "do_sign_local": function (data) {
-            // console.log(data);
             this.localsigner.sign(data);
-            // firmado exitosamente
-            if (data.result === true) {
-                alertFunction(
-                    gettext("The signing was successfully completed."),
-                    gettext("Success"),
-                    "success", false, this.signatureManager.reloadPage
-                );
-            }
         },
         "local_done": function (data) {
             data['instance'] = this.doc_instance;
@@ -760,10 +756,17 @@ function DocumentClient(container, widgetId, signatureManager, url_ws) {
             this.remotesigner.complete_sign(data);
         },
         "remote_done": function (data) {
-            // console.log('remote_done', data);
-            if (data.result === true) {
-                document.location.reload();
-            }
+             if(data.result !== null ){
+                const l = btoa(JSON.stringify({'token': data.result}));
+                this.signatureManager.doc_instance['value'] =l;
+                this.signatureManager.pdfvisor.urls['renderattr']="value="+l;
+                this.signatureManager.pdfvisor.reload();
+                alertFunction(
+                    gettext("The signing was successfully completed."),
+                    gettext("Success"),
+                    "success", false, function(){}
+                );
+             }
         },
 
     };

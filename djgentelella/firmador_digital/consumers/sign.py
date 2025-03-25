@@ -1,18 +1,21 @@
 import base64
+import logging
 from io import BytesIO
+
 from PIL import Image
 from PIL.Image import Resampling
-from django.contrib.staticfiles import finders
 from channels.generic.websocket import JsonWebsocketConsumer
+from django.contrib.staticfiles import finders
 from django.utils.translation import gettext_lazy as _
 
-
+from djgentelella.firmador_digital.utils import RemoteSignerClient
 from djgentelella.serializers.firmador_digital import (
     WSRequest,
     InitialSignatureSerializer,
     CompleteSignatureSerializer,
 )
-from djgentelella.firmador_digital.utils import RemoteSignerClient
+
+logger = logging.getLogger("djgentelella")
 
 
 class SignConsumer(JsonWebsocketConsumer):
@@ -61,6 +64,7 @@ class SignConsumer(JsonWebsocketConsumer):
                     "status": 400,
                     "code": 11,
                 })
+                logger.error("Invalid request.")
 
         except Exception as e:
             # uncontrolled data serializing errors
@@ -71,6 +75,7 @@ class SignConsumer(JsonWebsocketConsumer):
                 "status": 500,
                 "code": 999,
             })
+            logger.error("An unexpected error occurred.", exc_info=e)
 
     def do_initial_signature(self, serializer):
         signer = RemoteSignerClient(self.scope["user"])
@@ -78,7 +83,6 @@ class SignConsumer(JsonWebsocketConsumer):
         # data for the request to Firmador server
         response = signer.send_document_to_sign(
             instance=serializer.validated_data["instance"],
-            field_name=serializer.validated_data["field_name"],
             usertoken=serializer.validated_data["card"],
             docsettings=serializer.validated_data["docsettings"],
         )
@@ -95,11 +99,13 @@ class SignConsumer(JsonWebsocketConsumer):
         self.send_json(response)
 
     def do_complete_signature(self, serializer):
-
-        signer = RemoteSignerClient(self.scope["user"])
-        data = dict(serializer.validated_data)
-        response = signer.complete_signature(data)
-        self.send_json({"result": response})
+        try:
+            signer = RemoteSignerClient(self.scope["user"])
+            data = dict(serializer.validated_data)
+            response = signer.complete_signature(data)
+            self.send_json({"result": response})
+        except Exception as e:
+            logger.error("Complete the signature fail", exc_info=e)
 
     def do_default(self, serializer):
         pass
@@ -138,4 +144,5 @@ class SignConsumer(JsonWebsocketConsumer):
 
         except Exception as e:
             print("Error leyendo logo:", e)
+            logger.error("Reading logo fail", exc_info=e)
             return ""
