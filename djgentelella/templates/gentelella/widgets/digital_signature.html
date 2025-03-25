@@ -56,8 +56,6 @@
 				</select>
 			</div>
 
-			<input type="hidden" name="prefix" class="form_prefix" value="{{ form.prefix|default_if_none:'' }}">
-
 			{#	btn sign #}
 			<div class="my-3 d-flex align-items-center justify-content-evenly">
 				<button class="btn btn-primary w-50 rounded formadd btn-sm px-3 btn_signer"
@@ -147,9 +145,8 @@
 			{#	actions for change page#}
 			<div class="my-3 d-flex align-items-center justify-content-evenly">
 				<input type="hidden" name="{{ widget.name }}_page_number" class="page_number">
-				<input type="hidden" data-filename="{{ widget.attrs.id }}.pdf" name="{{ widget.name }}"
-					{% if widget.value != None %}
-											value="{{ widget.value|stringformat:'s' }}"{% endif %} {% include "gentelella/widgets/attrs.html" %}>
+				<input type="hidden"  name="{{ widget.name }}"
+					{% if widget.value != None %} value="{{ widget.value|stringformat:'s' }}"{% endif %} {% include "gentelella/widgets/attrs.html" %}>
 
 				{#		button to change page #}
 				<div>

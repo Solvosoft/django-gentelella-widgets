@@ -1,11 +1,10 @@
-import base64
-import json
 import logging
 
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
+from djgentelella.firmador_digital.signvalue_utils import ValueDSParser
 from djgentelella.forms.forms import GTForm
 from djgentelella.widgets import core as genwidgets
 
@@ -16,17 +15,8 @@ class CardForm(GTForm):
     card = forms.ChoiceField(choices=[], widget=genwidgets.Select, label=_("Card"))
 
 
-class RenderValueForm(GTForm):
+class RenderValueForm(GTForm, ValueDSParser):
     value = forms.CharField(required=True)
-
-    def get_json_file(self, value):
-        jsondata = None
-        try:
-            instance = base64.b64decode(value.encode())
-            jsondata = json.loads(instance.decode())
-        except Exception as e:
-            logger.error("Validation of value on digital signature fail", exc_info=e)
-        return jsondata
 
     def clean_value(self):
         value = self.cleaned_data['value']

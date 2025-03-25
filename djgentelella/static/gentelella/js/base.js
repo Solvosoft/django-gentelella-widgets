@@ -2281,7 +2281,7 @@ build_digital_signature = function (instance) {
     }
 
     // Signature
-    let signatureManager = new SignatureManager(container, url_ws, pdfInstance);
+    let signatureManager = new SignatureManager(widgetId, container, url_ws, pdfInstance);
     signatureManager.startSign(doc_instance, urls['logo']);
 
     // Store the instance in a global object with key per widget ID
@@ -2599,7 +2599,8 @@ class PdfSignatureComponent {
 //  Signature manager Digital Signature
 ///////////////////////////////////////////////
 class SignatureManager {
-    constructor(container, url_ws, pdfvisor) {
+    constructor(input_id, container, url_ws, pdfvisor) {
+        this.input_id=input_id;
         this.container = container;
         this.modal = new bootstrap.Modal(container.querySelector("#loading_sign"));
         this.firmador = new DocumentClient(container, container.getAttribute("data-widget-id"), this, url_ws, this.doc_instance);
@@ -3009,6 +3010,9 @@ function DocumentClient(container, widgetId, signatureManager, url_ws) {
              if(data.result !== null ){
                 const l = btoa(JSON.stringify({'token': data.result}));
                 this.signatureManager.doc_instance['value'] =l;
+                this.signatureManager.pdfvisor.urls['renderattr']="value="+l;
+                document.getElementById(this.signatureManager.input_id).value=l;
+                signatureManager.hideLoading();
                 alertFunction(
                     gettext("The signing was successfully completed."),
                     gettext("Success"),

@@ -20,7 +20,7 @@
 							{% csrf_token %}
 							{# widget #}
 							{{ form }}
-							<input type="submit" id="hidden-submit" style="display: none;">
+							<input class="btn btn-success" type="submit" id="hidden-submit" value="{% trans 'Submit' %}" \>
 						</form>
 					</div>
 
