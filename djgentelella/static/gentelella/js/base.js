@@ -2473,7 +2473,24 @@ class PdfSignatureComponent {
                     move: (event) => this.dragMoveListener(event)
                 }
             });
+
+        this.canvas.addEventListener('dblclick', (event) => this.moveSignatureToClick(event));
     }
+
+    moveSignatureToClick(event) {
+        const rect = this.canvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+
+        const signatureWidth = this.signature.offsetWidth;
+        const signatureHeight = this.signature.offsetHeight;
+
+        const centerX = x - signatureWidth / 2;
+        const centerY = y - signatureHeight / 2;
+
+        this.updatePosition(this.signature, centerX, centerY);
+    }
+
 
     dragMoveListener(event) {
         const target = event.target;
@@ -2915,6 +2932,7 @@ function FirmadorLibreWS(docmanager, url, signatureManager) {
 
             try {
                 this.websocket.send(JSON.stringify(data));
+                this.hideLoading();
             } catch (e) {
                 // console.error("Error de comunicación WS");
                 signatureManager.hideLoading();
