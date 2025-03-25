@@ -16,11 +16,12 @@
 				<main>
 					{# form #}
 					<div class="my-3">
-						<form action="" method="POST">
+						<form id="formtest" action="" method="POST">
 							{% csrf_token %}
 							{# widget #}
 							{{ form }}
 							<input class="btn btn-success" type="submit" id="hidden-submit" value="{% trans 'Submit' %}" \>
+							<button type="button" class="btn btn-info" id="apibtnsave">{% trans 'Save using API' %}</button>
 						</form>
 					</div>
 
@@ -30,6 +31,40 @@
 		</div>
 	</div>
 </div>
+
+{% endblock %}
+
+{% block js %}
+{{ block.super }}
+
+<script>
+	const api_url = '{% url "digital_signature_api_test" form.instance.pk %}';
+
+	document.getElementById('apibtnsave').addEventListener('click', function() {
+					const form = document.getElementById('formtest');
+
+					fetch(api_url, {
+									method: 'PUT',
+									headers: {
+												 'X-CSRFToken': getCookie('csrftoken'),
+													'Content-Type': 'application/json'
+									},
+									body: JSON.stringify({ file: document.getElementById('id_file').value })
+					})
+					.then(response => {
+									if (!response.ok) {
+													throw new Error('Error en la solicitud: ' + response.statusText);
+									}
+									return response.json();
+					})
+					.then(data => {
+									console.log('Éxito:', data);
+					})
+					.catch((error) => {
+									console.error('Error:', error);
+					});
+	});
+</script>
 
 {% endblock %}
 
