@@ -73,9 +73,11 @@ class DigitalSignatureInput(HiddenInput, ValueDSParser):
         return static(self.icon_url)
 
     def get_context(self, name, value, attrs):
+        valuedata = None
         if value:
             contenttype = ContentType.objects.get_for_model(value.instance).pk
-            valuedata = self.get_field_attribute_for_get(name, value, contenttype)
+            valuedata = self.get_field_attribute_for_get(value.field.name, value,
+                                                         contenttype)
             attrs['data-pk'] = value.instance.pk
             attrs['data-cc'] = contenttype
             attrs['data-value'] = valuedata
