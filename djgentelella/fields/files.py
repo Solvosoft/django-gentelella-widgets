@@ -7,6 +7,7 @@ from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
+from djgentelella.firmador_digital.signvalue_utils import ValueDSParser
 from djgentelella.models import ChunkedUpload
 
 
@@ -68,7 +69,7 @@ class GTBase64FileField(serializers.FileField):
 
 
 class ChunkedFileField(serializers.FileField):
-    
+
     def parse_value(self, value):
         """
         Parses the given value and returns the parsed result.
@@ -116,6 +117,31 @@ class ChunkedFileField(serializers.FileField):
                 if self.root.instance:
                     if hasattr(self.root.instance, self.source):
                         return getattr(self.root.instance, self.source)
+        return dev
+
+    def to_representation(self, value):
+        data = super().to_representation(value)
+        if data and value.name and value.storage.exists(value.name):
+            name = Path(value.name).name
+            return {'name': value.name, 'url': data, 'display_name': name}
+
+
+class DigitalSignatureField(serializers.FileField, ValueDSParser):
+    def to_internal_value(self, data):
+        """
+        Converts the given data to internal value representation.
+
+        Args:
+            data (str): The data to be converted.
+
+        Returns:
+            The internal value representation of the data, or None if the data is invalid
+            or does not contain the required attributes.
+        """
+        dev = None
+        jsondata = self.get_json_file(data)
+        if jsondata:
+            return self.get_filefield(jsondata)
         return dev
 
     def to_representation(self, value):
