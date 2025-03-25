@@ -13,7 +13,8 @@ from .datatables.api import PersonViewSet
 from .datatables.views import datatableViewExample
 from .date_range import views as date_ranges
 from .digital_signature import views as digitalsignature
-from .digital_signature.api import DigitalSignatureFileAPIView
+from .digital_signature.api import DigitalSignatureFileAPIView, \
+    DigitalSignatureAPIUpdateTest
 from .filechunkedupload import views as chunkedupload
 from .formset import add_formset, add_model_formset
 from .grid_slider import views as grid
@@ -125,6 +126,10 @@ urlpatterns = [
                   path('api/digital_signature_file/<int:cc>/<int:pk>/',
                        DigitalSignatureFileAPIView.as_view(),
                        name='digital_signature_file_api'),
+                  path('api/digital_signature/test/<int:pk>',
+                       DigitalSignatureAPIUpdateTest.as_view(),
+                       name="digital_signature_api_test"
+                       ),
                   path('formset/digital_signature/',
                        digitalsignature.digital_signature_formset,
                        name="digital_signature_formset")
