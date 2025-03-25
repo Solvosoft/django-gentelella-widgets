@@ -16,7 +16,7 @@ class DigitalSignatureInput(HiddenInput):
 
     def __init__(self, attrs=None, extraskwargs=True, ws_url=None, cors=None,
                  title=None, render_basename=None, icon_url=None, field_name=None,
-                 default_page="first"):
+                 default_page="first", extra_render_args=None):
         attrs = attrs or {}
         attrs['data-ws-url'] = ws_url
         attrs['cors'] = cors
@@ -25,6 +25,8 @@ class DigitalSignatureInput(HiddenInput):
 
         self.render_basename = render_basename
         self.icon_url = icon_url
+        self.extra_render_args = extra_render_args or []
+
         if self.icon_url is None:
             self.icon_url = 'gentelella/images/firmador.ico'
         if self.render_basename is None:
@@ -73,8 +75,8 @@ class DigitalSignatureInput(HiddenInput):
             attrs['data-pk'] = value.instance.pk
             attrs['data-applabel'] = value.instance._meta.app_label
             attrs['data-modelname'] = value.instance._meta.model_name
-            attrs['data-renderurl'] = reverse(self.render_basename,
-                                              args=[value.instance.pk])
+            attrs['data-renderurl'] = reverse(self.render_basename, args=[value.instance.pk] + self.extra_render_args)
+
             attrs['data-logo'] = self.get_icon_url(value)
         context = super().get_context(name, value, attrs)
         context["widget"]["type"] = self.input_type
