@@ -27,16 +27,12 @@ class RemoteSignerClient:
     def load_certificate(self, certtoken):
         return certtoken["certificate"]
 
-    def get_b64document(self, instance, field_name):
-        file_obj = getattr(instance, field_name, None)
+    def get_b64document(self, value):
 
-        if not file_obj:
-            return None
-        return base64.b64encode(file_obj.read()).decode()
+        return base64.b64encode(value).decode()
 
-
-    def send_document_to_sign(self, instance,field_name, usertoken, docsettings):
-        b64doc = self.get_b64document(instance, field_name)
+    def send_document_to_sign(self, instance, usertoken, docsettings):
+        b64doc = self.get_b64document(instance['value'])
 
         files = {
             "b64Document": b64doc,
@@ -44,9 +40,9 @@ class RemoteSignerClient:
             "settings": self.load_settings(docsettings),
             "certToken": self.load_certificate(usertoken),
         }
-        headers = {"firmador-api": str(instance.pk)}
+
         response = requests.post(
-            settings.FIRMADOR_SIGN_URL, json=files, headers=headers
+            settings.FIRMADOR_SIGN_URL, json=files
         )
         return response.json()
 
@@ -121,7 +117,7 @@ class RemoteSignerClient:
         }
 
     def complete_signature(self, data_to_sign):
-
+        from djgentelella.models import ChunkedUpload
         datatosign = {
             "signature": data_to_sign["signature"],
             "documentid": data_to_sign["documentid"],
@@ -132,17 +128,25 @@ class RemoteSignerClient:
         doc_info = self._finalize_signature(datatosign, instance)
 
         if doc_info:
-            instance.file = self.convert_to_django_file(
-                doc_info["bytes"],
-                "%s_%s_%s.pdf"
-                % (
-                    instance.pk,
-                    self.user.pk,
-                    now().strftime("%m%d%Y"),
-                ),
+            name = "%s_%s_%s.pdf" % (
+                instance['pk'],
+                self.user.pk,
+                now().strftime("%m%d%Y"),
             )
-            instance.save()
-            return True
+            djfile = self.convert_to_django_file(
+                doc_info["bytes"],
+                name,
+            )
+            chfile = ChunkedUpload.objects.create(
+                filename=name,
+                file=djfile,
+                completed_on=now(),
+                created_on=now(),
+                user=self.user,
+                status=2  # this is complete, but I can import constants here
+            )
+
+            return chfile.upload_id
 
         return False
 

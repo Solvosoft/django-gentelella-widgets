@@ -1,4 +1,5 @@
 {% extends 'gentelella/base_site.html' %}
+{% load i18n %}
 {% load static %}
 
 {% block content %}
@@ -9,7 +10,7 @@
 			<div class="card-body">
 				{# title page #}
 				<div class="card-title titles">
-					<h1 class="text-center"> Digital Signature </h1>
+					<h1 class="text-center"> {% trans 'Digital Signature' %} </h1>
 				</div>
 				{# main content #}
 				<main>
