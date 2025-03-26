@@ -34,7 +34,7 @@ class InstanceSerializer(serializers.Serializer):
         tmpupload = ChunkedUpload.objects.filter(upload_id=token).first()
         dev = None
         if tmpupload:
-            dev = tmpupload.get_uploaded_file()
+            dev = tmpupload.get_uploaded_file().read()
         return dev
 
     def get_instance_file(self, instance, fieldname):

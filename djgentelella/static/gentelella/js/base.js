@@ -2339,6 +2339,7 @@ class PdfSignatureComponent {
         this.initPDFViewer();
         this.initInteract();
         this.initSignatureSettings();
+
     }
 
     initEvents() {
@@ -3030,6 +3031,7 @@ function DocumentClient(container, widgetId, signatureManager, url_ws) {
                 this.signatureManager.doc_instance['value'] =l;
                 this.signatureManager.pdfvisor.urls['renderattr']="value="+l;
                 document.getElementById(this.signatureManager.input_id).value=l;
+                this.signatureManager.pdfvisor.initPDFViewer();
                 signatureManager.hideLoading();
                 alertFunction(
                     gettext("The signing was successfully completed."),
