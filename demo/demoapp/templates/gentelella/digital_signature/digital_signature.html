@@ -3,68 +3,82 @@
 {% load static %}
 
 {% block content %}
-{# contenedor #}
-<div class="row">
-	<div class='col-12'>
-		<div class="card">
-			<div class="card-body">
-				{# title page #}
-				<div class="card-title titles">
-					<h1 class="text-center"> {% trans 'Digital Signature' %} </h1>
-				</div>
-				{# main content #}
-				<main>
-					{# form #}
-					<div class="my-3">
-						<form id="formtest" action="" method="POST">
-							{% csrf_token %}
-							{# widget #}
-							{{ form }}
-							<input class="btn btn-success" type="submit" id="hidden-submit" value="{% trans 'Submit' %}" \>
-							<button type="button" class="btn btn-secondary " id="apibtnsave">{% trans 'Save using API' %}</button>
-						</form>
+	{# contenedor #}
+	<div class="row">
+		<div class='col-12'>
+			<div class="card">
+				<div class="card-body">
+					{# title page #}
+					<div class="card-title titles">
+						<h1 class="text-center"> {% trans 'Digital Signature' %} </h1>
 					</div>
+					{# main content #}
+					<main>
+						{# form #}
+						<div class="my-3">
+							<form id="formtest" action="" method="POST">
+								{% csrf_token %}
+								{# widget #}
+								{{ form }}
 
-				</main>
+								<div class="row">
+									<div class="col-12 col-md-4">
+										<div class="d-flex justify-content-evenly">
+											<button class="btn btn-success w-50" type="submit" id="hidden-submit">
+												<i class="fa fa-floppy-o" aria-hidden="true"></i>
+												{% trans 'Save' %}
+											</button>
+											<button type="button" class="btn btn-secondary w-50" id="apibtnsave">
+												<i class="fa fa-exchange" aria-hidden="true"></i>
+												{% trans 'Save using API' %}
+											</button>
+										</div>
+									</div>
+								</div>
 
+							</form>
+						</div>
+
+					</main>
+
+				</div>
 			</div>
 		</div>
 	</div>
-</div>
 
 {% endblock %}
 
 {% block js %}
-{{ block.super }}
+	{{ block.super }}
 
-<script>
-	const api_url = '{% url "digital_signature_api_test" form.instance.pk %}';
+	<script>
+		const api_url = '{% url "digital_signature_api_test" form.instance.pk %}';
 
-	document.getElementById('apibtnsave').addEventListener('click', function() {
-					const form = document.getElementById('formtest');
+		document.getElementById('apibtnsave').addEventListener('click', function () {
+			const form = document.getElementById('formtest');
 
-					fetch(api_url, {
-									method: 'PUT',
-									headers: {
-												 'X-CSRFToken': getCookie('csrftoken'),
-													'Content-Type': 'application/json'
-									},
-									body: JSON.stringify({ file: document.getElementById('id_file').value })
-					})
-					.then(response => {
-									if (!response.ok) {
-													throw new Error('Error en la solicitud: ' + response.statusText);
-									}
-									return response.json();
-					})
-					.then(data => {
-									console.log('Éxito:', data);
-					})
-					.catch((error) => {
-									console.error('Error:', error);
-					});
-	});
-</script>
+			fetch(api_url, {
+				method: 'PUT',
+				headers: {
+					'X-CSRFToken': getCookie('csrftoken'),
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({file: document.getElementById('id_file').value})
+			})
+				.then(response => {
+					if (!response.ok) {
+						throw new Error('Error en la solicitud: ' + response.statusText);
+					}
+					return response.json();
+				})
+				.then(data => {
+					console.log('Éxito:', data);
+				})
+				.catch((error) => {
+					console.error('Error:', error);
+				});
+		});
+	</script>
 
 {% endblock %}
 
