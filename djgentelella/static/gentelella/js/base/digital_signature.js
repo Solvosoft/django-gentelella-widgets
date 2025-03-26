@@ -657,6 +657,7 @@ function FirmadorLibreWS(docmanager, url, signatureManager) {
                 }else{
                     docmanager.remote_done(data)
                 }
+                this.hideLoading();
             }
         },
 
@@ -683,7 +684,6 @@ function FirmadorLibreWS(docmanager, url, signatureManager) {
 
             try {
                 this.websocket.send(JSON.stringify(data));
-                this.hideLoading();
             } catch (e) {
                 // console.error("Error de comunicación WS");
                 signatureManager.hideLoading();
