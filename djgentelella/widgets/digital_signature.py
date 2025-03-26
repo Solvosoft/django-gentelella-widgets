@@ -24,6 +24,7 @@ class DigitalSignatureInput(HiddenInput, ValueDSParser):
 
     def __init__(self, attrs=None, extraskwargs=True, ws_url=None, cors=None,
                  title=None, render_basename=None, icon_url=None,
+                 extra_render_args=None,
                  default_page="first"):
         attrs = attrs or {}
         attrs['data-ws-url'] = ws_url
@@ -32,6 +33,7 @@ class DigitalSignatureInput(HiddenInput, ValueDSParser):
 
         self.render_basename = render_basename
         self.icon_url = icon_url
+        self.extra_render_args = extra_render_args or []
 
         if self.icon_url is None:
             self.icon_url = 'gentelella/images/firmador.ico'
@@ -78,11 +80,12 @@ class DigitalSignatureInput(HiddenInput, ValueDSParser):
             contenttype = ContentType.objects.get_for_model(value.instance).pk
             valuedata = self.get_field_attribute_for_get(value.field.name, value,
                                                          contenttype)
+            url_args = self.extra_render_args + [contenttype, value.instance.pk]
             attrs['data-pk'] = value.instance.pk
             attrs['data-cc'] = contenttype
             attrs['data-value'] = valuedata
             attrs['data-renderurl'] = reverse(self.render_basename,
-                                              args=[contenttype, value.instance.pk])
+                                              args=url_args)
             attrs['data-renderattr'] = "value=" + valuedata
             attrs['data-logo'] = self.get_icon_url(value)
         context = super().get_context(name, valuedata, attrs)
