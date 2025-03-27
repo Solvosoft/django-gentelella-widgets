@@ -15,10 +15,9 @@ CLASSIFIERS = [
     'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
     'Operating System :: OS Independent',
     'Programming Language :: Python',
-    'Programming Language :: Python :: 3.7',
-    'Programming Language :: Python :: 3.8',
-    'Programming Language :: Python :: 3.9',
     'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.12',
     'Topic :: Internet :: WWW/HTTP',
     'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
 ]
@@ -27,7 +26,7 @@ README = open(os.path.join(os.path.dirname(__file__), 'Readme.rst')).read()
 
 # allow setup.py to be run from any path
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
-version = '0.3.28'
+version = '0.4.0'
 
 setup(
     author='Luis Zarate Montero',
@@ -45,10 +44,16 @@ setup(
         'djangoajax>=3.3',
         'django-markitup>=4.0.0',
         'markdown',
-        'Pillow',
-        'djangorestframework>=3.13',
-        'django>=3.2',
-        'django_filter>=22.1'
+        "pillow>=10.3.0",
+        "djangorestframework>=3.15.2",
+        'django>=4.2',
+        'django_filter>=22.1',
+        "django-cors-headers==4.6.0",
+        "uvicorn==0.32.1",
+        "uvicorn-worker==0.2.0",
+        "channels==4.2.0",
+        "wsproto==1.2.0",
+        "requests==2.32.3"
     ],
     packages=find_packages(exclude=["demo", 'doc']),
     include_package_data=True,
