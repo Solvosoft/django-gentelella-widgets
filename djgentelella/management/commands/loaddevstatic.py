@@ -378,6 +378,23 @@ class Command(BaseCommand):
 
             'htmlx': [
                 'https://unpkg.com/htmx.org@2.0.4/dist/htmx.min.js'
+            ],
+            'pdfjs/images/': [
+                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/messageBar_warning.svg",
+                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/messageBar_closingButton.svg",
+                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/cursor-editorInk.svg",
+                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/cursor-editorTextHighlight.svg",
+                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/cursor-editorFreeHighlight.svg",
+                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/altText_warning.svg",
+                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/cursor-editorFreeText.svg",
+                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/editor-toolbar-delete.svg",
+                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/toolbarButton-editorHighlight.svg",
+                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/altText_add.svg",
+                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/altText_done.svg",
+                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/altText_disclaimer.svg",
+                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/altText_spinner.svg",
+                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/toolbarButton-menuArrow.svg",
+                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/loading-icon.gif"
             ]
         }
         compressed = {

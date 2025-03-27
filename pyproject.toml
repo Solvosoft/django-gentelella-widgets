@@ -17,7 +17,7 @@ name = "djgentelella"  # Required
 #
 # For a discussion on single-sourcing the version, see
 # https://packaging.python.org/guides/single-sourcing-package-version/
-version = "0.4.0"  # Required
+dynamic = ["version"]
 
 # This is a one-line description or tagline of what your project does. This
 # corresponds to the "Summary" metadata field:
@@ -32,7 +32,7 @@ description = "Help building extra widgets for forms and speciall methods to ren
 #
 # This field corresponds to the "Description" metadata field:
 # https://packaging.python.org/specifications/core-metadata/#description-optional
-readme = "Readme.rst" # Optional
+readme = { file = "README.rst", content-type = "text/x-rst" }  # Optional
 
 # Specify which Python versions you support. In contrast to the
 # 'Programming Language' classifiers above, 'pip install' will check this
@@ -44,6 +44,7 @@ requires-python = ">=3.11"
 # that contains the license
 # https://packaging.python.org/en/latest/specifications/core-metadata/#license
 license = { file = "LICENSE.txt" }
+
 
 # This field adds keywords for your project which will appear on the
 # project page. What does your project relate to?
@@ -82,8 +83,6 @@ classifiers = [# Optional
     "Environment :: Web Environment",
     "Framework :: Django",
     "Framework :: Django :: 5",
-    # Pick your license as you wish
-    "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
     "Operating System :: OS Independent",
     "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
     "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
@@ -161,21 +160,19 @@ firmador = [
 
 # This is configuration specific to the `setuptools` build backend.
 # If you are using a different build backend, you will need to change this.
-[tool.setuptools]
-# If there are data files included in your packages that need to be
-# installed, specify them here.
-package-data = { "djgentelella" = [
-    "Readme.rst",
-    "LICENSE.txt",
-    "requirements.txt",
-    "djgentelella/templates",
-    "djgentelella/static",
-    "djgentelella/locale",
-    "djgentelella/blog/templates",
-    "djgentelella/blog/static"] }
+[tool.setuptools.packages.find]
+include = ["djgentelella*"]
+exclude = ["docs*", "demo*"]
+
 
 [build-system]
 # These are the assumed default build requirements from pip:
 # https://pip.pypa.io/en/stable/reference/pip/#pep-517-and-518-support
-requires = ["setuptools>=43.0.0", "wheel"]
+requires = ["setuptools>=61.0.0,<69.3.0", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools.dynamic]
+version = { attr = "djgentelella.__version__" }
+
+[tool.black]
+target-version = ["py311"]
