@@ -652,12 +652,13 @@ function FirmadorLibreWS(docmanager, url, signatureManager) {
                     }
                 }
             }else{
+
                 if(data.hasOwnProperty('tobesigned')){
                     docmanager.do_sign_local(data);
                 }else{
                     docmanager.remote_done(data)
                 }
-                this.hideLoading();
+
             }
         },
 
