@@ -63,7 +63,7 @@ class Command(BaseCommand):
         )
         dashboard = MenuItem.objects.create(
             parent=item,
-            title='Data',
+            title='Dashboard',
             url_name='#',
             category='sidebar',  # sidebar, sidebarfooter,
             is_reversed=False,
@@ -229,7 +229,7 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa-calendar-plus-o',
+            icon='fa fa-calendar',
             only_icon=False
         )
         tagging = MenuItem.objects.create(
