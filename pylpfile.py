@@ -25,6 +25,8 @@ class urlreplace(pylp.Transformer):
     def check_url(self, url):
         if 'data:' in url or '#default#VML' in url:
             return False
+        if url.startswith("url(#"):
+            return False
         # print(url)
         return True
 
@@ -45,7 +47,7 @@ class urlreplace(pylp.Transformer):
                 with open(fpath, 'rb') as arch:
                     content += base64.b64encode(arch.read()).decode()
             except:
-                print("This is an ERROR,  Not Found : ", file.path, url)
+                print("This is an ERROR, %s Not Found : " % str(fpath), file.path, url)
             return "url('" + content + "')"
 
     # Function called when a file need to be transformed

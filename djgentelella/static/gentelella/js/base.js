@@ -2902,11 +2902,13 @@ function FirmadorLibreWS(docmanager, url, signatureManager) {
                     }
                 }
             }else{
+
                 if(data.hasOwnProperty('tobesigned')){
                     docmanager.do_sign_local(data);
                 }else{
                     docmanager.remote_done(data)
                 }
+
             }
         },
 
@@ -2933,7 +2935,6 @@ function FirmadorLibreWS(docmanager, url, signatureManager) {
 
             try {
                 this.websocket.send(JSON.stringify(data));
-                this.hideLoading();
             } catch (e) {
                 // console.error("Error de comunicación WS");
                 signatureManager.hideLoading();
