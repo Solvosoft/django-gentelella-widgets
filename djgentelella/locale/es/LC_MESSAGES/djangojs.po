@@ -165,3 +165,9 @@ msgstr "Advertencia"
 
 msgid "The signing was successfully completed."
 msgstr "La firma se ha completado correctamente."
+
+msgid "Accept"
+msgstr "Aceptar"
+
+msgid "Cancel"
+msgstr "Cancelar"
