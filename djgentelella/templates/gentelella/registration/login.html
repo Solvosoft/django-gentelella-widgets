@@ -1,52 +1,48 @@
 {% extends 'gentelella/base.html' %}
 {% load static i18n %}
 
-{% block extra_css %}
-<link href="{% trans 'vendors/animate.css/animate.min.css' %}" rel="stylesheet">
-{% endblock %}
-
 {% block body_class %}login{% endblock body_class %}
 {% block body %}
 <div>
-    <a class="hiddenanchor" id="signup"></a>
-    <a class="hiddenanchor" id="signin"></a>
-    <div class="login_wrapper">
-        <div class="animate form login_form">
-            <section class="login_content">
-                <form method="post" action="{% url 'login' %}">
-                {% csrf_token %}
-                    <input type="hidden" name="next" value="{{ next }}">
-                    <h1>{% trans 'Login' %}</h1>
-                <div>
-                    {% if form.errors %}
- <p class="text-warning">{% trans "Your username and password didn't match. Please try again." %}</p>
-                    {% endif %}
+	<a class="hiddenanchor" id="signup"></a>
+	<a class="hiddenanchor" id="signin"></a>
+	<div class="login_wrapper">
+		<div class="animate form login_form">
+			<section class="login_content">
+				<form method="post" action="{% url 'login' %}">
+					{% csrf_token %}
+					<input type="hidden" name="next" value="{{ next }}">
+					<h1>{% trans 'Login' %}</h1>
+					<div>
+						{% if form.errors %}
+						<p class="text-warning">{% trans "Your username and password didn't match. Please try again." %}</p>
+						{% endif %}
 
-                    {% if next %}
-                        {% if user.is_authenticated %}
-                        <p>{% blocktrans %}Your account doesn't have access to this page. To proceed,
-                        please login with an account that has access.{% endblocktrans %}</p>
-                        {% else %}
-                        <p class="text-warning">{% trans "Please login to see this page." %}</p>
-                        {% endif %}
-                    {% endif %}
+						{% if next %}
+						{% if user.is_authenticated %}
+						<p>{% blocktrans %}Your account doesn't have access to this page. To proceed,
+							please login with an account that has access.{% endblocktrans %}</p>
+						{% else %}
+						<p class="text-warning">{% trans "Please login to see this page." %}</p>
+						{% endif %}
+						{% endif %}
 
-                </div>
-                    <div>
-                        <input type="text" class="form-control" name="username" placeholder="{% trans 'Username' %}" required="" />
-                    </div>
-                    <div>
-                        <input type="password" class="form-control" name="password" placeholder="{% trans 'Password' %}" required="" />
-                    </div>
-                    <div>
-                        <button type="submit" class="btn btn-secondary submit" >{% trans 'Log in' %}</button>
-                        <a class="reset_pass" href="{% url 'password_reset' %}">{% trans 'Lost your password?' %}</a>
-                    </div>
+					</div>
+					<div>
+						<input type="text" class="form-control" name="username" placeholder="{% trans 'Username' %}" required=""/>
+					</div>
+					<div>
+						<input type="password" class="form-control" name="password" placeholder="{% trans 'Password' %}" required=""/>
+					</div>
+					<div>
+						<button type="submit" class="btn btn-secondary submit">{% trans 'Log in' %}</button>
+						<a class="reset_pass" href="{% url 'password_reset' %}">{% trans 'Lost your password?' %}</a>
+					</div>
 
-{% include 'gentelella/registration/footer.html' %}
-                </form>
-            </section>
-        </div>
-    </div>
+					{% include 'gentelella/registration/footer.html' %}
+				</form>
+			</section>
+		</div>
+	</div>
 </div>
 {% endblock %}
