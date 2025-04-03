@@ -1,0 +1,24 @@
+{% extends 'gentelella/base.html' %}
+{% load i18n %}
+
+{% block body_class %}login{% endblock body_class %}
+{% block body %}
+
+<div class="main_container">
+
+	<div class="col-md-8 offset-md-2">
+		<div class="col-middle">
+			<div class="text-center ">
+				<h1>{% trans 'Password changed' %}</h1>
+				<p>{% trans "You updated correctly your password please login again." %}</p>
+				<br>
+				<a href="/"> {% trans 'Go to home' %}</a>
+				{% include 'gentelella/registration/footer.html' %}
+
+
+			</div>
+		</div>
+	</div>
+</div>
+
+{% endblock %}

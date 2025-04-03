@@ -45,7 +45,7 @@ auth_urls = [
              template_name='gentelella/registration/password_reset_confirm.html'
          ), name='password_reset_confirm'),
     path('accounts/reset/done/', auth_views.PasswordResetDoneView.as_view(
-        template_name='gentelella/registration/password_reset_done.html'
+        template_name='gentelella/registration/reset_done.html'
     ), name="password_reset_complete")
 ]
 wysiwyg_urls = [
@@ -54,6 +54,7 @@ wysiwyg_urls = [
     re_path("^u_video$", login_required(wysiwyg.video_upload),
             name="tinymce_upload_video"),
 ]
+
 
 def import_module_app_gt(app, name):
     try:
