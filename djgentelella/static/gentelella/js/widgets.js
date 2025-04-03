@@ -306,6 +306,9 @@ document.gtwidgets = {
             build_digital_signature(e);
         });
     },
+    CleanableFileInput: function (instance) {
+        build_cleanable_fileinput(instance);
+    },
 }
 
 function gt_find_initialize(instance) {

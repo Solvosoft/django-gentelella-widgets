@@ -28,6 +28,7 @@ from .tagging import views as tagging
 from .timeline.views import timeline_view
 from .views import knobView, YesNoInputView
 from .wysiwyg import views as tinymce
+from .cleanable_fileinput import views as cleanable_fileinput
 
 pclss = Personclass()
 countryclss = Countryclass()
@@ -132,6 +133,10 @@ urlpatterns = [
                        ),
                   path('formset/digital_signature/',
                        digitalsignature.digital_signature_formset,
-                       name="digital_signature_formset")
+                       name="digital_signature_formset"),
+
+                  path('cleanable_fileinput/',
+                       cleanable_fileinput.cleanable_fileinput_view,
+                       name="cleanable_fileinput"),
 
               ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()

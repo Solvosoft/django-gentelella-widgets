@@ -1,0 +1,38 @@
+{% extends 'gentelella/base_site.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block content %}
+	{# contenedor #}
+	<div class="row">
+		<div class='col-12'>
+			<div class="card">
+				<div class="card-body">
+					{# title page #}
+					<div class="card-title titles">
+						<h1 class="text-center"> {% trans 'Cleanable File Input' %} </h1>
+					</div>
+					{# main content #}
+					<main>
+						{# form #}
+						<div class="my-3">
+
+						</div>
+
+					</main>
+
+				</div>
+			</div>
+		</div>
+	</div>
+
+{% endblock %}
+
+{% block js %}
+	{{ block.super }}
+
+	<script>
+	</script>
+
+{% endblock %}
+

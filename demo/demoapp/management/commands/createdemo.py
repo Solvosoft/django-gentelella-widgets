@@ -385,6 +385,18 @@ class Command(BaseCommand):
             icon='fa fa-mouse-pointer',
             only_icon=False
         )
+        cleanablefileinput = MenuItem.objects.create(
+            parent=cwidget,
+            title='Cleanable File Input',
+            url_name='cleanable_fileinput',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-file-o',
+            only_icon=False
+        )
         noti = MenuItem.objects.create(
             parent=item,
             title='Create notification',

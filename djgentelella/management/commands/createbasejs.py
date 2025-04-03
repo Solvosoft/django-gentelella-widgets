@@ -31,7 +31,8 @@ class Command(BaseCommand):
             'mediarecord.js',
             'digital_signature.js',
             'api_list.js',
-            'tagify.js'
+            'tagify.js',
+            'cleanable_fileinput.js',
         ]
         jquery_plugins = [
             'notifications.js',

@@ -1,0 +1,22 @@
+{% load i18n %}
+
+<div class="widget-cleanable-fileinput" id="widget-{{ widget.id }}">
+	{% if widget.value %}
+		<div class="current-file">
+			<i class="fa fa-file-o" title="{% trans 'Current file' %}" aria-hidden="true"></i>
+			<span id="filename-{{ widget.id }}">{{ widget.filename_text|safe }}</span>
+			{{ widget.formatted_value|safe }}
+			<div class="clear-option">
+				<label class="text-danger" for="input-{{ widget.id }}">
+					<i class="fa fa-trash btn-clear" id="btn-{{ widget.id }}" title="{% trans 'Delete' %}" aria-hidden="true"></i>
+				</label>
+				<input type="hidden" name="{{ widget.checkbox_name }}" id="input-{{ widget.id }}" value="false">
+			</div>
+		</div>
+	{% endif %}
+	<div class="new-file">
+		<input type="file" name="{{ widget.name }}" class="form-control"
+									id="{{ widget.attrs.id }}" {% include "django/forms/widgets/attrs.html" %}>
+	</div>
+</div>
+
