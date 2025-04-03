@@ -6,7 +6,7 @@ from djgentelella.widgets.core import update_kwargs
 
 
 class CleanableFileInput(ClearableFileInput):
-    template_name = "widgets/cleanable-fileinput.html"
+    template_name = "gentelella/widgets/cleanable-fileinput.html"
     input_type = "file"
 
     def __init__(self, attrs=None, extraskwargs=True):

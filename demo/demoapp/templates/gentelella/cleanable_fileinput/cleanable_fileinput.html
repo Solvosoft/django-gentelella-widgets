@@ -17,6 +17,24 @@
 						{# form #}
 						<div class="my-3">
 
+							<div class="row justify-content-center py-5">
+								<div class="col-12 col-md-6 bg-light shadow px-2 py-5 rounded">
+
+									<form id="form-fileinput" action="" method="POST">
+										{% csrf_token %}
+										{# widget #}
+										{{ form }}
+
+										<div class="d-flex justify-content-center">
+											<button class="btn btn-success w-50" type="submit" id="hidden-submit">
+												<i class="fa fa-floppy-o" aria-hidden="true"></i>
+												{% trans 'Save' %}
+											</button>
+										</div>
+									</form>
+
+								</div>
+							</div>
 						</div>
 
 					</main>
