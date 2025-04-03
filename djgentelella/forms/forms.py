@@ -69,6 +69,11 @@ class GTForm(forms.Form):
             case _:
                 self.renderer.form_template_name = self.template_name_horizontal
 
+    def get_error_for_grid(self, name):
+        if name in self.errors:
+            return self.errors[name]
+        return None
+
     @property
     def grid(self):
         """
@@ -97,10 +102,13 @@ class GTForm(forms.Form):
                     row_list = []
                     for field in col:
                         if field in dic_fields and dic_fields[field]:
-                            row_list.append(dic_fields[field])
+                            row_list.append(
+                                (dic_fields[field], self.get_error_for_grid(field))
+                            )
                         else:
                             if hasattr(self, field):
-                                row_list.append(getattr(self, field)())
+                                row_list.append((getattr(self, field)(),
+                                                 self.get_error_for_grid(field)))
                     col_list.append(row_list)
                 grid.append(col_list)
             return grid
