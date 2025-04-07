@@ -30,3 +30,17 @@ class GTS2SerializerBase(serializers.Serializer):
     text = serializers.SerializerMethodField()
     disabled = serializers.SerializerMethodField()
     selected = serializers.SerializerMethodField()
+
+
+class ChoicesGTS2Serializer(GTS2SerializerBase):
+    def __init__(self, *args, choices=None, **kwargs):
+        self.choices = dict(choices)
+        super().__init__(*args, **kwargs)
+
+    def get_id(self, obj):
+        return obj
+
+    def get_text(self, obj):
+        if obj in self.choices:
+            return self.choices[obj]
+        return obj
