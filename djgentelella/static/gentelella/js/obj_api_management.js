@@ -644,9 +644,13 @@ function ObjectCRUD(uniqueid, objconfig={}){
             var instance = this;
             let method = 'method' in action ? action.method : 'POST';
             let body = 'data_fn' in action ? JSON.stringify(action.data_fn(data)) : '';
+            let url = 'url_fn' in action ? action.url_fn(data) : null;
             let error_fn = 'error_fn' in action ? action.error_fn : instance.error;
-            if( 'url' in action  &&  action.url !== null){
-                fetch(action.url, {
+            if(url == null && 'url' in action  &&  action.url !== null){
+                 url = action.url;
+            }
+            if( url !== null ){
+                fetch(url, {
                     method: method,
                     body: body,
                     headers: this.config.headers
