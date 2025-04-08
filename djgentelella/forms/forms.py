@@ -1,8 +1,15 @@
+from django.core.exceptions import ValidationError
+
+from django.utils.translation import gettext as _
+from djgentelella.widgets import core as genwidgets
 from django import forms
 from django.forms import BaseFormSet, HiddenInput
 from django.forms import BaseModelFormSet
 from django.forms.formsets import DELETION_FIELD_NAME
 from django.utils.safestring import mark_safe
+
+from djgentelella.models import GTDbForm, GTDbField, GTStatus, GTActionsStep, GTStep, \
+    GTFlow, GTSkipCondition
 
 
 class GTForm(forms.Form):
@@ -210,3 +217,164 @@ class GTBaseModelFormSet(BaseModelFormSet):
         if self.can_delete:
             form.fields[DELETION_FIELD_NAME].widget.attrs['class'] = 'invisible'
             form.fields[DELETION_FIELD_NAME].label = ''
+
+
+class GTDbFormSet(forms.ModelForm):
+    class Meta:
+        model = GTDbForm
+        fields = '__all__'
+        widgets = {
+            'token': genwidgets.TextInput,
+            'prefix': genwidgets.TextInput,
+            'representation_list': genwidgets.Select,
+            'template_name': genwidgets.TextInput,
+        }
+
+class GTDbFieldForm(forms.ModelForm):
+    class Meta:
+        model = GTDbField
+        fields = '__all__'
+        widgets = {
+            'form': genwidgets.Select,
+            'name': genwidgets.TextInput,
+            'label': genwidgets.TextInput,
+            'label_suffix': genwidgets.TextInput,
+            'help_text': genwidgets.TextInput,
+            'disabled': genwidgets.CheckboxInput,
+            'extra_attr': genwidgets.Textarea,
+            'extra_kwarg': genwidgets.Textarea,
+            'order': genwidgets.NumberInput,
+        }
+
+class GTStatusForm(forms.ModelForm):
+    class Meta:
+        model = GTStatus
+        fields = '__all__'
+        widgets = {
+            'name': genwidgets.TextInput,
+            'description': genwidgets.Textarea,
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        required_fields = ['name', 'description']
+        missing_fields = []
+
+        for field in required_fields:
+            value = cleaned_data.get(field)
+            if not value:
+                missing_fields.append(field)
+
+        if missing_fields:
+            raise ValidationError(
+                _("The following fields are required: %s") % ", ".join(missing_fields))
+
+        if not isinstance(cleaned_data.get('name'), str):
+            raise ValidationError(_("The 'name' field must be a string."))
+        if not isinstance(cleaned_data.get('description'), str):
+            raise ValidationError(_("The 'description' field must be a string."))
+
+        return cleaned_data
+
+class GTActionsStepForm(forms.ModelForm):
+    class Meta:
+        model = GTActionsStep
+        fields = '__all__'
+        widgets = {
+            'name': genwidgets.TextInput,
+            'description': genwidgets.Textarea,
+            'content_type': genwidgets.Select,
+            'object_id': genwidgets.NumberInput,
+        }
+
+class GTStepForm(forms.ModelForm):
+    class Meta:
+        model = GTStep
+        fields = '__all__'
+        widgets = {
+            'name': genwidgets.TextInput,
+            'status_id': genwidgets.SelectMultiple,
+            'order': genwidgets.NumberInput,
+            'form': genwidgets.SelectMultiple,
+            'post_action': HiddenInput,
+            'pre_action': HiddenInput,
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(GTStepForm, self).__init__(*args, **kwargs)
+        self.fields['status_id'].required = False
+        self.fields['form'].required = False
+        self.fields['post_action'].required = False
+        self.fields['pre_action'].required = False
+
+class GTFlowForm(forms.ModelForm):
+
+    stepsData = forms.JSONField(widget=HiddenInput, required=False)
+    edgesData = forms.JSONField(widget=HiddenInput, required=False)
+
+    class Meta:
+        model = GTFlow
+        fields = ['name', 'description', 'stepsData', 'edgesData']
+        widgets = {
+            'name': genwidgets.TextInput,
+            'description': genwidgets.Textarea,
+        }
+
+    def clean_stepsData(self):
+        steps_data = self.cleaned_data.get('stepsData')
+
+        if not steps_data:
+            raise ValidationError(_("No steps stored."))
+
+        if not isinstance(steps_data, list):
+            raise ValidationError(_("Invalid format for stepsData. Expected a list."))
+
+        for step in steps_data:
+            data = step.get('data')
+
+            if not data or not isinstance(data, dict):
+                raise ValidationError(_("Invalid format for each step in stepsData. Expected a dictionary with 'data'."))
+
+            required_keys = {"id", "name", "order", "pre_action", "post_action"}
+            if not required_keys.issubset(data.keys()):
+                missing_keys = required_keys - data.keys()
+                raise ValidationError(_("Missing required keys in stepsData['data']: %s") % ', '.join(missing_keys))
+
+            action_required_keys = {"id", "name", "description", "content_type", "object_id"}
+            for action_type in ['pre_action', 'post_action']:
+                actions = data.get(action_type)
+                if not isinstance(actions, list) or not all(
+                    isinstance(action, dict) for action in actions):
+                    raise ValidationError(_("Invalid format for '%s' in stepsData['data']. Expected a list of dictionaries.") % action_type)
+
+                for action in actions:
+                    if not action_required_keys.issubset(action.keys()):
+                        missing_keys = action_required_keys - action.keys()
+                        raise ValidationError(_("Missing required keys in %s entry: %s") % (action_type, ', '.join(missing_keys)))
+
+        return steps_data
+
+
+
+
+
+class GTSkipConditionForm(forms.ModelForm):
+    condition_field = forms.ChoiceField(choices=[], widget=genwidgets.Select)
+
+    class Meta:
+        model = GTSkipCondition
+        fields = '__all__'
+        widgets = {
+            'step_id': genwidgets.TextInput(attrs={'disabled': 'disabled'}),
+            'condition_value': genwidgets.TextInput,
+            'skip_to_step': genwidgets.TextInput(attrs={'disabled': 'disabled'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        available_fields = GTDbField.objects.all().order_by('order')
+        self.fields['condition_field'].choices = [
+            (field.name, field.label or field.name) for field in available_fields
+        ]
