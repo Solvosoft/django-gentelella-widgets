@@ -13,6 +13,7 @@ from djgentelella.notification.base import NotificacionAPIView, NotificationView
 from djgentelella.permission_management import views as permissions
 from djgentelella.widgets.helper import HelperWidgetView
 from djgentelella.wysiwyg import views as wysiwyg
+from djgentelella.firmador_digital import views as firmador_digital
 from .groute import routes
 from .templatetags.gtsettings import get_version
 from .views import auth
@@ -88,6 +89,7 @@ base_urlpatterns = [
     re_path('^notification/list/$', notification_list_view,
             name="notification_list"),
     path('tableapi/', include(router.urls)),
+    path("update_config/", firmador_digital.update_signature_settings, name="signature_config"),
 ]
 
 permission_management_urls = [
