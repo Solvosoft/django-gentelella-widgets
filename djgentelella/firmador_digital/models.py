@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import get_user_model
 from django.db import models
 
@@ -9,9 +10,9 @@ FORMATS_DATE = [
 ]
 
 FONT_ALIGNMENT = [
-    ("LEFT", "LEFT"),
-    ("CENTER", "CENTER"),
-    ("RIGHT", "RIGHT"),
+    ("LEFT", _("LEFT")),
+    ("CENTER", _("CENTER")),
+    ("RIGHT", _("RIGHT")),
 ]
 
 FONT_CHOICES = [

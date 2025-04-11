@@ -54,7 +54,7 @@ class SignatureConfigForm(GTForm, forms.ModelForm):
         widget=genwidgets.Textarea,
         required=False,
         max_length=100,
-        label=_("Default sign message")
+        label=_("Signature message")
     )
     # font = forms.ChoiceField(
     #     required=True,

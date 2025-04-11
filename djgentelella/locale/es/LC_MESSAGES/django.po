@@ -616,3 +616,51 @@ msgstr "Iniciar"
 
 msgid "Unknown"
 msgstr "Desconocido"
+
+msgid "LEFT"
+msgstr "IZQUIERDA"
+
+msgid "CENTER"
+msgstr "CENTRO"
+
+msgid "RIGHT"
+msgstr "DERECHA"
+
+msgid "Signature settings"
+msgstr "Configuración de firma"
+
+msgid "Updated signature settings successfully."
+msgstr "Configuración de firma actualizada correctamente."
+
+msgid "Background color"
+msgstr "Color de fondo"
+
+msgid "Contact"
+msgstr "Contacto"
+
+msgid "Date format"
+msgstr "Formato de fecha"
+
+msgid "Signature message"
+msgstr "Mensaje de firma"
+
+msgid "Font"
+msgstr "Fuente"
+
+msgid "Font alignment"
+msgstr "Alineación de fuente"
+
+msgid "Font color"
+msgstr "Color de fuente"
+
+msgid "Font size"
+msgstr "Tamaño de fuente"
+
+msgid "Place"
+msgstr "Lugar"
+
+msgid "Reason"
+msgstr "Razón"
+
+msgid "Visible signature"
+msgstr "Firma visible"

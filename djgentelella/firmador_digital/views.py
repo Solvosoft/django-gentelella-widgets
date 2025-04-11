@@ -15,7 +15,7 @@ def update_signature_settings(request):
         form = SignatureConfigForm(request.POST, instance=config, render_type="as_grid")
         if form.is_valid():
             form.save()
-            messages.success(request, _("Signature settings updated"))
+            messages.success(request, _("Updated signature settings successfully."))
             return redirect("signature_config")
     else:
         form = SignatureConfigForm(instance=config, render_type="as_grid")
