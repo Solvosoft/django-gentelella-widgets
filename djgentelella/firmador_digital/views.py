@@ -9,7 +9,8 @@ from djgentelella.firmador_digital.models import UserSignatureConfig
 @login_required
 def update_signature_settings(request):
 
-    config = get_object_or_404(UserSignatureConfig, user=request.user)
+    config, is_created = UserSignatureConfig.objects.get_or_create(user=request.user)
+
 
     if request.method == "POST":
         form = SignatureConfigForm(request.POST, instance=config, render_type="as_grid")
