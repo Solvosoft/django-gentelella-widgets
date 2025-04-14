@@ -1514,7 +1514,7 @@
 }
 .tl-timegroup .tl-timegroup-message {
   color: #e0e0e0;
-  text-shadow: #FFF 0px 2px 2px;
+  text-shadow: #FFF 0 2px 2px;
   margin-left: 80px;
 }
 .tl-timegroup.tl-timegroup-alternate {
