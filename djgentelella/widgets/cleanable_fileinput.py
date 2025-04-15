@@ -9,7 +9,15 @@ class CleanableFileInput(ClearableFileInput):
     template_name = "gentelella/widgets/cleanable-fileinput.html"
     input_type = "file"
 
-    def __init__(self, attrs=None, extraskwargs=True):
+    def __init__(self, attrs=None, extraskwargs=True, accepted_formats=None):
+        attrs = attrs or {}
+
+        # Add formats : ['jpg', 'png', 'pdf', ...]
+        if accepted_formats:
+            accept_attr = ",".join(f".{ext.lstrip('.')}" for ext in accepted_formats)
+            attrs.setdefault("accept", accept_attr)
+
+        self.accepted_formats = accepted_formats or []
 
         if extraskwargs:
             attrs = update_kwargs(
@@ -37,5 +45,6 @@ class CleanableFileInput(ClearableFileInput):
         context["widget"]["formatted_value"] = self.format_value(value)
         context["widget"]["id"] = attrs.get("id", name)
         context["widget"]["filename_text"] = self.filename_text(value)
+        context["widget"]["accepted_formats"] = self.accepted_formats
 
         return context
