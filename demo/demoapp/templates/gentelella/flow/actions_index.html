@@ -1,0 +1,109 @@
+{% extends 'gentelella/base.html' %}
+{% load gtsettings timejs %}
+
+{% block content %}
+<div class="card">
+	<div class="card-body">
+		<div class="card-title titles">
+			<h2>PostActions-PreActions</h2>
+		</div>
+
+				<div class="col-12">
+						<table id="datatableelement" class="table "></table>
+				</div>
+
+			<form method="post">
+			<a class="btn btn-primary my-4 float-end" id="submit_skip_conditions" href="{%url 'skip_condition' %}">Continue</a>
+			</form>
+
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block js %}
+
+  <script>
+
+		 	var steps = JSON.parse(localStorage.getItem('stepData')) || [];
+		 	var documents_urls = {
+												"url_pre_action": "{% url 'actions_form' '0' 'pre_action' %}",
+												"url_post_action": "{% url 'actions_form' '0' 'post_action' %}"
+								};
+
+    function validateActions() {
+        for (let step of steps) {
+            if (step.data.pre_action) {
+                for (let preAction of step.data.pre_action) {
+                    if (!preAction.content_type || preAction.content_type === "0") {
+                        return false;
+                    }
+                }
+            }
+            if (step.data.post_action) {
+                for (let postAction of step.data.post_action) {
+                    if (!postAction.content_type || postAction.content_type === "0") {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    function toggleContinueButton() {
+        const isValid = validateActions();
+        const continueButton = document.getElementById('submit_skip_conditions');
+        if (isValid) {
+            continueButton.removeAttribute('disabled');
+        } else {
+            continueButton.setAttribute('disabled', 'disabled');
+        }
+    }
+
+    document.getElementById('submit_skip_conditions').addEventListener('click', function (event) {
+        if (this.hasAttribute('disabled')) {
+            event.preventDefault();
+            alert("You cannot continue because some actions do not have a valid content type.");
+        }
+    });
+
+    $(document).ready(function () {
+        $('#datatableelement').DataTable({
+            data: steps,
+            columns: [
+                {data: "data.id", name: "id", title: "Step ID", type: "string", visible: true},
+                {data: "data.name", name: "name", title: "Step Name", type: "string", visible: true},
+                {data: "data.order", name: "order", title: "Step Order", type: "string", visible: true},
+                {
+                    data: null,
+                    title: "Pre-Action",
+                    orderable: false,
+                    render: function (data, type, row) {
+                        var url = documents_urls.url_pre_action;
+                        url = url.replace('0', row.data.id);
+                        return `<a class="btn btn-sm btn-success" href="${url}"><i class="fa fa-plus-square" aria-hidden="true"></i></a>`;
+                    }
+                },
+                {
+                    data: null,
+                    title: "Post-Action",
+                    orderable: false,
+                    render: function (data, type, row) {
+                        var url = documents_urls.url_post_action;
+                        url = url.replace('0', row.data.id);
+                        return `<a class="btn btn-sm btn-success" href="${url}"><i class="fa fa-plus-square" aria-hidden="true"></i></a>`;
+                    }
+                }
+            ]
+        });
+
+        toggleContinueButton();
+    });
+
+    localStorage.setItem('stepData', JSON.stringify(steps));
+    toggleContinueButton();
+
+		</script>
+
+{% endblock js%}

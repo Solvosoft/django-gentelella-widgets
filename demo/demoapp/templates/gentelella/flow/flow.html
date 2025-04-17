@@ -1,0 +1,364 @@
+{% extends 'gentelella/base.html' %}
+{% load gtsettings timejs %}
+{% load static %}
+
+{% block content %}
+<div class="card">
+	<div class="card-body">
+		<div class="card-title titles">
+			<h2>StepFlow Example</h2>
+			<script src="{% static 'gentelella/js/cytoscape.min.js' %}"></script>
+
+		</div>
+
+		 <button class="btn btn-primary" id="add-step-btn">Add Step</button>
+			<button class="btn btn-primary" id="delete-step-btn">Delete Step</button>
+			<button class="btn btn-primary" id="clean">Clean</button>
+   <div id="cy" style="width: 1000; height: 500px; border: 1px solid black;"></div>
+
+			<a class="btn btn-primary my-4 float-end" id="submit_actions" href="{%url 'actions' %}">Continue</a>
+
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block js %}
+
+  <script>
+			let exitWithoutWarning = false;
+			var editMode = {{ edit_flow|yesno:"true,false" }};
+			var stepCounter = 0
+			var stepOrder = 0;
+			var sourceStep = null;
+			var deleteStep = null;
+
+			document.getElementById('clean').addEventListener('click', function() {
+
+ 			localStorage.clear();
+    cy.elements().remove();
+
+			});
+
+    var cy = cytoscape({
+      container: document.getElementById('cy'),
+      elements: [
+      ],
+      style: [
+        {
+          selector: 'node',
+          style: {
+            'background-color': '#666',
+            'label': 'data(name)',
+            'width': 50,
+            'height': 50
+          }
+        },
+        {
+          selector: 'edge',
+          style: {
+            'width': 3,
+            'line-color': '#ccc',
+            'target-arrow-color': '#ccc',
+            'target-arrow-shape': 'triangle',
+          }
+        }
+      ],
+      layout: {
+        name: 'grid',
+        rows: 1
+      },
+      zoomingEnabled: true,
+						userZoomingEnabled: false,
+						panningEnabled: true,
+						userPanningEnabled: true
+    });
+
+
+
+    function addStep() {
+      stepCounter++;
+      stepOrder++;
+      var newStepId = stepCounter;
+
+      add_step_graphics(newStepId);
+      cy.layout({
+        name: 'grid',
+        rows: 1
+      }).run();
+    }
+
+	function add_step_graphics(newStepId){
+		const stepData = {
+        group: 'nodes',
+        data: {
+            "id": newStepId,
+            "name": "Step " + stepOrder,
+            "order": stepOrder,
+            "status_id": null,
+            "form": null,
+            "pre_action": [
+                {
+                    "id": "action_1",
+                    "name": "Pre Action",
+                    "description": "pre action of step",
+                    "content_type": "0",
+                    "object_id": 123
+                }
+            ],
+            "post_action": [
+                {
+                    "id": "action_2",
+                    "name": "Post Action",
+                    "description": "post action of step",
+                    "content_type": "0",
+                    "object_id": 124
+                }
+            ]
+        },
+        grabbable: true
+    };
+    cy.add(stepData);
+
+				let steps = localStorage.getItem('stepData');
+				steps = steps ? JSON.parse(steps) : [];
+				steps.push(stepData);
+
+    localStorage.setItem('stepData', JSON.stringify(steps));
+
+				}
+
+    cy.on('tap', 'node', function(evt) {
+      var clickedStep = evt.target;
+
+      if (deleteStep && deleteStep.id() === clickedStep.id()) {
+								deleteStep = null;
+								clickedStep.style('border-width', 0);
+						} else {
+								if (deleteStep) {
+										deleteStep.style('border-width', 0);
+								}
+								deleteStep = clickedStep;
+								deleteStep.style('border-width', 3);
+								deleteStep.style('border-color', '#FF0000');
+						}
+				});
+
+				cy.on('tap', 'node', function(evt) {
+						var clickedStep = evt.target;
+
+						if (sourceStep === null) {
+								sourceStep = clickedStep;
+						} else {
+								var targetStep = clickedStep;
+
+								if (sourceStep.id() !== targetStep.id()) {
+										var newEdgeId = 'edge' + sourceStep.id() + '-' + targetStep.id();
+										if (!cy.getElementById(newEdgeId).length) {
+												cy.add({
+														group: 'edges',
+														data: {
+																id: newEdgeId,
+																source: sourceStep.id(),
+																condition_field: null,
+																condition_value: null,
+																target: targetStep.id()
+														}
+												});
+
+												let edges= JSON.parse(localStorage.getItem('edgeData')) || [];
+												edges.push({
+																id: newEdgeId,
+																source: sourceStep.id(),
+																condition_field: null,
+																condition_value: null,
+																target: targetStep.id()
+												});
+												localStorage.setItem('edgeData', JSON.stringify(edges));
+										}
+								}
+								sourceStep = null;
+						}
+    });
+
+    cy.on('tap', 'edge', function(evt) {
+      var clickedEdge = evt.target;
+      clickedEdge.remove();
+    });
+
+	cy.on('dbltap', 'node', function(evt) {
+		exitWithoutWarning = true;
+		var clickedStep = evt.target;
+		var StepId = clickedStep.id();
+
+		var urlBase = "{% url 'step' 0 %}";
+		urlBase = urlBase.replace('0', StepId);
+		window.location.href = urlBase;
+
+	});
+
+				document.getElementById('submit_actions').addEventListener('click', function() {
+        exitWithoutWarning = true;
+    });
+
+
+
+    document.getElementById('add-step-btn').addEventListener('click', addStep);
+
+    document.getElementById('delete-step-btn').addEventListener('click', function() {
+      if (deleteStep) {
+								deleteStep.remove();
+								let storedSteps = JSON.parse(localStorage.getItem('stepData')) || [];
+								storedSteps = storedSteps.filter(step => step.data.id !== deleteStep.id());
+								localStorage.setItem('stepData', JSON.stringify(storedSteps));
+
+								cy.edges().forEach(edge => {
+												if (edge.source().id() === deleteStep.id() || edge.target().id() === deleteStep.id()) {
+																edge.remove();
+												}
+								});
+
+								let edges = JSON.parse(localStorage.getItem('edgeData')) || [];
+        edges = edges.filter(edge => edge.source !== deleteStep.id() && edge.target !== deleteStep.id());
+        localStorage.setItem('edgeData', JSON.stringify(edges));
+
+        deleteStep.remove();
+
+        let steps = JSON.parse(localStorage.getItem('stepData')) || [];
+        steps = steps.filter(step => step.data.id !== deleteStep.id());
+        localStorage.setItem('stepData', JSON.stringify(steps));
+
+								deleteStep = null;
+								sourceStep = null;
+						} else {
+								alert("Please, select one step for delete.");
+						}
+    });
+
+			document.addEventListener("DOMContentLoaded", function() {
+
+								var editMode = {{ edit_flow|yesno:"true,false" }};
+								var dataLocal = {{ data_local|yesno:"true,false" }};
+
+								var data = [];
+
+								localStorage.setItem('editMode', editMode);
+
+        if(editMode){
+											var edit_steps = [];
+											var edit_edges = [];
+
+											if(dataLocal){
+														data = JSON.parse(localStorage.getItem('data_complete')) || {};
+											}else{
+														data = {{ data|default:"null"|safe }};
+											}
+
+											if (editMode) {
+															if (data.steps && data.steps.length > 0) {
+																			const maxId = Math.max(...data.steps.map(step => step.id));
+																			const maxOrder = Math.max(...data.steps.map(step => step.order));
+																			stepCounter = maxId;
+																			stepOrder = maxOrder;
+															}
+
+															data.steps.forEach(step => {
+																			edit_step_data = {
+																							group: 'nodes',
+																							data: {
+																											id: step.id,
+																											name: step.name,
+																											order: step.order,
+																											status_id: step.status_id,
+																											form: step.form,
+																											pre_action: step.pre_action,
+																											post_action: step.post_action
+																							}
+																			};
+																			cy.add(edit_step_data);
+																			edit_steps.push(edit_step_data);
+															});
+															localStorage.setItem('stepData', JSON.stringify(edit_steps));
+
+															data.edges.forEach(edge => {
+																			edit_edge_data = {
+																							group: 'edges',
+																							data: {
+																											id: edge.id,
+																											source: edge.source,
+																											target: edge.target,
+																											condition_field: edge.condition_field,
+																											condition_value: edge.condition_value
+																							}
+																			};
+																			cy.add(edit_edge_data);
+																			edit_edges.push(edit_edge_data);
+															});
+
+															localStorage.setItem('edgeData', JSON.stringify(data.edges));
+															localStorage.setItem('flowData', JSON.stringify(data.flow));
+
+															cy.layout({ name: 'grid', rows: 1 }).run();
+											}
+        }
+
+								window.addEventListener('beforeunload', function(event) {
+        if (!exitWithoutWarning) {
+            const confirmationMessage = 'Are you sure you want to exit? Any unsaved changes will be lost.';
+            event.returnValue = confirmationMessage;
+            return confirmationMessage;
+        }
+								});
+
+								function clearSessionData() {
+												localStorage.clear();
+												cy.elements().remove();
+								}
+
+								window.addEventListener('unload', function(event) {
+												if (!exitWithoutWarning) {
+																clearSessionData();
+												}
+								});
+
+						if(!editMode){
+
+									var stepData = JSON.parse(localStorage.getItem('stepData')) || {};
+
+								if (Array.isArray(stepData)) {
+												stepData.forEach(step => {
+																cy.add(step);
+												});
+								}
+
+								var edgeData = JSON.parse(localStorage.getItem('edgeData'));
+
+								if (Array.isArray(edgeData)) {
+												edgeData.forEach(edge => {
+																cy.add({
+																				group: 'edges',
+																				data: {
+																								id: edge.id,
+																								source: edge.source,
+																								condition_field: edge.source,
+																								condition_value: edge.source,
+																								target: edge.target
+																				}
+																});
+												});
+								}
+
+								cy.layout({
+												name: 'grid',
+												rows: 1
+												}).run();
+
+						}
+
+
+
+    });
+
+  </script>
+
+{% endblock js%}
