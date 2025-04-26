@@ -38,16 +38,18 @@ class SignConsumer(JsonWebsocketConsumer):
 
     def disconnect(self, close_code):
         super().disconnect(close_code)
+        logger.info(f"Disconnect {close_code}")
 
     def receive_json(self, content, **kwargs):
         """
         Called with decoded JSON content.
         """
+        socket_id = ""
         try:
             serializer = self.get_serializer(content)
 
             if serializer.is_valid():
-
+                socket_id = serializer.validated_data['socket_id']
                 match serializer.validated_data["action"]:
                     case "initial_signature":
                         self.do_initial_signature(serializer)
@@ -63,6 +65,7 @@ class SignConsumer(JsonWebsocketConsumer):
                     "details": serializer.errors,
                     "status": 400,
                     "code": 11,
+                    'socket_id': serializer.data.get('socket_id')
                 })
                 logger.error("Invalid request.")
 
@@ -74,6 +77,7 @@ class SignConsumer(JsonWebsocketConsumer):
                 "details": str(e),
                 "status": 500,
                 "code": 999,
+                "socket_id": socket_id
             })
             logger.error("An unexpected error occurred.", exc_info=e)
 
@@ -86,6 +90,8 @@ class SignConsumer(JsonWebsocketConsumer):
             usertoken=serializer.validated_data["card"],
             docsettings=serializer.validated_data["docsettings"],
         )
+
+        response['socket_id'] = serializer.validated_data['socket_id']
 
         # remove signer image
         if "imageIcon" in response:
@@ -103,7 +109,8 @@ class SignConsumer(JsonWebsocketConsumer):
             signer = RemoteSignerClient(self.scope["user"])
             data = dict(serializer.validated_data)
             response = signer.complete_signature(data)
-            self.send_json({"result": response})
+            self.send_json({"result": response,
+                            'socket_id': serializer.validated_data['socket_id']})
         except Exception as e:
             logger.error("Complete the signature fail", exc_info=e)
 

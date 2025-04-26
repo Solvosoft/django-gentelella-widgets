@@ -2251,6 +2251,10 @@ function getMediaRecord(element, mediatype){
 ///////////////////////////////////////////////
 //  Init widgets digital signature
 ///////////////////////////////////////////////
+var socket_connections = {};
+var socket_manager_instances = {};
+const max_close_inicialice = 5;
+var count_close_inicialice=0;
 build_digital_signature = function (instance) {
 
     const widgetId = instance.getAttribute("id");
@@ -2725,25 +2729,77 @@ function responseManageTypeData(instance, err_json_fn, error_text_fn) {
     }
 }
 
-function SocketManager(socket, signatureManager) {
-    // If an error occurs during the connection
-    socket.onerror = (event) => {
-        // console.error("WebSocket error");
-        signatureManager.hideLoading();
-        alertSimple(errorInterpreter(3), gettext("Error"), "error");
-        signatureManager.socketError = true;
-    };
+class SocketManager {
+    constructor(url, signatureManager, instance) {
+        this.url=url;
+        this.signatureManager=signatureManager;
+        this.instance = instance;
 
-    // If the connection is closed
-    socket.onclose = (event) => {
-        // console.warn("WebSocket cerrado");
-    };
-
-    // If the connection is opened
-    socket.onopen = (event) => {
-        // console.log("WebSocket conectado");
-        signatureManager.socket_error = false;
-    };
+        this.connect();
+    }
+    connect(){
+        socket_manager_instances[this.instance.socket_id] = this.instance;
+         if(!socket_connections.hasOwnProperty(this.url)){
+            let ws = new WebSocket(this.url);
+            ws.onerror=this.fn_error(this);
+            ws.onclose=this.fn_close(this);
+            ws.onopen=this.fn_open(this);
+            ws.onmessage=this.fn_messages(this);
+            socket_connections[this.url]=ws;
+         }
+    }
+    fn_error(element){
+        return (event) => {
+            // console.error("WebSocket error");
+            element.signatureManager.hideLoading();
+            alertSimple(errorInterpreter(3), gettext("Error"), "error");
+            element.signatureManager.socketError = true;
+        }
+    }
+    fn_close(element){
+        return (event) => {
+             console.warn("WebSocket cerrado "+event.type);
+             Reflect.deleteProperty(socket_connections, event.currentTarget.url);
+             if(count_close_inicialice < max_close_inicialice){
+                count_close_inicialice += 1;
+                element.instance.inicialize();
+             }
+        };
+    }
+    fn_open(element){
+        return (event) => {
+         //       console.log("WebSocket conectado");
+            element.signatureManager.socket_error = false;
+            count_close_inicialice=0;
+       };
+    }
+    fn_messages(element){
+        return (event)=>{
+            try {
+                const data = JSON.parse(event.data);
+                if (data.hasOwnProperty("socket_id") && socket_manager_instances.hasOwnProperty(data["socket_id"])){
+                        socket_manager_instances[data["socket_id"]].receive_json(data);
+                }else{
+                    console.error("Socket id not found");
+                }
+            } catch (err) {
+                console.error("Error al parsear mensaje WS:", err);
+            }
+       };
+    }
+    send(str){
+         if(!socket_connections.hasOwnProperty(this.url)){
+            this.connect();
+         }else{
+            if(socket_connections[this.url].readyState != WebSocket.OPEN){
+                Reflect.deleteProperty(socket_connections, this.url);
+                this.connect();
+            }
+         }
+         if(socket_connections.hasOwnProperty(this.url)){
+            socket_connections[this.url].send(str);
+        }
+    }
 }
 
 function callFetch(instance) {
@@ -2795,6 +2851,9 @@ function FirmadorLibreLocal(docmanager, signatureManager) {
             callFetch(instance);
         },
         "sign": function (data) {
+            if(data.hasOwnProperty("socket_id")){
+                Reflect.deleteProperty(data, "socket_id");
+            }
             let json = JSON.stringify(data);
             let manager = docmanager;
 
@@ -2835,21 +2894,16 @@ function FirmadorLibreLocal(docmanager, signatureManager) {
     }
 }
 
+const generateRandomString = () => {
+  return Math.floor(Math.random() * Date.now()).toString(36);
+};
+
 function FirmadorLibreWS(docmanager, url, signatureManager) {
     var firmador = {
         "url": url,
         "websocket": null,
         "firmador_url": "http://localhost:3516",
-        "trans_received": function (instance) {
-            return function (event) {
-                try {
-                    const data = JSON.parse(event.data);
-                    instance.receive_json(data);
-                } catch (err) {
-                    console.error("Error al parsear mensaje WS:", err);
-                }
-            };
-        },
+        "socket_id": generateRandomString(),
         "receive_json": function (data) {
             // validate socket errors
             if (data.result === false && data.error) {
@@ -2913,15 +2967,15 @@ function FirmadorLibreWS(docmanager, url, signatureManager) {
         },
 
         "inicialize": function () {
-            this.websocket = new WebSocket(url);
-            SocketManager(this.websocket, signatureManager);
-            this.websocket.onmessage = this.trans_received(this);
+           this.websocket = new SocketManager(url, signatureManager, this);
+
         },
         "local_done": function (data) {
             // console.log("local_done", data);
         },
         "sign": function (data) {
             data["action"] = "initial_signature";
+            data["socket_id"] = this.socket_id;
             if (data.card !== undefined) {
                 this.websocket.send(JSON.stringify(data));
                 signatureManager.showLoading();
@@ -2932,7 +2986,7 @@ function FirmadorLibreWS(docmanager, url, signatureManager) {
         },
         "complete_sign": function (data) {
             data["action"] = "complete_signature";
-
+            data["socket_id"] = this.socket_id;
             try {
                 this.websocket.send(JSON.stringify(data));
             } catch (e) {
