@@ -5,10 +5,32 @@ var socket_connections = {};
 var socket_manager_instances = {};
 const max_close_inicialice = 5;
 var count_close_inicialice=0;
+
+// Configuración del MutationObserver
+const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'data-port') {
+            let port = mutation.target.getAttribute('data-port');
+            mutation.target.setAttribute("href",
+                    "firmador:" + window.location.protocol + "//" + window.location.host + "#" + port);
+        }
+    });
+});
+
+build_cors_headers = function(instance){
+    let port = instance.getAttribute('data-port');
+    instance.setAttribute("href", "firmador:" + window.location.protocol + "//" + window.location.host + "#" + port);
+    observer.observe(instance, { attributes: true });
+}
+
+build_ws_url = function(base){
+    return base;
+}
+
 build_digital_signature = function (instance) {
 
     const widgetId = instance.getAttribute("id");
-    const url_ws = instance.getAttribute("data-ws-url");
+    const url_ws = build_ws_url(instance.getAttribute("data-ws-url"));
     const container = instance.closest(".widget-digital-signature");
     const container_tag = `container-${widgetId}`;
     const doc_instance = {

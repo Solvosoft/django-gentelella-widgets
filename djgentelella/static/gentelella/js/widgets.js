@@ -306,6 +306,11 @@ document.gtwidgets = {
             build_digital_signature(e);
         });
     },
+    FirmadorCORS: function (instance){
+        instance.each(function (i, e) {
+            build_cors_headers(e);
+        });
+    }
 }
 
 function gt_find_initialize(instance) {
