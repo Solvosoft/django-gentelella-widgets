@@ -275,3 +275,12 @@ class DigitalSignature(models.Model):
         return self.filename or str(self.file_code)
 
 
+class SelectImage(models.Model):
+    name = models.CharField(max_length=255)
+    img = models.FileField(upload_to="images", null=True, blank=True)
+
+    def __str__(self):
+        return self.img.url
+
+class Img(models.Model):
+    imges_x = models.ManyToManyField(SelectImage, blank=True, related_name='imges_x')
