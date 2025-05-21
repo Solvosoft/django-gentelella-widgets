@@ -1,0 +1,29 @@
+{% extends 'gentelella/base_site.html' %}
+
+{% load urlname_tags %}
+
+{% block content %}
+
+<div class="row">
+    <div class='col-sm-12 col-md-12 col-lg-6'>
+        <div class="card">
+									<div class="card-title">
+										<h2> Select with Image </h2>
+									</div>
+									<div class="card-body">
+                <form action="" method="POST">
+                    {% csrf_token %}
+																	  	{{ form }}
+                    <input class="btn btn-success" type="submit" value="Save" />
+                </form>
+
+            </div>
+									<br>
+        </div>
+
+
+    </div>
+</div>
+
+
+{% endblock %}

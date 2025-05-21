@@ -28,7 +28,7 @@ from .tagging import views as tagging
 from .timeline.views import timeline_view
 from .views import knobView, YesNoInputView
 from .wysiwyg import views as tinymce
-
+from .select_image import views as select_image
 pclss = Personclass()
 countryclss = Countryclass()
 menuclss = MenuItemclass()
@@ -132,6 +132,10 @@ urlpatterns = [
                        ),
                   path('formset/digital_signature/',
                        digitalsignature.digital_signature_formset,
-                       name="digital_signature_formset")
+                       name="digital_signature_formset"),
+                  path('select_images/', select_image.InsertImg.as_view(),
+                       name='select-images-add'),
+                  path('select_images/<int:pk>', select_image.EditImg.as_view(),
+                       name='select-images-edit'),
 
               ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()

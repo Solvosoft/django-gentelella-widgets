@@ -1,4 +1,16 @@
 document.formset = [];
+function formatState (state) {
+  if (!state.text) {
+    return "";
+  }
+   img_name = state.text.split("/")
+   img_name = img_name[img_name.length-1]
+   img_name = img_name.substring(0, img_name.length-4)
+  var $state = $(
+    '<span><img src="' + state.text+ '" class="img-flag" /> ' +  img_name + '</span>'  );
+
+  return $state;
+};
 document.gtwidgets = {
     ImageRecordInput: function (instance) {
         instance.each(function (i, e) {
@@ -310,7 +322,17 @@ document.gtwidgets = {
         instance.each(function (i, e) {
             build_cors_headers(e);
         });
-    }
+    },
+     SelectMultipleImages: function (instance) {
+        instance.each(function (i, e) {
+            let s2instance = $(e);
+            let contexts2 = {};
+            extract_select2_context(contexts2, s2instance);
+            contexts2["templateResult"] = formatState
+            contexts2["templateSelection"] = formatState
+            s2instance.select2(contexts2);
+        });
+    },
 }
 
 function gt_find_initialize(instance) {
