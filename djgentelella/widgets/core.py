@@ -687,3 +687,14 @@ class PhoneNumberMaskInput(TextInput):
         attrs = update_kwargs(attrs, self.__class__.__name__)
 
         super().__init__(attrs)
+
+
+
+class SelectMultipleImages(DJSelectMultiple):
+    allow_multiple_selected = True
+
+    def __init__(self, attrs=None, choices=(), extraskwargs=True):
+        if extraskwargs:
+            attrs = update_kwargs(attrs, self.__class__.__name__,
+                                  base_class='select2_multiple form-control ')
+        super(SelectMultipleImages, self).__init__(attrs, choices=choices)
