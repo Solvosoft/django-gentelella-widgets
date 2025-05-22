@@ -72,7 +72,7 @@ docker_sign:
 
 init_demo:
 	cd demo && \
-	rm db.sqlite3 && \
+	rm -f db.sqlite3 && \
 	python manage.py migrate && \
 	python manage.py createdemo && \
 	python manage.py demomenu && \
