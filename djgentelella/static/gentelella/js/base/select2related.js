@@ -14,6 +14,11 @@ function extract_select2_context(context, instance){
     }else{
         context.theme='bootstrap-5'
     }
+    let template = data.templateresult;
+    if(template != undefined){
+        context.templateResult=window[template];
+        context.templateSelection=window[template];
+    }
 }
 
 function add_selected_option(item, data){

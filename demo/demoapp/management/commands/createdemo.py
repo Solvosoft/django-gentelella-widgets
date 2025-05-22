@@ -385,18 +385,7 @@ class Command(BaseCommand):
             icon='fa fa-mouse-pointer',
             only_icon=False
         )
-        selectimage = MenuItem.objects.create(
-            parent=cwidget,
-            title='Select with Image',
-            url_name='select-images-add',
-            category='sidebar',
-            is_reversed=True,
-            reversed_kwargs=None,
-            reversed_args=None,
-            is_widget=False,
-            icon='fa fa-sticky-note-o',
-            only_icon=False
-        )
+
         noti = MenuItem.objects.create(
             parent=item,
             title='Create notification',
@@ -532,6 +521,18 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-sort',
+            only_icon=False
+        )
+        selectimage = MenuItem.objects.create(
+            parent=item,
+            title='Select with Image',
+            url_name='imgselect-list',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-camera',
             only_icon=False
         )
 
