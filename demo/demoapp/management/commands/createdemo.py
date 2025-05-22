@@ -1,10 +1,14 @@
+from pathlib import Path
 from random import randint
 
+from django.conf import settings
+from django.core.files import File
 from django.core.management import BaseCommand
 from django.urls import reverse
 from django.utils.timezone import now
 
 from demoapp import models
+from demoapp.models import SelectImage
 from djgentelella.models import MenuItem
 
 
@@ -634,8 +638,18 @@ class Command(BaseCommand):
             only_icon=False
         )
 
-    def handle(self, *args, **options):
+    def create_images_demo(self):
+        workdir = Path(
+            settings.BASE_DIR) / "../djgentelella/static/gentelella/images/"
+        workdir = workdir.glob("*.png")
+        for f in workdir:
+            SelectImage.objects.create(
+                name=f.name.replace(".png", ""),
+                img=File(open(f, 'rb'), name=f.name))
 
+    def handle(self, *args, **options):
+        self.create_images_demo()
+        """
         MenuItem.objects.all().delete()
 
         self.create_menu()
@@ -645,3 +659,4 @@ class Command(BaseCommand):
         self.create_communities()
         self.abcde()
         self.create_avanced()
+        """
