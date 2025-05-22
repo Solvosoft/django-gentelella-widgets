@@ -8,6 +8,7 @@ from .models import WithCatalog, Catalog, OneCatalog, Country, Person, Foo, \
 class DigitalSignatureAdmin(admin.ModelAdmin):
     list_display = ('id', 'filename', 'file_code', 'created', 'updated')
 
+
 admin.site.register(DigitalSignature, DigitalSignatureAdmin)
 admin.site.register(Country)
 admin.site.register(Catalog)
@@ -20,6 +21,5 @@ admin.site.register(Employee)
 admin.site.register(ChunkedUploadItem)
 admin.site.register(Calendar)
 admin.site.register(Event)
-admin.site.register(SelectImage)
 admin.site.register(SelectImage)
 admin.site.register(Img)
