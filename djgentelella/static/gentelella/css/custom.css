@@ -4681,3 +4681,7 @@ input-group > .custom-file {
     border: 1px solid #1ABB9C;; /* Bordes */
     border-radius: 5px; /* Esquinas redondeadas */
 }
+.overflow-scroll{
+    overflow:auto;
+    -webkit-overflow-scrolling: touch
+}
