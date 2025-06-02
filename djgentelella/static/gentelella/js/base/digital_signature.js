@@ -937,7 +937,7 @@ function DocumentClient(container, widgetId, signatureManager, url_ws) {
 
             if (numFirmas > 0) {
                 if (typeof update_document === "function") {
-                    update_document();
+                    update_document(this.doc_instance);
                 } else {
                     console.log("warning: update_document function not defined, using default action");
                     alertFunction(
