@@ -213,3 +213,12 @@ msgstr ""
 
 msgid "loading"
 msgstr "Cargando"
+
+msgid "Please, sign the document before saving"
+msgstr "Por favor, firme el documento antes de guardar"
+
+msgid "The document is not digitally signed. Please sign the document before saving."
+msgstr "El documento no está firmado digitalmente. Por favor, firme el documento antes de guardar."
+
+msgid "The document was saved"
+msgstr "El documento se ha guardado"
