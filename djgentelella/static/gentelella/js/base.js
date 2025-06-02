@@ -3157,7 +3157,7 @@ function DocumentClient(container, widgetId, signatureManager, url_ws) {
         },
 
         "validate_document_remote_done": function (reportData) {
-            console.log("validate_document_remote_done", reportData);
+            signatureManager.hideLoading();
             if (!reportData || typeof reportData !== 'string') {
                 alertFunction(
                     gettext("Please, sign the document before saving"),
@@ -3171,7 +3171,7 @@ function DocumentClient(container, widgetId, signatureManager, url_ws) {
             // Caso: No está firmado digitalmente
             if (reportData.includes("no est&aacute; firmado digitalmente")) {
                 alertFunction(
-                    gettext("El documento no está firmado digitalmente. Por favor, firme el documento antes de guardar."),
+                    gettext("The document is not digitally signed. Please sign the document before saving."),
                     gettext("Warning"),
                     "warning", false,
                     function () {
@@ -3189,7 +3189,7 @@ function DocumentClient(container, widgetId, signatureManager, url_ws) {
 
             if (numFirmas > 0) {
                 alertFunction(
-                    gettext(`The document was saved. Firmas válidas encontradas: ${numFirmas}`),
+                    gettext(`The document was saved`),
                     gettext("Success"),
                     "success", false,
                     function () {
@@ -3198,14 +3198,12 @@ function DocumentClient(container, widgetId, signatureManager, url_ws) {
                         const form = container.closest('form');
                         if (form) {
                             form.submit();
-                        } else {
-                            alertSimple("No se encontró el formulario para guardar.", "Error", "error");
                         }
                     }.bind(this)
                 );
             } else {
                 alertFunction(
-                    gettext("No se encontraron firmas válidas en el documento."),
+                    gettext("The document is not digitally signed. Please sign the document before saving."),
                     gettext("Warning"),
                     "warning", false,
                     function () {

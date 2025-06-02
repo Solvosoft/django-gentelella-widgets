@@ -907,6 +907,7 @@ function DocumentClient(container, widgetId, signatureManager, url_ws) {
         },
 
         "validate_document_remote_done": function (reportData) {
+            signatureManager.hideLoading();
             if (!reportData || typeof reportData !== 'string') {
                 alertFunction(
                     gettext("Please, sign the document before saving"),
@@ -917,7 +918,6 @@ function DocumentClient(container, widgetId, signatureManager, url_ws) {
                 return;
             }
 
-            // Caso: No está firmado digitalmente
             if (reportData.includes("no est&aacute; firmado digitalmente")) {
                 alertFunction(
                     gettext("The document is not digitally signed. Please sign the document before saving."),
@@ -929,7 +929,6 @@ function DocumentClient(container, widgetId, signatureManager, url_ws) {
                 return;
             }
 
-            // Buscar el número de firmas
             const firmasMatch = reportData.match(/Contiene\s*([\d]+)\s*firma/);
             let numFirmas = 0;
             if (firmasMatch && firmasMatch[1]) {
@@ -937,19 +936,24 @@ function DocumentClient(container, widgetId, signatureManager, url_ws) {
             }
 
             if (numFirmas > 0) {
-                alertFunction(
-                    gettext(`The document was saved`),
-                    gettext("Success"),
-                    "success", false,
-                    function () {
-                        // Busca el formulario más cercano
-                        const container = this.signatureManager.container;
-                        const form = container.closest('form');
-                        if (form) {
-                            form.submit();
-                        }
-                    }.bind(this)
-                );
+                if (typeof update_document === "function") {
+                    update_document();
+                } else {
+                    console.log("warning: update_document function not defined, using default action");
+                    alertFunction(
+                        gettext(`The document was saved`),
+                        gettext("Success"),
+                        "success", false,
+                        function () {
+                            const container = this.signatureManager.container;
+                            const form = container.closest('form');
+                            if (form) {
+                                form.submit();
+                            }
+                        }.bind(this)
+                    );
+                }
+
             } else {
                 alertFunction(
                     gettext("The document is not digitally signed. Please sign the document before saving."),
