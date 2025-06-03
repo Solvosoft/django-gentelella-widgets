@@ -100,8 +100,13 @@ class PdfSignatureComponent {
         this.btn_next = container.querySelector('.next');
         this.page_num = container.querySelector('.page_num');
         this.page_number = container.querySelector('.page_number');
+        this.btn_expand = container.querySelector('.btn_expand');
         this.page_count = container.querySelector('.page_count');
         this.sub_canvas_container = container.querySelector('.sub_canvas_container');
+        this.pdfSignatureContainer = container.querySelector('.pdf-signature-container');
+        this.digitalSignatureCard = container.querySelector('.digital-signature-card');
+        this.btns_expand = container.querySelector('.container_select_card_expanded');
+        this.expandHelpMessage = container.querySelector('.expand-help-message');
 
         // Verify that all required elements are present
         if (!this.signature || !this.canvas || !this.btn_prev || !this.btn_next || !this.page_num || !this.page_number || !this.page_count || !this.sub_canvas_container) {
@@ -119,6 +124,7 @@ class PdfSignatureComponent {
         this.signY = 198;
         this.signWidth = 133;
         this.signHeight = 133;
+        this.expanded = false;
 
         // Initializes the processes
         this.initEvents();
@@ -133,6 +139,7 @@ class PdfSignatureComponent {
         this.btn_next.addEventListener('click', () => this.onNextPage());
         this.page_number.addEventListener('change', (e) => this.renderPage(e.target.value));
         this.page_number.addEventListener('keyup', (e) => this.renderPage(e.target.value));
+        this.btn_expand.addEventListener('click', () => this.expand());
     }
 
     initPDFViewer() {
@@ -184,6 +191,44 @@ class PdfSignatureComponent {
             this.renderPage(num);
         }
     }
+
+    expand() {
+        this.expanded = !this.expanded;
+        if (this.expanded) {
+            this.pdfSignatureContainer.classList.add('expanded-viewer');
+            this.sub_canvas_container.classList.add('expanded-canvas-container');
+            this.digitalSignatureCard.classList.add('hide');
+            this.expandHelpMessage.classList.add('hide');
+            this.btns_expand.classList.remove('hide');
+
+            requestAnimationFrame(() => {
+                this.adjustScaleToContainer().then(() => {
+                    this.renderPage(this.pageNum);
+                    this.sub_canvas_container.scrollTop = (this.canvas.height / 2) - (this.sub_canvas_container.clientHeight / 2);
+                });
+            });
+        } else {
+            this.pdfSignatureContainer.classList.remove('expanded-viewer');
+            this.sub_canvas_container.classList.remove('expanded-canvas-container');
+            this.digitalSignatureCard.classList.remove('hide');
+            this.expandHelpMessage.classList.remove('hide');
+            this.btns_expand.classList.add('hide');
+            this.scale = 1.2;
+            this.renderPage(this.pageNum);
+        }
+
+
+    }
+
+    adjustScaleToContainer() {
+        return this.pdfDoc.getPage(this.pageNum).then((page) => {
+            const containerWidth = Math.min(this.sub_canvas_container.offsetWidth, 1200);
+            const viewport = page.getViewport({scale: 1});
+            let nextScale = (containerWidth * 0.95) / viewport.width;
+            this.scale = Math.min(nextScale, 2.0);
+        });
+    }
+
 
     renderPage(num) {
         this.pageRendering = true;
@@ -357,7 +402,7 @@ class PdfSignatureComponent {
         return tempSignature;
     }
 
-    // If required, you can define a method for loading an image
+// If required, you can define a method for loading an image
     loadSignatureImage(signatureImage, imageContainer) {
         return new Promise((resolve, reject) => {
             if (!signatureImage) {
@@ -408,9 +453,9 @@ class SignatureManager {
         this.container = container;
         this.modal = new bootstrap.Modal(container.querySelector("#loading_sign"));
         this.firmador = new DocumentClient(container, container.getAttribute("data-widget-id"), this, url_ws, custom_event, this.doc_instance);
-        this.signerBtn = container.querySelector(".btn_signer");
+        this.signerBtn = container.querySelectorAll(".btn_signer");
         this.errorsContainer = container.querySelector(".errors_signer");
-        this.refreshBtn = container.querySelector(".btn_signer_refresh");
+        this.refreshBtn = container.querySelectorAll(".btn_signer_refresh");
         this.socketError = false;
         this.pdfvisor = pdfvisor;
 
@@ -418,11 +463,15 @@ class SignatureManager {
     }
 
     initEvents() {
-        if (this.signerBtn) {
-            this.signerBtn.addEventListener('click', () => this.sign());
+        if (this.signerBtn && this.signerBtn.length) {
+            this.signerBtn.forEach(btn => {
+                btn.addEventListener('click', () => this.sign());
+            });
         }
-        if (this.refreshBtn) {
-            this.refreshBtn.addEventListener('click', () => this.refresh());
+        if (this.refreshBtn && this.refreshBtn.length) {
+            this.refreshBtn.forEach(btn => {
+                btn.addEventListener('click', () => this.refresh());
+            });
         }
     }
 
@@ -821,36 +870,51 @@ function DocumentClient(container, widgetId, signatureManager, url_ws, custom_ev
             this.signatureManager.clearErrors();
         },
         "success_certificates": function (data) {
-
             if (data.length > 0) {
-                container.querySelector("#container_select_card").classList.remove("d-none");
-                container.querySelector("#container_select_card_tem").classList.add("d-none");
+                // Mostrar ambos bloques de selectores
+                container.querySelectorAll("#container_select_card, #container_select_card_expanded_hide").forEach(el => {
+                    el.classList.remove("d-none");
+                    el.classList.remove("hide");
+                });
+                container.querySelectorAll("#container_select_card_tem").forEach(el => {
+                    el.classList.add("d-none");
+                    el.classList.add("hide");
+                });
 
-                let select_card = container.querySelector(".select_card");
-
-                if (!select_card) {
+                // Poblar todos los selects .select_card
+                let select_cards = container.querySelectorAll(".select_card");
+                if (!select_cards.length) {
                     console.error(`Select not found for widget ${widgetId}`);
                     return;
                 }
-                select_card.innerHTML = "";
                 this.certificates = {};
-
-                data.forEach((element) => {
-                    this.certificates[element.tokenSerialNumber] = element;
-                    let start_token = element.tokenSerialNumber.substring(0, 4);
-                    let newOption = new Option(
-                        `${start_token} ${element.commonName}`,
-                        element.tokenSerialNumber,
-                        false, false
-                    );
-                    select_card.appendChild(newOption);
+                select_cards.forEach(select_card => {
+                    select_card.innerHTML = "";
+                    data.forEach((element) => {
+                        this.certificates[element.tokenSerialNumber] = element;
+                        let start_token = element.tokenSerialNumber.substring(0, 4);
+                        let newOption = new Option(
+                            `${start_token} ${element.commonName}`,
+                            element.tokenSerialNumber,
+                            false, false
+                        );
+                        select_card.appendChild(newOption);
+                    });
                 });
             } else {
-                container.querySelector("#container_select_card").classList.add("d-none");
-                container.querySelector("#container_select_card_tem").classList.remove("d-none");
+                // Ocultar ambos bloques de selectores y mostrar el temporal
+                container.querySelectorAll("#container_select_card, #container_select_card_expanded_hide").forEach(el => {
+                    el.classList.add("d-none");
+                    el.classList.add("hide");
+                });
+                container.querySelectorAll("#container_select_card_tem").forEach(el => {
+                    el.classList.remove("d-none");
+                    el.classList.remove("hide");
+                });
                 this.signatureManager.addError(2);
             }
         },
+
 
         "do_sign_remote": function () {
             let select = container.querySelector(".select_card");
