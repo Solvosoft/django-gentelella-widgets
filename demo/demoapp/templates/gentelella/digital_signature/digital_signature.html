@@ -100,7 +100,7 @@
 		document.addEventListener("document:signed", function (e) {
 
 			const instance = e.detail.instance;
-			console.log("ID del documento firmado:", instance['pk']);
+			console.log("Signed document ID:", instance['pk']);
 
 			const form = document.getElementById("formtest");
 			if (form) {
