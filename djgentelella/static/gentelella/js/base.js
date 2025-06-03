@@ -833,7 +833,10 @@ function clear_action_form(form) {
     });
     $(form).find('[data-widget="TaggingInput"],[data-widget="EmailTaggingInput"]').each(function (i, e) {
         var tg = $(e).data().tagify;
-        tg.removeAllTags();
+        if(tg != undefined){
+           tg.removeAllTags();
+        }
+
     });
     $(form).find('[data-widget="FileChunkedUpload"],[data-widget="FileInput"]').each(function (i, e) {
         var tg = $(e).data().fileUploadWidget;
@@ -914,9 +917,11 @@ function updateInstanceValuesForm(form, name, value) {
         }
         if (inputfield.data().widget === "TaggingInput" || inputfield.data().widget === "EmailTaggingInput") {
             var tagifyelement = inputfield.data().tagify;
-            tagifyelement.removeAllTags();
-            tagifyelement.loadOriginalValues(value);
-            done = true;
+            if(tagifyelement!=undefined){
+                tagifyelement.removeAllTags();
+                tagifyelement.loadOriginalValues(value);
+            }
+            done = false;
         }
 
 
