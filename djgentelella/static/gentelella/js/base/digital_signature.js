@@ -56,8 +56,17 @@ build_digital_signature = function (instance) {
         return;
     }
 
+    //Custom Event
+    const event = new CustomEvent("document:signed", {
+        bubbles: true,  // Important for global handlers
+        detail: {
+            message: "Signed document",
+            doc_id: doc_instance['pk'],
+        }
+    });
+
     // Signature
-    let signatureManager = new SignatureManager(widgetId, container, url_ws, pdfInstance);
+    let signatureManager = new SignatureManager(widgetId, container, url_ws, pdfInstance, event);
     signatureManager.startSign(doc_instance, urls['logo']);
 
     // Store the instance in a global object with key per widget ID
@@ -69,6 +78,7 @@ build_digital_signature = function (instance) {
     if (!window.pdfSignatureComponents[container_tag]) {
         window.pdfSignatureComponents[container_tag] = pdfInstance;
     }
+
 
 }
 
@@ -393,11 +403,11 @@ class PdfSignatureComponent {
 //  Signature manager Digital Signature
 ///////////////////////////////////////////////
 class SignatureManager {
-    constructor(input_id, container, url_ws, pdfvisor) {
+    constructor(input_id, container, url_ws, pdfvisor, custom_event) {
         this.input_id = input_id;
         this.container = container;
         this.modal = new bootstrap.Modal(container.querySelector("#loading_sign"));
-        this.firmador = new DocumentClient(container, container.getAttribute("data-widget-id"), this, url_ws, this.doc_instance);
+        this.firmador = new DocumentClient(container, container.getAttribute("data-widget-id"), this, url_ws, custom_event, this.doc_instance);
         this.signerBtn = container.querySelector(".btn_signer");
         this.saveBtn = container.querySelector(".btn_signer_save");
         this.errorsContainer = container.querySelector(".errors_signer");
@@ -411,9 +421,6 @@ class SignatureManager {
     initEvents() {
         if (this.signerBtn) {
             this.signerBtn.addEventListener('click', () => this.sign());
-        }
-        if (this.saveBtn) {
-            this.saveBtn.addEventListener('click', () => this.save());
         }
         if (this.refreshBtn) {
             this.refreshBtn.addEventListener('click', () => this.refresh());
@@ -440,11 +447,6 @@ class SignatureManager {
 
         this.clearErrors();
         this.firmador.start_sign(this.doc_instance, this.logo_url);
-    }
-
-    save() {
-        this.clearErrors();
-        this.firmador.validate_document_remote();
     }
 
     sign() {
@@ -801,7 +803,7 @@ function FirmadorLibreWS(docmanager, url, signatureManager) {
     return firmador;
 }
 
-function DocumentClient(container, widgetId, signatureManager, url_ws) {
+function DocumentClient(container, widgetId, signatureManager, url_ws, custom_event) {
     const docmanager = {
         "widgetId": widgetId,
         "container": container,
@@ -811,6 +813,7 @@ function DocumentClient(container, widgetId, signatureManager, url_ws) {
         "certificates": null,
         "doc_instance": null,
         "logo_url": null,
+        "custom_event": custom_event,
 
         "start_sign": function (doc_instance, logo_url = null) {
             this.doc_instance = doc_instance;
@@ -890,6 +893,7 @@ function DocumentClient(container, widgetId, signatureManager, url_ws) {
                 document.getElementById(this.signatureManager.input_id).value = l;
                 this.signatureManager.pdfvisor.initPDFViewer();
                 signatureManager.hideLoading();
+                document.dispatchEvent(this.custom_event);
                 alertFunction(
                     gettext("The signing was successfully completed."),
                     gettext("Success"),
@@ -903,7 +907,8 @@ function DocumentClient(container, widgetId, signatureManager, url_ws) {
             data = {
                 "instance": this.doc_instance,
             }
-            this.remotesigner.validate_document(data);
+            document.dispatchEvent(this.custom_event);
+            //this.remotesigner.validate_document(data);
         },
 
         "validate_document_remote_done": function (reportData) {
