@@ -229,9 +229,11 @@ function GTBaseFormModal(modal_id, datatable_element, form_config) {
                 }
                 if (inputfield.data().widget === "TaggingInput" || inputfield.data().widget === "EmailTaggingInput") {
                     var tagifyelement = inputfield.data().tagify;
-                    tagifyelement.removeAllTags();
-                    tagifyelement.loadOriginalValues(value);
-                    done = true;
+                    if (tagifyelement != undefined){
+                        tagifyelement.removeAllTags();
+                        tagifyelement.loadOriginalValues(value);
+                    }
+                    done = false;
                 }
                 if (!done) {
                     inputfield.val(value);
