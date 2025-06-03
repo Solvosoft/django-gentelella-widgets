@@ -24,17 +24,18 @@
 								<div class="row">
 									<div class="col-12 col-md-4">
 										<div class="d-flex justify-content-evenly">
-											<button class="btn btn-success w-50" type="submit" id="hidden-submit">
-												<i class="fa fa-floppy-o" aria-hidden="true"></i>
-												{% trans 'Save' %}
-											</button>
-											<button type="button" class="btn btn-secondary w-50" id="apibtnsave">
-												<i class="fa fa-exchange" aria-hidden="true"></i>
-												{% trans 'Save using API' %}
-											</button>
+											<div class="mt-10 d-flex justify-content-center">
+												<button class="btn btn-success w-50" type="submit" id="hidden-submit">
+													<i class="fa fa-floppy-o" aria-hidden="true"></i>
+													{% trans 'Save' %}
+												</button>
+												<button type="button" class="btn btn-secondary w-50" id="apibtnsave">
+													<i class="fa fa-exchange" aria-hidden="true"></i>
+													{% trans 'Save using API' %}
+												</button>
+											</div>
 										</div>
 									</div>
-								</div>
 
 							</form>
 						</div>
@@ -78,6 +79,35 @@
 					console.error('Error:', error);
 				});
 		});
+
+		/**
+			* Listens for the custom "document:signed" event,
+			* which is dispatched by the signature widget when the signing process completes.
+			*
+			* The event should be dispatched from the widget like this:
+			*
+			*   const event = new CustomEvent("document:signed", {
+			*       bubbles: true,
+			*       detail: { doc_id: <your_doc_id> }
+			*   });
+			*   document.dispatchEvent(event);
+			*
+			* This listener will:
+			*   - Read the signed document's from e.detail.instance
+			*   - Optionally log it for debugging
+			*   - Automatically submit the form with id="formtest"
+			*/
+		document.addEventListener("document:signed", function (e) {
+
+			const instance = e.detail.instance;
+			console.log("Signed document ID:", instance['pk']);
+
+			const form = document.getElementById("formtest");
+			if (form) {
+				form.submit();
+			}
+		});
+
 	</script>
 
 {% endblock %}

@@ -47,6 +47,17 @@ class RemoteSignerClient:
         )
         return response.json()
 
+    def validate_document(self, instance):
+        b64doc = self.get_b64document(instance['value'])
+        files = {
+            "b64Document": b64doc,
+            "DocumentExtension": ".pdf",
+        }
+        response = requests.post(
+            settings.FIRMADOR_VALIDA_URL, json=files
+        )
+        return response.json()
+
     def _finalize_signature(self, data_to_sign, task):
         result = None
         error_msg = _("An unexpected error occurred during the signing process.")
