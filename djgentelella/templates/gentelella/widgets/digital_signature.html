@@ -13,7 +13,7 @@
 	{% endif %}
 
 	{#	digital signature card #}
-	<div class="col-12 col-md-4">
+	<div class="col-12 col-md-4 digital-signature-card" id="digital-signature-card">
 
 		<div id="container_select_card_tem">
 			<div class="d-flex justify-content-end">
@@ -138,9 +138,10 @@
 		</div>
 
 	</div>
+	{# aqui se termina la primer parte del div #}
 
 	{#	preview file #}
-	<div class="col-12 col-md-8">
+	<div class="col-12 col-md-8" id="signature-viewer">
 		<div class="pdf-signature-container" id="pdf-signature-container">
 			{#	actions for change page#}
 			<div class="my-3 d-flex align-items-center justify-content-evenly">
@@ -148,6 +149,33 @@
 				<input type="hidden" name="{{ widget.name }}"
 					{% if widget.value != None %}
 											value="{{ widget.value|stringformat:'s' }}"{% endif %} {% include "gentelella/widgets/attrs.html" %}>
+
+				{#	select card #}
+				<div id="container_select_card_expanded"
+									class="container_select_card_expanded hide d-flex flex-row align-items-center px-2 py-1 rounded shadow-sm bg-white"
+									style="z-index: 2000; position: sticky; top: 0; min-height: 42px;">
+
+					<div id="container_select_card_expanded_hide"
+										class="container_select_card_expanded_hide hide d-flex flex-row align-items-center gap-2 flex-grow-1">
+						<label for="select_card_{{ widget.attrs.id }}" class="fw-semibold mb-0 me-2 small"
+													style="white-space: nowrap;">
+							{% trans 'Choose your signature card' %}
+						</label>
+						<div class="select-container m-0 p-0" style="width: 220px; max-width: 380px;">
+							<select id="select_card_expand{{ widget.attrs.id }}"
+															class="form-select form-select-sm select_card px-2"
+															style="font-size: 0.9em; padding-left: 32px;"
+															name="{{ widget.name }}_select"></select>
+						</div>
+						<button class="btn btn-primary btn-sm px-2 py-1 ms-2 formadd btn_signer"
+														type="button" style="font-size: 0.85em;">
+							{% trans 'Sign' %}
+						</button>
+					</div>
+					<i class="fa fa-refresh text-muted fs-6 cursor-pointer btn_signer_refresh ms-2"
+								title="{% trans 'Reload' %}" aria-hidden="true" style="font-size: 1.1em;"></i>
+				</div>
+
 
 				{#		button to change page #}
 				<div>
@@ -160,14 +188,21 @@
 				</div>
 
 				{#		number of pages #}
-				<div class="border  rounded px-3 py-1 shadow-sm ">
-					<i class="fa fa-file-o me-1" aria-hidden="true" title="{% trans 'Page' %}"></i>
-					<span class="page_num"></span> / <span class="page_count"></span>
+
+				<div class="d-flex align-items-center gap-2">
+					<button id="btn_expand" type="button" class="btn btn-light px-3 shadow-sm border btn-sm prev btn_expand"
+													title="{% trans 'Expand' %} ">
+						<i class="fa fa-arrows-alt" aria-hidden="true"></i>
+					</button>
+					<div class="border rounded px-3 py-1 shadow-sm">
+						<i class="fa fa-file-o me-1" aria-hidden="true" title="{% trans 'Page' %}"></i>
+						<span class="page_num"></span> / <span class="page_count"></span>
+					</div>
 				</div>
 			</div>
 
 			{#	preview document	#}
-			<div class="d-flex justify-content-center canvas_container">
+			<div class="d-flex justify-content-center canvas_container mt-10">
 				<div class="sub_canvas_container">
 					<div class="signature">
 						<div class="image"></div>
@@ -178,7 +213,7 @@
 			</div>
 
 			{# warning message #}
-			<div class="text-muted text-center my-3">
+			<div class="text-muted text-center my-3 expand-help-message" id="expand-help-message">
 				<p class="small">
 					<i class="fa fa-exclamation-circle me-2" aria-hidden="true"></i>
 					{% trans "Please go to the last page, in the signature space, try to place your signature vertically centered." %}
