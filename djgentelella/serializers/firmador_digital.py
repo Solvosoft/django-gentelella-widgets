@@ -104,3 +104,8 @@ class CompleteSignatureSerializer(serializers.Serializer):
     signature = SignatureSerializer()
     logo_url = serializers.CharField(required=False, allow_null=True, allow_blank=True)
     instance = InstanceSerializer()
+
+class ValidateDocumentSerializer(serializers.Serializer):
+    action = serializers.CharField()
+    socket_id = serializers.CharField(required=True)
+    instance = InstanceSerializer()

@@ -12,7 +12,7 @@ from djgentelella.firmador_digital.utils import RemoteSignerClient
 from djgentelella.serializers.firmador_digital import (
     WSRequest,
     InitialSignatureSerializer,
-    CompleteSignatureSerializer,
+    CompleteSignatureSerializer, ValidateDocumentSerializer,
 )
 
 logger = logging.getLogger("djgentelella")
@@ -35,6 +35,8 @@ class SignConsumer(JsonWebsocketConsumer):
                 return InitialSignatureSerializer(data=content)
             if serializer.validated_data["action"] == "complete_signature":
                 return CompleteSignatureSerializer(data=content)
+            if serializer.validated_data["action"] == "validate_document":
+                return ValidateDocumentSerializer(data=content)
 
     def disconnect(self, close_code):
         super().disconnect(close_code)
@@ -55,6 +57,8 @@ class SignConsumer(JsonWebsocketConsumer):
                         self.do_initial_signature(serializer)
                     case "complete_signature":
                         self.do_complete_signature(serializer)
+                    case "validate_document":
+                        self.do_validate_document(serializer)
                     case _:
                         self.do_default(serializer)
             else:
@@ -80,6 +84,16 @@ class SignConsumer(JsonWebsocketConsumer):
                 "socket_id": socket_id
             })
             logger.error("An unexpected error occurred.", exc_info=e)
+
+    def do_validate_document(self, serializer):
+        signer = RemoteSignerClient(self.scope["user"])
+
+        response = signer.validate_document(
+            instance=serializer.validated_data["instance"],
+        )
+
+        response['socket_id'] = serializer.validated_data['socket_id']
+        self.send_json(response)
 
     def do_initial_signature(self, serializer):
         signer = RemoteSignerClient(self.scope["user"])
