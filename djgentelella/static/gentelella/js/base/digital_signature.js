@@ -61,7 +61,7 @@ build_digital_signature = function (instance) {
         bubbles: true,  // Important for global handlers
         detail: {
             message: "Signed document",
-            doc_id: doc_instance['pk'],
+            instance: doc_instance,
         }
     });
 
@@ -409,7 +409,6 @@ class SignatureManager {
         this.modal = new bootstrap.Modal(container.querySelector("#loading_sign"));
         this.firmador = new DocumentClient(container, container.getAttribute("data-widget-id"), this, url_ws, custom_event, this.doc_instance);
         this.signerBtn = container.querySelector(".btn_signer");
-        this.saveBtn = container.querySelector(".btn_signer_save");
         this.errorsContainer = container.querySelector(".errors_signer");
         this.refreshBtn = container.querySelector(".btn_signer_refresh");
         this.socketError = false;
