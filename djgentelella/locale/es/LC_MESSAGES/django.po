@@ -665,3 +665,5 @@ msgstr "Razón"
 msgid "Visible signature"
 msgstr "Firma visible"
 
+msgid "Expand"
+msgstr "Expandir"

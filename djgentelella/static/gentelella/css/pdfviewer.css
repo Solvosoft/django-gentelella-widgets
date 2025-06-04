@@ -16,7 +16,7 @@
     max-width: 100%;
     max-height: 300px;
     box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
-    overflow-y: auto;
+    overflow: auto;
     /*max-width: 770px;*/
     /*max-height: 950px;*/
 }
@@ -24,7 +24,10 @@
 .widget-digital-signature .pdfviewer {
     /*width: 100%;*/
     /*height: auto;*/
+    margin: 0 auto;
     display: block;
+    width: auto;
+    height: auto;
 }
 
 .widget-digital-signature .signature {
@@ -144,4 +147,43 @@
     opacity: 0.5;
     transform: scale(0.95);
   }
+}
+
+.widget-digital-signature .expanded-viewer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: #f7f7f7;
+    z-index: 1050;
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: stretch;
+    padding: 1rem;
+}
+
+.widget-digital-signature .expanded-canvas-container {
+    width: 100% !important;
+    max-width: 1200px;
+    height: 85vh !important;
+    margin: 0 auto;
+    max-height: 1000px;
+    display: block;
+    overflow: auto
+}
+
+.widget-digital-signature .hide {
+    display: none !important;
+}
+
+.widget-digital-signature .expanded-viewer #container_select_card {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    margin-bottom: 1rem;
+    border-radius: 8px;
 }
