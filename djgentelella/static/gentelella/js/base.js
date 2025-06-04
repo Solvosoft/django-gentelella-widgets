@@ -3146,7 +3146,6 @@ function DocumentClient(container, widgetId, signatureManager, url_ws, custom_ev
         },
         "success_certificates": function (data) {
             if (data.length > 0) {
-                // Mostrar ambos bloques de selectores
                 container.querySelectorAll("#container_select_card, #container_select_card_expanded_hide").forEach(el => {
                     el.classList.remove("d-none");
                     el.classList.remove("hide");
@@ -3156,7 +3155,6 @@ function DocumentClient(container, widgetId, signatureManager, url_ws, custom_ev
                     el.classList.add("hide");
                 });
 
-                // Poblar todos los selects .select_card
                 let select_cards = container.querySelectorAll(".select_card");
                 if (!select_cards.length) {
                     console.error(`Select not found for widget ${widgetId}`);
@@ -3177,7 +3175,6 @@ function DocumentClient(container, widgetId, signatureManager, url_ws, custom_ev
                     });
                 });
             } else {
-                // Ocultar ambos bloques de selectores y mostrar el temporal
                 container.querySelectorAll("#container_select_card, #container_select_card_expanded_hide").forEach(el => {
                     el.classList.add("d-none");
                     el.classList.add("hide");
