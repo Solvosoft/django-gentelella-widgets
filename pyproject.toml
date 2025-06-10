@@ -134,7 +134,7 @@ firmador = [
     "uvicorn-worker==0.2.0",
     "channels==4.2.0",
     "wsproto==1.2.0",
-    "requests==2.32.3"
+    "requests==2.32.4"
 ]
 
 # List URLs that are relevant to your project
