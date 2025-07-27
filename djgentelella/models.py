@@ -144,11 +144,10 @@ class Trash(models.Model):
     )
 
     class Meta:
-        ordering = ("-creation_date",)
+        ordering = ("id",)
         unique_together = ("content_type", "object_id")
         indexes = [
             models.Index(fields=["content_type", "object_id"]),
-            models.Index(fields=["organization", "creation_date"]),
         ]
         verbose_name = _("Trash")
         verbose_name_plural = _("Trash")
