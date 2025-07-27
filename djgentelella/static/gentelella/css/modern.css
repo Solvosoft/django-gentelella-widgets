@@ -5371,3 +5371,18 @@ div.form-group {
     border: 1px solid #1ABB9C;; /* Bordes */
     border-radius: 5px; /* Esquinas redondeadas */
 }
+
+/* ── WebKit/Blink: Chrome, Edge, Brave, Safari, Firefox not need  */
+*::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #767684;
+  border-radius: 5px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
