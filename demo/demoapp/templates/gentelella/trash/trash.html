@@ -1,0 +1,284 @@
+{% extends 'gentelella/base.html' %}
+{% load static i18n %}
+
+
+{# page title #}
+{% block title %} {% trans 'Trash' %} {% endblock %}
+
+{# page content #}
+{% block content %}
+
+	<h1 class="text-center"> {% trans 'Tash Example' %} </h1>
+	<hr>
+
+	{# Example model with trash	#}
+	<section class="py-2">
+
+		<div class="card mt-2">
+			<div class="card-body">
+				<div class="card-title titles">
+					<h2 class="text-center"> {% trans 'Customers' %} </h2>
+				</div>
+
+				{# table customer #}
+				<div class="row mt-3 ">
+					<div class="col-12">
+						<table class="table table-hover table-striped w-100 table-responsive" id="table-customer">
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		{# Modals actions #}
+		{% url "api-customer-list" as list_obj_url %}
+		{% trans 'Register Customer' as create_obj_tittle %}
+		{% include 'gentelella/blocks/modal_template.html' with form=form_create form_id="create_obj_form" id="create_obj_modal" title=create_obj_tittle modal_class=create_obj_tittle url=list_obj_url %}
+
+		{% url "api-customer-detail" 0 as detail_obj_url %}
+		{#		{% trans 'Update Customer' as update_obj_tittle %}#}
+		{#		{% include 'gentelella/blocks/modal_template.html' with form=form_update form_id="update_obj_form" id="update_obj_modal" title=update_obj_tittle url=detail_obj_url %}#}
+
+		{% trans 'Delete Customer' as delete_obj_tittle %}
+		{% include 'gentelella/blocks/modal_template_delete.html' with form=form_delete form_id="delete_obj_form" id="delete_obj_modal" title=delete_obj_tittle url=detail_obj_url %}
+
+	</section>
+
+	{# History of trash	#}
+	<section class="pt-2 pb-4">
+		<div class="card mt-2">
+			<div class="card-body">
+				<div class="card-title titles">
+					<h2 class="text-center"> {% trans 'Trash' %} </h2>
+				</div>
+
+				{# table history #}
+				<div class="row mt-3 ">
+					<div class="col-12">
+						<table class="table table-hover table-striped w-100 table-responsive" id="table-trash">
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</section>
+
+	{# Modales actions #}
+	{% url "api-trash-list" as list_trash_url %}
+
+	{% trans 'Delete Instance' as delete_trash_tittle %}
+	{% include 'gentelella/blocks/modal_template_delete.html' with form=form_delete form_id="delete_trash_form" id="delete_trash_modal" title=delete_trash_tittle url=detail_trash_url %}
+
+
+{% endblock %}
+
+{# page js #}
+{% block js %}
+	{{ block.super }}
+
+	<script>
+		const object_urls = {
+			list_url: "{% url 'api-customer-list'  %}",
+			create_url: "{% url 'api-customer-list'  %}",
+			destroy_url: "{% url "api-customer-detail"  0 %}",
+			{#update_url: "{% url "api-customer-detail"  0 %}",#}
+		}
+
+		const datatable_inits = {
+			columns: [
+				{data: "id", name: "id", title: "ID", type: "number", visible: false},
+				{data: "name", name: "name", title: gettext("Name"), type: "readonly", visible: true},
+				{data: "email", name: "email", title: gettext("Email"), type: "readonly", visible: true},
+				{data: "phone_number", name: "phone_number", title: gettext("Phone number"), type: "readonly", visible: true},
+				{
+					data: "actions",
+					name: "actions",
+					title: gettext("Actions"),
+					type: "string",
+					visible: true,
+					filterable: false,
+					sortable: false
+				},
+			],
+			addfilter: true,
+		}
+
+		const modalids = {
+			create: "#create_obj_modal",
+			destroy: "#delete_obj_modal",
+			{#update: "#update_obj_modal",#}
+		}
+
+		const actions = {
+			table_actions: [],
+			object_actions: [],
+			title: 'Actions',
+			className: "no-export-col"
+		}
+
+		const icons = {
+			create: '<i class="fa fa-plus" aria-hidden="true"></i>',
+			clear: '<i class="fa fa-eraser" aria-hidden="true"></i>',
+			detail: 'fa fa-eye fa-lg',
+			update: 'fa fa-edit fa-lg',
+			destroy: 'fa fa-trash fa-lg',
+		}
+
+		const objconfig = {
+			datatable_element: "#table-customer",
+			modal_ids: modalids,
+			actions: actions,
+			datatable_inits: datatable_inits,
+			add_filter: true,
+			relation_render: {'field_autocomplete': 'text'},
+			delete_display: data => `Customer: ${data['name']}`,
+			create: "btn-success",
+			icons: icons,
+			urls: object_urls
+		}
+
+		const ocrud = ObjectCRUD("crudobj", objconfig)
+		ocrud.init();
+
+		{# Trash #}
+		const trash_urls = {
+			list_url: "{% url 'api-trash-list' %}",
+			restore_url: "{% url "api-trash-restore"  0 %}",
+			destroy_url: "{% url "api-trash-detail"  0 %}",
+		}
+
+		const modal_trash_ids = {
+			destroy: "#delete_trash_modal",
+		}
+
+		const actions_trash = {
+			table_actions: [],
+			object_actions: [
+				{
+					'name': "restore",
+					'action': 'restore',
+					'in_action_column': true,
+					'i_class': 'fa fa-undo',
+					'method': 'POST',
+					'title': gettext("Restore"),
+					data_fn: function (data) {
+						return data;
+					}
+				}
+			],
+			title: 'Actions',
+			className: "no-export-col"
+		}
+
+		const datatable_trash_inits = {
+			columns: [
+				{data: "id", name: "id", title: "ID", type: "string", visible: false},
+				{
+					data: "created_at",
+					name: "created_at",
+					title: gettext("Deleted Date"),
+					visible: true,
+					type: "date",
+					dateformat: document.datetime_format
+				},
+				{
+					data: "deleted_by",
+					name: "deleted_by",
+					title: gettext("Deleted by"),
+					type: "readonly",
+					visible: true,
+				},
+				{
+					data: "object_repr",
+					name: "object_repr",
+					title: gettext("Description"),
+					type: "readonly",
+					visible: true,
+				},
+				{
+					data: "model_name",
+					name: "content_type__model",
+					title: gettext("Model"),
+					type: "readonly",
+					visible: true,
+				},
+				{
+					data: "actions",
+					name: "actions",
+					title: gettext("Actions"),
+					type: "string",
+					visible: true,
+				},
+			],
+			addfilter: true,
+		}
+
+		const trash_config = {
+			datatable_element: "#table-trash",
+			modal_ids: modal_trash_ids,
+			actions: actions_trash,
+			datatable_inits: datatable_trash_inits,
+			add_filter: true,
+			relation_render: {'field_autocomplete': 'text'},
+			delete_display: data => {
+				return `${gettext("Registration ID")}: ${data['id']} <br> ${gettext('Model')}: ${data["model_name"]} <br> <span class="text-danger">${gettext("This action will permanently delete the register, as well as all related data.")}</span>`;
+			},
+			icons: icons,
+			urls: trash_urls,
+		}
+
+		const trash_crud = ObjectCRUD("trashcrudobj", trash_config)
+
+		trash_crud.restore = function (data) {
+			const url = trash_urls.restore_url.replace("0", data.id)
+
+			// request ajax
+			$.ajax({
+				url: url, type: "POST", data: {}, headers: {
+					"X-CSRFToken": getCookie('csrftoken'),
+				}, success: function (response) {
+
+					if (response.result) {
+						Swal.fire({
+							icon: 'success',
+							title: gettext('Success'),
+							text: gettext(response.detail),
+							confirmButtonText: gettext('Accept'),
+						})
+
+						ocrud.datatable.ajax.reload() // only for example
+						trash_crud.datatable.ajax.reload()
+					} else {
+						window.location.reload();
+					}
+				}, error: function (xhr, status, error) {
+					console.error("Error executing the API:", error);
+
+					Swal.fire({
+						icon: 'error',
+						title: gettext('Error'),
+						text: gettext("Sorry, an error occurred."),
+						confirmButtonText: gettext('Accept'),
+					})
+				}
+			});
+		}
+
+		trash_crud.init();
+
+
+		{#Only for example #}
+		document.addEventListener("DOMContentLoaded", function () {
+			const confirmButton = document.querySelector("#delete_obj_modal .delbtn");
+
+			if (confirmButton) {
+				confirmButton.addEventListener("click", function () {
+						trash_crud.datatable.ajax.reload();
+				});
+			}
+		});
+
+	</script>
+
+{% endblock %}

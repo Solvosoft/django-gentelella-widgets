@@ -28,6 +28,9 @@ from .tagging import views as tagging
 from .timeline.views import timeline_view
 from .views import knobView, YesNoInputView
 from .wysiwyg import views as tinymce
+# Trash
+from demoapp.trash.view import trash_view
+from demoapp.trash.api import CustomerViewSet
 
 pclss = Personclass()
 countryclss = Countryclass()
@@ -38,6 +41,10 @@ router.register('persontableview', PersonViewSet, 'api-persontable')
 router.register('personlistcardview', PersonCardListViewSet, 'api-personcard')
 router.register('objectmanagement', ObjectManagerDemoModelManagement,
                 'api-objectmanagement')
+
+# Trash
+router.register('api_customer', CustomerViewSet, 'api-customer')
+
 
 urlpatterns = [
                   path('object_management', object_management,
@@ -132,6 +139,9 @@ urlpatterns = [
                        ),
                   path('formset/digital_signature/',
                        digitalsignature.digital_signature_formset,
-                       name="digital_signature_formset")
+                       name="digital_signature_formset"),
+                # Trash
+                  path('trash/', trash_view, name="trash"),
+                  path('api/customer/', include(router.urls)),
 
               ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()
