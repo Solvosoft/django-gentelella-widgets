@@ -16,6 +16,7 @@ from djgentelella.wysiwyg import views as wysiwyg
 from .groute import routes
 from .templatetags.gtsettings import get_version
 from .views import auth
+from .trash.api import TrashViewSet
 
 auth_urls = [
     path('accounts/login/', auth.GentelellaLoginView.as_view(), name="login"),
@@ -71,6 +72,7 @@ for app in settings.INSTALLED_APPS:
 
 router = DefaultRouter()
 router.register('notificationtableview', NotificationViewSet, 'api-notificationtable')
+router.register("api_trash", TrashViewSet, basename="api-trash")
 
 base_urlpatterns = [
     re_path('gtapis/', include(routes.urls)),
@@ -87,6 +89,7 @@ base_urlpatterns = [
     re_path('^notification/list/$', notification_list_view,
             name="notification_list"),
     path('tableapi/', include(router.urls)),
+    path("api/trash/", include(router.urls)),
 ]
 
 permission_management_urls = [

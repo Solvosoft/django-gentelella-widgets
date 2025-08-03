@@ -450,6 +450,18 @@ class Command(BaseCommand):
             icon='fa fa-list-alt',
             only_icon=False
         )
+        MenuItem.objects.create(
+            parent=cwidget6,
+            title='Trash',
+            url_name='trash',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-trash',
+            only_icon=False
+        )
 
 
 

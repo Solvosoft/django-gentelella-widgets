@@ -142,6 +142,14 @@ class Trash(models.Model):
         _("Object repr"), max_length=200,
         help_text=_("Value of str(instance) at deletion time"),
     )
+    deleted_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name=_("Deleted by")
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ("id",)
@@ -203,7 +211,7 @@ class DeletedWithTrash(models.Model):
             object_id=self.pk,
             defaults={
                 "object_repr": str(self)[:200],
-                "created_by": user,
+                "deleted_by": user,
             },
         )
 
