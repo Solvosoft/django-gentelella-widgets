@@ -3,12 +3,18 @@ import logging
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
-
+from djgentelella.widgets.core import FileInput
 from djgentelella.firmador_digital.models import UserSignatureConfig, \
     get_signature_default, FORMATS_DATE, FONT_ALIGNMENT, FONT_CHOICES
 from djgentelella.firmador_digital.signvalue_utils import ValueDSParser
 from djgentelella.forms.forms import GTForm
 from djgentelella.widgets import core as genwidgets
+from django.utils.safestring import mark_safe
+
+from django.core.files.uploadedfile import UploadedFile
+import base64
+from io import BytesIO
+
 
 logger = logging.getLogger('djgentelella')
 
@@ -35,7 +41,7 @@ class SignatureConfigForm(GTForm, forms.ModelForm):
         max_length=50,
         widget=genwidgets.ColorInput,
         required=True,
-        label=_("Background color")
+        label=_("Background color"),
     )
     contact = forms.CharField(
         required=False,
@@ -73,6 +79,7 @@ class SignatureConfigForm(GTForm, forms.ModelForm):
         widget=genwidgets.ColorInput,
         required=True,
         label=_("Font color"),
+        initial="#FFFFFF",
     )
     fontSize = forms.IntegerField(
         min_value=5,
@@ -98,6 +105,11 @@ class SignatureConfigForm(GTForm, forms.ModelForm):
         widget=genwidgets.YesNoInput,
         label=_("Visible signature")
     )
+    image = forms.ImageField(
+        required=False,
+        widget=FileInput,
+        label=_("Signature image")
+    )
 
     default_render_type = "as_grid"
 
@@ -105,10 +117,10 @@ class SignatureConfigForm(GTForm, forms.ModelForm):
         [["contact"]],
         [["place"]],
         [["reason"]],
-        # [["dateFormat"], ["font"]],
+        # [["font"]],
+        [["image"], ["preview_image"]],
         [["dateFormat"], ["isVisibleSignature"]],
         [["fontSize"], ["fontColor"], ["backgroundColor"], ["fontAlignment"]],
-        # [["isVisibleSignature"]],
         [["defaultSignMessage"]],
     ]
 
@@ -125,14 +137,48 @@ class SignatureConfigForm(GTForm, forms.ModelForm):
             if key in self.fields:
                 self.fields[key].initial = value
 
+
+    def preview_image(self):
+        label = _("Image preview")
+        src = "/static/gentelella/images/default.png"
+
+        if self.instance and self.instance.config:
+            image_b64 = self.instance.config.get("image")
+            if image_b64 and image_b64.startswith("data:image"):
+                src = image_b64
+
+        return mark_safe(f"""
+            <label for="image-preview"><strong>{label}:</strong></label><br>
+            <div class="d-flex justify-content-center">
+                <img id="image-preview" alt="{label}" src="{src}" style="max-height:100px; max-width:300px; display:block;">
+            </div>
+        """)
+
     def save(self, commit=True):
         data = get_signature_default()
+        prev_image = self.instance.config.get("image")
+
         for key in data.keys():
             if key in self.cleaned_data:
                 val = self.cleaned_data[key]
+                print(key, val, type(val))
+
+                if key == "image":
+                    if isinstance(val, UploadedFile):
+                        # el usuario subió un nuevo archivo
+                        buffered = BytesIO()
+                        for chunk in val.chunks():
+                            buffered.write(chunk)
+                        mime = val.content_type
+                        b64 = base64.b64encode(buffered.getvalue()).decode()
+                        val = f"data:{mime};base64,{b64}"
+                    else:
+                        # no se subió archivo nuevo → conservamos imagen anterior
+                        val = prev_image
 
                 if isinstance(data[key], str) and not isinstance(val, str):
                     val = str(val)
                 data[key] = val
+
         self.instance.config = data
         return super().save(commit=commit)

@@ -27,7 +27,7 @@ FONT_CHOICES = [
 
 def get_signature_default():
     return {
-        "backgroundColor": "transparente",
+        "backgroundColor": "#FFFFFF",
         "cAdESLevel": "LTA",
         "contact": "",
         "country": "CR",

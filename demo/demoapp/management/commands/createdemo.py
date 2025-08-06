@@ -464,6 +464,18 @@ class Command(BaseCommand):
             icon='fa fa-power-off',
             only_icon=True
         )
+        item = MenuItem.objects.create(
+            parent=None,
+            title='Settings signature',
+            url_name='signature_config',
+            category='sidebarfooter',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-cog',
+            only_icon=True
+        )
 
         item = MenuItem.objects.create(
             parent=None,
