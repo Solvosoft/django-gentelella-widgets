@@ -158,6 +158,8 @@ class SignatureConfigForm(GTForm, forms.ModelForm):
         data = get_signature_default()
         prev_image = self.instance.config.get("image")
 
+        flag = True
+        flag_options = ["contact", "place", "reason"]
         for key in data.keys():
             if key in self.cleaned_data:
                 val = self.cleaned_data[key]
@@ -175,6 +177,12 @@ class SignatureConfigForm(GTForm, forms.ModelForm):
                     else:
                         # no se subió archivo nuevo → conservamos imagen anterior
                         val = prev_image
+
+                if key in flag_options and val != "":
+                    flag = False
+
+                if key == "hideSignatureAdvice":
+                    val = flag
 
                 if isinstance(data[key], str) and not isinstance(val, str):
                     val = str(val)
