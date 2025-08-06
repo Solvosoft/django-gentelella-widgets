@@ -50,11 +50,12 @@ class TrashViewSet(AuthAllPermBaseObjectManagement):
             trash = get_object_or_404(Trash, pk=pk)
 
             if not trash:
-                return Response({"result": False, "detail": _("This trash does not exist.")},
+                return Response({"result": False, "detail": _("This registry of trash does not exist.")},
                                 status=status.HTTP_400_BAD_REQUEST)
 
             trash.restore()
 
-            return Response({"result": True, "detail": _("The object was successfully restored.")}, status=status.HTTP_200_OK)
+            return Response({"result": True, "detail": _("The registry was successfully restored.")}, status=status.HTTP_200_OK)
         except Exception as e:
-            return Response({"result": False, "detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            print(str(e))
+            return Response({"result": False, "detail": _("The registry could not be restored.")}, status=status.HTTP_400_BAD_REQUEST)
