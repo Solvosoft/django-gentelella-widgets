@@ -1,4 +1,5 @@
-from django.conf import settings
+import uuid
+
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -6,6 +7,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 import uuid
 from djgentelella.models import DeletedWithTrash
+
 
 # Create your models here.
 from djgentelella.fields.catalog import GTForeignKey, GTManyToManyField, GTOneToOneField
@@ -275,6 +277,25 @@ class DigitalSignature(models.Model):
     def __str__(self):
         return self.filename or str(self.file_code)
 
+class SelectImage(models.Model):
+    name = models.CharField(max_length=255)
+    img = models.FileField(upload_to="images", null=True, blank=True)
+
+    def __str__(self):
+        return ('<span><img style="width: 2em; height: 2em;" src="' +
+                self.img.url + '">' + self.name + '</span>')
+
+
+class Img(models.Model):
+    multi_image = models.ManyToManyField(SelectImage, blank=True,
+                                         related_name='imges_x')
+    related_name = models.ForeignKey(SelectImage, blank=True, null=True,
+                                     related_name="related_img",
+                                     on_delete=models.CASCADE)
+
+    def __str__(self):
+        return "Imgs %d" % (self.multi_image.count())
+    
 
 # Trash
 class Customer(DeletedWithTrash):

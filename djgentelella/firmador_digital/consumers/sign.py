@@ -12,7 +12,7 @@ from djgentelella.firmador_digital.utils import RemoteSignerClient
 from djgentelella.serializers.firmador_digital import (
     WSRequest,
     InitialSignatureSerializer,
-    CompleteSignatureSerializer,
+    CompleteSignatureSerializer, ValidateDocumentSerializer,
 )
 
 logger = logging.getLogger("djgentelella")
@@ -35,24 +35,30 @@ class SignConsumer(JsonWebsocketConsumer):
                 return InitialSignatureSerializer(data=content)
             if serializer.validated_data["action"] == "complete_signature":
                 return CompleteSignatureSerializer(data=content)
+            if serializer.validated_data["action"] == "validate_document":
+                return ValidateDocumentSerializer(data=content)
 
     def disconnect(self, close_code):
         super().disconnect(close_code)
+        logger.info(f"Disconnect {close_code}")
 
     def receive_json(self, content, **kwargs):
         """
         Called with decoded JSON content.
         """
+        socket_id = ""
         try:
             serializer = self.get_serializer(content)
 
             if serializer.is_valid():
-
+                socket_id = serializer.validated_data['socket_id']
                 match serializer.validated_data["action"]:
                     case "initial_signature":
                         self.do_initial_signature(serializer)
                     case "complete_signature":
                         self.do_complete_signature(serializer)
+                    case "validate_document":
+                        self.do_validate_document(serializer)
                     case _:
                         self.do_default(serializer)
             else:
@@ -63,6 +69,7 @@ class SignConsumer(JsonWebsocketConsumer):
                     "details": serializer.errors,
                     "status": 400,
                     "code": 11,
+                    'socket_id': serializer.data.get('socket_id')
                 })
                 logger.error("Invalid request.")
 
@@ -74,8 +81,19 @@ class SignConsumer(JsonWebsocketConsumer):
                 "details": str(e),
                 "status": 500,
                 "code": 999,
+                "socket_id": socket_id
             })
             logger.error("An unexpected error occurred.", exc_info=e)
+
+    def do_validate_document(self, serializer):
+        signer = RemoteSignerClient(self.scope["user"])
+
+        response = signer.validate_document(
+            instance=serializer.validated_data["instance"],
+        )
+
+        response['socket_id'] = serializer.validated_data['socket_id']
+        self.send_json(response)
 
     def do_initial_signature(self, serializer):
         signer = RemoteSignerClient(self.scope["user"])
@@ -86,6 +104,8 @@ class SignConsumer(JsonWebsocketConsumer):
             usertoken=serializer.validated_data["card"],
             docsettings=serializer.validated_data["docsettings"],
         )
+
+        response['socket_id'] = serializer.validated_data['socket_id']
 
         # remove signer image
         if "imageIcon" in response:
@@ -103,7 +123,8 @@ class SignConsumer(JsonWebsocketConsumer):
             signer = RemoteSignerClient(self.scope["user"])
             data = dict(serializer.validated_data)
             response = signer.complete_signature(data)
-            self.send_json({"result": response})
+            self.send_json({"result": response,
+                            'socket_id': serializer.validated_data['socket_id']})
         except Exception as e:
             logger.error("Complete the signature fail", exc_info=e)
 

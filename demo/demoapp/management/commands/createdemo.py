@@ -1,10 +1,14 @@
+from pathlib import Path
 from random import randint
 
+from django.conf import settings
+from django.core.files import File
 from django.core.management import BaseCommand
 from django.urls import reverse
 from django.utils.timezone import now
 
 from demoapp import models
+from demoapp.models import SelectImage
 from djgentelella.models import MenuItem
 
 
@@ -13,7 +17,6 @@ class Command(BaseCommand):
 
     def create_menu(self):
 
-        # home
         item = MenuItem.objects.create(
             parent=None,
             title='Home',
@@ -26,8 +29,6 @@ class Command(BaseCommand):
             icon='fa fa-home',
             only_icon=False
         )
-
-        # blog
         blog = MenuItem.objects.create(
             parent=None,
             title='Blog',
@@ -37,10 +38,10 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon=None,
+            icon='fa fa-quote-left',
             only_icon=False
         )
-        MenuItem.objects.create(
+        blogentry = MenuItem.objects.create(
             parent=blog,
             title='Blog entries',
             url_name='blog:entrylist',
@@ -49,10 +50,10 @@ class Command(BaseCommand):
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-quote-left',
+            icon='fa fa-wordpress',
             only_icon=False
         )
-        MenuItem.objects.create(
+        blogentry = MenuItem.objects.create(
             parent=blog,
             title='Create  entry',
             url_name='blog:entrycreate',
@@ -64,22 +65,292 @@ class Command(BaseCommand):
             icon='fa fa-pencil-square-o',
             only_icon=False
         )
-
-        # Dashboard
-        item2 = MenuItem.objects.create(
-            parent=None,
+        dashboard = MenuItem.objects.create(
+            parent=item,
             title='Dashboard',
+            url_name='#',
+            category='sidebar',  # sidebar, sidebarfooter,
+            is_reversed=False,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-tachometer',
+            only_icon=False
+        )
+        item = MenuItem.objects.create(
+            parent=item,
+            title='Crud / notifications',
+            url_name='#',
+            category='sidebar',  # sidebar, sidebarfooter,
+            is_reversed=False,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-plus-circle',
+            only_icon=False
+        )
+
+        extrawidget = MenuItem.objects.create(
+            parent=None,
+            title='Custom Widgets',
             url_name='/',
             category='sidebar',  # sidebar, sidebarfooter,
             is_reversed=False,
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon=None,
+            icon='',
+            only_icon=False
+        )
+        cwidget = MenuItem.objects.create(
+            parent=extrawidget,
+            title='Media widget',
+            url_name='mediaupload_view',
+            category='sidebar',  # sidebar, sidebarfooter,
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-play',
+            only_icon=False
+        )
+
+        cwidget = MenuItem.objects.create(
+            parent=extrawidget,
+            title='Formset Widgets',
+            url_name='#',
+            category='sidebar',  # sidebar, sidebarfooter,
+            is_reversed=False,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-server',
+            only_icon=False
+        )
+        c1widget = MenuItem.objects.create(
+            parent=cwidget,
+            title='Formset add',
+            url_name='add_formset',
+            category='sidebar',  # sidebar, sidebarfooter,
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-plus-square',
+            only_icon=False
+        )
+        c2widget = MenuItem.objects.create(
+            parent=cwidget,
+            title='Model Formset',
+            url_name='add_model_formset',
+            category='sidebar',  # sidebar, sidebarfooter,
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-list-alt',
+            only_icon=False
+        )
+        cwidget = MenuItem.objects.create(
+            parent=extrawidget,
+            title='Datatables',
+            url_name='datatable_view',
+            category='sidebar',  # sidebar, sidebarfooter,
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-table',
+            only_icon=False
+        )
+        cwidget = MenuItem.objects.create(
+            parent=extrawidget,
+            title='Object Management',
+            url_name='object_management_index',
+            category='sidebar',  # sidebar, sidebarfooter,
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-stop',
+            only_icon=False
+        )
+
+        cwidget = MenuItem.objects.create(
+            parent=extrawidget,
+            title='Form Widgets',
+            url_name='#',
+            category='sidebar',
+            is_reversed=False,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-tasks',
+            only_icon=False
+        )
+        readonlywidget = MenuItem.objects.create(
+            parent=extrawidget,
+            title='ReadOnly Widgets',
+            url_name='#',
+            category='sidebar',
+            is_reversed=False,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-newspaper-o',
             only_icon=False
         )
         MenuItem.objects.create(
-            parent=item2,
+            parent=cwidget,
+            title='Knob Widgets',
+            url_name='knobwidgets',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-adjust',
+            only_icon=False
+        )
+        inputmask = MenuItem.objects.create(
+            parent=cwidget,
+            title='Input Mask',
+            url_name='input-mask-list',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-ellipsis-h',
+            only_icon=False
+        )
+        daterange = MenuItem.objects.create(
+            parent=cwidget,
+            title='Date Range',
+            url_name='date-range-list',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-calendar',
+            only_icon=False
+        )
+        tagging = MenuItem.objects.create(
+            parent=cwidget,
+            title='Tagging',
+            url_name='input_tagging-list',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-sticky-note-o',
+            only_icon=False
+        )
+        Tinymce = MenuItem.objects.create(
+            parent=cwidget,
+            title='Tinymce Editor',
+            url_name='tinymce-list',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-text-width',
+            only_icon=False
+        )
+
+        Calendar = MenuItem.objects.create(
+            parent=readonlywidget,
+            title='Calendar',
+            url_name='calendar_view',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-calendar',
+            only_icon=False
+        )
+
+        Gigapixel = MenuItem.objects.create(
+            parent=readonlywidget,
+            title='Gigapixel StoryMap',
+            url_name='gigapixel_view',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-picture-o',
+            only_icon=False
+        )
+
+        Mapbased = MenuItem.objects.create(
+            parent=readonlywidget,
+            title='Mapbased StoryMap',
+            url_name='mapbased_view',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-map',
+            only_icon=False
+        )
+
+        StoryLine = MenuItem.objects.create(
+            parent=readonlywidget,
+            title='StoryLine',
+            url_name='storyline_view',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-area-chart',
+            only_icon=False
+        )
+        TimeLine = MenuItem.objects.create(
+            parent=readonlywidget,
+            title='Timeline',
+            url_name='timeline_view',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-clock-o',
+            only_icon=False
+        )
+        # CardList
+        cardwidget = MenuItem.objects.create(
+            parent=readonlywidget,
+            title='Card List',
+            url_name='cardlist_view',
+            category='sidebar',  # sidebar, sidebarfooter,
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-list-alt',
+            only_icon=False
+        )
+        MenuItem.objects.create(
+            parent=readonlywidget,
+            title='Trash',
+            url_name='trash',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-trash',
+            only_icon=False
+        )
+        chart = MenuItem.objects.create(
+            parent=dashboard,
             title='Charts',
             url_name='chartjs_view',
             category='sidebar',
@@ -90,34 +361,48 @@ class Command(BaseCommand):
             icon='fa fa-line-chart',
             only_icon=False
         )
-        MenuItem.objects.create(
-            parent=item2,
-            title='Element widgets',
-            url_name='dashboard',
+
+        daterange = MenuItem.objects.create(
+            parent=cwidget,
+            title='Grid Slider',
+            url_name='grid-slider-list',
             category='sidebar',
             is_reversed=True,
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon='fa fa-table',
+            icon='fa fa-calendar-plus-o',
             only_icon=False
         )
 
-        # Crud / notifications
-        item3 = MenuItem.objects.create(
-            parent=None,
-            title='Crud / notifications',
-            url_name='#',
-            category='sidebar',  # sidebar, sidebarfooter,
-            is_reversed=False,
+        chunkedupload = MenuItem.objects.create(
+            parent=cwidget,
+            title='Chunked Upload',
+            url_name='chunkeduploaditem-list',
+            category='sidebar',
+            is_reversed=True,
             reversed_kwargs=None,
             reversed_args=None,
             is_widget=False,
-            icon=None,
+            icon='fa fa-download',
             only_icon=False
         )
-        MenuItem.objects.create(
-            parent=item3,
+
+        chunkedupload = MenuItem.objects.create(
+            parent=cwidget,
+            title='Select in modal',
+            url_name='bt_modal_display',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-mouse-pointer',
+            only_icon=False
+        )
+
+        noti = MenuItem.objects.create(
+            parent=item,
             title='Create notification',
             url_name='/create/notification',
             category='sidebar',  # sidebar, sidebarfooter,
@@ -130,7 +415,7 @@ class Command(BaseCommand):
         )
 
         MenuItem.objects.create(
-            parent=item3,
+            parent=item,
             title='Create email notification',
             url_name='/create/notification?email=1',
             category='sidebar',
@@ -143,7 +428,7 @@ class Command(BaseCommand):
         )
 
         MenuItem.objects.create(
-            parent=item3,
+            parent=item,
             title='Country list',
             url_name='demoapp_country_list',
             category='sidebar',
@@ -155,7 +440,7 @@ class Command(BaseCommand):
             only_icon=False
         )
         MenuItem.objects.create(
-            parent=item3,
+            parent=item,
             title='Person list',
             url_name='demoapp_person_list',
             category='sidebar',
@@ -166,76 +451,11 @@ class Command(BaseCommand):
             icon='fa fa-list-ol',
             only_icon=False
         )
-
-        # Custom Widgets
-        item4 = MenuItem.objects.create(
-            parent=None,
-            title='Custom Widgets',
-            url_name='/',
-            category='sidebar',  # sidebar, sidebarfooter,
-            is_reversed=False,
-            reversed_kwargs=None,
-            reversed_args=None,
-            is_widget=False,
-            icon='',
-            only_icon=False
-        )
-        cwidget1 = MenuItem.objects.create(
-            parent=item4,
-            title='Media widget',
-            url_name='mediaupload_view',
-            category='sidebar',  # sidebar, sidebarfooter,
-            is_reversed=True,
-            reversed_kwargs=None,
-            reversed_args=None,
-            is_widget=False,
-            icon='fa fa-play',
-            only_icon=False
-        )
-
-        cwidget2 = MenuItem.objects.create(
-            parent=item4,
-            title='Formset Widgets',
-            url_name='#',
-            category='sidebar',  # sidebar, sidebarfooter,
-            is_reversed=False,
-            reversed_kwargs=None,
-            reversed_args=None,
-            is_widget=False,
-            icon='fa fa-server',
-            only_icon=False
-        )
         MenuItem.objects.create(
-            parent=cwidget2,
-            title='Formset add',
-            url_name='add_formset',
-            category='sidebar',  # sidebar, sidebarfooter,
-            is_reversed=True,
-            reversed_kwargs=None,
-            reversed_args=None,
-            is_widget=False,
-            icon='fa fa-plus-square',
-            only_icon=False
-        )
-        MenuItem.objects.create(
-            parent=cwidget2,
-            title='Model Formset',
-            url_name='add_model_formset',
-            category='sidebar',  # sidebar, sidebarfooter,
-            is_reversed=True,
-            reversed_kwargs=None,
-            reversed_args=None,
-            is_widget=False,
-            icon='fa fa-list-alt',
-            only_icon=False
-        )
-
-
-        MenuItem.objects.create(
-            parent=item4,
-            title='Datatables',
-            url_name='datatable_view',
-            category='sidebar',  # sidebar, sidebarfooter,
+            parent=dashboard,
+            title='Element widgets',
+            url_name='dashboard',
+            category='sidebar',
             is_reversed=True,
             reversed_kwargs=None,
             reversed_args=None,
@@ -243,230 +463,7 @@ class Command(BaseCommand):
             icon='fa fa-table',
             only_icon=False
         )
-        cwidget3 = MenuItem.objects.create(
-            parent=item4,
-            title='Object Management',
-            url_name='object_management_index',
-            category='sidebar',  # sidebar, sidebarfooter,
-            is_reversed=True,
-            reversed_kwargs=None,
-            reversed_args=None,
-            is_widget=False,
-            icon='fa fa-stop',
-            only_icon=False
-        )
-
-        cwidget4 = MenuItem.objects.create(
-            parent=item4,
-            title='Form Widgets',
-            url_name='#',
-            category='sidebar',
-            is_reversed=False,
-            reversed_kwargs=None,
-            reversed_args=None,
-            is_widget=False,
-            icon='fa fa-tasks',
-            only_icon=False
-        )
-        MenuItem.objects.create(
-            parent=cwidget4,
-            title='Knob Widgets',
-            url_name='knobwidgets',
-            category='sidebar',
-            is_reversed=True,
-            reversed_kwargs=None,
-            reversed_args=None,
-            is_widget=False,
-            icon='fa fa-adjust',
-            only_icon=False
-        )
-        MenuItem.objects.create(
-            parent=cwidget4,
-            title='Input Mask',
-            url_name='input-mask-list',
-            category='sidebar',
-            is_reversed=True,
-            reversed_kwargs=None,
-            reversed_args=None,
-            is_widget=False,
-            icon='fa fa-ellipsis-h',
-            only_icon=False
-        )
-        MenuItem.objects.create(
-            parent=cwidget4,
-            title='Date Range',
-            url_name='date-range-list',
-            category='sidebar',
-            is_reversed=True,
-            reversed_kwargs=None,
-            reversed_args=None,
-            is_widget=False,
-            icon='fa fa-calendar',
-            only_icon=False
-        )
-        MenuItem.objects.create(
-            parent=cwidget4,
-            title='Tagging',
-            url_name='input_tagging-list',
-            category='sidebar',
-            is_reversed=True,
-            reversed_kwargs=None,
-            reversed_args=None,
-            is_widget=False,
-            icon='fa fa-sticky-note-o',
-            only_icon=False
-        )
-        MenuItem.objects.create(
-            parent=cwidget4,
-            title='Tinymce Editor',
-            url_name='tinymce-list',
-            category='sidebar',
-            is_reversed=True,
-            reversed_kwargs=None,
-            reversed_args=None,
-            is_widget=False,
-            icon='fa fa-text-width',
-            only_icon=False
-        )
-        MenuItem.objects.create(
-            parent=cwidget4,
-            title='Grid Slider',
-            url_name='grid-slider-list',
-            category='sidebar',
-            is_reversed=True,
-            reversed_kwargs=None,
-            reversed_args=None,
-            is_widget=False,
-            icon='fa fa-calendar-plus-o',
-            only_icon=False
-        )
-        MenuItem.objects.create(
-            parent=cwidget4,
-            title='Chunked Upload',
-            url_name='chunkeduploaditem-list',
-            category='sidebar',
-            is_reversed=True,
-            reversed_kwargs=None,
-            reversed_args=None,
-            is_widget=False,
-            icon='fa fa-download',
-            only_icon=False
-        )
-        MenuItem.objects.create(
-            parent=cwidget4,
-            title='Select in modal',
-            url_name='bt_modal_display',
-            category='sidebar',
-            is_reversed=True,
-            reversed_kwargs=None,
-            reversed_args=None,
-            is_widget=False,
-            icon='fa fa-mouse-pointer',
-            only_icon=False
-        )
-
-        # ReadOnly Widgets
-        cwidget6 = MenuItem.objects.create(
-            parent=item4,
-            title='ReadOnly Widgets',
-            url_name='#',
-            category='sidebar',
-            is_reversed=False,
-            reversed_kwargs=None,
-            reversed_args=None,
-            is_widget=False,
-            icon='fa fa-newspaper-o',
-            only_icon=False
-        )
-        MenuItem.objects.create(
-            parent=cwidget6,
-            title='Calendar',
-            url_name='calendar_view',
-            category='sidebar',
-            is_reversed=True,
-            reversed_kwargs=None,
-            reversed_args=None,
-            is_widget=False,
-            icon='fa fa-calendar',
-            only_icon=False
-        )
-        MenuItem.objects.create(
-            parent=cwidget6,
-            title='Gigapixel StoryMap',
-            url_name='gigapixel_view',
-            category='sidebar',
-            is_reversed=True,
-            reversed_kwargs=None,
-            reversed_args=None,
-            is_widget=False,
-            icon='fa fa-picture-o',
-            only_icon=False
-        )
-        MenuItem.objects.create(
-            parent=cwidget6,
-            title='Mapbased StoryMap',
-            url_name='mapbased_view',
-            category='sidebar',
-            is_reversed=True,
-            reversed_kwargs=None,
-            reversed_args=None,
-            is_widget=False,
-            icon='fa fa-map',
-            only_icon=False
-        )
-        MenuItem.objects.create(
-            parent=cwidget6,
-            title='StoryLine',
-            url_name='storyline_view',
-            category='sidebar',
-            is_reversed=True,
-            reversed_kwargs=None,
-            reversed_args=None,
-            is_widget=False,
-            icon='fa fa-area-chart',
-            only_icon=False
-        )
-        MenuItem.objects.create(
-            parent=cwidget6,
-            title='Timeline',
-            url_name='timeline_view',
-            category='sidebar',
-            is_reversed=True,
-            reversed_kwargs=None,
-            reversed_args=None,
-            is_widget=False,
-            icon='fa fa-clock-o',
-            only_icon=False
-        )
-        MenuItem.objects.create(
-            parent=cwidget6,
-            title='Card List',
-            url_name='cardlist_view',
-            category='sidebar',
-            is_reversed=True,
-            reversed_kwargs=None,
-            reversed_args=None,
-            is_widget=False,
-            icon='fa fa-list-alt',
-            only_icon=False
-        )
-        MenuItem.objects.create(
-            parent=cwidget6,
-            title='Trash',
-            url_name='trash',
-            category='sidebar',
-            is_reversed=True,
-            reversed_kwargs=None,
-            reversed_args=None,
-            is_widget=False,
-            icon='fa fa-trash',
-            only_icon=False
-        )
-
-
-
-        # footer navegation
-        item_footer1 = MenuItem.objects.create(
+        item = MenuItem.objects.create(
             parent=None,
             title='Logout',
             url_name='/accounts/logout/',
@@ -478,7 +475,8 @@ class Command(BaseCommand):
             icon='fa fa-power-off',
             only_icon=True
         )
-        item_footer2 = MenuItem.objects.create(
+
+        item = MenuItem.objects.create(
             parent=None,
             title='',
             url_name='djgentelella.menu_widgets.palette.PalleteWidget',
@@ -490,9 +488,7 @@ class Command(BaseCommand):
             icon='fa fa-envelope-o',
             only_icon=True
         )
-
-        # top navigation
-        item_top1 = MenuItem.objects.create(
+        item = MenuItem.objects.create(
             parent=None,
             title='top_navigation',
             url_name='djgentelella.notification.widgets.NotificationMenu',
@@ -510,7 +506,7 @@ class Command(BaseCommand):
             parent=None,
             title='Autocomplete Widgets',
             url_name='/',
-            category='sidebar',
+            category='sidebar',  # sidebar, sidebarfooter,
             is_reversed=False,
             reversed_kwargs=None,
             reversed_args=None,
@@ -522,7 +518,7 @@ class Command(BaseCommand):
             parent=item,
             title='Autocomplete',
             url_name='pgroup-list',
-            category='sidebar',
+            category='sidebar',  # sidebar, sidebarfooter,
             is_reversed=True,
             reversed_kwargs=None,
             reversed_args=None,
@@ -534,7 +530,7 @@ class Command(BaseCommand):
             parent=item,
             title='Autocomplete related',
             url_name='abcde-list',
-            category='sidebar',
+            category='sidebar',  # sidebar, sidebarfooter,
             is_reversed=True,
             reversed_kwargs=None,
             reversed_args=None,
@@ -542,6 +538,19 @@ class Command(BaseCommand):
             icon='fa fa-sort',
             only_icon=False
         )
+        selectimage = MenuItem.objects.create(
+            parent=item,
+            title='Select with Image',
+            url_name='imgselect-list',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-camera',
+            only_icon=False
+        )
+
 
     def create_countries(self):
         models.Country.objects.all().delete()
@@ -616,7 +625,7 @@ class Command(BaseCommand):
             only_icon=False
         )
 
-        MenuItem.objects.create(
+        item1 = MenuItem.objects.create(
             parent=parent_item,
             title='Digital Signature',
             url_name='digitalsignature-list',
@@ -628,7 +637,7 @@ class Command(BaseCommand):
             icon='fa fa-vine',
             only_icon=False
         )
-        MenuItem.objects.create(
+        item1 = MenuItem.objects.create(
             parent=parent_item,
             title='Sign Formset',
             url_name='digital_signature_formset',
@@ -641,6 +650,54 @@ class Command(BaseCommand):
             only_icon=False
         )
 
+        menu1 = MenuItem.objects.create(
+            parent=parent_item,
+            title='Menu 1',
+            url_name='#',
+            category='sidebar',
+            is_reversed=False,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-vine',
+            only_icon=False
+        )
+        menu2 = MenuItem.objects.create(
+            parent=menu1,
+            title='Menu 2',
+            url_name='#',
+            category='sidebar',
+            is_reversed=False,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-vine',
+            only_icon=False
+        )
+        menu2 = MenuItem.objects.create(
+            parent=menu2,
+            title='Menu 3',
+            url_name='#',
+            category='sidebar',
+            is_reversed=False,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-vine',
+            only_icon=False
+        )
+
+    def create_images_demo(self):
+        workdir = Path(
+            settings.BASE_DIR) / "../djgentelella/static/gentelella/images/"
+        workdir = workdir.glob("*.png")
+        for f in workdir:
+            if not SelectImage.objects.filter(
+                name=f.name.replace(".png", "")).exists():
+                SelectImage.objects.create(
+                    name=f.name.replace(".png", ""),
+                    img=File(open(f, 'rb'), name=f.name))
+
     def handle(self, *args, **options):
 
         MenuItem.objects.all().delete()
@@ -652,3 +709,4 @@ class Command(BaseCommand):
         self.create_communities()
         self.abcde()
         self.create_avanced()
+        self.create_images_demo()

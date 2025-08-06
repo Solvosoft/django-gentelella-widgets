@@ -13,6 +13,7 @@ from djgentelella.notification.base import NotificacionAPIView, NotificationView
 from djgentelella.permission_management import views as permissions
 from djgentelella.widgets.helper import HelperWidgetView
 from djgentelella.wysiwyg import views as wysiwyg
+from djgentelella.firmador_digital import views as firmador_digital
 from .groute import routes
 from .templatetags.gtsettings import get_version
 from .views import auth
@@ -46,7 +47,7 @@ auth_urls = [
              template_name='gentelella/registration/password_reset_confirm.html'
          ), name='password_reset_confirm'),
     path('accounts/reset/done/', auth_views.PasswordResetDoneView.as_view(
-        template_name='gentelella/registration/password_reset_done.html'
+        template_name='gentelella/registration/reset_done.html'
     ), name="password_reset_complete")
 ]
 wysiwyg_urls = [
@@ -55,6 +56,7 @@ wysiwyg_urls = [
     re_path("^u_video$", login_required(wysiwyg.video_upload),
             name="tinymce_upload_video"),
 ]
+
 
 def import_module_app_gt(app, name):
     try:
@@ -72,7 +74,8 @@ for app in settings.INSTALLED_APPS:
 
 router = DefaultRouter()
 router.register('notificationtableview', NotificationViewSet, 'api-notificationtable')
-router.register("api_trash", TrashViewSet, basename="api-trash")
+router_trash = DefaultRouter()
+router_trash.register("api_trash", TrashViewSet, basename="api-trash")
 
 base_urlpatterns = [
     re_path('gtapis/', include(routes.urls)),
@@ -89,7 +92,8 @@ base_urlpatterns = [
     re_path('^notification/list/$', notification_list_view,
             name="notification_list"),
     path('tableapi/', include(router.urls)),
-    path("api/trash/", include(router.urls)),
+    path("update_config/", firmador_digital.update_signature_settings, name="signature_config"),
+    path("api/trash/", include(router_trash.urls)),
 ]
 
 permission_management_urls = [

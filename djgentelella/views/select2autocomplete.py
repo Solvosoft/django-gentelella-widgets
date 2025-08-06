@@ -59,6 +59,29 @@ class GSerializerBase(serializers.Serializer):
     selected = serializers.SerializerMethodField()
 
 
+class GSerializerImgBase(serializers.Serializer):
+    def get_id(self, obj):
+        return self.view.get_id_display(obj)
+
+    def get_text(self, obj):
+        return self.view.get_text_display(obj)
+
+    def get_url(self, obj):
+        return self.view.get_url(obj)
+
+    def get_selected(self, obj):
+        return self.view.get_selected_display(obj)
+
+    def get_disabled(self, obj):
+        return self.view.get_disabled_display(obj)
+
+    id = serializers.SerializerMethodField()
+    text = serializers.SerializerMethodField()
+    url = serializers.SerializerMethodField()
+    disabled = serializers.SerializerMethodField()
+    selected = serializers.SerializerMethodField()
+
+
 class BaseSelect2View(generics.ListAPIView, viewsets.GenericViewSet):
     model = None
     fields = []
@@ -165,3 +188,20 @@ class BaseSelect2View(generics.ListAPIView, viewsets.GenericViewSet):
 
     def get_disabled_display(self, obj):
         return False
+
+
+class BaseSelectImg2View(BaseSelect2View):
+    model = None
+    fields = []
+    pagination_class = GPaginator
+    serializer_class = GSerializerImgBase
+
+    def get_serializer_class(self):
+        class S(self.serializer_class, serializers.ModelSerializer):
+            view = self
+
+            class Meta:
+                model = self.model
+                fields = ['id', 'text', 'url', 'disabled', 'selected']
+
+        return S

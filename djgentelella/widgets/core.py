@@ -194,11 +194,12 @@ class FileInput(DJFileInput):
     def value_from_datadict(self, data, files, name):
         dev = None
         token = data.get(name)
-        load_token = json.loads(token)
-        tmpupload = ChunkedUpload.objects.filter(upload_id=load_token['token']).first()
-        if tmpupload:
-            dev = tmpupload.get_uploaded_file()
-            tmpupload.delete()
+        if token:
+            load_token = json.loads(token)
+            tmpupload = ChunkedUpload.objects.filter(upload_id=load_token['token']).first()
+            if tmpupload:
+                dev = tmpupload.get_uploaded_file()
+                tmpupload.delete()
         return dev
 
     def value_omitted_from_data(self, data, files, name):

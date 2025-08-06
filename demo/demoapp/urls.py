@@ -22,6 +22,7 @@ from .input_masks import views as input_mask
 from .media_upload.views import mediaupload_view
 from .object_management.views import object_management
 from .object_management.viewset import ObjectManagerDemoModelManagement
+from .select_image import views as select_image
 from .storyLine.views import storyline_view
 from .storymap.views import gigapixel_view, mapbased_view
 from .tagging import views as tagging
@@ -140,8 +141,15 @@ urlpatterns = [
                   path('formset/digital_signature/',
                        digitalsignature.digital_signature_formset,
                        name="digital_signature_formset"),
-                # Trash
+
+                  path('imageselect/', select_image.ImageList.as_view(),
+                       name='imgselect-list'),
+                  path('imageselect/create/', select_image.ImageAdd.as_view(),
+                       name='imgselect-add'),
+                  path('imageselect/<int:pk>/',
+                       select_image.ImageChange.as_view(),
+                       name='imgselect-edit'),
+                  # Trash
                   path('trash/', trash_view, name="trash"),
                   path('api/customer/', include(router.urls)),
-
               ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()

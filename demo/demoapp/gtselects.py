@@ -1,6 +1,6 @@
 from demoapp import models
 from djgentelella.groute import register_lookups
-from djgentelella.views.select2autocomplete import BaseSelect2View
+from djgentelella.views.select2autocomplete import BaseSelect2View, BaseSelectImg2View
 
 
 @register_lookups(prefix="person", basename="personbasename")
@@ -57,3 +57,12 @@ class ELookup(BaseSelect2View):
     model = models.E
     fields = ['display']
     ref_field = 'd'
+
+
+@register_lookups(prefix="selectimg", basename="imagebasename")
+class ImageSelect2Lookup(BaseSelectImg2View):
+    model = models.SelectImage
+    fields = ['name']
+
+    def get_url(self, obj):
+        return obj.img.url

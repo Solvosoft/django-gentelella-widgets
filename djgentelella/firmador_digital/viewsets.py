@@ -70,8 +70,19 @@ class DigitalSignatureRenderFileAPIView(APIView):
         return Response(file_data, content_type='application/pdf')
 
     def get_instance_file(self, instance, fieldname):
+        # check if instance and fieldname are not None
+        if not instance or not fieldname:
+            return None
+
         file_path = getattr(instance, fieldname)
-        file_data = None
-        with open(file_path.path, 'rb') as f:
-            file_data = f.read()
-        return file_data
+        if not file_path:
+            return None
+
+        # check if not file
+        try:
+            with open(file_path.path, 'rb') as f:
+                file_data = f.read()
+
+            return file_data
+        except (FileNotFoundError, OSError):
+            return None

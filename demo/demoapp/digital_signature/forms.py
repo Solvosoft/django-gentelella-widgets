@@ -25,10 +25,7 @@ The DigitalSignatureInput widget accepts several key parameters:
         will attempt to retrieve the value from the Django settings (FIRMADOR_WS_URL). This
         parameter is critical for establishing the connection with the signing service.
 
-    - cors (str, optional):
-        The CORS configuration needed for the digital signature service. Similar to ws_url,
-        if this parameter is omitted, the widget will use the value from the Django settings
-        (FIRMADOR_CORS). This parameter ensures proper cross-origin resource sharing.
+
 """
 
 from django import forms

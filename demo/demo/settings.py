@@ -164,9 +164,11 @@ UVICORN_BIND = os.getenv('UVICORN_BIND', "127.0.0.1:8022")
 UVICORN_WORKER = 1 if DEBUG else 2
 UVICORN_WORKER_CLASS = "demo.asgi_worker.UvicornWorker"
 
-FIRMADOR_CORS = os.getenv('FIRMADOR_CORS', f"{CSRF_TRUSTED_SCHEME}://{GUNICORN_BIND}")
-FIRMADOR_WS = os.getenv('FIRMADOR_WS', "ws://%s/async/" % UVICORN_BIND)
-FIRMADOR_WS_URL = FIRMADOR_WS + "sign_document"
+if DEBUG:
+    FIRMADOR_WS_URL = os.getenv('FIRMADOR_WS',
+                                "ws://%s/async/sign_document" % UVICORN_BIND)
+else:
+    FIRMADOR_WS_URL = os.getenv('FIRMADOR_WS', "/async/sign_document")
 FIRMADOR_DOMAIN = os.getenv('FIRMADOR_DOMAIN', "http://localhost:9001")
 FIRMADOR_VALIDA_URL = FIRMADOR_DOMAIN + "/valida/"
 FIRMADOR_SIGN_URL = FIRMADOR_DOMAIN + "/firma/firme"
