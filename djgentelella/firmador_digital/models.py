@@ -49,6 +49,7 @@ def get_signature_default():
         "signY": "60",
         "xAdESLevel": "LTA",
         "isVisibleSignature": False,
+        "hideSignatureAdvice": False,
     }
 
 
