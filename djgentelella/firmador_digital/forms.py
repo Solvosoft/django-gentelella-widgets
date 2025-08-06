@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from djgentelella.widgets.core import FileInput
 from djgentelella.firmador_digital.models import UserSignatureConfig, \
-    get_signature_default, FORMATS_DATE, FONT_ALIGNMENT, FONT_CHOICES
+    get_signature_default, FORMATS_DATE, FONT_ALIGNMENT
 from djgentelella.firmador_digital.signvalue_utils import ValueDSParser
 from djgentelella.forms.forms import GTForm
 from djgentelella.widgets import core as genwidgets
@@ -37,12 +37,7 @@ class RenderValueForm(GTForm, ValueDSParser):
 
 
 class SignatureConfigForm(GTForm, forms.ModelForm):
-    backgroundColor = forms.CharField(
-        max_length=50,
-        widget=genwidgets.ColorInput,
-        required=True,
-        label=_("Background color"),
-    )
+
     contact = forms.CharField(
         required=False,
         max_length=100,
@@ -62,12 +57,6 @@ class SignatureConfigForm(GTForm, forms.ModelForm):
         max_length=100,
         label=_("Signature message")
     )
-    # font = forms.ChoiceField(
-    #     required=True,
-    #     widget=genwidgets.Select,
-    #     label=_("Font"),
-    #     choices=FONT_CHOICES
-    # )
     fontAlignment = forms.ChoiceField(
         choices=FONT_ALIGNMENT,
         widget=genwidgets.Select,
@@ -117,10 +106,9 @@ class SignatureConfigForm(GTForm, forms.ModelForm):
         [["contact"]],
         [["place"]],
         [["reason"]],
-        # [["font"]],
         [["image"], ["preview_image"]],
         [["dateFormat"], ["isVisibleSignature"]],
-        [["fontSize"], ["fontColor"], ["backgroundColor"], ["fontAlignment"]],
+        [["fontSize"], ["fontColor"], ["fontAlignment"]],
         [["defaultSignMessage"]],
     ]
 
@@ -158,8 +146,6 @@ class SignatureConfigForm(GTForm, forms.ModelForm):
         data = get_signature_default()
         prev_image = self.instance.config.get("image")
 
-        flag = True
-        flag_options = ["contact", "place", "reason"]
         for key in data.keys():
             if key in self.cleaned_data:
                 val = self.cleaned_data[key]
@@ -177,12 +163,6 @@ class SignatureConfigForm(GTForm, forms.ModelForm):
                     else:
                         # no se subió archivo nuevo → conservamos imagen anterior
                         val = prev_image
-
-                if key in flag_options and val != "":
-                    flag = False
-
-                if key == "hideSignatureAdvice":
-                    val = flag
 
                 if isinstance(data[key], str) and not isinstance(val, str):
                     val = str(val)
