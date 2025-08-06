@@ -29,8 +29,6 @@ class TrashViewSet(AuthAllPermBaseObjectManagement):
         "restore": ["djgentelella.change_trash"],
     }
 
-    permission_classes = ()
-
     queryset = Trash.objects.all()
     pagination_class = LimitOffsetPagination
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
@@ -40,7 +38,6 @@ class TrashViewSet(AuthAllPermBaseObjectManagement):
     ordering = ("-created_at",)
 
     def perform_destroy(self, instance):
-
         instance.hard_delete()
 
 
