@@ -12,9 +12,10 @@ class TrashSerializer(serializers.ModelSerializer):
     deleted_by = serializers.SerializerMethodField()
 
     def get_actions(self, obj):
+        user = self.context["request"].user
         return {
-            "restore": True,
-            "destroy": True,
+            "restore": user.has_perm("djgentelella.update_trash"),
+            "destroy": user.has_perm("djgentelella.delete_trash"),
         }
 
     def get_model_name(self, obj):
