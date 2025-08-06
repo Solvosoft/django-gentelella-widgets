@@ -80,3 +80,50 @@ def AutocompleteSelectMultiple(url, url_suffix="-list", url_args=[], url_kwargs=
         extra_url_args = url_args.copy()
 
     return AutocompleteSelectMultiple
+
+
+def AutocompleteSelectImage(url, url_suffix="-list", url_args=[], url_kwargs={},
+                            attrs={}):
+    class ImgAutocompleteSelect(AutocompleteSelectBase):
+        baseurl = url + url_suffix
+        extra_attrs = attrs.copy()
+        extra_url_kwargs = url_kwargs.copy()
+        extra_url_args = url_args.copy()
+
+        def __init__(self, attrs=None, choices=(), extraskwargs=False):
+            if attrs is None:
+                attrs = {}
+            attrs = update_kwargs(attrs, 'AutocompleteSelectImage',
+                                  base_class='form-control ')
+            if 'templateresult' not in attrs:
+                attrs['data-templateresult'] = 'decore_img_select2'
+            super().__init__(attrs=attrs, choices=choices, extraskwargs=extraskwargs)
+
+        def optgroups(self, name, value, attrs=None):
+            return super().optgroups(name, value, attrs=attrs)
+
+    return ImgAutocompleteSelect
+
+
+def AutocompleteSelectMultipleImage(url, url_suffix="-list", url_args=[], url_kwargs={},
+                                    attrs={}):
+    class ImgAutocompleteSelectMultiple(AutocompleteSelectMultipleBase):
+        baseurl = url + url_suffix
+        extra_attrs = attrs.copy()
+        extra_url_kwargs = url_kwargs.copy()
+        extra_url_args = url_args.copy()
+
+        def __init__(self, attrs=None, choices=(), extraskwargs=True):
+            if attrs is None:
+                attrs = {}
+            attrs['data-widget'] = 'AutocompleteSelectMultipleImage'
+            attrs['class'] = "form-control select2_multiple"
+            if 'templateresult' not in attrs:
+                attrs['data-templateresult'] = 'decore_img_select2'
+            if self.baseurl is None:
+                raise ValueError('Autocomplete requires baseurl to work')
+            else:
+                self.baseurl = self.baseurl
+            super(SelectMultiple, self).__init__(attrs, choices=choices)
+
+    return ImgAutocompleteSelectMultiple

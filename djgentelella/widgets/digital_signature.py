@@ -22,15 +22,13 @@ class DigitalSignatureInput(HiddenInput, ValueDSParser):
     def is_hidden(self):
         return True
 
-    def __init__(self, attrs=None, extraskwargs=True, ws_url=None, cors=None,
+    def __init__(self, attrs=None, extraskwargs=True,
                  title=None, render_basename=None, icon_url=None,
                  extra_render_args=None,
                  default_page="first"):
         attrs = attrs or {}
-        attrs['data-ws-url'] = ws_url
-        attrs['cors'] = cors
         attrs['title'] = title
-
+        attrs['data-ws-url'] = settings.FIRMADOR_WS_URL
         self.render_basename = render_basename
         self.icon_url = icon_url
         self.extra_render_args = extra_render_args or []
@@ -40,31 +38,17 @@ class DigitalSignatureInput(HiddenInput, ValueDSParser):
         if self.render_basename is None:
             logger.warning(
                 "No base name for DigitalSignatureInput, this will generate a 500 error in the future")
-        self.validate_attrs(attrs, ws_url, cors, default_page)
+        self.validate_attrs(attrs, default_page)
 
         if extraskwargs:
             attrs = update_kwargs(
                 attrs, self.__class__.__name__, )
         super().__init__(attrs)
 
-    def validate_attrs(self, attrs, ws_url, cors, default_page):
-        if not ws_url:
-            if not ws_url and settings.FIRMADOR_WS_URL:
-                attrs['data-ws-url'] = settings.FIRMADOR_WS_URL
-            else:
-                raise ValueError(
-                    "Must provide a ws_url in attrs of DigitalSignatureInput.")
-
-        if not cors:
-            if not cors and settings.FIRMADOR_CORS:
-                attrs['cors'] = settings.FIRMADOR_CORS
-            else:
-                raise ValueError(
-                    "Must provide a cors in attrs of DigitalSignatureInput.")
+    def validate_attrs(self, attrs, default_page):
 
         if isinstance(default_page, int) and default_page > 0:
-            attrs['data-default-page'] = str(
-                default_page)
+            attrs['data-default-page'] = str(default_page)
         elif default_page in ["first", "last"]:
             attrs['data-default-page'] = default_page
         else:

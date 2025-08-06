@@ -553,6 +553,11 @@ function extract_select2_context(context, instance){
     }else{
         context.theme='bootstrap-5'
     }
+    let template = data.templateresult;
+    if(template != undefined){
+        context.templateResult=window[template];
+        context.templateSelection=window[template];
+    }
 }
 
 function add_selected_option(item, data){
@@ -828,7 +833,10 @@ function clear_action_form(form) {
     });
     $(form).find('[data-widget="TaggingInput"],[data-widget="EmailTaggingInput"]').each(function (i, e) {
         var tg = $(e).data().tagify;
-        tg.removeAllTags();
+        if(tg != undefined){
+           tg.removeAllTags();
+        }
+
     });
     $(form).find('[data-widget="FileChunkedUpload"],[data-widget="FileInput"]').each(function (i, e) {
         var tg = $(e).data().fileUploadWidget;
@@ -909,9 +917,11 @@ function updateInstanceValuesForm(form, name, value) {
         }
         if (inputfield.data().widget === "TaggingInput" || inputfield.data().widget === "EmailTaggingInput") {
             var tagifyelement = inputfield.data().tagify;
-            tagifyelement.removeAllTags();
-            tagifyelement.loadOriginalValues(value);
-            done = true;
+            if(tagifyelement!=undefined){
+                tagifyelement.removeAllTags();
+                tagifyelement.loadOriginalValues(value);
+            }
+            done = false;
         }
 
 
@@ -1528,6 +1538,21 @@ function decore_select2 (data) {
     $wrapper.text(data.text);
     return $wrapper;
 }
+
+function decore_img_select2 (data) {
+  if(!data.url && data.text){
+      return $('<span>'+data.text+'</span>');
+  }
+  if (!data.url) {
+    return "";
+  }
+  let img_width = "2em";   let img_height="2em;";
+  if(data.img_width != undefined){img_width=data.img_width;}
+  if(data.img_height != undefined){ img_height=data.img_height; }
+  var $state = $('<span><img style="width: '+img_width+'; height: '+img_height+';" src="' + data.url+ '" class="img-flag" /> ' +  data.text + '</span>');
+  return $state;
+};
+
 
 function load_date_range(instance, format='DD/MM/YYYY') {
     var options = {
@@ -2251,17 +2276,43 @@ function getMediaRecord(element, mediatype){
 ///////////////////////////////////////////////
 //  Init widgets digital signature
 ///////////////////////////////////////////////
+var socket_connections = {};
+var socket_manager_instances = {};
+const max_close_inicialice = 5;
+var count_close_inicialice = 0;
+
+// Configuración del MutationObserver
+const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'data-port') {
+            let port = mutation.target.getAttribute('data-port');
+            mutation.target.setAttribute("href",
+                "firmador:" + window.location.protocol + "//" + window.location.host + "#" + port);
+        }
+    });
+});
+
+build_cors_headers = function (instance) {
+    let port = instance.getAttribute('data-port');
+    instance.setAttribute("href", "firmador:" + window.location.protocol + "//" + window.location.host + "#" + port);
+    observer.observe(instance, {attributes: true});
+}
+
+build_ws_url = function (base) {
+    return base;
+}
+
 build_digital_signature = function (instance) {
 
     const widgetId = instance.getAttribute("id");
-    const url_ws = instance.getAttribute("data-ws-url");
+    const url_ws = build_ws_url(instance.getAttribute("data-ws-url"));
     const container = instance.closest(".widget-digital-signature");
     const container_tag = `container-${widgetId}`;
     const doc_instance = {
-		"pk":  instance.getAttribute("data-pk"),
-		"cc":  instance.getAttribute("data-cc"),
-		"value": instance.getAttribute("data-value")
-	}
+        "pk": instance.getAttribute("data-pk"),
+        "cc": instance.getAttribute("data-cc"),
+        "value": instance.getAttribute("data-value")
+    }
     const urls = {
         "logo": instance.getAttribute("data-logo"),
         "sign_doc": instance.getAttribute("data-renderurl"),
@@ -2280,8 +2331,17 @@ build_digital_signature = function (instance) {
         return;
     }
 
+    //Custom Event
+    const event = new CustomEvent("document:signed", {
+        bubbles: true,  // Important for global handlers
+        detail: {
+            message: "Signed document",
+            instance: doc_instance,
+        }
+    });
+
     // Signature
-    let signatureManager = new SignatureManager(widgetId, container, url_ws, pdfInstance);
+    let signatureManager = new SignatureManager(widgetId, container, url_ws, pdfInstance, event);
     signatureManager.startSign(doc_instance, urls['logo']);
 
     // Store the instance in a global object with key per widget ID
@@ -2294,6 +2354,7 @@ build_digital_signature = function (instance) {
         window.pdfSignatureComponents[container_tag] = pdfInstance;
     }
 
+
 }
 
 ///////////////////////////////////////////////
@@ -2304,8 +2365,8 @@ class PdfSignatureComponent {
         this.container = container;
         this.defaultPage = defaultPage;
         this.widgetId = container.getAttribute("data-widget-id");
-        this.urls=urls;
-        this.doc_instance=doc_instance;
+        this.urls = urls;
+        this.doc_instance = doc_instance;
 
         // Internal elements
         this.signature = container.querySelector('.signature');
@@ -2355,7 +2416,7 @@ class PdfSignatureComponent {
             console.warn("The variable 'sign_doc' is not defined.");
             return;
         }
-        pdfjsLib.getDocument(this.urls['sign_doc']+"?"+this.urls['renderattr']).promise.then((pdfDoc_) => {
+        pdfjsLib.getDocument(this.urls['sign_doc'] + "?" + this.urls['renderattr']).promise.then((pdfDoc_) => {
             this.pdfDoc = pdfDoc_;
             this.page_count.textContent = pdfDoc_.numPages;
 
@@ -2617,11 +2678,11 @@ class PdfSignatureComponent {
 //  Signature manager Digital Signature
 ///////////////////////////////////////////////
 class SignatureManager {
-    constructor(input_id, container, url_ws, pdfvisor) {
-        this.input_id=input_id;
+    constructor(input_id, container, url_ws, pdfvisor, custom_event) {
+        this.input_id = input_id;
         this.container = container;
         this.modal = new bootstrap.Modal(container.querySelector("#loading_sign"));
-        this.firmador = new DocumentClient(container, container.getAttribute("data-widget-id"), this, url_ws, this.doc_instance);
+        this.firmador = new DocumentClient(container, container.getAttribute("data-widget-id"), this, url_ws, custom_event, this.doc_instance);
         this.signerBtn = container.querySelector(".btn_signer");
         this.errorsContainer = container.querySelector(".errors_signer");
         this.refreshBtn = container.querySelector(".btn_signer_refresh");
@@ -2725,25 +2786,83 @@ function responseManageTypeData(instance, err_json_fn, error_text_fn) {
     }
 }
 
-function SocketManager(socket, signatureManager) {
-    // If an error occurs during the connection
-    socket.onerror = (event) => {
-        // console.error("WebSocket error");
-        signatureManager.hideLoading();
-        alertSimple(errorInterpreter(3), gettext("Error"), "error");
-        signatureManager.socketError = true;
-    };
+class SocketManager {
+    constructor(url, signatureManager, instance) {
+        this.url = url;
+        this.signatureManager = signatureManager;
+        this.instance = instance;
 
-    // If the connection is closed
-    socket.onclose = (event) => {
-        // console.warn("WebSocket cerrado");
-    };
+        this.connect();
+    }
 
-    // If the connection is opened
-    socket.onopen = (event) => {
-        // console.log("WebSocket conectado");
-        signatureManager.socket_error = false;
-    };
+    connect() {
+        socket_manager_instances[this.instance.socket_id] = this.instance;
+        if (!socket_connections.hasOwnProperty(this.url)) {
+            let ws = new WebSocket(this.url);
+            ws.onerror = this.fn_error(this);
+            ws.onclose = this.fn_close(this);
+            ws.onopen = this.fn_open(this);
+            ws.onmessage = this.fn_messages(this);
+            socket_connections[this.url] = ws;
+        }
+    }
+
+    fn_error(element) {
+        return (event) => {
+            // console.error("WebSocket error");
+            element.signatureManager.hideLoading();
+            alertSimple(errorInterpreter(3), gettext("Error"), "error");
+            element.signatureManager.socketError = true;
+        }
+    }
+
+    fn_close(element) {
+        return (event) => {
+            console.warn("WebSocket cerrado " + event.type);
+            Reflect.deleteProperty(socket_connections, event.currentTarget.url);
+            if (count_close_inicialice < max_close_inicialice) {
+                count_close_inicialice += 1;
+                element.instance.inicialize();
+            }
+        };
+    }
+
+    fn_open(element) {
+        return (event) => {
+            //       console.log("WebSocket conectado");
+            element.signatureManager.socket_error = false;
+            count_close_inicialice = 0;
+        };
+    }
+
+    fn_messages(element) {
+        return (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                if (data.hasOwnProperty("socket_id") && socket_manager_instances.hasOwnProperty(data["socket_id"])) {
+                    socket_manager_instances[data["socket_id"]].receive_json(data);
+                } else {
+                    console.error("Socket id not found");
+                }
+            } catch (err) {
+                console.error("Error al parsear mensaje WS:", err);
+            }
+        };
+    }
+
+    send(str) {
+        if (!socket_connections.hasOwnProperty(this.url)) {
+            this.connect();
+        } else {
+            if (socket_connections[this.url].readyState != WebSocket.OPEN) {
+                Reflect.deleteProperty(socket_connections, this.url);
+                this.connect();
+            }
+        }
+        if (socket_connections.hasOwnProperty(this.url)) {
+            socket_connections[this.url].send(str);
+        }
+    }
 }
 
 function callFetch(instance) {
@@ -2795,6 +2914,9 @@ function FirmadorLibreLocal(docmanager, signatureManager) {
             callFetch(instance);
         },
         "sign": function (data) {
+            if (data.hasOwnProperty("socket_id")) {
+                Reflect.deleteProperty(data, "socket_id");
+            }
             let json = JSON.stringify(data);
             let manager = docmanager;
 
@@ -2835,21 +2957,16 @@ function FirmadorLibreLocal(docmanager, signatureManager) {
     }
 }
 
+const generateRandomString = () => {
+    return Math.floor(Math.random() * Date.now()).toString(36);
+};
+
 function FirmadorLibreWS(docmanager, url, signatureManager) {
     var firmador = {
         "url": url,
         "websocket": null,
         "firmador_url": "http://localhost:3516",
-        "trans_received": function (instance) {
-            return function (event) {
-                try {
-                    const data = JSON.parse(event.data);
-                    instance.receive_json(data);
-                } catch (err) {
-                    console.error("Error al parsear mensaje WS:", err);
-                }
-            };
-        },
+        "socket_id": generateRandomString(),
         "receive_json": function (data) {
             // validate socket errors
             if (data.result === false && data.error) {
@@ -2901,11 +3018,13 @@ function FirmadorLibreWS(docmanager, url, signatureManager) {
                             break;
                     }
                 }
-            }else{
+            } else {
 
-                if(data.hasOwnProperty('tobesigned')){
+                if (data.hasOwnProperty('report')) {
+                    docmanager.validate_document_remote_done(data['report']);
+                } else if (data.hasOwnProperty('tobesigned')) {
                     docmanager.do_sign_local(data);
-                }else{
+                } else {
                     docmanager.remote_done(data)
                 }
 
@@ -2913,15 +3032,15 @@ function FirmadorLibreWS(docmanager, url, signatureManager) {
         },
 
         "inicialize": function () {
-            this.websocket = new WebSocket(url);
-            SocketManager(this.websocket, signatureManager);
-            this.websocket.onmessage = this.trans_received(this);
+            this.websocket = new SocketManager(url, signatureManager, this);
+
         },
         "local_done": function (data) {
             // console.log("local_done", data);
         },
         "sign": function (data) {
             data["action"] = "initial_signature";
+            data["socket_id"] = this.socket_id;
             if (data.card !== undefined) {
                 this.websocket.send(JSON.stringify(data));
                 signatureManager.showLoading();
@@ -2932,7 +3051,7 @@ function FirmadorLibreWS(docmanager, url, signatureManager) {
         },
         "complete_sign": function (data) {
             data["action"] = "complete_signature";
-
+            data["socket_id"] = this.socket_id;
             try {
                 this.websocket.send(JSON.stringify(data));
             } catch (e) {
@@ -2941,12 +3060,24 @@ function FirmadorLibreWS(docmanager, url, signatureManager) {
                 alertFunction(errorInterpreter(3), gettext("Error"), "error", false, closeModalSignature);
             }
         },
+
+        "validate_document": function (data) {
+            data["action"] = "validate_document";
+            data["socket_id"] = this.socket_id;
+            signatureManager.showLoading();
+            try {
+                this.websocket.send(JSON.stringify(data));
+            } catch (e) {
+                signatureManager.hideLoading();
+                alertFunction(errorInterpreter(3), gettext("Error"), "error", false, closeModalSignature);
+            }
+        }
     };
     firmador.inicialize();
     return firmador;
 }
 
-function DocumentClient(container, widgetId, signatureManager, url_ws) {
+function DocumentClient(container, widgetId, signatureManager, url_ws, custom_event) {
     const docmanager = {
         "widgetId": widgetId,
         "container": container,
@@ -2956,6 +3087,7 @@ function DocumentClient(container, widgetId, signatureManager, url_ws) {
         "certificates": null,
         "doc_instance": null,
         "logo_url": null,
+        "custom_event": custom_event,
 
         "start_sign": function (doc_instance, logo_url = null) {
             this.doc_instance = doc_instance;
@@ -3018,6 +3150,7 @@ function DocumentClient(container, widgetId, signatureManager, url_ws) {
             }
 
         },
+
         "do_sign_local": function (data) {
             this.localsigner.sign(data);
         },
@@ -3027,20 +3160,90 @@ function DocumentClient(container, widgetId, signatureManager, url_ws) {
             this.remotesigner.complete_sign(data);
         },
         "remote_done": function (data) {
-             if(data.result !== null ){
+            if (data.result !== null) {
                 const l = btoa(JSON.stringify({'token': data.result}));
-                this.signatureManager.doc_instance['value'] =l;
-                this.signatureManager.pdfvisor.urls['renderattr']="value="+l;
-                document.getElementById(this.signatureManager.input_id).value=l;
+                this.signatureManager.doc_instance['value'] = l;
+                this.signatureManager.pdfvisor.urls['renderattr'] = "value=" + l;
+                document.getElementById(this.signatureManager.input_id).value = l;
                 this.signatureManager.pdfvisor.initPDFViewer();
                 signatureManager.hideLoading();
+                document.dispatchEvent(this.custom_event);
                 alertFunction(
                     gettext("The signing was successfully completed."),
                     gettext("Success"),
-                    "success", false, function(){}
+                    "success", false, function () {
+                    }
                 );
-             }
+            }
         },
+
+        "validate_document_remote": function () {
+            data = {
+                "instance": this.doc_instance,
+            }
+            document.dispatchEvent(this.custom_event);
+            //this.remotesigner.validate_document(data);
+        },
+
+        "validate_document_remote_done": function (reportData) {
+            signatureManager.hideLoading();
+            if (!reportData || typeof reportData !== 'string') {
+                alertFunction(
+                    gettext("Please, sign the document before saving"),
+                    gettext("Warning"),
+                    "warning", false, function () {
+                    }
+                );
+                return;
+            }
+
+            if (reportData.includes("no est&aacute; firmado digitalmente")) {
+                alertFunction(
+                    gettext("The document is not digitally signed. Please sign the document before saving."),
+                    gettext("Warning"),
+                    "warning", false,
+                    function () {
+                    }
+                );
+                return;
+            }
+
+            const firmasMatch = reportData.match(/Contiene\s*([\d]+)\s*firma/);
+            let numFirmas = 0;
+            if (firmasMatch && firmasMatch[1]) {
+                numFirmas = parseInt(firmasMatch[1], 10);
+            }
+
+            if (numFirmas > 0) {
+                if (typeof update_signed_document === "function") {
+                    update_signed_document(this.doc_instance);
+                } else {
+                    console.log("warning: update_signed_document function not defined, using default action");
+                    alertFunction(
+                        gettext(`The document was saved`),
+                        gettext("Success"),
+                        "success", false,
+                        function () {
+                            const container = this.signatureManager.container;
+                            const form = container.closest('form');
+                            if (form) {
+                                form.submit();
+                            }
+                        }.bind(this)
+                    );
+                }
+
+            } else {
+                alertFunction(
+                    gettext("The document is not digitally signed. Please sign the document before saving."),
+                    gettext("Warning"),
+                    "warning", false,
+                    function () {
+                    }
+                );
+            }
+        }
+
 
     };
 

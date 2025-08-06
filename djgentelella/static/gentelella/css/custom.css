@@ -4684,6 +4684,11 @@ input-group > .custom-file {
     border-radius: 5px; /* Esquinas redondeadas */
 }
 
+.overflow-scroll{
+    overflow:auto;
+    -webkit-overflow-scrolling: touch
+}
+
 /* ── WebKit/Blink: Chrome, Edge, Brave, Safari, Firefox not need  */
 *::-webkit-scrollbar {
   width: 4px;

@@ -125,7 +125,7 @@
 				<li>
 					<a class="small"
 								title="{% trans 'Run Firmador Libre' %}"
-								href="firmador:{{ widget.attrs.cors }}">
+								href="firmador:localhost" data-widget="FirmadorCORS" data-port="3516">
 						{% trans 'Run app' %}
 						<i class="fa fa-cog" aria-hidden="true"></i>
 					</a>
@@ -145,8 +145,9 @@
 			{#	actions for change page#}
 			<div class="my-3 d-flex align-items-center justify-content-evenly">
 				<input type="hidden" name="{{ widget.name }}_page_number" class="page_number">
-				<input type="hidden"  name="{{ widget.name }}"
-					{% if widget.value != None %} value="{{ widget.value|stringformat:'s' }}"{% endif %} {% include "gentelella/widgets/attrs.html" %}>
+				<input type="hidden" name="{{ widget.name }}"
+					{% if widget.value != None %}
+											value="{{ widget.value|stringformat:'s' }}"{% endif %} {% include "gentelella/widgets/attrs.html" %}>
 
 				{#		button to change page #}
 				<div>
@@ -187,7 +188,8 @@
 		</div>
 	</div>
 	{# loading #}
-	<div class="modal fade" id="loading_sign" style="background-color: rgba(0, 0, 0, 0.3);" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+	<div class="modal fade" id="loading_sign" style="background-color: rgba(0, 0, 0, 0.3);" data-bs-backdrop="static"
+						data-bs-keyboard="false" tabindex="-1"
 						aria-hidden="true">
 		<div class="modal-dialog modal-dialog-centered">
 			<div class="modal-content bg-transparent border-0">

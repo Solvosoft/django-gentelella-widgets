@@ -1,4 +1,5 @@
 document.formset = [];
+
 document.gtwidgets = {
     ImageRecordInput: function (instance) {
         instance.each(function (i, e) {
@@ -306,6 +307,12 @@ document.gtwidgets = {
             build_digital_signature(e);
         });
     },
+    FirmadorCORS: function (instance){
+        instance.each(function (i, e) {
+            build_cors_headers(e);
+        });
+    },
+
 }
 
 function gt_find_initialize(instance) {
@@ -316,7 +323,9 @@ function gt_find_initialize(instance) {
             document.gtwidgets[widgetname](elems);
         }
     });
-    var autocomplete = instance.find('[data-widget="AutocompleteSelectMultiple"],[data-widget="AutocompleteSelect"]');
+    let textautocomplete = '[data-widget="AutocompleteSelectMultiple"],[data-widget="AutocompleteSelect"]';
+    textautocomplete += ',[data-widget="AutocompleteSelectMultipleImage"],[data-widget="AutocompleteSelectImage"]';
+    var autocomplete = instance.find(textautocomplete);
     if (autocomplete.length > 0) {
         document.gtwidgets['GTAutocompleteSelect'](autocomplete);
     }

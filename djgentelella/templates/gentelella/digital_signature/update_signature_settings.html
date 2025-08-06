@@ -1,0 +1,57 @@
+{% extends 'gentelella/base.html' %}
+{% load i18n %}
+
+{% block title %} {% trans 'Signature settings' %} {% endblock %}
+
+{% block pre_head %}
+{% endblock %}
+
+{% block content %}
+	<div class="card mt-2">
+		<div class="card-body">
+
+			<div class="card-title titles">
+				<h1 class="text-center">
+					{% trans 'Signature settings' %}
+				</h1>
+			</div>
+
+			<div class="row justify-content-center my-4">
+				<div class="col-lg-6 col-md-10 col-12">
+
+					<form action="" id="form_signature" method="POST">
+						{% csrf_token %}
+						{{ form.as_grid }}
+
+						<div class="text-center">
+							<button type="submit" name="action" value="update" class="btn btn-success btn-sm">
+								{% trans 'Save' %}
+								<i class="fa fa-floppy-o" aria-hidden="true"></i>
+							</button>
+						</div>
+
+					</form>
+
+				</div>
+			</div>
+
+		</div>
+	</div>
+{% endblock %}
+
+{% block js %}
+	<script>
+
+		// auto remove messages
+		document.addEventListener("DOMContentLoaded", function () {
+			setTimeout(function () {
+				document.querySelectorAll(".alert-success").forEach(function (message) {
+					message.style.transition = "opacity 0.5s";
+					message.style.opacity = "0";
+					setTimeout(() => message.remove(), 500);
+				});
+			}, 1500);
+		});
+
+	</script>
+{% endblock %}

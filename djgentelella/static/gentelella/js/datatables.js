@@ -274,3 +274,18 @@ function createDataTable(id, url, extraoptions={}, addfilter=false, formatDataTa
     }, extraoptions);
     return gtCreateDataTable(id, url, options);
 }
+
+function truncateTextRenderer(maxChars = 100) {
+    return (data, type, row, meta)=> {
+        if (type === 'display' && typeof data === 'string') {
+            const text = data.trim();
+            if (text.length > maxChars) {
+                return `<span title="${text.replace(/"/g, '&quot;')}" style="display:inline; line-height:1; margin:0; padding:0;">${text.substring(0, maxChars)}...</span>`;
+            }
+            return text
+        }
+
+        return data;
+    };
+}
+

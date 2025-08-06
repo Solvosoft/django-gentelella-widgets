@@ -69,7 +69,8 @@ class RequestInitialDoc(serializers.Serializer):
 
 
 class WSRequest(serializers.Serializer):
-    action = serializers.CharField()
+    action = serializers.CharField(required=True)
+    socket_id = serializers.CharField(required=True)
 
 
 class CardSerializer(serializers.Serializer):
@@ -88,6 +89,7 @@ class SignatureSerializer(serializers.Serializer):
 
 class InitialSignatureSerializer(serializers.Serializer):
     action = serializers.CharField()
+    socket_id = serializers.CharField(required=True)
     docsettings = DocumentSettingsSerializer()
     card = CardSerializer()
     logo_url = serializers.CharField(required=False, allow_null=True, allow_blank=True)
@@ -96,8 +98,14 @@ class InitialSignatureSerializer(serializers.Serializer):
 
 class CompleteSignatureSerializer(serializers.Serializer):
     action = serializers.CharField()
+    socket_id = serializers.CharField(required=True)
     documentid = serializers.CharField()
     certificate = serializers.CharField()
     signature = SignatureSerializer()
     logo_url = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    instance = InstanceSerializer()
+
+class ValidateDocumentSerializer(serializers.Serializer):
+    action = serializers.CharField()
+    socket_id = serializers.CharField(required=True)
     instance = InstanceSerializer()

@@ -1,0 +1,44 @@
+{% extends 'gentelella/base.html' %}
+{% load urlname_tags %}
+
+{% block pre_head %}
+{% get_or_create_permission_context 'imgselect-edit,imgselect-add,imgselect-list' 'demoapp' 'change_img,add_img,view_img' 'Edit image,Create image,List images' 'Img' %}
+{% define_urlname_action 'imgselect-add'%}
+{% define_urlname_action 'imgselect-edit'%}
+{% define_urlname_action 'imgselect-list'%}
+{% endblock%}
+
+{% block content %}
+
+<div class="card">
+	<div class="card-body">
+		<div class="card-title titles">
+			<h2>Image List</h2>
+			<ul class="nav navbar-right d-flex flex-row-reverse" style="margin-top:-40px">
+				<li><a href="{% url 'imgselect-add' %}" class="collapse-link">
+					<i class="fa fa-plus green" style="font-size: 2em"></i></a>
+				</li>
+
+			</ul>
+			<div class="clearfix"></div>
+		</div>
+
+		<div>
+			<ul class="to_do">
+				{% for obj in object_list %}
+				<li class="d-flex">
+					<div class="p-2 flex-fill"> {{obj}}</div>
+					<div class="p-2 flex-fill"><img src="{{obj.select_image.url}}"></div>
+					<div class="p-2 flex-fill">
+						<a class="btn btn-sm btn-outline-warning float-end" href="{% url 'imgselect-edit' obj.pk %}">
+							<i class="fa fa-edit"></i></a>
+					</div>
+				</li>
+				{% endfor %}
+			</ul>
+		</div>
+	</div>
+</div>
+
+
+{% endblock %}
