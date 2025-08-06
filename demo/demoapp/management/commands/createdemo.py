@@ -650,43 +650,6 @@ class Command(BaseCommand):
             only_icon=False
         )
 
-        menu1 = MenuItem.objects.create(
-            parent=parent_item,
-            title='Menu 1',
-            url_name='#',
-            category='sidebar',
-            is_reversed=False,
-            reversed_kwargs=None,
-            reversed_args=None,
-            is_widget=False,
-            icon='fa fa-vine',
-            only_icon=False
-        )
-        menu2 = MenuItem.objects.create(
-            parent=menu1,
-            title='Menu 2',
-            url_name='#',
-            category='sidebar',
-            is_reversed=False,
-            reversed_kwargs=None,
-            reversed_args=None,
-            is_widget=False,
-            icon='fa fa-vine',
-            only_icon=False
-        )
-        menu2 = MenuItem.objects.create(
-            parent=menu2,
-            title='Menu 3',
-            url_name='#',
-            category='sidebar',
-            is_reversed=False,
-            reversed_kwargs=None,
-            reversed_args=None,
-            is_widget=False,
-            icon='fa fa-vine',
-            only_icon=False
-        )
-
     def create_images_demo(self):
         workdir = Path(
             settings.BASE_DIR) / "../djgentelella/static/gentelella/images/"

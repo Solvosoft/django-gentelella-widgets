@@ -17,17 +17,10 @@ FONT_ALIGNMENT = (
     ('BOTTOM', _('Bottom')),
 )
 
-FONT_CHOICES = [
-    ("Nimbus Sans Regular", "Nimbus Sans Regular"),
-    ("Nimbus Sans Bold", "Nimbus Sans Bold"),
-    ("Nimbus Sans Italic", "Nimbus Sans Italic"),
-    ("Nimbus Sans Bold Italic", "Nimbus Sans Bold Italic"),
-]
-
 
 def get_signature_default():
     return {
-        "backgroundColor": "#FFFFFF",
+        "backgroundColor": "transparent",
         "cAdESLevel": "LTA",
         "contact": "",
         "country": "CR",
