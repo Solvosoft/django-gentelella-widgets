@@ -1,20 +1,20 @@
+import base64
 import logging
+from io import BytesIO
 
 from django import forms
 from django.core.exceptions import ValidationError
+from django.core.files.uploadedfile import UploadedFile
+from django.templatetags.static import static
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
-from djgentelella.widgets.core import FileInput
+
 from djgentelella.firmador_digital.models import UserSignatureConfig, \
     get_signature_default, FORMATS_DATE, FONT_ALIGNMENT
 from djgentelella.firmador_digital.signvalue_utils import ValueDSParser
 from djgentelella.forms.forms import GTForm
 from djgentelella.widgets import core as genwidgets
-from django.utils.safestring import mark_safe
-
-from django.core.files.uploadedfile import UploadedFile
-import base64
-from io import BytesIO
-
+from djgentelella.widgets.core import FileInput
 
 logger = logging.getLogger('djgentelella')
 
@@ -37,7 +37,6 @@ class RenderValueForm(GTForm, ValueDSParser):
 
 
 class SignatureConfigForm(GTForm, forms.ModelForm):
-
     contact = forms.CharField(
         required=False,
         max_length=100,
@@ -125,10 +124,9 @@ class SignatureConfigForm(GTForm, forms.ModelForm):
             if key in self.fields:
                 self.fields[key].initial = value
 
-
     def preview_image(self):
         label = _("Image preview")
-        src = "/static/gentelella/images/default.png"
+        src = static("gentelella/images/default.png")
 
         if self.instance and self.instance.config:
             image_b64 = self.instance.config.get("image")
@@ -149,8 +147,6 @@ class SignatureConfigForm(GTForm, forms.ModelForm):
         for key in data.keys():
             if key in self.cleaned_data:
                 val = self.cleaned_data[key]
-                print(key, val, type(val))
-
                 if key == "image":
                     if isinstance(val, UploadedFile):
                         # el usuario subió un nuevo archivo
