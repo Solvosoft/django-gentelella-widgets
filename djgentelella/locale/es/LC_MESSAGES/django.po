@@ -665,6 +665,14 @@ msgstr "Razón"
 msgid "Visible signature"
 msgstr "Firma visible"
 
+msgid "This registry of trash does not exist."
+msgstr "Este registro de papelera no existe."
+
+msgid "The registry was successfully restored."
+msgstr "El registro fue restaurado con éxito."
+
+msgid "The registry could not be restored."
+msgstr "No se pudo restaurar el registro."
 msgid "Signature image"
 msgstr "Imagen de firma"
 

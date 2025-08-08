@@ -5,6 +5,9 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+import uuid
+from djgentelella.models import DeletedWithTrash
+
 
 # Create your models here.
 from djgentelella.fields.catalog import GTForeignKey, GTManyToManyField, GTOneToOneField
@@ -274,7 +277,6 @@ class DigitalSignature(models.Model):
     def __str__(self):
         return self.filename or str(self.file_code)
 
-
 class SelectImage(models.Model):
     name = models.CharField(max_length=255)
     img = models.FileField(upload_to="images", null=True, blank=True)
@@ -293,3 +295,26 @@ class Img(models.Model):
 
     def __str__(self):
         return "Imgs %d" % (self.multi_image.count())
+    
+
+# Trash
+class Customer(DeletedWithTrash):
+    name = models.CharField(max_length=150)
+    phone_number = models.CharField(max_length=150)
+    email = models.EmailField()
+
+    def __str__(self):
+        return self.name
+
+    def delete(self, using=None, keep_parents=False, *, hard=False, user=None,
+               **kwargs):
+
+        if self.is_deleted and not hard:
+            return
+
+        result = super().delete(
+            using=using, keep_parents=keep_parents,
+            hard=hard, user=user
+        )
+
+        return result

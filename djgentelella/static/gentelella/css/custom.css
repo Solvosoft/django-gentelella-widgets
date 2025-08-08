@@ -150,7 +150,7 @@ html , body{
 }
 .left_col {
     background: #2A3F54;
-    height: 1100px;
+    max-height: 1600px;
 }
 .select2-container {
     width: 100% !important;
@@ -931,7 +931,9 @@ a:focus {
     line-height: 30px
 }
 .main_menu_side {
-    padding: 0
+    padding: 0;
+    max-height: 100vh;
+    overflow-y: auto;
 }
 .bs-docs-sidebar .nav>li>a {
     display: block;
@@ -4686,3 +4688,17 @@ input-group > .custom-file {
     -webkit-overflow-scrolling: touch
 }
 
+/* ── WebKit/Blink: Chrome, Edge, Brave, Safari, Firefox not need  */
+*::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #767684;
+  border-radius: 5px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}

@@ -5,6 +5,10 @@ from django.utils.translation import gettext_lazy as _
 from tree_queries.models import TreeNode
 
 from djgentelella.chunked_upload.models import AbstractChunkedUpload
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey
+from .models_manager import ObjectManager, AllObjectsManager, \
+    DeletedObjectsManager
 
 
 class GentelellaSettings(models.Model):
@@ -123,3 +127,95 @@ class ChunkedUpload(AbstractChunkedUpload):
         null=DEFAULT_MODEL_USER_FIELD_NULL,
         blank=DEFAULT_MODEL_USER_FIELD_BLANK
     )
+
+
+# Trash
+class Trash(models.Model):
+    """
+        Trash generic. Each row represents an instance deleted.
+    """
+    content_type = models.ForeignKey(ContentType, on_delete=models.PROTECT,
+                                     verbose_name=_("Content type"))
+    object_id = models.PositiveIntegerField(verbose_name=_("Object ID"))
+    content_object = GenericForeignKey("content_type", "object_id")
+    object_repr = models.CharField(
+        _("Object repr"), max_length=200,
+        help_text=_("Value of str(instance) at deletion time"),
+    )
+    deleted_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name=_("Deleted by")
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ("id",)
+        unique_together = ("content_type", "object_id")
+        indexes = [
+            models.Index(fields=["content_type", "object_id"]),
+        ]
+        verbose_name = _("Trash")
+        verbose_name_plural = _("Trash")
+
+    def __str__(self):
+        return _("Registration in trash: %(obj)s") % {"obj": self.object_repr}
+
+    def restore(self, user=None):
+        obj = self.content_object
+
+        # if `is_deleted` is in the model, unmark it
+        if hasattr(obj, "restore"):
+            obj.restore()
+
+        self.delete()  # delete the instance of trash
+
+
+    def hard_delete(self):
+        """
+            Permanent deletion of the original object and then the trash entry.
+        """
+        obj = self.content_object
+
+        if obj is None:
+            return
+
+        obj.delete(hard=True)
+
+        super().delete()
+
+
+class DeletedWithTrash(models.Model):
+    is_deleted = models.BooleanField(default=False, db_index=True)
+
+    objects = ObjectManager()
+    objects_with_deleted = AllObjectsManager()
+    objects_deleted_only = DeletedObjectsManager()
+
+    class Meta:
+        abstract = True
+
+    def delete(self, using=None, keep_parents=False, *, hard=False, user=None):
+        if hard:
+            # Permanent deletion
+            return super().delete(using=using, keep_parents=keep_parents)
+
+        self.is_deleted = True
+        self.save(update_fields=["is_deleted"])
+
+        # create trash instance
+        Trash.objects.get_or_create(
+            content_type=ContentType.objects.get_for_model(self.__class__),
+            object_id=self.pk,
+            defaults={
+                "object_repr": str(self)[:200],
+                "deleted_by": user,
+            },
+        )
+
+    # Restore an object
+    def restore(self):
+        self.is_deleted = False
+        self.save(update_fields=["is_deleted"])

@@ -70,6 +70,13 @@ trans:
 docker_sign:
 	docker run -d --rm  --name firmadorserver -p 9001:9999 -d firmadorlibreserver
 
+menu:
+	cd demo && python manage.py createdemo
+
+migrate:
+	cd demo && python manage.py makemigrations && \
+	python manage.py migrate
+
 init_demo:
 	cd demo && \
 	rm -f db.sqlite3 && \
