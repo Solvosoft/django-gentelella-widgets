@@ -13,7 +13,7 @@ def update_signature_settings(request):
 
 
     if request.method == "POST":
-        form = SignatureConfigForm(request.POST, instance=config, render_type="as_grid")
+        form = SignatureConfigForm(request.POST, request.FILES, instance=config, render_type="as_grid")
         if form.is_valid():
             form.save()
             messages.success(request, _("Updated signature settings successfully."))

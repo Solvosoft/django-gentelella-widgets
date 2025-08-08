@@ -665,5 +665,13 @@ msgstr "Razón"
 msgid "Visible signature"
 msgstr "Firma visible"
 
+msgid "Signature image"
+msgstr "Imagen de firma"
+
+msgid "Image preview"
+msgstr "Vista previa de imagen"
+
+msgid "Image signature"
+msgstr "Imagen de firma"
 msgid "Expand"
 msgstr "Expandir"
