@@ -17,6 +17,7 @@ from djgentelella.firmador_digital import views as firmador_digital
 from .groute import routes
 from .templatetags.gtsettings import get_version
 from .views import auth
+from .trash.api import TrashViewSet
 
 auth_urls = [
     path('accounts/login/', auth.GentelellaLoginView.as_view(), name="login"),
@@ -73,6 +74,8 @@ for app in settings.INSTALLED_APPS:
 
 router = DefaultRouter()
 router.register('notificationtableview', NotificationViewSet, 'api-notificationtable')
+router_trash = DefaultRouter()
+router_trash.register("api_trash", TrashViewSet, basename="api-trash")
 
 base_urlpatterns = [
     re_path('gtapis/', include(routes.urls)),
@@ -90,6 +93,7 @@ base_urlpatterns = [
             name="notification_list"),
     path('tableapi/', include(router.urls)),
     path("update_config/", firmador_digital.update_signature_settings, name="signature_config"),
+    path("api/trash/", include(router_trash.urls)),
 ]
 
 permission_management_urls = [

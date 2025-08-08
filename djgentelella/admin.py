@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from djgentelella.firmador_digital.models import UserSignatureConfig
 from djgentelella.models import MenuItem, Help, GentelellaSettings, Notification, \
-    ChunkedUpload
+    ChunkedUpload, Trash
 from djgentelella.models import PermissionsCategoryManagement
 from djgentelella.utils import clean_cache
 
@@ -33,6 +33,11 @@ class ChunkedUploadAdmin(admin.ModelAdmin):
 class UserSignatureConfigAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'config')
 
+class TrashAdmin(admin.ModelAdmin):
+    list_display = ("id", "deleted_by", "content_type", "object_id", "object_repr", "created_at")
+    ordering = ("-created_at",)
+    search_fields = ("id",)
+
 admin.site.register(UserSignatureConfig, UserSignatureConfigAdmin)
 admin.site.register(ChunkedUpload, ChunkedUploadAdmin)
 admin.site.register(MenuItem, MenuAdmin)
@@ -40,3 +45,4 @@ admin.site.register(Help)
 admin.site.register(PermissionsCategoryManagement)
 admin.site.register(GentelellaSettings, GentelellaSettingsAdmin)
 admin.site.register(Notification, NotificationAdmin)
+admin.site.register(Trash, TrashAdmin)

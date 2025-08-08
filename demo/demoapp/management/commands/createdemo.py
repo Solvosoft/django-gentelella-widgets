@@ -337,7 +337,18 @@ class Command(BaseCommand):
             icon='fa fa-list-alt',
             only_icon=False
         )
-
+        MenuItem.objects.create(
+            parent=readonlywidget,
+            title='Trash',
+            url_name='trash',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-trash',
+            only_icon=False
+        )
         chart = MenuItem.objects.create(
             parent=dashboard,
             title='Charts',
@@ -551,6 +562,7 @@ class Command(BaseCommand):
             icon='fa fa-camera',
             only_icon=False
         )
+
 
     def create_countries(self):
         models.Country.objects.all().delete()
