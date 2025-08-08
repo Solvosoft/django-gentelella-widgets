@@ -673,3 +673,11 @@ msgstr "El registro fue restaurado con éxito."
 
 msgid "The registry could not be restored."
 msgstr "No se pudo restaurar el registro."
+msgid "Signature image"
+msgstr "Imagen de firma"
+
+msgid "Image preview"
+msgstr "Vista previa de imagen"
+
+msgid "Image signature"
+msgstr "Imagen de firma"
