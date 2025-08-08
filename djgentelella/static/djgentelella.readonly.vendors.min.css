@@ -808,6 +808,7 @@
   position: relative;
   overflow: hidden;
   border-top: 1px solid #e5e5e5;
+  direction: ltr;
 }
 .tl-timenav .tl-timenav-line {
   position: absolute;
@@ -2018,7 +2019,6 @@
 .tl-slidenav-previous .tl-slidenav-content-container,
 .tl-slidenav-next .tl-slidenav-content-container {
   width: 100px;
-  position: absolute;
 }
 .tl-slidenav-previous .tl-slidenav-title,
 .tl-slidenav-next .tl-slidenav-title,
@@ -2104,7 +2104,7 @@
 .tl-slidenav-next {
   text-align: right;
   margin-right: 10px;
-  right: 100px;
+  right: 0;
 }
 .tl-slidenav-next .tl-slidenav-title,
 .tl-slidenav-next .tl-slidenav-description {
@@ -2118,6 +2118,7 @@
 }
 .tl-slidenav-previous {
   text-align: left;
+  left: 0;
   margin-left: 10px;
 }
 .tl-slidenav-previous .tl-slidenav-icon {
@@ -2125,6 +2126,12 @@
 }
 .tl-slidenav-previous .tl-slidenav-icon:before {
   content: "\e650";
+}
+[dir="rtl"] .tl-slidenav-previous {
+  direction: ltr;
+}
+[dir="rtl"] .tl-slidenav-next:hover .tl-slidenav-icon {
+  margin-right: -4px;
 }
 /* NAVIGATION HOVER
 ================================================== */
@@ -2153,9 +2160,6 @@
 .tl-slidenav-previous:hover .tl-slidenav-icon,
 .tl-slidenav-previous:focus-visible .tl-slidenav-icon {
   margin-left: -4px;
-}
-.tl-skinny .tl-slidenav-next {
-  right: 32px;
 }
 .tl-skinny .tl-slidenav-next .tl-slidenav-icon {
   margin-left: 8px;
