@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+from django.urls import reverse_lazy
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -148,6 +149,10 @@ DEFAULT_JS_IMPORTS = {
     'use_readonlywidgets': True,
     'use_flags': True
 }
+
+# Authentication settings
+LOGOUT_REDIRECT_URL = reverse_lazy("login")
+LOGIN_REDIRECT_URL = reverse_lazy("home")
 
 # FIRMADOR DIGITAL
 DO_STATIC = os.getenv('DO_STATIC', default='True').lower() == 'true'
