@@ -1,6 +1,10 @@
 from demoapp import models
 from djgentelella.groute import register_lookups
-from djgentelella.views.select2autocomplete import BaseSelect2View, BaseSelectImg2View
+from djgentelella.views.select2autocomplete import BaseSelect2View, BaseSelectImg2View, \
+    GPaginator
+from django.contrib.auth.models import User
+from rest_framework.authentication import SessionAuthentication
+from djgentelella.permission_management import AllPermission
 
 
 @register_lookups(prefix="person", basename="personbasename")
@@ -66,3 +70,16 @@ class ImageSelect2Lookup(BaseSelectImg2View):
 
     def get_url(self, obj):
         return obj.img.url
+
+
+# history
+class GPaginatorMoreElements(GPaginator):
+    page_size = 100
+
+
+@register_lookups(prefix="users", basename="users")
+class UsersLookup(BaseSelect2View):
+    model = User
+    fields = ["username"]
+    authentication_classes = [SessionAuthentication]
+    pagination_class = GPaginatorMoreElements
