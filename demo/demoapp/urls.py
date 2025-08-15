@@ -32,6 +32,8 @@ from .wysiwyg import views as tinymce
 # Trash
 from demoapp.trash.view import trash_view
 from demoapp.trash.api import CustomerViewSet
+# history
+from demoapp.history.views import history_view
 
 pclss = Personclass()
 countryclss = Countryclass()
@@ -45,7 +47,6 @@ router.register('objectmanagement', ObjectManagerDemoModelManagement,
 
 # Trash
 router.register('api_customer', CustomerViewSet, 'api-customer')
-
 
 urlpatterns = [
                   path('object_management', object_management,
@@ -152,4 +153,6 @@ urlpatterns = [
                   # Trash
                   path('trash/', trash_view, name="trash"),
                   path('api/customer/', include(router.urls)),
+                  # history
+                    path('history/', history_view, name="history"),
               ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()

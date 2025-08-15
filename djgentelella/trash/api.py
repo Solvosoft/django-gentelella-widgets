@@ -10,6 +10,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
+from djgentelella.history.utils import add_log, HARD_DELETION, RESTORE
 
 
 class TrashViewSet(AuthAllPermBaseObjectManagement):
@@ -38,6 +39,15 @@ class TrashViewSet(AuthAllPermBaseObjectManagement):
     ordering = ("-created_at",)
 
     def perform_destroy(self, instance):
+        add_log(
+            self.request.user,
+            instance,
+            HARD_DELETION,
+            instance._meta.verbose_name.title().lower(),
+            [],
+            change_message=_("Hard deleted"),
+        )
+
         instance.hard_delete()
 
 
@@ -49,6 +59,15 @@ class TrashViewSet(AuthAllPermBaseObjectManagement):
             if not trash:
                 return Response({"result": False, "detail": _("This registry of trash does not exist.")},
                                 status=status.HTTP_400_BAD_REQUEST)
+
+            add_log(
+                self.request.user,
+                trash.content_object,
+                RESTORE,
+                "trash",
+                [],
+                change_message=_("Restored"),
+            )
 
             trash.restore()
 

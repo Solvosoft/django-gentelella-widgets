@@ -349,6 +349,18 @@ class Command(BaseCommand):
             icon='fa fa-trash',
             only_icon=False
         )
+        MenuItem.objects.create(
+            parent=readonlywidget,
+            title='History',
+            url_name='history',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-clock-o',
+            only_icon=False
+        )
         chart = MenuItem.objects.create(
             parent=dashboard,
             title='Charts',
