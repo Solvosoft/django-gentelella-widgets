@@ -179,3 +179,10 @@ FIRMADOR_VALIDA_URL = FIRMADOR_DOMAIN + "/valida/"
 FIRMADOR_SIGN_URL = FIRMADOR_DOMAIN + "/firma/firme"
 FIRMADOR_SIGN_COMPLETE = FIRMADOR_DOMAIN + "/firma/completa"
 FIRMADOR_DELETE_FILE_URL = FIRMADOR_DOMAIN + "/firma/delete"
+
+# history
+GT_HISTORY_ALLOWED_MODELS = [
+    "djgentelella.trash", # add always trash when you use history
+    "demoapp.customer",
+    # add more models here for history
+]
