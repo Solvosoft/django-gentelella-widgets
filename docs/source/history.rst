@@ -1,5 +1,5 @@
-History
-=========
+History functionality
+===========================
 
 Configuration
 ------------------
