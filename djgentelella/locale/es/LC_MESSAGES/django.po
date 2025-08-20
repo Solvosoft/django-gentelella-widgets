@@ -673,6 +673,7 @@ msgstr "El registro fue restaurado con éxito."
 
 msgid "The registry could not be restored."
 msgstr "No se pudo restaurar el registro."
+
 msgid "Signature image"
 msgstr "Imagen de firma"
 
@@ -683,3 +684,40 @@ msgid "Image signature"
 msgstr "Imagen de firma"
 msgid "Expand"
 msgstr "Expandir"
+
+# history
+msgid "Restoration"
+msgstr "Restaurado"
+
+msgid "deleted"
+msgstr "eliminado"
+
+msgid "Hard deleted"
+msgstr "Eliminación permanente"
+
+msgid "History"
+msgstr "Historial"
+
+msgid "General"
+msgstr "General"
+
+msgid "restored"
+msgstr "restaurado"
+
+msgid "Restored"
+msgstr "Restaurado"
+
+msgid "hard deleted"
+msgstr "eliminado permanentemente"
+
+msgid "%(msg)s. Fields: %(fields)s"
+msgstr "%(msg)s. Campos: %(fields)s"
+
+msgid "The record %(obj)s of model %(model)s has been %(action)s"
+msgstr "El registro %(obj)s del modelo %(model)s ha sido %(action)s"
+
+msgid "An object of model %(model)s has been %(action)s"
+msgstr "Un objeto del modelo %(model)s ha sido %(action)s"
+
+msgid "%(obj)s in trash"
+msgstr "%(obj)s en papelera"

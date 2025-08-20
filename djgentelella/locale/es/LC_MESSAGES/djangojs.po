@@ -222,3 +222,40 @@ msgstr "El documento no está firmado digitalmente. Por favor, firme el document
 
 msgid "The document was saved"
 msgstr "El documento se ha guardado"
+
+# history
+msgid "Restoration"
+msgstr "Restaurado"
+
+msgid "deleted"
+msgstr "eliminado"
+
+msgid "Hard deleted"
+msgstr "Eliminación permanente"
+
+msgid "History"
+msgstr "Historial"
+
+msgid "General"
+msgstr "General"
+
+msgid "restored"
+msgstr "restaurado"
+
+msgid "Restored"
+msgstr "Restaurado"
+
+msgid "hard deleted"
+msgstr "eliminado permanentemente"
+
+msgid "%(msg)s. Fields: %(fields)s"
+msgstr "%(msg)s. Campos: %(fields)s"
+
+msgid "The record %(obj)s of model %(model)s has been %(action)s"
+msgstr "El registro %(obj)s del modelo %(model)s ha sido %(action)s"
+
+msgid "An object of model %(model)s has been %(action)s"
+msgstr "Un objeto del modelo %(model)s ha sido %(action)s"
+
+msgid "%(obj)s in trash"
+msgstr "%(obj)s en papelera"

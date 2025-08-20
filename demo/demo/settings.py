@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+from django.urls import reverse_lazy
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -149,6 +150,10 @@ DEFAULT_JS_IMPORTS = {
     'use_flags': True
 }
 
+# Authentication settings
+LOGOUT_REDIRECT_URL = reverse_lazy("login")
+LOGIN_REDIRECT_URL = reverse_lazy("home")
+
 # FIRMADOR DIGITAL
 DO_STATIC = os.getenv('DO_STATIC', default='True').lower() == 'true'
 DJANGO_ASETTINGS_MODULE = "demo.asettings"
@@ -174,3 +179,10 @@ FIRMADOR_VALIDA_URL = FIRMADOR_DOMAIN + "/valida/"
 FIRMADOR_SIGN_URL = FIRMADOR_DOMAIN + "/firma/firme"
 FIRMADOR_SIGN_COMPLETE = FIRMADOR_DOMAIN + "/firma/completa"
 FIRMADOR_DELETE_FILE_URL = FIRMADOR_DOMAIN + "/firma/delete"
+
+# history
+GT_HISTORY_ALLOWED_MODELS = [
+    "djgentelella.trash", # add always trash when you use history
+    "demoapp.customer",
+    # add more models here for history
+]
