@@ -27,6 +27,7 @@ Welcome to Django gentelella widgets's documentation!
    drf_serializers
    notifications
    history
+   trash
 
 Indices and tables
 ==================
