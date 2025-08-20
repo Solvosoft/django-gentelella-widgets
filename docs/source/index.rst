@@ -26,6 +26,7 @@ Welcome to Django gentelella widgets's documentation!
    permissionmanagement
    drf_serializers
    notifications
+   history
 
 Indices and tables
 ==================
