@@ -10,6 +10,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from .models_manager import ObjectManager, AllObjectsManager, \
     DeletedObjectsManager
 
+from djgentelella.history.utils import add_log, ADDITION
 
 class GentelellaSettings(models.Model):
     """
@@ -161,7 +162,7 @@ class Trash(models.Model):
         verbose_name_plural = _("Trash")
 
     def __str__(self):
-        return _("Registration in trash: %(obj)s") % {"obj": self.object_repr}
+        return _("%(obj)s in trash") % {"obj": self.object_repr}
 
     def restore(self, user=None):
         obj = self.content_object
@@ -206,7 +207,7 @@ class DeletedWithTrash(models.Model):
         self.save(update_fields=["is_deleted"])
 
         # create trash instance
-        Trash.objects.get_or_create(
+        trash = Trash.objects.get_or_create(
             content_type=ContentType.objects.get_for_model(self.__class__),
             object_id=self.pk,
             defaults={

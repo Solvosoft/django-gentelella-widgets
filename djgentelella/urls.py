@@ -18,6 +18,7 @@ from .groute import routes
 from .templatetags.gtsettings import get_version
 from .views import auth
 from .trash.api import TrashViewSet
+from .history.api import HistoryViewSet
 
 auth_urls = [
     path('accounts/login/', auth.GentelellaLoginView.as_view(), name="login"),
@@ -76,6 +77,9 @@ router = DefaultRouter()
 router.register('notificationtableview', NotificationViewSet, 'api-notificationtable')
 router_trash = DefaultRouter()
 router_trash.register("api_trash", TrashViewSet, basename="api-trash")
+history_router = DefaultRouter()
+history_router.register("api_history", HistoryViewSet, basename="api-history")
+
 
 base_urlpatterns = [
     re_path('gtapis/', include(routes.urls)),
@@ -94,6 +98,7 @@ base_urlpatterns = [
     path('tableapi/', include(router.urls)),
     path("update_config/", firmador_digital.update_signature_settings, name="signature_config"),
     path("api/trash/", include(router_trash.urls)),
+    path("api/history/", include(history_router.urls)),
 ]
 
 permission_management_urls = [
@@ -103,7 +108,6 @@ permission_management_urls = [
          name="permissionsmanagement-list"),
     path('permissionsmanagement/save', permissions.save_permcategorymanagement,
          name="permcategorymanagement-save"),
-
 ]
 
 urlpatterns = auth_urls + base_urlpatterns + wysiwyg_urls + permission_management_urls
