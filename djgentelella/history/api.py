@@ -102,12 +102,9 @@ class HistoryViewSet(AuthAllPermBaseObjectManagement):
 
         # check contenttype param in form
         ctypes_param = self.request.GET.get("contenttype")
-        print(allowed)
         if ctypes_param and ctypes_param in allowed:
 
             ctypes_qs = self.contenttypes_from_settings([ctypes_param])
-            print(ctypes_qs)
-
 
             if not ctypes_qs.exists():
                 return queryset.none()

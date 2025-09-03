@@ -14,7 +14,7 @@ class TrashSerializer(serializers.ModelSerializer):
     def get_actions(self, obj):
         user = self.context["request"].user
         return {
-            "restore": user.has_perm("djgentelella.update_trash"),
+            "restore": user.has_perm("djgentelella.delete_trash"),
             "destroy": user.has_perm("djgentelella.delete_trash"),
         }
 
