@@ -133,6 +133,44 @@ $.fn.select2related = function(action, relatedobjs=[]) {
                 if(parent.relatedobjs[x]['start_empty']){
                     newselect.val(null).trigger('change');
                 }
+                // when the father changes, clean this child
+                // $(parent.relatedobjs[x-1]['id']).on('change', function() {
+                //     $(parent.relatedobjs[x]['id']).val(null).trigger('change');
+                // });
+                $(parent.relatedobjs[x-1]['id']).on('change', function() {
+                    let child = $(parent.relatedobjs[x]['id']);
+                    let currentVal = child.val();
+
+                    if (!currentVal) {
+                        return; // nothing to validate
+                    }
+
+                    // Call the same endpoint that Select2 already uses to load options
+                    $.ajax({
+                        url: parent.relatedobjs[x]['url'],
+                        type: 'GET',
+                        dataType: 'json',
+                        data: {
+                            relfield: get_selected_values($(parent.relatedobjs[x-1]['id']).find(':selected'))
+                        },
+                        success: function (data) {
+                            let validOptions = data.results.map(r => String(r.id));
+                            if (Array.isArray(currentVal)) {
+                                // multiple values
+                                let stillValid = currentVal.some(v => validOptions.includes(String(v)));
+                                if (!stillValid) {
+                                    child.val(null).trigger('change');
+                                }
+                            } else {
+                                // unique value
+                                if (!validOptions.includes(String(currentVal))) {
+                                    child.val(null).trigger('change');
+                                }
+                            }
+                        }
+                    });
+                });
+
             }
             let contexts2empty = {
               placeholder: gettext('Select an element'),
