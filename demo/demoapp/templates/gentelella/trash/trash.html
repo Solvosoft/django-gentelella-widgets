@@ -36,8 +36,8 @@
 		{% include 'gentelella/blocks/modal_template.html' with form=form_create form_id="create_obj_form" id="create_obj_modal" title=create_obj_tittle modal_class=create_obj_tittle url=list_obj_url %}
 
 		{% url "api-customer-detail" 0 as detail_obj_url %}
-		{#		{% trans 'Update Customer' as update_obj_tittle %}#}
-		{#		{% include 'gentelella/blocks/modal_template.html' with form=form_update form_id="update_obj_form" id="update_obj_modal" title=update_obj_tittle url=detail_obj_url %}#}
+		{% trans 'Update Customer' as update_obj_tittle %}
+		{% include 'gentelella/blocks/modal_template.html' with form=form_update form_id="update_obj_form" id="update_obj_modal" title=update_obj_tittle url=detail_obj_url %}
 
 		{% trans 'Delete Customer' as delete_obj_tittle %}
 		{% include 'gentelella/blocks/modal_template_delete.html' with form=form_delete form_id="delete_obj_form" id="delete_obj_modal" title=delete_obj_tittle url=detail_obj_url %}
@@ -82,7 +82,7 @@
 			list_url: "{% url 'api-customer-list'  %}",
 			create_url: "{% url 'api-customer-list'  %}",
 			destroy_url: "{% url "api-customer-detail"  0 %}",
-			{#update_url: "{% url "api-customer-detail"  0 %}",#}
+			update_url: "{% url "api-customer-detail"  0 %}",
 		}
 
 		const datatable_inits = {
@@ -107,7 +107,7 @@
 		const modalids = {
 			create: "#create_obj_modal",
 			destroy: "#delete_obj_modal",
-			{#update: "#update_obj_modal",#}
+			update: "#update_obj_modal",
 		}
 
 		const actions = {
