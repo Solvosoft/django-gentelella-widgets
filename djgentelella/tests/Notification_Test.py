@@ -3,7 +3,7 @@ import re
 import uuid
 
 from django.conf import settings
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
 from django.test import Client
 from django.test import TestCase, RequestFactory
 from django.urls import reverse
@@ -17,7 +17,8 @@ from rest_framework.test import APIClient
 from demoapp.views import create_notification
 from djgentelella.models import Notification
 from djgentelella.notification.base import NotificationViewSet
-
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 class ApiNotificationsTestCase(TestCase):
     def setUp(self):
