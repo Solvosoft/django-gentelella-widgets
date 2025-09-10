@@ -133,10 +133,8 @@ $.fn.select2related = function(action, relatedobjs=[]) {
                 if(parent.relatedobjs[x]['start_empty']){
                     newselect.val(null).trigger('change');
                 }
-                // when the father changes, clean this child
-                // $(parent.relatedobjs[x-1]['id']).on('change', function() {
-                //     $(parent.relatedobjs[x]['id']).val(null).trigger('change');
-                // });
+                // when the father changes, clean this child -- Pending review
+                /*
                 $(parent.relatedobjs[x-1]['id']).on('change', function() {
                     let child = $(parent.relatedobjs[x]['id']);
                     let currentVal = child.val();
@@ -170,7 +168,7 @@ $.fn.select2related = function(action, relatedobjs=[]) {
                         }
                     });
                 });
-
+                */
             }
             let contexts2empty = {
               placeholder: gettext('Select an element'),
