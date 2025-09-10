@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.contrib.auth.models import Permission #, User
+from django.contrib.auth.models import Permission
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from tree_queries.models import TreeNode
@@ -9,7 +9,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from .models_manager import ObjectManager, AllObjectsManager, \
     DeletedObjectsManager
-
+from  djgentelella.settings import USER_MODEL_BASE
 from djgentelella.history.utils import add_log, ADDITION
 
 class GentelellaSettings(models.Model):
@@ -63,6 +63,7 @@ class Help(models.Model):
     def __str__(self):
         return self.help_text
 
+print(USER_MODEL_BASE)
 
 class Notification(models.Model):
     STATE = [('visible', _('Visible')),
@@ -78,7 +79,7 @@ class Notification(models.Model):
 
     description = models.TextField(verbose_name=_("Description"))
     link = models.URLField(verbose_name=_('Link'))
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name=_('User'))
+    user = models.ForeignKey(USER_MODEL_BASE, on_delete=models.CASCADE, verbose_name=_('User'))
     # warning, success, info,
     message_type = models.CharField(max_length=150, choices=MESSAGE_TYPE,
                                     verbose_name=_('Message Type'))
@@ -122,7 +123,7 @@ class ChunkedUpload(AbstractChunkedUpload):
     Default chunked upload model.
     """
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
+        USER_MODEL_BASE,
         on_delete=models.CASCADE,
         related_name='chunked_uploads',
         null=DEFAULT_MODEL_USER_FIELD_NULL,
@@ -144,7 +145,7 @@ class Trash(models.Model):
         help_text=_("Value of str(instance) at deletion time"),
     )
     deleted_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
+        USER_MODEL_BASE,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,

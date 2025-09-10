@@ -1,4 +1,3 @@
-# from django.contrib.auth.models import User, Group
 from django.contrib.auth.models import Group
 
 from djgentelella.groute import register_lookups

@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from rest_framework.pagination import LimitOffsetPagination
 
-# from django.contrib.auth.models import User
 from djgentelella.models import Notification
 from django.utils import formats
 from django_filters import FilterSet
