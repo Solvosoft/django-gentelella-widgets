@@ -2,9 +2,11 @@ from demoapp import models
 from djgentelella.groute import register_lookups
 from djgentelella.views.select2autocomplete import BaseSelect2View, BaseSelectImg2View, \
     GPaginator
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
 from rest_framework.authentication import SessionAuthentication
 from djgentelella.permission_management import AllPermission
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 
 @register_lookups(prefix="person", basename="personbasename")
