@@ -63,8 +63,6 @@ class Help(models.Model):
     def __str__(self):
         return self.help_text
 
-print(USER_MODEL_BASE)
-
 class Notification(models.Model):
     STATE = [('visible', _('Visible')),
              ('hide', _('Hidden'))]
