@@ -7,6 +7,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.templatetags.static import static
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth import get_user_model
 
 NOTIFICATION_DEFAULT_SUBJECT = getattr(settings, 'NOTIFICATION_DEFAULT_SUBJECT',
                                        _('You have a new notification'))
@@ -25,7 +26,7 @@ DEFAULT_GROUP_MODEL_BASE = 'GT_GROUP_MODEL'
 DEFAULT_USER_MODEL_BASE = 'GT_USER_MODEL'
 REGISTER_DEFAULT_USER_API = getattr(settings, 'REGISTER_DEFAULT_USER_API', True)
 DEFAULT_GROUP_MODEL = 'django.contrib.auth.models.Group'
-DEFAULT_USER_MODEL = 'django.contrib.auth.models.User'
+DEFAULT_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
 
 GROUP_MODEL_BASE = getattr(
     settings, DEFAULT_GROUP_MODEL_BASE, DEFAULT_GROUP_MODEL)
@@ -38,9 +39,11 @@ try:
 except Exception as e:
     from django.contrib.auth.models import Group
 try:
-    User = import_string(USER_MODEL_BASE)
+    # User = import_string(USER_MODEL_BASE)
+    User = get_user_model()
 except Exception as e:
     from django.contrib.auth.models import User
+
 
 ############################################
 #    Chunked Upload
@@ -85,5 +88,4 @@ MAX_BYTES = getattr(settings, 'CHUNKED_UPLOAD_MAX_BYTES', DEFAULT_MAX_BYTES)
 
 ############################################
 #   END UPLOAD CHUNKED
-
 

@@ -133,6 +133,7 @@ $.fn.select2related = function(action, relatedobjs=[]) {
                 if(parent.relatedobjs[x]['start_empty']){
                     newselect.val(null).trigger('change');
                 }
+
             }
             let contexts2empty = {
               placeholder: gettext('Select an element'),

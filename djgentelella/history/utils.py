@@ -45,8 +45,10 @@ def add_log(
 
     if change_message:
         if action_flag != DELETION and changed_data:
-            verbose_changes = [object._meta.get_field(f).verbose_name for f in
-                               changed_data]
+            verbose_changes = [
+                str(object._meta.get_field(f).verbose_name)
+                for f in changed_data
+            ]
 
             change_message = _("%(msg)s. Fields: %(fields)s") % {
                 "msg": change_message,
