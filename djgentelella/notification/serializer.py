@@ -1,13 +1,13 @@
 from rest_framework import serializers
 from rest_framework.pagination import LimitOffsetPagination
 
-from django.contrib.auth.models import User
 from djgentelella.models import Notification
 from django.utils import formats
 from django_filters import FilterSet
 from django_filters import DateTimeFromToRangeFilter
 from djgentelella.fields.drfdatetime import DateTimeRangeTextWidget
-
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 class NotificationFilterSet(FilterSet):
     creation_date = DateTimeFromToRangeFilter(
