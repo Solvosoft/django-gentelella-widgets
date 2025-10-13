@@ -242,7 +242,7 @@ document.gtwidgets = {
         });
     },
 
-    EditorTinymce: function (instance) {
+   EditorTinymce: function (instance) {
         $(instance).removeAttr('required');
         instance.tinymce({
             menubar: false,
@@ -252,6 +252,39 @@ document.gtwidgets = {
                 "autoresize", "hr", "image",
             ],
             quickbars_insert_toolbar: 'quicktable | hr pagebreak',
+            browser_spellcheck: true,   
+            contextmenu: false,  
+            
+        setup: function (editor) {
+            editor.on('init', function () {
+                    editor.getBody().setAttribute('spellcheck', true);
+                    editor.getBody().setAttribute('autocapitalize', 'sentences');
+                });
+            editor.on('keydown', function(e) {
+                if (e.key === ' ' || e.key === 'Enter') {
+                    // Obtén la posición actual del cursor
+                    const rng = editor.selection.getRng();
+                    const node = rng.startContainer;
+
+                    // Solo aplicamos si es nodo de texto
+                    if (node.nodeType === Node.TEXT_NODE) {
+                        const text = node.nodeValue;
+
+                        // Reemplaza la última letra de la oración o palabra
+                        const updated = text.replace(/(^|[\.!\?]\s+)([a-z])/g, (match, p1, p2) => p1 + p2.toUpperCase());
+
+                        if (text !== updated) {
+                            node.nodeValue = updated;
+                            // Restauramos el cursor al final del nodo modificado
+                            rng.setStart(node, node.nodeValue.length);
+                            rng.setEnd(node, node.nodeValue.length);
+                            editor.selection.setRng(rng);
+                        }
+                    }
+                }
+            });
+        },
+        
             file_picker_callback: function (callback, value, meta) {
                 var input = document.createElement('input');
                 input.setAttribute('type', 'file');
