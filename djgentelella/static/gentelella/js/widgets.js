@@ -243,44 +243,49 @@ document.gtwidgets = {
     },
 
     EditorTinymce: function (instance) {
-        const $elements = $(instance);
-        $elements.removeAttr('required');
+       let elements;
 
-        $elements.each(function(i, elem) {
+        // Si es un objeto jQuery → pasa a array
+        if (instance instanceof jQuery) {
+            elements = instance.toArray();
+            console.log(elements);
+        }
+        // Si es un string → usa querySelectorAll
+        else if (typeof instance === 'string') {
+            elements = document.querySelectorAll(instance);
+        }
+       
+        elements.forEach(elem => {
+            elem.removeAttribute('required');
             tinymce.init({
-                selector: '#' + $(elem).attr('id'),
-                menubar: true,
-                toolbar: 'undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist checklist | forecolor backcolor casechange permanentpen formatpainter removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media pageembed template link anchor codesample | a11ycheck ltr rtl | showcomments addcomment',
-                plugins: ['autolink', 'codesample', 'link', 'lists', 'media', 'quickbars', "advlist autolink lists link image charmap print preview anchor","searchreplace visualblocks code fullscreen", "insertdatetime media table paste imagetools wordcount","autoresize", "hr", "image",
-                ],
-                browser_spellcheck: true,
-                license_key: 'gpl',
-                contextmenu: false,
-
-                setup: function (editor) {
-                    editor.on('keydown', function(e) {
-                        if (e.key === ' ' || e.key === 'Enter') {
-                            // Obtén la posición actual del cursor
-                            const rng = editor.selection.getRng();
-                            const node = rng.startContainer;
-
-                            // Solo aplicamos si es nodo de texto
-                            if (node.nodeType === Node.TEXT_NODE) {
-                                const text = node.nodeValue;
-                                // Reemplaza la última letra de la oración o palabra
-                                const updated = text.replace(/(^|[\.!\?]\s+)([a-z])/g, (match, p1, p2) => p1 + p2.toUpperCase());
-
-                                if (text !== updated) {
-                                    node.nodeValue = updated;
-                                    // Restauramos el cursor al final del nodo modificado
-                                    rng.setStart(node, node.nodeValue.length);
-                                    rng.setEnd(node, node.nodeValue.length);
-                                    editor.selection.setRng(rng);
-                                }
-                            }
-                        }
-                    });
-                },
+            selector: '#' + elem.id,
+            menubar: true,
+            toolbar: 'undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist checklist | forecolor backcolor casechange permanentpen formatpainter removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media pageembed template link anchor codesample | a11ycheck ltr rtl | showcomments addcomment',
+            plugins: ['autolink', 'codesample', 'link', 'lists', 'media', 'quickbars', "advlist autolink lists link image charmap print preview anchor",
+                "searchreplace visualblocks code fullscreen", "insertdatetime media table paste imagetools wordcount",
+                "autoresize", "hr", "image",
+            ],
+            browser_spellcheck: true,
+            license_key: 'gpl',
+            contextmenu: false,
+            setup(editor) {
+                editor.on('keydown', e => {
+                if (e.key === ' ' || e.key === 'Enter') {
+                    const rng = editor.selection.getRng();
+                    const node = rng.startContainer;
+                    if (node.nodeType === Node.TEXT_NODE) {
+                    const text = node.nodeValue;
+                    const updated = text.replace(/(^|[.!?]\s+)([a-z])/g, (m, p1, p2) => p1 + p2.toUpperCase());
+                    if (text !== updated) {
+                        node.nodeValue = updated;
+                        rng.setStart(node, node.nodeValue.length);
+                        rng.setEnd(node, node.nodeValue.length);
+                        editor.selection.setRng(rng);
+                    }
+                    }
+                }
+                });
+            },
             });
         });
     },
