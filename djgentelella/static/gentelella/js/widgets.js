@@ -242,62 +242,49 @@ document.gtwidgets = {
         });
     },
 
-   EditorTinymce: function (instance) {
-        $(instance).removeAttr('required');
-        instance.tinymce({
-            menubar: false,
-            toolbar: 'undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist checklist | forecolor backcolor casechange permanentpen formatpainter removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media pageembed template link anchor codesample | a11ycheck ltr rtl | showcomments addcomment',
-            plugins: ['autolink', 'codesample', 'link', 'lists', 'media', 'quickbars', "advlist autolink lists link image charmap print preview anchor",
-                "searchreplace visualblocks code fullscreen", "insertdatetime media table paste imagetools wordcount",
-                "autoresize", "hr", "image",
-            ],
-            quickbars_insert_toolbar: 'quicktable | hr pagebreak',
-            browser_spellcheck: true,   
-            contextmenu: false,  
-            
-        setup: function (editor) {
-            editor.on('init', function () {
-                    editor.getBody().setAttribute('spellcheck', true);
-                    editor.getBody().setAttribute('autocapitalize', 'sentences');
-                });
-            editor.on('keydown', function(e) {
-                if (e.key === ' ' || e.key === 'Enter') {
-                    // Obtén la posición actual del cursor
-                    const rng = editor.selection.getRng();
-                    const node = rng.startContainer;
+    EditorTinymce: function (instance) {
+        const $elements = $(instance);
+        $elements.removeAttr('required');
 
-                    // Solo aplicamos si es nodo de texto
-                    if (node.nodeType === Node.TEXT_NODE) {
-                        const text = node.nodeValue;
+        $elements.each(function(i, elem) {
+            tinymce.init({
+                selector: '#' + $(elem).attr('id'),
+                menubar: true,
+                toolbar: 'undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist checklist | forecolor backcolor casechange permanentpen formatpainter removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media pageembed template link anchor codesample | a11ycheck ltr rtl | showcomments addcomment',
+                plugins: ['autolink', 'codesample', 'link', 'lists', 'media', 'quickbars', "advlist autolink lists link image charmap print preview anchor","searchreplace visualblocks code fullscreen", "insertdatetime media table paste imagetools wordcount","autoresize", "hr", "image",
+                ],
+                browser_spellcheck: true,
+                license_key: 'gpl',
+                contextmenu: false,
 
-                        // Reemplaza la última letra de la oración o palabra
-                        const updated = text.replace(/(^|[\.!\?]\s+)([a-z])/g, (match, p1, p2) => p1 + p2.toUpperCase());
+                setup: function (editor) {
+                    editor.on('keydown', function(e) {
+                        if (e.key === ' ' || e.key === 'Enter') {
+                            // Obtén la posición actual del cursor
+                            const rng = editor.selection.getRng();
+                            const node = rng.startContainer;
 
-                        if (text !== updated) {
-                            node.nodeValue = updated;
-                            // Restauramos el cursor al final del nodo modificado
-                            rng.setStart(node, node.nodeValue.length);
-                            rng.setEnd(node, node.nodeValue.length);
-                            editor.selection.setRng(rng);
+                            // Solo aplicamos si es nodo de texto
+                            if (node.nodeType === Node.TEXT_NODE) {
+                                const text = node.nodeValue;
+                                // Reemplaza la última letra de la oración o palabra
+                                const updated = text.replace(/(^|[\.!\?]\s+)([a-z])/g, (match, p1, p2) => p1 + p2.toUpperCase());
+
+                                if (text !== updated) {
+                                    node.nodeValue = updated;
+                                    // Restauramos el cursor al final del nodo modificado
+                                    rng.setStart(node, node.nodeValue.length);
+                                    rng.setEnd(node, node.nodeValue.length);
+                                    editor.selection.setRng(rng);
+                                }
+                            }
                         }
-                    }
-                }
+                    });
+                },
             });
-        },
-        
-            file_picker_callback: function (callback, value, meta) {
-                var input = document.createElement('input');
-                input.setAttribute('type', 'file');
-                input.setAttribute('accept', 'image/*');
-                input.onchange = function () {
-                    var file = this.files[0];
-                    upload_files(callback, meta, file, instance.attr('data-option-image'),
-                        instance.attr('data-option-video'));
-                };
-                input.click();
-            },
         });
     },
+
 
     TaggingInput: function (instance) {
         build_tagginginput(instance);
