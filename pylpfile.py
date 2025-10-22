@@ -94,6 +94,9 @@ CSS_FILES = [str(BASE_PATH / path) for path in [
     'vendors/chartjs/Chart.min.css',
     'vendors/datatables/datatables.min.css',
     'vendors/pdfjs/pdf_viewer.min.css',
+    'vendors/tinymce-8.1.2/skins/content/default/content.min.css',
+    'vendors/tinymce-8.1.2/skins/content/dark/content.min.css',
+    'vendors/tinymce-8.1.2/skins/ui/oxide/skin.min.css'
 ]]
 
 READONLY_WIDGETS_CSS = [str(BASE_PATH / path) for path in [
@@ -142,6 +145,11 @@ JS_FILES = [str(BASE_PATH / path) for path in [
     'vendors/chartjs/Chart.min.js',
     'vendors/pdfjs/interact.min.js',
     'vendors/htmlx/htmx.min.js',
+    'vendors/tinymce-8.1.2/tinymce.min.js',
+    'vendors/tinymce-8.1.2/tinymce-all.js',
+    'vendors/tinymce-8.1.2/icons/default/icons.min.js',
+    'vendors/tinymce-8.1.2/models/dom/model.min.js',
+    'vendors/tinymce-8.1.2/themes/silver/theme.min.js',
 ]]
 
 READONLY_WIDGETS_JS = [str(BASE_PATH / path) for path in [
