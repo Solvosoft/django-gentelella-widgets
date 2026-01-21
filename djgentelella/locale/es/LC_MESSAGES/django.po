@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-29 22:37+0000\n"
+"POT-Creation-Date: 2025-12-18 21:41+0000\n"
 "PO-Revision-Date: 2025-03-29 16:43-0600\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -17,6 +17,14 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.2.2\n"
+
+#, fuzzy
+#| msgid "Actions"
+msgid "Action"
+msgstr "Acciones"
+
+msgid "History"
+msgstr "Historial"
 
 msgid "created"
 msgstr "creado"
@@ -92,10 +100,6 @@ msgstr ""
 "Se espera una lista de elementos, ej: [{name: 'nombre del archivo', "
 "value:'representación en cadena base64'}]"
 
-#, python-brace-format
-msgid "Too many elements, max_file = {self.max_files}"
-msgstr "Demasiados elementos, max_file = {self.max_files}"
-
 msgid ""
 "Invalid structure you need to provide {name: 'name of file', value:'base64 "
 "string representation'}"
@@ -116,6 +120,54 @@ msgid "Invalid value not encoded as b64 o json parser error"
 msgstr ""
 "Valor inválido, debe ser un documento base64 o un error al parsear el json"
 
+msgid "Contact"
+msgstr "Contacto"
+
+msgid "Date format"
+msgstr "Formato de fecha"
+
+msgid "Signature message"
+msgstr "Mensaje de firma"
+
+msgid "Font alignment"
+msgstr "Alineación de fuente"
+
+msgid "Font color"
+msgstr "Color de fuente"
+
+msgid "Font size"
+msgstr "Tamaño de fuente"
+
+msgid "Place"
+msgstr "Lugar"
+
+msgid "Reason"
+msgstr "Razón"
+
+msgid "Visible signature"
+msgstr "Firma visible"
+
+msgid "Signature image"
+msgstr "Imagen de firma"
+
+msgid "Image preview"
+msgstr "Vista previa de imagen"
+
+msgid "None"
+msgstr ""
+
+msgid "Right"
+msgstr ""
+
+msgid "Left"
+msgstr ""
+
+msgid "Top"
+msgstr ""
+
+msgid "Bottom"
+msgstr ""
+
 msgid "An unexpected error occurred during the signing process."
 msgstr ""
 "Un error inesperado ha ocurrido durante el proceso de firmado de documentos."
@@ -132,6 +184,61 @@ msgstr "El tiempo de espera del servicio de firma ha expirado."
 
 msgid "An exception ocurred el request to the signing service."
 msgstr "Un error ha ocurrido enviando la petición a los servicios de firmado."
+
+msgid "Updated signature settings successfully."
+msgstr "Configuración de firma actualizada correctamente."
+
+#, fuzzy
+#| msgid "Create"
+msgid "Created"
+msgstr "Crear"
+
+#, fuzzy
+#| msgid "Update"
+msgid "Updated"
+msgstr "Actualizar"
+
+#, fuzzy
+#| msgid "Delete"
+msgid "Deleted"
+msgstr "Eliminar"
+
+#, fuzzy
+#| msgid "Not found"
+msgid "No user found"
+msgstr "No se encontró"
+
+msgid "Hard deleted"
+msgstr "Eliminación permanente"
+
+msgid "Restored"
+msgstr "Restaurado"
+
+#, fuzzy
+#| msgid "Update"
+msgid "updated"
+msgstr "Actualizar"
+
+msgid "deleted"
+msgstr "eliminado"
+
+msgid "hard deleted"
+msgstr "eliminado permanentemente"
+
+msgid "restored"
+msgstr "restaurado"
+
+#, python-format
+msgid "An object of model %(model)s has been %(action)s"
+msgstr "Un objeto del modelo %(model)s ha sido %(action)s"
+
+#, python-format
+msgid "%(msg)s. Fields: %(fields)s"
+msgstr "%(msg)s. Campos: %(fields)s"
+
+#, python-format
+msgid "The record %(obj)s of model %(model)s has been %(action)s"
+msgstr "El registro %(obj)s del modelo %(model)s ha sido %(action)s"
 
 #, python-brace-format
 msgid "Do you want to delete {obj}?"
@@ -190,6 +297,30 @@ msgstr "Nombre de la url"
 
 msgid "Permission"
 msgstr "Permiso"
+
+msgid "Content type"
+msgstr ""
+
+msgid "Object ID"
+msgstr ""
+
+msgid "Object repr"
+msgstr ""
+
+msgid "Value of str(instance) at deletion time"
+msgstr ""
+
+#, fuzzy
+#| msgid "Delete"
+msgid "Deleted by"
+msgstr "Eliminar"
+
+msgid "Trash"
+msgstr ""
+
+#, python-format
+msgid "%(obj)s in trash"
+msgstr "%(obj)s en papelera"
 
 msgid "This is a html email, please use a visor with HTML support"
 msgstr "Este es un correo HTML, por favor use un cliente con soporte HTML"
@@ -319,6 +450,9 @@ msgstr "Siguiente"
 
 msgid "Create"
 msgstr "Crear"
+
+msgid "Signature settings"
+msgstr "Configuración de firma"
 
 msgid "Show all notifications"
 msgstr "Ver todas las notificaciones"
@@ -508,6 +642,9 @@ msgid "You are now registered. Activation email sent."
 msgstr ""
 "Usted fue registrado adecuadamente. Un correo de activación ha sido enviado."
 
+msgid "You updated correctly your password please login again."
+msgstr ""
+
 msgid "Select an User"
 msgstr "Seleccione a un Usuario"
 
@@ -598,6 +735,9 @@ msgstr "Ejecutar Firmador Libre"
 msgid "Run app"
 msgstr "Ejecutar aplicación"
 
+msgid "Expand"
+msgstr "Expandir"
+
 msgid ""
 "Please go to the last page, in the signature space, try to place your "
 "signature vertically centered."
@@ -614,57 +754,6 @@ msgstr "Por favor, espere mientras se firma el documento."
 msgid "Start"
 msgstr "Iniciar"
 
-msgid "Unknown"
-msgstr "Desconocido"
-
-msgid "LEFT"
-msgstr "IZQUIERDA"
-
-msgid "CENTER"
-msgstr "CENTRO"
-
-msgid "RIGHT"
-msgstr "DERECHA"
-
-msgid "Signature settings"
-msgstr "Configuración de firma"
-
-msgid "Updated signature settings successfully."
-msgstr "Configuración de firma actualizada correctamente."
-
-msgid "Background color"
-msgstr "Color de fondo"
-
-msgid "Contact"
-msgstr "Contacto"
-
-msgid "Date format"
-msgstr "Formato de fecha"
-
-msgid "Signature message"
-msgstr "Mensaje de firma"
-
-msgid "Font"
-msgstr "Fuente"
-
-msgid "Font alignment"
-msgstr "Alineación de fuente"
-
-msgid "Font color"
-msgstr "Color de fuente"
-
-msgid "Font size"
-msgstr "Tamaño de fuente"
-
-msgid "Place"
-msgstr "Lugar"
-
-msgid "Reason"
-msgstr "Razón"
-
-msgid "Visible signature"
-msgstr "Firma visible"
-
 msgid "This registry of trash does not exist."
 msgstr "Este registro de papelera no existe."
 
@@ -674,50 +763,10 @@ msgstr "El registro fue restaurado con éxito."
 msgid "The registry could not be restored."
 msgstr "No se pudo restaurar el registro."
 
-msgid "Signature image"
-msgstr "Imagen de firma"
+#, fuzzy
+#| msgid "Delete"
+msgid "Deleted object"
+msgstr "Eliminar"
 
-msgid "Image preview"
-msgstr "Vista previa de imagen"
-
-msgid "Image signature"
-msgstr "Imagen de firma"
-msgid "Expand"
-msgstr "Expandir"
-
-# history
-msgid "Restoration"
-msgstr "Restaurado"
-
-msgid "deleted"
-msgstr "eliminado"
-
-msgid "Hard deleted"
-msgstr "Eliminación permanente"
-
-msgid "History"
-msgstr "Historial"
-
-msgid "General"
-msgstr "General"
-
-msgid "restored"
-msgstr "restaurado"
-
-msgid "Restored"
-msgstr "Restaurado"
-
-msgid "hard deleted"
-msgstr "eliminado permanentemente"
-
-msgid "%(msg)s. Fields: %(fields)s"
-msgstr "%(msg)s. Campos: %(fields)s"
-
-msgid "The record %(obj)s of model %(model)s has been %(action)s"
-msgstr "El registro %(obj)s del modelo %(model)s ha sido %(action)s"
-
-msgid "An object of model %(model)s has been %(action)s"
-msgstr "Un objeto del modelo %(model)s ha sido %(action)s"
-
-msgid "%(obj)s in trash"
-msgstr "%(obj)s en papelera"
+msgid "Unknown"
+msgstr "Desconocido"

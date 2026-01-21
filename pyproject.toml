@@ -112,7 +112,8 @@ dependencies = [# Optional
     'Pillow',
     'djangorestframework>=3.13',
     'django>=4.2',
-    'django_filter>=22.1'
+    'django_filter>=22.1',
+    'pycryptodome>=3.23.0'
 ]
 
 # List additional groups of dependencies here (e.g. development
