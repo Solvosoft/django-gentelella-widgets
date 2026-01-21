@@ -69,3 +69,10 @@ class AnyPermissionByAction(BasePermission):
             return False
 
         return any_permission(request.user, perms)
+
+
+def get_actions_by_perms(user, actions_list):
+    actions = {}
+    for action, perms in actions_list.items():
+        actions[action] = all_permission(user, perms)
+    return actions

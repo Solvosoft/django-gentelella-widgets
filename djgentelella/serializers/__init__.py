@@ -31,3 +31,17 @@ class GTDateTimeField(DateTimeField):
         if not value and self.allow_empty_str:
             return None
         return super().to_internal_value(value)
+
+
+class DateFieldWithEmptyString(DateField):
+    def to_internal_value(self, value):
+        if not value:
+            return None
+        return super(DateFieldWithEmptyString, self).to_internal_value(value)
+
+
+class DateTimeFieldFieldWithEmptyString(DateTimeField):
+    def to_internal_value(self, value):
+        if not value:
+            return None
+        return super(DateTimeFieldFieldWithEmptyString, self).to_internal_value(value)
