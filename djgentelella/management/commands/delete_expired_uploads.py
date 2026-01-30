@@ -1,28 +1,26 @@
-from optparse import make_option
-
-from chunked_upload.constants import UPLOADING, COMPLETE
-from chunked_upload.models import ChunkedUpload
-from chunked_upload.settings import EXPIRATION_DELTA
+from djgentelella.chunked_upload.constants import UPLOADING, COMPLETE
+from djgentelella.models import ChunkedUpload
+from djgentelella.settings import EXPIRATION_DELTA
 from django.core.management.base import BaseCommand
 from django.utils import timezone
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext_lazy as _
 
-prompt_msg = _(u'Do you want to delete {obj}?')
+prompt_msg = _('Do you want to delete {obj}?')
 
 
 class Command(BaseCommand):
     # Has to be a ChunkedUpload subclass
     model = ChunkedUpload
-
     help = 'Deletes chunked uploads that have already expired.'
 
-    option_list = BaseCommand.option_list + (
-        make_option('--interactive',
-                    action='store_true',
-                    dest='interactive',
-                    default=False,
-                    help='Prompt confirmation before each deletion.'),
-    )
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--interactive',
+            action='store_true',
+            dest='interactive',
+            default=False,
+            help='Prompt confirmation before each deletion.',
+        )
 
     def handle(self, *args, **options):
         interactive = options.get('interactive')
@@ -33,7 +31,7 @@ class Command(BaseCommand):
 
         for chunked_upload in qs:
             if interactive:
-                prompt = prompt_msg.format(obj=chunked_upload) + u' (y/n): '
+                prompt = prompt_msg.format(obj=chunked_upload) + ' (y/n): '
                 answer = input(prompt).lower()
                 while answer not in ('y', 'n'):
                     answer = input(prompt).lower()
@@ -44,5 +42,9 @@ class Command(BaseCommand):
             # Deleting objects individually to call delete method explicitly
             chunked_upload.delete()
 
-        print('%i complete uploads were deleted.' % count[COMPLETE])
-        print('%i incomplete uploads were deleted.' % count[UPLOADING])
+        self.stdout.write(
+            self.style.SUCCESS(f'{count[COMPLETE]} complete uploads were deleted.')
+        )
+        self.stdout.write(
+            self.style.SUCCESS(f'{count[UPLOADING]} incomplete uploads were deleted.')
+        )
