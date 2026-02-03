@@ -1,48 +1,58 @@
-from optparse import make_option
-
-from chunked_upload.constants import UPLOADING, COMPLETE
-from chunked_upload.models import ChunkedUpload
-from chunked_upload.settings import EXPIRATION_DELTA
 from django.core.management.base import BaseCommand
-from django.utils import timezone
-from django.utils.translation import ugettext as _
 
-prompt_msg = _(u'Do you want to delete {obj}?')
+from djgentelella.chunked_upload.constants import UPLOADING, COMPLETE
+from djgentelella.chunked_upload.utils import get_expired_uploads, delete_expired_uploads
 
 
 class Command(BaseCommand):
-    # Has to be a ChunkedUpload subclass
-    model = ChunkedUpload
-
     help = 'Deletes chunked uploads that have already expired.'
 
-    option_list = BaseCommand.option_list + (
-        make_option('--interactive',
-                    action='store_true',
-                    dest='interactive',
-                    default=False,
-                    help='Prompt confirmation before each deletion.'),
-    )
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--interactive',
+            action='store_true',
+            dest='interactive',
+            default=False,
+            help='Prompt confirmation before each deletion.',
+        )
 
     def handle(self, *args, **options):
         interactive = options.get('interactive')
 
+        if interactive:
+            result = self._handle_interactive()
+        else:
+            result = delete_expired_uploads()
+
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"{result['complete']} complete uploads were deleted."
+            )
+        )
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"{result['uploading']} incomplete uploads were deleted."
+            )
+        )
+
+    def _handle_interactive(self):
+        """Handle interactive deletion with user confirmation."""
         count = {UPLOADING: 0, COMPLETE: 0}
-        qs = self.model.objects.all()
-        qs = qs.filter(created_on__lt=(timezone.now() - EXPIRATION_DELTA))
+        exclude_ids = []
 
-        for chunked_upload in qs:
-            if interactive:
-                prompt = prompt_msg.format(obj=chunked_upload) + u' (y/n): '
+        for chunked_upload in get_expired_uploads():
+            prompt = f'Do you want to delete {chunked_upload}? (y/n): '
+            answer = input(prompt).lower()
+            while answer not in ('y', 'n'):
                 answer = input(prompt).lower()
-                while answer not in ('y', 'n'):
-                    answer = input(prompt).lower()
-                if answer == 'n':
-                    continue
 
-            count[chunked_upload.status] += 1
-            # Deleting objects individually to call delete method explicitly
-            chunked_upload.delete()
+            if answer == 'n':
+                exclude_ids.append(chunked_upload.id)
+            else:
+                count[chunked_upload.status] += 1
+                chunked_upload.delete()
 
-        print('%i complete uploads were deleted.' % count[COMPLETE])
-        print('%i incomplete uploads were deleted.' % count[UPLOADING])
+        return {
+            'complete': count[COMPLETE],
+            'uploading': count[UPLOADING],
+        }
