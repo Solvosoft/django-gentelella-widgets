@@ -1,31 +1,38 @@
 import logging
 
-from django.core.management import call_command
+from djgentelella.chunked_upload.utils import delete_expired_uploads
+
 logger = logging.getLogger('djgentelella')
 
-def delete_documents_chunked_uploads(interactive=False):
-    """
-    Elimina chunked uploads expirados llamando al comando de djgentelella
 
-    Args:
-        interactive: Si es True, pedirá confirmación antes de cada eliminación
-                     (solo útil en ejecución manual, no en tareas programadas)
+def delete_expired_chunked_uploads():
+    """
+    Delete expired chunked uploads.
+
+    This function is intended to be called by scheduled tasks (e.g., Celery).
+    It does not support interactive mode since scheduled tasks run unattended.
+
+    Returns:
+        dict: A dictionary with 'status' and deletion counts or error message.
     """
     try:
-        logger.info('Iniciando eliminación de chunked uploads expirados')
+        logger.info('Starting deletion of expired chunked uploads')
 
-        # Llamar al comando delete_expired_uploads de djgentelella
-        call_command('delete_expired_uploads', interactive=interactive)
+        result = delete_expired_uploads()
 
-        logger.info('Eliminación de chunked uploads completada exitosamente')
+        logger.info(
+            f"Deletion completed: {result['complete']} complete, "
+            f"{result['uploading']} incomplete uploads deleted"
+        )
 
         return {
             'status': 'success',
-            'message': 'Expired chunked uploads deleted successfully'
+            'complete': result['complete'],
+            'uploading': result['uploading'],
         }
 
     except Exception as e:
-        logger.error(f'Error eliminando chunked uploads: {str(e)}', exc_info=True)
+        logger.error(f'Error deleting chunked uploads: {str(e)}', exc_info=True)
         return {
             'status': 'error',
             'message': str(e)
