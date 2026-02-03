@@ -1,33 +1,58 @@
-.. Django gentelella widgets documentation master file, created by
-   sphinx-quickstart on Wed Apr 22 00:13:25 2020.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+.. Django gentelella widgets documentation master file
 
-Welcome to Django gentelella widgets's documentation!
-=====================================================
+Django Gentelella Widgets Documentation
+=======================================
+
+Django Gentelella Widgets (``djgentelella``) is a reusable Django application that integrates Bootstrap 5 with various JavaScript libraries as Django widgets and form utilities. It simplifies building Django applications with rich UI components.
 
 .. toctree::
-   :maxdepth: 3
-   :caption: Contents:
+   :maxdepth: 2
+   :caption: Getting Started
 
    introduction
+   installation
    settings
    demo
-   templates
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Forms & Widgets
+
    forms
    widgets/widgets
    widgets/advancedwidgets
-   appwidgets/appwidgets
-   blog
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Data Management
+
    crud
-   contents
    datatables
+   model_fields
+
+.. toctree::
+   :maxdepth: 2
+   :caption: UI Components
+
+   appwidgets/appwidgets
+   templates
+   icons
+   menus
+   help
+   jslibraries
+   blog
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Advanced Features
+
    object_management
    permissionmanagement
-   drf_serializers
    notifications
    history
    trash
+   drf_serializers
+
 
 Indices and tables
 ==================
@@ -35,3 +60,4 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
