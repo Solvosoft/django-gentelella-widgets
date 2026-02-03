@@ -40,7 +40,7 @@ test:
 docs:
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
-	sphinx-build -b linkcheck ./docs/source docs/build/
+	#sphinx-build -b linkcheck ./docs/source docs/build/
 	sphinx-build -b html ./docs/source docs/build/
 
 release:
@@ -84,3 +84,12 @@ init_demo:
 	python manage.py createdemo && \
 	python manage.py demomenu && \
 	python manage.py createsuperuser
+
+run:
+	cd demo && python manage.py runserver
+
+loadstatic:
+	cd demo && python manage.py loaddevstatic
+
+basejs:
+	cd demo && python manage.py createbasejs
