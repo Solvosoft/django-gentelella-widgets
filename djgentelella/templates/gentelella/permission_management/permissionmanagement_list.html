@@ -1,11 +1,20 @@
+{% load i18n %}
+
 {% for key, value in categories.items %}
-   <a class="btn categories" data-bs-toggle="collapse" data-bs-target="#category{{key|cut:' '}}"><i class="fa fa-plus"></i></a> <strong>{{key}}</strong>
-  <div id="category{{key|cut:' '}}" class="collapse" style="width:100%">
-    {% for item in value %}
-      <div class="row" style="margin-left: 12%;">
-        <p><input type="checkbox" class="flat" name="permission" value="{{item.id}}" style="position: absolute; opacity: 0;"> {{item.name}}</p>
-      </div>
-        {% endfor %}
-  </div>
-<br>
+	<a class="btn categories" data-bs-toggle="collapse" data-bs-target="#category{{ key|cut:' ' }}"><i
+		class="fa fa-plus"></i></a> <strong>{% trans key %}</strong>
+	<div id="category{{ key|cut:' ' }}" class="collapse" style="width:100%">
+		{% for item in value %}
+			<div class="row" style="margin-left: 12%;">
+				<p>
+					<input id="checkbox_perms_{{ item.id }}" type="checkbox" class="flat" name="permission" value="{{ item.id }}"
+														style="position: absolute; opacity: 0;">
+					<label for="checkbox_perms_{{ item.id }}">
+						{% trans item.name %}
+					</label>
+				</p>
+			</div>
+		{% endfor %}
+	</div>
+	<br>
 {% endfor %}
