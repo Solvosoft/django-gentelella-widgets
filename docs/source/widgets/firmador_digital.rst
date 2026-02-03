@@ -1,17 +1,18 @@
 Digital Signature
-=================
+^^^^^^^^^^^^^^^^^^^
 
 This component allows us to digitally sign documents, and the interface to perform this process.
 
 It is important to highlight that for this process we will use **'Firmador Libre'**, which is an application that facilitates the signing of documents.
 
+-----------------
 Configurations
---------------
+-----------------
 
 This process is done through a socket, which communicates with an API, free signer, and our project. So we will configure our project to carry out this process.
 
 1. Configurations in settings.py
----------------------------------
+""""""""""""""""""""""""""""""""""
 
 Djgentelella already implements the required libraries for the following configurations:
 
@@ -75,7 +76,7 @@ Djgentelella already implements the required libraries for the following configu
 
 
 2. Add files for asgi configuration
------------------------------------
+"""""""""""""""""""""""""""""""""""""
 
     a) Update a file ``asgi.py`` in main app::
 
@@ -102,9 +103,10 @@ Djgentelella already implements the required libraries for the following configu
 
 
 
-
+-----------------
 Widget Variables
-----------------
+-----------------
+
 - **ws_url**:
   The URL of the WebSocket that connects to the digital signing service.
 
@@ -121,8 +123,9 @@ Widget Variables
   - ``"first"``: Loads the first page of the document.
   - A numeric value: Loads the page corresponding to the given number.
 
+-------------------------------------
 Example Implementation in a Form
---------------------------------
+-------------------------------------
 
 Below is an example of how the ``DigitalSignatureForm`` is implemented:
 
@@ -142,20 +145,24 @@ Below is an example of how the ``DigitalSignatureForm`` is implemented:
                 )
             }
 
+-----------------------------------------
 DigitalSignatureFileAPIView Documentation
-===========================================
+-----------------------------------------
 
 Description
------------
+"""""""""""""
+
 The ``DigitalSignatureFileAPIView`` is a Django REST Framework API view designed to serve PDF documents that are associated with digital signatures. This endpoint uses a custom renderer to output the PDF file content.
 
 Renderer
---------
+"""""""""""""
+
 - **PDFRenderer**:
   This custom renderer class is responsible for rendering the PDF content correctly when a GET request is made to this API view.
 
 HTTP Methods
-------------
+"""""""""""""
+
 - **GET**:
   Retrieves the PDF file for a given digital signature.
 
@@ -169,14 +176,16 @@ HTTP Methods
   4. The binary data is then returned with the content type set to ``application/pdf``.
 
 Response Codes
---------------
+""""""""""""""""
+
 - **200 OK**:
   The request was successful and the PDF file content is returned.
 - **404 Not Found**:
   The digital signature with the specified primary key does not exist.
 
 Example Implementation
-----------------------
+""""""""""""""""""""""""
+
 Below is the example implementation of the API view:
 
 .. code-block:: python
@@ -204,30 +213,36 @@ Below is the example implementation of the API view:
 
             return Response(file_data, content_type='application/pdf')
 
+-------------------------------------
 Digital Signature View Documentation
-======================================
+-------------------------------------
 
 Description
------------
+"""""""""""""
+
 The ``digital_signature_view`` is a Django view that renders the digital signature interface. It is responsible for providing the digital signature form to the associated template, enabling users to interact with the digital signature process.
 
 Template Rendering
-------------------
+""""""""""""""""""""
+
 - **Template Path**:
   The view renders the template located at ``gentelella/digital_signature/digital_signature.html``. This template is designed to display the digital signature form and related elements.
 
 Context Variables
------------------
+"""""""""""""""""""
+
 - **form**:
   The context dictionary includes an instance of ``DigitalSignatureForm``.
   - The form is instantiated with the prefix ``"update"`` to ensure unique field naming, particularly useful if multiple forms are present on the same page.
 
 Usage
------
+"""""""""
+
 This view is typically connected to a URL in the Django project's URL configuration, making the digital signature interface accessible to users.
 
 Example Implementation
-----------------------
+""""""""""""""""""""""""
+
 .. code-block:: python
 
     from django.shortcuts import render
@@ -242,11 +257,13 @@ Example Implementation
             }
         )
 
+-------------------------------------
 DigitalSignature Model Documentation
-======================================
+-------------------------------------
 
 Description
------------
+"""""""""""""
+
 The ``DigitalSignature`` model is designed to manage digital signature files within the application. It encapsulates the core fields required for handling documents that need to be digitally signed. The three fundamental fields are:
 
 - **file**: Contains the actual document to be signed.
@@ -256,7 +273,8 @@ The ``DigitalSignature`` model is designed to manage digital signature files wit
 In addition, the model includes extra fields to enhance traceability and uniqueness.
 
 Model Fields
-------------
+"""""""""""""
+
 - **pk**:
   The auto-generated primary key of the model, created by Django.
 
@@ -276,7 +294,8 @@ Model Fields
   A timestamp updated automatically whenever the record is saved.
 
 Custom Methods
---------------
+""""""""""""""""
+
 - **save()**:
   Overrides the default save method to populate the ``filename`` field automatically using the uploaded file's name (if the filename is not already set). After this customization, it calls the parent class's save method.
 
@@ -284,7 +303,8 @@ Custom Methods
   Returns the ``filename`` if available; otherwise, it returns the string representation of the ``file_code``.
 
 Example Implementation
-----------------------
+""""""""""""""""""""""""
+
 .. code-block:: python
 
     class DigitalSignature(models.Model):
@@ -304,15 +324,18 @@ Example Implementation
             return self.filename or str(self.file_code)
 
 
+-----------------------------------------
 Digital Signature Template Documentation
-==========================================
+-----------------------------------------
 
 Overview
---------
+"""""""""""""
+
 This template renders the digital signature interface within the Django application. It extends the base site template and loads the required tags for configuration and static file management. The template displays a digital signature form and defines essential JavaScript variables that control the signature process.
 
 Template Structure
-------------------
+""""""""""""""""""""
+
 - **Extends**:
   The template extends ``gentelella/base_site.html`` to inherit the site's layout and styles.
 
@@ -323,25 +346,22 @@ Template Structure
   The main content is wrapped in a card layout. Inside this layout, a digital signature form is rendered, complete with CSRF protection. The form is submitted (via a hidden submit button) to process the digital signature.
 
 Key JavaScript Variables
-------------------------
+""""""""""""""""""""""""""
+
 Within the ``js`` block, two important variables are defined:
 
-1. **urls**
-   - **sign_doc**:
-     The URL to the document that needs to be signed. This URL is obtained from the API endpoint created to serve the document.
-   - **logo**:
-     The URL for the logo image, loaded from the static files. This image is displayed in the PIN entry window of the digital signature interface. This variable is optional and can be omitted if no logo is required.
+**urls**:
+  - **sign_doc**: The URL to the document that needs to be signed. This URL is obtained from the API endpoint created to serve the document.
+  - **logo**: The URL for the logo image, loaded from the static files. This image is displayed in the PIN entry window of the digital signature interface. This variable is optional and can be omitted if no logo is required.
 
-2. **doc_instance**
-   - **pk**:
-     The primary key of the digital signature document.
-   - **model**:
-     The name of the model managing the document files, in this case, ``DigitalSignature``.
-   - **app**:
-     The name of the Django app (``demoapp``) where the model is defined.
+**doc_instance**:
+  - **pk**: The primary key of the digital signature document.
+  - **model**: The name of the model managing the document files, in this case, ``DigitalSignature``.
+  - **app**: The name of the Django app (``demoapp``) where the model is defined.
 
 Example Template Implementation
--------------------------------
+"""""""""""""""""""""""""""""""""
+
 .. code-block:: html
 
     {% extends 'gentelella/base_site.html' %}
@@ -395,14 +415,17 @@ Example Template Implementation
     {% endblock %}
 
 Conclusion
-----------
+"""""""""""""
+
 This template integrates both the visual interface for initiating a digital signature process and the necessary JavaScript configuration. The variables defined in the ``urls`` and ``doc_instance`` objects are essential as they establish the API endpoint for retrieving the document and identify the document instance within the application.
 
+---------------------------------
 Extras for Widget Functionality
-================================
+---------------------------------
 
 User Signature Configuration
-----------------------------
+""""""""""""""""""""""""""""""
+
 To fully enable the digital signature widget, additional configuration per user is required.
 
 - **UserSignatureConfig Record**:
@@ -412,7 +435,8 @@ To fully enable the digital signature widget, additional configuration per user 
       - Optionally, implement a CRUD interface to manage these configurations within the application.
 
 Document Record Management
---------------------------
+""""""""""""""""""""""""""""
+
 A corresponding document record must be created that links a file with its primary key.
 
 - **Document Record**:
@@ -422,7 +446,8 @@ A corresponding document record must be created that links a file with its prima
 
 
 Widget Configuration Integration
-----------------------------------
+""""""""""""""""""""""""""""""""""
+
 The following JavaScript variables are critical for the widget's operation:
 
 - **doc_instance**:
@@ -446,7 +471,8 @@ The following JavaScript variables are critical for the widget's operation:
       }
 
 Summary
--------
+"""""""""
+
 To ensure proper functionality of the digital signature widget:
 
 - Create and manage a ``UserSignatureConfig`` record via the admin or a custom CRUD interface to store user-specific settings.

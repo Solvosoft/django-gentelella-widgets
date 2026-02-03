@@ -1,4 +1,4 @@
-Django Gentelella widgets
+Django Gentelella Widgets
 ############################
 
 .. image:: https://img.shields.io/readthedocs/django-gentelella-widgets?label=Read%20the%20Docs&logo=read%20the%20docs&logoColor=white
@@ -10,15 +10,65 @@ Django Gentelella widgets
 .. image:: https://github.com/Solvosoft/django-gentelella-widgets/actions/workflows/django.yml/badge.svg
   :alt: Gentelella test status
 
-
-
-This application is a set of utilities that will make developing applications with django and bootstrap 5 easier, as it provides a set of Javascript libraries such as select2, icheck, datatables and more nicely integrated as widgets or utilities that simplify application creation.
-
-This app helps you to integrate Django apps with `Gentelella <https://colorlib.com/polygon/gentelella/index.html>`_ building extra widgets for forms and speciall methods to render forms in templates.
-
 .. image:: docs/source/_static/readme/logo.png
   :width: 200
   :alt: Gentelella Logo
+  :align: right
+
+Build beautiful Django applications faster with **djgentelella** — a comprehensive widget and utility library that seamlessly integrates Bootstrap 5 with popular JavaScript libraries into Django's form system.
+
+Stop writing repetitive frontend code. Django Gentelella Widgets provides 40+ production-ready form widgets, a complete CRUD system with permissions, and enterprise features like soft-delete, audit logging, and chunked file uploads — all styled with the elegant `Gentelella <https://colorlib.com/polygon/gentelella/index.html>`_ admin theme.
+
+Why Django Gentelella Widgets?
+________________________________
+
+**For Developers Who Value Their Time**
+
+- **Drop-in widgets** — Replace Django's basic form widgets with rich, interactive components. Select2 autocomplete, date range pickers, WYSIWYG editors, and more work out of the box.
+- **Multiple form layouts** — Render forms as horizontal, inline, grid, or plain layouts with a single method call (``form.as_horizontal()``, ``form.as_grid()``).
+- **Complete CRUD views** — Build admin interfaces in minutes with permission-aware list, create, update, and delete views.
+
+**For Applications That Need to Scale**
+
+- **Soft delete & trash** — Never lose data accidentally. Deleted records go to trash and can be restored.
+- **Audit trail** — Track every change with automatic history logging including who changed what and when.
+- **Chunked file uploads** — Handle large files reliably with resumable uploads and progress tracking.
+- **Field-level encryption** — Protect sensitive data with AES encryption at the database level.
+
+**For Teams Building Modern Web Apps**
+
+- **REST API ready** — Built-in Django REST Framework serializers for notifications, history, and trash.
+- **Real-time notifications** — User notification system with WebSocket support via Django Channels.
+- **Digital signatures** — Integrate document signing workflows into your application.
+- **Permission management** — Organize and assign permissions by category with a visual interface.
+
+Key Features
+______________
+
+**Form Widgets**
+
+- Text inputs with masks (email, phone, credit card, tax ID)
+- Date/time pickers with range selection
+- Select2-powered dropdowns with autocomplete and remote data
+- Tree selectors for hierarchical data
+- File uploads with chunking and media recording (image, video, audio)
+- WYSIWYG and TinyMCE rich text editors
+- Interactive components: calendars, timelines, story maps, charts
+- Digital signature capture
+
+**Application Components**
+
+- **CRUD System** — Generic views with filtering, pagination, search, and inline editing
+- **Notification System** — Categorized user notifications with REST API
+- **Trash System** — Soft delete with restore capability
+- **History System** — Automatic audit logging of all changes
+- **Permission Management** — Visual permission assignment by group and user
+- **Menu System** — Dynamic, permission-aware navigation menus
+- **Blog Module** — Full-featured blog with categories and SEO sitemaps
+
+**Frontend Libraries Included**
+
+Bootstrap 5, Select2, DataTables, Chart.js, FullCalendar, DateRangePicker, HTMX, SweetAlert2, TinyMCE, and more — all bundled and ready to use
 
 Documentation
 ________________
