@@ -115,6 +115,7 @@ class OptionsSerializer(serializers.Serializer):
     scales = OptionScaleSerializer(required=False)
     elements = ElementsSerialize(required=False)
     animation = AnimationSerialize(required=False)
+    plugins = serializers.DictField(required=False)
 
 
 class ChartSerializer(serializers.Serializer):
