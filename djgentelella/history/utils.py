@@ -61,12 +61,12 @@ def add_log(
                 "action": action_label,
             }
 
-    LogEntry.objects.log_action(
+    queryset = object.__class__.objects.filter(pk=object.pk)
+
+    LogEntry.objects.log_actions(
         user_id=user.id,
-        content_type_id=content_type.id,
-        object_id=object.pk,
-        object_repr=object_repr,
+        queryset=queryset,
         action_flag=action_flag,
-        change_message=change_message,
+        change_message=str(change_message),
     )
 
