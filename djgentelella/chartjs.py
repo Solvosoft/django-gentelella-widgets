@@ -6,7 +6,7 @@ class DataSetSerializer(serializers.Serializer):
     label = serializers.CharField()
     backgroundColor = serializers.CharField(required=False)
     borderColor = serializers.CharField(required=False)
-    data = serializers.ListField(child=serializers.IntegerField())
+    data = serializers.ListField(child=serializers.FloatField())
     fill = serializers.BooleanField(default=False, required=False)
     borderWidth = serializers.IntegerField(default=0, required=False)
     stack = serializers.CharField(required=False)
@@ -115,6 +115,7 @@ class OptionsSerializer(serializers.Serializer):
     scales = OptionScaleSerializer(required=False)
     elements = ElementsSerialize(required=False)
     animation = AnimationSerialize(required=False)
+    plugins = serializers.DictField(required=False)
 
 
 class ChartSerializer(serializers.Serializer):
