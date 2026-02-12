@@ -4,7 +4,7 @@ djangoajax>=3.3
 django-markitup>=4.0.0
 markdown>=3.4.1
 Pillow>=10.4.0
-django>=4.0
+django>=6.0.2
 django_filter>=22.1
 django-cors-headers==4.6.0
 # firmador
