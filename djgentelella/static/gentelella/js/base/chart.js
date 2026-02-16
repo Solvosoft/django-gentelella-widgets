@@ -31,10 +31,26 @@ $.fn.gentelella_chart = function(){
    $.each($(this), function(i, e){
     var url = $(e).data('url');
     var canvas = $(e).find('canvas');
+    var extraParams = $(e).data('params');
+    var params = {};
+    if (extraParams) {
+        if (typeof extraParams === 'string') {
+            try {
+                params = JSON.parse(extraParams);
+            } catch(e) {
+                params = {zone_pk: extraParams};
+            }
+        } else if (typeof extraParams === 'number') {
+            params = {zone_pk: extraParams};
+        } else {
+            params = extraParams;
+        }
+    }
     $.ajax({
         url: url,
         type : "GET",
         dataType : 'json',
+        data: params,
         success : function(result) {
            var ctx = canvas[0].getContext('2d');
            var myChart = new Chart(ctx, check_callbacks(result));
