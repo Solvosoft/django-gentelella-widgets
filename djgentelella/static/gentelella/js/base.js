@@ -168,8 +168,6 @@ $.fn.gentelella_chart = function(){
     var canvas = $(e).find('canvas');
     var extraParams = $(e).data('params');
     var params = {};
-    console.log("Antes");
-    console.log(extraParams);
     if (extraParams) {
         if (typeof extraParams === 'string') {
             try {
@@ -183,8 +181,6 @@ $.fn.gentelella_chart = function(){
             params = extraParams;
         }
     }
-    console.log("Despues");
-    console.log(params);
     $.ajax({
         url: url,
         type : "GET",
