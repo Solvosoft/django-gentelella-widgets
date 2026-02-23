@@ -24,6 +24,26 @@ $.fn.gentelella_chart = function(){
         }
         return result;
     }
+    var resolveValue = function(value) {
+        if (typeof value !== 'string') return value;
+
+        if (value.startsWith('{') && value.endsWith('}')) {
+            var funcName = value.slice(1, -1);
+            if (typeof window[funcName] === 'function') {
+                return window[funcName]();
+            }
+        }
+        if (value.startsWith('#')) {
+            var el = $(value);
+            if (el.length) return el.val() || el.text();
+        }
+        if (value.startsWith('.')) {
+            var el = $(value).first();
+            if (el.length) return el.val() || el.text();
+        }
+
+        return value;
+    }
 
     $.each($(this), function(i, e) {
         var $element = $(e);
@@ -33,7 +53,7 @@ $.fn.gentelella_chart = function(){
         var params = {};
         $.each($element.data(), function(key, value) {
             if (reservedAttrs.indexOf(key) === -1) {
-                params[key] = value;
+                params[key] = resolveValue(value);
             }
         });
 
