@@ -1,6 +1,8 @@
+{% load chart_tags %}
+
 <div class="gentelella_graph"
      data-widget="DJGraph"
      data-url="{{graph_url}}"
-     {{ dataparams|safe }}>
+     {% render_data_attrs %}>
     <canvas></canvas>
 </div>
