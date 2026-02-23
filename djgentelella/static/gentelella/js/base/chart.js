@@ -38,10 +38,10 @@ $.fn.gentelella_chart = function(){
             try {
                 params = JSON.parse(extraParams);
             } catch(e) {
-                params = {zone_pk: extraParams};
+                params = {extraParams: extraParams};
             }
         } else if (typeof extraParams === 'number') {
-            params = {zone_pk: extraParams};
+            params = {extraParams: extraParams};
         } else {
             params = extraParams;
         }
