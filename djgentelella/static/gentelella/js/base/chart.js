@@ -10,55 +10,47 @@ document.chartcallbacks = {
     }
 }
 $.fn.gentelella_chart = function(){
+    var reservedAttrs = ['url', 'widget'];
 
-   check_callbacks=function(result){
-        if(result.options && result.options.tooltips && result.options.tooltips.callbacks){
-           var cback = result.options.tooltips.callbacks;
-           if(cback.label){
-                if(document.chartcallbacks.hasOwnProperty(cback.label)){
-                    result.options.tooltips.callbacks.label = document.chartcallbacks[cback.label]
+    var check_callbacks = function(result) {
+        if (result.options && result.options.tooltips && result.options.tooltips.callbacks) {
+            var cback = result.options.tooltips.callbacks;
+            var callbackTypes = ['label', 'beforeLabel', 'afterLabel', 'title', 'footer'];
+            callbackTypes.forEach(function(type) {
+                if (cback[type] && document.chartcallbacks && document.chartcallbacks.hasOwnProperty(cback[type])) {
+                    result.options.tooltips.callbacks[type] = document.chartcallbacks[cback[type]];
                 }
-           }
-          if(cback.beforeLabel){
-                if(document.chartcallbacks.hasOwnProperty(cback.beforeLabel)){
-                    result.options.tooltips.callbacks.beforeLabel = document.chartcallbacks[cback.beforeLabel]
-                }
-          }
+            });
         }
-       return result
-   }
-
-   $.each($(this), function(i, e){
-    var url = $(e).data('url');
-    var canvas = $(e).find('canvas');
-    var extraParams = $(e).data('params');
-    var params = {};
-    if (extraParams) {
-        if (typeof extraParams === 'string') {
-            try {
-                params = JSON.parse(extraParams);
-            } catch(e) {
-                params = {extraParams: extraParams};
-            }
-        } else if (typeof extraParams === 'number') {
-            params = {extraParams: extraParams};
-        } else {
-            params = extraParams;
-        }
+        return result;
     }
-    $.ajax({
-        url: url,
-        type : "GET",
-        dataType : 'json',
-        data: params,
-        success : function(result) {
-           var ctx = canvas[0].getContext('2d');
-           var myChart = new Chart(ctx, check_callbacks(result));
 
-        },
-        error: function(xhr, resp, text) {
-           console.log(text);
-        }
+    $.each($(this), function(i, e) {
+        var $element = $(e);
+        var url = $element.data('url');
+        var canvas = $element.find('canvas');
+
+        var params = {};
+        $.each($element.data(), function(key, value) {
+            if (reservedAttrs.indexOf(key) === -1) {
+                params[key] = value;
+            }
+        });
+
+        $.ajax({
+            url: url,
+            type: "GET",
+            dataType: 'json',
+            data: params,
+            success: function(result) {
+                var ctx = canvas[0].getContext('2d');
+                var chartConfig = check_callbacks(result);
+                var myChart = new Chart(ctx, chartConfig);
+                $element.data('chartInstance', myChart);
+            },
+            error: function(xhr, resp, text) {
+                console.log('Error loading chart:', text);
+            }
+        });
     });
-   });
 }

@@ -1,5 +1,4 @@
 from django.core.cache import cache
-
 from djgentelella.models import GentelellaSettings
 
 
