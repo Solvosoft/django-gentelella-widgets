@@ -122,9 +122,9 @@ LANGUAGE_CODE = 'es'
 TIME_ZONE = 'UTC'
 
 USE_I18N = True
-
+#for default always is true
 USE_L10N = True
-
+#for default always is true
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
