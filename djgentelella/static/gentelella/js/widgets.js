@@ -1,5 +1,14 @@
 document.formset = [];
 
+/* Prevent Bootstrap 5 from stealing focus when TinyMCE opens its own dialogs
+   (e.g. insert link, insert image). Without this, typing in TinyMCE dialogs
+   inside a Bootstrap modal is impossible. */
+document.addEventListener('focusin', function(e) {
+    if (e.target.closest('.tox-tinymce-aux, .moxman-window, .tam-assetmanager-root')) {
+        e.stopImmediatePropagation();
+    }
+}, true);
+
 document.gtwidgets = {
     ImageRecordInput: function (instance) {
         instance.each(function (i, e) {

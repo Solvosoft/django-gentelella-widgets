@@ -3,7 +3,7 @@ from random import randint
 
 from django.conf import settings
 from django.core.files import File
-from django.core.management import BaseCommand
+from django.core.management import BaseCommand, call_command
 from django.urls import reverse
 from django.utils.timezone import now
 
@@ -635,6 +635,80 @@ class Command(BaseCommand):
         models.D.objects.bulk_create(dl)
         models.E.objects.bulk_create(el)
 
+    def create_async_notification_menu(self):
+        parent = MenuItem.objects.create(
+            parent=None,
+            title='Async Notifications',
+            url_name='/',
+            category='sidebar',
+            is_reversed=False,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-envelope',
+            only_icon=False
+        )
+        MenuItem.objects.create(
+            parent=parent,
+            title='Email Notifications',
+            url_name='async_notification:email_notification',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-envelope-o',
+            only_icon=False
+        )
+        MenuItem.objects.create(
+            parent=parent,
+            title='Email Templates',
+            url_name='async_notification:email_template',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-file-text-o',
+            only_icon=False
+        )
+        MenuItem.objects.create(
+            parent=parent,
+            title='Newsletters',
+            url_name='async_notification:newsletter',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-newspaper-o',
+            only_icon=False
+        )
+        MenuItem.objects.create(
+            parent=parent,
+            title='Newsletter Templates',
+            url_name='async_notification:newsletter_template',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-columns',
+            only_icon=False
+        )
+        MenuItem.objects.create(
+            parent=parent,
+            title='Newsletter Tasks',
+            url_name='async_notification:newsletter_task',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-clock-o',
+            only_icon=False
+        )
+
     def create_avanced(self):
         parent_item = MenuItem.objects.create(
             parent=None,
@@ -695,5 +769,7 @@ class Command(BaseCommand):
         self.create_person()
         self.create_communities()
         self.abcde()
+        self.create_async_notification_menu()
         self.create_avanced()
         self.create_images_demo()
+        call_command('create_notification_demo', '--clear')

@@ -1,0 +1,182 @@
+{% extends 'gentelella/base_site.html' %}
+{% load i18n static %}
+
+{% block content %}
+<div class="row">
+	<div class="col-12">
+		<div class="card">
+			<div class="card-header">
+				<h4>{% trans "Newsletters" %}</h4>
+			</div>
+			<div class="card-body">
+				<table class="table table-striped w-100" id="datatable"></table>
+			</div>
+		</div>
+	</div>
+</div>
+
+{% url "async_notification:api-newsletter-list" as create_url %}
+{% trans 'Create Newsletter' as create_title %}
+{% include 'gentelella/blocks/modal_template.html' with form=create_form id="create_modal" title=create_title form_id="create_form" url=create_url modal_class="modal-lg" %}
+
+{% url "async_notification:api-newsletter-detail" 0 as update_url %}
+{% trans 'Update Newsletter' as update_title %}
+{% include 'gentelella/blocks/modal_template.html' with form=update_form id="update_modal" title=update_title form_id="update_form" url=update_url modal_class="modal-lg" %}
+
+{% trans 'Delete Newsletter' as delete_title %}
+{% include 'gentelella/blocks/modal_template_delete.html' with id="delete_modal" title=delete_title form_id="delete_form" url=update_url %}
+
+<!-- Recipients Preview Modal -->
+<div aria-hidden="true" id="modal_recipients" class="modal fade" data-bs-focus="false" role="dialog" tabindex="-1">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">{% trans "Recipients Preview" %}</h5>
+				<button aria-label="{% trans 'Close' %}" class="btn-close" data-bs-dismiss="modal" type="button"></button>
+			</div>
+			<div class="modal-body" id="recipients-content"></div>
+			<div class="modal-footer">
+				<button class="btn btn-secondary" data-bs-dismiss="modal" type="button">{% trans 'Close' %}</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+{{ block.super }}
+{{ create_form.media }}
+<script>
+var object_urls = {
+	list_url: "{% url 'async_notification:api-newsletter-list' %}",
+	create_url: "{{ create_url }}",
+	destroy_url: "{% url 'async_notification:api-newsletter-detail' 0 %}",
+	update_url: "{{ update_url }}",
+	get_values_for_update_url: "{% url 'async_notification:api-newsletter-get-values-for-update' 0 %}",
+};
+
+var datatable_inits = {
+	columns: [
+		{data: "subject", name: "subject", title: gettext("Subject"), type: "string", visible: true},
+		{data: "template_title", name: "template_title", title: gettext("Template"), type: "string", visible: true},
+		{data: "created_by_display", name: "created_by_display", title: gettext("Created By"), type: "string", visible: true},
+		{data: "created_at", name: "created_at", title: gettext("Created"), type: "date",
+			render: DataTable.render.datetime(), dateformat: document.datetime_format, visible: true},
+		{data: "actions", name: "actions", title: gettext("Actions"), type: "string", visible: true}
+	],
+	addfilter: true,
+};
+
+var modal_ids = {
+	create: "#create_modal",
+	update: "#update_modal",
+	destroy: "#delete_modal",
+};
+
+var actions = {
+	table_actions: [],
+	object_actions: [
+		{
+			name: 'preview_recipients', action: 'preview_recipients',
+			in_action_column: true,
+			i_class: 'fa fa-users',
+			method: 'GET',
+			title: gettext('Preview Recipients'),
+		}
+	],
+	title: gettext('Actions'),
+	className: "no-export-col"
+};
+
+var objconfig = {
+	urls: object_urls,
+	datatable_element: "#datatable",
+	modal_ids: modal_ids,
+	actions: actions,
+	datatable_inits: datatable_inits,
+	add_filter: true,
+	delete_display: function(data) { return data['subject']; },
+};
+
+var ocrud = ObjectCRUD("newsletter", objconfig);
+
+ocrud.preview_recipients = function(data, actiondef) {
+	var url = object_urls.destroy_url.replace("0", data.id).replace(/\/$/, '') + '/preview_recipients/';
+	$.ajax({
+		url: url, type: 'GET',
+		success: function(response) {
+			var html = '<p><strong>' + gettext('Total') + ':</strong> ' + response.count + '</p><ul>';
+			response.recipients.forEach(function(r) {
+				html += '<li>' + $('<span>').text(r).html() + '</li>';
+			});
+			html += '</ul>';
+			$('#recipients-content').html(html);
+			new bootstrap.Modal('#modal_recipients').show();
+		},
+		error: function() {
+			Swal.fire({icon: 'error', title: gettext('Error'),
+				text: gettext('Sorry, an error occurred.'),
+				confirmButtonText: gettext('Accept')});
+		}
+	});
+};
+
+ocrud.init();
+
+/* Autocomplete for recipient/cc/bcc fields */
+(function() {
+	var timer = null;
+	var AUTOCOMPLETE_URL = "{% url 'async_notification:email_autocomplete' %}";
+
+	function getOrCreateDropdown($input) {
+		var $dd = $input.next('.ac-dropdown');
+		if (!$dd.length) {
+			$dd = $('<div class="ac-dropdown"></div>').css({
+				position: 'absolute', zIndex: 1060, background: '#fff',
+				border: '1px solid #ccc', borderRadius: '4px', maxHeight: '200px',
+				overflowY: 'auto', width: $input.outerWidth() + 'px', display: 'none'
+			});
+			$input.after($dd);
+		}
+		return $dd;
+	}
+
+	$(document).on('input', '[name$="-recipients"], [name$="-bcc"], [name$="-cc"]', function() {
+		var $input = $(this);
+		clearTimeout(timer);
+		timer = setTimeout(function() {
+			var val = $input.val();
+			var parts = val.split(',');
+			var query = parts[parts.length - 1].trim();
+			var $dd = getOrCreateDropdown($input);
+			if (query.length < 2) { $dd.hide(); return; }
+
+			fetch(AUTOCOMPLETE_URL + '?q=' + encodeURIComponent(query))
+			.then(function(r) { return r.text(); })
+			.then(function(html) {
+				if (!html.trim()) { $dd.hide(); return; }
+				$dd.html(html).show();
+			});
+		}, 300);
+	});
+
+	$(document).on('click', '.ac-dropdown .autocomplete-item', function() {
+		var value = $(this).data('value');
+		var $dd = $(this).closest('.ac-dropdown');
+		var $input = $dd.prev('input');
+		var val = $input.val();
+		var parts = val.split(',');
+		parts[parts.length - 1] = ' ' + value;
+		$input.val(parts.join(',') + ', ');
+		$dd.hide();
+		$input.focus();
+	});
+
+	$(document).on('focusout', '[name$="-recipients"], [name$="-bcc"], [name$="-cc"]', function() {
+		var $dd = $(this).next('.ac-dropdown');
+		setTimeout(function() { $dd.hide(); }, 200);
+	});
+})();
+</script>
+{% endblock %}

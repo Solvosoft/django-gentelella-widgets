@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'markitup',
     "corsheaders",
     "channels",
+    'djgentelella.async_notification',
 ]
 
 MIDDLEWARE = [

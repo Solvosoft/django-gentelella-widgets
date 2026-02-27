@@ -1,0 +1,201 @@
+{% extends 'gentelella/base_site.html' %}
+{% load i18n static %}
+
+{% block content %}
+<div class="row">
+	<div class="col-12">
+		<div class="card">
+			<div class="card-header">
+				<h4>{% trans "Email Notifications" %}</h4>
+			</div>
+			<div class="card-body">
+				<table class="table table-striped w-100" id="datatable"></table>
+			</div>
+		</div>
+	</div>
+</div>
+
+{% url "async_notification:api-emailnotification-list" as create_url %}
+{% trans 'Create Notification' as create_title %}
+{% include 'gentelella/blocks/modal_template.html' with form=create_form id="create_modal" title=create_title form_id="create_form" url=create_url modal_class="modal-lg" %}
+
+{% url "async_notification:api-emailnotification-detail" 0 as update_url %}
+{% trans 'Update Notification' as update_title %}
+{% include 'gentelella/blocks/modal_template.html' with form=update_form id="update_modal" title=update_title form_id="update_form" url=update_url modal_class="modal-lg" %}
+
+{% trans 'Delete Notification' as delete_title %}
+{% include 'gentelella/blocks/modal_template_delete.html' with id="delete_modal" title=delete_title form_id="delete_form" url=update_url %}
+
+{% endblock %}
+
+{% block js %}
+{{ block.super }}
+{{ create_form.media }}
+<script>
+var object_urls = {
+	list_url: "{% url 'async_notification:api-emailnotification-list' %}",
+	create_url: "{{ create_url }}",
+	destroy_url: "{% url 'async_notification:api-emailnotification-detail' 0 %}",
+	update_url: "{{ update_url }}",
+	get_values_for_update_url: "{% url 'async_notification:api-emailnotification-get-values-for-update' 0 %}",
+};
+
+var datatable_inits = {
+	columns: [
+		{data: "subject", name: "subject", title: gettext("Subject"), type: "string", visible: true},
+		{data: "status", name: "status", title: gettext("Status"), type: "string", visible: true},
+		{data: "sent", name: "sent", title: gettext("Sent"), type: "string", visible: true},
+		{data: "enqueued", name: "enqueued", title: gettext("Enqueued"), type: "string", visible: true},
+		{data: "retry_count", name: "retry_count", title: gettext("Retries"), type: "string", visible: true},
+		{data: "created_at", name: "created_at", title: gettext("Created"), type: "date",
+			render: DataTable.render.datetime(), dateformat: document.datetime_format, visible: true},
+		{data: "user_display", name: "user_display", title: gettext("User"), type: "string", visible: true},
+		{data: "actions", name: "actions", title: gettext("Actions"), type: "string", visible: true}
+	],
+	addfilter: true,
+};
+
+var modal_ids = {
+	create: "#create_modal",
+	update: "#update_modal",
+	destroy: "#delete_modal",
+};
+
+var actions = {
+	table_actions: [
+		{
+			action: function(e, dt, node, config) {
+				var pks = get_selected_items(dt, '#datatable');
+				if (!pks || pks.length === 0) {
+					Swal.fire({icon: 'warning', title: gettext('Warning'),
+						text: gettext('No notifications selected')});
+					return;
+				}
+				$.ajax({
+					url: "{% url 'async_notification:api-emailnotification-send-selected' %}",
+					type: 'POST', contentType: 'application/json',
+					headers: {'X-CSRFToken': getCookie('csrftoken')},
+					data: JSON.stringify({pks: pks}),
+					success: function(response) {
+						Swal.fire({icon: 'success', title: gettext('Success'),
+							text: response.detail, confirmButtonText: gettext('Accept')});
+						ocrud.datatable.ajax.reload();
+					},
+					error: function() {
+						Swal.fire({icon: 'error', title: gettext('Error'),
+							text: gettext('Sorry, an error occurred.'),
+							confirmButtonText: gettext('Accept')});
+					}
+				});
+			},
+			text: '<i class="fa fa-paper-plane" aria-hidden="true"></i> ' + gettext('Send Selected'),
+			titleAttr: gettext('Send selected notifications'),
+			className: "btn btn-success"
+		}
+	],
+	object_actions: [
+		{
+			name: 'send_email', action: 'send_email',
+			in_action_column: true,
+			i_class: 'fa fa-paper-plane',
+			method: 'POST',
+			title: gettext('Send Now'),
+		}
+	],
+	title: gettext('Actions'),
+	className: "no-export-col"
+};
+
+var objconfig = {
+	urls: object_urls,
+	datatable_element: "#datatable",
+	modal_ids: modal_ids,
+	actions: actions,
+	datatable_inits: datatable_inits,
+	add_filter: true,
+	checkable: true,
+	delete_display: function(data) { return data['subject']; },
+};
+
+var ocrud = ObjectCRUD("emailnotification", objconfig);
+
+ocrud.send_email = function(data, actiondef) {
+	var url = object_urls.destroy_url.replace("0", data.id) .replace(/\/$/, '') + '/send_email/';
+	$.ajax({
+		url: url, type: 'POST',
+		headers: {'X-CSRFToken': getCookie('csrftoken')},
+		success: function(response) {
+			Swal.fire({icon: response.result ? 'success' : 'warning',
+				title: response.result ? gettext('Success') : gettext('Warning'),
+				text: response.detail, confirmButtonText: gettext('Accept')});
+			ocrud.datatable.ajax.reload();
+		},
+		error: function() {
+			Swal.fire({icon: 'error', title: gettext('Error'),
+				text: gettext('Sorry, an error occurred.'),
+				confirmButtonText: gettext('Accept')});
+		}
+	});
+};
+
+ocrud.init();
+
+/* Autocomplete for recipient/cc/bcc fields */
+(function() {
+	var timer = null;
+	var AUTOCOMPLETE_URL = "{% url 'async_notification:email_autocomplete' %}";
+
+	function getOrCreateDropdown($input) {
+		var $dd = $input.next('.ac-dropdown');
+		if (!$dd.length) {
+			$dd = $('<div class="ac-dropdown"></div>').css({
+				position: 'absolute', zIndex: 1060, background: '#fff',
+				border: '1px solid #ccc', borderRadius: '4px', maxHeight: '200px',
+				overflowY: 'auto', width: $input.outerWidth() + 'px', display: 'none'
+			});
+			$input.after($dd);
+		}
+		return $dd;
+	}
+
+	$(document).on('input', '[name$="-recipients"], [name$="-bcc"], [name$="-cc"]', function() {
+		var $input = $(this);
+		clearTimeout(timer);
+		timer = setTimeout(function() {
+			/* Extract the last token after the last comma */
+			var val = $input.val();
+			var parts = val.split(',');
+			var query = parts[parts.length - 1].trim();
+			var $dd = getOrCreateDropdown($input);
+			if (query.length < 2) { $dd.hide(); return; }
+
+			fetch(AUTOCOMPLETE_URL + '?q=' + encodeURIComponent(query))
+			.then(function(r) { return r.text(); })
+			.then(function(html) {
+				if (!html.trim()) { $dd.hide(); return; }
+				$dd.html(html).show();
+			});
+		}, 300);
+	});
+
+	$(document).on('click', '.ac-dropdown .autocomplete-item', function() {
+		var value = $(this).data('value');
+		var $dd = $(this).closest('.ac-dropdown');
+		var $input = $dd.prev('input');
+		/* Replace the last token with the selected value */
+		var val = $input.val();
+		var parts = val.split(',');
+		parts[parts.length - 1] = ' ' + value;
+		$input.val(parts.join(',') + ', ');
+		$dd.hide();
+		$input.focus();
+	});
+
+	$(document).on('focusout', '[name$="-recipients"], [name$="-bcc"], [name$="-cc"]', function() {
+		var $dd = $(this).next('.ac-dropdown');
+		/* Delay hide to allow click events on dropdown items */
+		setTimeout(function() { $dd.hide(); }, 200);
+	});
+})();
+</script>
+{% endblock %}

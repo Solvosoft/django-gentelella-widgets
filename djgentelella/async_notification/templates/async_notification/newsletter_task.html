@@ -1,0 +1,82 @@
+{% extends 'gentelella/base_site.html' %}
+{% load i18n static %}
+
+{% block content %}
+<div class="row">
+	<div class="col-12">
+		<div class="card">
+			<div class="card-header">
+				<h4>{% trans "Newsletter Tasks" %}</h4>
+			</div>
+			<div class="card-body">
+				<table class="table table-striped w-100" id="datatable"></table>
+			</div>
+		</div>
+	</div>
+</div>
+
+{% url "async_notification:api-newslettertask-list" as create_url %}
+{% trans 'Schedule Task' as create_title %}
+{% include 'gentelella/blocks/modal_template.html' with form=create_form id="create_modal" title=create_title form_id="create_form" url=create_url %}
+
+{% url "async_notification:api-newslettertask-detail" 0 as update_url %}
+{% trans 'Update Task' as update_title %}
+{% include 'gentelella/blocks/modal_template.html' with form=update_form id="update_modal" title=update_title form_id="update_form" url=update_url %}
+
+{% trans 'Delete Task' as delete_title %}
+{% include 'gentelella/blocks/modal_template_delete.html' with id="delete_modal" title=delete_title form_id="delete_form" url=update_url %}
+
+{% endblock %}
+
+{% block js %}
+{{ block.super }}
+{{ create_form.media }}
+<script>
+var object_urls = {
+	list_url: "{% url 'async_notification:api-newslettertask-list' %}",
+	create_url: "{{ create_url }}",
+	destroy_url: "{% url 'async_notification:api-newslettertask-detail' 0 %}",
+	update_url: "{{ update_url }}",
+	get_values_for_update_url: "{% url 'async_notification:api-newslettertask-get-values-for-update' 0 %}",
+};
+
+var datatable_inits = {
+	columns: [
+		{data: "newsletter_subject", name: "newsletter_subject", title: gettext("Newsletter"), type: "string", visible: true},
+		{data: "send_date", name: "send_date", title: gettext("Send Date"), type: "date",
+			render: DataTable.render.datetime(), dateformat: document.datetime_format, visible: true},
+		{data: "status", name: "status", title: gettext("Status"), type: "string", visible: true},
+		{data: "created_at", name: "created_at", title: gettext("Created"), type: "date",
+			render: DataTable.render.datetime(), dateformat: document.datetime_format, visible: true},
+		{data: "actions", name: "actions", title: gettext("Actions"), type: "string", visible: true}
+	],
+	addfilter: true,
+};
+
+var modal_ids = {
+	create: "#create_modal",
+	update: "#update_modal",
+	destroy: "#delete_modal",
+};
+
+var actions = {
+	table_actions: [],
+	object_actions: [],
+	title: gettext('Actions'),
+	className: "no-export-col"
+};
+
+var objconfig = {
+	urls: object_urls,
+	datatable_element: "#datatable",
+	modal_ids: modal_ids,
+	actions: actions,
+	datatable_inits: datatable_inits,
+	add_filter: true,
+	delete_display: function(data) { return data['newsletter_subject']; },
+};
+
+var ocrud = ObjectCRUD("newslettertask", objconfig);
+ocrud.init();
+</script>
+{% endblock %}
