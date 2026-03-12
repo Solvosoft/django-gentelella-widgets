@@ -120,8 +120,36 @@ class Command(BaseCommand):
         if options['delete']:
             shutil.rmtree(basepath)
             basepath.mkdir()
-
+    
         libs = {
+            'tinymce-8.1.2':[
+            'https://cdnjs.cloudflare.com/ajax/libs/tinymce/8.1.2/tinymce.min.js',
+            ],
+
+          'tinymce-8.1.2/icons/default' : [
+                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/8.1.2/icons/default/icons.min.js'
+            ],
+
+         'tinymce-8.1.2/models/dom' :[
+                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/8.1.2/models/dom/model.min.js'
+            ],
+
+           'tinymce-8.1.2/themes/silver' : [
+                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/8.1.2/themes/silver/theme.min.js'
+            ],
+
+           'tinymce-8.1.2/skins/content/default' : [
+                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/8.1.2/skins/content/default/content.min.css'
+            ],
+
+           'tinymce-8.1.2/skins/content/dark' : [
+                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/8.1.2/skins/content/dark/content.min.css'
+            ],
+
+            'tinymce-8.1.2/skins/ui/oxide' : [
+                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/8.1.2/skins/ui/oxide/skin.min.css'
+            ],
+
             'bootstrap': [
                 'https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css',
                 'https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.min.js',
@@ -327,44 +355,6 @@ class Command(BaseCommand):
                 'https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js',
                 'https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css'
             ],
-            'tinymce': [
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/tinymce.min.js',
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/jquery.tinymce.min.js',
-            ],
-            'tinymce/themes/silver': [
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/themes/silver/theme.min.js'
-            ],
-            'tinymce/themes/mobile/': [
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/themes/mobile/theme.min.js'
-            ],
-            'tinymce/skins/content/dark/': [
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/content/dark/content.min.css',
-            ],
-            'tinymce/skins/content/default/': [
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/content/default/content.min.css',
-            ],
-            'tinymce/skins/content/document': [
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/content/document/content.min.css',
-            ],
-            'tinymce/skins/content/writer': [
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/content/writer/content.min.css',
-            ],
-            'tinymce/skins/ui/oxide-dark/': [
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide-dark/content.inline.min.css',
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide-dark/content.min.css',
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide-dark/content.mobile.min.css',
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide-dark/skin.min.css',
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide-dark/skin.mobile.min.css',
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide-dark/skin.shadowdom.min.css',
-            ],
-            'tinymce/skins/ui/oxide/': [
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide/content.inline.min.css',
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide/content.min.css',
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide/content.mobile.min.css',
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide/skin.min.css',
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide/skin.mobile.min.css',
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide/skin.shadowdom.min.css',
-            ],
             'storylinejs': [
                 'https://cdn.knightlab.com/libs/storyline/1.1.0/css/storyline.css',
                 'https://cdn.knightlab.com/libs/storyline/1.1.0/js/storyline.js',
@@ -398,58 +388,39 @@ class Command(BaseCommand):
             ]
         }
         compressed = {
-            'tinymce': {
+            'tinymce-8.1.2': {
                 'tinymce-all.js': [
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/icons/default/icons.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/advlist/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/anchor/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/autolink/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/autoresize/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/autosave/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/bbcode/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/charmap/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/code/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/codesample/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/colorpicker/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/contextmenu/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/directionality/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/emoticons/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/fullpage/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/fullscreen/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/help/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/hr/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/image/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/imagetools/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/importcss/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/insertdatetime/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/legacyoutput/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/link/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/lists/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/media/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/nonbreaking/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/noneditable/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/pagebreak/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/paste/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/preview/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/print/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/quickbars/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/save/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/searchreplace/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/spellchecker/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/tabfocus/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/table/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/template/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/textcolor/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/textpattern/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/toc/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/visualblocks/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/visualchars/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/wordcount/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/emoticons/js/emojis.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/8.1.2/icons/default/icons.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/8.1.2/plugins/advlist/plugin.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/8.1.2/plugins/anchor/plugin.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/8.1.2/plugins/autolink/plugin.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/8.1.2/plugins/autoresize/plugin.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/8.1.2/plugins/autosave/plugin.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/8.1.2/plugins/charmap/plugin.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/8.1.2/plugins/code/plugin.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/8.1.2/plugins/codesample/plugin.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/8.1.2/plugins/directionality/plugin.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/8.1.2/plugins/emoticons/plugin.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/8.1.2/plugins/fullscreen/plugin.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/8.1.2/plugins/help/plugin.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/8.1.2/plugins/image/plugin.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/8.1.2/plugins/importcss/plugin.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/8.1.2/plugins/insertdatetime/plugin.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/8.1.2/plugins/link/plugin.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/8.1.2/plugins/lists/plugin.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/8.1.2/plugins/media/plugin.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/8.1.2/plugins/nonbreaking/plugin.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/8.1.2/plugins/pagebreak/plugin.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/8.1.2/plugins/preview/plugin.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/8.1.2/plugins/quickbars/plugin.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/8.1.2/plugins/save/plugin.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/8.1.2/plugins/searchreplace/plugin.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/8.1.2/plugins/table/plugin.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/8.1.2/plugins/visualblocks/plugin.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/8.1.2/plugins/visualchars/plugin.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/8.1.2/plugins/wordcount/plugin.min.js',
                 ],
-                'skin.min.css': [
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide/skin.min.css',
-                ]}}
+                }}
 
         if not os.path.exists(basepath / 'flags'):
             (basepath / 'flags').mkdir(parents=True)

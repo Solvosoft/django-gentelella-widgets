@@ -243,28 +243,53 @@ document.gtwidgets = {
     },
 
     EditorTinymce: function (instance) {
-        $(instance).removeAttr('required');
-        instance.tinymce({
-            menubar: false,
+       let elements;
+
+        // Si es un objeto jQuery → pasa a array
+        if (instance instanceof jQuery) {
+            elements = instance.toArray();
+            console.log(elements);
+        }
+        // Si es un string → usa querySelectorAll
+        else if (typeof instance === 'string') {
+            elements = document.querySelectorAll(instance);
+        }
+       
+        elements.forEach(elem => {
+            elem.removeAttribute('required');
+            tinymce.init({
+            selector: '#' + elem.id,
+            menubar: true,
             toolbar: 'undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist checklist | forecolor backcolor casechange permanentpen formatpainter removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media pageembed template link anchor codesample | a11ycheck ltr rtl | showcomments addcomment',
             plugins: ['autolink', 'codesample', 'link', 'lists', 'media', 'quickbars', "advlist autolink lists link image charmap print preview anchor",
                 "searchreplace visualblocks code fullscreen", "insertdatetime media table paste imagetools wordcount",
                 "autoresize", "hr", "image",
             ],
-            quickbars_insert_toolbar: 'quicktable | hr pagebreak',
-            file_picker_callback: function (callback, value, meta) {
-                var input = document.createElement('input');
-                input.setAttribute('type', 'file');
-                input.setAttribute('accept', 'image/*');
-                input.onchange = function () {
-                    var file = this.files[0];
-                    upload_files(callback, meta, file, instance.attr('data-option-image'),
-                        instance.attr('data-option-video'));
-                };
-                input.click();
+            browser_spellcheck: true,
+            license_key: 'gpl',
+            contextmenu: false,
+            setup(editor) {
+                editor.on('keydown', e => {
+                if (e.key === ' ' || e.key === 'Enter') {
+                    const rng = editor.selection.getRng();
+                    const node = rng.startContainer;
+                    if (node.nodeType === Node.TEXT_NODE) {
+                    const text = node.nodeValue;
+                    const updated = text.replace(/(^|[.!?]\s+)([a-z])/g, (m, p1, p2) => p1 + p2.toUpperCase());
+                    if (text !== updated) {
+                        node.nodeValue = updated;
+                        rng.setStart(node, node.nodeValue.length);
+                        rng.setEnd(node, node.nodeValue.length);
+                        editor.selection.setRng(rng);
+                    }
+                    }
+                }
+                });
             },
+            });
         });
     },
+
 
     TaggingInput: function (instance) {
         build_tagginginput(instance);
