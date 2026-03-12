@@ -27,14 +27,14 @@ from djgentelella.async_notification.forms import (
     EmailNotificationForm, EmailTemplateForm,
     NewsLetterTemplateForm, NewsLetterForm, NewsLetterTaskForm
 )
-from djgentelella.async_notification.introspection import get_fields_for_context
+from djgentelella.async_notification.introspection import get_fields_for_context, get_fields_for_content_types
 from djgentelella.async_notification.models import (
     EmailNotification, EmailTemplate, AttachedFile,
     NewsLetterTemplate, NewsLetter, NewsLetterTask
 )
 from djgentelella.async_notification.resolvers import RecipientResolverRegistry
 from djgentelella.async_notification.sending import (
-    do_send_notification, resolve_all_recipients
+    do_send_notification, do_send_newsletter_direct, resolve_all_recipients
 )
 from djgentelella.async_notification.serializers import (
     EmailNotificationSerializer, EmailNotificationTableSerializer,
@@ -74,6 +74,8 @@ class EmailNotificationManagement(AuthAllPermBaseObjectManagement):
         'destroy': EmailNotificationSerializer,
         'send_email': EmailNotificationSerializer,
         'send_selected': EmailNotificationSerializer,
+        'send_selected_via_task': EmailNotificationSerializer,
+        'send_test_from_template': EmailNotificationSerializer,
     }
     perms = {
         'list': [f'{APP_PERM_PREFIX}.view_emailnotification'],
@@ -84,6 +86,8 @@ class EmailNotificationManagement(AuthAllPermBaseObjectManagement):
         'destroy': [f'{APP_PERM_PREFIX}.delete_emailnotification'],
         'send_email': [f'{APP_PERM_PREFIX}.change_emailnotification'],
         'send_selected': [f'{APP_PERM_PREFIX}.change_emailnotification'],
+        'send_selected_via_task': [f'{APP_PERM_PREFIX}.change_emailnotification'],
+        'send_test_from_template': [f'{APP_PERM_PREFIX}.add_emailnotification'],
     }
     queryset = EmailNotification.objects.all()
     pagination_class = LimitOffsetPagination
@@ -130,6 +134,79 @@ class EmailNotificationManagement(AuthAllPermBaseObjectManagement):
             'detail': f'{sent} notifications processed',
         })
 
+    @action(detail=False, methods=['post'], url_path='send-via-task', url_name='send-via-task')
+    def send_selected_via_task(self, request):
+        """Enqueue multiple selected notifications via the configured backend (Celery)."""
+        pks = request.data.get('pks', [])
+        if not pks:
+            return Response({'result': False,
+                            'detail': 'No notifications selected'},
+                           status=400)
+        backend = get_backend()
+        queued = 0
+        for pk in pks:
+            try:
+                backend.send(pk)
+                queued += 1
+            except Exception as e:
+                logger.error('Error queuing notification %s: %s', pk, e)
+        return Response({
+            'result': True,
+            'detail': f'{queued} notifications enqueued via {backend.__class__.__name__}',
+        })
+
+    @action(detail=False, methods=['post'], url_path='send-test-template', url_name='send-test-template')
+    def send_test_from_template(self, request):
+        """Send a test email using send_email_from_template and dispatch via backend."""
+        from djgentelella.async_notification.sending import send_email_from_template
+
+        code = request.data.get('code')
+        recipient = request.data.get('recipient') or request.user.email
+
+        if not code:
+            template = EmailTemplate.objects.first()
+            if not template:
+                return Response({'result': False,
+                                'detail': 'No templates found. Run create_notification_demo first.'},
+                               status=400)
+            code = template.code
+
+        if not recipient:
+            return Response({'result': False,
+                            'detail': 'No recipient: provide one or set an email on your user account.'},
+                           status=400)
+
+        order = {
+            'id': 'TEST-001',
+            'total': '1000.00',
+            'delivery_date': '2023-01-01',
+        }
+
+        context = {
+            'user': request.user,
+            'order': order,
+        }
+
+        try:
+            notification = send_email_from_template(
+                code=code,
+                recipient=recipient,
+                context=context,
+                enqueued=False,
+                user=request.user,
+            )
+            #get_backend().send(notification.pk)
+        except EmailTemplate.DoesNotExist:
+            return Response({'result': False,
+                            'detail': f'Template "{code}" not found.'},
+                           status=400)
+
+        return Response({
+            'result': True,
+            'detail': f'Test email from template "{code}" dispatched to {recipient} '
+                      f'via {get_backend().__class__.__name__} (notification #{notification.pk})',
+        })
+
 
 class EmailTemplateManagement(AuthAllPermBaseObjectManagement):
     serializer_class = {
@@ -160,11 +237,18 @@ class EmailTemplateManagement(AuthAllPermBaseObjectManagement):
     @action(detail=True, methods=['post'])
     def preview(self, request, pk=None):
         """Preview an email template."""
+        from djgentelella.async_notification.introspection import get_fields_for_content_types
+        from djgentelella.async_notification.preview import build_dummy_context_from_fields, render_preview
+
         template = self.get_object()
+        ct_pks = list(template.context_models.values_list('pk', flat=True))
+        fields_data = get_fields_for_content_types(ct_pks) or {}
+        context = build_dummy_context_from_fields(fields_data) if fields_data else {}
+
         return Response({
-            'subject': template.subject,
-            'message': template.message,
-            'context_code': template.context_code,
+            'subject': render_preview(template.subject, context),
+            'message': render_preview(template.message, context, template.base_template or None),
+            'context_models': ct_pks,
             'base_template': template.base_template,
         })
 
@@ -204,6 +288,7 @@ class NewsLetterManagement(AuthAllPermBaseObjectManagement):
         'destroy': NewsLetterSerializer,
         'preview': NewsLetterSerializer,
         'preview_recipients': NewsLetterSerializer,
+        'send_selected': NewsLetterSerializer,
     }
     perms = {
         'list': [f'{APP_PERM_PREFIX}.view_newsletter'],
@@ -214,6 +299,7 @@ class NewsLetterManagement(AuthAllPermBaseObjectManagement):
         'destroy': [f'{APP_PERM_PREFIX}.delete_newsletter'],
         'preview': [f'{APP_PERM_PREFIX}.view_newsletter'],
         'preview_recipients': [f'{APP_PERM_PREFIX}.view_newsletter'],
+        'send_selected': [f'{APP_PERM_PREFIX}.change_newsletter'],
     }
     queryset = NewsLetter.objects.select_related('template', 'created_by')
     pagination_class = LimitOffsetPagination
@@ -224,6 +310,30 @@ class NewsLetterManagement(AuthAllPermBaseObjectManagement):
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
+
+    @action(detail=False, methods=['post'], url_path='send-selected', url_name='send-selected')
+    def send_selected(self, request):
+        """Send selected newsletters directly in batches of 50 recipients."""
+        pks = request.data.get('pks', [])
+        if not pks:
+            return Response({'result': False, 'detail': 'No newsletters selected'}, status=400)
+
+        total_sent = 0
+        total_recipients = 0
+        errors = []
+
+        for pk in pks:
+            result = do_send_newsletter_direct(pk)
+            total_sent += result['sent']
+            total_recipients += result['total']
+            if result['error']:
+                errors.append(f'Newsletter #{pk}: {result["error"]}')
+
+        detail = f'{total_sent}/{total_recipients} recipients reached across {len(pks)} newsletter(s)'
+        if errors:
+            detail += ' | Errors: ' + '; '.join(errors)
+
+        return Response({'result': not errors, 'detail': detail})
 
     @action(detail=True, methods=['post'])
     def preview(self, request, pk=None):
@@ -380,15 +490,24 @@ def email_autocomplete_view(request):
 def model_fields_view(request):
     """Return field descriptions for a registered context code.
 
+    If no code is provided, returns fields for all registered contexts.
     Returns HTML fragment when Accept: text/html, otherwise JSON.
     """
-    code = request.GET.get('code', '')
-    if not code:
-        return JsonResponse({'error': 'code parameter required'}, status=400)
+    # Accept ContentType PKs (from context_models M2M) or legacy code string
+    ct_pks = request.GET.getlist('ct')
+    if ct_pks:
+        fields = get_fields_for_content_types(ct_pks)
+    else:
+        code = request.GET.get('code', '').strip()
+        if not code:
+            from django.contrib.contenttypes.models import ContentType as CT
+            ct_pks = CT.objects.values_list('pk', flat=True)
+            fields = get_fields_for_content_types(ct_pks)
+        else:
+            fields = get_fields_for_context(code)
 
-    fields = get_fields_for_context(code)
     if fields is None:
-        return JsonResponse({'error': 'Unknown context code'}, status=404)
+        return JsonResponse({'error': 'No fields found'}, status=404)
 
     accept = request.META.get('HTTP_ACCEPT', '')
     if 'text/html' in accept:
@@ -519,16 +638,23 @@ def preview_template_view(request):
         return JsonResponse({'error': 'POST required'}, status=405)
 
     from djgentelella.async_notification.preview import (
-        build_dummy_context, render_preview
+        build_dummy_context, build_dummy_context_from_fields, render_preview
     )
 
     message = request.POST.get('message', '')
-    context_code = request.POST.get('context_code', '')
     base_template_key = request.POST.get('base_template', '')
+    ct_pks = request.POST.getlist('ct_pks')
 
     context = {}
-    if context_code:
-        context = build_dummy_context(context_code)
+    if ct_pks:
+        from djgentelella.async_notification.introspection import get_fields_for_content_types
+        fields_data = get_fields_for_content_types(ct_pks)
+        if fields_data:
+            context = build_dummy_context_from_fields(fields_data)
+    else:
+        context_code = request.POST.get('context_code', '')
+        if context_code:
+            context = build_dummy_context(context_code)
 
     preview_html = render_preview(message, context, base_template_key or None)
     return JsonResponse({'preview': preview_html})

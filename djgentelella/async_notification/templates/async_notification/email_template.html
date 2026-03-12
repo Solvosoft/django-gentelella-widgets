@@ -210,8 +210,10 @@ ocrud.preview = function(data, actiondef) {
 		success: function(response) {
 			$('#preview-subject').text(response.subject);
 			var body = 'message=' + encodeURIComponent(response.message);
-			if (response.context_code) {
-				body += '&context_code=' + encodeURIComponent(response.context_code);
+			if (response.context_models && response.context_models.length) {
+				response.context_models.forEach(function(pk) {
+					body += '&ct_pks=' + encodeURIComponent(pk);
+				});
 			}
 			if (response.base_template) {
 				body += '&base_template=' + encodeURIComponent(response.base_template);
@@ -239,16 +241,17 @@ ocrud.preview = function(data, actiondef) {
 
 ocrud.init();
 
-/* Model inspector: load fields when context_code changes (works in both modals) */
-$(document).on('change', '[name$="-context_code"]', function() {
-	var code = $(this).val();
+/* Model inspector: load fields when context_models changes (works in both modals) */
+$(document).on('change', '[name$="-context_models"]', function() {
+	var pks = $(this).val();  /* array of selected ContentType PKs */
 	var $modal = $(this).closest('.modal');
 	var $tree = $modal.find('.model-fields-tree');
-	if (!code) {
+	if (!pks || pks.length === 0) {
 		$tree.html('<p class="text-muted small">' + gettext('No context selected.') + '</p>');
 		return;
 	}
-	fetch("{% url 'async_notification:model_fields' %}?code=" + encodeURIComponent(code), {
+	var qs = pks.map(function(pk) { return 'ct=' + encodeURIComponent(pk); }).join('&');
+	fetch("{% url 'async_notification:model_fields' %}?" + qs, {
 		headers: {'Accept': 'text/html'}
 	})
 	.then(function(r) { return r.text(); })
@@ -277,8 +280,9 @@ $(document).on('click', '.btn-preview-template', function() {
 		message = $modal.find('[name$="-message"]').val() || '';
 	}
 
-	var context_code = $modal.find('[name$="-context_code"]').val() || '';
+	var context_pks = $modal.find('[name$="-context_models"]').val() || [];
 	var base_template = $modal.find('[name$="-base_template"]').val() || '';
+	var ctParams = context_pks.map(function(pk) { return 'ct_pks=' + encodeURIComponent(pk); }).join('&');
 
 	fetch("{% url 'async_notification:preview_template' %}", {
 		method: 'POST',
@@ -287,8 +291,8 @@ $(document).on('click', '.btn-preview-template', function() {
 			'Content-Type': 'application/x-www-form-urlencoded'
 		},
 		body: 'message=' + encodeURIComponent(message) +
-			'&context_code=' + encodeURIComponent(context_code) +
-			'&base_template=' + encodeURIComponent(base_template)
+			'&base_template=' + encodeURIComponent(base_template) +
+			(ctParams ? '&' + ctParams : '')
 	}).then(function(r) { return r.json(); })
 	.then(function(data) {
 		$iframe[0].srcdoc = data.preview;

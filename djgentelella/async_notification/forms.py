@@ -43,10 +43,11 @@ class EmailNotificationForm(GTForm, forms.ModelForm):
 
 
 class EmailTemplateForm(GTForm, forms.ModelForm):
+
     class Meta:
         model = EmailTemplate
         fields = ('code', 'subject', 'message', 'bcc', 'cc',
-                  'context_code', 'base_template')
+                  'context_models', 'base_template')
         widgets = {
             'code': genwidgets.TextInput,
             'subject': genwidgets.TextInput,
@@ -59,14 +60,27 @@ class EmailTemplateForm(GTForm, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Populate context_code choices from registry
-        contexts = get_all_contexts()
-        context_choices = [('', '---------')]
-        context_choices.extend(
-            (code, code) for code in contexts.keys()
-        )
-        self.fields['context_code'].widget = genwidgets.Select(
-            choices=context_choices)
+
+        from django.contrib.contenttypes.models import ContentType
+        from django.apps import apps as django_apps
+
+        installed_models = {
+            f'{m._meta.app_label}.{m._meta.model_name}'
+            for m in django_apps.get_models()
+        }
+        ct_qs = ContentType.objects.filter(
+            app_label__in=[m.split('.')[0] for m in installed_models]
+        ).order_by('app_label', 'model')
+
+        ct_choices = [
+            (ct.pk, f'{ct.app_label} | {ct.model}')
+            for ct in ct_qs
+            if f'{ct.app_label}.{ct.model}' in installed_models
+        ]
+
+        self.fields['context_models'].widget = genwidgets.SelectMultiple(
+            choices=ct_choices)
+        self.fields['context_models'].queryset = ct_qs
 
         # Populate base_template choices from settings
         template_choices = [('', '---------')]

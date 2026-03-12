@@ -1,6 +1,6 @@
-from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from djgentelella.settings import USER_MODEL_BASE
@@ -20,10 +20,10 @@ class EmailTemplate(models.Model):
         blank=True, default='', verbose_name=_('BCC'))
     cc = models.TextField(
         blank=True, default='', verbose_name=_('CC'))
-    context_code = models.CharField(
-        max_length=150, blank=True, default='',
-        verbose_name=_('Context Code'),
-        help_text=_('Registered context code for variable suggestions'))
+    context_models = models.ManyToManyField(
+        ContentType, blank=True,
+        verbose_name=_('Context Models'),
+        help_text=_('Models whose fields are available as template variables'))
     base_template = models.CharField(
         max_length=150, blank=True, default='',
         verbose_name=_('Base Template'),

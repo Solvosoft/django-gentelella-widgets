@@ -7,7 +7,19 @@ Follows the DataTable wrapper pattern used throughout djgentelella.
 from django_filters import FilterSet, DateTimeFromToRangeFilter
 from rest_framework import serializers
 
+from djgentelella.fields.files import GTBase64FileField
 from djgentelella.serializers import GTDateTimeField
+
+
+class OptionalBase64FileField(GTBase64FileField):
+    """GTBase64FileField that allows null/empty values without raising validation errors."""
+
+    def to_internal_value(self, datalist):
+        if not datalist:
+            if self.root.instance:
+                return getattr(self.root.instance, self.source, None)
+            return None
+        return super().to_internal_value(datalist)
 from djgentelella.serializers.selects import GTS2SerializerBase
 
 from djgentelella.async_notification.models import (
@@ -109,22 +121,22 @@ class EmailTemplateTableSerializer(serializers.Serializer):
 
 class EmailTemplateCreateSerializer(serializers.ModelSerializer):
     """Serializer for creating/updating email templates."""
-
+    context_models = GTS2SerializerBase(many=True)
     class Meta:
         model = EmailTemplate
         fields = ('code', 'subject', 'message', 'bcc', 'cc',
-                  'context_code', 'base_template')
+                  'context_models', 'base_template')
 
 
 class EmailTemplateDetailSerializer(serializers.ModelSerializer):
     """Serializer for detailed view."""
     created_at = GTDateTimeField(read_only=True)
     updated_at = GTDateTimeField(read_only=True)
-
+    context_models = GTS2SerializerBase(many=True)
     class Meta:
         model = EmailTemplate
         fields = ('id', 'code', 'subject', 'message', 'bcc', 'cc',
-                  'context_code', 'base_template',
+                  'context_models', 'base_template',
                   'created_at', 'updated_at')
 
 
@@ -215,6 +227,9 @@ class NewsLetterTableSerializer(serializers.Serializer):
 
 class NewsLetterCreateSerializer(serializers.ModelSerializer):
     """Serializer for creating/updating newsletters."""
+
+    attached_file = OptionalBase64FileField(required=False, allow_null=True,
+                                            delete_if_empty=True, allow_empty_file=True)
 
     class Meta:
         model = NewsLetter

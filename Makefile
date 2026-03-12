@@ -15,6 +15,9 @@ help:
 	@echo "messages - load translations"
 	@echo "trans - compile translations"
 	@echo "start_sign - start sign server"
+	@echo "mailhog - start MailHog email testing server (SMTP:1025, UI:8025)"
+	@echo "rabbitmq - start RabbitMQ broker for Celery (port 5672, UI:15672)"
+	@echo "celery - start Celery worker for async notifications"
 
 clean: clean-build clean-pyc
 
@@ -84,6 +87,17 @@ init_demo:
 	python manage.py createdemo && \
 	python manage.py demomenu && \
 	python manage.py createsuperuser
+
+mailhog:
+	docker run -d --rm --name mailhog -p 1025:1025 -p 8025:8025 mailhog/mailhog
+	@echo "MailHog SMTP: localhost:1025 | Web UI: http://localhost:8025"
+
+rabbitmq:
+	docker run -d --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:management-alpine
+	@echo "RabbitMQ broker: localhost:5672 | Management UI: http://localhost:15672 (guest/guest)"
+
+celery:
+	cd demo && PYTHONPATH=.. celery -A demo worker --loglevel=info
 
 run:
 	cd demo && python manage.py runserver

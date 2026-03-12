@@ -182,6 +182,82 @@ def do_send_notification(notification_pk):
             'retry_count', 'error_message', 'status'])
 
 
+NEWSLETTER_BATCH_SIZE = 50
+
+
+def do_send_newsletter_direct(newsletter_pk):
+    """Send a newsletter directly without a NewsLetterTask, in batches of 50.
+
+    Args:
+        newsletter_pk: Primary key of the NewsLetter to send.
+
+    Returns:
+        Dict with keys 'sent' (int), 'total' (int), 'error' (str or None).
+    """
+    from djgentelella.async_notification.models import NewsLetter
+
+    try:
+        newsletter = NewsLetter.objects.get(pk=newsletter_pk)
+    except NewsLetter.DoesNotExist:
+        logger.error('NewsLetter %s does not exist', newsletter_pk)
+        return {'sent': 0, 'total': 0, 'error': 'Newsletter not found'}
+
+    try:
+        recipients = resolve_all_recipients(newsletter.recipients)
+        total = len(recipients)
+
+        if not recipients:
+            return {'sent': 0, 'total': 0, 'error': None}
+
+        connection = None
+        if ASYNC_NEWSLETTER_SEVER_CONFIGS:
+            config = ASYNC_NEWSLETTER_SEVER_CONFIGS
+            if isinstance(config, dict) and 'host' in config:
+                connection = get_connection(
+                    host=config.get('host'),
+                    port=config.get('port', 587),
+                    username=config.get('username', ''),
+                    password=config.get('password', ''),
+                    use_tls=config.get('use_tls', True),
+                )
+        if connection is None:
+            connection = get_connection()
+
+        bcc_list = [b.strip() for b in newsletter.bcc.split(',') if b.strip()] if newsletter.bcc else []
+        cc_list = [c.strip() for c in newsletter.cc.split(',') if c.strip()] if newsletter.cc else []
+
+        batches = chunk_list(recipients, NEWSLETTER_BATCH_SIZE)
+        sent = 0
+
+        connection.open()
+        try:
+            for batch in batches:
+                msg = EmailMessage(
+                    subject=newsletter.subject,
+                    body=newsletter.message,
+                    to=batch,
+                    bcc=bcc_list,
+                    cc=cc_list,
+                    connection=connection,
+                )
+                msg.content_subtype = 'html'
+                if newsletter.attached_file:
+                    try:
+                        msg.attach_file(newsletter.attached_file.path)
+                    except Exception:
+                        pass
+                msg.send()
+                sent += len(batch)
+        finally:
+            connection.close()
+
+        return {'sent': sent, 'total': total, 'error': None}
+
+    except Exception as e:
+        logger.exception('Error sending newsletter %s directly', newsletter_pk)
+        return {'sent': 0, 'total': 0, 'error': str(e)}
+
+
 def do_send_newsletter(newsletter_task_pk):
     """Send a newsletter task.
 

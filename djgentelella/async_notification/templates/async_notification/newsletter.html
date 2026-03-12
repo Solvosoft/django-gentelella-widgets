@@ -75,7 +75,51 @@ var modal_ids = {
 };
 
 var actions = {
-	table_actions: [],
+	table_actions: [
+		{
+			action: function(e, dt, node, config) {
+				var pks = get_selected_items(dt, '#datatable');
+				if (!pks || pks.length === 0) {
+					Swal.fire({icon: 'warning', title: gettext('Warning'),
+						text: gettext('No newsletters selected')});
+					return;
+				}
+				Swal.fire({
+					icon: 'question',
+					title: gettext('Send Newsletters'),
+					text: gettext('Send') + ' ' + pks.length + ' ' + gettext('newsletter(s) in batches of 50 recipients?'),
+					showCancelButton: true,
+					confirmButtonText: gettext('Send'),
+					cancelButtonText: gettext('Cancel'),
+				}).then(function(result) {
+					if (!result.isConfirmed) return;
+					$.ajax({
+						url: "{% url 'async_notification:api-newsletter-send-selected' %}",
+						type: 'POST', contentType: 'application/json',
+						headers: {'X-CSRFToken': getCookie('csrftoken')},
+						data: JSON.stringify({pks: pks}),
+						success: function(response) {
+							Swal.fire({
+								icon: response.result ? 'success' : 'warning',
+								title: response.result ? gettext('Sent') : gettext('Sent with errors'),
+								text: response.detail,
+								confirmButtonText: gettext('Accept')
+							});
+							ocrud.datatable.ajax.reload();
+						},
+						error: function() {
+							Swal.fire({icon: 'error', title: gettext('Error'),
+								text: gettext('Sorry, an error occurred.'),
+								confirmButtonText: gettext('Accept')});
+						}
+					});
+				});
+			},
+			text: '<i class="fa fa-paper-plane" aria-hidden="true"></i> ' + gettext('Send Selected'),
+			titleAttr: gettext('Send selected newsletters in batches of 50'),
+			className: "btn btn-success"
+		}
+	],
 	object_actions: [
 		{
 			name: 'preview_recipients', action: 'preview_recipients',
@@ -96,6 +140,7 @@ var objconfig = {
 	actions: actions,
 	datatable_inits: datatable_inits,
 	add_filter: true,
+	checkable: true,
 	delete_display: function(data) { return data['subject']; },
 };
 

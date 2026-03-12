@@ -114,16 +114,17 @@ class AutoPreviewProvider(PreviewProvider):
 
 
 def build_dummy_context(code):
-    """Build a dummy context dict for a registered template context.
+    """Build a dummy context dict for one or more registered template contexts.
 
-    Uses DummyContextObject to generate fake values for each field.
+    Accepts a single code or a comma-separated string of codes. Results are
+    merged so all variables from all contexts are available.
 
     Args:
-        code: The registered context code.
+        code: A registered context code, or comma-separated codes.
 
     Returns:
         Dict suitable for use as a Django template Context.
-        Returns empty dict if code is not registered.
+        Returns empty dict if no code is registered.
     """
     from djgentelella.async_notification.introspection import get_fields_for_context
 
@@ -142,13 +143,39 @@ def build_dummy_context(code):
             for field in fields:
                 parts = field['name'].split('.')
                 current = context
-                for i, part in enumerate(parts[:-1]):
+                for part in parts[:-1]:
                     if part not in current:
                         current[part] = {}
                     current = current[part]
                 current[parts[-1]] = DummyContextObject.get_dummy_value(
                     field['type'])
 
+    return context
+
+
+def build_dummy_context_from_fields(fields_data):
+    """Build a dummy context from an already-resolved fields_data dict.
+
+    Args:
+        fields_data: Dict as returned by get_fields_for_content_types().
+
+    Returns:
+        Dict suitable for use as a Django template Context.
+    """
+    context = {}
+    for prefix, fields in fields_data.items():
+        if prefix == 'extra_variables':
+            for field in fields:
+                context[field['name']] = DummyContextObject.get_dummy_value(field['type'])
+        else:
+            for field in fields:
+                parts = field['name'].split('.')
+                current = context
+                for part in parts[:-1]:
+                    if part not in current:
+                        current[part] = {}
+                    current = current[part]
+                current[parts[-1]] = DummyContextObject.get_dummy_value(field['type'])
     return context
 
 

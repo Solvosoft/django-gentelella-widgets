@@ -11,6 +11,8 @@ from django.db.models import fields as model_fields
 from django.db.models.fields.files import FileField, ImageField
 from django.db.models.fields.related import ForeignKey, OneToOneField
 
+from django.contrib.contenttypes.models import ContentType
+
 from djgentelella.async_notification.registry import get_context_config
 
 
@@ -122,45 +124,100 @@ def describe_model_fields(model, depth=2, exclude=None, prefix='',
     return result
 
 
-def get_fields_for_context(code):
-    """Get all available fields for a registered template context.
-
-    Resolves model strings via apps.get_model(), runs introspection
-    on each, and appends extra_variables.
+def get_fields_for_content_types(content_type_pks):
+    """Get all available template fields from a list of ContentType PKs.
 
     Args:
-        code: The registered context code.
+        content_type_pks: Iterable of ContentType primary keys.
 
     Returns:
-        Dict mapping prefixes to their field lists, plus an
-        'extra_variables' key with manually defined variables.
-        Returns None if code is not registered.
+        Dict mapping model names to their field lists.
+        Returns None if no valid content types are found.
     """
-    config = get_context_config(code)
-    if config is None:
+    pks = list(content_type_pks) if content_type_pks else []
+    if not pks:
         return None
 
     result = {}
-    for prefix, model_string in config['models'].items():
-        try:
-            model = apps.get_model(model_string)
-        except (LookupError, ValueError):
-            result[prefix] = []
+    found_any = False
+
+    for ct in ContentType.objects.filter(pk__in=pks):
+        model = ct.model_class()
+        if model is None:
             continue
+        found_any = True
+        prefix = ct.model
+        fields = describe_model_fields(model, depth=2, prefix=prefix)
+        if prefix in result:
+            existing_names = {f['name'] for f in result[prefix]}
+            result[prefix].extend(f for f in fields if f['name'] not in existing_names)
+        else:
+            result[prefix] = fields
 
-        exclude_for_prefix = config['exclude'].get(prefix, [])
-        fields = describe_model_fields(
-            model,
-            depth=config['depth'],
-            exclude=exclude_for_prefix,
-            prefix=prefix,
-        )
-        result[prefix] = fields
+    if not found_any:
+        return None
 
-    result['extra_variables'] = [
-        {'name': name, 'type': 'custom', 'verbose_name': desc,
-         'is_relation': False, 'expandable': False}
-        for name, desc in config['extra_variables'].items()
-    ]
+    result['extra_variables'] = []
+    return result
 
+
+def get_fields_for_context(code):
+    """Get fields for a registry context code or app_label.model_name string.
+
+    Kept for backward compatibility with registry-based contexts.
+
+    Args:
+        code: A registered context code or comma-separated app_label.model_name strings.
+
+    Returns:
+        Dict mapping prefixes to field lists, or None if nothing resolved.
+    """
+    codes = [c.strip() for c in code.split(',') if c.strip()] if code else []
+    if not codes:
+        return None
+
+    result = {}
+    extra_variables = []
+    found_any = False
+
+    for single_code in codes:
+        config = get_context_config(single_code)
+
+        if config is not None:
+            models_map = config['models']
+            exclude_map = config['exclude']
+            depth = config['depth']
+            extra_variables.extend(
+                {'name': name, 'type': 'custom', 'verbose_name': desc,
+                 'is_relation': False, 'expandable': False}
+                for name, desc in config['extra_variables'].items()
+            )
+        else:
+            try:
+                apps.get_model(single_code)
+            except (LookupError, ValueError):
+                continue
+            models_map = {single_code.split('.')[-1]: single_code}
+            exclude_map = {}
+            depth = 2
+
+        found_any = True
+        for prefix, model_string in models_map.items():
+            try:
+                model = apps.get_model(model_string)
+            except (LookupError, ValueError):
+                continue
+            fields = describe_model_fields(
+                model, depth=depth,
+                exclude=exclude_map.get(prefix, []), prefix=prefix)
+            if prefix in result:
+                existing_names = {f['name'] for f in result[prefix]}
+                result[prefix].extend(f for f in fields if f['name'] not in existing_names)
+            else:
+                result[prefix] = fields
+
+    if not found_any:
+        return None
+
+    result['extra_variables'] = extra_variables
     return result
