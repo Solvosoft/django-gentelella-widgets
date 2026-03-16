@@ -70,6 +70,9 @@ class NewsLetterTaskAPITest(AsyncNotificationAPITestBase):
         reset_backend()
 
     def test_create_schedules_task(self):
+        from unittest.mock import patch
+        from djgentelella.async_notification.backends.sync import SyncBackend
+        sync = SyncBackend()
         self.client.force_login(self.superuser)
         url = reverse('async_notification:api-newslettertask-list')
         from django.utils import formats
@@ -79,7 +82,9 @@ class NewsLetterTaskAPITest(AsyncNotificationAPITestBase):
             'newsletter': self.newsletter.pk,
             'send_date': send_date,
         }
-        response = self.client.post(url, data)
+        with patch('djgentelella.async_notification.views.get_backend',
+                   return_value=sync):
+            response = self.client.post(url, data)
         self.assertEqual(response.status_code, 201)
         task = NewsLetterTask.objects.latest('pk')
         self.assertEqual(task.status, 'scheduled')

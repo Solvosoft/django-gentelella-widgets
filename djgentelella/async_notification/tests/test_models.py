@@ -119,7 +119,7 @@ class NewsLetterTemplateModelTest(AsyncNotificationTestBase):
             message='<p>Newsletter content</p>'
         )
         self.assertEqual(template.title, 'Monthly Update')
-        self.assertEqual(template.model_base, '')
+        self.assertEqual(template.model_base.count(), 0)
 
     def test_slug_uniqueness(self):
         NewsLetterTemplate.objects.create(

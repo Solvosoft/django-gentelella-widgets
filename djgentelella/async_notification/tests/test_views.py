@@ -53,15 +53,15 @@ class HTMLViewsTest(AsyncNotificationTestBase):
         self.client.force_login(self.user)
         response = self.client.get(
             reverse('async_notification:email_notification'))
-        form = response.context['form']
-        self.assertEqual(form.prefix, 'emailnotification')
+        form = response.context['create_form']
+        self.assertEqual(form.prefix, 'create')
 
     def test_form_prefix_email_template(self):
         self.client.force_login(self.user)
         response = self.client.get(
             reverse('async_notification:email_template'))
-        form = response.context['form']
-        self.assertEqual(form.prefix, 'emailtemplate')
+        form = response.context['create_form']
+        self.assertEqual(form.prefix, 'create')
 
 
 class AuxiliaryEndpointsTest(AsyncNotificationTestBase):

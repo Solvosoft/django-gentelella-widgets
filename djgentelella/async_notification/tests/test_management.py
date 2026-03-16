@@ -27,16 +27,21 @@ class ProcessNotificationsCommandTest(AsyncNotificationTestBase):
 
     def test_non_enqueued_ignored(self):
         """Notifications with enqueued=False should not be processed by command."""
-        notification = EmailNotification.objects.create(
-            subject='Not Enqueued',
-            message='<p>Hi</p>',
-            recipients='skip@example.com',
-            enqueued=False,
-        )
-        # The signal will have already sent this one; reset status to pending
-        # to simulate the scenario where it wasn't sent by signal either
+        from unittest.mock import patch
+        from djgentelella.async_notification.backends.sync import SyncBackend
+        sync = SyncBackend()
+        with patch('djgentelella.async_notification.backends.get_backend',
+                   return_value=sync):
+            notification = EmailNotification.objects.create(
+                subject='Not Enqueued',
+                message='<p>Hi</p>',
+                recipients='skip@example.com',
+                enqueued=False,
+            )
+        # Reset status to pending to simulate the scenario where it wasn't sent by signal
         EmailNotification.objects.filter(pk=notification.pk).update(
             status='pending', sent=False)
+        mail.outbox.clear()
         call_command('process_notifications')
         notification.refresh_from_db()
         # Should still be pending since enqueued=False

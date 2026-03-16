@@ -79,6 +79,7 @@ class GetBackendTest(AsyncNotificationTestBase):
     def tearDown(self):
         reset_backend()
 
+    @override_settings(CELERY_BROKER_URL=None, TASKS=None)
     def test_default_backend_is_sync(self):
         """Without Celery configured, default backend should be SyncBackend."""
         backend = get_backend()
@@ -121,12 +122,16 @@ class SignalDispatchTest(AsyncNotificationTestBase):
 
     def test_immediate_send_via_signal(self):
         """Creating notification with enqueued=False triggers immediate send."""
-        notification = EmailNotification.objects.create(
-            subject='Signal Test',
-            message='<p>Immediate</p>',
-            recipients='signal@example.com',
-            enqueued=False,
-        )
+        from unittest.mock import patch
+        sync = SyncBackend()
+        with patch('djgentelella.async_notification.backends.get_backend',
+                   return_value=sync):
+            notification = EmailNotification.objects.create(
+                subject='Signal Test',
+                message='<p>Immediate</p>',
+                recipients='signal@example.com',
+                enqueued=False,
+            )
         notification.refresh_from_db()
         self.assertEqual(notification.status, 'sent')
         self.assertTrue(notification.sent)

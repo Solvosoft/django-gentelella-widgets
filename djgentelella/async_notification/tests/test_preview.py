@@ -100,12 +100,12 @@ class RenderPreviewTest(TestCase):
         self.assertIn('Template Error', result)
 
     def test_no_base_template(self):
-        result = render_preview('<b>Bold</b>', {}, base_template_key=None)
+        result = render_preview('<b>Bold</b>', {}, base_template=None)
         self.assertEqual(result, '<b>Bold</b>')
 
     def test_unknown_base_template_key(self):
         result = render_preview('<p>Test</p>', {},
-                                base_template_key='nonexistent_key')
+                                base_template='nonexistent_key')
         self.assertIn('Test', result)
 
     def test_nested_variables(self):

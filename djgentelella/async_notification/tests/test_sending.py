@@ -198,15 +198,19 @@ class SendEmailFromTemplateTest(AsyncNotificationTestBase):
             )
 
     def test_immediate_send(self):
+        from unittest.mock import patch
+        from djgentelella.async_notification.backends.sync import SyncBackend
         EmailTemplate.objects.create(
             code='immediate',
             subject='Immediate',
             message='<p>Now</p>',
         )
-        notification = send_email_from_template(
-            code='immediate',
-            recipient='now@user.com',
-            context={},
-            enqueued=False,
-        )
+        with patch('djgentelella.async_notification.backends.get_backend',
+                   return_value=SyncBackend()):
+            notification = send_email_from_template(
+                code='immediate',
+                recipient='now@user.com',
+                context={},
+                enqueued=False,
+            )
         self.assertFalse(notification.enqueued)
