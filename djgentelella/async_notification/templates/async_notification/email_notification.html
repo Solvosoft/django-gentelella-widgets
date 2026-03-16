@@ -123,6 +123,35 @@ var actions = {
 		},
 		{
 			action: function(e, dt, node, config) {
+				var pks = get_selected_items(dt, '#datatable');
+				if (!pks || pks.length === 0) {
+					Swal.fire({icon: 'warning', title: gettext('Warning'),
+						text: gettext('No notifications selected')});
+					return;
+				}
+				$.ajax({
+					url: "{% url 'async_notification:api-emailnotification-send-via-django-task' %}",
+					type: 'POST', contentType: 'application/json',
+					headers: {'X-CSRFToken': getCookie('csrftoken')},
+					data: JSON.stringify({pks: pks}),
+					success: function(response) {
+						Swal.fire({icon: 'success', title: gettext('Success'),
+							text: response.detail, confirmButtonText: gettext('Accept')});
+						ocrud.datatable.ajax.reload();
+					},
+					error: function() {
+						Swal.fire({icon: 'error', title: gettext('Error'),
+							text: gettext('Sorry, an error occurred.'),
+							confirmButtonText: gettext('Accept')});
+					}
+				});
+			},
+			text: '<i class="fa fa-bolt" aria-hidden="true"></i> ' + gettext('Send via Django Task'),
+			titleAttr: gettext('Enqueue selected notifications via Django Tasks'),
+			className: "btn btn-primary"
+		},
+		{
+			action: function(e, dt, node, config) {
 				$.ajax({
 					url: "{% url 'async_notification:api-emailnotification-send-test-template' %}",
 					type: 'POST', contentType: 'application/json',

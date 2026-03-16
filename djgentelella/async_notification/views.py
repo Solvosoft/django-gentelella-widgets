@@ -75,6 +75,7 @@ class EmailNotificationManagement(AuthAllPermBaseObjectManagement):
         'send_email': EmailNotificationSerializer,
         'send_selected': EmailNotificationSerializer,
         'send_selected_via_task': EmailNotificationSerializer,
+        'send_selected_via_django_task': EmailNotificationSerializer,
         'send_test_from_template': EmailNotificationSerializer,
     }
     perms = {
@@ -87,6 +88,7 @@ class EmailNotificationManagement(AuthAllPermBaseObjectManagement):
         'send_email': [f'{APP_PERM_PREFIX}.change_emailnotification'],
         'send_selected': [f'{APP_PERM_PREFIX}.change_emailnotification'],
         'send_selected_via_task': [f'{APP_PERM_PREFIX}.change_emailnotification'],
+        'send_selected_via_django_task': [f'{APP_PERM_PREFIX}.change_emailnotification'],
         'send_test_from_template': [f'{APP_PERM_PREFIX}.add_emailnotification'],
     }
     queryset = EmailNotification.objects.all()
@@ -153,6 +155,28 @@ class EmailNotificationManagement(AuthAllPermBaseObjectManagement):
         return Response({
             'result': True,
             'detail': f'{queued} notifications enqueued via {backend.__class__.__name__}',
+        })
+
+    @action(detail=False, methods=['post'], url_path='send-via-django-task', url_name='send-via-django-task')
+    def send_selected_via_django_task(self, request):
+        """Enqueue multiple selected notifications via Django Tasks backend."""
+        from djgentelella.async_notification.backends.django_tasks import DjangoTasksBackend
+        pks = request.data.get('pks', [])
+        if not pks:
+            return Response({'result': False,
+                            'detail': 'No notifications selected'},
+                           status=400)
+        backend = DjangoTasksBackend()
+        queued = 0
+        for pk in pks:
+            try:
+                backend.send(pk)
+                queued += 1
+            except Exception as e:
+                logger.error('Error queuing notification %s: %s', pk, e)
+        return Response({
+            'result': True,
+            'detail': f'{queued} notifications enqueued via DjangoTasksBackend',
         })
 
     @action(detail=False, methods=['post'], url_path='send-test-template', url_name='send-test-template')

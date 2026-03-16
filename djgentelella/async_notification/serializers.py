@@ -22,6 +22,8 @@ class OptionalBase64FileField(GTBase64FileField):
         return super().to_internal_value(datalist)
 from djgentelella.serializers.selects import GTS2SerializerBase
 
+from django.contrib.contenttypes.models import ContentType
+
 from djgentelella.async_notification.models import (
     EmailNotification, EmailTemplate,
     NewsLetterTemplate, NewsLetter, NewsLetterTask
@@ -121,7 +123,8 @@ class EmailTemplateTableSerializer(serializers.Serializer):
 
 class EmailTemplateCreateSerializer(serializers.ModelSerializer):
     """Serializer for creating/updating email templates."""
-    context_models = GTS2SerializerBase(many=True)
+    context_models = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=ContentType.objects.all())
     class Meta:
         model = EmailTemplate
         fields = ('code', 'subject', 'message', 'bcc', 'cc',

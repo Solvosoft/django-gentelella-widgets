@@ -61,11 +61,11 @@ def add_log(
                 "action": action_label,
             }
 
-    LogEntry.objects.log_action(
+    LogEntry.objects.create(
         user_id=user.id,
         content_type_id=content_type.id,
         object_id=object.pk,
-        object_repr=object_repr,
+        object_repr=object_repr[:200],
         action_flag=action_flag,
         change_message=change_message,
     )

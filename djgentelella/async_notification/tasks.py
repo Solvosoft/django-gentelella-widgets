@@ -21,3 +21,21 @@ try:
 
 except ImportError:
     pass
+
+try:
+    from django.tasks import task as django_task
+
+    @django_task
+    def django_send_email_task(notification_pk):
+        """Django 6 task to send a single email notification."""
+        from djgentelella.async_notification.sending import do_send_notification
+        do_send_notification(notification_pk)
+
+    @django_task
+    def django_send_newsletter_task(newsletter_task_pk):
+        """Django 6 task to send a newsletter."""
+        from djgentelella.async_notification.sending import do_send_newsletter
+        do_send_newsletter(newsletter_task_pk)
+
+except ImportError:
+    pass

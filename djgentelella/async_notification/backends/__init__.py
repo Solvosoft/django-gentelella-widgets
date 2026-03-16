@@ -25,6 +25,15 @@ def _get_default_backend_path():
             return 'djgentelella.async_notification.backends.celery.CeleryBackend'
     except ImportError:
         pass
+
+    try:
+        from django.tasks import task  # noqa: F401
+        from django.conf import settings
+        if getattr(settings, 'TASKS', None):
+            return 'djgentelella.async_notification.backends.django_tasks.DjangoTasksBackend'
+    except ImportError:
+        pass
+
     return 'djgentelella.async_notification.backends.sync.SyncBackend'
 
 

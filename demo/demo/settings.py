@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_tasks',
     'djgentelella',
     'rest_framework',
     'demoapp',
@@ -202,3 +203,9 @@ GT_HISTORY_ALLOWED_MODELS = [
     "demoapp.customer",
     # add more models here for history
 ]
+
+TASKS = {
+    "default": {
+        "BACKEND": "django.tasks.backends.immediate.ImmediateBackend",
+    }
+}
