@@ -31,7 +31,7 @@ class AttachedFileAdmin(admin.ModelAdmin):
 
 @admin.register(NewsLetterTemplate)
 class NewsLetterTemplateAdmin(admin.ModelAdmin):
-    list_display = ('title', 'slug', 'model_base', 'created_at')
+    list_display = ('title', 'slug', 'created_at')
     search_fields = ('title', 'slug')
     prepopulated_fields = {'slug': ('title',)}
 

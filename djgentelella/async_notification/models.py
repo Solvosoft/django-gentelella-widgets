@@ -24,10 +24,13 @@ class EmailTemplate(models.Model):
         ContentType, blank=True,
         verbose_name=_('Context Models'),
         help_text=_('Models whose fields are available as template variables'))
-    base_template = models.CharField(
-        max_length=150, blank=True, default='',
+    base_template = models.ForeignKey(
+        'self',
+        null=True, blank=True,
+        on_delete=models.SET_NULL,
+        related_name='children',
         verbose_name=_('Base Template'),
-        help_text=_('Base template key from settings to wrap the email content'))
+        help_text=_('Parent template whose {{ body }} receives this template\'s rendered content'))
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -132,10 +135,10 @@ class NewsLetterTemplate(models.Model):
     message = models.TextField(
         verbose_name=_('Message'),
         help_text=_('HTML content for the newsletter template'))
-    model_base = models.CharField(
-        max_length=255, blank=True, default='',
+    model_base = models.ManyToManyField(
+        ContentType, blank=True,
         verbose_name=_('Model Base'),
-        help_text=_('Key from ASYNC_NEWS_BASE_MODELS settings'))
+        help_text=_('Models whose fields are available as newsletter template variables'))
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

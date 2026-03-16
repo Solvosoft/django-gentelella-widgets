@@ -11,12 +11,9 @@ import uuid
 
 from django.apps import apps
 from django.template import Template, Context
-from django.template.loader import render_to_string
+from django.utils.safestring import mark_safe
 
 from djgentelella.async_notification.registry import get_context_config
-from djgentelella.async_notification.settings import (
-    ASYNC_NOTIFICATION_BASE_TEMPLATES
-)
 
 
 class DummyContextObject:
@@ -144,7 +141,7 @@ def build_dummy_context(code):
                 parts = field['name'].split('.')
                 current = context
                 for part in parts[:-1]:
-                    if part not in current:
+                    if not isinstance(current.get(part), dict):
                         current[part] = {}
                     current = current[part]
                 current[parts[-1]] = DummyContextObject.get_dummy_value(
@@ -172,38 +169,41 @@ def build_dummy_context_from_fields(fields_data):
                 parts = field['name'].split('.')
                 current = context
                 for part in parts[:-1]:
-                    if part not in current:
+                    if not isinstance(current.get(part), dict):
                         current[part] = {}
                     current = current[part]
                 current[parts[-1]] = DummyContextObject.get_dummy_value(field['type'])
     return context
 
 
-def render_preview(content, context, base_template_key=None):
+def render_preview(content, context, base_template=None):
     """Render an email template with a context for preview.
 
     Args:
         content: The template content string (HTML with Django template syntax).
         context: Dict of template context variables.
-        base_template_key: Optional key from ASYNC_NOTIFICATION_BASE_TEMPLATES
-            to wrap the content.
+        base_template: Optional EmailTemplate instance (or PK) whose message
+            wraps the rendered content via {{ body }}.
 
     Returns:
         Rendered HTML string, or error message on template syntax errors.
     """
     try:
-        if base_template_key and base_template_key in ASYNC_NOTIFICATION_BASE_TEMPLATES:
-            base_template_path = ASYNC_NOTIFICATION_BASE_TEMPLATES[base_template_key]
-            # Render the content first
-            inner_tpl = Template(content)
-            inner_html = inner_tpl.render(Context(context))
-            # Then wrap in base template
-            return render_to_string(base_template_path, {
-                'content': inner_html,
-                **context,
-            })
-        else:
-            tpl = Template(content)
-            return tpl.render(Context(context))
+        inner_tpl = Template(content)
+        inner_html = inner_tpl.render(Context(context))
+
+        if base_template is not None:
+            from djgentelella.async_notification.models import EmailTemplate
+            if not isinstance(base_template, EmailTemplate):
+                try:
+                    base_template = EmailTemplate.objects.get(pk=base_template)
+                except (EmailTemplate.DoesNotExist, ValueError):
+                    base_template = None
+
+        if base_template is not None:
+            outer_tpl = Template(base_template.message)
+            return outer_tpl.render(Context({**context, 'body': mark_safe(inner_html)}))
+
+        return inner_html
     except Exception as e:
         return f'<div style="color:red;padding:10px;">Template Error: {e}</div>'

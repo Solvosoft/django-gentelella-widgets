@@ -16,12 +16,107 @@
 </div>
 
 {% url "async_notification:api-newslettertemplate-list" as create_url %}
-{% trans 'Create Template' as create_title %}
-{% include 'gentelella/blocks/modal_template.html' with form=create_form id="create_modal" title=create_title form_id="create_form" url=create_url modal_class="modal-lg" %}
-
 {% url "async_notification:api-newslettertemplate-detail" 0 as update_url %}
-{% trans 'Update Template' as update_title %}
-{% include 'gentelella/blocks/modal_template.html' with form=update_form id="update_modal" title=update_title form_id="update_form" url=update_url modal_class="modal-lg" %}
+
+{# Create Modal #}
+<div aria-hidden="true" id="create_modal" class="modal fade" aria-labelledby="create_modal_title"
+	data-bs-focus="false" role="dialog" tabindex="-1">
+	<div class="modal-dialog modal-xl" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="create_modal_title">{% trans "Create Template" %}</h5>
+				<button aria-label="{% trans 'Close' %}" class="btn-close" data-bs-dismiss="modal" type="button"></button>
+			</div>
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-7">
+						<form id="create_form" method="POST" autocomplete="off" action="{{ create_url }}">
+							{% csrf_token %}
+							{{ create_form }}
+							<input type="hidden" name="prefix" class="form_prefix" value="{{ create_form.prefix|default_if_none:'' }}">
+						</form>
+					</div>
+					<div class="col-md-5">
+						<div class="card">
+							<div class="card-header py-2">
+								<h6 class="mb-0">{% trans "Model Inspector" %}</h6>
+							</div>
+							<div class="card-body" style="max-height:200px;overflow-y:auto;">
+								<p class="text-muted small">{% trans "Select context models to inspect available fields." %}</p>
+								<div class="model-fields-tree"></div>
+							</div>
+						</div>
+						<div class="card mt-2">
+							<div class="card-header py-2">
+								<h6 class="mb-0">{% trans "Preview" %}</h6>
+							</div>
+							<div class="card-body">
+								<button class="btn btn-info btn-sm mb-2 btn-preview-template" type="button">
+									<i class="fa fa-eye"></i> {% trans "Preview" %}
+								</button>
+								<iframe class="w-100 preview-frame" style="min-height:250px;border:1px solid #ddd;"></iframe>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-secondary" data-bs-dismiss="modal" type="button">{% trans 'Close' %}</button>
+				<button class="btn btn-primary formadd" type="button">{% trans 'Save changes' %}</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+{# Update Modal #}
+<div aria-hidden="true" id="update_modal" class="modal fade" aria-labelledby="update_modal_title"
+	data-bs-focus="false" role="dialog" tabindex="-1">
+	<div class="modal-dialog modal-xl" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="update_modal_title">{% trans "Update Template" %}</h5>
+				<button aria-label="{% trans 'Close' %}" class="btn-close" data-bs-dismiss="modal" type="button"></button>
+			</div>
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-md-7">
+						<form id="update_form" method="POST" autocomplete="off" action="{{ update_url }}">
+							{% csrf_token %}
+							{{ update_form }}
+							<input type="hidden" name="prefix" class="form_prefix" value="{{ update_form.prefix|default_if_none:'' }}">
+						</form>
+					</div>
+					<div class="col-md-5">
+						<div class="card">
+							<div class="card-header py-2">
+								<h6 class="mb-0">{% trans "Model Inspector" %}</h6>
+							</div>
+							<div class="card-body" style="max-height:200px;overflow-y:auto;">
+								<p class="text-muted small">{% trans "Select context models to inspect available fields." %}</p>
+								<div class="model-fields-tree"></div>
+							</div>
+						</div>
+						<div class="card mt-2">
+							<div class="card-header py-2">
+								<h6 class="mb-0">{% trans "Preview" %}</h6>
+							</div>
+							<div class="card-body">
+								<button class="btn btn-info btn-sm mb-2 btn-preview-template" type="button">
+									<i class="fa fa-eye"></i> {% trans "Preview" %}
+								</button>
+								<iframe class="w-100 preview-frame" style="min-height:250px;border:1px solid #ddd;"></iframe>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-secondary" data-bs-dismiss="modal" type="button">{% trans 'Close' %}</button>
+				<button class="btn btn-primary formadd" type="button">{% trans 'Save changes' %}</button>
+			</div>
+		</div>
+	</div>
+</div>
 
 {% trans 'Delete Template' as delete_title %}
 {% include 'gentelella/blocks/modal_template_delete.html' with id="delete_modal" title=delete_title form_id="delete_form" url=update_url %}
@@ -44,7 +139,6 @@ var datatable_inits = {
 	columns: [
 		{data: "title", name: "title", title: gettext("Title"), type: "string", visible: true},
 		{data: "slug", name: "slug", title: gettext("Slug"), type: "string", visible: true},
-		{data: "model_base", name: "model_base", title: gettext("Model Base"), type: "string", visible: true},
 		{data: "created_at", name: "created_at", title: gettext("Created"), type: "date",
 			render: DataTable.render.datetime(), dateformat: document.datetime_format, visible: true},
 		{data: "actions", name: "actions", title: gettext("Actions"), type: "string", visible: true}
@@ -77,5 +171,60 @@ var objconfig = {
 
 var ocrud = ObjectCRUD("newslettertemplate", objconfig);
 ocrud.init();
+
+/* Model inspector: load fields when model_base changes */
+$(document).on('change', '[name$="-model_base"]', function() {
+	var pks = $(this).val();
+	var $modal = $(this).closest('.modal');
+	var $tree = $modal.find('.model-fields-tree');
+	if (!pks || pks.length === 0) {
+		$tree.html('<p class="text-muted small">' + gettext('No context selected.') + '</p>');
+		return;
+	}
+	var qs = pks.map(function(pk) { return 'ct=' + encodeURIComponent(pk); }).join('&');
+	fetch("{% url 'async_notification:model_fields' %}?" + qs, {
+		headers: {'Accept': 'text/html'}
+	})
+	.then(function(r) { return r.text(); })
+	.then(function(html) {
+		$tree.html(html);
+	});
+});
+
+/* Preview from within the create/update modal */
+$(document).on('click', '.btn-preview-template', function() {
+	var $modal = $(this).closest('.modal');
+	var $iframe = $modal.find('.preview-frame');
+	var message = '';
+
+	if (typeof tinymce !== 'undefined') {
+		var $textarea = $modal.find('textarea[name$="-message"]');
+		if ($textarea.length) {
+			var editor = tinymce.get($textarea.attr('id'));
+			if (editor) {
+				message = editor.getContent();
+			}
+		}
+	}
+	if (!message) {
+		message = $modal.find('[name$="-message"]').val() || '';
+	}
+
+	var context_pks = $modal.find('[name$="-model_base"]').val() || [];
+	var ctParams = context_pks.map(function(pk) { return 'ct_pks=' + encodeURIComponent(pk); }).join('&');
+
+	fetch("{% url 'async_notification:preview_template' %}", {
+		method: 'POST',
+		headers: {
+			'X-CSRFToken': getCookie('csrftoken'),
+			'Content-Type': 'application/x-www-form-urlencoded'
+		},
+		body: 'message=' + encodeURIComponent(message) +
+			(ctParams ? '&' + ctParams : '')
+	}).then(function(r) { return r.json(); })
+	.then(function(data) {
+		$iframe[0].srcdoc = data.preview;
+	});
+});
 </script>
 {% endblock %}

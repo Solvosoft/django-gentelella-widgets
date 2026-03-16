@@ -271,9 +271,9 @@ class EmailTemplateManagement(AuthAllPermBaseObjectManagement):
 
         return Response({
             'subject': render_preview(template.subject, context),
-            'message': render_preview(template.message, context, template.base_template or None),
+            'message': render_preview(template.message, context),
             'context_models': ct_pks,
-            'base_template': template.base_template,
+            'base_template': template.base_template_id,
         })
 
 
@@ -524,11 +524,8 @@ def model_fields_view(request):
     else:
         code = request.GET.get('code', '').strip()
         if not code:
-            from django.contrib.contenttypes.models import ContentType as CT
-            ct_pks = CT.objects.values_list('pk', flat=True)
-            fields = get_fields_for_content_types(ct_pks)
-        else:
-            fields = get_fields_for_context(code)
+            return JsonResponse({'error': 'ct or code parameter required'}, status=400)
+        fields = get_fields_for_context(code)
 
     if fields is None:
         return JsonResponse({'error': 'No fields found'}, status=404)
@@ -666,7 +663,7 @@ def preview_template_view(request):
     )
 
     message = request.POST.get('message', '')
-    base_template_key = request.POST.get('base_template', '')
+    base_template_pk = request.POST.get('base_template', '')
     ct_pks = request.POST.getlist('ct_pks')
 
     context = {}
@@ -680,5 +677,5 @@ def preview_template_view(request):
         if context_code:
             context = build_dummy_context(context_code)
 
-    preview_html = render_preview(message, context, base_template_key or None)
+    preview_html = render_preview(message, context, base_template_pk or None)
     return JsonResponse({'preview': preview_html})

@@ -10,6 +10,7 @@ import logging
 from django.contrib.contenttypes.models import ContentType
 from django.core.mail import EmailMessage, get_connection
 from django.template import Template, Context
+from django.utils.safestring import mark_safe
 
 from djgentelella.async_notification.models import (
     EmailNotification, EmailTemplate, AttachedFile,
@@ -377,6 +378,10 @@ def send_email_from_template(code, recipient, context, enqueued=True,
 
     rendered_subject = subject_tpl.render(ctx)
     rendered_message = message_tpl.render(ctx)
+
+    if template.base_template:
+        base_tpl = Template(template.base_template.message)
+        rendered_message = base_tpl.render(Context({**context, 'body': mark_safe(rendered_message)}))
 
     all_bcc = template.bcc
     if bcc:

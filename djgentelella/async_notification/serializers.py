@@ -124,7 +124,10 @@ class EmailTemplateTableSerializer(serializers.Serializer):
 class EmailTemplateCreateSerializer(serializers.ModelSerializer):
     """Serializer for creating/updating email templates."""
     context_models = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=ContentType.objects.all())
+        many=True, queryset=ContentType.objects.all(), required=False)
+    base_template = serializers.PrimaryKeyRelatedField(
+        queryset=EmailTemplate.objects.all(), allow_null=True, required=False)
+
     class Meta:
         model = EmailTemplate
         fields = ('code', 'subject', 'message', 'bcc', 'cc',
@@ -136,6 +139,8 @@ class EmailTemplateDetailSerializer(serializers.ModelSerializer):
     created_at = GTDateTimeField(read_only=True)
     updated_at = GTDateTimeField(read_only=True)
     context_models = GTS2SerializerBase(many=True)
+    base_template = GTS2SerializerBase(many=False)
+
     class Meta:
         model = EmailTemplate
         fields = ('id', 'code', 'subject', 'message', 'bcc', 'cc',
@@ -154,7 +159,7 @@ class NewsLetterTemplateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = NewsLetterTemplate
-        fields = ('id', 'title', 'slug', 'model_base', 'created_at', 'actions')
+        fields = ('id', 'title', 'slug', 'created_at', 'actions')
 
     def get_actions(self, obj):
         return {'update': True, 'destroy': True}
@@ -171,6 +176,8 @@ class NewsLetterTemplateTableSerializer(serializers.Serializer):
 
 class NewsLetterTemplateCreateSerializer(serializers.ModelSerializer):
     """Serializer for creating/updating newsletter templates."""
+    model_base = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=ContentType.objects.all())
 
     class Meta:
         model = NewsLetterTemplate
@@ -181,6 +188,7 @@ class NewsLetterTemplateDetailSerializer(serializers.ModelSerializer):
     """Serializer for detailed view."""
     created_at = GTDateTimeField(read_only=True)
     updated_at = GTDateTimeField(read_only=True)
+    model_base = GTS2SerializerBase(many=True)
 
     class Meta:
         model = NewsLetterTemplate

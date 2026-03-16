@@ -84,6 +84,7 @@
 							{% csrf_token %}
 							{{ update_form }}
 							<input type="hidden" name="prefix" class="form_prefix" value="{{ update_form.prefix|default_if_none:'' }}">
+							<input type="hidden" id="update-editing-pk" value="">
 						</form>
 					</div>
 					<div class="col-md-5">
@@ -201,6 +202,17 @@ var objconfig = {
 
 var ocrud = ObjectCRUD("emailtemplate", objconfig);
 
+/* Exclude current template from its own base_template autocomplete */
+ocrud.update_value_success = function(instance, element) {
+	return function(data) {
+		$('#update-editing-pk').val(data.id || '');
+		data = instance.config.events.update_data(data);
+		instance.update_form.fill_form(data);
+		instance.update_form.url = instance.base_update_url.replace('/0/', '/' + data.id + '/');
+		instance.update_form.show_modal();
+	};
+};
+
 /* Preview existing template from table */
 ocrud.preview = function(data, actiondef) {
 	var url = object_urls.destroy_url.replace("0", data.id).replace(/\/$/, '') + '/preview/';
@@ -240,6 +252,9 @@ ocrud.preview = function(data, actiondef) {
 };
 
 ocrud.init();
+
+/* Mark the update form's base_template select so select2 sends exclude=<current pk> on each query */
+$('#update_form [name$="-base_template"]').attr('data-s2filterexclude', '#update-editing-pk');
 
 /* Model inspector: load fields when context_models changes (works in both modals) */
 $(document).on('change', '[name$="-context_models"]', function() {

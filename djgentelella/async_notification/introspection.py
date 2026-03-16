@@ -206,6 +206,7 @@ def get_fields_for_context(code):
             try:
                 model = apps.get_model(model_string)
             except (LookupError, ValueError):
+                result.setdefault(prefix, [])
                 continue
             fields = describe_model_fields(
                 model, depth=depth,
