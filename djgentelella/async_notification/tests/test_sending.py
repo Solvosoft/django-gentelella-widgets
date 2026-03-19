@@ -1,3 +1,5 @@
+from unittest.mock import patch, MagicMock, call
+
 from django.core import mail
 from django.contrib.auth.models import Group
 
@@ -148,6 +150,114 @@ class DoSendNotificationTest(AsyncNotificationTestBase):
         notification.refresh_from_db()
         self.assertIn('a@b.com', notification.recipients_raw)
         self.assertIn('c@d.com', notification.recipients_raw)
+
+
+class DoSendNotificationRetryTest(AsyncNotificationTestBase):
+
+    def _make_notification(self, max_retries=2, **kwargs):
+        return EmailNotification.objects.create(
+            subject='Retry Test',
+            message='<p>Hello</p>',
+            recipients='recipient@example.com',
+            max_retries=max_retries,
+            **kwargs,
+        )
+
+    def _always_failing_connection(self, error_msg='SMTP connection refused'):
+        conn = MagicMock()
+        conn.send_messages.side_effect = Exception(error_msg)
+        conn.__enter__ = lambda s: s
+        conn.__exit__ = MagicMock(return_value=False)
+        return conn
+
+    def test_retries_until_max_then_fails(self):
+        """Agota todos los reintentos y queda en status=failed."""
+        notification = self._make_notification(max_retries=2)
+
+        with patch('djgentelella.async_notification.sending.get_connection') as mock_conn:
+            mock_conn.return_value.open.return_value = None
+            mock_conn.return_value.send_messages.side_effect = Exception('SMTP down')
+
+            do_send_notification(notification.pk)
+
+        notification.refresh_from_db()
+        self.assertEqual(notification.status, 'failed')
+        # max_retries=2 → intentos 0,1,2 → retry_count debe ser 3
+        self.assertEqual(notification.retry_count, 3)
+        self.assertIn('SMTP down', notification.error_message)
+
+    def test_succeeds_on_first_attempt(self):
+        """Sin errores, queda en status=sent con retry_count=0."""
+        notification = self._make_notification(max_retries=3)
+
+        do_send_notification(notification.pk)
+
+        notification.refresh_from_db()
+        self.assertEqual(notification.status, 'sent')
+        self.assertTrue(notification.sent)
+        self.assertEqual(notification.retry_count, 0)
+
+    def test_succeeds_on_second_attempt(self):
+        """Falla una vez y luego envía exitosamente."""
+        notification = self._make_notification(max_retries=2)
+        call_count = {'n': 0}
+
+        original_get_connection = __import__(
+            'django.core.mail', fromlist=['get_connection']
+        ).get_connection
+
+        def flaky_connection(*args, **kwargs):
+            call_count['n'] += 1
+            if call_count['n'] == 1:
+                conn = MagicMock()
+                conn.open.side_effect = Exception('First attempt fails')
+                return conn
+            return original_get_connection(*args, **kwargs)
+
+        with patch('djgentelella.async_notification.sending.get_connection', flaky_connection):
+            do_send_notification(notification.pk)
+
+        notification.refresh_from_db()
+        self.assertEqual(notification.status, 'sent')
+        self.assertTrue(notification.sent)
+        self.assertEqual(notification.retry_count, 1)
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_max_retries_zero_fails_immediately(self):
+        """Con max_retries=0, un solo fallo marca como failed sin reintentar."""
+        notification = self._make_notification(max_retries=0)
+
+        with patch('djgentelella.async_notification.sending.get_connection') as mock_conn:
+            mock_conn.return_value.open.side_effect = Exception('Instant fail')
+
+            do_send_notification(notification.pk)
+
+        notification.refresh_from_db()
+        self.assertEqual(notification.status, 'failed')
+        self.assertEqual(notification.retry_count, 1)
+
+    def test_error_message_stored(self):
+        """El mensaje de error del último intento queda guardado."""
+        notification = self._make_notification(max_retries=1)
+
+        with patch('djgentelella.async_notification.sending.get_connection') as mock_conn:
+            mock_conn.return_value.open.side_effect = Exception('Timeout error XYZ')
+
+            do_send_notification(notification.pk)
+
+        notification.refresh_from_db()
+        self.assertIn('Timeout error XYZ', notification.error_message)
+
+    def test_already_sent_skips_retry(self):
+        """Una notificación ya enviada no se vuelve a intentar."""
+        notification = self._make_notification(max_retries=3, status='sent', sent=True)
+
+        with patch('djgentelella.async_notification.sending.get_connection') as mock_conn:
+            do_send_notification(notification.pk)
+            mock_conn.assert_not_called()
+
+        notification.refresh_from_db()
+        self.assertEqual(notification.retry_count, 0)
 
 
 class SendEmailFromTemplateTest(AsyncNotificationTestBase):

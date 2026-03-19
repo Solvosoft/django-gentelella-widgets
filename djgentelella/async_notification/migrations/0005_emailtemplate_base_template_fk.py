@@ -15,9 +15,5 @@ class Migration(migrations.Migration):
             model_name='emailtemplate',
             name='base_template',
             field=models.ForeignKey(blank=True, help_text="Parent template whose {{ body }} receives this template's rendered content", null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='children', to='async_notification.emailtemplate', verbose_name='Base Template'),
-        ),
-        migrations.RunSQL(
-            "UPDATE async_notification_emailtemplate SET base_template_id = NULL WHERE base_template_id = ''",
-            reverse_sql=migrations.RunSQL.noop,
-        ),
+        )
     ]

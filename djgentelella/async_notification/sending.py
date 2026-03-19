@@ -122,7 +122,7 @@ def do_send_notification(notification_pk):
     """Send an email notification. Core send logic.
 
     Resolves recipients, batches them, sends, and updates status.
-    Handles retries up to ASYNC_NOTIFICATION_MAX_RETRIES.
+    Retries on failure up to notification.max_retries times.
 
     Args:
         notification_pk: Primary key of the EmailNotification to send.
@@ -136,51 +136,56 @@ def do_send_notification(notification_pk):
     if notification.status == 'sent':
         return
 
-    notification.status = 'sending'
-    notification.save(update_fields=['status'])
+    recipients = resolve_all_recipients(notification.recipients)
+    notification.recipients_raw = ', '.join(recipients)
+    notification.save(update_fields=['recipients_raw'])
 
-    try:
-        recipients = resolve_all_recipients(notification.recipients)
-        notification.recipients_raw = ', '.join(recipients)
-        notification.save(update_fields=['recipients_raw'])
+    if not recipients:
+        notification.status = 'sent'
+        notification.sent = True
+        notification.save(update_fields=['status', 'sent'])
+        return
 
-        if not recipients:
+    if notification.send_individually:
+        batches = [[r] for r in recipients]
+    else:
+        batches = chunk_list(recipients, ASYNC_NOTIFICATION_MAX_PER_MAIL)
+
+    while notification.retry_count <= notification.max_retries:
+        notification.status = 'sending'
+        notification.save(update_fields=['status'])
+        try:
+            connection = get_connection()
+            connection.open()
+            try:
+                for batch in batches:
+                    msg = build_email_message(notification, batch,
+                                              connection=connection)
+                    msg.send()
+            finally:
+                connection.close()
+
             notification.status = 'sent'
             notification.sent = True
             notification.save(update_fields=['status', 'sent'])
             return
 
-        if notification.send_individually:
-            batches = [[r] for r in recipients]
-        else:
-            batches = chunk_list(recipients, ASYNC_NOTIFICATION_MAX_PER_MAIL)
+        except Exception as e:
+            logger.exception('Error sending notification %s (attempt %s/%s)',
+                             notification_pk, notification.retry_count + 1,
+                             notification.max_retries + 1)
+            notification.retry_count += 1
+            notification.error_message = str(e)
 
-        connection = get_connection()
-        connection.open()
-        try:
-            for batch in batches:
-                msg = build_email_message(notification, batch,
-                                          connection=connection)
-                msg.send()
-        finally:
-            connection.close()
+            if notification.retry_count > notification.max_retries:
+                notification.status = 'failed'
+                notification.save(update_fields=[
+                    'retry_count', 'error_message', 'status'])
+                return
 
-        notification.status = 'sent'
-        notification.sent = True
-        notification.save(update_fields=['status', 'sent'])
-
-    except Exception as e:
-        logger.exception('Error sending notification %s', notification_pk)
-        notification.retry_count += 1
-        notification.error_message = str(e)
-
-        if notification.retry_count >= ASYNC_NOTIFICATION_MAX_RETRIES:
-            notification.status = 'failed'
-        else:
             notification.status = 'pending'
-
-        notification.save(update_fields=[
-            'retry_count', 'error_message', 'status'])
+            notification.save(update_fields=[
+                'retry_count', 'error_message', 'status'])
 
 
 NEWSLETTER_BATCH_SIZE = 50
@@ -350,7 +355,7 @@ def do_send_newsletter(newsletter_task_pk):
 
 
 def send_email_from_template(code, recipient, context, enqueued=True,
-                              user=None, upfile=None, bcc='', cc=''):
+                              user=None, upfile=None, bcc='', cc='', max_retries=3):
     """Create and optionally send an email from a registered template.
 
     Args:
@@ -399,6 +404,7 @@ def send_email_from_template(code, recipient, context, enqueued=True,
         cc=all_cc,
         enqueued=enqueued,
         user=user,
+        max_retries=max_retries,
     )
 
     if upfile:

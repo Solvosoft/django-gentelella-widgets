@@ -71,6 +71,8 @@ class EmailNotification(models.Model):
     recipients_raw = models.TextField(
         blank=True, default='', verbose_name=_('Resolved Recipients'),
         help_text=_('Resolved email addresses after processing'))
+    max_retries = models.IntegerField(
+        default=3, verbose_name=_('Max Retries'))
     retry_count = models.IntegerField(
         default=0, verbose_name=_('Retry Count'))
     error_message = models.TextField(
