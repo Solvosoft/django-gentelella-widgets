@@ -9,10 +9,27 @@ Sending Backend
 .. code:: python
 
     # Backend for sending notifications.
-    # None = autodetect (Celery if available, otherwise sync)
+    # None = autodetect (Celery > Django Tasks > Sync, in that order)
     ASYNC_NOTIFICATION_BACKEND = None
 
-When set to ``None``, the module will use Celery tasks if Celery is installed, otherwise it falls back to synchronous sending.
+    # --- Explicit values ---
+
+    # Synchronous (development / no task queue)
+    ASYNC_NOTIFICATION_BACKEND = 'djgentelella.async_notification.backends.sync.SyncBackend'
+
+    # Celery (requires celery + CELERY_BROKER_URL)
+    ASYNC_NOTIFICATION_BACKEND = 'djgentelella.async_notification.backends.celery.CeleryBackend'
+
+    # Django 6 native tasks (requires django-tasks + TASKS setting)
+    ASYNC_NOTIFICATION_BACKEND = 'djgentelella.async_notification.backends.django_tasks.DjangoTasksBackend'
+
+When set to ``None`` (the default), the module auto-selects:
+
+1. **CeleryBackend** if ``celery`` is installed and ``CELERY_BROKER_URL`` is set.
+2. **DjangoTasksBackend** if Django 6+ ``django.tasks`` is available and ``TASKS`` is set.
+3. **SyncBackend** as fallback — sends in the current process; use the ``process_notifications`` cron command to drain the queue.
+
+See :doc:`backends` for full setup instructions for each backend.
 
 Batching & Retries
 ---------------------

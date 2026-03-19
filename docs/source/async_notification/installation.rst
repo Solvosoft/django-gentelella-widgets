@@ -8,10 +8,14 @@ Requirements
 - Django REST Framework
 - ``djgentelella`` (core package)
 
-Optional:
+Optional (pick one for async sending):
 
-- Celery (for asynchronous sending)
-- Django Channels (if using WebSocket features)
+- **Celery** — for task-queue-based async sending (Redis/RabbitMQ broker required).
+- **django-tasks** — for Django 6 native background tasks (no external broker needed).
+
+If neither is installed, notifications are sent synchronously via the ``process_notifications`` cron command.
+
+See :doc:`backends` for full setup instructions.
 
 Adding to INSTALLED_APPS
 ---------------------------

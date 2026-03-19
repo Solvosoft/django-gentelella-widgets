@@ -21,6 +21,7 @@ Features
    :maxdepth: 2
 
    installation
+   backends
    settings
    models
    sending

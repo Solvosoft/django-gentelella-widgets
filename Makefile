@@ -41,10 +41,8 @@ test:
 	cd demo && python manage.py test
 
 docs:
-	$(MAKE) -C docs clean
-	$(MAKE) -C docs html
-	#sphinx-build -b linkcheck ./docs/source docs/build/
-	sphinx-build -b html ./docs/source docs/build/
+	$(MAKE) -C docs clean SPHINXBUILD=../.venv/bin/sphinx-build
+	$(MAKE) -C docs html  SPHINXBUILD=../.venv/bin/sphinx-build
 
 release:
 	git tag -a "v`python djgentelella/__init__.py`" -m "Bump version `python djgentelella/__init__.py`"
