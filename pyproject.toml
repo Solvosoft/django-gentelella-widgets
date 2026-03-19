@@ -137,6 +137,9 @@ firmador = [
     "wsproto==1.2.0",
     "requests==2.32.4"
 ]
+django_tasks = [
+    "django>=6.0",
+]
 
 # List URLs that are relevant to your project
 #

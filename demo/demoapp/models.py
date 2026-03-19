@@ -318,3 +318,6 @@ class Customer(DeletedWithTrash):
         )
 
         return result
+
+class TestingNewsletter(DeletedWithTrash):
+    users = models.ManyToManyField(User)

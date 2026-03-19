@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_tasks',
     'djgentelella',
     'rest_framework',
     'demoapp',
@@ -41,6 +42,7 @@ INSTALLED_APPS = [
     'markitup',
     "corsheaders",
     "channels",
+    'djgentelella.async_notification',
 ]
 
 MIDDLEWARE = [
@@ -137,8 +139,23 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 TINYMCE_UPLOAD_PATH = os.path.join(MEDIA_ROOT, 'tinymce')
 SUMMERNOTE_UPLOAD_PATH = os.path.join(MEDIA_ROOT, 'summernote')
 
+# Celery
+CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', 'amqp://guest:guest@localhost:5672//')
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
+
+# MailHog (local email testing server)
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'localhost'
-EMAIL_PORT = '1025'
+EMAIL_PORT = 1025
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = False
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
+DEFAULT_FROM_EMAIL = 'demo@localhost'
+# MailHog web UI available at http://localhost:8025
 
 MARKITUP_FILTER = ('markdown.markdown', {'safe_mode': True})
 MARKITUP_SET = 'markitup/sets/markdown/'
@@ -186,3 +203,9 @@ GT_HISTORY_ALLOWED_MODELS = [
     "demoapp.customer",
     # add more models here for history
 ]
+
+TASKS = {
+    "default": {
+        "BACKEND": "django.tasks.backends.immediate.ImmediateBackend",
+    }
+}
