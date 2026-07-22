@@ -7,12 +7,13 @@ This exercises the full user-facing stack: auth/permissions, the ObjectCRUD
 modal, TinyMCE, the DRF create serializer (single-email coercion), the
 post-save signal, SMTP, and delivery.
 
-Requires selenium, a chromium/chromedriver, and a running MailHog
-(SMTP :1025, API :8025). Gated behind MAILHOG_E2E=1 so it never runs in the
-default suite / CI. Run with:
+Tagged ``selenium`` (organilab convention): excluded from the default suite
+(``--exclude-tag=selenium``) and run with ``--tag=selenium``. Requires
+selenium, a chromium/chromedriver, and a running MailHog (SMTP :1025,
+API :8025); skips cleanly at setUpClass when any is missing. Run with:
 
     make mailhog          # start the receiver
-    make test-browser     # MAILHOG_E2E=1 python manage.py test ...selenium
+    make test-selenium    # python manage.py test --tag=selenium
 """
 
 import json
@@ -23,7 +24,7 @@ import urllib.request
 
 from django.contrib.auth import get_user_model
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-from django.test import override_settings
+from django.test import override_settings, tag
 
 MAILHOG_API = os.getenv('MAILHOG_API', 'http://localhost:8025')
 CHROMEDRIVER = os.getenv('CHROMEDRIVER', '/usr/bin/chromedriver')
@@ -39,24 +40,7 @@ def _mailhog_up():
         return False
 
 
-def _requirements_met():
-    if not os.getenv('MAILHOG_E2E'):
-        return False, 'set MAILHOG_E2E=1 to run the browser E2E'
-    try:
-        import selenium  # noqa: F401
-    except ImportError:
-        return False, 'selenium not installed'
-    if not os.path.exists(CHROMEDRIVER):
-        return False, f'chromedriver not found at {CHROMEDRIVER}'
-    if not _mailhog_up():
-        return False, f'MailHog not reachable at {MAILHOG_API}'
-    return True, ''
-
-
-_OK, _REASON = _requirements_met()
-
-
-@unittest.skipUnless(_OK, _REASON)
+@tag('selenium')
 @override_settings(
     EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend',
     EMAIL_HOST='localhost', EMAIL_PORT='1025',
@@ -66,10 +50,19 @@ class ComposeEmailBrowserTest(StaticLiveServerTestCase):
 
     @classmethod
     def setUpClass(cls):
+        # Lazy requirement checks so the default suite never probes MailHog.
+        try:
+            from selenium import webdriver
+            from selenium.webdriver.chrome.options import Options
+            from selenium.webdriver.chrome.service import Service
+        except ImportError:
+            raise unittest.SkipTest('selenium not installed')
+        if not os.path.exists(CHROMEDRIVER):
+            raise unittest.SkipTest(f'chromedriver not at {CHROMEDRIVER}')
+        if not _mailhog_up():
+            raise unittest.SkipTest(f'MailHog not reachable at {MAILHOG_API}')
+
         super().setUpClass()
-        from selenium import webdriver
-        from selenium.webdriver.chrome.options import Options
-        from selenium.webdriver.chrome.service import Service
         opts = Options()
         opts.add_argument('--headless=new')
         opts.add_argument('--no-sandbox')
@@ -83,7 +76,8 @@ class ComposeEmailBrowserTest(StaticLiveServerTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        cls.driver.quit()
+        if hasattr(cls, 'driver'):
+            cls.driver.quit()
         super().tearDownClass()
 
     def setUp(self):
