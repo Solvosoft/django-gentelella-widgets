@@ -1,6 +1,10 @@
 {% extends 'gentelella/base_site.html' %}
 {% load i18n static %}
 
+{% block extra_css %}{{ block.super }}
+<link rel="stylesheet" href="{% static 'async_notification/async_notification.css' %}">
+{% endblock %}
+
 {% block content %}
 <div class="row">
 	<div class="col-12">
@@ -31,6 +35,7 @@
 {% block js %}
 {{ block.super }}
 {{ create_form.media }}
+<script src="{% static 'async_notification/an_preview.js' %}"></script>
 <script>
 var object_urls = {
 	list_url: "{% url 'async_notification:api-newslettertask-list' %}",
@@ -45,7 +50,8 @@ var datatable_inits = {
 		{data: "newsletter_subject", name: "newsletter_subject", title: gettext("Newsletter"), type: "string", visible: true},
 		{data: "send_date", name: "send_date", title: gettext("Send Date"), type: "date",
 			render: DataTable.render.datetime(), dateformat: document.datetime_format, visible: true},
-		{data: "status", name: "status", title: gettext("Status"), type: "string", visible: true},
+		{data: "status", name: "status", title: gettext("Status"), type: "string", visible: true,
+			render: window.AN.statusBadge()},
 		{data: "created_at", name: "created_at", title: gettext("Created"), type: "date",
 			render: DataTable.render.datetime(), dateformat: document.datetime_format, visible: true},
 		{data: "actions", name: "actions", title: gettext("Actions"), type: "string", visible: true}
@@ -61,7 +67,10 @@ var modal_ids = {
 
 var actions = {
 	table_actions: [],
-	object_actions: [],
+	object_actions: [
+		{name: 'send_now', action: 'send_now', in_action_column: true,
+			i_class: 'fa fa-paper-plane', method: 'POST', title: gettext('Send Now')}
+	],
 	title: gettext('Actions'),
 	className: "no-export-col"
 };
@@ -77,6 +86,33 @@ var objconfig = {
 };
 
 var ocrud = ObjectCRUD("newslettertask", objconfig);
+
+ocrud.send_now = function(data, actiondef) {
+	var url = object_urls.destroy_url.replace("0", data.id).replace(/\/$/, '') + '/send_now/';
+	Swal.fire({
+		title: gettext('Send now?'),
+		text: gettext('This newsletter task will be sent immediately.'),
+		icon: 'question', showCancelButton: true,
+		confirmButtonText: gettext('Send'), cancelButtonText: gettext('Cancel')
+	}).then(function(res) {
+		if (!res.isConfirmed) { return; }
+		$.ajax({
+			url: url, type: 'POST', headers: {'X-CSRFToken': getCookie('csrftoken')},
+			success: function(response) {
+				Swal.fire({icon: response.result ? 'success' : 'warning',
+					title: response.result ? gettext('Success') : gettext('Warning'),
+					text: response.detail, confirmButtonText: gettext('Accept')});
+				ocrud.datatable.ajax.reload();
+			},
+			error: function() {
+				Swal.fire({icon: 'error', title: gettext('Error'),
+					text: gettext('Sorry, an error occurred.'),
+					confirmButtonText: gettext('Accept')});
+			}
+		});
+	});
+};
+
 ocrud.init();
 </script>
 {% endblock %}

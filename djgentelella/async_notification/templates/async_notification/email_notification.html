@@ -1,6 +1,10 @@
 {% extends 'gentelella/base_site.html' %}
 {% load i18n static %}
 
+{% block extra_css %}{{ block.super }}
+<link rel="stylesheet" href="{% static 'async_notification/async_notification.css' %}">
+{% endblock %}
+
 {% block content %}
 <div class="row">
 	<div class="col-12">
@@ -16,22 +20,31 @@
 </div>
 
 {% url "async_notification:api-emailnotification-list" as create_url %}
-{% trans 'Create Notification' as create_title %}
-{% include 'gentelella/blocks/modal_template.html' with form=create_form id="create_modal" title=create_title form_id="create_form" url=create_url modal_class="modal-lg" %}
-
 {% url "async_notification:api-emailnotification-detail" 0 as update_url %}
-{% trans 'Update Notification' as update_title %}
-{% include 'gentelella/blocks/modal_template.html' with form=update_form id="update_modal" title=update_title form_id="update_form" url=update_url modal_class="modal-lg" %}
+{% trans 'Compose email' as create_title %}
+{% trans 'Update email' as update_title %}
+
+{% include 'async_notification/_editor_modal.html' with modal_id="create_modal" title=create_title form_id="create_form" form=create_form url=create_url show_inspector=0 %}
+{% include 'async_notification/_editor_modal.html' with modal_id="update_modal" title=update_title form_id="update_form" form=update_form url=update_url show_inspector=0 %}
 
 {% trans 'Delete Notification' as delete_title %}
 {% include 'gentelella/blocks/modal_template_delete.html' with id="delete_modal" title=delete_title form_id="delete_form" url=update_url %}
+
+{% include 'async_notification/_preview_modal.html' %}
 
 {% endblock %}
 
 {% block js %}
 {{ block.super }}
 {{ create_form.media }}
+<script src="{% static 'async_notification/an_preview.js' %}"></script>
+<script src="{% static 'async_notification/recipient_autocomplete.js' %}"></script>
 <script>
+window.AN_URLS = {
+	autocomplete: "{% url 'async_notification:email_autocomplete' %}",
+	preview_template: "{% url 'async_notification:preview_template' %}",
+};
+
 var object_urls = {
 	list_url: "{% url 'async_notification:api-emailnotification-list' %}",
 	create_url: "{{ create_url }}",
@@ -43,9 +56,9 @@ var object_urls = {
 var datatable_inits = {
 	columns: [
 		{data: "subject", name: "subject", title: gettext("Subject"), type: "string", visible: true},
-		{data: "status", name: "status", title: gettext("Status"), type: "string", visible: true},
-		{data: "sent", name: "sent", title: gettext("Sent"), type: "string", visible: true},
-		{data: "enqueued", name: "enqueued", title: gettext("Enqueued"), type: "string", visible: true},
+		{data: "status", name: "status", title: gettext("Status"), type: "string", visible: true,
+			render: window.AN.statusBadge()},
+		{data: "enqueued", name: "enqueued", title: gettext("Queued"), type: "string", visible: true},
 		{data: "retry_count", name: "retry_count", title: gettext("Retries"), type: "string", visible: true},
 		{data: "created_at", name: "created_at", title: gettext("Created"), type: "date",
 			render: DataTable.render.datetime(), dateformat: document.datetime_format, visible: true},
@@ -55,11 +68,7 @@ var datatable_inits = {
 	addfilter: true,
 };
 
-var modal_ids = {
-	create: "#create_modal",
-	update: "#update_modal",
-	destroy: "#delete_modal",
-};
+var modal_ids = {create: "#create_modal", update: "#update_modal", destroy: "#delete_modal"};
 
 var actions = {
 	table_actions: [
@@ -94,13 +103,10 @@ var actions = {
 		}
 	],
 	object_actions: [
-		{
-			name: 'send_email', action: 'send_email',
-			in_action_column: true,
-			i_class: 'fa fa-paper-plane',
-			method: 'POST',
-			title: gettext('Send Now'),
-		}
+		{name: 'preview', action: 'preview', in_action_column: true,
+			i_class: 'fa fa-eye', method: 'POST', title: gettext('View')},
+		{name: 'send_email', action: 'send_email', in_action_column: true,
+			i_class: 'fa fa-paper-plane', method: 'POST', title: gettext('Send Now')}
 	],
 	title: gettext('Actions'),
 	className: "no-export-col"
@@ -120,10 +126,9 @@ var objconfig = {
 var ocrud = ObjectCRUD("emailnotification", objconfig);
 
 ocrud.send_email = function(data, actiondef) {
-	var url = object_urls.destroy_url.replace("0", data.id) .replace(/\/$/, '') + '/send_email/';
+	var url = object_urls.destroy_url.replace("0", data.id).replace(/\/$/, '') + '/send_email/';
 	$.ajax({
-		url: url, type: 'POST',
-		headers: {'X-CSRFToken': getCookie('csrftoken')},
+		url: url, type: 'POST', headers: {'X-CSRFToken': getCookie('csrftoken')},
 		success: function(response) {
 			Swal.fire({icon: response.result ? 'success' : 'warning',
 				title: response.result ? gettext('Success') : gettext('Warning'),
@@ -138,64 +143,30 @@ ocrud.send_email = function(data, actiondef) {
 	});
 };
 
-ocrud.init();
-
-/* Autocomplete for recipient/cc/bcc fields */
-(function() {
-	var timer = null;
-	var AUTOCOMPLETE_URL = "{% url 'async_notification:email_autocomplete' %}";
-
-	function getOrCreateDropdown($input) {
-		var $dd = $input.next('.ac-dropdown');
-		if (!$dd.length) {
-			$dd = $('<div class="ac-dropdown"></div>').css({
-				position: 'absolute', zIndex: 1060, background: '#fff',
-				border: '1px solid #ccc', borderRadius: '4px', maxHeight: '200px',
-				overflowY: 'auto', width: $input.outerWidth() + 'px', display: 'none'
+/* View a stored/sent email rendered in an iframe */
+ocrud.preview = function(data, actiondef) {
+	var url = object_urls.destroy_url.replace("0", data.id).replace(/\/$/, '') + '/preview/';
+	$.ajax({
+		url: url, type: 'POST', headers: {'X-CSRFToken': getCookie('csrftoken')},
+		success: function(response) {
+			$('#preview-subject').text(response.subject);
+			var meta = gettext('Status') + ': ' + response.status;
+			if (response.recipients_raw) { meta += ' | ' + gettext('To') + ': ' + response.recipients_raw; }
+			if (response.error_message) { meta += ' | ' + gettext('Error') + ': ' + response.error_message; }
+			$('#preview-meta').text(meta);
+			window.AN.preview($('#preview_modal'), {
+				message: response.message, base_template: response.base_template
 			});
-			$input.after($dd);
+			new bootstrap.Modal('#preview_modal').show();
+		},
+		error: function() {
+			Swal.fire({icon: 'error', title: gettext('Error'),
+				text: gettext('Sorry, an error occurred.'),
+				confirmButtonText: gettext('Accept')});
 		}
-		return $dd;
-	}
-
-	$(document).on('input', '[name$="-recipients"], [name$="-bcc"], [name$="-cc"]', function() {
-		var $input = $(this);
-		clearTimeout(timer);
-		timer = setTimeout(function() {
-			/* Extract the last token after the last comma */
-			var val = $input.val();
-			var parts = val.split(',');
-			var query = parts[parts.length - 1].trim();
-			var $dd = getOrCreateDropdown($input);
-			if (query.length < 2) { $dd.hide(); return; }
-
-			fetch(AUTOCOMPLETE_URL + '?q=' + encodeURIComponent(query))
-			.then(function(r) { return r.text(); })
-			.then(function(html) {
-				if (!html.trim()) { $dd.hide(); return; }
-				$dd.html(html).show();
-			});
-		}, 300);
 	});
+};
 
-	$(document).on('click', '.ac-dropdown .autocomplete-item', function() {
-		var value = $(this).data('value');
-		var $dd = $(this).closest('.ac-dropdown');
-		var $input = $dd.prev('input');
-		/* Replace the last token with the selected value */
-		var val = $input.val();
-		var parts = val.split(',');
-		parts[parts.length - 1] = ' ' + value;
-		$input.val(parts.join(',') + ', ');
-		$dd.hide();
-		$input.focus();
-	});
-
-	$(document).on('focusout', '[name$="-recipients"], [name$="-bcc"], [name$="-cc"]', function() {
-		var $dd = $(this).next('.ac-dropdown');
-		/* Delay hide to allow click events on dropdown items */
-		setTimeout(function() { $dd.hide(); }, 200);
-	});
-})();
+ocrud.init();
 </script>
 {% endblock %}

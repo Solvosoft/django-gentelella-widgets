@@ -10,7 +10,7 @@ from djgentelella.async_notification.views import (
     email_autocomplete_view, model_fields_view,
     upload_image_view, upload_video_view,
     preview_file_view, reassociate_files_view, preview_template_view,
-    newsletter_filter_form_view,
+    newsletter_filter_form_view, newsletter_recipients_preview_view,
 )
 
 app_name = 'async_notification'
@@ -65,4 +65,7 @@ urlpatterns = [
          preview_template_view, name='preview_template'),
     path('newsletter-filter-form/',
          newsletter_filter_form_view, name='newsletter_filter_form'),
+    path('newsletter-recipients-preview/',
+         newsletter_recipients_preview_view,
+         name='newsletter_recipients_preview'),
 ]

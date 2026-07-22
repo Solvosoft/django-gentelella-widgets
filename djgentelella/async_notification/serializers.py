@@ -60,7 +60,8 @@ class EmailNotificationSerializer(serializers.ModelSerializer):
         return str(obj.user) if obj.user else '-'
 
     def get_actions(self, obj):
-        return {'update': True, 'destroy': True, 'send_email': True}
+        return {'update': True, 'destroy': True, 'send_email': True,
+                'preview': True}
 
 
 class EmailNotificationTableSerializer(serializers.Serializer):
@@ -168,7 +169,7 @@ class NewsLetterTemplateSerializer(serializers.ModelSerializer):
         fields = ('id', 'title', 'slug', 'model_base', 'created_at', 'actions')
 
     def get_actions(self, obj):
-        return {'update': True, 'destroy': True}
+        return {'update': True, 'destroy': True, 'preview': True}
 
 
 class NewsLetterTemplateTableSerializer(serializers.Serializer):
@@ -185,7 +186,7 @@ class NewsLetterTemplateCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = NewsLetterTemplate
-        fields = ('title', 'slug', 'message', 'model_base')
+        fields = ('title', 'slug', 'message', 'model_base', 'base_template')
 
 
 class NewsLetterTemplateDetailSerializer(serializers.ModelSerializer):
@@ -196,7 +197,7 @@ class NewsLetterTemplateDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = NewsLetterTemplate
         fields = ('id', 'title', 'slug', 'message', 'model_base',
-                  'created_at', 'updated_at')
+                  'base_template', 'created_at', 'updated_at')
 
 
 class NewsLetterTemplateSelect2Serializer(GTS2SerializerBase):
@@ -246,7 +247,8 @@ class NewsLetterCreateSerializer(RecipientValidationMixin,
     class Meta:
         model = NewsLetter
         fields = ('template', 'subject', 'message', 'recipients',
-                  'bcc', 'cc', 'attached_file', 'filters_querystring')
+                  'bcc', 'cc', 'base_template', 'attached_file',
+                  'filters_querystring')
 
 
 class NewsLetterDetailSerializer(serializers.ModelSerializer):
@@ -257,7 +259,7 @@ class NewsLetterDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = NewsLetter
         fields = ('id', 'template', 'subject', 'message', 'recipients',
-                  'bcc', 'cc', 'attached_file', 'created_by',
+                  'bcc', 'cc', 'base_template', 'attached_file', 'created_by',
                   'filters_querystring', 'created_at', 'updated_at')
 
 
@@ -286,7 +288,7 @@ class NewsLetterTaskSerializer(serializers.ModelSerializer):
         return obj.newsletter.subject if obj.newsletter else '-'
 
     def get_actions(self, obj):
-        return {'update': True, 'destroy': True}
+        return {'update': True, 'destroy': True, 'send_now': True}
 
 
 class NewsLetterTaskTableSerializer(serializers.Serializer):

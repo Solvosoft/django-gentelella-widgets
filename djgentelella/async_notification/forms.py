@@ -56,13 +56,18 @@ class EmailNotificationForm(GTForm, forms.ModelForm):
     class Meta:
         model = EmailNotification
         fields = ('subject', 'message', 'recipients', 'bcc', 'cc',
-                  'enqueued', 'send_individually')
+                  'base_template', 'enqueued', 'send_individually')
         widgets = {
             'subject': genwidgets.TextInput,
             'message': EditorTinymce,
             'enqueued': genwidgets.YesNoInput,
             'send_individually': genwidgets.YesNoInput,
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['base_template'].widget = genwidgets.Select(
+            choices=_base_template_choices())
 
 
 class EmailTemplateForm(GTForm, forms.ModelForm):
@@ -100,10 +105,17 @@ class EmailTemplateForm(GTForm, forms.ModelForm):
             choices=template_choices)
 
 
+def _base_template_choices():
+    choices = [('', '---------')]
+    choices.extend(
+        (key, key) for key in ASYNC_NOTIFICATION_BASE_TEMPLATES.keys())
+    return choices
+
+
 class NewsLetterTemplateForm(GTForm, forms.ModelForm):
     class Meta:
         model = NewsLetterTemplate
-        fields = ('title', 'slug', 'message', 'model_base')
+        fields = ('title', 'slug', 'message', 'model_base', 'base_template')
         widgets = {
             'title': genwidgets.TextInput,
             'slug': genwidgets.TextInput,
@@ -119,6 +131,8 @@ class NewsLetterTemplateForm(GTForm, forms.ModelForm):
         self.fields['model_base'].choices = model_choices
         self.fields['model_base'].widget = genwidgets.Select(
             choices=model_choices)
+        self.fields['base_template'].widget = genwidgets.Select(
+            choices=_base_template_choices())
 
 
 class NewsLetterForm(GTForm, forms.ModelForm):
@@ -135,13 +149,19 @@ class NewsLetterForm(GTForm, forms.ModelForm):
     class Meta:
         model = NewsLetter
         fields = ('template', 'subject', 'message', 'recipients',
-                  'bcc', 'cc', 'attached_file', 'filters_querystring')
+                  'bcc', 'cc', 'base_template', 'attached_file',
+                  'filters_querystring')
         widgets = {
             'template': AutocompleteSelect('newslettertemplatebasename'),
             'subject': genwidgets.TextInput,
             'message': EditorTinymce,
             'filters_querystring': forms.HiddenInput,
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['base_template'].widget = genwidgets.Select(
+            choices=_base_template_choices())
 
 
 class NewsLetterTaskForm(GTForm, forms.ModelForm):

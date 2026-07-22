@@ -143,6 +143,7 @@ class Command(BaseCommand):
                     '</ul>'
                 ),
                 'model_base': 'users',
+                'base_template': 'default',
             },
             {
                 'title': 'Product Announcement',
@@ -161,6 +162,7 @@ class Command(BaseCommand):
                     'title': data['title'],
                     'message': data['message'],
                     'model_base': data.get('model_base', ''),
+                    'base_template': data.get('base_template', ''),
                 }
             )
         self.stdout.write(

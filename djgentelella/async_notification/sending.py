@@ -338,12 +338,16 @@ def do_send_newsletter(newsletter_task_pk):
 
         batches = chunk_list(recipients, ASYNC_NOTIFICATION_MAX_PER_MAIL)
 
+        body = newsletter.message
+        if newsletter.base_template:
+            body = wrap_in_base_template(body, newsletter.base_template)
+
         connection.open()
         try:
             for batch in batches:
                 msg = EmailMessage(
                     subject=newsletter.subject,
-                    body=newsletter.message,
+                    body=body,
                     to=batch,
                     bcc=bcc_list,
                     cc=cc_list,

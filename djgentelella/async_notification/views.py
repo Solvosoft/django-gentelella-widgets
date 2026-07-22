@@ -36,7 +36,8 @@ from djgentelella.async_notification.models import (
 )
 from djgentelella.async_notification.resolvers import RecipientResolverRegistry
 from djgentelella.async_notification.sending import (
-    do_send_notification, compute_newsletter_recipients
+    do_send_notification, do_send_newsletter, compute_newsletter_recipients,
+    resolve_all_recipients
 )
 from djgentelella.async_notification.serializers import (
     EmailNotificationSerializer, EmailNotificationTableSerializer,
@@ -76,6 +77,7 @@ class EmailNotificationManagement(AuthAllPermBaseObjectManagement):
         'destroy': EmailNotificationSerializer,
         'send_email': EmailNotificationSerializer,
         'send_selected': EmailNotificationSerializer,
+        'preview': EmailNotificationSerializer,
     }
     perms = {
         'list': [f'{APP_PERM_PREFIX}.view_emailnotification'],
@@ -86,6 +88,7 @@ class EmailNotificationManagement(AuthAllPermBaseObjectManagement):
         'destroy': [f'{APP_PERM_PREFIX}.delete_emailnotification'],
         'send_email': [f'{APP_PERM_PREFIX}.change_emailnotification'],
         'send_selected': [f'{APP_PERM_PREFIX}.change_emailnotification'],
+        'preview': [f'{APP_PERM_PREFIX}.view_emailnotification'],
     }
     queryset = EmailNotification.objects.all()
     pagination_class = LimitOffsetPagination
@@ -110,6 +113,19 @@ class EmailNotificationManagement(AuthAllPermBaseObjectManagement):
         return Response({
             'result': notification.status == 'sent',
             'detail': f'Status: {notification.status}',
+        })
+
+    @action(detail=True, methods=['post'])
+    def preview(self, request, pk=None):
+        """Return a notification's stored body + base template for preview."""
+        notification = self.get_object()
+        return Response({
+            'subject': notification.subject,
+            'message': notification.message,
+            'base_template': notification.base_template,
+            'status': notification.status,
+            'recipients_raw': notification.recipients_raw,
+            'error_message': notification.error_message,
         })
 
     @action(detail=False, methods=['post'])
@@ -179,6 +195,7 @@ class NewsLetterTemplateManagement(AuthAllPermBaseObjectManagement):
         'retrieve': NewsLetterTemplateDetailSerializer,
         'get_values_for_update': NewsLetterTemplateDetailSerializer,
         'destroy': NewsLetterTemplateSerializer,
+        'preview': NewsLetterTemplateSerializer,
     }
     perms = {
         'list': [f'{APP_PERM_PREFIX}.view_newslettertemplate'],
@@ -187,6 +204,7 @@ class NewsLetterTemplateManagement(AuthAllPermBaseObjectManagement):
         'retrieve': [f'{APP_PERM_PREFIX}.view_newslettertemplate'],
         'get_values_for_update': [f'{APP_PERM_PREFIX}.change_newslettertemplate'],
         'destroy': [f'{APP_PERM_PREFIX}.delete_newslettertemplate'],
+        'preview': [f'{APP_PERM_PREFIX}.view_newslettertemplate'],
     }
     queryset = NewsLetterTemplate.objects.all()
     pagination_class = LimitOffsetPagination
@@ -194,6 +212,16 @@ class NewsLetterTemplateManagement(AuthAllPermBaseObjectManagement):
     search_fields = ['title', 'slug']
     ordering_fields = ['created_at', 'title']
     ordering = ('-created_at',)
+
+    @action(detail=True, methods=['post'])
+    def preview(self, request, pk=None):
+        """Return the template body + base template for live preview."""
+        template = self.get_object()
+        return Response({
+            'subject': template.title,
+            'message': template.message,
+            'base_template': template.base_template,
+        })
 
 
 class NewsLetterManagement(AuthAllPermBaseObjectManagement):
@@ -229,11 +257,12 @@ class NewsLetterManagement(AuthAllPermBaseObjectManagement):
 
     @action(detail=True, methods=['post'])
     def preview(self, request, pk=None):
-        """Preview a newsletter (placeholder)."""
+        """Return the newsletter body + base template for live preview."""
         newsletter = self.get_object()
         return Response({
             'subject': newsletter.subject,
             'message': newsletter.message,
+            'base_template': newsletter.base_template,
         })
 
     @action(detail=True, methods=['get'])
@@ -259,6 +288,7 @@ class NewsLetterTaskManagement(AuthAllPermBaseObjectManagement):
         'retrieve': NewsLetterTaskDetailSerializer,
         'get_values_for_update': NewsLetterTaskDetailSerializer,
         'destroy': NewsLetterTaskSerializer,
+        'send_now': NewsLetterTaskSerializer,
     }
     perms = {
         'list': [f'{APP_PERM_PREFIX}.view_newslettertask'],
@@ -267,6 +297,7 @@ class NewsLetterTaskManagement(AuthAllPermBaseObjectManagement):
         'retrieve': [f'{APP_PERM_PREFIX}.view_newslettertask'],
         'get_values_for_update': [f'{APP_PERM_PREFIX}.change_newslettertask'],
         'destroy': [f'{APP_PERM_PREFIX}.delete_newslettertask'],
+        'send_now': [f'{APP_PERM_PREFIX}.change_newslettertask'],
     }
     queryset = NewsLetterTask.objects.select_related('newsletter')
     pagination_class = LimitOffsetPagination
@@ -298,6 +329,22 @@ class NewsLetterTaskManagement(AuthAllPermBaseObjectManagement):
         if instance.status in ('pending', 'scheduled'):
             get_backend().revoke(instance.pk)
         super().perform_destroy(instance)
+
+    @action(detail=True, methods=['post'])
+    def send_now(self, request, pk=None):
+        """Send this newsletter task immediately, bypassing the schedule."""
+        task = self.get_object()
+        if task.status in ('sent', 'revoked'):
+            return Response(
+                {'result': False,
+                 'detail': f'Task already {task.status}'},
+                status=400)
+        do_send_newsletter(task.pk)
+        task.refresh_from_db()
+        return Response({
+            'result': task.status == 'sent',
+            'detail': f'Status: {task.status}',
+        })
 
 
 # =============================================================================
@@ -572,3 +619,37 @@ def newsletter_filter_form_view(request):
     return render(request, 'async_notification/_filter_form.html', {
         'form': form,
     })
+
+
+@login_required
+def newsletter_recipients_preview_view(request):
+    """Resolve the recipient list for an unsaved newsletter.
+
+    POST params: ``template`` (pk) or ``model_base``, ``filters_querystring``,
+    and ``recipients`` (comma-separated). Merges free-text recipients with the
+    base-model + filter-derived recipients, without persisting anything.
+    """
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+
+    model_base = request.POST.get('model_base', '')
+    if not model_base:
+        template_pk = request.POST.get('template', '')
+        if template_pk:
+            template = NewsLetterTemplate.objects.filter(
+                pk=template_pk).first()
+            model_base = template.model_base if template else ''
+
+    emails = resolve_all_recipients(request.POST.get('recipients', ''))
+    seen = set(emails)
+
+    info = get_basemodel_info(model_base) if model_base else None
+    if info:
+        interface = info[2]()
+        for email in interface.get_recipients(
+                request.POST.get('filters_querystring', '')):
+            if email and email not in seen:
+                seen.add(email)
+                emails.append(email)
+
+    return JsonResponse({'recipients': emails, 'count': len(emails)})

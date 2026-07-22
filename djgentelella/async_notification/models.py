@@ -191,6 +191,10 @@ class NewsLetterTemplate(models.Model):
         max_length=255, blank=True, default='',
         verbose_name=_('Model Base'),
         help_text=_('Key from ASYNC_NEWS_BASE_MODELS settings'))
+    base_template = models.CharField(
+        max_length=150, blank=True, default='',
+        verbose_name=_('Base Template'),
+        help_text=_('Base template key from settings to wrap the content'))
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -222,6 +226,10 @@ class NewsLetter(models.Model):
     cc = models.JSONField(
         default=list, blank=True, validators=[validate_recipient_list],
         verbose_name=_('CC'))
+    base_template = models.CharField(
+        max_length=150, blank=True, default='',
+        verbose_name=_('Base Template'),
+        help_text=_('Base template key from settings to wrap the content'))
     attached_file = models.FileField(
         upload_to='async_notification/newsletter/%Y/%m/%d/',
         blank=True, null=True, verbose_name=_('Attached File'))
