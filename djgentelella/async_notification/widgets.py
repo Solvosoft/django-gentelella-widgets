@@ -15,6 +15,10 @@ class EmailEditorTinymce(EditorTinymce):
 
     def __init__(self, attrs=None, extraskwargs=True):
         super().__init__(attrs=attrs, extraskwargs=extraskwargs)
+        # Keep the base widget name so the existing TinyMCE JS initializer
+        # runs (there is no JS handler registered for the subclass name);
+        # it reads the upload URLs from data-option-image/video below.
+        self.attrs['data-widget'] = 'EditorTinymce'
         self.attrs['data-option-image'] = reverse_lazy(
             'async_notification:async_upload_image')
         self.attrs['data-option-video'] = reverse_lazy(
