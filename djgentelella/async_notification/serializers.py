@@ -18,26 +18,39 @@ from djgentelella.async_notification.models import (
 )
 
 
-def _validate_recipient_field(value):
-    """Run the model-level recipient validator inside a DRF serializer."""
-    try:
-        validate_recipient_list(value)
-    except DjangoValidationError as exc:
-        raise serializers.ValidationError(exc.messages)
-    return value
+class RecipientListField(serializers.JSONField):
+    """Recipients field that accepts a single email, a CSV string, or a list.
+
+    A single address is simply a one-element list, so the UI never forces
+    the user to type list syntax. Coercion happens in ``to_internal_value``
+    (before validators run), then the shared recipient validator applies.
+    """
+
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault('required', False)
+        super().__init__(*args, **kwargs)
+
+    def to_internal_value(self, data):
+        if data in (None, ''):
+            data = []
+        elif isinstance(data, str):
+            data = [t.strip() for t in data.split(',') if t.strip()]
+        elif isinstance(data, (list, tuple)):
+            data = [str(t).strip() for t in data if str(t).strip()]
+        else:
+            self.fail('invalid')
+        try:
+            validate_recipient_list(data)
+        except DjangoValidationError as exc:
+            raise serializers.ValidationError(exc.messages)
+        return data
 
 
-class RecipientValidationMixin:
-    """Adds recipient/bcc/cc validation to create serializers."""
-
-    def validate_recipients(self, value):
-        return _validate_recipient_field(value)
-
-    def validate_bcc(self, value):
-        return _validate_recipient_field(value)
-
-    def validate_cc(self, value):
-        return _validate_recipient_field(value)
+class RecipientFieldsMixin(serializers.Serializer):
+    """Declares recipient/bcc/cc as coercing RecipientListFields."""
+    recipients = RecipientListField()
+    bcc = RecipientListField()
+    cc = RecipientListField()
 
 
 # =============================================================================
@@ -73,7 +86,7 @@ class EmailNotificationTableSerializer(serializers.Serializer):
     recordsTotal = serializers.IntegerField(required=True)
 
 
-class EmailNotificationCreateSerializer(RecipientValidationMixin,
+class EmailNotificationCreateSerializer(RecipientFieldsMixin,
                                         serializers.ModelSerializer):
     """Serializer for creating/updating email notifications."""
 
@@ -240,7 +253,7 @@ class NewsLetterTableSerializer(serializers.Serializer):
     recordsTotal = serializers.IntegerField(required=True)
 
 
-class NewsLetterCreateSerializer(RecipientValidationMixin,
+class NewsLetterCreateSerializer(RecipientFieldsMixin,
                                  serializers.ModelSerializer):
     """Serializer for creating/updating newsletters."""
 

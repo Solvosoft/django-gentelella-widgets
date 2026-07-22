@@ -1,13 +1,24 @@
-.PHONY: help clean clean-pyc clean-build list test  docs release sdist
+.PHONY: help clean clean-pyc clean-build list test docs release sdist \
+	lint run migrate menu init_demo notification_demo loadstatic basejs
 
 djversion = $(python setup.py -V)
 setupversion = $(awk -F "'" '{print $2}' djgentelella/__init__.py)
 
 help:
+	@echo "-- Run / demo --"
+	@echo "run - run the demo dev server (PORT=8000 by default)"
+	@echo "init_demo - reset the demo DB and load demo data + superuser"
+	@echo "migrate - make and apply migrations for the demo"
+	@echo "menu - (re)create demo data"
+	@echo "notification_demo - load async_notification demo data"
+	@echo "loadstatic - download frontend libraries from CDN"
+	@echo "basejs - regenerate base.js from widgets"
+	@echo "-- Quality --"
+	@echo "test - run tests quickly with the default Python"
+	@echo "lint - check style with pycodestyle (max-line-length=88)"
+	@echo "-- Build / release --"
 	@echo "clean-build - remove build artifacts"
 	@echo "clean-pyc - remove Python file artifacts"
-	@echo "lint - check style with flake8"
-	@echo "test - run tests quickly with the default Python"
 	@echo "docs - generate Sphinx HTML documentation, including API docs"
 	@echo "release - package and upload a release"
 	@echo "sdist - package"
@@ -85,8 +96,13 @@ init_demo:
 	python manage.py demomenu && \
 	python manage.py createsuperuser
 
+PORT ?= 8000
+
 run:
-	cd demo && python manage.py runserver
+	cd demo && python manage.py runserver $(PORT)
+
+notification_demo:
+	cd demo && python manage.py create_notification_demo
 
 loadstatic:
 	cd demo && python manage.py loaddevstatic

@@ -38,6 +38,25 @@ class EmailNotificationAPITest(AsyncNotificationAPITestBase):
         self.assertTrue(
             EmailNotification.objects.filter(subject='API Created').exists())
 
+    def test_create_single_string_recipient(self):
+        """A single email typed as a string is accepted as a one-item list."""
+        self.client.force_login(self.superuser)
+        url = reverse('async_notification:api-emailnotification-list')
+        data = {
+            'subject': 'Single',
+            'message': '<p>Hi</p>',
+            'recipients': 'solo@example.com',
+            'bcc': 'boss@example.com, other@example.com',
+            'enqueued': True,
+        }
+        response = self.client.post(
+            url, data, content_type='application/json')
+        self.assertEqual(response.status_code, 201, response.content)
+        notification = EmailNotification.objects.get(subject='Single')
+        self.assertEqual(notification.recipients, ['solo@example.com'])
+        self.assertEqual(
+            notification.bcc, ['boss@example.com', 'other@example.com'])
+
     def test_retrieve(self):
         notification = EmailNotification.objects.create(
             subject='Detail', message='M', recipients='a@b.com')
