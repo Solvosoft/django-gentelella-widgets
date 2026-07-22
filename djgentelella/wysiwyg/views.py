@@ -6,29 +6,31 @@ from django.http.response import JsonResponse
 
 
 def upload(request, folder):
-    if 'file' in request.FILES:
-        the_file = request.FILES['file']
-        upload_to = getattr(settings, 'TINYMCE_UPLOAD_PATH')
-        if not isinstance(upload_to, Path):
-            upload_to = Path(upload_to)
-        path = default_storage.save(
-            upload_to / folder / the_file.name, the_file)
-        return path
+    if 'file' not in request.FILES:
+        return None
+    the_file = request.FILES['file']
+    # TINYMCE_UPLOAD_PATH may be absolute; default_storage.save() expects a
+    # name relative to MEDIA_ROOT, so make it relative (Django rejects
+    # absolute paths as a path-traversal attempt).
+    upload_to = Path(getattr(settings, 'TINYMCE_UPLOAD_PATH', 'tinymce'))
+    media_root = Path(settings.MEDIA_ROOT)
+    try:
+        upload_to = upload_to.relative_to(media_root)
+    except ValueError:
+        pass
+    name = str(Path(upload_to) / folder / the_file.name)
+    return default_storage.save(name, the_file)
+
+
+def _absolute_media_url(request, path):
+    return request.build_absolute_uri(default_storage.url(path))
 
 
 def image_upload(request):
     path = upload(request, 'images')
-    link = path.replace(str(settings.MEDIA_ROOT),
-                        settings.MEDIA_URL).replace("//", "/")
-    link = "%s://%s%s%s" % (
-        request.scheme, request.get_host(), settings.MEDIA_URL, link)
-    return JsonResponse({'link': link})
+    return JsonResponse({'link': _absolute_media_url(request, path)})
 
 
 def video_upload(request):
     path = upload(request, 'videos')
-    link = path.replace(str(settings.MEDIA_ROOT),
-                        settings.MEDIA_URL).replace("//", "/")
-    link = "%s://%s%s%s" % (
-        request.scheme, request.get_host(), settings.MEDIA_URL, link)
-    return JsonResponse({'link': link})
+    return JsonResponse({'link': _absolute_media_url(request, path)})

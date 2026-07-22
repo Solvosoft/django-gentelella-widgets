@@ -253,6 +253,26 @@ class InlineImageSendTest(AsyncNotificationTestBase):
                 if p.get('Content-ID')]
         self.assertIn(f'img_{att.pk}', cids)
 
+    def test_inline_image_unlinked_still_embeds(self):
+        """An uploaded image (object_id=0, not reassociated) still embeds."""
+        att = AttachedFile.objects.create(
+            content_type=ContentType.objects.get_for_model(EmailNotification),
+            object_id=0,
+            file=SimpleUploadedFile('img.png', PNG_BYTES,
+                                    content_type='image/png'),
+            is_inline=True,
+        )
+        notification = EmailNotification.objects.create(
+            subject='Inline', recipients=['dest@example.com'],
+            message=(f'<p><img src="/async_notification/preview-file/'
+                     f'{att.pk}/"></p>'))
+        do_send_notification(notification.pk)
+        sent = mail.outbox[0]
+        self.assertIn(f'cid:img_{att.pk}', sent.body)
+        cids = [p.get('Content-ID') for p in sent.message().walk()
+                if p.get('Content-ID')]
+        self.assertIn(f'img_{att.pk}', cids)
+
 
 class BaseTemplateSendTest(AsyncNotificationTestBase):
 

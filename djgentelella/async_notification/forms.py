@@ -11,7 +11,8 @@ from django.utils.translation import gettext_lazy as _
 from djgentelella.forms.forms import GTForm
 from djgentelella.widgets import core as genwidgets
 from djgentelella.widgets.selects import AutocompleteSelect
-from djgentelella.widgets.tinymce import EditorTinymce
+
+from djgentelella.async_notification.widgets import EmailEditorTinymce
 
 from djgentelella.async_notification.models import (
     EmailNotification, EmailTemplate,
@@ -59,7 +60,7 @@ class EmailNotificationForm(GTForm, forms.ModelForm):
                   'base_template', 'enqueued', 'send_individually')
         widgets = {
             'subject': genwidgets.TextInput,
-            'message': EditorTinymce,
+            'message': EmailEditorTinymce,
             'enqueued': genwidgets.YesNoInput,
             'send_individually': genwidgets.YesNoInput,
         }
@@ -78,7 +79,7 @@ class EmailTemplateForm(GTForm, forms.ModelForm):
         widgets = {
             'code': genwidgets.TextInput,
             'subject': genwidgets.TextInput,
-            'message': EditorTinymce,
+            'message': EmailEditorTinymce,
             'bcc': genwidgets.TextInput(
                 attrs={'placeholder': _('BCC addresses')}),
             'cc': genwidgets.TextInput(
@@ -119,7 +120,7 @@ class NewsLetterTemplateForm(GTForm, forms.ModelForm):
         widgets = {
             'title': genwidgets.TextInput,
             'slug': genwidgets.TextInput,
-            'message': EditorTinymce,
+            'message': EmailEditorTinymce,
         }
 
     def __init__(self, *args, **kwargs):
@@ -154,7 +155,7 @@ class NewsLetterForm(GTForm, forms.ModelForm):
         widgets = {
             'template': AutocompleteSelect('newslettertemplatebasename'),
             'subject': genwidgets.TextInput,
-            'message': EditorTinymce,
+            'message': EmailEditorTinymce,
             'filters_querystring': forms.HiddenInput,
         }
 

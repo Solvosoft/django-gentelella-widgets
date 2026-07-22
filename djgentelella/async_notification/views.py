@@ -486,11 +486,13 @@ def upload_image_view(request):
         is_inline=True,
         content_id=upload_session,
     )
-    # Return a preview_file URL so the body carries src=".../preview_file/<pk>";
-    # it is rewritten to a cid: reference (inline attachment) at send time.
+    # Return a preview-file URL so the body carries src=".../preview-file/<pk>";
+    # it is rewritten to a cid: inline attachment at send time. Both keys are
+    # returned: ``link`` for TinyMCE's file_picker_callback (upload_files) and
+    # ``location`` for the images_upload_url handler.
     location = request.build_absolute_uri(
         reverse('async_notification:preview_file', args=[attached.pk]))
-    return JsonResponse({'location': location})
+    return JsonResponse({'link': location, 'location': location})
 
 
 @login_required
@@ -515,7 +517,9 @@ def upload_video_view(request):
         file=uploaded_file,
         content_id=upload_session,
     )
-    return JsonResponse({'location': attached.file.url})
+    # Videos are not embedded inline (no cid); serve the media URL directly.
+    url = request.build_absolute_uri(attached.file.url)
+    return JsonResponse({'link': url, 'location': url})
 
 
 @login_required

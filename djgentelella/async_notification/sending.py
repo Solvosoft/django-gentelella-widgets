@@ -91,14 +91,14 @@ def rewrite_inline_images(html):
     """Rewrite inline image URLs to ``cid:`` references.
 
     The WYSIWYG editor embeds uploaded images as
-    ``<img src=".../preview_file/<pk>">``. For self-contained emails these
+    ``<img src=".../preview-file/<pk>">``. For self-contained emails these
     must reference the attached inline image by Content-ID instead.
 
     Args:
         html: The HTML body.
 
     Returns:
-        HTML with ``preview_file`` image URLs rewritten to ``cid:img_<pk>``.
+        HTML with ``preview-file`` image URLs rewritten to ``cid:img_<pk>``.
     """
     if not html:
         return html
@@ -108,6 +108,50 @@ def rewrite_inline_images(html):
         return f'src="cid:img_{pk}"'
 
     return INLINE_IMG_RE.sub(_repl, html)
+
+
+def extract_inline_pks(html):
+    """Return the AttachedFile pks referenced by inline images in ``html``."""
+    if not html:
+        return []
+    return [match.group(2) for match in INLINE_IMG_RE.finditer(html)]
+
+
+def attach_inline_images(msg, pks):
+    """Attach the given AttachedFiles inline with a matching Content-ID.
+
+    Args:
+        msg: The EmailMessage being built.
+        pks: Iterable of AttachedFile primary keys referenced in the body.
+    """
+    for pk in pks:
+        att = AttachedFile.objects.filter(pk=pk).first()
+        if att is None or not att.file:
+            continue
+        try:
+            data = att.file.read()
+        except (OSError, ValueError):
+            continue
+        mime_image = MIMEImage(data)
+        mime_image.add_header('Content-ID', f'img_{pk}')
+        mime_image.add_header(
+            'Content-Disposition', 'inline', filename=att.file.name)
+        msg.attach(mime_image)
+
+
+def link_body_attachments(instance):
+    """Link inline AttachedFiles referenced in ``instance.message`` to it.
+
+    Uploaded images start unattached (``object_id=0``); linking them to the
+    saved object keeps them from being cleaned up as orphans. Sending does
+    not depend on this — it attaches by the pks found in the body.
+    """
+    pks = extract_inline_pks(getattr(instance, 'message', ''))
+    if not pks:
+        return
+    ct = ContentType.objects.get_for_model(instance)
+    AttachedFile.objects.filter(pk__in=pks, object_id=0).update(
+        content_type=ct, object_id=instance.pk)
 
 
 def _get_attachments(notification):
@@ -143,6 +187,7 @@ def build_email_message(notification, batch, connection=None):
     body = notification.message
     if notification.base_template:
         body = wrap_in_base_template(body, notification.base_template)
+    inline_pks = extract_inline_pks(body)
     body = rewrite_inline_images(body)
 
     msg = EmailMessage(
@@ -155,14 +200,11 @@ def build_email_message(notification, batch, connection=None):
     )
     msg.content_subtype = 'html'
 
+    # Inline images referenced in the body (attached by Content-ID).
+    attach_inline_images(msg, inline_pks)
+    # Explicit non-inline attachments linked to this notification.
     for att in _get_attachments(notification):
-        if att.is_inline:
-            mime_image = MIMEImage(att.file.read())
-            mime_image.add_header('Content-ID', f'img_{att.pk}')
-            mime_image.add_header(
-                'Content-Disposition', 'inline', filename=att.file.name)
-            msg.attach(mime_image)
-        else:
+        if not att.is_inline:
             msg.attach_file(att.file.path)
 
     return msg
@@ -341,6 +383,8 @@ def do_send_newsletter(newsletter_task_pk):
         body = newsletter.message
         if newsletter.base_template:
             body = wrap_in_base_template(body, newsletter.base_template)
+        inline_pks = extract_inline_pks(body)
+        body = rewrite_inline_images(body)
 
         connection.open()
         try:
@@ -354,6 +398,7 @@ def do_send_newsletter(newsletter_task_pk):
                     connection=connection,
                 )
                 msg.content_subtype = 'html'
+                attach_inline_images(msg, inline_pks)
 
                 if newsletter.attached_file:
                     try:

@@ -16,6 +16,21 @@ from djgentelella.async_notification.models import (
     NewsLetterTemplate, NewsLetter, NewsLetterTask,
     validate_recipient_list,
 )
+from djgentelella.async_notification.sending import link_body_attachments
+
+
+class InlineAttachmentSerializerMixin:
+    """Links inline images referenced in ``message`` to the saved object."""
+
+    def create(self, validated_data):
+        instance = super().create(validated_data)
+        link_body_attachments(instance)
+        return instance
+
+    def update(self, instance, validated_data):
+        instance = super().update(instance, validated_data)
+        link_body_attachments(instance)
+        return instance
 
 
 class RecipientListField(serializers.JSONField):
@@ -86,7 +101,8 @@ class EmailNotificationTableSerializer(serializers.Serializer):
     recordsTotal = serializers.IntegerField(required=True)
 
 
-class EmailNotificationCreateSerializer(RecipientFieldsMixin,
+class EmailNotificationCreateSerializer(InlineAttachmentSerializerMixin,
+                                        RecipientFieldsMixin,
                                         serializers.ModelSerializer):
     """Serializer for creating/updating email notifications."""
 
@@ -253,7 +269,8 @@ class NewsLetterTableSerializer(serializers.Serializer):
     recordsTotal = serializers.IntegerField(required=True)
 
 
-class NewsLetterCreateSerializer(RecipientFieldsMixin,
+class NewsLetterCreateSerializer(InlineAttachmentSerializerMixin,
+                                 RecipientFieldsMixin,
                                  serializers.ModelSerializer):
     """Serializer for creating/updating newsletters."""
 
