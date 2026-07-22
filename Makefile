@@ -1,6 +1,6 @@
 .PHONY: help clean clean-pyc clean-build list test docs release sdist \
 	lint run run-mailhog mailhog mailhog-stop migrate menu init_demo \
-	notification_demo loadstatic basejs
+	notification_demo validate-mailhog loadstatic basejs
 
 djversion = $(python setup.py -V)
 setupversion = $(awk -F "'" '{print $2}' djgentelella/__init__.py)
@@ -121,6 +121,9 @@ mailhog-stop:
 
 notification_demo:
 	cd demo && python manage.py create_notification_demo
+
+validate-mailhog:
+	cd demo && python manage.py validate_mailhog
 
 loadstatic:
 	cd demo && python manage.py loaddevstatic
