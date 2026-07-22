@@ -15,12 +15,14 @@ Usage:
 import base64
 import json
 import logging
+import math
 import time
 import urllib.request
 from email import message_from_string
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.base import ContentFile
 from django.core.management.base import BaseCommand
@@ -31,9 +33,15 @@ from djgentelella.async_notification.models import (
     AttachedFile, EmailNotification, EmailTemplate,
     NewsLetter, NewsLetterTemplate, NewsLetterTask,
 )
+from djgentelella.async_notification.resolvers import (
+    RecipientResolverRegistry, DjangoGroupResolver,
+)
 from djgentelella.async_notification.sending import (
     do_send_notification, do_send_newsletter, send_email_from_template,
     compute_newsletter_recipients,
+)
+from djgentelella.async_notification.settings import (
+    ASYNC_NOTIFICATION_MAX_PER_MAIL,
 )
 
 TAG = '[MHTEST]'
@@ -142,6 +150,7 @@ class Command(BaseCommand):
         EmailTemplate.objects.filter(code__startswith='mhtest-').delete()
         AttachedFile.objects.filter(content_id='mhtest').delete()
         User.objects.filter(username__startswith='mhtest_').delete()
+        Group.objects.filter(name__startswith='mhtest_').delete()
 
     def handle(self, *args, **options):
         self.smtp_host = options['smtp_host']
@@ -157,6 +166,7 @@ class Command(BaseCommand):
 
         self.scenario_basic()
         self.scenario_batch()
+        self.scenario_group_batching()
         self.scenario_individual()
         self.scenario_template_context()
         self.scenario_base_template()
@@ -187,6 +197,24 @@ class Command(BaseCommand):
         n = EmailNotification.objects.create(
             subject=f'{TAG} Batch', message='<p>Batch body</p>',
             recipients=['b1@example.com', 'b2@example.com', 'b3@example.com'])
+        do_send_notification(n.pk)
+
+    def scenario_group_batching(self):
+        # A group larger than MAX_PER_MAIL must be split into batches (as mail
+        # servers cap recipients per message), delivering each address once.
+        RecipientResolverRegistry.register('group.local', DjangoGroupResolver)
+        group = Group.objects.create(name='mhtest_bigteam')
+        count = ASYNC_NOTIFICATION_MAX_PER_MAIL * 2 + 5
+        User.objects.bulk_create([
+            User(username=f'mhtest_g{i}', email=f'mhg{i:03d}@example.com')
+            for i in range(count)])
+        group.user_set.add(*User.objects.filter(
+            username__startswith='mhtest_g'))
+        self._group_expected = set(User.objects.filter(
+            username__startswith='mhtest_g').values_list('email', flat=True))
+        n = EmailNotification.objects.create(
+            subject=f'{TAG} GroupBatch', message='<p>Team blast</p>',
+            recipients=['mhtest_bigteam@group.local'])
         do_send_notification(n.pk)
 
     def scenario_individual(self):
@@ -315,6 +343,20 @@ class Command(BaseCommand):
         self.check_recipients('batch', f'{TAG} Batch',
                               ['b1@example.com', 'b2@example.com',
                                'b3@example.com'])
+
+        gb = self._for(f'{TAG} GroupBatch')
+        max_per = ASYNC_NOTIFICATION_MAX_PER_MAIL
+        expected_msgs = math.ceil(len(self._group_expected) / max_per)
+        per_msg = [len(m['to']) for m in gb]
+        self.expect('group-batch: split into MAX_PER_MAIL batches',
+                    len(gb) == expected_msgs,
+                    f'msgs={len(gb)} expected={expected_msgs} '
+                    f'group={len(self._group_expected)} max={max_per}')
+        self.expect('group-batch: each batch within the recipient cap',
+                    all(0 < c <= max_per for c in per_msg),
+                    f'per_msg={sorted(per_msg)} max={max_per}')
+        self.check_recipients('group-batch', f'{TAG} GroupBatch',
+                              self._group_expected)
 
         self.expect('individual: one per recipient',
                     len(self._for(f'{TAG} Individual')) == 3,
