@@ -1,5 +1,5 @@
 .PHONY: help clean clean-pyc clean-build list test docs release sdist \
-	lint run run-mailhog mailhog mailhog-stop migrate menu init_demo \
+	lint test-browser run run-mailhog mailhog mailhog-stop migrate menu init_demo \
 	notification_demo validate-mailhog loadstatic basejs
 
 djversion = $(python setup.py -V)
@@ -19,6 +19,8 @@ help:
 	@echo "basejs - regenerate base.js from widgets"
 	@echo "-- Quality --"
 	@echo "test - run tests quickly with the default Python"
+	@echo "test-browser - Selenium E2E of the GUI against MailHog (needs make mailhog)"
+	@echo "validate-mailhog - send every email feature to MailHog and validate reception"
 	@echo "lint - check style with pycodestyle (max-line-length=88)"
 	@echo "-- Build / release --"
 	@echo "clean-build - remove build artifacts"
@@ -51,6 +53,10 @@ lint:
 
 test:
 	cd demo && python manage.py test
+
+test-browser:
+	cd demo && MAILHOG_E2E=1 python manage.py test \
+		demoapp.tests.selenium.test_async_notification
 
 docs:
 	$(MAKE) -C docs clean
