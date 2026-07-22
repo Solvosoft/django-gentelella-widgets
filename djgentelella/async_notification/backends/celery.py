@@ -10,8 +10,16 @@ class CeleryBackend(NotificationBackend):
     """Sends notifications via Celery task queue."""
 
     def send(self, notification_pk):
+        from djgentelella.async_notification.models import EmailNotification
         from djgentelella.async_notification.tasks import send_email_task
+        EmailNotification.objects.filter(
+            pk=notification_pk, status='pending').update(status='queued')
         send_email_task.delay(notification_pk)
+
+    def retry(self, notification_pk, countdown=0):
+        from djgentelella.async_notification.tasks import send_email_task
+        send_email_task.apply_async(
+            args=[notification_pk], countdown=countdown)
 
     def schedule(self, newsletter_task_pk):
         from djgentelella.async_notification.tasks import send_newsletter_task

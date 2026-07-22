@@ -41,3 +41,17 @@ class NotificationBackend:
         """
         for pk in notification_pks:
             self.send(pk)
+
+    def retry(self, notification_pk, countdown=0):
+        """Re-attempt a failed send after a backoff delay.
+
+        Default no-op: deployments without a scheduler rely on the
+        ``process_notifications`` command to pick pending notifications up
+        again. Schedulers (e.g. Celery) override this to re-enqueue with a
+        countdown.
+
+        Args:
+            notification_pk: Primary key of the EmailNotification.
+            countdown: Delay in seconds before the retry.
+        """
+        return None

@@ -28,11 +28,12 @@ class EmailNotificationAPITest(AsyncNotificationAPITestBase):
         data = {
             'subject': 'API Created',
             'message': '<p>Hello</p>',
-            'recipients': 'api@example.com',
+            'recipients': ['api@example.com'],
             'enqueued': True,
             'send_individually': False,
         }
-        response = self.client.post(url, data)
+        response = self.client.post(
+            url, data, content_type='application/json')
         self.assertEqual(response.status_code, 201)
         self.assertTrue(
             EmailNotification.objects.filter(subject='API Created').exists())
@@ -56,7 +57,7 @@ class EmailNotificationAPITest(AsyncNotificationAPITestBase):
         response = self.client.put(url, {
             'subject': 'Updated',
             'message': 'M2',
-            'recipients': 'a@b.com',
+            'recipients': ['a@b.com'],
             'enqueued': True,
             'send_individually': False,
         }, content_type='application/json')

@@ -67,6 +67,8 @@ class Command(BaseCommand):
                     'is now active.</p>'
                     '<p>Get started by exploring our features.</p>'
                 ),
+                'context_code': 'welcome',
+                'base_template': 'default',
             },
             {
                 'code': 'password-reset',
@@ -101,6 +103,8 @@ class Command(BaseCommand):
                 defaults={
                     'subject': data['subject'],
                     'message': data['message'],
+                    'context_code': data.get('context_code', ''),
+                    'base_template': data.get('base_template', ''),
                 }
             )
         self.stdout.write(f'  Created {len(templates)} email templates.')
@@ -112,9 +116,8 @@ class Command(BaseCommand):
                 subject=f'Demo notification ({status})',
                 message=f'<p>This is a demo notification with status: '
                         f'<strong>{status}</strong>.</p>',
-                recipients='admin@example.com, user@example.com',
+                recipients=['admin@example.com', 'user@example.com'],
                 status=status,
-                sent=(status == 'sent'),
                 enqueued=True,
                 user=user,
                 error_message=(
@@ -139,6 +142,7 @@ class Command(BaseCommand):
                     '<li>Upcoming events</li>'
                     '</ul>'
                 ),
+                'model_base': 'users',
             },
             {
                 'title': 'Product Announcement',
@@ -156,6 +160,7 @@ class Command(BaseCommand):
                 defaults={
                     'title': data['title'],
                     'message': data['message'],
+                    'model_base': data.get('model_base', ''),
                 }
             )
         self.stdout.write(
@@ -167,11 +172,11 @@ class Command(BaseCommand):
         announcement = NewsLetterTemplate.objects.filter(
             slug='product-announcement').first()
 
-        for tpl, subject, recipients in [
+        for tpl, subject, recipients, filters in [
             (digest, 'January 2026 Monthly Digest',
-             'subscribers@group.local'),
+             ['subscribers@group.local'], 'is_active=on'),
             (announcement, 'New Product Launch Q1 2026',
-             'all-users@group.local, vip@group.local'),
+             ['all-users@group.local', 'vip@group.local'], ''),
         ]:
             NewsLetter.objects.update_or_create(
                 subject=subject,
@@ -179,6 +184,7 @@ class Command(BaseCommand):
                     'template': tpl,
                     'message': tpl.message if tpl else '<p>Newsletter</p>',
                     'recipients': recipients,
+                    'filters_querystring': filters,
                     'created_by': user,
                 }
             )

@@ -4,6 +4,7 @@ DRF serializers for the async_notification module.
 Follows the DataTable wrapper pattern used throughout djgentelella.
 """
 
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django_filters import FilterSet, DateTimeFromToRangeFilter
 from rest_framework import serializers
 
@@ -12,8 +13,31 @@ from djgentelella.serializers.selects import GTS2SerializerBase
 
 from djgentelella.async_notification.models import (
     EmailNotification, EmailTemplate,
-    NewsLetterTemplate, NewsLetter, NewsLetterTask
+    NewsLetterTemplate, NewsLetter, NewsLetterTask,
+    validate_recipient_list,
 )
+
+
+def _validate_recipient_field(value):
+    """Run the model-level recipient validator inside a DRF serializer."""
+    try:
+        validate_recipient_list(value)
+    except DjangoValidationError as exc:
+        raise serializers.ValidationError(exc.messages)
+    return value
+
+
+class RecipientValidationMixin:
+    """Adds recipient/bcc/cc validation to create serializers."""
+
+    def validate_recipients(self, value):
+        return _validate_recipient_field(value)
+
+    def validate_bcc(self, value):
+        return _validate_recipient_field(value)
+
+    def validate_cc(self, value):
+        return _validate_recipient_field(value)
 
 
 # =============================================================================
@@ -23,6 +47,7 @@ from djgentelella.async_notification.models import (
 class EmailNotificationSerializer(serializers.ModelSerializer):
     """Row serializer for DataTable display."""
     created_at = GTDateTimeField(read_only=True)
+    sent = serializers.BooleanField(read_only=True)
     user_display = serializers.SerializerMethodField()
     actions = serializers.SerializerMethodField()
 
@@ -47,26 +72,28 @@ class EmailNotificationTableSerializer(serializers.Serializer):
     recordsTotal = serializers.IntegerField(required=True)
 
 
-class EmailNotificationCreateSerializer(serializers.ModelSerializer):
+class EmailNotificationCreateSerializer(RecipientValidationMixin,
+                                        serializers.ModelSerializer):
     """Serializer for creating/updating email notifications."""
 
     class Meta:
         model = EmailNotification
         fields = ('subject', 'message', 'recipients', 'bcc', 'cc',
-                  'enqueued', 'send_individually')
+                  'base_template', 'enqueued', 'send_individually')
 
 
 class EmailNotificationDetailSerializer(serializers.ModelSerializer):
     """Serializer for detailed view of email notifications."""
     created_at = GTDateTimeField(read_only=True)
     updated_at = GTDateTimeField(read_only=True)
+    sent = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = EmailNotification
         fields = ('id', 'subject', 'message', 'recipients', 'bcc', 'cc',
-                  'status', 'sent', 'recipients_raw', 'retry_count',
-                  'error_message', 'enqueued', 'send_individually',
-                  'user', 'created_at', 'updated_at')
+                  'status', 'sent', 'base_template', 'recipients_raw',
+                  'retry_count', 'max_retries', 'error_message', 'enqueued',
+                  'send_individually', 'user', 'created_at', 'updated_at')
 
 
 class EmailNotificationFilterSet(FilterSet):
@@ -76,7 +103,6 @@ class EmailNotificationFilterSet(FilterSet):
         model = EmailNotification
         fields = {
             'status': ['exact'],
-            'sent': ['exact'],
             'enqueued': ['exact'],
         }
 
@@ -213,7 +239,8 @@ class NewsLetterTableSerializer(serializers.Serializer):
     recordsTotal = serializers.IntegerField(required=True)
 
 
-class NewsLetterCreateSerializer(serializers.ModelSerializer):
+class NewsLetterCreateSerializer(RecipientValidationMixin,
+                                 serializers.ModelSerializer):
     """Serializer for creating/updating newsletters."""
 
     class Meta:

@@ -36,7 +36,7 @@ class ProcessNotificationsCommandTest(AsyncNotificationTestBase):
         # The signal will have already sent this one; reset status to pending
         # to simulate the scenario where it wasn't sent by signal either
         EmailNotification.objects.filter(pk=notification.pk).update(
-            status='pending', sent=False)
+            status='pending')
         call_command('process_notifications')
         notification.refresh_from_db()
         # Should still be pending since enqueued=False
@@ -48,7 +48,6 @@ class ProcessNotificationsCommandTest(AsyncNotificationTestBase):
             message='<p>Hi</p>',
             recipients='done@example.com',
             status='sent',
-            sent=True,
             enqueued=True,
         )
         call_command('process_notifications')

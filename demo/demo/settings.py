@@ -187,3 +187,22 @@ GT_HISTORY_ALLOWED_MODELS = [
     "demoapp.customer",
     # add more models here for history
 ]
+
+# async_notification
+# See email in the console instead of sending it (dev only).
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+DEFAULT_FROM_EMAIL = "no-reply@example.com"
+
+# Base HTML layouts an EmailTemplate can wrap its content in.
+ASYNC_NOTIFICATION_BASE_TEMPLATES = {
+    "default": "async_notification/email_base.html",
+}
+
+# Newsletter base models: {key: [dotted_model, description, interface_path]}.
+ASYNC_NEWS_BASE_MODELS = {
+    "users": [
+        "auth.User",
+        "Site users",
+        "demoapp.newsletter_interfaces.UserNewsLetterInterface",
+    ],
+}

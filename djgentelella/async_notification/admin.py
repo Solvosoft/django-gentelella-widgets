@@ -17,9 +17,10 @@ class EmailTemplateAdmin(admin.ModelAdmin):
 class EmailNotificationAdmin(admin.ModelAdmin):
     list_display = ('subject', 'status', 'sent', 'enqueued',
                     'retry_count', 'created_at')
-    search_fields = ('subject', 'recipients')
-    list_filter = ('status', 'sent', 'enqueued', 'created_at')
-    readonly_fields = ('recipients_raw', 'error_message', 'retry_count')
+    search_fields = ('subject',)
+    list_filter = ('status', 'enqueued', 'created_at')
+    readonly_fields = ('recipients_raw', 'error_message', 'retry_count',
+                       'last_attempt')
 
 
 @admin.register(AttachedFile)

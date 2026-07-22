@@ -1,9 +1,21 @@
 from django.contrib.auth.models import Group
+from django.utils.module_loading import import_string
 
 from djgentelella.async_notification.tests import AsyncNotificationTestBase
 from djgentelella.async_notification.resolvers import (
-    RecipientResolver, DjangoGroupResolver, RecipientResolverRegistry
+    RecipientResolver, DjangoGroupResolver, RecipientResolverRegistry,
+    ContentTypeResolver,
 )
+
+
+class SettingsResolver(RecipientResolver):
+    """Module-level resolver used to test settings-based registration."""
+
+    def resolve(self, identifier):
+        return [f'{identifier}@cfg.com']
+
+    def search(self, query):
+        return []
 
 
 class DjangoGroupResolverTest(AsyncNotificationTestBase):
@@ -89,3 +101,70 @@ class RecipientResolverRegistryTest(AsyncNotificationTestBase):
         # After reset, group addresses should pass through as-is
         result = RecipientResolverRegistry.resolve('test@group.local')
         self.assertEqual(result, ['test@group.local'])
+
+    def test_has_resolver(self):
+        self.assertTrue(
+            RecipientResolverRegistry.has_resolver('group.local'))
+        self.assertFalse(
+            RecipientResolverRegistry.has_resolver('nope.local'))
+
+    def test_register_from_settings_path(self):
+        # Mirrors what AppConfig.ready() does for ASYNC_NOTIFICATION_RESOLVERS.
+        path = ('djgentelella.async_notification.tests.'
+                'test_resolvers.SettingsResolver')
+        RecipientResolverRegistry.register('cfg.local', import_string(path))
+        self.assertTrue(
+            RecipientResolverRegistry.has_resolver('cfg.local'))
+        self.assertEqual(
+            RecipientResolverRegistry.resolve('x@cfg.local'), ['x@cfg.com'])
+
+
+class ContentTypeResolverTest(AsyncNotificationTestBase):
+
+    def setUp(self):
+        RecipientResolverRegistry.register('internal', ContentTypeResolver)
+
+    def tearDown(self):
+        RecipientResolverRegistry.reset()
+        RecipientResolverRegistry.register('group.local', DjangoGroupResolver)
+        RecipientResolverRegistry.register('internal', ContentTypeResolver)
+
+    def test_resolve_instance_email(self):
+        addr = f'{self.user.pk}@auth.user.internal'
+        self.assertEqual(
+            RecipientResolverRegistry.resolve(addr), [self.user.email])
+
+    def test_unknown_pk_returns_empty(self):
+        self.assertEqual(
+            RecipientResolverRegistry.resolve('999999@auth.user.internal'), [])
+
+    def test_malformed_domain_returns_empty(self):
+        self.assertEqual(
+            RecipientResolverRegistry.resolve('1@bad.internal'), [])
+
+    def test_unknown_model_returns_empty(self):
+        self.assertEqual(
+            RecipientResolverRegistry.resolve(
+                '1@auth.nomodel.internal'), [])
+
+    def test_gt_get_mail_address_preferred(self):
+        resolver = ContentTypeResolver()
+
+        class FakeQS:
+            def get(self, pk):
+                class Obj:
+                    email = 'field@example.com'
+
+                    def gt_get_mail_address(self):
+                        return 'method@example.com'
+                return Obj()
+
+        class FakeModel:
+            objects = FakeQS()
+
+        from unittest.mock import patch
+        with patch('django.contrib.contenttypes.models.'
+                   'ContentType.objects.get') as get_ct:
+            get_ct.return_value.model_class.return_value = FakeModel
+            result = resolver.resolve_domain('1', 'app.model.internal')
+        self.assertEqual(result, ['method@example.com'])

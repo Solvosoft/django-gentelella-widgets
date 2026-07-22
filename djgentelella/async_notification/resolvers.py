@@ -64,8 +64,70 @@ class DjangoGroupResolver(RecipientResolver):
         ]
 
 
+class ContentTypeResolver(RecipientResolver):
+    """Resolve ``<pk>@<app_label>.<model_name>.internal`` to an instance email.
+
+    The instance is located via ``ContentType`` and its address is taken
+    from a ``gt_get_mail_address()`` method (preferred) or an ``email``
+    attribute. Registered under the terminal label ``internal``.
+    """
+
+    def resolve_domain(self, identifier, domain):
+        """Resolve using the full domain (``app_label.model_name.internal``).
+
+        Args:
+            identifier: The instance primary key (before the ``@``).
+            domain: The full domain part after the ``@``.
+
+        Returns:
+            List with the resolved email, or empty list on any failure.
+        """
+        from django.contrib.contenttypes.models import ContentType
+
+        base = domain[:-len('.internal')]
+        parts = base.split('.')
+        if len(parts) != 2:
+            return []
+        app_label, model_name = parts
+        try:
+            ct = ContentType.objects.get(
+                app_label=app_label, model=model_name)
+            model = ct.model_class()
+            if model is None:
+                return []
+            instance = model.objects.get(pk=identifier)
+        except (ContentType.DoesNotExist, ValueError, TypeError):
+            return []
+        except Exception:
+            # Includes model.DoesNotExist for the resolved model.
+            return []
+
+        getter = getattr(instance, 'gt_get_mail_address', None)
+        if callable(getter):
+            email = getter()
+        else:
+            email = getattr(instance, 'email', None)
+
+        if not email:
+            return []
+        if isinstance(email, str):
+            return [email]
+        return [e for e in email if e]
+
+    def resolve(self, identifier):  # pragma: no cover - not used directly
+        return []
+
+    def search(self, query):
+        return []
+
+
 class RecipientResolverRegistry:
-    """Registry for recipient resolvers keyed by domain suffix."""
+    """Registry for recipient resolvers keyed by domain suffix.
+
+    Resolvers are matched by exact domain (e.g. ``group.local``) or, for
+    resolvers that implement ``resolve_domain``, by the terminal domain
+    label (e.g. ``internal`` matching ``app.model.internal``).
+    """
 
     _resolvers = {}
 
@@ -78,6 +140,11 @@ class RecipientResolverRegistry:
             resolver_class: A RecipientResolver subclass.
         """
         cls._resolvers[suffix] = resolver_class()
+
+    @classmethod
+    def has_resolver(cls, suffix):
+        """Return True if a resolver is registered for the given suffix."""
+        return suffix in cls._resolvers
 
     @classmethod
     def resolve(cls, address):
@@ -94,10 +161,15 @@ class RecipientResolverRegistry:
             List of resolved email address strings.
         """
         if '@' in address:
-            _, domain = address.rsplit('@', 1)
+            identifier, domain = address.rsplit('@', 1)
+            # Exact-domain resolver (e.g. group.local).
             if domain in cls._resolvers:
-                identifier = address.rsplit('@', 1)[0]
                 return cls._resolvers[domain].resolve(identifier)
+            # Terminal-label resolver (e.g. <app>.<model>.internal).
+            last_label = domain.rsplit('.', 1)[-1]
+            resolver = cls._resolvers.get(last_label)
+            if resolver is not None and hasattr(resolver, 'resolve_domain'):
+                return resolver.resolve_domain(identifier, domain)
         return [address]
 
     @classmethod

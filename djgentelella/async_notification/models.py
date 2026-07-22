@@ -1,9 +1,44 @@
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 
 from djgentelella.settings import USER_MODEL_BASE
+
+
+def validate_recipient_list(value):
+    """Validate a JSON list of recipient tokens.
+
+    Each token must be either a valid email address or a resolver token
+    of the form ``identifier@suffix`` whose suffix is registered in the
+    :class:`RecipientResolverRegistry` (e.g. ``admins@group.local``).
+    Empty lists are allowed.
+    """
+    from djgentelella.async_notification.resolvers import (
+        RecipientResolverRegistry,
+    )
+
+    if not value:
+        return
+    if not isinstance(value, list):
+        raise ValidationError(_('Recipients must be a list.'))
+    for token in value:
+        token = (token or '').strip()
+        if not token:
+            continue
+        try:
+            validate_email(token)
+            continue
+        except ValidationError:
+            pass
+        if '@' in token:
+            suffix = token.rsplit('@', 1)[1]
+            if RecipientResolverRegistry.has_resolver(suffix):
+                continue
+        raise ValidationError(
+            _('Invalid recipient: %(token)s') % {'token': token})
 
 
 class EmailTemplate(models.Model):
@@ -44,38 +79,50 @@ class EmailNotification(models.Model):
     """An email notification queued for sending."""
     STATUS_CHOICES = [
         ('pending', _('Pending')),
+        ('queued', _('Queued')),
         ('sending', _('Sending')),
         ('sent', _('Sent')),
         ('failed', _('Failed')),
+        ('cancelled', _('Cancelled')),
     ]
 
     subject = models.CharField(
         max_length=500, verbose_name=_('Subject'))
     message = models.TextField(
         verbose_name=_('Message'))
-    recipients = models.TextField(
+    recipients = models.JSONField(
+        default=list, blank=True, validators=[validate_recipient_list],
         verbose_name=_('Recipients'),
-        help_text=_('Comma-separated email addresses or group references'))
-    bcc = models.TextField(
-        blank=True, default='', verbose_name=_('BCC'))
-    cc = models.TextField(
-        blank=True, default='', verbose_name=_('CC'))
+        help_text=_('List of email addresses or group references'))
+    bcc = models.JSONField(
+        default=list, blank=True, validators=[validate_recipient_list],
+        verbose_name=_('BCC'))
+    cc = models.JSONField(
+        default=list, blank=True, validators=[validate_recipient_list],
+        verbose_name=_('CC'))
     status = models.CharField(
         max_length=20, choices=STATUS_CHOICES, default='pending',
         verbose_name=_('Status'))
-    sent = models.BooleanField(
-        default=False, verbose_name=_('Sent'))
+    base_template = models.CharField(
+        max_length=150, blank=True, default='',
+        verbose_name=_('Base Template'),
+        help_text=_('Base template key from settings to wrap the email body'))
     recipients_raw = models.TextField(
         blank=True, default='', verbose_name=_('Resolved Recipients'),
         help_text=_('Resolved email addresses after processing'))
     retry_count = models.IntegerField(
         default=0, verbose_name=_('Retry Count'))
+    max_retries = models.IntegerField(
+        default=3, verbose_name=_('Max Retries'),
+        help_text=_('Maximum number of send attempts before failing'))
+    last_attempt = models.DateTimeField(
+        null=True, blank=True, verbose_name=_('Last Attempt'))
     error_message = models.TextField(
         blank=True, default='', verbose_name=_('Error Message'))
     enqueued = models.BooleanField(
         default=True, verbose_name=_('Enqueued'),
         help_text=_('If True, processed by backend/cron. '
-                     'If False, sent immediately via signal.'))
+                    'If False, sent immediately via signal.'))
     send_individually = models.BooleanField(
         default=False, verbose_name=_('Send Individually'),
         help_text=_('Send one email per recipient instead of batching'))
@@ -89,9 +136,17 @@ class EmailNotification(models.Model):
         ordering = ['-created_at']
         verbose_name = _('Email Notification')
         verbose_name_plural = _('Email Notifications')
+        indexes = [
+            models.Index(fields=['status', 'created_at']),
+        ]
 
     def __str__(self):
         return f'{self.subject} ({self.status})'
+
+    @property
+    def sent(self):
+        """Backwards-compatible flag: True once the email has been sent."""
+        return self.status == 'sent'
 
 
 class AttachedFile(models.Model):
@@ -157,13 +212,16 @@ class NewsLetter(models.Model):
         max_length=500, verbose_name=_('Subject'))
     message = models.TextField(
         verbose_name=_('Message'))
-    recipients = models.TextField(
+    recipients = models.JSONField(
+        default=list, blank=True, validators=[validate_recipient_list],
         verbose_name=_('Recipients'),
-        help_text=_('Comma-separated email addresses or group references'))
-    bcc = models.TextField(
-        blank=True, default='', verbose_name=_('BCC'))
-    cc = models.TextField(
-        blank=True, default='', verbose_name=_('CC'))
+        help_text=_('List of email addresses or group references'))
+    bcc = models.JSONField(
+        default=list, blank=True, validators=[validate_recipient_list],
+        verbose_name=_('BCC'))
+    cc = models.JSONField(
+        default=list, blank=True, validators=[validate_recipient_list],
+        verbose_name=_('CC'))
     attached_file = models.FileField(
         upload_to='async_notification/newsletter/%Y/%m/%d/',
         blank=True, null=True, verbose_name=_('Attached File'))

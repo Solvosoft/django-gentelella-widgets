@@ -34,9 +34,10 @@ class NewsLetterAPITest(AsyncNotificationAPITestBase):
             'template': self.template.pk,
             'subject': 'API Newsletter',
             'message': '<p>News</p>',
-            'recipients': 'news@example.com',
+            'recipients': ['news@example.com'],
         }
-        response = self.client.post(url, data)
+        response = self.client.post(
+            url, data, content_type='application/json')
         self.assertEqual(response.status_code, 201)
         self.assertTrue(
             NewsLetter.objects.filter(subject='API Newsletter').exists())

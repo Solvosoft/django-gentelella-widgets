@@ -23,7 +23,36 @@ from djgentelella.async_notification.settings import (
 )
 
 
+class EmailListField(forms.CharField):
+    """CharField that maps a comma-separated string to a JSON list.
+
+    Bridges the ``recipients``/``bcc``/``cc`` JSONField model columns to a
+    friendly single-line text input.
+    """
+
+    def prepare_value(self, value):
+        if isinstance(value, (list, tuple)):
+            return ', '.join(value)
+        return value
+
+    def to_python(self, value):
+        value = super().to_python(value)
+        if not value:
+            return []
+        return [item.strip() for item in value.split(',') if item.strip()]
+
+
 class EmailNotificationForm(GTForm, forms.ModelForm):
+    recipients = EmailListField(
+        required=False, widget=genwidgets.TextInput(
+            attrs={'placeholder': _('Comma-separated emails or groups')}))
+    bcc = EmailListField(
+        required=False, widget=genwidgets.TextInput(
+            attrs={'placeholder': _('BCC addresses')}))
+    cc = EmailListField(
+        required=False, widget=genwidgets.TextInput(
+            attrs={'placeholder': _('CC addresses')}))
+
     class Meta:
         model = EmailNotification
         fields = ('subject', 'message', 'recipients', 'bcc', 'cc',
@@ -31,12 +60,6 @@ class EmailNotificationForm(GTForm, forms.ModelForm):
         widgets = {
             'subject': genwidgets.TextInput,
             'message': EditorTinymce,
-            'recipients': genwidgets.TextInput(
-                attrs={'placeholder': _('Comma-separated emails or groups')}),
-            'bcc': genwidgets.TextInput(
-                attrs={'placeholder': _('BCC addresses')}),
-            'cc': genwidgets.TextInput(
-                attrs={'placeholder': _('CC addresses')}),
             'enqueued': genwidgets.YesNoInput,
             'send_individually': genwidgets.YesNoInput,
         }
@@ -99,20 +122,25 @@ class NewsLetterTemplateForm(GTForm, forms.ModelForm):
 
 
 class NewsLetterForm(GTForm, forms.ModelForm):
+    recipients = EmailListField(
+        required=False, widget=genwidgets.TextInput(
+            attrs={'placeholder': _('Comma-separated emails or groups')}))
+    bcc = EmailListField(
+        required=False, widget=genwidgets.TextInput(
+            attrs={'placeholder': _('BCC addresses')}))
+    cc = EmailListField(
+        required=False, widget=genwidgets.TextInput(
+            attrs={'placeholder': _('CC addresses')}))
+
     class Meta:
         model = NewsLetter
         fields = ('template', 'subject', 'message', 'recipients',
-                  'bcc', 'cc', 'attached_file')
+                  'bcc', 'cc', 'attached_file', 'filters_querystring')
         widgets = {
             'template': AutocompleteSelect('newslettertemplatebasename'),
             'subject': genwidgets.TextInput,
             'message': EditorTinymce,
-            'recipients': genwidgets.TextInput(
-                attrs={'placeholder': _('Comma-separated emails or groups')}),
-            'bcc': genwidgets.TextInput(
-                attrs={'placeholder': _('BCC addresses')}),
-            'cc': genwidgets.TextInput(
-                attrs={'placeholder': _('CC addresses')}),
+            'filters_querystring': forms.HiddenInput,
         }
 
 

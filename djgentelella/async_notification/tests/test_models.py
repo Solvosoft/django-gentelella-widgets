@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.utils import timezone
 from django.contrib.contenttypes.models import ContentType
@@ -7,6 +8,41 @@ from djgentelella.async_notification.models import (
     EmailTemplate, EmailNotification, AttachedFile,
     NewsLetterTemplate, NewsLetter, NewsLetterTask
 )
+from djgentelella.async_notification.resolvers import (
+    RecipientResolverRegistry, DjangoGroupResolver
+)
+
+
+class RecipientValidationTest(AsyncNotificationTestBase):
+
+    def setUp(self):
+        RecipientResolverRegistry.register('group.local', DjangoGroupResolver)
+
+    def test_recipients_stored_as_list(self):
+        notification = EmailNotification.objects.create(
+            subject='S', message='M', recipients=['a@b.com'])
+        notification.refresh_from_db()
+        self.assertEqual(notification.recipients, ['a@b.com'])
+        self.assertEqual(notification.bcc, [])
+
+    def test_valid_recipients_pass_full_clean(self):
+        notification = EmailNotification(
+            subject='S', message='M',
+            recipients=['a@b.com', 'admins@group.local'])
+        notification.full_clean()  # should not raise
+
+    def test_invalid_email_rejected(self):
+        notification = EmailNotification(
+            subject='S', message='M', recipients=['not-an-email'])
+        with self.assertRaises(ValidationError):
+            notification.full_clean()
+
+    def test_unknown_group_suffix_rejected(self):
+        # No dot in the domain: fails email syntax and has no resolver.
+        notification = EmailNotification(
+            subject='S', message='M', recipients=['x@unregistered'])
+        with self.assertRaises(ValidationError):
+            notification.full_clean()
 
 
 class EmailTemplateModelTest(AsyncNotificationTestBase):
@@ -149,8 +185,8 @@ class NewsLetterModelTest(AsyncNotificationTestBase):
         self.assertEqual(newsletter.subject, 'Weekly Digest')
         self.assertEqual(newsletter.template, template)
         self.assertEqual(newsletter.created_by, self.user)
-        self.assertEqual(newsletter.bcc, '')
-        self.assertEqual(newsletter.cc, '')
+        self.assertEqual(newsletter.bcc, [])
+        self.assertEqual(newsletter.cc, [])
 
     def test_newsletter_without_template(self):
         newsletter = NewsLetter.objects.create(

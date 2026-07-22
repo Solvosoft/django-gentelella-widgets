@@ -178,5 +178,43 @@ ocrud.init();
 		setTimeout(function() { $dd.hide(); }, 200);
 	});
 })();
+
+/* Dynamic recipient filters from the selected template's base model */
+(function() {
+	var FILTER_URL = "{% url 'async_notification:newsletter_filter_form' %}";
+
+	function containerFor($tplField) {
+		var $group = $tplField.closest('.form-group, .mb-3, .row, div');
+		var $c = $group.nextAll('.filter-form-container').first();
+		if (!$c.length) {
+			$c = $('<div class="filter-form-container"></div>');
+			$group.after($c);
+		}
+		return $c;
+	}
+
+	function syncQuerystring($container) {
+		var qs = $container.find(':input').serialize();
+		$container.closest('form')
+			.find('[name$="-filters_querystring"]').val(qs);
+	}
+
+	$(document).on('change', '[name$="-template"]', function() {
+		var $tpl = $(this);
+		var pk = $tpl.val();
+		var $c = containerFor($tpl);
+		if (!pk) { $c.empty(); return; }
+		fetch(FILTER_URL + '?template=' + encodeURIComponent(pk))
+		.then(function(r) { return r.text(); })
+		.then(function(html) {
+			$c.html(html);
+			syncQuerystring($c);
+		});
+	});
+
+	$(document).on('input change', '.filter-form-container :input', function() {
+		syncQuerystring($(this).closest('.filter-form-container'));
+	});
+})();
 </script>
 {% endblock %}

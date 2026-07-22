@@ -13,6 +13,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, get_object_or_404
+from django.urls import reverse
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import action
@@ -27,6 +28,7 @@ from djgentelella.async_notification.forms import (
     EmailNotificationForm, EmailTemplateForm,
     NewsLetterTemplateForm, NewsLetterForm, NewsLetterTaskForm
 )
+from djgentelella.async_notification.interfaces import get_basemodel_info
 from djgentelella.async_notification.introspection import get_fields_for_context
 from djgentelella.async_notification.models import (
     EmailNotification, EmailTemplate, AttachedFile,
@@ -34,7 +36,7 @@ from djgentelella.async_notification.models import (
 )
 from djgentelella.async_notification.resolvers import RecipientResolverRegistry
 from djgentelella.async_notification.sending import (
-    do_send_notification, resolve_all_recipients
+    do_send_notification, compute_newsletter_recipients
 )
 from djgentelella.async_notification.serializers import (
     EmailNotificationSerializer, EmailNotificationTableSerializer,
@@ -88,7 +90,7 @@ class EmailNotificationManagement(AuthAllPermBaseObjectManagement):
     queryset = EmailNotification.objects.all()
     pagination_class = LimitOffsetPagination
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
-    search_fields = ['subject', 'recipients', 'status']
+    search_fields = ['subject', 'status']
     filterset_class = EmailNotificationFilterSet
     ordering_fields = ['created_at', 'subject', 'status']
     ordering = ('-created_at',)
@@ -236,9 +238,13 @@ class NewsLetterManagement(AuthAllPermBaseObjectManagement):
 
     @action(detail=True, methods=['get'])
     def preview_recipients(self, request, pk=None):
-        """Preview resolved recipients for a newsletter."""
+        """Preview resolved recipients for a newsletter.
+
+        Includes both the free-text recipients and those derived from the
+        template's base model + stored filters.
+        """
         newsletter = self.get_object()
-        recipients = resolve_all_recipients(newsletter.recipients)
+        recipients = compute_newsletter_recipients(newsletter)
         return Response({
             'recipients': recipients,
             'count': len(recipients),
@@ -433,7 +439,11 @@ def upload_image_view(request):
         is_inline=True,
         content_id=upload_session,
     )
-    return JsonResponse({'location': attached.file.url})
+    # Return a preview_file URL so the body carries src=".../preview_file/<pk>";
+    # it is rewritten to a cid: reference (inline attachment) at send time.
+    location = request.build_absolute_uri(
+        reverse('async_notification:preview_file', args=[attached.pk]))
+    return JsonResponse({'location': location})
 
 
 @login_required
@@ -532,3 +542,33 @@ def preview_template_view(request):
 
     preview_html = render_preview(message, context, base_template_key or None)
     return JsonResponse({'preview': preview_html})
+
+
+@login_required
+def newsletter_filter_form_view(request):
+    """Render the recipient-filter form for a newsletter's base model.
+
+    Accepts either ``model_base`` (a registered base-model key) or
+    ``template`` (a NewsLetterTemplate pk to derive the key from).
+    Returns an empty response when no interface/form is available.
+    """
+    model_base = request.GET.get('model_base', '')
+    if not model_base:
+        template_pk = request.GET.get('template', '')
+        if template_pk:
+            template = NewsLetterTemplate.objects.filter(
+                pk=template_pk).first()
+            model_base = template.model_base if template else ''
+
+    info = get_basemodel_info(model_base) if model_base else None
+    if not info:
+        return HttpResponse('')
+
+    interface = info[2]()
+    form = interface.get_form()
+    if form is None:
+        return HttpResponse('')
+
+    return render(request, 'async_notification/_filter_form.html', {
+        'form': form,
+    })

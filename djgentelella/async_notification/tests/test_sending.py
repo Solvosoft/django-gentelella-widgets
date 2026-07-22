@@ -1,17 +1,28 @@
+import base64
+from unittest.mock import patch
+
+from django.contrib.contenttypes.models import ContentType
 from django.core import mail
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.auth.models import Group
 
 from djgentelella.async_notification.tests import AsyncNotificationTestBase
 from djgentelella.async_notification.models import (
-    EmailNotification, EmailTemplate
+    AttachedFile, EmailNotification, EmailTemplate
 )
+from djgentelella.async_notification import settings as ansettings
 from djgentelella.async_notification.sending import (
     resolve_all_recipients, chunk_list, do_send_notification,
-    send_email_from_template,
+    build_email_message, rewrite_inline_images, send_email_from_template,
 )
 from djgentelella.async_notification.resolvers import (
     RecipientResolverRegistry, DjangoGroupResolver
 )
+
+# 1x1 transparent PNG
+PNG_BYTES = base64.b64decode(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8z8BQDwAE'
+    'hQGAhKmMIQAAAABJRU5ErkJggg==')
 
 
 class ResolveAllRecipientsTest(AsyncNotificationTestBase):
@@ -166,7 +177,7 @@ class SendEmailFromTemplateTest(AsyncNotificationTestBase):
         )
         self.assertEqual(notification.subject, 'Welcome Alice')
         self.assertIn('Hello Alice', notification.message)
-        self.assertEqual(notification.recipients, 'new@user.com')
+        self.assertEqual(notification.recipients, ['new@user.com'])
         self.assertTrue(notification.enqueued)
 
     def test_template_with_bcc_cc(self):
@@ -210,3 +221,90 @@ class SendEmailFromTemplateTest(AsyncNotificationTestBase):
             enqueued=False,
         )
         self.assertFalse(notification.enqueued)
+
+
+class InlineImageSendTest(AsyncNotificationTestBase):
+
+    def test_rewrite_inline_images(self):
+        html = '<p><img src="https://x/async_notification/preview-file/7/"></p>'
+        self.assertIn('src="cid:img_7"', rewrite_inline_images(html))
+
+    def test_cid_and_inline_attachment(self):
+        notification = EmailNotification.objects.create(
+            subject='Inline', message='placeholder',
+            recipients=['dest@example.com'])
+        att = AttachedFile.objects.create(
+            content_type=ContentType.objects.get_for_model(EmailNotification),
+            object_id=notification.pk,
+            file=SimpleUploadedFile('img.png', PNG_BYTES,
+                                    content_type='image/png'),
+            is_inline=True,
+        )
+        notification.message = (
+            f'<p><img src="/async_notification/preview-file/{att.pk}/"></p>')
+        notification.save(update_fields=['message'])
+
+        do_send_notification(notification.pk)
+
+        self.assertEqual(len(mail.outbox), 1)
+        sent = mail.outbox[0]
+        self.assertIn(f'cid:img_{att.pk}', sent.body)
+        cids = [p.get('Content-ID') for p in sent.message().walk()
+                if p.get('Content-ID')]
+        self.assertIn(f'img_{att.pk}', cids)
+
+
+class BaseTemplateSendTest(AsyncNotificationTestBase):
+
+    def setUp(self):
+        self._orig = dict(ansettings.ASYNC_NOTIFICATION_BASE_TEMPLATES)
+        ansettings.ASYNC_NOTIFICATION_BASE_TEMPLATES['default'] = (
+            'async_notification/email_base.html')
+
+    def tearDown(self):
+        ansettings.ASYNC_NOTIFICATION_BASE_TEMPLATES.clear()
+        ansettings.ASYNC_NOTIFICATION_BASE_TEMPLATES.update(self._orig)
+
+    def test_base_template_wraps_body(self):
+        notification = EmailNotification.objects.create(
+            subject='Wrapped', message='<p>Hello</p>',
+            recipients=['dest@example.com'], base_template='default')
+        msg = build_email_message(notification, ['dest@example.com'])
+        self.assertIn('async-email-body', msg.body)
+        self.assertIn('Hello', msg.body)
+
+    def test_send_from_template_sets_base_template(self):
+        EmailTemplate.objects.create(
+            code='wrapped', subject='S', message='<p>Hi</p>',
+            base_template='default')
+        notification = send_email_from_template(
+            code='wrapped', recipient='u@x.com', context={})
+        self.assertEqual(notification.base_template, 'default')
+
+
+class RetryBackoffTest(AsyncNotificationTestBase):
+
+    def _failing_send(self, notification):
+        with patch('djgentelella.async_notification.sending.get_connection') \
+                as gc:
+            gc.return_value.open.side_effect = Exception('smtp down')
+            do_send_notification(notification.pk)
+
+    def test_failure_increments_and_stays_pending(self):
+        notification = EmailNotification.objects.create(
+            subject='S', message='M', recipients=['a@b.com'], max_retries=3)
+        self._failing_send(notification)
+        notification.refresh_from_db()
+        self.assertEqual(notification.status, 'pending')
+        self.assertEqual(notification.retry_count, 1)
+        self.assertIsNotNone(notification.last_attempt)
+        self.assertIn('smtp down', notification.error_message)
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_exhausted_retries_marked_failed(self):
+        notification = EmailNotification.objects.create(
+            subject='S', message='M', recipients=['a@b.com'], max_retries=1)
+        self._failing_send(notification)
+        notification.refresh_from_db()
+        self.assertEqual(notification.status, 'failed')
+        self.assertEqual(notification.retry_count, 1)

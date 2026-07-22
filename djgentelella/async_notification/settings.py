@@ -13,6 +13,15 @@ ASYNC_NOTIFICATION_MAX_PER_MAIL = getattr(
 ASYNC_NOTIFICATION_MAX_RETRIES = getattr(
     settings, 'ASYNC_NOTIFICATION_MAX_RETRIES', 3)
 
+# Base delay (seconds) between retries; grows exponentially per attempt
+ASYNC_NOTIFICATION_RETRY_DELAY = getattr(
+    settings, 'ASYNC_NOTIFICATION_RETRY_DELAY', 60)
+
+# Custom recipient resolvers registered by suffix:
+# {'suffix': 'dotted.path.ResolverClass', ...}
+ASYNC_NOTIFICATION_RESOLVERS = getattr(
+    settings, 'ASYNC_NOTIFICATION_RESOLVERS', {})
+
 # Default BCC addresses (comma-separated string or None)
 ASYNC_BCC = getattr(settings, 'ASYNC_BCC', None)
 

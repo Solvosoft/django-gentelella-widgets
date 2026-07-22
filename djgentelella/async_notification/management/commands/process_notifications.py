@@ -7,6 +7,7 @@ from datetime import timedelta
 
 from django.core.management.base import BaseCommand
 from django.db import transaction
+from django.db.models import Q
 from django.utils import timezone
 
 from djgentelella.async_notification.models import (
@@ -14,6 +15,9 @@ from djgentelella.async_notification.models import (
 )
 from djgentelella.async_notification.sending import (
     do_send_notification, do_send_newsletter
+)
+from djgentelella.async_notification.settings import (
+    ASYNC_NOTIFICATION_RETRY_DELAY
 )
 
 
@@ -23,14 +27,23 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         sent_count = 0
         failed_count = 0
+        now = timezone.now()
 
-        # Process pending enqueued notifications
+        # Notifications never attempted, or whose backoff window has elapsed.
+        # The base retry delay gates re-attempts here (the exact exponential
+        # backoff applies on the Celery path via apply_async countdown).
+        retry_ready = Q(last_attempt__isnull=True) | Q(
+            last_attempt__lte=now - timedelta(
+                seconds=ASYNC_NOTIFICATION_RETRY_DELAY))
+
+        # Process pending/queued enqueued notifications
         while True:
             with transaction.atomic():
                 notification = (
                     EmailNotification.objects
                     .select_for_update(skip_locked=True)
-                    .filter(status='pending', enqueued=True)
+                    .filter(retry_ready, status__in=('pending', 'queued'),
+                            enqueued=True)
                     .first()
                 )
                 if notification is None:

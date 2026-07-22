@@ -4,3 +4,18 @@ from django.apps import AppConfig
 class DemoappConfig(AppConfig):
     default_auto_field = 'django.db.models.AutoField'
     name = 'demoapp'
+
+    def ready(self):
+        # Register an email-template context so the model inspector and
+        # dummy-data preview work in the async_notification demo.
+        from djgentelella.async_notification.registry import register_context
+        register_context(
+            code='welcome',
+            subject='Welcome {{ user.first_name }}',
+            models={'user': 'auth.User'},
+            exclude={'user': ['password', 'last_login']},
+            extra_variables={
+                'site_url': 'URL of the site',
+                'year': 'Current year',
+            },
+        )

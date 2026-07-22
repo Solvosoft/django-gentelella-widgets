@@ -152,6 +152,31 @@ def build_dummy_context(code):
     return context
 
 
+def wrap_in_base_template(html, base_template_key, extra_context=None):
+    """Wrap already-rendered HTML in a configured base template.
+
+    Shared by the live preview and the real send path so both produce
+    identical output.
+
+    Args:
+        html: Rendered HTML content to place in the base template's
+            ``{{ content }}`` block.
+        base_template_key: Key from ASYNC_NOTIFICATION_BASE_TEMPLATES. If
+            falsy or unknown, ``html`` is returned unchanged.
+        extra_context: Optional extra context for the base template.
+
+    Returns:
+        The wrapped HTML string, or ``html`` unchanged when no base applies.
+    """
+    if base_template_key and base_template_key in ASYNC_NOTIFICATION_BASE_TEMPLATES:
+        base_template_path = ASYNC_NOTIFICATION_BASE_TEMPLATES[base_template_key]
+        context = {'content': html}
+        if extra_context:
+            context.update(extra_context)
+        return render_to_string(base_template_path, context)
+    return html
+
+
 def render_preview(content, context, base_template_key=None):
     """Render an email template with a context for preview.
 
@@ -165,18 +190,7 @@ def render_preview(content, context, base_template_key=None):
         Rendered HTML string, or error message on template syntax errors.
     """
     try:
-        if base_template_key and base_template_key in ASYNC_NOTIFICATION_BASE_TEMPLATES:
-            base_template_path = ASYNC_NOTIFICATION_BASE_TEMPLATES[base_template_key]
-            # Render the content first
-            inner_tpl = Template(content)
-            inner_html = inner_tpl.render(Context(context))
-            # Then wrap in base template
-            return render_to_string(base_template_path, {
-                'content': inner_html,
-                **context,
-            })
-        else:
-            tpl = Template(content)
-            return tpl.render(Context(context))
+        inner_html = Template(content).render(Context(context))
+        return wrap_in_base_template(inner_html, base_template_key, context)
     except Exception as e:
         return f'<div style="color:red;padding:10px;">Template Error: {e}</div>'
