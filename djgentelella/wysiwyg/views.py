@@ -22,15 +22,13 @@ def upload(request, folder):
     return default_storage.save(name, the_file)
 
 
-def _absolute_media_url(request, path):
-    return request.build_absolute_uri(default_storage.url(path))
-
-
 def image_upload(request):
+    # Root-relative media URL (no scheme/host) so stored content is
+    # domain-independent and survives a domain change / multi-site setup.
     path = upload(request, 'images')
-    return JsonResponse({'link': _absolute_media_url(request, path)})
+    return JsonResponse({'link': default_storage.url(path)})
 
 
 def video_upload(request):
     path = upload(request, 'videos')
-    return JsonResponse({'link': _absolute_media_url(request, path)})
+    return JsonResponse({'link': default_storage.url(path)})

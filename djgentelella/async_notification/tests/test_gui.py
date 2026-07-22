@@ -69,6 +69,9 @@ class UploadEndpointTest(AsyncNotificationAPITestBase):
         data = response.json()
         self.assertIn('preview-file', data['link'])
         self.assertEqual(data['link'], data['location'])
+        # Domain-independent: root-relative, no scheme/host.
+        self.assertTrue(data['link'].startswith('/'))
+        self.assertNotIn('://', data['link'])
 
     def test_create_notification_links_inline_images(self):
         att = AttachedFile.objects.create(

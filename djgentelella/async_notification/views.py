@@ -486,12 +486,13 @@ def upload_image_view(request):
         is_inline=True,
         content_id=upload_session,
     )
-    # Return a preview-file URL so the body carries src=".../preview-file/<pk>";
-    # it is rewritten to a cid: inline attachment at send time. Both keys are
+    # Return a ROOT-RELATIVE preview-file URL (no scheme/host) so the stored
+    # body is domain-independent — it survives a domain change / multi-site
+    # setup, and the browser resolves it against the current origin. The body
+    # is rewritten to a cid: inline attachment at send time. Both keys are
     # returned: ``link`` for TinyMCE's file_picker_callback (upload_files) and
     # ``location`` for the images_upload_url handler.
-    location = request.build_absolute_uri(
-        reverse('async_notification:preview_file', args=[attached.pk]))
+    location = reverse('async_notification:preview_file', args=[attached.pk])
     return JsonResponse({'link': location, 'location': location})
 
 
@@ -517,8 +518,9 @@ def upload_video_view(request):
         file=uploaded_file,
         content_id=upload_session,
     )
-    # Videos are not embedded inline (no cid); serve the media URL directly.
-    url = request.build_absolute_uri(attached.file.url)
+    # Videos are not embedded inline (no cid); serve the root-relative media
+    # URL directly so it stays domain-independent.
+    url = attached.file.url
     return JsonResponse({'link': url, 'location': url})
 
 
