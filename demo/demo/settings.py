@@ -138,8 +138,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 TINYMCE_UPLOAD_PATH = os.path.join(MEDIA_ROOT, 'tinymce')
 SUMMERNOTE_UPLOAD_PATH = os.path.join(MEDIA_ROOT, 'summernote')
 
-EMAIL_HOST = 'localhost'
-EMAIL_PORT = '1025'
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'localhost')
+EMAIL_PORT = os.getenv('EMAIL_PORT', '1025')
 
 MARKITUP_FILTER = ('markdown.markdown', {'safe_mode': True})
 MARKITUP_SET = 'markitup/sets/markdown/'
@@ -189,9 +189,11 @@ GT_HISTORY_ALLOWED_MODELS = [
 ]
 
 # async_notification
-# See email in the console instead of sending it (dev only).
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-DEFAULT_FROM_EMAIL = "no-reply@example.com"
+# Console by default (prints emails). Point at MailHog (make mailhog) to
+# validate real sending/reception: EMAIL_BACKEND=smtp EMAIL_HOST/PORT via env.
+EMAIL_BACKEND = os.getenv(
+    'EMAIL_BACKEND', "django.core.mail.backends.console.EmailBackend")
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', "no-reply@example.com")
 
 # Base HTML layouts an EmailTemplate can wrap its content in.
 ASYNC_NOTIFICATION_BASE_TEMPLATES = {

@@ -1,5 +1,6 @@
 .PHONY: help clean clean-pyc clean-build list test docs release sdist \
-	lint run migrate menu init_demo notification_demo loadstatic basejs
+	lint run run-mailhog mailhog mailhog-stop migrate menu init_demo \
+	notification_demo loadstatic basejs
 
 djversion = $(python setup.py -V)
 setupversion = $(awk -F "'" '{print $2}' djgentelella/__init__.py)
@@ -7,6 +8,9 @@ setupversion = $(awk -F "'" '{print $2}' djgentelella/__init__.py)
 help:
 	@echo "-- Run / demo --"
 	@echo "run - run the demo dev server (PORT=8000 by default)"
+	@echo "run-mailhog - run the demo server sending email to MailHog (SMTP :1025)"
+	@echo "mailhog - start a MailHog container (SMTP :1025, web UI :8025)"
+	@echo "mailhog-stop - stop the MailHog container"
 	@echo "init_demo - reset the demo DB and load demo data + superuser"
 	@echo "migrate - make and apply migrations for the demo"
 	@echo "menu - (re)create demo data"
@@ -97,9 +101,23 @@ init_demo:
 	python manage.py createsuperuser
 
 PORT ?= 8000
+MAILHOG_NAME ?= djgentelella_mailhog
 
 run:
 	cd demo && python manage.py runserver $(PORT)
+
+run-mailhog:
+	cd demo && EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend \
+		EMAIL_HOST=localhost EMAIL_PORT=1025 \
+		python manage.py runserver $(PORT)
+
+mailhog:
+	docker run -d --rm --name $(MAILHOG_NAME) \
+		-p 8025:8025 -p 1025:1025 mailhog/mailhog
+	@echo "MailHog up -> SMTP localhost:1025, web UI http://localhost:8025"
+
+mailhog-stop:
+	docker stop $(MAILHOG_NAME)
 
 notification_demo:
 	cd demo && python manage.py create_notification_demo
