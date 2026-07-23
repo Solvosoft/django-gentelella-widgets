@@ -8,6 +8,17 @@ from django.utils.translation import gettext_lazy as _
 from djgentelella.settings import USER_MODEL_BASE
 
 
+def normalize_email(email):
+    """Lowercase and strip an address for case-insensitive matching.
+
+    Email addressing is case-insensitive in practice, so the suppression and
+    consent lists store and compare addresses normalized to avoid a
+    ``User@Example.com`` unsubscribe silently missing a ``user@example.com``
+    send.
+    """
+    return (email or '').strip().lower()
+
+
 def validate_recipient_list(value):
     """Validate a JSON list of recipient tokens.
 
@@ -283,6 +294,12 @@ class NewsLetterTask(models.Model):
     celery_task_id = models.CharField(
         max_length=255, null=True, blank=True,
         verbose_name=_('Celery Task ID'))
+    sent_recipients = models.JSONField(
+        default=list, blank=True, verbose_name=_('Delivered Recipients'),
+        help_text=_('Addresses already delivered; a re-run resumes from here '
+                    'instead of re-sending to already-delivered recipients'))
+    error_message = models.TextField(
+        blank=True, default='', verbose_name=_('Error Message'))
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -320,6 +337,12 @@ class EmailSuppression(models.Model):
         verbose_name = _('Email Suppression')
         verbose_name_plural = _('Email Suppressions')
 
+    def save(self, *args, **kwargs):
+        # Email addressing is case-insensitive in practice; store normalized
+        # so a suppression matches regardless of the casing a send resolves to.
+        self.email = normalize_email(self.email)
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f'{self.email} ({self.reason})'
 
@@ -344,21 +367,36 @@ class EmailConsent(models.Model):
         verbose_name = _('Email Consent')
         verbose_name_plural = _('Email Consents')
 
+    def save(self, *args, **kwargs):
+        self.email = normalize_email(self.email)
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f'{self.email} ({"granted" if self.granted else "revoked"})'
 
 
 def suppressed_emails(emails):
-    """Return the subset of ``emails`` that are on the suppression list."""
+    """Return the subset of ``emails`` that are on the suppression list.
+
+    Matching is case-insensitive: the returned addresses keep their original
+    casing so callers can filter their own list directly.
+    """
     if not emails:
         return set()
-    return set(EmailSuppression.objects.filter(
-        email__in=emails).values_list('email', flat=True))
+    by_norm = {normalize_email(e): e for e in emails}
+    matched = EmailSuppression.objects.filter(
+        email__in=list(by_norm)).values_list('email', flat=True)
+    return {by_norm[m] for m in matched if m in by_norm}
 
 
 def consented_emails(emails):
-    """Return the subset of ``emails`` with a granted consent record."""
+    """Return the subset of ``emails`` with a granted consent record.
+
+    Case-insensitive; returns the original-cased addresses.
+    """
     if not emails:
         return set()
-    return set(EmailConsent.objects.filter(
-        email__in=emails, granted=True).values_list('email', flat=True))
+    by_norm = {normalize_email(e): e for e in emails}
+    matched = EmailConsent.objects.filter(
+        email__in=list(by_norm), granted=True).values_list('email', flat=True)
+    return {by_norm[m] for m in matched if m in by_norm}
