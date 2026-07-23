@@ -31,9 +31,9 @@ class NewsletterBaseTemplateSendTest(AsyncNotificationTestBase):
             newsletter=newsletter, send_date=timezone.now(), status='pending')
         do_send_newsletter(task.pk)
         self.assertEqual(len(mail.outbox), 1)
-        body = mail.outbox[0].body
-        self.assertIn('async-email-body', body)
-        self.assertIn('Body', body)
+        html = mail.outbox[0].alternatives[0][0]
+        self.assertIn('async-email-body', html)
+        self.assertIn('Body', html)
 
     def test_newsletter_inline_image_embeds(self):
         att = AttachedFile.objects.create(
@@ -51,7 +51,7 @@ class NewsletterBaseTemplateSendTest(AsyncNotificationTestBase):
             newsletter=newsletter, send_date=timezone.now(), status='pending')
         do_send_newsletter(task.pk)
         sent = mail.outbox[0]
-        self.assertIn(f'cid:img_{att.pk}', sent.body)
+        self.assertIn(f'cid:img_{att.pk}', sent.alternatives[0][0])
         cids = [p.get('Content-ID') for p in sent.message().walk()
                 if p.get('Content-ID')]
         self.assertIn(f'img_{att.pk}', cids)

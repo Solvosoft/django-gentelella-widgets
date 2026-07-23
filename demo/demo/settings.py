@@ -200,6 +200,13 @@ ASYNC_NOTIFICATION_BASE_TEMPLATES = {
     "default": "async_notification/email_base.html",
 }
 
+# Compliance / deliverability (demo values).
+ASYNC_NOTIFICATION_BASE_URL = os.getenv(
+    'ASYNC_NOTIFICATION_BASE_URL', 'http://localhost:8000')
+ASYNC_NOTIFICATION_MAILING_ADDRESS = (
+    'Demo Org · 123 Example St · Springfield')
+ASYNC_NOTIFICATION_UNSUBSCRIBE_MAILTO = 'unsubscribe@example.com'
+
 # Newsletter base models: {key: [dotted_model, description, interface_path]}.
 ASYNC_NEWS_BASE_MODELS = {
     "users": [

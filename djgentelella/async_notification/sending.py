@@ -7,23 +7,32 @@ retry logic, and template-based sending.
 
 import logging
 import re
+import time
 from email.mime.image import MIMEImage
+from html import unescape
 
 from django.contrib.contenttypes.models import ContentType
-from django.core.mail import EmailMessage, get_connection
+from django.core.mail import EmailMultiAlternatives, get_connection
 from django.template import Template, Context
+from django.template.loader import render_to_string
 from django.utils import timezone
+from django.utils.html import strip_tags
 
 from djgentelella.async_notification.models import (
     EmailNotification, EmailTemplate, AttachedFile,
-    NewsLetterTask,
+    NewsLetterTask, suppressed_emails, consented_emails,
 )
 from djgentelella.async_notification.preview import wrap_in_base_template
 from djgentelella.async_notification.resolvers import RecipientResolverRegistry
+from djgentelella.async_notification.unsubscribe import unsubscribe_headers
 from djgentelella.async_notification.settings import (
     ASYNC_NOTIFICATION_MAX_PER_MAIL,
     ASYNC_NOTIFICATION_MAX_RETRIES,
     ASYNC_NOTIFICATION_RETRY_DELAY,
+    ASYNC_NOTIFICATION_RATE_LIMIT,
+    ASYNC_NOTIFICATION_REQUIRE_OPTIN,
+    ASYNC_NOTIFICATION_MAILING_ADDRESS,
+    ASYNC_NOTIFICATION_LIST_ID,
     ASYNC_BCC,
     ASYNC_CC,
     ASYNC_NEWSLETTER_SEVER_CONFIGS,
@@ -161,24 +170,91 @@ def _get_attachments(notification):
         content_type=ct, object_id=notification.pk)
 
 
-def build_email_message(notification, batch, connection=None,
-                        include_extra=True):
-    """Build an EmailMessage from a notification for a batch of recipients.
+def html_to_text(html):
+    """Produce a readable plain-text version of an HTML body."""
+    text = strip_tags(html or '')
+    text = unescape(text)
+    lines = [line.strip() for line in text.splitlines()]
+    return '\n'.join(line for line in lines if line)
 
-    Applies the configured base template, rewrites inline images to
-    ``cid:`` references, and attaches inline images with a matching
-    Content-ID so the email is self-contained.
+
+def filter_promotional_recipients(emails):
+    """Drop suppressed (and, if opt-in is required, non-consented) addresses.
+
+    Applied only to promotional email and newsletters; transactional mail
+    ignores the suppression list.
+    """
+    if not emails:
+        return []
+    suppressed = suppressed_emails(emails)
+    result = [e for e in emails if e not in suppressed]
+    if ASYNC_NOTIFICATION_REQUIRE_OPTIN:
+        allowed = consented_emails(result)
+        result = [e for e in result if e in allowed]
+    return result
+
+
+def _throttle_interval():
+    """Seconds to wait between messages to honor the rate limit (0 = none)."""
+    rate = ASYNC_NOTIFICATION_RATE_LIMIT
+    return 60.0 / rate if rate and rate > 0 else 0
+
+
+def _promotional_extras(email, list_id=None):
+    """Return (footer_html, headers) for a promotional message to ``email``.
+
+    Headers carry the RFC 8058 one-click unsubscribe plus bulk markers; the
+    footer carries the visible unsubscribe link and mailing address.
+    """
+    headers, url = unsubscribe_headers(email)
+    headers['Precedence'] = 'bulk'
+    headers['Auto-Submitted'] = 'auto-generated'
+    if list_id:
+        headers['List-Id'] = list_id
+    footer = render_to_string('async_notification/_email_footer.html', {
+        'unsubscribe_url': url,
+        'mailing_address': ASYNC_NOTIFICATION_MAILING_ADDRESS,
+    })
+    return footer, headers
+
+
+def _make_message(subject, html_body, to, connection, bcc=None, cc=None,
+                  headers=None):
+    """Build a multipart/alternative message (plain text + HTML).
+
+    Inline ``cid:`` images referenced in ``html_body`` are attached with a
+    matching Content-ID.
+    """
+    text_body = html_to_text(html_body)
+    inline_pks = extract_inline_pks(html_body)
+    final_html = rewrite_inline_images(html_body)
+    msg = EmailMultiAlternatives(
+        subject, text_body, to=to, bcc=bcc or [], cc=cc or [],
+        connection=connection, headers=headers or None)
+    msg.attach_alternative(final_html, 'text/html')
+    attach_inline_images(msg, inline_pks)
+    return msg
+
+
+def build_email_message(notification, batch, connection=None,
+                        include_extra=True, unsubscribe_email=None):
+    """Build a message from a notification for a batch of recipients.
+
+    Sends multipart/alternative (plain text + HTML), applies the configured
+    base template, embeds inline ``cid:`` images, and — for promotional mail
+    (``unsubscribe_email`` set) — appends the unsubscribe footer and the
+    RFC 8058 / bulk headers.
 
     Args:
         notification: EmailNotification instance.
         batch: List of recipient email addresses.
         connection: Optional SMTP connection to reuse.
-        include_extra: Whether to include bcc/cc. Only the first batch of a
-            multi-batch send carries bcc/cc so those recipients get exactly
-            one copy (not one per batch).
+        include_extra: Whether to include bcc/cc (only the first batch does).
+        unsubscribe_email: When set (promotional, one recipient per message),
+            adds one-click unsubscribe headers + footer for that address.
 
     Returns:
-        EmailMessage instance ready to send.
+        EmailMultiAlternatives instance ready to send.
     """
     bcc_list = []
     cc_list = []
@@ -190,24 +266,17 @@ def build_email_message(notification, batch, connection=None,
         if ASYNC_CC:
             cc_list += as_email_list(ASYNC_CC)
 
-    body = notification.message
+    html_body = notification.message
+    headers = None
+    if unsubscribe_email:
+        footer, headers = _promotional_extras(unsubscribe_email)
+        html_body = html_body + footer
     if notification.base_template:
-        body = wrap_in_base_template(body, notification.base_template)
-    inline_pks = extract_inline_pks(body)
-    body = rewrite_inline_images(body)
+        html_body = wrap_in_base_template(html_body, notification.base_template)
 
-    msg = EmailMessage(
-        subject=notification.subject,
-        body=body,
-        to=batch,
-        bcc=bcc_list,
-        cc=cc_list,
-        connection=connection,
-    )
-    msg.content_subtype = 'html'
+    msg = _make_message(notification.subject, html_body, batch, connection,
+                        bcc=bcc_list, cc=cc_list, headers=headers)
 
-    # Inline images referenced in the body (attached by Content-ID).
-    attach_inline_images(msg, inline_pks)
     # Explicit non-inline attachments linked to this notification.
     for att in _get_attachments(notification):
         if not att.is_inline:
@@ -261,6 +330,11 @@ def do_send_notification(notification_pk):
 
     try:
         recipients = resolve_all_recipients(notification.recipients)
+        # Promotional mail honors the suppression list (and opt-in if required)
+        # and goes one message per recipient (each with its own unsubscribe).
+        promotional = notification.is_promotional
+        if promotional:
+            recipients = filter_promotional_recipients(recipients)
         notification.recipients_raw = ', '.join(recipients)
         notification.save(update_fields=['recipients_raw'])
 
@@ -274,7 +348,7 @@ def do_send_notification(notification_pk):
             notification.save(update_fields=['status'])
             return
 
-        if notification.send_individually:
+        if promotional or notification.send_individually:
             batches = [[r] for r in pending]
         else:
             batches = chunk_list(pending, ASYNC_NOTIFICATION_MAX_PER_MAIL)
@@ -282,19 +356,24 @@ def do_send_notification(notification_pk):
         # bcc/cc go only with the very first batch ever sent, so those
         # recipients get exactly one copy across all batches and retries.
         first_send = not already
+        interval = _throttle_interval()
 
         connection = get_connection()
         connection.open()
         try:
             for index, batch in enumerate(batches):
+                unsub = batch[0] if promotional else None
                 msg = build_email_message(
                     notification, batch, connection=connection,
-                    include_extra=(first_send and index == 0))
+                    include_extra=(first_send and index == 0),
+                    unsubscribe_email=unsub)
                 msg.send()
                 # Persist progress after each delivered batch.
                 already.update(batch)
                 notification.sent_recipients = list(already)
                 notification.save(update_fields=['sent_recipients'])
+                if interval:
+                    time.sleep(interval)
         finally:
             connection.close()
 
@@ -372,7 +451,10 @@ def do_send_newsletter(newsletter_task_pk):
     newsletter = task.newsletter
 
     try:
-        recipients = compute_newsletter_recipients(newsletter)
+        # Newsletters are promotional: honor the suppression list and send one
+        # message per recipient, each with its own one-click unsubscribe.
+        recipients = filter_promotional_recipients(
+            compute_newsletter_recipients(newsletter))
 
         if not recipients:
             task.status = 'sent'
@@ -397,28 +479,23 @@ def do_send_newsletter(newsletter_task_pk):
 
         bcc_list = as_email_list(newsletter.bcc)
         cc_list = as_email_list(newsletter.cc)
-
-        batches = chunk_list(recipients, ASYNC_NOTIFICATION_MAX_PER_MAIL)
-
-        body = newsletter.message
-        if newsletter.base_template:
-            body = wrap_in_base_template(body, newsletter.base_template)
-        inline_pks = extract_inline_pks(body)
-        body = rewrite_inline_images(body)
+        interval = _throttle_interval()
 
         connection.open()
         try:
-            for batch in batches:
-                msg = EmailMessage(
-                    subject=newsletter.subject,
-                    body=body,
-                    to=batch,
-                    bcc=bcc_list,
-                    cc=cc_list,
-                    connection=connection,
-                )
-                msg.content_subtype = 'html'
-                attach_inline_images(msg, inline_pks)
+            for index, email in enumerate(recipients):
+                footer, headers = _promotional_extras(
+                    email, list_id=ASYNC_NOTIFICATION_LIST_ID)
+                html_body = newsletter.message + footer
+                if newsletter.base_template:
+                    html_body = wrap_in_base_template(
+                        html_body, newsletter.base_template)
+                # bcc/cc (list-level) go only with the first message.
+                msg = _make_message(
+                    newsletter.subject, html_body, [email], connection,
+                    bcc=bcc_list if index == 0 else [],
+                    cc=cc_list if index == 0 else [],
+                    headers=headers)
 
                 if newsletter.attached_file:
                     try:
@@ -427,6 +504,8 @@ def do_send_newsletter(newsletter_task_pk):
                         pass
 
                 msg.send()
+                if interval:
+                    time.sleep(interval)
         finally:
             connection.close()
 

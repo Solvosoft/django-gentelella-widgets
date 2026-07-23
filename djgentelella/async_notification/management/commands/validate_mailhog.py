@@ -31,7 +31,7 @@ from django.utils import timezone
 
 from djgentelella.async_notification.models import (
     AttachedFile, EmailNotification, EmailTemplate,
-    NewsLetter, NewsLetterTemplate, NewsLetterTask,
+    NewsLetter, NewsLetterTemplate, NewsLetterTask, EmailSuppression,
 )
 from djgentelella.async_notification.resolvers import (
     RecipientResolverRegistry, DjangoGroupResolver,
@@ -151,6 +151,7 @@ class Command(BaseCommand):
         AttachedFile.objects.filter(content_id='mhtest').delete()
         User.objects.filter(username__startswith='mhtest_').delete()
         Group.objects.filter(name__startswith='mhtest_').delete()
+        EmailSuppression.objects.filter(email__startswith='promo_').delete()
 
     def handle(self, *args, **options):
         self.smtp_host = options['smtp_host']
@@ -174,6 +175,7 @@ class Command(BaseCommand):
         self.scenario_attachment()
         self.scenario_newsletter()
         self.scenario_newsletter_filtered()
+        self.scenario_promotional_unsubscribe()
         self.scenario_retry_then_success(options['smtp_port'])
         self.scenario_batch_failure_resume()
         self.scenario_idempotency()
@@ -313,6 +315,20 @@ class Command(BaseCommand):
         n.refresh_from_db()
         self._retry_final = (n.status, n.retry_count)
 
+    def scenario_promotional_unsubscribe(self):
+        # Promotional email: suppressed address skipped, one-click unsubscribe
+        # headers present, sent one message per recipient.
+        from unittest.mock import patch
+        EmailSuppression.objects.create(
+            email='promo_skip@example.com', reason='unsubscribe')
+        n = EmailNotification.objects.create(
+            subject=f'{TAG} Promo', message='<p>Buy now</p>',
+            recipients=['promo_ok@example.com', 'promo_skip@example.com'],
+            is_promotional=True)
+        with patch('djgentelella.async_notification.unsubscribe.'
+                   'ASYNC_NOTIFICATION_BASE_URL', 'https://mail.example.test'):
+            do_send_notification(n.pk)
+
     def scenario_batch_failure_resume(self):
         # A mid-batch failure must not re-deliver earlier batches on retry.
         from unittest.mock import patch
@@ -368,6 +384,9 @@ class Command(BaseCommand):
     def validate(self):
         self.check_recipients('basic', f'{TAG} Basic', ['one@example.com'])
         self.check_body('basic', f'{TAG} Basic', 'Hello Basic')
+        # multipart/alternative: a plain-text part is present alongside HTML
+        self.check_body('basic', f'{TAG} Basic', 'text/plain')
+        self.check_body('basic', f'{TAG} Basic', 'text/html')
 
         self.expect('batch: single email', len(self._for(f'{TAG} Batch')) == 1,
                     f'msgs={len(self._for(f"{TAG} Batch"))}')
@@ -413,11 +432,14 @@ class Command(BaseCommand):
         self.check_body('attachment', f'{TAG} Attach',
                         'Content-Disposition: attachment')
 
-        self.expect('newsletter: single email',
-                    len(self._for(f'{TAG} News')) == 1)
+        # Newsletters are promotional -> one message per recipient.
+        self.expect('newsletter: one message per recipient',
+                    len(self._for(f'{TAG} News')) == 2,
+                    f'msgs={len(self._for(f"{TAG} News"))}')
         self.check_recipients('newsletter', f'{TAG} News',
                               ['n1@example.com', 'n2@example.com'])
         self.check_body('newsletter', f'{TAG} News', 'async-email-body')
+        self.check_body('newsletter', f'{TAG} News', 'Precedence: bulk')
 
         self.check_recipients('newsletter-filter', f'{TAG} NewsFilter',
                               self._filtered_expected)
@@ -434,6 +456,15 @@ class Command(BaseCommand):
         self.expect('retry: exactly one email (no duplicate)',
                     len(self._for(f'{TAG} Retry')) == 1,
                     f'msgs={len(self._for(f"{TAG} Retry"))}')
+
+        self.check_recipients('promotional', f'{TAG} Promo',
+                              ['promo_ok@example.com'])
+        self.expect('promotional: suppressed address skipped',
+                    'promo_skip@example.com' not in [
+                        a for m in self._for(f'{TAG} Promo') for a in m['to']])
+        self.check_body('promotional', f'{TAG} Promo',
+                        'List-Unsubscribe-Post: List-Unsubscribe=One-Click')
+        self.check_body('promotional', f'{TAG} Promo', 'https://mail.example.test')
 
         self.expect('batch-failure: resumed to sent',
                     self._batchfail_status == 'sent',

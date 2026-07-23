@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+{% load i18n %}
+<html lang="{{ LANGUAGE_CODE|default:'en' }}">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>{% trans "Unsubscribe" %}</title>
+	<style>
+		body { font-family: Arial, Helvetica, sans-serif; background: #f4f4f4;
+			color: #333; margin: 0; padding: 40px 16px; }
+		.card { max-width: 480px; margin: 0 auto; background: #fff;
+			border-radius: 8px; padding: 32px; text-align: center;
+			box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+		.email { font-weight: bold; }
+		button { background: #dc3545; color: #fff; border: 0;
+			border-radius: 6px; padding: 10px 22px; font-size: 15px;
+			cursor: pointer; margin-top: 16px; }
+	</style>
+</head>
+<body>
+	<div class="card">
+		{% if done %}
+			<h2>{% trans "You have been unsubscribed" %}</h2>
+			<p>{% blocktrans %}<span class="email">{{ email }}</span> will no
+				longer receive these emails.{% endblocktrans %}</p>
+		{% else %}
+			<h2>{% trans "Unsubscribe" %}</h2>
+			<p>{% blocktrans %}Do you want to stop receiving these emails at
+				<span class="email">{{ email }}</span>?{% endblocktrans %}</p>
+			<form method="post" action="">
+				<button type="submit">{% trans "Yes, unsubscribe me" %}</button>
+			</form>
+		{% endif %}
+	</div>
+</body>
+</html>

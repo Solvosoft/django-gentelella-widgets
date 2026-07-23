@@ -4,7 +4,8 @@ from django.utils.translation import gettext_lazy as _
 
 from djgentelella.async_notification.models import (
     EmailTemplate, EmailNotification, AttachedFile,
-    NewsLetterTemplate, NewsLetter, NewsLetterTask
+    NewsLetterTemplate, NewsLetter, NewsLetterTask,
+    EmailSuppression, EmailConsent,
 )
 from djgentelella.async_notification.sending import (
     do_send_notification, do_send_newsletter
@@ -93,6 +94,20 @@ class NewsLetterAdmin(admin.ModelAdmin):
                 sent += 1
         self.message_user(
             request, _('%(n)d newsletter(s) sent.') % {'n': sent})
+
+
+@admin.register(EmailSuppression)
+class EmailSuppressionAdmin(admin.ModelAdmin):
+    list_display = ('email', 'reason', 'created_at')
+    search_fields = ('email',)
+    list_filter = ('reason', 'created_at')
+
+
+@admin.register(EmailConsent)
+class EmailConsentAdmin(admin.ModelAdmin):
+    list_display = ('email', 'granted', 'source', 'updated_at')
+    search_fields = ('email',)
+    list_filter = ('granted',)
 
 
 @admin.register(NewsLetterTask)

@@ -14,6 +14,7 @@ from django.db.models import Q
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import action
@@ -595,6 +596,79 @@ def preview_template_view(request):
 
     preview_html = render_preview(message, context, base_template_key or None)
     return JsonResponse({'preview': preview_html})
+
+
+# =============================================================================
+# Compliance endpoints (unsubscribe / suppression) — no auth required
+# =============================================================================
+
+@csrf_exempt
+def unsubscribe_view(request, token):
+    """One-click unsubscribe (RFC 8058) and a human confirmation page.
+
+    A mailbox provider POSTs ``List-Unsubscribe=One-Click`` here; a person who
+    clicks the footer link gets a page whose button POSTs the same URL. Either
+    way the address is added to the suppression list. No auth/cookies (the
+    request identity is the signed token in the URL).
+    """
+    from django.core import signing
+    from djgentelella.async_notification.models import EmailSuppression
+    from djgentelella.async_notification.unsubscribe import read_token
+
+    try:
+        email = read_token(token)
+    except signing.BadSignature:
+        return HttpResponse('Invalid or expired unsubscribe link', status=400)
+
+    if request.method == 'POST':
+        EmailSuppression.objects.get_or_create(
+            email=email, defaults={'reason': 'unsubscribe'})
+        if request.META.get('HTTP_ACCEPT', '').startswith('application/json') \
+                or request.POST.get('List-Unsubscribe') == 'One-Click':
+            return JsonResponse({'unsubscribed': email})
+        return render(request, 'async_notification/unsubscribe.html', {
+            'email': email, 'done': True})
+
+    return render(request, 'async_notification/unsubscribe.html', {
+        'email': email, 'token': token, 'done': False})
+
+
+@csrf_exempt
+def suppression_webhook(request):
+    """Add an address to the suppression list from a bounce/complaint hook.
+
+    POST JSON ``{"email": ..., "reason": "bounce|complaint|manual"}`` with the
+    shared secret in the ``X-Webhook-Secret`` header (or ``?secret=``). The
+    endpoint is disabled (404) unless ASYNC_NOTIFICATION_WEBHOOK_SECRET is set.
+    """
+    from djgentelella.async_notification.models import EmailSuppression
+    from djgentelella.async_notification.settings import (
+        ASYNC_NOTIFICATION_WEBHOOK_SECRET,
+    )
+
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+    secret = ASYNC_NOTIFICATION_WEBHOOK_SECRET
+    if not secret:
+        return JsonResponse({'error': 'webhook disabled'}, status=404)
+    provided = request.headers.get('X-Webhook-Secret') or \
+        request.GET.get('secret')
+    if provided != secret:
+        return JsonResponse({'error': 'forbidden'}, status=403)
+
+    try:
+        payload = json.loads(request.body or b'{}')
+    except (ValueError, TypeError):
+        return JsonResponse({'error': 'invalid json'}, status=400)
+    email = (payload.get('email') or '').strip()
+    if not email:
+        return JsonResponse({'error': 'email required'}, status=400)
+    reason = payload.get('reason', 'complaint')
+    if reason not in dict(EmailSuppression.REASON_CHOICES):
+        reason = 'complaint'
+    EmailSuppression.objects.update_or_create(
+        email=email, defaults={'reason': reason})
+    return JsonResponse({'suppressed': email, 'reason': reason})
 
 
 @login_required

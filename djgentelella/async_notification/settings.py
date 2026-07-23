@@ -64,3 +64,39 @@ ASYNC_NOTIFICATION_GROUP_LOOKUP_FIELDS = getattr(
 # Permission classes for API views (list of dotted paths)
 ASYNC_NOTIFICATION_PERMISSION_CLASSES = getattr(
     settings, 'ASYNC_NOTIFICATION_PERMISSION_CLASSES', None)
+
+# --- Compliance / deliverability (promotional email & newsletters) ---
+
+# Absolute base URL (e.g. 'https://app.example.com') used to build the HTTPS
+# one-click unsubscribe link in the List-Unsubscribe header. If empty, falls
+# back to the Sites framework; without either, only the mailto: form is used.
+ASYNC_NOTIFICATION_BASE_URL = getattr(
+    settings, 'ASYNC_NOTIFICATION_BASE_URL', '')
+
+# mailto: fallback address for the List-Unsubscribe header (None disables it).
+ASYNC_NOTIFICATION_UNSUBSCRIBE_MAILTO = getattr(
+    settings, 'ASYNC_NOTIFICATION_UNSUBSCRIBE_MAILTO', None)
+
+# Physical mailing address shown in the promotional footer (CAN-SPAM).
+ASYNC_NOTIFICATION_MAILING_ADDRESS = getattr(
+    settings, 'ASYNC_NOTIFICATION_MAILING_ADDRESS', '')
+
+# Value for the List-Id header on newsletters (e.g. 'News <news.example.com>').
+ASYNC_NOTIFICATION_LIST_ID = getattr(
+    settings, 'ASYNC_NOTIFICATION_LIST_ID', None)
+
+# Max age (seconds) for unsubscribe tokens; None = never expire.
+ASYNC_NOTIFICATION_UNSUBSCRIBE_MAX_AGE = getattr(
+    settings, 'ASYNC_NOTIFICATION_UNSUBSCRIBE_MAX_AGE', None)
+
+# Throttle: max messages per minute (0 = no limit).
+ASYNC_NOTIFICATION_RATE_LIMIT = getattr(
+    settings, 'ASYNC_NOTIFICATION_RATE_LIMIT', 0)
+
+# Require an opt-in EmailConsent record before sending promotional email.
+ASYNC_NOTIFICATION_REQUIRE_OPTIN = getattr(
+    settings, 'ASYNC_NOTIFICATION_REQUIRE_OPTIN', False)
+
+# Shared secret required by the suppression webhook (None disables the hook).
+ASYNC_NOTIFICATION_WEBHOOK_SECRET = getattr(
+    settings, 'ASYNC_NOTIFICATION_WEBHOOK_SECRET', None)

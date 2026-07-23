@@ -109,7 +109,8 @@ class EmailNotificationCreateSerializer(InlineAttachmentSerializerMixin,
     class Meta:
         model = EmailNotification
         fields = ('subject', 'message', 'recipients', 'bcc', 'cc',
-                  'base_template', 'enqueued', 'send_individually')
+                  'base_template', 'enqueued', 'send_individually',
+                  'is_promotional')
 
 
 class EmailNotificationDetailSerializer(serializers.ModelSerializer):
@@ -123,7 +124,8 @@ class EmailNotificationDetailSerializer(serializers.ModelSerializer):
         fields = ('id', 'subject', 'message', 'recipients', 'bcc', 'cc',
                   'status', 'sent', 'base_template', 'recipients_raw',
                   'retry_count', 'max_retries', 'error_message', 'enqueued',
-                  'send_individually', 'user', 'created_at', 'updated_at')
+                  'send_individually', 'is_promotional', 'user',
+                  'created_at', 'updated_at')
 
 
 class EmailNotificationFilterSet(FilterSet):

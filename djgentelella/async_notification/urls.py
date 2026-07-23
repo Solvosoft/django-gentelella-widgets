@@ -11,6 +11,7 @@ from djgentelella.async_notification.views import (
     upload_image_view, upload_video_view,
     preview_file_view, reassociate_files_view, preview_template_view,
     newsletter_filter_form_view, newsletter_recipients_preview_view,
+    unsubscribe_view, suppression_webhook,
 )
 
 app_name = 'async_notification'
@@ -68,4 +69,10 @@ urlpatterns = [
     path('newsletter-recipients-preview/',
          newsletter_recipients_preview_view,
          name='newsletter_recipients_preview'),
+
+    # Compliance (no auth)
+    path('unsubscribe/<str:token>/',
+         unsubscribe_view, name='unsubscribe'),
+    path('suppression-webhook/',
+         suppression_webhook, name='suppression_webhook'),
 ]

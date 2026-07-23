@@ -1,0 +1,13 @@
+{% load i18n %}
+<div style="margin-top:24px;padding-top:12px;border-top:1px solid #e0e0e0;
+	font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#888888;">
+	{% if unsubscribe_url %}
+	<p style="margin:0 0 4px;">
+		{% trans "Don't want these emails?" %}
+		<a href="{{ unsubscribe_url }}" style="color:#888888;">{% trans "Unsubscribe" %}</a>.
+	</p>
+	{% endif %}
+	{% if mailing_address %}
+	<p style="margin:0;">{{ mailing_address }}</p>
+	{% endif %}
+</div>

@@ -248,7 +248,7 @@ class InlineImageSendTest(AsyncNotificationTestBase):
 
         self.assertEqual(len(mail.outbox), 1)
         sent = mail.outbox[0]
-        self.assertIn(f'cid:img_{att.pk}', sent.body)
+        self.assertIn(f'cid:img_{att.pk}', sent.alternatives[0][0])
         cids = [p.get('Content-ID') for p in sent.message().walk()
                 if p.get('Content-ID')]
         self.assertIn(f'img_{att.pk}', cids)
@@ -268,7 +268,7 @@ class InlineImageSendTest(AsyncNotificationTestBase):
                      f'{att.pk}/"></p>'))
         do_send_notification(notification.pk)
         sent = mail.outbox[0]
-        self.assertIn(f'cid:img_{att.pk}', sent.body)
+        self.assertIn(f'cid:img_{att.pk}', sent.alternatives[0][0])
         cids = [p.get('Content-ID') for p in sent.message().walk()
                 if p.get('Content-ID')]
         self.assertIn(f'img_{att.pk}', cids)
@@ -290,7 +290,10 @@ class BaseTemplateSendTest(AsyncNotificationTestBase):
             subject='Wrapped', message='<p>Hello</p>',
             recipients=['dest@example.com'], base_template='default')
         msg = build_email_message(notification, ['dest@example.com'])
-        self.assertIn('async-email-body', msg.body)
+        html = msg.alternatives[0][0]
+        self.assertIn('async-email-body', html)
+        self.assertIn('Hello', html)
+        # plain-text alternative is present and carries the text
         self.assertIn('Hello', msg.body)
 
     def test_send_from_template_sets_base_template(self):

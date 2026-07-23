@@ -57,12 +57,14 @@ class EmailNotificationForm(GTForm, forms.ModelForm):
     class Meta:
         model = EmailNotification
         fields = ('subject', 'message', 'recipients', 'bcc', 'cc',
-                  'base_template', 'enqueued', 'send_individually')
+                  'base_template', 'enqueued', 'send_individually',
+                  'is_promotional')
         widgets = {
             'subject': genwidgets.TextInput,
             'message': EmailEditorTinymce,
             'enqueued': genwidgets.YesNoInput,
             'send_individually': genwidgets.YesNoInput,
+            'is_promotional': genwidgets.YesNoInput,
         }
 
     def __init__(self, *args, **kwargs):

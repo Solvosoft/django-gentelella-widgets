@@ -130,6 +130,12 @@ class EmailNotification(models.Model):
     send_individually = models.BooleanField(
         default=False, verbose_name=_('Send Individually'),
         help_text=_('Send one email per recipient instead of batching'))
+    is_promotional = models.BooleanField(
+        default=False, verbose_name=_('Promotional'),
+        help_text=_('Marketing/promotional email: adds one-click unsubscribe '
+                    'headers, honors the suppression list, and is sent one '
+                    'message per recipient. Leave off for transactional mail '
+                    '(password resets, receipts, etc.).'))
     user = models.ForeignKey(
         USER_MODEL_BASE, on_delete=models.SET_NULL,
         null=True, blank=True, verbose_name=_('Created By'))
@@ -287,3 +293,72 @@ class NewsLetterTask(models.Model):
 
     def __str__(self):
         return f'{self.newsletter.subject} - {self.send_date} ({self.status})'
+
+
+class EmailSuppression(models.Model):
+    """An address that must not receive promotional email (opt-out list).
+
+    Populated by one-click unsubscribes, complaint/bounce webhooks, or
+    manually. Promotional sends and newsletters skip suppressed addresses;
+    transactional email ignores this list.
+    """
+    REASON_CHOICES = [
+        ('unsubscribe', _('Unsubscribed')),
+        ('complaint', _('Spam complaint')),
+        ('bounce', _('Hard bounce')),
+        ('manual', _('Manual')),
+    ]
+    email = models.EmailField(
+        unique=True, verbose_name=_('Email'))
+    reason = models.CharField(
+        max_length=20, choices=REASON_CHOICES, default='unsubscribe',
+        verbose_name=_('Reason'))
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = _('Email Suppression')
+        verbose_name_plural = _('Email Suppressions')
+
+    def __str__(self):
+        return f'{self.email} ({self.reason})'
+
+
+class EmailConsent(models.Model):
+    """Optional opt-in record for an address.
+
+    Only enforced when ``ASYNC_NOTIFICATION_REQUIRE_OPTIN`` is True; then
+    promotional sends only reach addresses with ``granted=True``.
+    """
+    email = models.EmailField(
+        unique=True, verbose_name=_('Email'))
+    granted = models.BooleanField(
+        default=True, verbose_name=_('Granted'))
+    source = models.CharField(
+        max_length=150, blank=True, default='', verbose_name=_('Source'))
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = _('Email Consent')
+        verbose_name_plural = _('Email Consents')
+
+    def __str__(self):
+        return f'{self.email} ({"granted" if self.granted else "revoked"})'
+
+
+def suppressed_emails(emails):
+    """Return the subset of ``emails`` that are on the suppression list."""
+    if not emails:
+        return set()
+    return set(EmailSuppression.objects.filter(
+        email__in=emails).values_list('email', flat=True))
+
+
+def consented_emails(emails):
+    """Return the subset of ``emails`` with a granted consent record."""
+    if not emails:
+        return set()
+    return set(EmailConsent.objects.filter(
+        email__in=emails, granted=True).values_list('email', flat=True))
