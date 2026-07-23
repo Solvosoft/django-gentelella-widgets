@@ -27,6 +27,7 @@ Features
    models
    sending
    templates_and_preview
+   base_templates
    newsletters
    compliance
    resolvers
