@@ -138,15 +138,25 @@ def build_dummy_context(code):
                 context[field['name']] = DummyContextObject.get_dummy_value(
                     field['type'])
         else:
-            # Build nested dict structure for dotted field names
+            # Build nested dict structure for dotted field names. A relation
+            # field (e.g. ``author``) and its expanded children
+            # (``author.name``) can arrive in either order, so descend through
+            # dict containers only and never overwrite a populated container
+            # with a scalar relation placeholder.
             for field in fields:
                 parts = field['name'].split('.')
                 current = context
-                for i, part in enumerate(parts[:-1]):
-                    if part not in current:
-                        current[part] = {}
-                    current = current[part]
-                current[parts[-1]] = DummyContextObject.get_dummy_value(
+                for part in parts[:-1]:
+                    child = current.get(part)
+                    if not isinstance(child, dict):
+                        child = {}
+                        current[part] = child
+                    current = child
+                leaf = parts[-1]
+                if isinstance(current.get(leaf), dict):
+                    # Already expanded into child fields; keep the container.
+                    continue
+                current[leaf] = DummyContextObject.get_dummy_value(
                     field['type'])
 
     return context

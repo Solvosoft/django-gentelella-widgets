@@ -84,6 +84,20 @@ class BuildDummyContextTest(TestCase):
         ctx = build_dummy_context('extras')
         self.assertIn('site_url', ctx)
 
+    def test_with_relation_bearing_model(self):
+        # A model with expandable FK/O2O relations at depth>0 emits both the
+        # relation field and its children; building the dummy context must not
+        # crash trying to descend into the relation placeholder.
+        register_context(
+            code='rel',
+            subject='Test',
+            models={'entry': 'admin.LogEntry'},
+            depth=2,
+        )
+        ctx = build_dummy_context('rel')
+        self.assertIn('entry', ctx)
+        self.assertIsInstance(ctx['entry'], dict)
+
 
 class RenderPreviewTest(TestCase):
 

@@ -6,14 +6,17 @@ Contains both DRF ViewSets for the API and server-rendered HTML views.
 
 import json
 import logging
+from functools import wraps
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
+from django.utils.crypto import constant_time_compare
 from django.views.decorators.csrf import csrf_exempt
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.authentication import SessionAuthentication
@@ -56,12 +59,65 @@ from djgentelella.async_notification.serializers import (
 )
 from djgentelella.async_notification.settings import (
     ASYNC_NOTIFICATION_USER_LOOKUP_FIELDS,
+    ASYNC_NOTIFICATION_UPLOAD_MAX_SIZE,
+    ASYNC_NOTIFICATION_IMAGE_CONTENT_TYPES,
+    ASYNC_NOTIFICATION_VIDEO_CONTENT_TYPES,
 )
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
 
 APP_PERM_PREFIX = 'async_notification'
+
+# The shared compose helpers (autocomplete, recipient preview, uploads, live
+# template preview) can expose recipient emails, write files, or drive the
+# template engine, so they require an email-authoring permission rather than
+# merely being authenticated. A user who can author any email content may use
+# them.
+AUTHORING_PERMS = (
+    f'{APP_PERM_PREFIX}.add_emailnotification',
+    f'{APP_PERM_PREFIX}.change_emailnotification',
+    f'{APP_PERM_PREFIX}.add_newsletter',
+    f'{APP_PERM_PREFIX}.change_newsletter',
+    f'{APP_PERM_PREFIX}.add_emailtemplate',
+    f'{APP_PERM_PREFIX}.change_emailtemplate',
+    f'{APP_PERM_PREFIX}.add_newslettertemplate',
+    f'{APP_PERM_PREFIX}.change_newslettertemplate',
+)
+
+# Read-oriented helpers additionally accept the matching view permissions so a
+# view-only user can still load a stored body's inline assets / field tree.
+VIEW_OR_AUTHORING_PERMS = AUTHORING_PERMS + (
+    f'{APP_PERM_PREFIX}.view_emailnotification',
+    f'{APP_PERM_PREFIX}.view_newsletter',
+    f'{APP_PERM_PREFIX}.view_emailtemplate',
+    f'{APP_PERM_PREFIX}.view_newslettertemplate',
+)
+
+
+def require_any_perm(*perms):
+    """Require an authenticated user holding at least one of ``perms``.
+
+    Anonymous users are redirected to login (via ``login_required``);
+    authenticated users lacking every listed permission get a 403.
+    """
+    def decorator(view):
+        @wraps(view)
+        def wrapper(request, *args, **kwargs):
+            if not any(request.user.has_perm(p) for p in perms):
+                raise PermissionDenied
+            return view(request, *args, **kwargs)
+        return login_required(wrapper)
+    return decorator
+
+
+def _validate_upload(uploaded_file, allowed_types):
+    """Return an error string if the upload is too large or a bad type."""
+    if uploaded_file.size > ASYNC_NOTIFICATION_UPLOAD_MAX_SIZE:
+        return 'File too large'
+    if uploaded_file.content_type not in allowed_types:
+        return 'Unsupported file type'
+    return None
 
 
 # =============================================================================
@@ -401,7 +457,7 @@ def newsletter_task_view(request):
 # Auxiliary Endpoints
 # =============================================================================
 
-@login_required
+@require_any_perm(*AUTHORING_PERMS)
 def email_autocomplete_view(request):
     """HTMX endpoint for email recipient autocomplete.
 
@@ -430,7 +486,7 @@ def email_autocomplete_view(request):
     })
 
 
-@login_required
+@require_any_perm(*VIEW_OR_AUTHORING_PERMS)
 def model_fields_view(request):
     """Return field descriptions for a registered context code.
 
@@ -464,7 +520,7 @@ def model_fields_view(request):
     return JsonResponse(fields, safe=False)
 
 
-@login_required
+@require_any_perm(*AUTHORING_PERMS)
 def upload_image_view(request):
     """Upload an image file and return its URL.
 
@@ -477,6 +533,10 @@ def upload_image_view(request):
     uploaded_file = request.FILES.get('file')
     if not uploaded_file:
         return JsonResponse({'error': 'No file provided'}, status=400)
+
+    error = _validate_upload(uploaded_file, ASYNC_NOTIFICATION_IMAGE_CONTENT_TYPES)
+    if error:
+        return JsonResponse({'error': error}, status=400)
 
     upload_session = request.POST.get('upload_session', '')
     ct = ContentType.objects.get_for_model(EmailNotification)
@@ -497,7 +557,7 @@ def upload_image_view(request):
     return JsonResponse({'link': location, 'location': location})
 
 
-@login_required
+@require_any_perm(*AUTHORING_PERMS)
 def upload_video_view(request):
     """Upload a video file and return its URL.
 
@@ -510,6 +570,10 @@ def upload_video_view(request):
     uploaded_file = request.FILES.get('file')
     if not uploaded_file:
         return JsonResponse({'error': 'No file provided'}, status=400)
+
+    error = _validate_upload(uploaded_file, ASYNC_NOTIFICATION_VIDEO_CONTENT_TYPES)
+    if error:
+        return JsonResponse({'error': error}, status=400)
 
     upload_session = request.POST.get('upload_session', '')
     ct = ContentType.objects.get_for_model(EmailNotification)
@@ -525,7 +589,7 @@ def upload_video_view(request):
     return JsonResponse({'link': url, 'location': url})
 
 
-@login_required
+@require_any_perm(*VIEW_OR_AUTHORING_PERMS)
 def preview_file_view(request, pk):
     """Serve an attached file by its primary key."""
     attached = get_object_or_404(AttachedFile, pk=pk)
@@ -536,7 +600,7 @@ def preview_file_view(request, pk):
     return response
 
 
-@login_required
+@require_any_perm(*AUTHORING_PERMS)
 def reassociate_files_view(request):
     """Reassociate uploaded files from a temporary session to a real object.
 
@@ -570,7 +634,7 @@ def reassociate_files_view(request):
     return JsonResponse({'reassociated': updated})
 
 
-@login_required
+@require_any_perm(*AUTHORING_PERMS)
 def preview_template_view(request):
     """Preview an email template with dummy or real data.
 
@@ -622,7 +686,7 @@ def unsubscribe_view(request, token):
 
     if request.method == 'POST':
         EmailSuppression.objects.get_or_create(
-            email=email, defaults={'reason': 'unsubscribe'})
+            email=email.strip().lower(), defaults={'reason': 'unsubscribe'})
         if request.META.get('HTTP_ACCEPT', '').startswith('application/json') \
                 or request.POST.get('List-Unsubscribe') == 'One-Click':
             return JsonResponse({'unsubscribed': email})
@@ -638,8 +702,8 @@ def suppression_webhook(request):
     """Add an address to the suppression list from a bounce/complaint hook.
 
     POST JSON ``{"email": ..., "reason": "bounce|complaint|manual"}`` with the
-    shared secret in the ``X-Webhook-Secret`` header (or ``?secret=``). The
-    endpoint is disabled (404) unless ASYNC_NOTIFICATION_WEBHOOK_SECRET is set.
+    shared secret in the ``X-Webhook-Secret`` header. The endpoint is disabled
+    (404) unless ASYNC_NOTIFICATION_WEBHOOK_SECRET is set.
     """
     from djgentelella.async_notification.models import EmailSuppression
     from djgentelella.async_notification.settings import (
@@ -651,16 +715,17 @@ def suppression_webhook(request):
     secret = ASYNC_NOTIFICATION_WEBHOOK_SECRET
     if not secret:
         return JsonResponse({'error': 'webhook disabled'}, status=404)
-    provided = request.headers.get('X-Webhook-Secret') or \
-        request.GET.get('secret')
-    if provided != secret:
+    # Header only (never the query string, which leaks into access logs and
+    # Referer), and a constant-time comparison to avoid a timing side channel.
+    provided = request.headers.get('X-Webhook-Secret') or ''
+    if not constant_time_compare(provided, secret):
         return JsonResponse({'error': 'forbidden'}, status=403)
 
     try:
         payload = json.loads(request.body or b'{}')
     except (ValueError, TypeError):
         return JsonResponse({'error': 'invalid json'}, status=400)
-    email = (payload.get('email') or '').strip()
+    email = (payload.get('email') or '').strip().lower()
     if not email:
         return JsonResponse({'error': 'email required'}, status=400)
     reason = payload.get('reason', 'complaint')
@@ -671,7 +736,7 @@ def suppression_webhook(request):
     return JsonResponse({'suppressed': email, 'reason': reason})
 
 
-@login_required
+@require_any_perm(*VIEW_OR_AUTHORING_PERMS)
 def newsletter_filter_form_view(request):
     """Render the recipient-filter form for a newsletter's base model.
 
@@ -701,7 +766,7 @@ def newsletter_filter_form_view(request):
     })
 
 
-@login_required
+@require_any_perm(*AUTHORING_PERMS)
 def newsletter_recipients_preview_view(request):
     """Resolve the recipient list for an unsaved newsletter.
 

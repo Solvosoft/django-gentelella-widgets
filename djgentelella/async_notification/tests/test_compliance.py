@@ -71,6 +71,22 @@ class SuppressionTest(AsyncNotificationTestBase):
         self.assertIn('good@b.com', delivered)
         self.assertNotIn('bad@b.com', delivered)
 
+    def test_suppression_match_is_case_insensitive(self):
+        # Unsubscribed as mixed-case; a later send resolves the same address
+        # in lower case and must still be skipped.
+        EmailSuppression.objects.create(email='Bad@B.com', reason='unsubscribe')
+        n = EmailNotification.objects.create(
+            subject='Promo', message='<p>x</p>',
+            recipients=['good@b.com', 'bad@b.com'], is_promotional=True)
+        do_send_notification(n.pk)
+        delivered = [a for m in mail.outbox for a in m.to]
+        self.assertIn('good@b.com', delivered)
+        self.assertNotIn('bad@b.com', delivered)
+
+    def test_suppression_email_stored_normalized(self):
+        sup = EmailSuppression.objects.create(email='  MiXeD@Case.COM ')
+        self.assertEqual(sup.email, 'mixed@case.com')
+
     def test_transactional_ignores_suppression(self):
         EmailSuppression.objects.create(email='bad@b.com', reason='unsubscribe')
         n = EmailNotification.objects.create(
@@ -148,3 +164,11 @@ class SuppressionWebhookTest(AsyncNotificationTestBase):
         self.assertEqual(resp.status_code, 200)
         sup = EmailSuppression.objects.get(email='b@b.com')
         self.assertEqual(sup.reason, 'bounce')
+
+    def test_secret_in_query_string_rejected(self):
+        # The secret must never travel in the query string (leaks to logs).
+        with patch(SECRET, 's3cr3t'):
+            resp = self.client.post(
+                self._url() + '?secret=s3cr3t', '{"email":"c@b.com"}',
+                content_type='application/json')
+        self.assertEqual(resp.status_code, 403)
