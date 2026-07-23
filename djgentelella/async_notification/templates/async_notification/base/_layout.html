@@ -2,10 +2,11 @@
 {% comment %}
 Shared email shell for the async_notification base templates.
 
-Email-hardened: XHTML/Outlook doctype, VML namespaces, MSO conditionals,
-light/dark color-scheme hints, a hidden preheader, a 600px table layout with
-inline styles, and a progressive-enhancement <style> block (media queries +
-dark mode) that clients which strip <head> simply ignore.
+Email-hardened: XHTML/Outlook doctype, VML namespaces, MSO conditionals, a
+hidden preheader, and a 600px table layout with inline styles plus a
+progressive-enhancement <style> block (responsive media queries) that clients
+which strip <head> simply ignore. Rendered light-only (color-scheme: light) so
+client auto-dark-mode does not turn author-set title colors unreadable.
 
 Context:
   content  - the rendered email body HTML (injected by wrap_in_base_template)
@@ -20,8 +21,8 @@ Children override: title, preheader, header, footer.
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="x-apple-disable-message-reformatting">
-	<meta name="color-scheme" content="light dark">
-	<meta name="supported-color-schemes" content="light dark">
+	<meta name="color-scheme" content="light">
+	<meta name="supported-color-schemes" content="light">
 	<title>{% block title %}{{ brand.name|default:"" }}{% endblock %}</title>
 	<!--[if mso]>
 	<noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript>
@@ -38,13 +39,6 @@ Children override: title, preheader, header, footer.
 			.an-px { padding-left:20px !important; padding-right:20px !important; }
 			.an-stack { display:block !important; width:100% !important; }
 			.an-btn a { display:block !important; }
-		}
-		@media (prefers-color-scheme: dark) {
-			body, .an-bg { background:#0f1115 !important; }
-			.an-card { background:#191c22 !important; }
-			.an-body, .an-body td, .an-body p, .an-body span, .an-body li { color:#e6e8eb !important; }
-			.an-muted { color:#9aa0a6 !important; }
-			.an-divider { border-color:#2a2f37 !important; }
 		}
 	</style>
 </head>
