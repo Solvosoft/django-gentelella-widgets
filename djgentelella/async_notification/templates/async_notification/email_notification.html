@@ -106,7 +106,9 @@ var actions = {
 		{name: 'preview', action: 'preview', in_action_column: true,
 			i_class: 'fa fa-eye', method: 'POST', title: gettext('View')},
 		{name: 'send_email', action: 'send_email', in_action_column: true,
-			i_class: 'fa fa-paper-plane', method: 'POST', title: gettext('Send Now')}
+			i_class: 'fa fa-paper-plane', method: 'POST', title: gettext('Send Now')},
+		{name: 'duplicate', action: 'duplicate', in_action_column: true,
+			i_class: 'fa fa-copy', method: 'POST', title: gettext('Duplicate as pending')}
 	],
 	title: gettext('Actions'),
 	className: "no-export-col"
@@ -135,9 +137,29 @@ ocrud.send_email = function(data, actiondef) {
 				text: response.detail, confirmButtonText: gettext('Accept')});
 			ocrud.datatable.ajax.reload();
 		},
-		error: function() {
+		error: function(xhr) {
+			var detail = xhr.responseJSON && xhr.responseJSON.detail;
+			Swal.fire({icon: 'warning', title: gettext('Warning'),
+				text: detail || gettext('Sorry, an error occurred.'),
+				confirmButtonText: gettext('Accept')});
+		}
+	});
+};
+
+ocrud.duplicate = function(data, actiondef) {
+	var url = object_urls.destroy_url.replace("0", data.id).replace(/\/$/, '') + '/duplicate/';
+	$.ajax({
+		url: url, type: 'POST', headers: {'X-CSRFToken': getCookie('csrftoken')},
+		success: function(response) {
+			Swal.fire({icon: 'success', title: gettext('Success'),
+				text: gettext('Duplicated as a pending draft.'),
+				confirmButtonText: gettext('Accept')});
+			ocrud.datatable.ajax.reload();
+		},
+		error: function(xhr) {
+			var detail = xhr.responseJSON && xhr.responseJSON.detail;
 			Swal.fire({icon: 'error', title: gettext('Error'),
-				text: gettext('Sorry, an error occurred.'),
+				text: detail || gettext('Sorry, an error occurred.'),
 				confirmButtonText: gettext('Accept')});
 		}
 	});

@@ -421,8 +421,18 @@ def do_send_notification(notification_pk):
 def compute_newsletter_recipients(newsletter):
     """Resolve the full recipient list for a newsletter.
 
-    Combines the free-text ``recipients`` field with recipients derived
-    from the template's registered base model + stored filters.
+    Combines the free-text ``recipients`` field (raw addresses, groups,
+    content-type references) with recipients derived from the template's
+    registered base model + stored filters.
+
+    The base model's filters (e.g. "only active users", "exclude X") apply
+    to *every* recipient that belongs to that model, not just the ones the
+    interface itself resolved: a free-text entry that happens to expand to
+    addresses of the same model (e.g. a Django group full of ``auth.User``
+    members, via ``@group.local``) must still satisfy those filters. An
+    address that does not belong to the base model at all (an external
+    email typed by hand) has no "active"/"excluded" status to check, so it
+    always passes through untouched.
 
     Args:
         newsletter: NewsLetter instance.
@@ -433,7 +443,6 @@ def compute_newsletter_recipients(newsletter):
     from djgentelella.async_notification.interfaces import get_basemodel_info
 
     recipients = resolve_all_recipients(newsletter.recipients)
-    seen = set(recipients)
 
     template = newsletter.template
     model_base = getattr(template, 'model_base', '') if template else ''
@@ -441,9 +450,18 @@ def compute_newsletter_recipients(newsletter):
         info = get_basemodel_info(model_base)
         if info:
             interface = info[2]()
-            for email in interface.get_recipients(
-                    newsletter.filters_querystring):
-                if email and email not in seen:
+            allowed = set(interface.get_recipients(
+                newsletter.filters_querystring))
+            model_emails = set(
+                e for e in interface.model.objects.values_list(
+                    interface.email_field, flat=True) if e)
+            # Drop merged recipients that belong to this model but were
+            # filtered out of it; addresses outside the model are untouched.
+            recipients = [r for r in recipients
+                         if r not in model_emails or r in allowed]
+            seen = set(recipients)
+            for email in allowed:
+                if email not in seen:
                     seen.add(email)
                     recipients.append(email)
     return recipients

@@ -70,10 +70,15 @@ class EmailTemplateAPITest(AsyncNotificationAPITestBase):
 
     def test_get_values_for_update(self):
         template = EmailTemplate.objects.create(
-            code='get-val', subject='S', message='M')
+            code='get-val', subject='S', message='M',
+            base_template='transactional')
         self.client.force_login(self.superuser)
         url = reverse('async_notification:api-emailtemplate-get-values-for-update',
                       args=[template.pk])
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()['code'], 'get-val')
+        self.assertEqual(response.status_code, 200, response.content)
+        data = response.json()
+        self.assertEqual(data['code'], 'get-val')
+        # Select2-shaped {id, text}, not a bare string: the compose modal's
+        # fill_form() needs this shape to restore the dropdown on edit.
+        self.assertEqual(data['base_template']['id'], 'transactional')

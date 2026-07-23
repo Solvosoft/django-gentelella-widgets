@@ -1,6 +1,6 @@
 .PHONY: help clean clean-pyc clean-build list test docs release sdist \
 	lint test-selenium run run-mailhog mailhog mailhog-stop migrate menu init_demo \
-	notification_demo validate-mailhog loadstatic basejs
+	notification_demo validate-mailhog loadstatic basejs process-loop
 
 djversion = $(python setup.py -V)
 setupversion = $(awk -F "'" '{print $2}' djgentelella/__init__.py)
@@ -15,6 +15,7 @@ help:
 	@echo "migrate - make and apply migrations for the demo"
 	@echo "menu - (re)create demo data"
 	@echo "notification_demo - load async_notification demo data"
+	@echo "process-loop - simulate cron: run process_notifications every INTERVAL seconds (default 15)"
 	@echo "loadstatic - download frontend libraries from CDN"
 	@echo "basejs - regenerate base.js from widgets"
 	@echo "-- Quality --"
@@ -126,6 +127,14 @@ mailhog-stop:
 
 notification_demo:
 	cd demo && python manage.py create_notification_demo
+
+INTERVAL ?= 15
+
+process-loop:
+	@echo "Simulating cron: process_notifications every $(INTERVAL)s (Ctrl+C to stop)"
+	cd demo && EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend \
+		EMAIL_HOST=localhost EMAIL_PORT=1025 \
+		bash -c 'while true; do python manage.py process_notifications; sleep $(INTERVAL); done'
 
 validate-mailhog:
 	cd demo && python manage.py validate_mailhog

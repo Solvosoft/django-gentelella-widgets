@@ -120,7 +120,14 @@ CORS_ALLOW_ALL_ORIGINS = False
 
 LANGUAGE_CODE = 'es'
 
-TIME_ZONE = 'UTC'
+# The DateTimeInput widget (js/base/datetime.html) sends whatever the user
+# typed as a plain naive string, with no timezone marker at all. Django
+# interprets that naive input as being in TIME_ZONE, so it must match the
+# zone the person filling the form is actually in, or times like
+# NewsLetterTask.send_date silently land N hours off from what was typed
+# (storage stays UTC-aware either way; this only affects how naive input is
+# read and how aware datetimes are displayed).
+TIME_ZONE = os.getenv('TIME_ZONE', 'America/Costa_Rica')
 
 USE_I18N = True
 

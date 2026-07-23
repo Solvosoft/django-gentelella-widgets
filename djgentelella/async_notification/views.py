@@ -135,6 +135,7 @@ class EmailNotificationManagement(AuthAllPermBaseObjectManagement):
         'send_email': EmailNotificationSerializer,
         'send_selected': EmailNotificationSerializer,
         'preview': EmailNotificationSerializer,
+        'duplicate': EmailNotificationDetailSerializer,
     }
     perms = {
         'list': [f'{APP_PERM_PREFIX}.view_emailnotification'],
@@ -146,6 +147,7 @@ class EmailNotificationManagement(AuthAllPermBaseObjectManagement):
         'send_email': [f'{APP_PERM_PREFIX}.change_emailnotification'],
         'send_selected': [f'{APP_PERM_PREFIX}.change_emailnotification'],
         'preview': [f'{APP_PERM_PREFIX}.view_emailnotification'],
+        'duplicate': [f'{APP_PERM_PREFIX}.add_emailnotification'],
     }
     queryset = EmailNotification.objects.all()
     pagination_class = LimitOffsetPagination
@@ -184,6 +186,30 @@ class EmailNotificationManagement(AuthAllPermBaseObjectManagement):
             'recipients_raw': notification.recipients_raw,
             'error_message': notification.error_message,
         })
+
+    @action(detail=True, methods=['post'])
+    def duplicate(self, request, pk=None):
+        """Clone a notification as a fresh 'pending' draft.
+
+        Copies the composed content (subject/body/recipients/flags) but
+        resets every send-tracking field, so the same test case can be
+        replayed without recreating it from the modal each time.
+        """
+        notification = self.get_object()
+        clone = EmailNotification.objects.create(
+            subject=notification.subject,
+            message=notification.message,
+            recipients=notification.recipients,
+            bcc=notification.bcc,
+            cc=notification.cc,
+            base_template=notification.base_template,
+            enqueued=notification.enqueued,
+            send_individually=notification.send_individually,
+            is_promotional=notification.is_promotional,
+            user=request.user,
+        )
+        serializer = EmailNotificationDetailSerializer(clone)
+        return Response(serializer.data, status=201)
 
     @action(detail=False, methods=['post'])
     def send_selected(self, request):

@@ -156,13 +156,18 @@ function GTBaseFormModal(modal_id, datatable_element, form_config) {
                             var newOption = new Option(datainstance[e][x][display_name_key], datainstance[e][x]['id'], true, true);
                             $('#id_' + instance.prefix + e).append(newOption);
                         }
-                    } else {
+                    } else if (typeof datainstance[e] === 'object') {
                         if ($('#id_' + instance.prefix + e + ' option[value="' + datainstance[e]['id'] + '"]').length > 0) {
                             $('#id_' + instance.prefix + e).val(datainstance[e]['id']);
                         } else {
                             var newOption = new Option(datainstance[e][display_name_key], datainstance[e]['id'], true, true);
                             $('#id_' + instance.prefix + e).append(newOption);
                         }
+                    } else {
+                        // A select2-styled field with static (non-relational)
+                        // choices, e.g. a CharField: the value IS the option
+                        // value, not a {id, text} relation pair.
+                        $('#id_' + instance.prefix + e).val(datainstance[e]);
                     }
                     $('#id_' + instance.prefix + e).trigger('change')
                 }

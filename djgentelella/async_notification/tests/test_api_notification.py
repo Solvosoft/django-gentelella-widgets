@@ -67,6 +67,20 @@ class EmailNotificationAPITest(AsyncNotificationAPITestBase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()['subject'], 'Detail')
 
+    def test_get_values_for_update(self):
+        notification = EmailNotification.objects.create(
+            subject='Old', message='M', recipients='a@b.com',
+            base_template='product')
+        self.client.force_login(self.superuser)
+        url = reverse(
+            'async_notification:api-emailnotification-get-values-for-update',
+            args=[notification.pk])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200, response.content)
+        # Select2-shaped {id, text}, not a bare string.
+        self.assertEqual(
+            response.json()['base_template']['id'], 'product')
+
     def test_update(self):
         notification = EmailNotification.objects.create(
             subject='Old', message='M', recipients='a@b.com')
@@ -117,6 +131,23 @@ class EmailNotificationAPITest(AsyncNotificationAPITestBase):
                                      content_type='application/json')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(mail.outbox), 2)
+
+    def test_duplicate_action_resets_to_pending(self):
+        notification = EmailNotification.objects.create(
+            subject='Original', message='<p>Hi</p>', recipients='a@b.com',
+            status='sent', retry_count=2, error_message='boom')
+        self.client.force_login(self.superuser)
+        url = reverse('async_notification:api-emailnotification-duplicate',
+                      args=[notification.pk])
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 201, response.content)
+        clone = EmailNotification.objects.get(pk=response.json()['id'])
+        self.assertEqual(clone.subject, 'Original')
+        self.assertEqual(clone.recipients, notification.recipients)
+        self.assertEqual(clone.status, 'pending')
+        self.assertEqual(clone.retry_count, 0)
+        self.assertEqual(clone.error_message, '')
+        self.assertNotEqual(clone.pk, notification.pk)
 
     def test_search(self):
         EmailNotification.objects.create(

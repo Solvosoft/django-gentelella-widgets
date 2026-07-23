@@ -1,3 +1,5 @@
+import base64
+
 from django.urls import reverse
 from django.utils import timezone
 
@@ -41,6 +43,46 @@ class NewsLetterAPITest(AsyncNotificationAPITestBase):
         self.assertEqual(response.status_code, 201)
         self.assertTrue(
             NewsLetter.objects.filter(subject='API Newsletter').exists())
+
+    def test_create_with_attached_file(self):
+        """The compose modal sends files as base64 JSON, not multipart."""
+        self.client.force_login(self.superuser)
+        url = reverse('async_notification:api-newsletter-list')
+        content = base64.b64encode(b'fake odt bytes').decode()
+        data = {
+            'template': self.template.pk,
+            'subject': 'With Attachment',
+            'message': '<p>News</p>',
+            'recipients': ['news@example.com'],
+            'attached_file': [{'name': 'report.odt', 'value': content}],
+        }
+        response = self.client.post(
+            url, data, content_type='application/json')
+        self.assertEqual(response.status_code, 201, response.content)
+        newsletter = NewsLetter.objects.get(subject='With Attachment')
+        self.assertTrue(newsletter.attached_file.name.endswith('.odt'))
+        self.assertEqual(newsletter.attached_file.read(), b'fake odt bytes')
+
+    def test_get_values_for_update(self):
+        """Regression: base_template/template used to crash this endpoint.
+
+        A plain GTS2SerializerBase on a CharField (base_template) tried
+        ``getattr(value, 'pk')`` on a plain string and raised AttributeError.
+        """
+        newsletter = NewsLetter.objects.create(
+            subject='NL Edit', message='M', recipients='a@b.com',
+            template=self.template, base_template='executive')
+        self.client.force_login(self.superuser)
+        url = reverse(
+            'async_notification:api-newsletter-get-values-for-update',
+            args=[newsletter.pk])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200, response.content)
+        data = response.json()
+        # Select2-shaped {id, text} for both the FK and the choice field.
+        self.assertEqual(data['template']['id'], self.template.pk)
+        self.assertEqual(data['template']['text'], self.template.title)
+        self.assertEqual(data['base_template']['id'], 'executive')
 
     def test_preview_recipients(self):
         newsletter = NewsLetter.objects.create(

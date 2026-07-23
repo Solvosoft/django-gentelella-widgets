@@ -7,7 +7,7 @@ from django.test import Client
 from django.test import TestCase, RequestFactory
 from django.urls import reverse
 from django.utils import formats
-from django.utils.timezone import now
+from django.utils.timezone import now, localtime
 from rest_framework import status
 from rest_framework.exceptions import NotFound, NotAuthenticated
 from rest_framework.pagination import PageNumberPagination
@@ -242,9 +242,11 @@ class ApiNotificationsTestCase(TestCase):
         user_notification.creation_date += datetime.timedelta(-2)
         user_notification.save()
 
-        range_datetime = start_date.strftime(
+        # The filter parses this as a naive datetime in the active TIME_ZONE,
+        # so it must be expressed in that zone, not raw UTC clock values.
+        range_datetime = localtime(start_date).strftime(
             formats.get_format('DATETIME_INPUT_FORMATS')[0]) + ' - ' + \
-                         end_date.strftime(
+                         localtime(end_date).strftime(
                              formats.get_format('DATETIME_INPUT_FORMATS')[0])
 
         replace_symbols = {'/': '%2F', ' ': '%20', ':': '%3A'}
@@ -268,9 +270,9 @@ class ApiNotificationsTestCase(TestCase):
         start_date = now() + datetime.timedelta(-3)
         end_date = now() + datetime.timedelta(-2)
 
-        range_datetime = start_date.strftime(
+        range_datetime = localtime(start_date).strftime(
             formats.get_format('DATETIME_INPUT_FORMATS')[0]) + ' - ' + \
-                         end_date.strftime(
+                         localtime(end_date).strftime(
                              formats.get_format('DATETIME_INPUT_FORMATS')[0])
 
         replace_symbols = {'/': '%2F', ' ': '%20', ':': '%3A'}

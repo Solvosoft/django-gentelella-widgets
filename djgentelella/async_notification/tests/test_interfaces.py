@@ -95,6 +95,28 @@ class ComputeNewsletterRecipientsTest(AsyncNotificationTestBase):
         self.assertIn('testuser@example.com', emails)
         self.assertNotIn('admin@example.com', emails)
 
+    def test_free_text_address_of_the_base_model_still_respects_filters(self):
+        """A free-text entry that resolves to a base-model address (e.g. a
+        Django group full of ``auth.User`` emails via ``@group.local``) must
+        still honor is_active/exclude, not bypass them just because it
+        arrived through the free-text field instead of the interface."""
+        register_news_basemodel('users', 'Users', UserInterface)
+        User.objects.filter(username='noperms').update(is_active=False)
+        template = NewsLetterTemplate.objects.create(
+            title='T', slug='t2', message='M', model_base='users')
+        newsletter = NewsLetter.objects.create(
+            subject='S', message='M', template=template,
+            # Both typed directly, as if resolved from a group: one
+            # excluded, one inactive, one an external (non-User) address.
+            recipients=['admin@example.com', 'noperms@example.com',
+                       'external@nowhere.com'],
+            filters_querystring='is_active=on&excludeemail=admin@example.com')
+        emails = compute_newsletter_recipients(newsletter)
+        self.assertNotIn('admin@example.com', emails)
+        self.assertNotIn('noperms@example.com', emails)
+        self.assertIn('external@nowhere.com', emails)
+        self.assertIn('testuser@example.com', emails)
+
     def test_no_model_base_uses_free_text_only(self):
         template = NewsLetterTemplate.objects.create(
             title='T', slug='t', message='M')

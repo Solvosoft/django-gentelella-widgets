@@ -8,8 +8,11 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 from django_filters import FilterSet, DateTimeFromToRangeFilter
 from rest_framework import serializers
 
+from djgentelella.fields.files import GTBase64FileField
 from djgentelella.serializers import GTDateTimeField
-from djgentelella.serializers.selects import GTS2SerializerBase
+from djgentelella.serializers.selects import (
+    GTS2SerializerBase, ChoicesGTS2Serializer,
+)
 
 from djgentelella.async_notification.models import (
     EmailNotification, EmailTemplate,
@@ -17,6 +20,26 @@ from djgentelella.async_notification.models import (
     validate_recipient_list,
 )
 from djgentelella.async_notification.sending import link_body_attachments
+from djgentelella.async_notification.settings import (
+    ASYNC_NOTIFICATION_BASE_TEMPLATES, ASYNC_NEWS_BASE_MODELS,
+)
+
+
+def _base_template_field():
+    """Select2-shaped ({id, text}) field for the base_template CharField.
+
+    ``base_template`` is a plain string choice, not a model relation, but
+    the compose-modal JS (``fill_form``) restores select2 widgets from an
+    ``{id, text}`` pair regardless of what backs the choice.
+    """
+    return ChoicesGTS2Serializer(
+        choices={key: key for key in ASYNC_NOTIFICATION_BASE_TEMPLATES})
+
+
+def _model_base_field():
+    """Select2-shaped field for NewsLetterTemplate.model_base."""
+    return ChoicesGTS2Serializer(
+        choices={key: value[1] for key, value in ASYNC_NEWS_BASE_MODELS.items()})
 
 
 class InlineAttachmentSerializerMixin:
@@ -118,6 +141,7 @@ class EmailNotificationDetailSerializer(serializers.ModelSerializer):
     created_at = GTDateTimeField(read_only=True)
     updated_at = GTDateTimeField(read_only=True)
     sent = serializers.BooleanField(read_only=True)
+    base_template = _base_template_field()
 
     class Meta:
         model = EmailNotification
@@ -178,6 +202,7 @@ class EmailTemplateDetailSerializer(serializers.ModelSerializer):
     """Serializer for detailed view."""
     created_at = GTDateTimeField(read_only=True)
     updated_at = GTDateTimeField(read_only=True)
+    base_template = _base_template_field()
 
     class Meta:
         model = EmailTemplate
@@ -224,6 +249,8 @@ class NewsLetterTemplateDetailSerializer(serializers.ModelSerializer):
     """Serializer for detailed view."""
     created_at = GTDateTimeField(read_only=True)
     updated_at = GTDateTimeField(read_only=True)
+    base_template = _base_template_field()
+    model_base = _model_base_field()
 
     class Meta:
         model = NewsLetterTemplate
@@ -276,6 +303,12 @@ class NewsLetterCreateSerializer(InlineAttachmentSerializerMixin,
                                  serializers.ModelSerializer):
     """Serializer for creating/updating newsletters."""
 
+    # The compose modal submits the form as JSON (base64-encoded files),
+    # not multipart, so a plain FileField (which expects request.FILES)
+    # rejects it with "not a file. Check the encoding type on the form."
+    attached_file = GTBase64FileField(required=False, allow_empty_file=True)
+
+
     class Meta:
         model = NewsLetter
         fields = ('template', 'subject', 'message', 'recipients',
@@ -287,6 +320,12 @@ class NewsLetterDetailSerializer(serializers.ModelSerializer):
     """Serializer for detailed view."""
     created_at = GTDateTimeField(read_only=True)
     updated_at = GTDateTimeField(read_only=True)
+    # Same field as the create serializer, so the edit form gets back
+    # {name, url} (what the file-link renderer in fill_form expects)
+    # instead of a bare URL string.
+    attached_file = GTBase64FileField(required=False, allow_empty_file=True)
+    base_template = _base_template_field()
+    template = NewsLetterTemplateSelect2Serializer(many=False)
 
     class Meta:
         model = NewsLetter

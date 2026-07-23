@@ -86,6 +86,18 @@ var objconfig = {
 	datatable_inits: datatable_inits,
 	add_filter: true,
 	delete_display: function(data) { return data['subject']; },
+	events: {
+		/* Flag this fill as an edit-load, not a user picking a template,
+		 * so the template-select 'change' handler below skips the
+		 * "replace content?" prompt/copy for the newsletter's own saved
+		 * message. Cleared on the next tick so it never leaks into a
+		 * later, genuine template pick within the same modal. */
+		update_data: function(data) {
+			$('#update_modal').data('an-editing', true);
+			setTimeout(function() { $('#update_modal').removeData('an-editing'); }, 0);
+			return data;
+		}
+	}
 };
 
 var ocrud = ObjectCRUD("newsletter", objconfig);
@@ -114,11 +126,32 @@ $(document).on('change', '[name$="-template"]', function() {
 	var $container = $modal.find('.filter-form-container');
 	$container.data('template', pk);
 	if (!pk) { $container.empty(); return; }
+	var isEditLoad = $modal.data('an-editing');
 
 	/* Load the recipient filter form for this template's model_base */
 	fetch(window.AN_URLS.filter_form + '?template=' + encodeURIComponent(pk))
 		.then(function(r) { return r.text(); })
-		.then(function(html) { $container.html(html); });
+		.then(function(html) {
+			$container.html(html);
+			/* Editing: re-apply the newsletter's saved filters onto the
+			 * freshly-injected (otherwise blank) checkboxes/fields. */
+			var saved = $modal.find('form [name$="-filters_querystring"]').val();
+			if (!saved) { return; }
+			new URLSearchParams(saved).forEach(function(value, key) {
+				var $field = $container.find('[name="' + key + '"]');
+				if ($field.length === 0) { return; }
+				if ($field.attr('type') === 'checkbox') {
+					$field.prop('checked', true);
+				} else {
+					$field.val(value);
+				}
+			});
+		});
+
+	/* Editing an existing newsletter: it already has its own saved
+	 * message/base_template, don't offer to overwrite them just because
+	 * fill_form() re-selected the template to load the filter form above. */
+	if (isEditLoad) { return; }
 
 	/* Copy the template body into the message editor */
 	var url = object_urls.template_detail_url.replace("0", pk);
@@ -148,10 +181,13 @@ $(document).on('change', '[name$="-template"]', function() {
 	});
 });
 
-/* Serialize the injected filter form into the hidden filters_querystring */
+/* Serialize the injected filter form into the hidden filters_querystring.
+ * The filter checkboxes live outside <form> (right column, recipients
+ * card), so they must be located via the modal, not .closest('form'). */
 $(document).on('input change', '.filter-form-container :input', function() {
 	var $container = $(this).closest('.filter-form-container');
-	$container.closest('form').find('[name$="-filters_querystring"]')
+	var $modal = $container.closest('.modal');
+	$modal.find('form [name$="-filters_querystring"]')
 		.val($container.find(':input').serialize());
 });
 
