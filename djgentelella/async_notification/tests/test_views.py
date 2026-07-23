@@ -50,18 +50,19 @@ class HTMLViewsTest(AsyncNotificationTestBase):
             self.assertEqual(response.status_code, 302, f'{url} should redirect')
 
     def test_form_prefix_email_notification(self):
+        """Create/update modals use distinct prefixes to avoid id collisions."""
         self.client.force_login(self.user)
         response = self.client.get(
             reverse('async_notification:email_notification'))
-        form = response.context['form']
-        self.assertEqual(form.prefix, 'emailnotification')
+        self.assertEqual(response.context['create_form'].prefix, 'create')
+        self.assertEqual(response.context['update_form'].prefix, 'update')
 
     def test_form_prefix_email_template(self):
         self.client.force_login(self.user)
         response = self.client.get(
             reverse('async_notification:email_template'))
-        form = response.context['form']
-        self.assertEqual(form.prefix, 'emailtemplate')
+        self.assertEqual(response.context['create_form'].prefix, 'create')
+        self.assertEqual(response.context['update_form'].prefix, 'update')
 
 
 class AuxiliaryEndpointsTest(AsyncNotificationTestBase):
