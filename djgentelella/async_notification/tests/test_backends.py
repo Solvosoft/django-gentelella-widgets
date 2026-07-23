@@ -120,13 +120,18 @@ class SignalDispatchTest(AsyncNotificationTestBase):
         reset_backend()
 
     def test_immediate_send_via_signal(self):
-        """Creating notification with enqueued=False triggers immediate send."""
-        notification = EmailNotification.objects.create(
-            subject='Signal Test',
-            message='<p>Immediate</p>',
-            recipients='signal@example.com',
-            enqueued=False,
-        )
+        """Creating notification with enqueued=False triggers immediate send.
+
+        The send is deferred to transaction.on_commit, so the callbacks are
+        captured/executed to simulate the surrounding transaction committing.
+        """
+        with self.captureOnCommitCallbacks(execute=True):
+            notification = EmailNotification.objects.create(
+                subject='Signal Test',
+                message='<p>Immediate</p>',
+                recipients='signal@example.com',
+                enqueued=False,
+            )
         notification.refresh_from_db()
         self.assertEqual(notification.status, 'sent')
         self.assertTrue(notification.sent)

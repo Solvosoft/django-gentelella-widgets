@@ -13,6 +13,7 @@ from html import unescape
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.mail import EmailMultiAlternatives, get_connection
+from django.db import transaction
 from django.template import Template, Context
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -305,6 +306,34 @@ def _reschedule_retry(notification):
         retry(notification.pk, retry_delay_for(notification))
 
 
+def _claim_notification(notification_pk):
+    """Atomically transition a notification to 'sending' and return it.
+
+    Uses ``select_for_update`` so that concurrent callers (the cron command,
+    the immediate-send signal, and an at-least-once Celery redelivery) cannot
+    all pass a plain status check and send duplicate copies: exactly one caller
+    flips a claimable row to 'sending'; the rest get ``None`` and stop.
+
+    Returns the claimed notification, or ``None`` if it does not exist, is
+    already terminal ('sent'/'cancelled'), or is already being sent by another
+    worker.
+    """
+    with transaction.atomic():
+        try:
+            notification = (EmailNotification.objects
+                            .select_for_update()
+                            .get(pk=notification_pk))
+        except EmailNotification.DoesNotExist:
+            logger.error('EmailNotification %s does not exist', notification_pk)
+            return None
+        if notification.status in ('sent', 'cancelled', 'sending'):
+            return None
+        notification.status = 'sending'
+        notification.last_attempt = timezone.now()
+        notification.save(update_fields=['status', 'last_attempt'])
+        return notification
+
+
 def do_send_notification(notification_pk):
     """Send an email notification. Core send logic.
 
@@ -315,18 +344,9 @@ def do_send_notification(notification_pk):
     Args:
         notification_pk: Primary key of the EmailNotification to send.
     """
-    try:
-        notification = EmailNotification.objects.get(pk=notification_pk)
-    except EmailNotification.DoesNotExist:
-        logger.error('EmailNotification %s does not exist', notification_pk)
+    notification = _claim_notification(notification_pk)
+    if notification is None:
         return
-
-    if notification.status in ('sent', 'cancelled'):
-        return
-
-    notification.status = 'sending'
-    notification.last_attempt = timezone.now()
-    notification.save(update_fields=['status', 'last_attempt'])
 
     try:
         recipients = resolve_all_recipients(notification.recipients)
@@ -429,24 +449,43 @@ def compute_newsletter_recipients(newsletter):
     return recipients
 
 
+def _claim_newsletter_task(newsletter_task_pk):
+    """Atomically transition a newsletter task to 'sending' and return it.
+
+    Same duplicate-protection as :func:`_claim_notification`: exactly one
+    caller claims a claimable task; concurrent callers get ``None``.
+    """
+    with transaction.atomic():
+        try:
+            task = (NewsLetterTask.objects
+                    .select_for_update()
+                    .select_related('newsletter')
+                    .get(pk=newsletter_task_pk))
+        except NewsLetterTask.DoesNotExist:
+            logger.error('NewsLetterTask %s does not exist', newsletter_task_pk)
+            return None
+        if task.status in ('sent', 'revoked', 'sending'):
+            return None
+        task.status = 'sending'
+        task.save(update_fields=['status'])
+        return task
+
+
 def do_send_newsletter(newsletter_task_pk):
     """Send a newsletter task.
+
+    Sends one promotional message per recipient (each with its own one-click
+    unsubscribe), honoring the suppression list. Delivery progress is persisted
+    per recipient in ``task.sent_recipients`` so a re-run after a mid-list
+    failure resumes with the pending recipients instead of re-sending to
+    already-delivered ones.
 
     Args:
         newsletter_task_pk: Primary key of the NewsLetterTask.
     """
-    try:
-        task = NewsLetterTask.objects.select_related('newsletter').get(
-            pk=newsletter_task_pk)
-    except NewsLetterTask.DoesNotExist:
-        logger.error('NewsLetterTask %s does not exist', newsletter_task_pk)
+    task = _claim_newsletter_task(newsletter_task_pk)
+    if task is None:
         return
-
-    if task.status in ('sent', 'revoked'):
-        return
-
-    task.status = 'sending'
-    task.save(update_fields=['status'])
 
     newsletter = task.newsletter
 
@@ -456,9 +495,15 @@ def do_send_newsletter(newsletter_task_pk):
         recipients = filter_promotional_recipients(
             compute_newsletter_recipients(newsletter))
 
-        if not recipients:
+        # Resume: skip recipients already delivered on a previous run so a
+        # re-run after a mid-list failure does not re-send to them.
+        already = set(task.sent_recipients or [])
+        pending = [r for r in recipients if r not in already]
+
+        if not pending:
             task.status = 'sent'
-            task.save(update_fields=['status'])
+            task.error_message = ''
+            task.save(update_fields=['status', 'error_message'])
             return
 
         # Use custom SMTP if configured
@@ -480,43 +525,54 @@ def do_send_newsletter(newsletter_task_pk):
         bcc_list = as_email_list(newsletter.bcc)
         cc_list = as_email_list(newsletter.cc)
         interval = _throttle_interval()
+        # List-level bcc/cc ride only the very first message ever sent, so on a
+        # resume (already non-empty) they are not re-sent.
+        first_message = not already
 
         connection.open()
         try:
-            for index, email in enumerate(recipients):
+            for email in pending:
                 footer, headers = _promotional_extras(
                     email, list_id=ASYNC_NOTIFICATION_LIST_ID)
                 html_body = newsletter.message + footer
                 if newsletter.base_template:
                     html_body = wrap_in_base_template(
                         html_body, newsletter.base_template)
-                # bcc/cc (list-level) go only with the first message.
                 msg = _make_message(
                     newsletter.subject, html_body, [email], connection,
-                    bcc=bcc_list if index == 0 else [],
-                    cc=cc_list if index == 0 else [],
+                    bcc=bcc_list if first_message else [],
+                    cc=cc_list if first_message else [],
                     headers=headers)
 
                 if newsletter.attached_file:
                     try:
                         msg.attach_file(newsletter.attached_file.path)
                     except Exception:
-                        pass
+                        logger.exception(
+                            'Could not attach %s to newsletter task %s',
+                            newsletter.attached_file, newsletter_task_pk)
 
                 msg.send()
+                first_message = False
+                # Persist progress after each delivered message.
+                already.add(email)
+                task.sent_recipients = list(already)
+                task.save(update_fields=['sent_recipients'])
                 if interval:
                     time.sleep(interval)
         finally:
             connection.close()
 
         task.status = 'sent'
-        task.save(update_fields=['status'])
+        task.error_message = ''
+        task.save(update_fields=['status', 'error_message'])
 
     except Exception as e:
         logger.exception('Error sending newsletter task %s',
                          newsletter_task_pk)
         task.status = 'failed'
-        task.save(update_fields=['status'])
+        task.error_message = str(e)
+        task.save(update_fields=['status', 'error_message'])
 
 
 def send_email_from_template(code, recipient, context, enqueued=True,

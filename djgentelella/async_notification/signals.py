@@ -5,13 +5,11 @@ Dispatches immediate email sending when an EmailNotification is created
 with enqueued=False.
 """
 
+from django.db import transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from djgentelella.async_notification.models import EmailNotification
-
-# Anti-recursion guard: tracks PKs currently being sent
-_sending_in_progress = set()
 
 
 @receiver(post_save, sender=EmailNotification)
@@ -21,21 +19,26 @@ def on_notification_created(sender, instance, created, **kwargs):
     Only fires when:
     - The instance was just created (created=True)
     - enqueued is False (immediate send requested)
-    - The instance is not already being processed
     - Status is 'pending'
+
+    The dispatch is deferred to ``transaction.on_commit`` so a rollback of the
+    creating transaction never leaves a delivered email with no persisted
+    notification; outside an atomic block Django runs it immediately, keeping
+    the synchronous behavior. Re-entrancy is not a concern: the backend's own
+    status updates re-fire this handler with ``created=False``, which returns
+    early.
     """
     if not created:
         return
     if instance.enqueued:
         return
-    if instance.pk in _sending_in_progress:
-        return
     if instance.status != 'pending':
         return
 
-    _sending_in_progress.add(instance.pk)
-    try:
+    pk = instance.pk
+
+    def _dispatch():
         from djgentelella.async_notification.backends import get_backend
-        get_backend().send(instance.pk)
-    finally:
-        _sending_in_progress.discard(instance.pk)
+        get_backend().send(pk)
+
+    transaction.on_commit(_dispatch)

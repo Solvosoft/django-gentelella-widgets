@@ -387,3 +387,46 @@ class ResumeAfterBatchFailureTest(AsyncNotificationTestBase):
         self.assertEqual(len(mail.outbox), 2)
         with_bcc = [m for m in mail.outbox if 'boss@x.com' in m.bcc]
         self.assertEqual(len(with_bcc), 1)
+
+
+class NewsletterResumeTest(AsyncNotificationTestBase):
+    """A re-run after a mid-list newsletter failure must not re-send."""
+
+    def test_no_duplicate_delivery_on_rerun(self):
+        from django.core.mail import EmailMessage
+        from django.utils import timezone
+        from djgentelella.async_notification.models import (
+            NewsLetter, NewsLetterTask,
+        )
+        from djgentelella.async_notification.sending import do_send_newsletter
+
+        recipients = ['a@x.com', 'b@x.com', 'c@x.com', 'd@x.com']
+        newsletter = NewsLetter.objects.create(
+            subject='NL', message='<p>hi</p>', recipients=recipients)
+        task = NewsLetterTask.objects.create(
+            newsletter=newsletter, send_date=timezone.now())
+
+        real_send = EmailMessage.send
+        state = {'calls': 0}
+
+        def flaky_send(self, *a, **k):
+            state['calls'] += 1
+            if state['calls'] == 3:      # 3rd recipient of the first run
+                raise Exception('smtp drop mid-list')
+            return real_send(self, *a, **k)
+
+        with patch.object(EmailMessage, 'send', flaky_send):
+            do_send_newsletter(task.pk)      # run 1: fails on c@x.com
+            task.refresh_from_db()
+            self.assertEqual(task.status, 'failed')
+            self.assertEqual(set(task.sent_recipients),
+                             {'a@x.com', 'b@x.com'})
+
+            do_send_newsletter(task.pk)      # run 2: resumes c,d
+            task.refresh_from_db()
+
+        self.assertEqual(task.status, 'sent')
+        self.assertEqual(set(task.sent_recipients), set(recipients))
+        delivered = [addr for m in mail.outbox for addr in m.to]
+        self.assertEqual(sorted(delivered), sorted(recipients))
+        self.assertEqual(len(delivered), len(set(delivered)))

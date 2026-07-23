@@ -97,3 +97,40 @@ class ProcessNotificationsCommandTest(AsyncNotificationTestBase):
         self.assertEqual(len(mail.outbox), 3)
         for n in EmailNotification.objects.all():
             self.assertEqual(n.status, 'sent')
+
+    def test_reaper_recovers_stuck_sending(self):
+        """A notification stranded in 'sending' by a dead worker is reset to
+        pending by the reaper and then sent in the same run."""
+        n = EmailNotification.objects.create(
+            subject='Stuck', message='<p>x</p>', recipients=['a@b.com'],
+            status='sending')
+        stale = timezone.now() - timedelta(hours=1)
+        EmailNotification.objects.filter(pk=n.pk).update(updated_at=stale)
+        call_command('process_notifications')
+        n.refresh_from_db()
+        self.assertEqual(n.status, 'sent')
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_reaper_leaves_fresh_sending_alone(self):
+        """A recently-updated 'sending' row (an active worker) is not reaped."""
+        n = EmailNotification.objects.create(
+            subject='Active', message='<p>x</p>', recipients=['a@b.com'],
+            status='sending')
+        call_command('process_notifications')
+        n.refresh_from_db()
+        self.assertEqual(n.status, 'sending')
+        self.assertEqual(len(mail.outbox), 0)
+
+
+class ClaimIdempotencyTest(AsyncNotificationTestBase):
+    """The atomic claim prevents a second concurrent send of the same row."""
+
+    def test_send_skips_row_already_sending(self):
+        from djgentelella.async_notification.sending import do_send_notification
+        n = EmailNotification.objects.create(
+            subject='Racing', message='<p>x</p>', recipients=['a@b.com'],
+            status='sending')
+        do_send_notification(n.pk)   # another worker already has it
+        n.refresh_from_db()
+        self.assertEqual(n.status, 'sending')
+        self.assertEqual(len(mail.outbox), 0)

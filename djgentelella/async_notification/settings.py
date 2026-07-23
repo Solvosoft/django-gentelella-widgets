@@ -100,3 +100,25 @@ ASYNC_NOTIFICATION_REQUIRE_OPTIN = getattr(
 # Shared secret required by the suppression webhook (None disables the hook).
 ASYNC_NOTIFICATION_WEBHOOK_SECRET = getattr(
     settings, 'ASYNC_NOTIFICATION_WEBHOOK_SECRET', None)
+
+# --- Compose helpers (uploads) & worker recovery ---
+
+# Max size (bytes) accepted by the image/video upload endpoints.
+ASYNC_NOTIFICATION_UPLOAD_MAX_SIZE = getattr(
+    settings, 'ASYNC_NOTIFICATION_UPLOAD_MAX_SIZE', 10 * 1024 * 1024)
+
+# Content types accepted by the inline-image upload endpoint.
+ASYNC_NOTIFICATION_IMAGE_CONTENT_TYPES = getattr(
+    settings, 'ASYNC_NOTIFICATION_IMAGE_CONTENT_TYPES',
+    ['image/png', 'image/jpeg', 'image/gif', 'image/webp'])
+
+# Content types accepted by the video upload endpoint.
+ASYNC_NOTIFICATION_VIDEO_CONTENT_TYPES = getattr(
+    settings, 'ASYNC_NOTIFICATION_VIDEO_CONTENT_TYPES',
+    ['video/mp4', 'video/webm', 'video/ogg'])
+
+# A notification/task left in 'sending' for longer than this many minutes is
+# assumed to belong to a dead worker and is reset to 'pending' by the cron
+# command so it can be retried instead of stalling forever.
+ASYNC_NOTIFICATION_STUCK_MINUTES = getattr(
+    settings, 'ASYNC_NOTIFICATION_STUCK_MINUTES', 30)
