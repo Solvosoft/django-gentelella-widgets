@@ -38,6 +38,12 @@ ASYNC_SMTP_DEBUG = getattr(settings, 'ASYNC_SMTP_DEBUG', False)
 ASYNC_NOTIFICATION_BASE_TEMPLATES = getattr(
     settings, 'ASYNC_NOTIFICATION_BASE_TEMPLATES', {})
 
+# Brand info exposed to base templates as ``{{ brand.* }}`` (all keys optional):
+# name, logo_url (absolute URL), color (hex), color_text_on (hex), site_url,
+# address, support_email, tagline.
+ASYNC_NOTIFICATION_BRAND = getattr(
+    settings, 'ASYNC_NOTIFICATION_BRAND', {})
+
 # Custom SMTP server configs for newsletters:
 # {'config_name': {'host': ..., 'port': ..., 'username': ..., 'password': ..., 'use_tls': ...}}
 ASYNC_NEWSLETTER_SEVER_CONFIGS = getattr(

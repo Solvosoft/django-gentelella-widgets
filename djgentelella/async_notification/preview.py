@@ -15,7 +15,8 @@ from django.template.loader import render_to_string
 
 from djgentelella.async_notification.registry import get_context_config
 from djgentelella.async_notification.settings import (
-    ASYNC_NOTIFICATION_BASE_TEMPLATES
+    ASYNC_NOTIFICATION_BASE_TEMPLATES,
+    ASYNC_NOTIFICATION_BRAND,
 )
 
 
@@ -180,7 +181,10 @@ def wrap_in_base_template(html, base_template_key, extra_context=None):
     """
     if base_template_key and base_template_key in ASYNC_NOTIFICATION_BASE_TEMPLATES:
         base_template_path = ASYNC_NOTIFICATION_BASE_TEMPLATES[base_template_key]
-        context = {'content': html}
+        # ``brand`` lets the base templates render the logo/colors/footer from
+        # settings; ``extra_context`` (e.g. dummy preview data, a CTA) can add
+        # to or override it.
+        context = {'content': html, 'brand': ASYNC_NOTIFICATION_BRAND}
         if extra_context:
             context.update(extra_context)
         return render_to_string(base_template_path, context)

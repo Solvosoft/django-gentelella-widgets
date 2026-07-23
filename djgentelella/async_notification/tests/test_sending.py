@@ -222,6 +222,23 @@ class SendEmailFromTemplateTest(AsyncNotificationTestBase):
         )
         self.assertFalse(notification.enqueued)
 
+    def test_body_renders_utility_include(self):
+        """A template body may {% include %} the utility partials; they are
+        resolved through the app template loaders at render time (the stored
+        notification body already contains the rendered output)."""
+        EmailTemplate.objects.create(
+            code='with-button',
+            subject='Hi',
+            message='<p>Body</p>'
+                    '{% include "async_notification/base/utils/button.html"'
+                    ' with url="https://x/go" label="GoNow" %}',
+        )
+        notification = send_email_from_template(
+            code='with-button', recipient='a@b.com', context={})
+        self.assertIn('GoNow', notification.message)
+        self.assertIn('https://x/go', notification.message)
+        self.assertIn('v:roundrect', notification.message)  # Outlook VML
+
 
 class InlineImageSendTest(AsyncNotificationTestBase):
 

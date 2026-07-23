@@ -1,0 +1,43 @@
+{% extends "async_notification/base/_layout.html" %}{% load i18n %}
+{% comment %}
+Newsletter / digest layout. Centered brand mark with a tagline and an issue
+date rule, roomy body for stacked sections, and a footer that echoes the site
+link. Best for periodic bulletins and multi-section digests. The promotional
+one-click unsubscribe footer is appended into the body automatically for
+promotional sends.
+{% endcomment %}
+{% block preheader %}{{ brand.tagline|default:_("Latest news and updates") }}{% endblock %}
+
+{% block header %}
+<tr>
+	<td align="center" class="an-px" style="padding:30px 32px 0;">
+		{% if brand.logo_url %}
+		<img src="{{ brand.logo_url }}" height="30" alt="{{ brand.name|default:'' }}" style="display:block; margin:0 auto 8px; max-height:30px;">
+		{% elif brand.name %}
+		<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:20px; font-weight:800; letter-spacing:0.3px; color:{{ brand.color|default:'#2d3339' }};">{{ brand.name }}</div>
+		{% endif %}
+		{% if brand.tagline %}
+		<div class="an-muted" style="font-family:Arial,Helvetica,sans-serif; font-size:12px; color:#8a9199; margin-top:2px;">{{ brand.tagline }}</div>
+		{% endif %}
+		<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:16px;">
+			<tr><td class="an-divider" style="border-top:2px solid {{ brand.color|default:'#2d3339' }}; font-size:0; line-height:0;">&nbsp;</td></tr>
+		</table>
+		<div class="an-muted" style="font-family:Arial,Helvetica,sans-serif; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8a9199; padding:8px 0 0;">
+			{% now "F Y" %}
+		</div>
+	</td>
+</tr>
+{% endblock %}
+
+{% block footer %}
+<tr>
+	<td align="center" class="an-px" style="padding:20px 32px; background:#f6f8fa; border-top:1px solid #e6e9ee; font-family:Arial,Helvetica,sans-serif;">
+		{% if brand.site_url %}
+		<p style="margin:0 0 6px; font-size:12px;"><a href="{{ brand.site_url }}" style="color:{{ brand.color|default:'#2d3339' }};">{{ brand.site_url }}</a></p>
+		{% endif %}
+		<p class="an-muted" style="margin:0; font-size:12px; line-height:1.5; color:#8a9199;">
+			{% if brand.name %}&copy; {% now "Y" %} {{ brand.name }}. {% endif %}{% if brand.address %}{{ brand.address }}{% endif %}
+		</p>
+	</td>
+</tr>
+{% endblock %}

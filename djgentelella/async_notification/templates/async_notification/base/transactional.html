@@ -1,0 +1,30 @@
+{% extends "async_notification/base/_layout.html" %}{% load i18n %}
+{% comment %}
+Transactional layout. Minimal, fast, no colored chrome — a small centered
+brand mark, tight spacing and a light legal footer. Best for receipts,
+password resets, verification codes and account alerts.
+{% endcomment %}
+{% block preheader %}{{ brand.tagline|default:_("Account notification") }}{% endblock %}
+
+{% block header %}
+<tr>
+	<td align="center" class="an-px" style="padding:26px 32px 6px;">
+		{% if brand.logo_url %}
+		<img src="{{ brand.logo_url }}" height="26" alt="{{ brand.name|default:'' }}" style="display:block; margin:0 auto; max-height:26px;">
+		{% elif brand.name %}
+		<span style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:16px; font-weight:700; color:{{ brand.color|default:'#2d3339' }};">{{ brand.name }}</span>
+		{% endif %}
+	</td>
+</tr>
+{% endblock %}
+
+{% block footer %}
+<tr>
+	<td align="center" class="an-px" style="padding:18px 32px; border-top:1px solid #e6e9ee; font-family:Arial,Helvetica,sans-serif;">
+		<p class="an-muted" style="margin:0; font-size:12px; line-height:1.5; color:#8a9199;">
+			{% blocktrans %}You are receiving this message because it relates to your account.{% endblocktrans %}
+			{% if brand.support_email %}<br>{% trans "Need help?" %} <a href="mailto:{{ brand.support_email }}" style="color:#8a9199;">{{ brand.support_email }}</a>{% endif %}
+		</p>
+	</td>
+</tr>
+{% endblock %}

@@ -1,0 +1,85 @@
+{% load i18n %}<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+{% comment %}
+Shared email shell for the async_notification base templates.
+
+Email-hardened: XHTML/Outlook doctype, VML namespaces, MSO conditionals,
+light/dark color-scheme hints, a hidden preheader, a 600px table layout with
+inline styles, and a progressive-enhancement <style> block (media queries +
+dark mode) that clients which strip <head> simply ignore.
+
+Context:
+  content  - the rendered email body HTML (injected by wrap_in_base_template)
+  brand    - dict from settings.ASYNC_NOTIFICATION_BRAND (all keys optional):
+             name, logo_url, color, color_text_on, site_url, address,
+             support_email, tagline
+
+Children override: title, preheader, header, footer.
+{% endcomment %}<html xmlns="https://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" lang="{{ LANGUAGE_CODE|default:'en' }}">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="x-apple-disable-message-reformatting">
+	<meta name="color-scheme" content="light dark">
+	<meta name="supported-color-schemes" content="light dark">
+	<title>{% block title %}{{ brand.name|default:"" }}{% endblock %}</title>
+	<!--[if mso]>
+	<noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript>
+	<![endif]-->
+	<style>
+		/* Progressive enhancement only — critical styles are inlined. */
+		body { margin:0; padding:0; width:100% !important; -webkit-text-size-adjust:100%; -ms-text-size-adjust:100%; }
+		table { border-collapse:collapse !important; }
+		img { border:0; height:auto; line-height:100%; outline:none; text-decoration:none; -ms-interpolation-mode:bicubic; }
+		a { text-decoration:none; }
+		.an-body a { color:{{ brand.color|default:"#2b6cb0" }}; }
+		@media only screen and (max-width:600px) {
+			.an-container { width:100% !important; }
+			.an-px { padding-left:20px !important; padding-right:20px !important; }
+			.an-stack { display:block !important; width:100% !important; }
+			.an-btn a { display:block !important; }
+		}
+		@media (prefers-color-scheme: dark) {
+			body, .an-bg { background:#0f1115 !important; }
+			.an-card { background:#191c22 !important; }
+			.an-body, .an-body td, .an-body p, .an-body span, .an-body li { color:#e6e8eb !important; }
+			.an-muted { color:#9aa0a6 !important; }
+			.an-divider { border-color:#2a2f37 !important; }
+		}
+	</style>
+</head>
+<body class="an-bg" style="margin:0; padding:0; background:#eef1f4;">
+	<div class="an-preheader" style="display:none; max-height:0; overflow:hidden; mso-hide:all; font-size:1px; line-height:1px; color:#eef1f4; opacity:0;">
+		{% block preheader %}{% endblock %}&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;
+	</div>
+	<center role="article" aria-roledescription="email" style="width:100%; background:#eef1f4;" class="an-bg">
+	<!--[if mso | IE]><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#eef1f4;"><tr><td align="center"><![endif]-->
+	<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#eef1f4;">
+		<tr>
+			<td align="center" style="padding:24px 12px;">
+				<table role="presentation" class="an-container an-card" width="600" cellpadding="0" cellspacing="0" style="width:600px; max-width:600px; background:#ffffff; border-radius:10px; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+					{% block header %}{% endblock %}
+					<tr>
+						<td class="an-body an-px" style="padding:32px; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; color:#2d3339; font-size:15px; line-height:1.6;">
+							{{ content }}
+							{% block after_content %}{% endblock %}
+						</td>
+					</tr>
+					{% block footer %}
+					<tr>
+						<td class="an-px" style="padding:20px 32px; background:#f6f8fa; border-top:1px solid #e6e9ee; font-family:Arial,Helvetica,sans-serif;">
+							<p class="an-muted" style="margin:0; font-size:12px; line-height:1.5; color:#8a9199;">
+								{% if brand.name %}&copy; {% now "Y" %} {{ brand.name }}. {% endif %}
+								{% if brand.address %}{{ brand.address }}{% endif %}
+							</p>
+						</td>
+					</tr>
+					{% endblock %}
+				</table>
+			</td>
+		</tr>
+	</table>
+	<!--[if mso | IE]></td></tr></table><![endif]-->
+	</center>
+</body>
+</html>

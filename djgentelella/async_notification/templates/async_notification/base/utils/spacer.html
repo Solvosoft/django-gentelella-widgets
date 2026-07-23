@@ -1,0 +1,9 @@
+{% comment %}
+Vertical spacer. Optional param: height (px, default 16).
+  {% include "async_notification/base/utils/spacer.html" with height=24 %}
+{% endcomment %}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+	<tr>
+		<td style="height:{{ height|default:'16' }}px; line-height:{{ height|default:'16' }}px; font-size:0;">&nbsp;</td>
+	</tr>
+</table>

@@ -1,0 +1,16 @@
+{% comment %}
+Bulletproof call-to-action button (renders in Outlook via VML).
+
+Usage in an EmailTemplate/newsletter body rendered by the template engine:
+  {% include "async_notification/base/utils/button.html" with url="https://…" label="Get started" %}
+Optional params: color (bg, default #2b6cb0), text_color (default #ffffff).
+{% endcomment %}
+<!--[if mso]>
+<v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ url }}" style="height:44px;v-text-anchor:middle;width:240px;" arcsize="14%" strokecolor="{{ color|default:'#2b6cb0' }}" fillcolor="{{ color|default:'#2b6cb0' }}">
+<w:anchorlock/>
+<center style="color:{{ text_color|default:'#ffffff' }};font-family:Arial,sans-serif;font-size:15px;font-weight:bold;">{{ label }}</center>
+</v:roundrect>
+<![endif]-->
+<!--[if !mso]><!-->
+<a class="an-btn" href="{{ url }}" style="background:{{ color|default:'#2b6cb0' }}; color:{{ text_color|default:'#ffffff' }}; display:inline-block; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:15px; font-weight:bold; line-height:44px; text-align:center; text-decoration:none; border-radius:6px; padding:0 28px;">{{ label }}</a>
+<!--<![endif]-->

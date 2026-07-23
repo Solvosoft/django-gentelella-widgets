@@ -198,6 +198,21 @@ DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', "no-reply@example.com")
 # Base HTML layouts an EmailTemplate can wrap its content in.
 ASYNC_NOTIFICATION_BASE_TEMPLATES = {
     "default": "async_notification/email_base.html",
+    "executive": "async_notification/base/executive.html",
+    "product": "async_notification/base/product.html",
+    "transactional": "async_notification/base/transactional.html",
+    "newsletter": "async_notification/base/newsletter.html",
+}
+
+# Brand info exposed to the base templates as {{ brand.* }}.
+ASYNC_NOTIFICATION_BRAND = {
+    "name": "Demo Org",
+    "color": "#3b5bdb",
+    "color_text_on": "#ffffff",
+    "site_url": "https://example.com",
+    "address": "Demo Org · 123 Example St · Springfield",
+    "support_email": "support@example.com",
+    "tagline": "Building better software",
 }
 
 # Compliance / deliverability (demo values).
