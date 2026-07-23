@@ -13,7 +13,9 @@ class BaseTemplateRenderTest(TestCase):
     def test_each_base_renders_with_content_and_brand(self):
         for key in BASE_KEYS:
             html = wrap_in_base_template('<p>Hello world</p>', key)
-            self.assertIn('Hello world', html, key)
+            # content must be injected as HTML, not autoescaped into tags
+            self.assertIn('<p>Hello world</p>', html, key)
+            self.assertNotIn('&lt;p&gt;Hello world', html, key)
             self.assertIn('<!DOCTYPE', html, key)
             # brand.name from the demo ASYNC_NOTIFICATION_BRAND
             self.assertIn('Demo Org', html, key)

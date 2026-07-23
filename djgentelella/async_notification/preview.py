@@ -12,6 +12,7 @@ import uuid
 from django.apps import apps
 from django.template import Template, Context
 from django.template.loader import render_to_string
+from django.utils.safestring import mark_safe
 
 from djgentelella.async_notification.registry import get_context_config
 from djgentelella.async_notification.settings import (
@@ -181,10 +182,12 @@ def wrap_in_base_template(html, base_template_key, extra_context=None):
     """
     if base_template_key and base_template_key in ASYNC_NOTIFICATION_BASE_TEMPLATES:
         base_template_path = ASYNC_NOTIFICATION_BASE_TEMPLATES[base_template_key]
-        # ``brand`` lets the base templates render the logo/colors/footer from
-        # settings; ``extra_context`` (e.g. dummy preview data, a CTA) can add
-        # to or override it.
-        context = {'content': html, 'brand': ASYNC_NOTIFICATION_BRAND}
+        # ``content`` is already-rendered, trusted email HTML — mark it safe so
+        # ``{{ content }}`` is not autoescaped into visible tags. ``brand`` lets
+        # the base templates render the logo/colors/footer from settings;
+        # ``extra_context`` (dummy preview data, a CTA) can add to/override it.
+        context = {'content': mark_safe(html),
+                   'brand': ASYNC_NOTIFICATION_BRAND}
         if extra_context:
             context.update(extra_context)
         return render_to_string(base_template_path, context)
