@@ -175,6 +175,7 @@ class Command(BaseCommand):
         self.scenario_newsletter()
         self.scenario_newsletter_filtered()
         self.scenario_retry_then_success(options['smtp_port'])
+        self.scenario_batch_failure_resume()
         self.scenario_idempotency()
 
         # Give MailHog a moment, then fetch once.
@@ -312,6 +313,36 @@ class Command(BaseCommand):
         n.refresh_from_db()
         self._retry_final = (n.status, n.retry_count)
 
+    def scenario_batch_failure_resume(self):
+        # A mid-batch failure must not re-deliver earlier batches on retry.
+        from unittest.mock import patch
+        from django.core.mail import EmailMessage
+        recipients = [f'bf{i}@example.com' for i in range(5)]
+        n = EmailNotification.objects.create(
+            subject=f'{TAG} BatchFail', message='<p>x</p>',
+            recipients=recipients, max_retries=5)
+        self._batchfail_expected = set(recipients)
+        real_send = EmailMessage.send
+        state = {'calls': 0}
+
+        def flaky_send(self, *a, **k):
+            state['calls'] += 1
+            if state['calls'] == 3:   # third batch of the first attempt
+                raise Exception('smtp drop mid-batch')
+            return real_send(self, *a, **k)
+
+        logging.disable(logging.CRITICAL)
+        try:
+            with patch('djgentelella.async_notification.sending.'
+                       'ASYNC_NOTIFICATION_MAX_PER_MAIL', 2), \
+                    patch.object(EmailMessage, 'send', flaky_send):
+                do_send_notification(n.pk)   # attempt 1 fails mid-batch
+                do_send_notification(n.pk)   # attempt 2 resumes
+        finally:
+            logging.disable(logging.NOTSET)
+        n.refresh_from_db()
+        self._batchfail_status = n.status
+
     def scenario_idempotency(self):
         # Re-sending the already-sent basic notification must not duplicate.
         do_send_notification(self._basic_pk)
@@ -403,6 +434,12 @@ class Command(BaseCommand):
         self.expect('retry: exactly one email (no duplicate)',
                     len(self._for(f'{TAG} Retry')) == 1,
                     f'msgs={len(self._for(f"{TAG} Retry"))}')
+
+        self.expect('batch-failure: resumed to sent',
+                    self._batchfail_status == 'sent',
+                    f'status={self._batchfail_status}')
+        self.check_recipients('batch-failure', f'{TAG} BatchFail',
+                              self._batchfail_expected)
 
         self.expect('idempotency: basic not duplicated',
                     len(self._for(f'{TAG} Basic')) == 1,

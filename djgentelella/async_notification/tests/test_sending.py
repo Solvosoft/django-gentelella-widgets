@@ -328,3 +328,59 @@ class RetryBackoffTest(AsyncNotificationTestBase):
         notification.refresh_from_db()
         self.assertEqual(notification.status, 'failed')
         self.assertEqual(notification.retry_count, 1)
+
+
+class ResumeAfterBatchFailureTest(AsyncNotificationTestBase):
+    """A retry after a mid-batch failure must not re-send earlier batches."""
+
+    def test_no_duplicate_delivery_on_retry(self):
+        from django.core.mail import EmailMessage
+        recipients = ['a@x.com', 'b@x.com', 'c@x.com', 'd@x.com', 'e@x.com']
+        notification = EmailNotification.objects.create(
+            subject='Resume', message='<p>hi</p>', recipients=recipients,
+            max_retries=5)
+
+        real_send = EmailMessage.send
+        state = {'calls': 0}
+
+        def flaky_send(self, *a, **k):
+            state['calls'] += 1
+            if state['calls'] == 3:      # 3rd batch of the first attempt
+                raise Exception('smtp drop mid-batch')
+            return real_send(self, *a, **k)
+
+        # MAX_PER_MAIL=2 -> batches [a,b],[c,d],[e]
+        with patch('djgentelella.async_notification.sending.'
+                   'ASYNC_NOTIFICATION_MAX_PER_MAIL', 2), \
+                patch.object(EmailMessage, 'send', flaky_send):
+            do_send_notification(notification.pk)   # attempt 1: batch 3 fails
+            notification.refresh_from_db()
+            self.assertEqual(notification.status, 'pending')
+            self.assertEqual(notification.retry_count, 1)
+            self.assertEqual(set(notification.sent_recipients),
+                             {'a@x.com', 'b@x.com', 'c@x.com', 'd@x.com'})
+
+            do_send_notification(notification.pk)   # attempt 2: only [e]
+            notification.refresh_from_db()
+
+        self.assertEqual(notification.status, 'sent')
+        self.assertEqual(set(notification.sent_recipients), set(recipients))
+        # 3 successful messages (2 in attempt 1 + 1 in attempt 2); no address
+        # is delivered twice.
+        self.assertEqual(len(mail.outbox), 3)
+        delivered = [addr for m in mail.outbox for addr in m.to]
+        self.assertEqual(sorted(delivered), sorted(recipients))
+        self.assertEqual(len(delivered), len(set(delivered)))
+
+    def test_bcc_delivered_once_across_batches(self):
+        notification = EmailNotification.objects.create(
+            subject='Bcc once', message='<p>hi</p>',
+            recipients=['a@x.com', 'b@x.com', 'c@x.com'],
+            bcc=['boss@x.com'])
+        with patch('djgentelella.async_notification.sending.'
+                   'ASYNC_NOTIFICATION_MAX_PER_MAIL', 2):
+            do_send_notification(notification.pk)
+        # 2 batches, but boss@x.com (bcc) must appear in exactly one message.
+        self.assertEqual(len(mail.outbox), 2)
+        with_bcc = [m for m in mail.outbox if 'boss@x.com' in m.bcc]
+        self.assertEqual(len(with_bcc), 1)

@@ -161,7 +161,8 @@ def _get_attachments(notification):
         content_type=ct, object_id=notification.pk)
 
 
-def build_email_message(notification, batch, connection=None):
+def build_email_message(notification, batch, connection=None,
+                        include_extra=True):
     """Build an EmailMessage from a notification for a batch of recipients.
 
     Applies the configured base template, rewrites inline images to
@@ -172,17 +173,22 @@ def build_email_message(notification, batch, connection=None):
         notification: EmailNotification instance.
         batch: List of recipient email addresses.
         connection: Optional SMTP connection to reuse.
+        include_extra: Whether to include bcc/cc. Only the first batch of a
+            multi-batch send carries bcc/cc so those recipients get exactly
+            one copy (not one per batch).
 
     Returns:
         EmailMessage instance ready to send.
     """
-    bcc_list = as_email_list(notification.bcc)
-    if ASYNC_BCC:
-        bcc_list += as_email_list(ASYNC_BCC)
-
-    cc_list = as_email_list(notification.cc)
-    if ASYNC_CC:
-        cc_list += as_email_list(ASYNC_CC)
+    bcc_list = []
+    cc_list = []
+    if include_extra:
+        bcc_list = as_email_list(notification.bcc)
+        if ASYNC_BCC:
+            bcc_list += as_email_list(ASYNC_BCC)
+        cc_list = as_email_list(notification.cc)
+        if ASYNC_CC:
+            cc_list += as_email_list(ASYNC_CC)
 
     body = notification.message
     if notification.base_template:
@@ -258,23 +264,37 @@ def do_send_notification(notification_pk):
         notification.recipients_raw = ', '.join(recipients)
         notification.save(update_fields=['recipients_raw'])
 
-        if not recipients:
+        # Resume: skip addresses already delivered on a previous attempt so a
+        # retry after a mid-batch failure does not re-send earlier batches.
+        already = set(notification.sent_recipients or [])
+        pending = [r for r in recipients if r not in already]
+
+        if not pending:
             notification.status = 'sent'
             notification.save(update_fields=['status'])
             return
 
         if notification.send_individually:
-            batches = [[r] for r in recipients]
+            batches = [[r] for r in pending]
         else:
-            batches = chunk_list(recipients, ASYNC_NOTIFICATION_MAX_PER_MAIL)
+            batches = chunk_list(pending, ASYNC_NOTIFICATION_MAX_PER_MAIL)
+
+        # bcc/cc go only with the very first batch ever sent, so those
+        # recipients get exactly one copy across all batches and retries.
+        first_send = not already
 
         connection = get_connection()
         connection.open()
         try:
-            for batch in batches:
-                msg = build_email_message(notification, batch,
-                                          connection=connection)
+            for index, batch in enumerate(batches):
+                msg = build_email_message(
+                    notification, batch, connection=connection,
+                    include_extra=(first_send and index == 0))
                 msg.send()
+                # Persist progress after each delivered batch.
+                already.update(batch)
+                notification.sent_recipients = list(already)
+                notification.save(update_fields=['sent_recipients'])
         finally:
             connection.close()
 

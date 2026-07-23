@@ -110,6 +110,10 @@ class EmailNotification(models.Model):
     recipients_raw = models.TextField(
         blank=True, default='', verbose_name=_('Resolved Recipients'),
         help_text=_('Resolved email addresses after processing'))
+    sent_recipients = models.JSONField(
+        default=list, blank=True, verbose_name=_('Delivered Recipients'),
+        help_text=_('Addresses already delivered; a retry resumes from here '
+                    'instead of re-sending already-delivered batches'))
     retry_count = models.IntegerField(
         default=0, verbose_name=_('Retry Count'))
     max_retries = models.IntegerField(
