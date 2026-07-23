@@ -131,6 +131,37 @@ Autocomplete Configuration
     # Group lookup fields for autocomplete (default shown)
     ASYNC_NOTIFICATION_GROUP_LOOKUP_FIELDS = ['name']
 
+Retry &amp; Resolvers
+---------------------
+
+.. code:: python
+
+    # Base delay (seconds) between retries; grows exponentially per attempt.
+    ASYNC_NOTIFICATION_RETRY_DELAY = 60
+
+    # A notification/task stuck in 'sending' longer than this (a dead worker)
+    # is reset to 'pending' by process_notifications so it can be retried.
+    ASYNC_NOTIFICATION_STUCK_MINUTES = 30
+
+    # Custom recipient resolvers registered by suffix.
+    ASYNC_NOTIFICATION_RESOLVERS = {
+        'group.local': 'myapp.resolvers.MyGroupResolver',
+    }
+
+Upload Limits
+---------------------
+
+.. code:: python
+
+    # Max size (bytes) accepted by the inline image / video upload endpoints.
+    ASYNC_NOTIFICATION_UPLOAD_MAX_SIZE = 10 * 1024 * 1024
+
+    # Allowed content types (defaults shown).
+    ASYNC_NOTIFICATION_IMAGE_CONTENT_TYPES = [
+        'image/png', 'image/jpeg', 'image/gif', 'image/webp']
+    ASYNC_NOTIFICATION_VIDEO_CONTENT_TYPES = [
+        'video/mp4', 'video/webm', 'video/ogg']
+
 Permission Classes
 ---------------------
 
@@ -139,3 +170,6 @@ Permission Classes
     # Custom permission classes for API views (list of dotted paths)
     # None = use default AuthAllPermBaseObjectManagement permissions
     ASYNC_NOTIFICATION_PERMISSION_CLASSES = None
+
+Deliverability &amp; compliance settings (unsubscribe, suppression, opt-in, the
+webhook, rate limiting) are documented in :doc:`compliance`.

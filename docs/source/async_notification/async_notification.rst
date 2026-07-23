@@ -16,6 +16,8 @@ Features
 - **File Attachments** with inline image support
 - **Management Commands** for processing, inspection, and demo data
 - **Admin UI** with DataTables, modals, autocomplete, and Select2 widgets
+- **Deliverability & Compliance**: one-click unsubscribe (RFC 8058), suppression
+  list, opt-in, and a bounce/complaint webhook
 
 .. toctree::
    :maxdepth: 2
@@ -26,6 +28,7 @@ Features
    sending
    templates_and_preview
    newsletters
+   compliance
    resolvers
    registry
    management_commands
