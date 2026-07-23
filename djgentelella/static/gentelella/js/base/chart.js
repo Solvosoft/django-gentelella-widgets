@@ -10,39 +10,67 @@ document.chartcallbacks = {
     }
 }
 $.fn.gentelella_chart = function(){
+    var reservedAttrs = ['url', 'widget'];
 
-   check_callbacks=function(result){
-        if(result.options && result.options.tooltips && result.options.tooltips.callbacks){
-           var cback = result.options.tooltips.callbacks;
-           if(cback.label){
-                if(document.chartcallbacks.hasOwnProperty(cback.label)){
-                    result.options.tooltips.callbacks.label = document.chartcallbacks[cback.label]
+    var check_callbacks = function(result) {
+        if (result.options && result.options.tooltips && result.options.tooltips.callbacks) {
+            var cback = result.options.tooltips.callbacks;
+            var callbackTypes = ['label', 'beforeLabel', 'afterLabel', 'title', 'footer'];
+            callbackTypes.forEach(function(type) {
+                if (cback[type] && document.chartcallbacks && document.chartcallbacks.hasOwnProperty(cback[type])) {
+                    result.options.tooltips.callbacks[type] = document.chartcallbacks[cback[type]];
                 }
-           }
-          if(cback.beforeLabel){
-                if(document.chartcallbacks.hasOwnProperty(cback.beforeLabel)){
-                    result.options.tooltips.callbacks.beforeLabel = document.chartcallbacks[cback.beforeLabel]
-                }
-          }
+            });
         }
-       return result
-   }
+        return result;
+    }
+    var resolveValue = function(value) {
+        if (typeof value !== 'string') return value;
 
-   $.each($(this), function(i, e){
-    var url = $(e).data('url');
-    var canvas = $(e).find('canvas');
-    $.ajax({
-        url: url,
-        type : "GET",
-        dataType : 'json',
-        success : function(result) {
-           var ctx = canvas[0].getContext('2d');
-           var myChart = new Chart(ctx, check_callbacks(result));
-
-        },
-        error: function(xhr, resp, text) {
-           console.log(text);
+        if (value.startsWith('{') && value.endsWith('}')) {
+            var funcName = value.slice(1, -1);
+            if (typeof window[funcName] === 'function') {
+                return window[funcName]();
+            }
         }
+        if (value.startsWith('#')) {
+            var el = $(value);
+            if (el.length) return el.val() || el.text();
+        }
+        if (value.startsWith('.')) {
+            var el = $(value).first();
+            if (el.length) return el.val() || el.text();
+        }
+
+        return value;
+    }
+
+    $.each($(this), function(i, e) {
+        var $element = $(e);
+        var url = $element.data('url');
+        var canvas = $element.find('canvas');
+
+        var params = {};
+        $.each($element.data(), function(key, value) {
+            if (reservedAttrs.indexOf(key) === -1) {
+                params[key] = resolveValue(value);
+            }
+        });
+
+        $.ajax({
+            url: url,
+            type: "GET",
+            dataType: 'json',
+            data: params,
+            success: function(result) {
+                var ctx = canvas[0].getContext('2d');
+                var chartConfig = check_callbacks(result);
+                var myChart = new Chart(ctx, chartConfig);
+                $element.data('chartInstance', myChart);
+            },
+            error: function(xhr, resp, text) {
+                console.log('Error loading chart:', text);
+            }
+        });
     });
-   });
 }
