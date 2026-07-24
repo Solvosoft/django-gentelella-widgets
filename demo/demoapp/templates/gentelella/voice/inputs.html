@@ -1,27 +1,54 @@
 {% extends 'gentelella/base_site.html' %}
 {% block content %}
 <div class="row">
-    <div class="col-sm-12 col-md-12 col-lg-6">
-        <div class="card">
+    <div class="col-sm-12 col-md-4">
+        <div class="card h-100">
             <div class="card-body">
                 <div class="card-title titles">
-                    <h2>Voice dictation — Textarea</h2>
-                    <p class="text-muted">
-                        <code>VoiceDictation</code> in the three <code>data-mode</code>
-                        strategies: <b>segments</b> (live, per pause), <b>single</b>
-                        (one request on stop) and <b>hybrid</b> (segments live, then
-                        the whole recording rewrites them).
-                    </p>
+                    <h2>Segments</h2>
+                    <p class="text-muted">Vivo, por pausa natural.</p>
                 </div>
                 <form action="" method="POST">
                     {% csrf_token %}
-                    {{ textarea_form.as_inline }}
+                    {{ textarea_form.segments }}
                 </form>
             </div>
         </div>
     </div>
 
-    <div class="col-sm-12 col-md-12 col-lg-6">
+    <div class="col-sm-12 col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="card-title titles">
+                    <h2>Single</h2>
+                    <p class="text-muted">Una sola petición al parar.</p>
+                </div>
+                <form action="" method="POST">
+                    {% csrf_token %}
+                    {{ textarea_form.single }}
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-12 col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="card-title titles">
+                    <h2>Hybrid</h2>
+                    <p class="text-muted">Segmentos en vivo + reescritura final.</p>
+                </div>
+                <form action="" method="POST">
+                    {% csrf_token %}
+                    {{ textarea_form.hybrid }}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-3">
+    <div class="col-12">
         <div class="card">
             <div class="card-body">
                 <div class="card-title titles">
@@ -34,22 +61,30 @@
                 </div>
                 <form action="" method="POST">
                     {% csrf_token %}
-                    {{ wysiwyg_form.as_inline }}
+                    {{ wysiwyg_form.content }}
                 </form>
             </div>
         </div>
     </div>
 </div>
 
-<div class="row">
+<div class="row mt-3">
     <div class="col-12">
-        <div class="alert alert-info">
-            The <code>voice-transcribe</code> endpoint in this demo runs a real ASR:
-            <code>VoiceTranscribeView</code> with the backend selected by
-            <code>GENTELELLA_ASR_BACKEND</code> (default <code>local</code>,
-            in-process Parakeet-v3 via <code>pip install "djgentelella[voice]"</code>).
-            Set it to <code>remote</code> to forward the audio to an external ASR API
-            (<code>GENTELELLA_ASR_REMOTE_URL</code>) instead.
+        <div class="card">
+            <div class="card-body">
+                <div class="card-title titles">
+                    <h2><i class="fa fa-info-circle text-info"></i> Backend de transcripción</h2>
+                </div>
+                <ul class="mb-0">
+                    <li>El endpoint <code>voice-transcribe</code> en esta demo corre un ASR
+                        real: <code>VoiceTranscribeView</code>.</li>
+                    <li>El backend se elige con <code>GENTELELLA_ASR_BACKEND</code>
+                        (default <code>local</code>, Parakeet-v3 in-process vía
+                        <code>pip install "djgentelella[voice]"</code>).</li>
+                    <li>Poné <code>remote</code> para reenviar el audio a una API externa
+                        (<code>GENTELELLA_ASR_REMOTE_URL</code>).</li>
+                </ul>
+            </div>
         </div>
     </div>
 </div>

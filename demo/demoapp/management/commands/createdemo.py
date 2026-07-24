@@ -260,6 +260,18 @@ class Command(BaseCommand):
             icon='fa fa-text-width',
             only_icon=False
         )
+        Voice = MenuItem.objects.create(
+            parent=cwidget,
+            title='Voice Dictation',
+            url_name='voice-demo',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-microphone',
+            only_icon=False
+        )
 
         Calendar = MenuItem.objects.create(
             parent=readonlywidget,
