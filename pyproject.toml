@@ -137,6 +137,13 @@ firmador = [
     "wsproto==1.2.0",
     "requests==2.32.4"
 ]
+voice = [
+    # In-process Parakeet-v3 ASR for the voice dictation widgets. onnx-asr
+    # runs the model on CPU; av (PyAV) decodes the uploaded audio.
+    "onnx-asr[cpu,hub]>=0.11.0",
+    "av>=11.0",
+    "numpy>=1.24.0"
+]
 
 # List URLs that are relevant to your project
 #

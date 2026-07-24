@@ -259,3 +259,27 @@ msgstr "Un objeto del modelo %(model)s ha sido %(action)s"
 
 msgid "%(obj)s in trash"
 msgstr "%(obj)s en papelera"
+
+#: static/gentelella/js/base/voicedictation.js
+#: static/gentelella/js/base/voiceeditortinymce.js
+msgid "Dictate"
+msgstr "Dictar"
+
+#: static/gentelella/js/base/voicedictation.js
+msgid "Stop and transcribe"
+msgstr "Detener y transcribir"
+
+#: static/gentelella/js/base/voicedictation.js
+#: static/gentelella/js/base/voiceeditortinymce.js
+msgid "Listening..."
+msgstr "Escuchando..."
+
+#: static/gentelella/js/base/voicedictation.js
+#: static/gentelella/js/base/voiceeditortinymce.js
+msgid "Transcribing..."
+msgstr "Transcribiendo..."
+
+#: static/gentelella/js/base/voicedictation.js
+#: static/gentelella/js/base/voiceeditortinymce.js
+msgid "The transcription service is not available"
+msgstr "El servicio de transcripción no está disponible"

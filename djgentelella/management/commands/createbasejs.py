@@ -29,6 +29,9 @@ class Command(BaseCommand):
             'calendar.js',
             'timeline.js',
             'mediarecord.js',
+            'voiceprogressive.js',
+            'voicedictation.js',
+            'voiceeditortinymce.js',
             'digital_signature.js',
             'api_list.js',
             'tagify.js'

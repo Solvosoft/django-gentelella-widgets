@@ -29,6 +29,8 @@ from .tagging import views as tagging
 from .timeline.views import timeline_view
 from .views import knobView, YesNoInputView
 from .wysiwyg import views as tinymce
+from .voice import views as voice
+from djgentelella.voice.views import VoiceTranscribeView
 # Trash
 from demoapp.trash.view import trash_view
 from demoapp.trash.api import CustomerViewSet
@@ -106,6 +108,9 @@ urlpatterns = [
                        name='tinymce-edit'),
                   path('tinymce_show/<int:pk>', tinymce.DetailTinymce.as_view(),
                        name='tinymce-show'),
+                  path('voice/', voice.VoiceDemoView.as_view(), name='voice-demo'),
+                  path('voice/transcribe', VoiceTranscribeView.as_view(),
+                       name='voice-transcribe'),
                   path('yesnoinput/', YesNoInputView.as_view(),
                        name='yes-no-input-add'),
                   path('gridslider/', grid.AddGrid.as_view(), name='grid-slider-add'),

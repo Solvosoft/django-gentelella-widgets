@@ -13,6 +13,7 @@ from djgentelella.notification.base import NotificacionAPIView, NotificationView
 from djgentelella.permission_management import views as permissions
 from djgentelella.widgets.helper import HelperWidgetView
 from djgentelella.wysiwyg import views as wysiwyg
+from djgentelella.voice.views import VoiceTranscribeView
 from djgentelella.firmador_digital import views as firmador_digital
 from .groute import routes
 from .templatetags.gtsettings import get_version
@@ -56,6 +57,11 @@ wysiwyg_urls = [
             name="tinymce_upload_image"),
     re_path("^u_video$", login_required(wysiwyg.video_upload),
             name="tinymce_upload_video"),
+]
+
+voice_urls = [
+    path('voice/transcribe/', login_required(VoiceTranscribeView.as_view()),
+         name='voice_transcribe'),
 ]
 
 
@@ -110,7 +116,8 @@ permission_management_urls = [
          name="permcategorymanagement-save"),
 ]
 
-urlpatterns = auth_urls + base_urlpatterns + wysiwyg_urls + permission_management_urls
+urlpatterns = auth_urls + base_urlpatterns + wysiwyg_urls + voice_urls + \
+    permission_management_urls
 
 if settings.DEBUG:
     urlpatterns += [

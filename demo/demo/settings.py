@@ -143,6 +143,26 @@ EMAIL_PORT = '1025'
 MARKITUP_FILTER = ('markdown.markdown', {'safe_mode': True})
 MARKITUP_SET = 'markitup/sets/markdown/'
 JQUERY_URL = None
+
+# Voice dictation ASR backend for the djgentelella voice widgets.
+# 'local' runs Parakeet-v3 in-process (needs `pip install "djgentelella[voice]"`).
+# Set GENTELELLA_ASR_BACKEND=remote to forward audio to the external ASR API
+# at GENTELELLA_ASR_REMOTE_URL instead.
+GENTELELLA_ASR_BACKEND = os.getenv('GENTELELLA_ASR_BACKEND', 'local')
+GENTELELLA_ASR_REMOTE_URL = os.getenv(
+    'GENTELELLA_ASR_REMOTE_URL',
+    'http://localhost:8001/api/audio/transcribe')
+# Bearer token gentelella presents to the external ASR API (must match a token
+# accepted by the external ASR server). Empty = no Authorization header sent.
+GENTELELLA_ASR_REMOTE_TOKEN = os.getenv('GENTELELLA_ASR_REMOTE_TOKEN', '')
+# The remote request defaults to the OpenAI /v1/audio/transcriptions shape, so
+# it talks to OpenAI/Groq/vLLM/faster-whisper-server as-is. Remap the field
+# names for other servers; for Deepgram set HOTWORDS_PARAM=keyterm.
+GENTELELLA_ASR_REMOTE_MODEL = os.getenv('GENTELELLA_ASR_REMOTE_MODEL', '')
+GENTELELLA_ASR_REMOTE_PROMPT_PARAM = os.getenv(
+    'GENTELELLA_ASR_REMOTE_PROMPT_PARAM', 'prompt')
+GENTELELLA_ASR_REMOTE_HOTWORDS_PARAM = os.getenv(
+    'GENTELELLA_ASR_REMOTE_HOTWORDS_PARAM', '')
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 DEFAULT_JS_IMPORTS = {

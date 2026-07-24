@@ -253,6 +253,34 @@ class AudioRecordInput(DJFileInput):
         super().__init__(attrs)
 
 
+class VoiceDictation(DJTextarea):
+    """
+    Textarea with a continuous dictation button: captures audio in the browser
+    (Web Audio + VAD) and, as the user speaks, posts each speech segment to a
+    transcription endpoint that returns ``{"text": "..."}``; segments are
+    inserted live. ``data-mode`` selects the strategy: ``segments`` (default,
+    live), ``single`` (one request on stop) or ``hybrid`` (live segments then a
+    whole-file rewrite on stop).
+
+    ``url`` is the transcription endpoint (``djgentelella:voice_transcribe`` or a
+    proxy). ``language`` sets ``data-language``. Optional biasing context can be
+    provided with ``data-hotwords`` and ``data-initial-prompt`` attrs; the
+    endpoint may forward or ignore them.
+    """
+
+    template_name = 'gentelella/widgets/voice_dictation.html'
+
+    def __init__(self, attrs=None, extraskwargs=True, url=None, language=None):
+        if extraskwargs:
+            attrs = update_kwargs(attrs, self.__class__.__name__)
+        attrs = attrs or {}
+        if url is not None:
+            attrs['data-url'] = url
+        if language is not None:
+            attrs['data-language'] = language
+        super().__init__(attrs)
+
+
 class ClearableFileInput(DJClearableFileInput):
     template_name = 'gentelella/widgets/file.html'
 

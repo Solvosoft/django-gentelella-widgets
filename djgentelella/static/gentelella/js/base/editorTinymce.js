@@ -37,3 +37,30 @@ function upload_files(callback, meta, file, image, video) {
         });
     }
 }
+
+// Shared TinyMCE init config for the EditorTinymce / TextareaWysiwyg widgets and
+// the voice editor. Callers extend the returned object (e.g. prepend to
+// `toolbar`, add a `setup`). `instance` is the jQuery textarea handle used by
+// the image/video upload picker.
+function gentelella_tinymce_config(instance) {
+    return {
+        menubar: false,
+        toolbar: 'undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist checklist | forecolor backcolor casechange permanentpen formatpainter removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media pageembed template link anchor codesample | a11ycheck ltr rtl | showcomments addcomment',
+        plugins: ['advlist', 'autolink', 'lists', 'link', 'image', 'charmap',
+            'print', 'preview', 'anchor', 'searchreplace', 'visualblocks', 'code',
+            'fullscreen', 'insertdatetime', 'media', 'table', 'paste', 'imagetools',
+            'wordcount', 'codesample', 'quickbars', 'autoresize', 'hr'],
+        quickbars_insert_toolbar: 'quicktable | hr pagebreak',
+        file_picker_callback: function (callback, value, meta) {
+            var input = document.createElement('input');
+            input.setAttribute('type', 'file');
+            input.setAttribute('accept', 'image/*');
+            input.onchange = function () {
+                var file = this.files[0];
+                upload_files(callback, meta, file, instance.attr('data-option-image'),
+                    instance.attr('data-option-video'));
+            };
+            input.click();
+        }
+    };
+}
