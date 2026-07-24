@@ -455,15 +455,10 @@ def compute_newsletter_recipients(newsletter):
             model_emails = set(
                 e for e in interface.model.objects.values_list(
                     interface.email_field, flat=True) if e)
-            # Drop merged recipients that belong to this model but were
-            # filtered out of it; addresses outside the model are untouched.
-            recipients = [r for r in recipients
-                         if r not in model_emails or r in allowed]
-            seen = set(recipients)
-            for email in allowed:
-                if email not in seen:
-                    seen.add(email)
-                    recipients.append(email)
+            # Drop recipients that belong to this model but were filtered
+            # out of it (in model_emails, not in allowed); merge the rest.
+            excluded = model_emails - allowed
+            recipients = list((set(recipients) - excluded) | allowed)
     return recipients
 
 
