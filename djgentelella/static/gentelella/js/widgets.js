@@ -50,6 +50,14 @@ document.gtwidgets = {
             s2instance.select2(contexts2);
         });
     },
+    TreeSelectMultiple: function (instance) {
+        instance.each(function (i, e) {
+            let s2instance = $(e);
+            let contexts2 = {templateResult: decore_select2};
+            extract_select2_context(contexts2, s2instance);
+            s2instance.select2(contexts2);
+        });
+    },
     CheckboxInput: function (instance) {
 
         var checkklass = instance.data('checkboxclass') || 'icheckbox_flat-green';

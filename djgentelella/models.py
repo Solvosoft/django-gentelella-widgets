@@ -47,10 +47,6 @@ class MenuItem(TreeNode):
     def __str__(self):
         return self.title
 
-    class MPTTMeta:
-        ordering = ["position"]
-        order_insertion_by = ['-id']
-
 
 class Help(models.Model):
     id_view = models.CharField(max_length=50,
