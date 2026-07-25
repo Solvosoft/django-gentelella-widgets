@@ -7,8 +7,15 @@ Requirements
 --------------
 
 - Python 3.11 or higher
-- Django 4.2 or higher
-- Django REST Framework
+- Django 5.2 or higher (the current LTS)
+
+These are pulled in automatically as dependencies:
+
+- ``djangorestframework>=3.15.2``
+- ``django_filter>=22.1``
+- ``django-tree-queries>=0.11.0``
+- ``Pillow``
+- ``pycryptodome>=3.23.0``
 
 Basic Installation
 --------------------
@@ -18,6 +25,29 @@ Install from PyPI:
 .. code:: bash
 
     pip install djgentelella
+
+Optional extras
+"""""""""""""""""
+
+.. code:: bash
+
+    pip install djgentelella[firmador]   # digital signature over websockets
+    pip install djgentelella[celery]     # queue-backed async_notification dispatch
+    pip install djgentelella[dev]        # asset bundling and minification (pylp)
+
+The ``celery`` extra is genuinely optional: ``async_notification`` autodetects
+it. With Celery installed **and** ``CELERY_BROKER_URL`` set, notifications are
+dispatched through the queue; otherwise they fall back to ``SyncBackend`` and
+are sent in-process. Nothing to configure either way — set
+``ASYNC_NOTIFICATION_BACKEND`` only to force one explicitly.
+
+The ``firmador`` extra covers two separate concerns:
+
+- ``channels`` and ``wsproto`` — the signing websocket and its session
+  authentication. Only the digital signature module needs them.
+- ``uvicorn`` and ``uvicorn-worker`` — serving the ASGI application. Any async
+  Django deployment needs an ASGI server, not just digital signature. Replace
+  them with your own if you already deploy under a different one.
 
 Configuration
 ---------------
@@ -155,7 +185,12 @@ For digital document signing with Firmador Libre:
 
 .. code:: bash
 
-    pip install channels uvicorn
+    pip install djgentelella[firmador]
+
+This pulls ``channels`` and ``wsproto`` for the signing websocket,
+``django-cors-headers``, and ``uvicorn`` + ``uvicorn-worker`` to serve the ASGI
+application. The steps below assume the uvicorn worker; if you already run
+another ASGI server, keep it and skip ``asgi_worker.py``.
 
 2. Add to ``INSTALLED_APPS``:
 

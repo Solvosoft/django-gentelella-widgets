@@ -83,6 +83,7 @@ classifiers = [# Optional
     "Environment :: Web Environment",
     "Framework :: Django",
     "Framework :: Django :: 5",
+    "Framework :: Django :: 5.2",
     "Operating System :: OS Independent",
     "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
     "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
@@ -106,12 +107,9 @@ classifiers = [# Optional
 # https://packaging.python.org/discussions/install-requires-vs-requirements/
 dependencies = [# Optional
     'django-tree-queries>=0.11.0',
-    'djangoajax>=3.3',
-    'django-markitup>=4.0.0',
-    'markdown',
     'Pillow',
-    'djangorestframework>=3.13',
-    'django>=4.2',
+    'djangorestframework>=3.15.2',
+    'django>=5.2',
     'django_filter>=22.1',
     'pycryptodome>=3.23.0'
 ]
@@ -125,17 +123,24 @@ dependencies = [# Optional
 # Similar to `dependencies` above, these must be valid existing
 # projects.
 [project.optional-dependencies] # Optional
-test = []
 dev = [
     'pylp', 'pylpconcat', 'css-html-js-minify'
 ]
 firmador = [
     "django-cors-headers==4.6.0",
-    "uvicorn==0.32.1",
-    "uvicorn-worker==0.2.0",
+    # uvicorn serves the ASGI application; wsproto is its websocket
+    # implementation (plain uvicorn ships none, it only comes with
+    # uvicorn[standard]), so the signing websocket needs it.
+    "uvicorn>=0.51.0",
+    "uvicorn-worker>=0.4.0",
     "channels==4.2.0",
     "wsproto==1.2.0",
     "requests==2.32.4"
+]
+# Celery backend for async_notification. Without it the notifications are
+# dispatched synchronously by SyncBackend, no configuration needed.
+celery = [
+    "celery>=5.3"
 ]
 
 # List URLs that are relevant to your project

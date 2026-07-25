@@ -4,14 +4,15 @@ Installation & Setup
 Requirements
 --------------
 
-- Django 4.2+
+- Django 5.2+ (LTS)
 - Django REST Framework
 - ``djgentelella`` (core package)
 
 Optional:
 
-- Celery (for asynchronous sending)
-- Django Channels (if using WebSocket features)
+- Celery, for queue-backed sending — ``pip install djgentelella[celery]``.
+  Without it the module falls back to ``SyncBackend`` and sends in-process.
+- Django Channels (if using WebSocket features) — ``pip install djgentelella[firmador]``
 
 Adding to INSTALLED_APPS
 ---------------------------
