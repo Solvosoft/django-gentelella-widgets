@@ -58,7 +58,8 @@ ______________
 
 **Application Components**
 
-- **CRUD System** — Generic views with filtering, pagination, search, and inline editing
+- **CRUD System** — Generic permission-aware views with filtering, pagination, and search
+- **Object Management** — Datatable and modal driven CRUD over a REST API, including objects scoped to a parent instance
 - **Notification System** — Categorized user notifications with REST API
 - **Trash System** — Soft delete with restore capability
 - **History System** — Automatic audit logging of all changes
