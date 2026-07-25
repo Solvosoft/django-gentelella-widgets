@@ -54,6 +54,12 @@ Django Gentelella Widgets (``djgentelella``) is a reusable Django application th
    trash
    drf_serializers
 
+.. toctree::
+   :maxdepth: 1
+   :caption: Project
+
+   changelog
+
 
 Indices and tables
 ==================

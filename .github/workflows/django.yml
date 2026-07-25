@@ -13,7 +13,7 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        python-version: ['3.11', '3.12'] #, 3.8, 3.9, '3.10'
+        python-version: ['3.11', '3.12', '3.13']
 
 
     steps:
@@ -38,4 +38,6 @@ jobs:
         python manage.py loaddevstatic
         python manage.py test
         python manage.py test djgentelella.tests
+        # the blog lives outside the demo dir, so discovery never reaches it
+        python manage.py test djgentelella.blog.tests.test_entry_forms
 

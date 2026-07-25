@@ -2,8 +2,7 @@
 	lint test-selenium run run-mailhog mailhog mailhog-stop migrate menu init_demo \
 	notification_demo validate-mailhog loadstatic basejs process-loop
 
-djversion = $(python setup.py -V)
-setupversion = $(awk -F "'" '{print $2}' djgentelella/__init__.py)
+version = $(shell python djgentelella/__init__.py)
 
 help:
 	@echo "-- Run / demo --"
@@ -64,16 +63,30 @@ docs:
 	#sphinx-build -b linkcheck ./docs/source docs/build/
 	sphinx-build -b html ./docs/source docs/build/
 
-release:
-	git tag -a "v`python djgentelella/__init__.py`" -m "Bump version `python djgentelella/__init__.py`"
-	git push origin "v`python djgentelella/__init__.py`"
-	twine upload -s dist/*
+# Refuses to build if the models drifted from the committed migrations: a
+# release must not invent one, and `makemigrations` used to do exactly that
+# silently, shipping a migration nobody reviewed.
+check-migrations:
+	cd demo && python manage.py makemigrations --check --dry-run
 
-sdist: clean
-	cd demo && python manage.py makemigrations && python manage.py loaddevstatic && python manage.py createbasejs
+# Everything a release needs verified before the upload: metadata, README
+# rendering on PyPI, and that the built package really carries the templates
+# and static of every module.
+check-dist:
+	twine check dist/*
+	python build_check.py
+
+release: check-dist
+	git tag -a "v$(version)" -m "Bump version $(version)"
+	git push origin "v$(version)"
+	twine upload dist/*
+
+sdist: clean check-migrations
+	cd demo && python manage.py loaddevstatic && python manage.py createbasejs
 	python -m pylp
 	cd djgentelella && django-admin compilemessages -l es
 	python3 -m build
+	$(MAKE) check-dist
 	ls -l dist
 
 fuzzysdist:
