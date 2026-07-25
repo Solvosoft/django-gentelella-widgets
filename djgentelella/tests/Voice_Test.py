@@ -1,6 +1,8 @@
 import builtins
 from unittest import mock
 
+from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.urls import reverse
@@ -31,6 +33,19 @@ class VoiceTranscribeTestCase(TestCase):
 
     def setUp(self):
         self.url = reverse('voice-transcribe')
+        self.user = get_user_model().objects.create_user(
+            username='dictator', password='dictating')
+        self.client.force_login(self.user)
+
+    def test_an_anonymous_request_never_reaches_the_backend(self):
+        # transcription costs cpu or money, so it is not open to the world
+        self.client.logout()
+        with mock.patch('djgentelella.voice.asr.transcribe') as transcribe:
+            response = self.post()
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(settings.LOGIN_URL, response['Location'])
+        self.assertFalse(transcribe.called)
 
     def post(self, **extra):
         audio = SimpleUploadedFile('dictation.wav', b'RIFFfake',

@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
@@ -112,8 +113,14 @@ urlpatterns = [
                        name='tinymce-edit'),
                   path('tinymce_show/<int:pk>', tinymce.DetailTinymce.as_view(),
                        name='tinymce-show'),
-                  path('voice/', voice.VoiceDemoView.as_view(), name='voice-demo'),
-                  path('voice/transcribe', VoiceTranscribeView.as_view(),
+                  # Transcription costs CPU (or money, on a remote ASR), so the
+                  # demo gates it the same way djgentelella.urls gates its own
+                  # voice_transcribe. The page goes with it: its widgets are
+                  # useless to someone who cannot reach the endpoint.
+                  path('voice/', login_required(voice.VoiceDemoView.as_view()),
+                       name='voice-demo'),
+                  path('voice/transcribe',
+                       login_required(VoiceTranscribeView.as_view()),
                        name='voice-transcribe'),
                   path('yesnoinput/', YesNoInputView.as_view(),
                        name='yes-no-input-add'),

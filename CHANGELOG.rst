@@ -65,6 +65,8 @@ parent object, scoped by the queryset so a child of another parent answers 404.
 notifications are dispatched in-process by ``SyncBackend``, with nothing to
 configure.
 
+The project is now classified **Production/Stable** rather than Beta.
+
 Fixes
 """""""
 
