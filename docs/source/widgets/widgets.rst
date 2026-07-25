@@ -119,6 +119,11 @@ Widget Categories
 - ``CalendarInput`` - Calendar widget (``djgentelella.widgets.calendar``)
 - ``DigitalSignatureInput`` - Digital signature (``djgentelella.widgets.digital_signature``)
 
+**Voice Widgets** (speech-to-text dictation, see :doc:`voice`)
+
+- ``VoiceDictation`` - Textarea with progressive voice dictation (``djgentelella.widgets.core``)
+- ``VoiceEditorTinymce`` - TinyMCE editor with voice dictation (``djgentelella.widgets.tinymce``)
+
 **Visualization Widgets** (readonly display)
 
 - ``UrlTimeLineInput`` - Timeline display (``djgentelella.widgets.timeline``)
@@ -181,4 +186,16 @@ TinyMCE Widget
 ^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: djgentelella.widgets.tinymce
+   :members:
+
+Voice dictation ASR
+^^^^^^^^^^^^^^^^^^^^^
+
+Transcription endpoint (``djgentelella:voice_transcribe``) and the optional
+in-process Parakeet-v3 backend. See :doc:`voice` for usage and settings.
+
+.. automodule:: djgentelella.voice.views
+   :members:
+
+.. automodule:: djgentelella.voice.asr
    :members:

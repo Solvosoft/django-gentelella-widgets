@@ -13,3 +13,9 @@ uvicorn-worker>=0.4.0
 channels==4.2.0
 wsproto==1.2.0
 requests>=2.32.4
+
+# The [asr] extra is deliberately left out: it downloads a ~670 MB model and is
+# only needed to run the voice dictation transcription in-process. Install it
+# with `pip install -e ".[asr]"` when working on that. The remote backend needs
+# only requests, already listed above ([asr-remote] covers it on a bare
+# install).

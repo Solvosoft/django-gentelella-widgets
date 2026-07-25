@@ -142,6 +142,25 @@ firmador = [
 celery = [
     "celery>=5.3"
 ]
+# Speech recognition for the voice dictation widgets. Neither extra is needed
+# to install or import djgentelella: the widgets ship with it, only the
+# transcription endpoint needs a backend, and the imports are lazy.
+#
+# `asr` is the local backend (GENTELELLA_ASR_BACKEND = 'local'): in-process
+# Parakeet-v3, where onnx-asr runs the model on CPU and av (PyAV) decodes the
+# uploaded audio. It is heavy -- the first request downloads a ~670 MB model.
+asr = [
+    "onnx-asr[cpu,hub]>=0.11.0",
+    "av>=11.0",
+    "numpy>=1.24.0"
+]
+# `asr-remote` is the remote backend (GENTELELLA_ASR_BACKEND = 'remote'), which
+# forwards the audio to an external ASR API and so needs nothing but an HTTP
+# client. Install this one instead of `asr` when the transcription runs
+# elsewhere.
+asr-remote = [
+    "requests>=2.32.4"
+]
 
 # List URLs that are relevant to your project
 #

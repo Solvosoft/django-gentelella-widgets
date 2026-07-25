@@ -31,9 +31,25 @@ Optional extras
 
 .. code:: bash
 
-    pip install djgentelella[firmador]   # digital signature over websockets
-    pip install djgentelella[celery]     # queue-backed async_notification dispatch
-    pip install djgentelella[dev]        # asset bundling and minification (pylp)
+    pip install djgentelella[firmador]     # digital signature over websockets
+    pip install djgentelella[celery]       # queue-backed async_notification dispatch
+    pip install djgentelella[asr]          # voice dictation transcribed in-process
+    pip install djgentelella[asr-remote]   # voice dictation transcribed elsewhere
+    pip install djgentelella[dev]          # asset bundling and minification (pylp)
+
+The two ``asr`` extras back the voice dictation widgets, and you need at most
+one of them. The widgets themselves ship with the package; only
+``VoiceTranscribeView`` needs a speech recognition backend, and it imports it
+lazily, so a plain install neither pulls nor loads any of this.
+
+- ``asr`` is the ``local`` backend: Parakeet-v3 running in the Django process
+  through ``onnx-asr``, with ``av`` decoding the uploaded audio. It is the heavy
+  one — the first request downloads a ~670 MB model from Hugging Face.
+- ``asr-remote`` is the ``remote`` backend, which forwards the audio to an
+  external ASR API and therefore needs nothing but an HTTP client.
+
+Without the matching extra the endpoint answers ``501`` naming the one to
+install, so a missing extra is a clear error and never an import failure.
 
 The ``celery`` extra is genuinely optional: ``async_notification`` autodetects
 it. With Celery installed **and** ``CELERY_BROKER_URL`` set, notifications are
