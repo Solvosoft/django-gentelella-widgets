@@ -9,7 +9,6 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
-from markitup.fields import MarkupField
 
 
 class Category(models.Model):
@@ -29,8 +28,8 @@ class Entry(models.Model):
 
     title = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, unique=True, editable=False)
-    resume = MarkupField(null=True, blank=True)
-    content = MarkupField()
+    resume = models.TextField(null=True, blank=True)
+    content = models.TextField()
     is_published = models.BooleanField(default=False)
     published_timestamp = models.DateTimeField(blank=True, null=True, editable=False)
     author = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, editable=True,
@@ -45,7 +44,7 @@ class Entry(models.Model):
     @property
     def preview_content(self):
         if self.resume:
-            return mark_safe(self.resume.rendered)
+            return mark_safe(self.resume)
 
     class Meta:
         verbose_name_plural = "entries"

@@ -38,7 +38,6 @@ INSTALLED_APPS = [
     'demoapp',
     'djgentelella.blog',
     'djgentelella.permission_management',
-    'markitup',
     "corsheaders",
     "channels",
     'djgentelella.async_notification',
@@ -148,8 +147,6 @@ SUMMERNOTE_UPLOAD_PATH = os.path.join(MEDIA_ROOT, 'summernote')
 EMAIL_HOST = os.getenv('EMAIL_HOST', 'localhost')
 EMAIL_PORT = os.getenv('EMAIL_PORT', '1025')
 
-MARKITUP_FILTER = ('markdown.markdown', {'safe_mode': True})
-MARKITUP_SET = 'markitup/sets/markdown/'
 JQUERY_URL = None
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 

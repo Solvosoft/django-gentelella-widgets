@@ -1,5 +1,4 @@
 from django.urls import path, include
-from markitup.views import apply_filter
 from rest_framework.routers import DefaultRouter
 
 from demoapp.cruds import Personclass, Countryclass, MenuItemclass
@@ -62,7 +61,6 @@ urlpatterns = [
                   path('modelformset', add_model_formset, name='add_model_formset'),
                   path('create/notification', create_notification_view,
                        name='create_notification'),
-                  path('preview/', apply_filter, name='markitup_preview'),
                   path('knobwidget/testform', knobView, name="knobwidgets"),
                   path('digitalsignature/',
                        digitalsignature.DigitalSignatureList.as_view(),

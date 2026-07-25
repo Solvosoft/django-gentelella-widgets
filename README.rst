@@ -93,10 +93,7 @@ Configure your settings
     INSTALLED_APPS = [ ..
         'djgentelella',
         'rest_framework',
-        'markitup',
     ]
-    MARKITUP_FILTER = ('markdown.markdown', {'safe_mode': True})
-    MARKITUP_SET = 'markitup/sets/markdown/'
     JQUERY_URL = None
 
 

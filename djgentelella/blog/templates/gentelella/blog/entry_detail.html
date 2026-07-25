@@ -35,7 +35,7 @@
         {% endif %}
         <p class="blog-post-meta">{{ entry.published_timestamp|date:"d/m/Y" }}{% if entry.author %} by {{ entry.author }}{% endif %}</p>
         {% if draft %}
-        {{ entry.content }}
+        {{ entry.content|safe }}
         {% else %}
         {{ entry.published_content|safe }}
         {% endif %}

@@ -32,7 +32,7 @@ class TestEntryEditing(TestCase):
 
         actual = models.Entry.objects.get(pk=self.entry.pk)
         self.assertEqual(actual.title, update['title'])
-        self.assertEqual(actual.content.raw, update['content'])
+        self.assertEqual(actual.content, update['content'])
         self.assertIsNotNone(actual.published_timestamp)
 
 
@@ -61,5 +61,5 @@ class TestEntryCreation(TestCase):
 
         actual = models.Entry.objects.get(slug='last-post-final')
         self.assertEqual(actual.title, create['title'])
-        self.assertEqual(actual.content.raw, create['content'])
+        self.assertEqual(actual.content, create['content'])
         self.assertIsNone(actual.published_timestamp)

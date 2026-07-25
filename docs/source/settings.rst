@@ -14,15 +14,12 @@ This apps are required for correct working of Djgentelella
         'demoapp',
         'djgentelella.blog',
         'djgentelella.permission_management',
-        'markitup',
     ]
 
 Follow settings are required
 
 .. code:: python
 
-    MARKITUP_FILTER = ('markdown.markdown', {'safe_mode': True})
-    MARKITUP_SET = 'markitup/sets/markdown/'
     JQUERY_URL = None
 
 Follow settings are recommended

@@ -36,7 +36,6 @@ Add the following to your ``INSTALLED_APPS`` in ``settings.py``:
         # Required apps
         'djgentelella',
         'rest_framework',
-        'markitup',
 
         # Optional apps (add as needed)
         'djgentelella.blog',
@@ -54,9 +53,6 @@ Add these required settings:
 
 .. code:: python
 
-    # Markitup configuration (for WYSIWYG editor)
-    MARKITUP_FILTER = ('markdown.markdown', {'safe_mode': True})
-    MARKITUP_SET = 'markitup/sets/markdown/'
     JQUERY_URL = None
 
 3. Recommended Settings
