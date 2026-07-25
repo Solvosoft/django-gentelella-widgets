@@ -8,7 +8,8 @@ from djgentelella.widgets import numberknobinput as knobwidget
 from djgentelella.widgets import tagging
 from djgentelella.widgets import tinymce
 from djgentelella.widgets.selects import AutocompleteSelect, AutocompleteSelectMultiple
-from .models import Foo, Person, Community, YesNoInput, ObjectManagerDemoModel
+from .models import Foo, Person, Community, YesNoInput, ObjectManagerDemoModel, \
+    ObjectManagerDemoNote
 
 
 class FooModelForm(GTForm, forms.ModelForm):
@@ -144,4 +145,16 @@ class ObjectManagementForm(GTForm, forms.ModelForm):
             'm2m_autocomplete': AutocompleteSelectMultiple('countrybasename'),
             'field_select': genwidgets.Select,
             'm2m_multipleselect': genwidgets.SelectMultiple,
+        }
+
+
+class ObjectManagementNoteForm(GTForm, forms.ModelForm):
+    """Inline form: demo_object is set by the viewset from the URL."""
+
+    class Meta:
+        model = ObjectManagerDemoNote
+        exclude = ('demo_object',)
+        widgets = {
+            'title': genwidgets.TextInput,
+            'body': genwidgets.Textarea,
         }

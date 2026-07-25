@@ -8,7 +8,6 @@ Free as freedom will be 26/8/2016
 
 import types
 
-from django.conf.urls import include
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
@@ -127,9 +126,6 @@ class CRUDMixin(object):
             'namespace': self.namespace
         })
         context.update({'blocks': self.template_blocks})
-
-        if self.view_type in ['update', 'detail']:
-            context['inlines'] = self.inlines
 
         if 'object' not in context:
             context['object'] = self.model
@@ -305,7 +301,6 @@ class CRUDView(object):
     add_form = None
     display_fields = None
     list_fields = None
-    inlines = None
     views_available = None
     template_father = "gentelella/base.html"
     search_fields = None
@@ -406,7 +401,6 @@ class CRUDView(object):
             all_perms = self.perms
             view_type = 'detail'
             display_fields = self.display_fields
-            inlines = self.inlines
             views_available = self.views_available[:]
             check_perms = self.check_perms
             template_father = self.template_father
@@ -434,7 +428,6 @@ class CRUDView(object):
             form_class = self.update_form
             all_perms = self.perms
             view_type = 'update'
-            inlines = self.inlines
             views_available = self.views_available[:]
             check_perms = self.check_perms
             template_father = self.template_father
@@ -747,32 +740,7 @@ class CRUDView(object):
                     (base_name,), self.delete, name=utils.crud_url_name(
                         self.model, 'delete', prefix=self.urlprefix)))
 
-        myurls += self.add_inlines(base_name)
         return myurls
-
-    def add_inlines(self, base_name):
-        dev = []
-        if self.inlines:
-            for i, inline in enumerate(self.inlines):
-                klass = inline
-                if isinstance(klass, type):
-                    # FIXME: This is a dirty hack to act on repeated calls to get_urls()
-                    #        as those mean that inline is a type instance not a
-                    #        class from the second run onwars.
-                    klass = klass()
-                self.inlines[i] = klass
-                if self.namespace:
-                    dev.append(
-                        re_path('^inline/',
-                                include(klass.get_urls(),
-                                        namespace=self.namespace))
-                    )
-                else:
-                    dev.append(
-                        re_path('^inline/', include(klass.get_urls()))
-
-                    )
-        return dev
 
 
 class UserCRUDView(CRUDView):

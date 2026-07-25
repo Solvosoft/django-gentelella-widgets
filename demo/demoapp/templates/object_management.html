@@ -42,6 +42,10 @@
 {{block.super}}
 <script>
 
+	// Inline CRUDAL demo: notes belonging to one object, see
+	// object_management_inline.html. `0` is the parent pk placeholder.
+	var note_page_url = "{% url 'object_management_inline' 0 %}";
+
 	var object_urls ={
 		list_url: "{% url 'api-objectmanagement-list' %}",
 		destroy_url: "{% url 'api-objectmanagement-detail' 0 %}",
@@ -65,6 +69,9 @@
 								{data: "float_number", name: "float_number", title: gettext("Float Number"), type: "string", visible: true },
 								{data: "m2m_autocomplete", name: "m2m_autocomplete", title: gettext("M2M Autocomplete"), type: "select2", visible: true,
 								 url: "{% url 'countrybasename-list' %}", multiple: true, render: gt_print_list_object("text")},
+								{data: "id", name: "notes", title: gettext("Notes"), type: "string", visible: true,
+								orderable: false, searchable: false,
+								render: pk => '<a href="' + note_page_url.replace('/0/', '/' + pk + '/') + '">' + gettext("Notes") + '</a>'},
 								{data: "actions", name: "actions", title: gettext("Actions"), type: "string", visible: true }
 
 				],

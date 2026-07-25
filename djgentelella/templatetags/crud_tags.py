@@ -42,22 +42,6 @@ def crud_url(obj, action, namespace=None):
     return url
 
 
-@register_tag
-def crud_inline_url(obj, inline, action, namespace=None):
-    try:
-        nurl = utils.crud_url_name(type(inline), action)
-        if namespace:
-            nurl = namespace + ':' + nurl
-        if action in ['delete', 'update']:
-            url = reverse(nurl, kwargs={'model_id': obj.pk,
-                                        'pk': inline.pk})
-        else:
-            url = reverse(nurl, kwargs={'model_id': obj.pk})
-    except NoReverseMatch:
-        url = None
-    return url
-
-
 @register.filter
 def format_value(obj, field_name):
     """

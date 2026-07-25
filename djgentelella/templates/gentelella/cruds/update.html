@@ -1,6 +1,5 @@
 {% extends template_father %}
-{% load i18n static %}
-{% load crud_tags %}
+{% load i18n %}
 
 {% block title %}{% if blocks.title %}{{ blocks.page_description }}{% else %}{% trans "Update" %} {{ model_verbose_name_plural|lower }}{% endif %}{% endblock %}
 {% block page_name %}{{ blocks.page_name|default:model_verbose_name_plural }}{% endblock %}
@@ -25,59 +24,7 @@
 </div>
 
         {% include "gentelella/cruds/_form.html" with action='update' %}
-        {% if inlines%}
-            <div class="box-body row">
-                <div class="col-md-12">
-
-                    <div class="panel panel-default">
-                    {% for inline in inlines%}
-                    <div class="panel-heading">
-                        <h3 class="panel-title">{{inline.title}}</h3>
-                    </div>
-                    <div class="panel-body">
-                        <div id="{{inline.name}}_father">
-                            {% if 'list' in inline.views_available %}
-                            <div data-refresh-url="{% crud_inline_url form.instance inline.model 'list' namespace %}" id="{{inline.name}}_myList" style="overflow: auto">
-
-                                <a id="{{inline.name}}_btn" data-replace-inner="#{{inline.name}}_myList"
-                                    data-ajax="" data-success="function(){}"
-                                    data-href="{% crud_inline_url form.instance inline.model 'list' namespace %}">
-                                    <i class='fa fa-spinner fa-spin '></i>
-                                </a>
-                                <script>
-                                $( document ).ready(function() {$("#{{inline.name}}_btn").click() });
-                                </script>
-                            </div>
-                            {% endif %}
-                            <div id="{{inline.name}}_editList"></div>
-                            <div class="text-end">
-                                {% if 'create' in inline.views_available %}
-                                    <button class="btn btn-success"
-                                        data-href="{% crud_inline_url form.instance inline.model 'create' namespace %}"
-
-                                        id="#{{ name }}_{{ object.pk }}_add"
-                                        data-replace-inner="#edit_modal_inner"
-
-
-                                        data-replace-inner="#{{inline.name}}_editList"
-                                        data-ajax="" data-success="function(){}" >
-                                        {% icon_fa_tag "create" %} {% trans 'Create' %}
-                                    </button>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                    </div>
-                </div>
-            </div>
-        {% endif %}
 
     </div>
 </div>
-{% endblock %}
-
- {% block js %}
-    <script src="{% static 'django_ajax/js/jquery.ajax.min.js' %}"></script>
-    <script src="{% static 'django_ajax/js/jquery.ajax-plugin.min.js' %}"></script>
 {% endblock %}

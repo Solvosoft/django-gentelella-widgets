@@ -261,6 +261,18 @@ class ObjectManagerDemoModel(models.Model):
         return self.name
 
 
+class ObjectManagerDemoNote(models.Model):
+    """Child of ObjectManagerDemoModel, managed with BaseInlineObjectManagement."""
+    demo_object = models.ForeignKey(ObjectManagerDemoModel, related_name='notes',
+                                    on_delete=models.CASCADE)
+    title = models.CharField(max_length=150)
+    body = models.TextField(blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+
 class DigitalSignature(models.Model):
     file_code = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     filename = models.CharField(max_length=50, null=True, blank=True)

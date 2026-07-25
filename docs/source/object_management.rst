@@ -316,3 +316,63 @@ Attributes
             'retrieve': ['auth.view_user'],
             'get_values_for_update': ['auth.change_user']
         }
+
+BaseInlineObjectManagement
+'''''''''''''''''''''''''''''''''''
+
+Manages objects that belong to a parent instance, the replacement for the removed
+``InlineAjaxCRUD``. Everything works exactly like ``BaseObjectManagement`` (datatable,
+modals, ``ObjectCRUD`` javascript), except the queryset is restricted to a single
+parent object and the foreign key is assigned by the viewset, so the create/update
+forms must not include it.
+
+Attributes
+
+- `parent_model`: model that owns the inline objects.
+- `parent_field`: name of the foreign key on the managed model pointing at `parent_model`.
+- `parent_url_kwarg`: where the parent pk is read from, `parent_pk` by default. It is
+  looked up in the URL kwargs first, then in the query string, then in the request body.
+
+.. code:: python
+
+    from djgentelella.objectmanagement import BaseInlineObjectManagement
+
+    class NoteManagement(BaseInlineObjectManagement):
+        serializer_class = {
+            'list': NoteTableSerializer,
+            'create': NoteSerializer,
+            'update': NoteSerializer,
+            'retrieve': NoteSerializer,
+            'get_values_for_update': NoteSerializer
+        }
+        queryset = Note.objects.all()
+        parent_model = Project
+        parent_field = 'project'
+
+Register it under a route carrying the parent pk.
+
+.. code:: python
+
+    router.register(r'project/(?P<parent_pk>[^/.]+)/note',
+                    NoteManagement, 'api-project-note')
+
+Then every URL given to ``ObjectCRUD`` already includes the parent, so no extra
+javascript wiring is needed.
+
+.. code:: javascript
+
+    var note_urls = {
+        list_url: "{% url 'api-project-note-list' project.pk %}",
+        create_url: "{% url 'api-project-note-list' project.pk %}",
+        update_url: "{% url 'api-project-note-detail' project.pk 0 %}",
+        detail_url: "{% url 'api-project-note-detail' project.pk 0 %}",
+        destroy_url: "{% url 'api-project-note-detail' project.pk 0 %}",
+        detail_template_url: "{% url 'api-project-note-detail-template' project.pk %}",
+        get_values_for_update_url: "{% url 'api-project-note-get-values-for-update' project.pk 0 %}"
+    }
+
+A complete example lives in ``demo/demoapp/object_management/`` and
+``demo/demoapp/templates/object_management_inline.html``.
+
+.. note:: Objects unrelated to the parent are invisible to the viewset: retrieving,
+   updating or deleting them answers ``404``, so no extra scoping check is needed.

@@ -20,8 +20,9 @@ from .formset import add_formset, add_model_formset
 from .grid_slider import views as grid
 from .input_masks import views as input_mask
 from .media_upload.views import mediaupload_view
-from .object_management.views import object_management
-from .object_management.viewset import ObjectManagerDemoModelManagement
+from .object_management.views import object_management, object_management_inline
+from .object_management.viewset import ObjectManagerDemoModelManagement, \
+    ObjectManagerDemoNoteManagement
 from .select_image import views as select_image
 from .storyLine.views import storyline_view
 from .storymap.views import gigapixel_view, mapbased_view
@@ -44,6 +45,8 @@ router.register('persontableview', PersonViewSet, 'api-persontable')
 router.register('personlistcardview', PersonCardListViewSet, 'api-personcard')
 router.register('objectmanagement', ObjectManagerDemoModelManagement,
                 'api-objectmanagement')
+router.register(r'objectmanagement/(?P<parent_pk>[^/.]+)/note',
+                ObjectManagerDemoNoteManagement, 'api-objectmanagement-note')
 
 # Trash
 router.register('api_customer', CustomerViewSet, 'api-customer')
@@ -51,6 +54,9 @@ router.register('api_customer', CustomerViewSet, 'api-customer')
 urlpatterns = [
                   path('object_management', object_management,
                        name='object_management_index'),
+                  path('object_management/<int:pk>/notes',
+                       object_management_inline,
+                       name='object_management_inline'),
                   path('bt_modal_display', bt_modal_display, name='bt_modal_display'),
                   path('formset', add_formset, name='add_formset'),
                   path('modelformset', add_model_formset, name='add_model_formset'),

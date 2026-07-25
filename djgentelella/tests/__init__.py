@@ -1,4 +1,5 @@
 from .Calendar_Test import *
+from .InlineObjectManagement_Test import *
 from .Notification_Test import *
 from .StoryLine_Test import *
 from .StoryMap_Test import *

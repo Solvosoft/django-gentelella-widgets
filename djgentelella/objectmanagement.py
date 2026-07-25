@@ -1,3 +1,6 @@
+from django.core.exceptions import ImproperlyConfigured
+from django.http import Http404
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication, SessionAuthentication
@@ -36,9 +39,10 @@ class BaseObjectManagement(viewsets.ModelViewSet):
         return super().get_serializer_class()
 
     def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
+        base_queryset = self.get_queryset()
+        queryset = self.filter_queryset(base_queryset)
         data = self.paginate_queryset(queryset)
-        response = {'data': data, 'recordsTotal': self.queryset.count(),
+        response = {'data': data, 'recordsTotal': base_queryset.count(),
                     'recordsFiltered': queryset.count(),
                     'draw': self.request.GET.get('draw', 1)}
         return Response(self.get_serializer(response).data)
@@ -59,6 +63,73 @@ class BaseObjectManagement(viewsets.ModelViewSet):
             "template": "Description: <% it.description | safe  %>"
         }
         return Response(data)
+
+
+class BaseInlineObjectManagement(BaseObjectManagement):
+    """CRUDAL viewset for objects that belong to a parent instance.
+
+    This is the replacement for the removed ``InlineAjaxCRUD``: instead of
+    server rendered AJAX fragments, the related objects are managed with the
+    regular ``ObjectCRUD`` javascript (datatable + modals) over a queryset
+    restricted to a single parent object.
+
+    Subclasses must define ``parent_model`` and ``parent_field`` (the foreign
+    key on the managed model pointing at ``parent_model``)::
+
+        class TaskManagement(BaseInlineObjectManagement):
+            queryset = Task.objects.all()
+            parent_model = Project
+            parent_field = 'project'
+
+    Register it under a URL carrying the parent pk::
+
+        router.register(r'project/(?P<parent_pk>[^/.]+)/task',
+                        TaskManagement, 'api-project-task')
+    """
+
+    parent_model = None
+    parent_field = None
+    parent_url_kwarg = 'parent_pk'
+
+    def get_parent_pk(self):
+        pk = self.kwargs.get(self.parent_url_kwarg)
+        if pk is None:
+            pk = self.request.query_params.get(self.parent_url_kwarg)
+        if pk is None and isinstance(self.request.data, dict):
+            pk = self.request.data.get(self.parent_url_kwarg)
+        return pk
+
+    def get_parent_object(self):
+        if not hasattr(self, '_parent_object'):
+            if self.parent_model is None or self.parent_field is None:
+                raise ImproperlyConfigured(
+                    '%s must define parent_model and parent_field' %
+                    self.__class__.__name__)
+            pk = self.get_parent_pk()
+            if pk is None:
+                raise Http404('No %s given for the inline objects' %
+                              self.parent_url_kwarg)
+            self._parent_object = get_object_or_404(
+                self.get_parent_queryset(), pk=pk)
+        return self._parent_object
+
+    def get_parent_queryset(self):
+        return self.parent_model._default_manager.all()
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.filter(**{self.parent_field: self.get_parent_object()})
+
+    def perform_create(self, serializer):
+        serializer.save(**{self.parent_field: self.get_parent_object()})
+
+    def perform_update(self, serializer):
+        serializer.save(**{self.parent_field: self.get_parent_object()})
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['parent_object'] = self.get_parent_object()
+        return context
 
 
 class AuthAllPermBaseObjectManagement(BaseObjectManagement):

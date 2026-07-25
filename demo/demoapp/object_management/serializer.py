@@ -4,7 +4,7 @@ from django_filters import DateFromToRangeFilter, DateTimeFromToRangeFilter, Fil
 from django_filters.widgets import CSVWidget
 from rest_framework import serializers
 
-from demoapp.models import ObjectManagerDemoModel, Country
+from demoapp.models import ObjectManagerDemoModel, ObjectManagerDemoNote, Country
 from djgentelella.fields.drfdatetime import DateRangeTextWidget, DateTimeRangeTextWidget
 from djgentelella.fields.files import GTBase64FileField, ChunkedFileField
 from djgentelella.serializers import GTDateField, GTDateTimeField
@@ -114,3 +114,25 @@ class ObjectManagerDemoModelFilterSet(FilterSet):
                   'description': ['icontains'],
                   'field_autocomplete': ['exact']
                   }
+
+
+class ObjectManagerDemoNoteSerializer(serializers.ModelSerializer):
+    created = GTDateTimeField(read_only=True)
+
+    class Meta:
+        model = ObjectManagerDemoNote
+        exclude = ('demo_object',)
+
+
+class ObjectManagerDemoNoteTableSerializer(serializers.Serializer):
+    data = serializers.ListField(child=ObjectManagerDemoNoteSerializer(),
+                                 required=True)
+    draw = serializers.IntegerField(required=True)
+    recordsFiltered = serializers.IntegerField(required=True)
+    recordsTotal = serializers.IntegerField(required=True)
+
+
+class ObjectManagerDemoNoteFilterSet(FilterSet):
+    class Meta:
+        model = ObjectManagerDemoNote
+        fields = {'title': ['icontains'], 'body': ['icontains']}
