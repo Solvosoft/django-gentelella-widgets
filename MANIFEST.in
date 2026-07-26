@@ -13,6 +13,16 @@ include requirements.txt
 # release and would have raised TemplateDoesNotExist on every one of its pages.
 graft djgentelella
 
+# ...but the graft also sweeps up the test suites, and with
+# include-package-data they land in the wheel whatever
+# [tool.setuptools.packages.find] excludes. They are written against the demo
+# project, so `import djgentelella.tests` on an installed copy dies with
+# ModuleNotFoundError: demoapp. build_check.py fails the build if a new module
+# adds a tests/ directory that is not pruned here.
+prune djgentelella/tests
+prune djgentelella/blog/tests
+prune djgentelella/async_notification/tests
+
 global-exclude *.py[cod]
 global-exclude *~
 prune djgentelella/**/__pycache__

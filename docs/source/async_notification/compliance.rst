@@ -1,5 +1,5 @@
-Deliverability &amp; Compliance
-==============================
+Deliverability & Compliance
+===========================
 
 The module ships the pieces a real sender needs to stay out of spam folders and
 honor opt-outs: a promotional/transactional distinction, a suppression list,

@@ -120,6 +120,19 @@ def main():
             problems.append('%s not in the wheel -- did pylp / createbasejs / '
                             'compilemessages run?' % artifact)
 
+    # `graft djgentelella` in MANIFEST.in sweeps up test suites too, and
+    # include-package-data puts them in the wheel whatever packages.find
+    # excludes. They import the demo project, so an installed copy cannot even
+    # import them. Each tests/ tree needs its own `prune` line; this catches the
+    # one a new module forgets.
+    tests = sorted({name.split('/tests/')[0] + '/tests'
+                    for name in shipped if '/tests/' in name})
+    if tests:
+        problems.append('test modules in the wheel (they import the demo '
+                        'project and cannot be imported once installed) -- add '
+                        '`prune djgentelella/...` to MANIFEST.in for: %s'
+                        % ', '.join(tests))
+
     print('checking %s (version %s, %d files under djgentelella/)' % (
         wheel, version, len(shipped)))
     if problems:

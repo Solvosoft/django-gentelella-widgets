@@ -84,6 +84,7 @@ classifiers = [# Optional
     "Framework :: Django",
     "Framework :: Django :: 5",
     "Framework :: Django :: 5.2",
+    "Framework :: Django :: 6.0",
     "Operating System :: OS Independent",
     "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
     "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
@@ -192,7 +193,11 @@ asr-remote = [
 # If you are using a different build backend, you will need to change this.
 [tool.setuptools.packages.find]
 include = ["djgentelella*"]
-exclude = ["docs*", "demo*"]
+# Tests are excluded from the distribution: they are written against the demo
+# project, so `djgentelella.tests` raises ModuleNotFoundError: demoapp on an
+# installed copy. Shipping 36 unimportable test modules only breaks anything
+# that walks the package (pytest --pyargs, coverage, an import scanner).
+exclude = ["docs*", "demo*", "*.tests", "*.tests.*"]
 
 
 [build-system]

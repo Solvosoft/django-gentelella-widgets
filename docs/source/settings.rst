@@ -8,10 +8,19 @@ This apps are required for correct working of Djgentelella
 .. code:: python
 
     INSTALLED_APPS = [
+        'django.contrib.admin',
+        'django.contrib.auth',
+        'django.contrib.contenttypes',
         ...,
         'djgentelella',
         'rest_framework',
     ]
+
+``django.contrib.admin`` is not optional: the change tracking in
+``djgentelella.history`` records through ``django.contrib.admin.models.LogEntry``
+and ``djgentelella/models.py`` imports it at module level, so leaving it out
+fails at startup with ``Model class django.contrib.admin.models.LogEntry
+doesn't declare an explicit app_label``.
 
 ``djgentelella.blog`` and ``djgentelella.permission_management`` are optional;
 add them only if you use those apps. (``demoapp`` belongs to this repository's

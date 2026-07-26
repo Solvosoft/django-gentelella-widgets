@@ -92,10 +92,14 @@ Configure your settings
 .. code:: bash
 
     INSTALLED_APPS = [ ..
+        'django.contrib.admin',
         'djgentelella',
         'rest_framework',
     ]
     JQUERY_URL = None
+
+``django.contrib.admin`` is required: change tracking records through its
+``LogEntry`` model.
 
 
 
