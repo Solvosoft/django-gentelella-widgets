@@ -3,6 +3,11 @@ pylpconcat
 css-html-js-minify
 build
 
+# `make lint` (options in setup.cfg) and `make lint-fix`, which applies the
+# mechanical part of it.
+pycodestyle
+ruff
+
 # The decoding half of the [asr] extra. Without them the audio decoder tests
 # skip themselves, so the local backend -- the one that runs whenever no remote
 # url is configured -- would never be exercised. onnx-asr is deliberately left
