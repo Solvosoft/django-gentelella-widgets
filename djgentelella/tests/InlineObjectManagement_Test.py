@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 from django.utils.timezone import now
@@ -12,7 +13,11 @@ class InlineObjectManagementTestCase(TestCase):
     """BaseInlineObjectManagement scopes every action to its parent object."""
 
     def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            username='editor', password='editing')
         self.api_client = APIClient()
+        self.api_client.force_authenticate(self.user)
+        self.client.force_login(self.user)
         country = Country.objects.create(name='Costa Rica')
         community = Community.objects.create(name='community')
         self.first = self.create_demo_object('first', country, community)
@@ -84,3 +89,48 @@ class InlineObjectManagementTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertTrue(
             ObjectManagerDemoNote.objects.filter(pk=self.second_note.pk).exists())
+
+    def test_an_anonymous_client_cannot_touch_the_notes(self):
+        # the documented example: whoever copies it should not be copying an
+        # open endpoint
+        anonymous = APIClient()
+        self.assertIn(anonymous.get(self.list_url(self.first)).status_code,
+                      (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN))
+        response = anonymous.post(self.list_url(self.first),
+                                  {'title': 'anon', 'body': 'text'},
+                                  format='json')
+        self.assertIn(response.status_code,
+                      (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN))
+        self.assertFalse(
+            ObjectManagerDemoNote.objects.filter(title='anon').exists())
+
+    def test_a_parent_sent_in_the_body_does_not_override_the_url(self):
+        # The url is the only place the parent may come from: the parent decides
+        # what the request may reach, and DRF permissions are per model, so a
+        # client-chosen parent would let anyone write into someone else's object.
+        response = self.api_client.post(
+            self.list_url(self.first),
+            {'title': 'smuggled', 'body': 'text',
+             'parent_pk': self.second.pk, 'demo_object': self.second.pk},
+            format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        note = ObjectManagerDemoNote.objects.get(title='smuggled')
+        self.assertEqual(note.demo_object, self.first)
+
+    def test_a_parent_in_the_query_string_is_ignored(self):
+        response = self.api_client.get(
+            self.list_url(self.first),
+            {'limit': 10, 'offset': 0, 'parent_pk': self.second.pk})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        titles = [row['title'] for row in response.data['data']]
+        self.assertEqual(titles, ['first note'])
+
+    def test_a_viewset_without_the_parent_settings_is_a_configuration_error(self):
+        from django.core.exceptions import ImproperlyConfigured
+
+        from djgentelella.objectmanagement import BaseInlineObjectManagement
+
+        viewset = BaseInlineObjectManagement()
+        viewset.kwargs = {'parent_pk': self.first.pk}
+        with self.assertRaises(ImproperlyConfigured):
+            viewset.get_parent_object()

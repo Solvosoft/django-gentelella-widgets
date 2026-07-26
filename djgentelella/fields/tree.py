@@ -44,10 +44,31 @@ class TreeNodeChoiceMixin:
 
     def __init__(self, queryset, *args, **kwargs):
         self.disables = pop_disabled_levels(kwargs)
-        super().__init__(with_tree_fields(queryset), *args, **kwargs)
+        super().__init__(queryset, *args, **kwargs)
         if getattr(self, 'empty_label', None) is not None:
             self.empty_label = {'level': 0, 'disable': False,
                                 'text': self.empty_label}
+
+    def _get_queryset(self):
+        return self._queryset
+
+    def _set_queryset(self, queryset):
+        """Ask for ``tree_depth`` on every assignment, not only in ``__init__``.
+
+        Narrowing the queryset afterwards is the normal way to scope a field::
+
+            def __init__(self, user, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                self.fields['node'].queryset = MenuItem.objects.filter(...)
+
+        That goes through this setter. Without it the new queryset carries no
+        ``tree_depth``, ``label_from_instance`` falls back to level 0 and the
+        whole tree renders flat with nothing disabled -- and no error to show
+        for it.
+        """
+        super()._set_queryset(with_tree_fields(queryset))
+
+    queryset = property(_get_queryset, _set_queryset)
 
     def label_from_instance(self, obj):
         level = getattr(obj, 'tree_depth', 0)

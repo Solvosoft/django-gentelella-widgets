@@ -9,6 +9,7 @@ fails the build when a tree is absent or came out short.
 Run through ``make check-dist`` (also a prerequisite of ``make release``).
 """
 import glob
+import re
 import sys
 import zipfile
 from pathlib import Path
@@ -28,11 +29,22 @@ REQUIRED_TREES = [
 ]
 
 # Built at release time by `make sdist`, so they are absent from a bare build.
+# Everything the base templates load: they live straight under static/, which no
+# REQUIRED_TREES entry covers, and the generated ones are gitignored -- a wheel
+# built without running pylp looks complete and 404s on every page.
 BUNDLED_ARTIFACTS = [
+    # gentelella/statics/javascript_header.html + javascript.html
+    'static/djgentelella.vendors.header.min.js',
     'static/djgentelella.vendors.min.js',
-    'static/djgentelella.vendors.min.css',
+    'static/djgentelella.readonly.vendors.min.js',
     'static/gentelella/js/base.js',
+    # gentelella/statics/stylesheets.html
+    'static/djgentelella.vendors.min.css',
+    'static/djgentelella.readonly.vendors.min.css',
+    'static/djgentelella.flags.vendors.min.css',
+    # compilemessages: django.po drives python/templates, djangojs.po the widgets
     'locale/es/LC_MESSAGES/django.mo',
+    'locale/es/LC_MESSAGES/djangojs.mo',
 ]
 
 
@@ -65,8 +77,27 @@ def the_wheel():
     return wheels[0]
 
 
+def declared_version():
+    """The version `make release` is about to tag, read the way setup does."""
+    source = (PACKAGE / '__init__.py').read_text()
+    match = re.search(r'''__version__\s*=\s*['"]([^'"]+)['"]''', source)
+    if not match:
+        sys.exit('no __version__ in %s' % (PACKAGE / '__init__.py'))
+    return match.group(1)
+
+
 def main():
     wheel = the_wheel()
+    # `make release` tags from djgentelella/__init__.py but uploads whatever is
+    # in dist/, which `make check-dist` does not rebuild. A wheel left over from
+    # the previous version would be published under the new tag.
+    version = declared_version()
+    wheel_version = Path(wheel).name.split('-')[1]
+    if wheel_version != version:
+        sys.exit('%s holds version %s but djgentelella/__init__.py declares %s '
+                 '-- run `make sdist` to rebuild.' % (
+                     wheel, wheel_version, version))
+
     shipped = {
         name[len('djgentelella/'):]
         for name in zipfile.ZipFile(wheel).namelist()
@@ -89,7 +120,8 @@ def main():
             problems.append('%s not in the wheel -- did pylp / createbasejs / '
                             'compilemessages run?' % artifact)
 
-    print('checking %s (%d files under djgentelella/)' % (wheel, len(shipped)))
+    print('checking %s (version %s, %d files under djgentelella/)' % (
+        wheel, version, len(shipped)))
     if problems:
         for problem in problems:
             print('  FAIL  %s' % problem)

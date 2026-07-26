@@ -7,6 +7,7 @@ Free as freedom will be 26/8/2016
 '''
 
 import types
+import warnings
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Permission
@@ -699,6 +700,18 @@ class CRUDView(object):
             self.initialize_delete(basename + '/delete.html')
 
     def get_urls(self):
+        # `inlines` used to add a set of InlineAjaxCRUD urls here. Both are gone
+        # in 0.6.0, and a subclass that still defines it gets no error at all:
+        # the urls simply stop existing and its templates fail later, in an
+        # unrelated `reverse`. Say so at the place that used to honour it.
+        if getattr(self, 'inlines', None):
+            warnings.warn(
+                '%s.inlines is ignored: InlineAjaxCRUD was removed in '
+                'djgentelella 0.6.0 and no inline urls are registered. Port it '
+                'to djgentelella.objectmanagement.BaseInlineObjectManagement '
+                '(see docs/source/object_management.rst).'
+                % self.__class__.__name__,
+                DeprecationWarning, stacklevel=2)
 
         pre = ""
         try:

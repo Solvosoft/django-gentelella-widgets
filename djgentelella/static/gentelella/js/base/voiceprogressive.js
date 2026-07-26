@@ -8,6 +8,41 @@
 // and re-ordered by index before being appended live, so the widget builds the
 // transcription in parts as the user speaks.
 
+// getUserMedia is absent outside a secure context (plain http) and in iframes
+// without allow="microphone". Reading it there throws synchronously, before any
+// promise exists, so start() normalizes the failure into this rejection.
+function voice_unsupported_error(){
+    let err = new Error('navigator.mediaDevices.getUserMedia is unavailable');
+    err.name = 'NotSupportedError';
+    return err;
+}
+
+// Capture failed: the microphone never opened. NotSupportedError is almost
+// always the http/https mistake, which the generic media dialog does not hint at.
+function show_errors_voice_capture(error){
+    if(error && error.name === 'NotSupportedError'){
+        Swal.fire({
+            icon: 'error',
+            title: gettext('Sorry, there is a problem'),
+            text: gettext('Voice dictation needs the page to be served over ' +
+                          'https (or localhost) to reach the microphone.')
+        });
+        return;
+    }
+    show_errors_media_record(error);
+}
+
+// The microphone worked but one or more transcription requests did not. Without
+// this the widget just returns to idle with nothing written and no explanation.
+function show_errors_voice_transcribe(){
+    Swal.fire({
+        icon: 'error',
+        title: gettext('Sorry, there is a problem'),
+        text: gettext('Part of the dictation could not be transcribed. ' +
+                      'Check your connection and try again.')
+    });
+}
+
 // --- WAV encoding: Float32 [-1,1] mono -> RIFF/WAVE PCM 16-bit blob ---------
 function writeWavBlob(samples, sampleRate){
     let n = samples.length;
@@ -97,11 +132,20 @@ function createProgressiveVoiceEngine(opts){
         rmsThreshold:   opts.rmsThreshold   || 0.008,
         rescueRms:      opts.rescueRms      || 0.02,
         preRollMs:      opts.preRollMs      || 200,
-        poolSize:       opts.poolSize       || 3
+        poolSize:       opts.poolSize       || 3,
+        // Whole-file audio is kept at the native rate: ~11 MB/min as Float32,
+        // doubled while the WAV is built. Past this the buffer is dropped and
+        // the live segments carry the rest of the session (see
+        // _dropWholeFileBuffer).
+        maxSessionMs:   opts.maxSessionMs   || 600000,
+        // A request that never settles would block the orderer forever and
+        // leave the widget draining with nothing on screen.
+        requestTimeoutMs: opts.requestTimeoutMs || 60000
     };
 
     let engine = {
         status: 0,          // 0 idle, 1 recording, 2 draining/finalizing
+        starting: false,    // start() is awaiting getUserMedia/AudioContext
         ctx: null,
         stream: null,
         tracks: null,
@@ -118,10 +162,19 @@ function createProgressiveVoiceEngine(opts){
         segmentIndex: 0,
         gen: 0,               // session generation; invalidates late responses
         allFrames: [],        // whole-session audio (kept in single/hybrid modes)
+        sessionMs: 0,         // audio captured this session
         finalPending: false,  // the whole-file request is in flight
+        finalApplied: false,  // the whole-file result already replaced the preview
+        errors: 0,            // failed transcription requests this session
+        // Mode flags, mutable: a session that outgrows the whole-file buffer
+        // falls back to segments (see _dropWholeFileBuffer), so `single` mode
+        // keeps transcribing instead of discarding the rest of the dictation.
+        segmentsOn: doSegments,
+        finalOn: doFinal,
         // transcription pool
         pending: [],
         active: 0,
+        inflight: [],         // AbortControllers of the requests in the air
         orderer: null,
 
         setStatus: function(status){
@@ -130,6 +183,7 @@ function createProgressiveVoiceEngine(opts){
         },
 
         toggle: function(){
+            if(this.starting) return;         // permission prompt still open
             if(this.status === 0) this.start();
             else if(this.status === 1) this.stop();
             // status 2: draining, ignore
@@ -137,33 +191,72 @@ function createProgressiveVoiceEngine(opts){
 
         start: function(){
             var self = this;
+            if(this.starting || this.status !== 0) return;
             let AC = window.AudioContext || window.webkitAudioContext;
             let constraints = {video: false, audio: {
                 channelCount: 1, echoCancellation: true,
                 noiseSuppression: true, autoGainControl: true
             }};
-            navigator.mediaDevices.getUserMedia(constraints).then(function(stream){
+            // Claim the session *before* the first await. Bringing up the
+            // capture takes several ticks (permission prompt, ctx.resume,
+            // addModule); a cancel() or a second start() in the meantime bumps
+            // gen, and every continuation below bails out on a mismatch instead
+            // of overwriting the live stream/context references (which would
+            // leave the previous microphone open forever).
+            let myGen = ++this.gen;
+            this.starting = true;
+            // Everything from here has to end up in the promise chain: on plain
+            // http navigator.mediaDevices is undefined, so reading getUserMedia
+            // throws synchronously and the .catch below would never run -- the
+            // button would just sit there with no error shown at all.
+            let capture;
+            try{
+                capture = (navigator.mediaDevices &&
+                           navigator.mediaDevices.getUserMedia)
+                    ? navigator.mediaDevices.getUserMedia(constraints)
+                    : Promise.reject(voice_unsupported_error());
+            }catch(err){
+                capture = Promise.reject(err);
+            }
+            capture.then(function(stream){
+                if(self.gen !== myGen){
+                    // superseded while the permission prompt was open
+                    stream.getTracks().forEach(function(t){ t.stop(); });
+                    return null;
+                }
                 self.stream = stream;
                 self.tracks = stream.getTracks();
                 self.ctx = new AC();
                 self.sampleRate = self.ctx.sampleRate;
-                self.gen++;
-                let myGen = self.gen;
                 self.orderer = createSegmentOrderer(function(text){
-                    if(self.gen === myGen && opts.onSegmentText) opts.onSegmentText(text);
+                    // Once the whole-file result is in, a segment that arrives
+                    // late describes speech that text already covers: appending
+                    // it would duplicate the phrase (hybrid mode races the last
+                    // segment against the final pass).
+                    if(self.gen === myGen && !self.finalApplied
+                       && opts.onSegmentText) opts.onSegmentText(text);
                 });
                 self._resetSegment();
                 self.segmentIndex = 0;
                 self.allFrames = []; self.finalPending = false;
+                self.finalApplied = false; self.errors = 0;
+                self.sessionMs = 0;
+                self.segmentsOn = doSegments; self.finalOn = doFinal;
                 self.pending = []; self.active = 0;
                 let resume = self.ctx.resume ? self.ctx.resume() : Promise.resolve();
                 return resume.then(function(){
+                    if(self.gen !== myGen) return null;
                     self.source = self.ctx.createMediaStreamSource(stream);
                     return self._buildCaptureNode();
                 });
             }).then(function(){
+                self.starting = false;
+                if(self.gen !== myGen){ self._teardown(); return; }
                 self.setStatus(1);
-            }).catch(function(err){ self._reportError(err); });
+            }).catch(function(err){
+                self.starting = false;
+                self._reportError(err);
+            });
         },
 
         // AudioWorklet (preferred) with ScriptProcessor fallback.
@@ -171,29 +264,48 @@ function createProgressiveVoiceEngine(opts){
             var self = this;
             let onFrame = function(f){ self._handleFrame(f); };
             if(self.ctx.audioWorklet){
-                let src = "class PCMProc extends AudioWorkletProcessor{" +
-                          "process(inputs){var i=inputs[0];" +
-                          "if(i&&i[0]){this.port.postMessage(i[0].slice(0));}return true;}}" +
-                          "registerProcessor('gt-pcm-proc',PCMProc);";
-                let url = URL.createObjectURL(new Blob([src], {type:'application/javascript'}));
-                return self.ctx.audioWorklet.addModule(url).then(function(){
-                    URL.revokeObjectURL(url);
-                    let node = new AudioWorkletNode(self.ctx, 'gt-pcm-proc');
-                    node.port.onmessage = function(e){ onFrame(e.data); };
-                    self.source.connect(node);
-                    node.connect(self.ctx.destination);  // silent output, no echo
-                    self.node = node;
+                return self._buildWorkletNode(onFrame).catch(function(err){
+                    // A strict CSP with no blob: in script-src/worker-src makes
+                    // addModule reject. Reporting that as "media device is not
+                    // available" is both wrong and unnecessary: the deprecated
+                    // ScriptProcessor path below still works everywhere.
+                    console.warn('[VoiceProgressive] AudioWorklet unavailable, ' +
+                                 'falling back to ScriptProcessorNode:', err);
+                    self._buildScriptProcessorNode(onFrame);
                 });
             }
-            // Fallback: deprecated ScriptProcessorNode.
-            let node = self.ctx.createScriptProcessor(4096, 1, 1);
+            self._buildScriptProcessorNode(onFrame);
+            return Promise.resolve();
+        },
+
+        _buildWorkletNode: function(onFrame){
+            var self = this;
+            let src = "class PCMProc extends AudioWorkletProcessor{" +
+                      "process(inputs){var i=inputs[0];" +
+                      "if(i&&i[0]){this.port.postMessage(i[0].slice(0));}return true;}}" +
+                      "registerProcessor('gt-pcm-proc',PCMProc);";
+            let url = URL.createObjectURL(new Blob([src], {type:'application/javascript'}));
+            return self.ctx.audioWorklet.addModule(url).then(function(){
+                let node = new AudioWorkletNode(self.ctx, 'gt-pcm-proc');
+                node.port.onmessage = function(e){ onFrame(e.data); };
+                self.source.connect(node);
+                node.connect(self.ctx.destination);  // silent output, no echo
+                self.node = node;
+            }).finally(function(){
+                URL.revokeObjectURL(url);   // also when addModule rejected
+            });
+        },
+
+        // Deprecated but universally available, and the only option under a
+        // blob:-less CSP.
+        _buildScriptProcessorNode: function(onFrame){
+            let node = this.ctx.createScriptProcessor(4096, 1, 1);
             node.onaudioprocess = function(e){
                 onFrame(e.inputBuffer.getChannelData(0).slice(0));
             };
-            self.source.connect(node);
-            node.connect(self.ctx.destination);
-            self.node = node;
-            return Promise.resolve();
+            this.source.connect(node);
+            node.connect(this.ctx.destination);
+            this.node = node;
         },
 
         _resetSegment: function(){
@@ -201,12 +313,29 @@ function createProgressiveVoiceEngine(opts){
             this.silenceMs = 0; this.segMaxRms = 0; this.hasSpeech = false;
         },
 
+        // The whole-file buffer has no natural end, so a long dictation would
+        // grow it without bound. Drop it and let the live segments carry the
+        // rest of the session: the transcription is the same, the memory is not.
+        _dropWholeFileBuffer: function(){
+            console.warn('[VoiceProgressive] session past ' + cfg.maxSessionMs +
+                         'ms: dropping the whole-file buffer, segments only ' +
+                         'from here on');
+            this.allFrames = [];
+            this.finalOn = false;
+            this.segmentsOn = true;   // `single` mode has to start cutting now
+            if(opts.onSessionLimit) opts.onSessionLimit(cfg.maxSessionMs);
+        },
+
         _handleFrame: function(frame){
             if(this.status !== 1) return;
-            // Store raw native-rate audio; the server resamples to 16 kHz.
-            if(doFinal) this.allFrames.push(frame);       // whole-file pass
-            if(!doSegments) return;                        // single mode: no VAD
             let dur = frame.length / this.sampleRate * 1000;
+            this.sessionMs += dur;
+            // Store raw native-rate audio; the server resamples to 16 kHz.
+            if(this.finalOn){                              // whole-file pass
+                this.allFrames.push(frame);
+                if(this.sessionMs >= cfg.maxSessionMs) this._dropWholeFileBuffer();
+            }
+            if(!this.segmentsOn) return;                   // single mode: no VAD
             let rms = _rmsOf(frame);
             this.segment.push(frame);
             this.segmentMs += dur;
@@ -265,9 +394,21 @@ function createProgressiveVoiceEngine(opts){
                 self.active++;
                 self._post(job.blob, 'seg' + job.index + '.wav').then(function(text){
                     if(job.gen === self.gen) self.orderer.add(job.index, text);
-                }).catch(function(){
-                    if(job.gen === self.gen) self.orderer.add(job.index, '');
+                }).catch(function(err){
+                    if(job.gen !== self.gen) return;
+                    // Keep the stream flowing (the orderer blocks on a gap) but
+                    // remember the failure so the session can report it.
+                    console.error('[VoiceProgressive] segment ' + job.index +
+                                  ' failed:', err);
+                    self.errors++;
+                    self.orderer.add(job.index, '');
                 }).then(function(){
+                    // Only jobs of the current session hold a pool slot: start()
+                    // and cancel() zero the counter, so decrementing for a stale
+                    // response would drive it negative and _maybeFinish() (which
+                    // requires active === 0) would never fire again, leaving the
+                    // widget stuck in the draining state with no way out.
+                    if(job.gen !== self.gen) return;
                     self.active--;
                     self._pump();
                     self._maybeFinish();
@@ -276,6 +417,7 @@ function createProgressiveVoiceEngine(opts){
         },
 
         _post: function(blob, filename){
+            var self = this;
             let fd = new FormData();
             fd.append('file', blob, filename);
             let hw = opts.getHotwords ? opts.getHotwords() : null;
@@ -284,14 +426,39 @@ function createProgressiveVoiceEngine(opts){
             if(ip) fd.append('initial_prompt', ip);
             let lang = opts.getLanguage ? opts.getLanguage() : null;
             if(lang) fd.append('language', lang);
+            // A bounded request: the orderer emits in index order, so one reply
+            // that never comes stalls every later segment. The controller is
+            // also what lets cancel() actually drop the requests in the air
+            // instead of paying for transcriptions nobody will read.
+            let controller = (typeof AbortController !== 'undefined')
+                             ? new AbortController() : null;
+            let timer = null;
+            if(controller){
+                self.inflight.push(controller);
+                timer = setTimeout(function(){ controller.abort(); },
+                                   cfg.requestTimeoutMs);
+            }
+            let settled = function(){
+                if(timer) clearTimeout(timer);
+                if(!controller) return;
+                let at = self.inflight.indexOf(controller);
+                if(at !== -1) self.inflight.splice(at, 1);
+            };
             return fetch(opts.url, {
                 method: 'POST',
                 headers: {'X-CSRFToken': getCookie('csrftoken')},
-                body: fd
+                body: fd,
+                signal: controller ? controller.signal : undefined
             }).then(function(r){
                 if(!r.ok) throw new Error('HTTP ' + r.status);
                 return r.json();
-            }).then(function(data){ return data.text || ''; });
+            }).then(function(data){ return data.text || ''; })
+              .finally(settled);
+        },
+
+        _abortInflight: function(){
+            this.inflight.forEach(function(c){ try{ c.abort(); }catch(e){} });
+            this.inflight = [];
         },
 
         // Whole-file pass (single/hybrid modes): on stop, transcribe the entire
@@ -306,9 +473,17 @@ function createProgressiveVoiceEngine(opts){
             let blob = writeWavBlob(samples, this.sampleRate);
             this.finalPending = true;
             this._post(blob, 'full.wav').then(function(text){
-                if(self.gen === myGen && text && opts.onFinalText) opts.onFinalText(text);
-            }).catch(function(){
+                if(self.gen === myGen && text && opts.onFinalText){
+                    // From here the preview is authoritative: segments still in
+                    // flight must not append on top of it.
+                    self.finalApplied = true;
+                    opts.onFinalText(text);
+                }
+            }).catch(function(err){
                 // keep the segment preview if the final pass fails
+                if(self.gen !== myGen) return;
+                console.error('[VoiceProgressive] final pass failed:', err);
+                self.errors++;
             }).then(function(){
                 self.finalPending = false;
                 self._maybeFinish();
@@ -318,7 +493,13 @@ function createProgressiveVoiceEngine(opts){
         _maybeFinish: function(){
             if(this.status === 2 && this.active === 0 && this.pending.length === 0
                && !this.finalPending){
+                let failed = this.errors;
+                this.errors = 0;
                 this.setStatus(0);
+                if(failed){
+                    if(opts.onTranscribeError) opts.onTranscribeError(failed);
+                    else show_errors_voice_transcribe();
+                }
             }
         },
 
@@ -332,18 +513,25 @@ function createProgressiveVoiceEngine(opts){
 
         stop: function(){
             if(this.status !== 1) return;
-            if(doSegments) this._cut(true);   // flush the last phrase
+            if(this.segmentsOn) this._cut(true);   // flush the last phrase
             this._teardown();
             this.setStatus(2);                // draining segments / final pass
-            if(doFinal) this._finalTranscribe();
+            if(this.finalOn) this._finalTranscribe();
             this._maybeFinish();              // in case nothing is pending
         },
 
         cancel: function(trigger){
             this.gen++;   // invalidate any in-flight segment/final responses
+            this.starting = false;
+            this._abortInflight();   // stop paying for transcriptions nobody reads
             this.pending = [];
+            this.active = 0;   // in-flight jobs are stale now, free their slots
             this.allFrames = [];
+            this.sessionMs = 0;
             this.finalPending = false;
+            this.finalApplied = false;
+            this.segmentsOn = doSegments; this.finalOn = doFinal;
+            this.errors = 0;   // nothing to report about a session the user dropped
             this._resetSegment();
             this._teardown();
             this.setStatus(0);
@@ -353,10 +541,11 @@ function createProgressiveVoiceEngine(opts){
         _reportError: function(err){
             console.error('[VoiceProgressive] capture failed:',
                           err && err.name, err && err.message, err);
+            this.starting = false;
             this._teardown();
             this.setStatus(0);
             if(opts.onError){ opts.onError(err); return; }
-            show_errors_media_record(err);   // shared media-error dialog
+            show_errors_voice_capture(err);
         }
     };
 
@@ -365,18 +554,22 @@ function createProgressiveVoiceEngine(opts){
     // handler that closes over the old engine).
     let ns = 'cancelMedia.gtvoice' + (++_voiceEngineSeq);
     $(window).on(ns, function(){ engine.cancel(true); });
-    engine.destroy = function(){ $(window).off(ns); this._teardown(); };
+    // cancel(), not just _teardown(): the session has to be invalidated too, or
+    // segments still in flight resolve later and call back into a consumer whose
+    // DOM (textarea, TinyMCE editor) no longer exists.
+    engine.destroy = function(){ $(window).off(ns); this.cancel(true); };
     return engine;
 }
 
 // Read optional VAD tuning from a widget's data-* attributes into an engine
 // config object (defaults live in the engine). Reads data-vad-silence-ms,
 // data-vad-min-speech-ms, data-vad-max-segment-ms, data-rms-threshold,
-// data-pool-size.
+// data-pool-size, data-max-session-ms and data-request-timeout-ms.
 function voiceVadConfig(el){
     let cfg = {};
     let keys = ['vadSilenceMs', 'vadMinSpeechMs', 'vadMaxSegmentMs',
-                'rmsThreshold', 'poolSize'];
+                'rmsThreshold', 'poolSize', 'maxSessionMs',
+                'requestTimeoutMs'];
     keys.forEach(function(k){
         let v = el.data(k);
         if(v !== undefined && v !== null && v !== ''){ cfg[k] = parseFloat(v); }

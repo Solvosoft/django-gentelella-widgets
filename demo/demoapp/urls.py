@@ -113,14 +113,14 @@ urlpatterns = [
                        name='tinymce-edit'),
                   path('tinymce_show/<int:pk>', tinymce.DetailTinymce.as_view(),
                        name='tinymce-show'),
-                  # Transcription costs CPU (or money, on a remote ASR), so the
-                  # demo gates it the same way djgentelella.urls gates its own
-                  # voice_transcribe. The page goes with it: its widgets are
-                  # useless to someone who cannot reach the endpoint.
+                  # Transcription costs CPU (or money, on a remote ASR). The
+                  # endpoint gates itself (403 json), so it is registered bare
+                  # here just like in djgentelella.urls; the page does need
+                  # login_required, since its widgets are useless to someone who
+                  # cannot reach the endpoint.
                   path('voice/', login_required(voice.VoiceDemoView.as_view()),
                        name='voice-demo'),
-                  path('voice/transcribe',
-                       login_required(VoiceTranscribeView.as_view()),
+                  path('voice/transcribe', VoiceTranscribeView.as_view(),
                        name='voice-transcribe'),
                   path('yesnoinput/', YesNoInputView.as_view(),
                        name='yes-no-input-add'),

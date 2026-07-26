@@ -11,10 +11,11 @@ This apps are required for correct working of Djgentelella
         ...,
         'djgentelella',
         'rest_framework',
-        'demoapp',
-        'djgentelella.blog',
-        'djgentelella.permission_management',
     ]
+
+``djgentelella.blog`` and ``djgentelella.permission_management`` are optional;
+add them only if you use those apps. (``demoapp`` belongs to this repository's
+demo project, not to an installation of the library.)
 
 Follow settings are required
 
@@ -42,6 +43,31 @@ Optional  You can define a default import of some JS an CSS, see section "Using 
     }
 
 
+
+Settings of the optional modules
+---------------------------------
+
+These only matter if you use the module they belong to; each page documents them
+in full.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 70
+
+   * - Module
+     - Settings
+   * - Voice dictation (:doc:`widgets/voice`)
+     - ``GENTELELLA_ASR_BACKEND``, ``GENTELELLA_ASR_REMOTE_URL``,
+       ``GENTELELLA_ASR_REMOTE_TOKEN``, ``GENTELELLA_ASR_TIMEOUT``,
+       ``GENTELELLA_ASR_MAX_UPLOAD_BYTES``, ``GENTELELLA_ASR_REMOTE_MODEL``,
+       ``GENTELELLA_ASR_REMOTE_PROMPT_PARAM``,
+       ``GENTELELLA_ASR_REMOTE_HOTWORDS_PARAM``, ``GENTELELLA_ASR_MODEL``,
+       ``GENTELELLA_ASR_QUANTIZATION``, ``GENTELELLA_ASR_LANGUAGE``,
+       ``GENTELELLA_ASR_PNC``
+   * - Async notifications (:doc:`async_notification/installation`)
+     - ``ASYNC_NOTIFICATION_BACKEND``, ``CELERY_BROKER_URL``
+   * - Chunked uploads
+     - ``TINYMCE_UPLOAD_PATH`` (above), plus the ``chunked_upload`` settings
 
 Settings on Database
 ---------------------------

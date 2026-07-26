@@ -127,16 +127,20 @@ dependencies = [# Optional
 dev = [
     'pylp', 'pylpconcat', 'css-html-js-minify'
 ]
+# Lower bounds, not pins: this is a library, and an `==` here cannot be
+# overridden by the application installing it -- "requests==2.32.4" makes
+# djgentelella[firmador] unusable next to anything that needs a newer one, and
+# conflicts with the >= in asr-remote below.
 firmador = [
-    "django-cors-headers==4.6.0",
+    "django-cors-headers>=4.6.0",
     # uvicorn serves the ASGI application; wsproto is its websocket
     # implementation (plain uvicorn ships none, it only comes with
     # uvicorn[standard]), so the signing websocket needs it.
     "uvicorn>=0.51.0",
     "uvicorn-worker>=0.4.0",
-    "channels==4.2.0",
-    "wsproto==1.2.0",
-    "requests==2.32.4"
+    "channels>=4.2.0",
+    "wsproto>=1.2.0",
+    "requests>=2.32.4"
 ]
 # Celery backend for async_notification. Without it the notifications are
 # dispatched synchronously by SyncBackend, no configuration needed.

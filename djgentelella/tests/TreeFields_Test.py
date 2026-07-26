@@ -41,6 +41,29 @@ class TreeNodeFieldsTestCase(TestCase):
         field = GentelellaTreeNodeChoiceField(queryset=MenuItem.objects.all())
         self.assertEqual(type(field.queryset.query).__name__, 'TreeQuery')
 
+    def test_a_queryset_replaced_after_init_keeps_its_depths(self):
+        # scoping a field inside a form's __init__ is the ordinary way to do it,
+        # and it goes through the setter rather than through __init__
+        class TreeForm(forms.Form):
+            item = GentelellaTreeNodeChoiceField(
+                queryset=MenuItem.objects.none())
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                self.fields['item'].queryset = MenuItem.objects.all()
+
+        field = TreeForm().fields['item']
+        self.assertEqual(type(field.queryset.query).__name__, 'TreeQuery')
+        self.assertEqual(self.levels(field),
+                         {'Root': 0, 'Child': 1, 'Grandchild': 2,
+                          'Great': 3, 'GreatGreat': 4})
+
+    def test_a_replaced_queryset_reaches_the_widget(self):
+        field = GentelellaTreeNodeChoiceField(queryset=MenuItem.objects.none())
+        field.queryset = MenuItem.objects.filter(title='Child')
+        self.assertEqual(self.levels(field), {'Child': 1})
+        self.assertEqual(self.levels(field.widget), {'Child': 1})
+
     def test_disable_uses_the_value_not_the_mere_presence(self):
         field = GentelellaTreeNodeChoiceField(
             queryset=MenuItem.objects.all(), disable0=True, disable1=False)

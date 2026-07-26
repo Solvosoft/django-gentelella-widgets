@@ -2,3 +2,11 @@ pylp
 pylpconcat
 css-html-js-minify
 build
+
+# The decoding half of the [asr] extra. Without them the audio decoder tests
+# skip themselves, so the local backend -- the one that runs whenever no remote
+# url is configured -- would never be exercised. onnx-asr is deliberately left
+# out: it drags in onnxruntime and a 670 MB model download, and the tests double
+# the model anyway.
+av>=12.0.0
+numpy>=1.24

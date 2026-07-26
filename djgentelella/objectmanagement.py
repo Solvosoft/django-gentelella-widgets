@@ -85,16 +85,37 @@ class BaseInlineObjectManagement(BaseObjectManagement):
 
         router.register(r'project/(?P<parent_pk>[^/.]+)/task',
                         TaskManagement, 'api-project-task')
+
+    .. warning::
+
+        The parent is what scopes every query and what new objects are attached
+        to, so **who may use which parent is an authorization decision**. DRF's
+        ``permission_classes`` are per model, not per object: they cannot tell
+        one project from another. Override ``get_parent_queryset()`` to narrow
+        the parents this request may address::
+
+            def get_parent_queryset(self):
+                return Project.objects.filter(owner=self.request.user)
+
+        Without that, any user allowed to call the viewset can name any parent
+        pk and read or write that parent's objects.
+
+    The parent pk is read from the URL. Accepting it from the query string or
+    the request body instead (``accept_parent_pk_from_request = True``) means a
+    client picks its own parent on every call, so only turn it on together with
+    a ``get_parent_queryset()`` that filters by requester.
     """
 
     parent_model = None
     parent_field = None
     parent_url_kwarg = 'parent_pk'
+    accept_parent_pk_from_request = False
 
     def get_parent_pk(self):
         pk = self.kwargs.get(self.parent_url_kwarg)
-        if pk is None:
-            pk = self.request.query_params.get(self.parent_url_kwarg)
+        if pk is not None or not self.accept_parent_pk_from_request:
+            return pk
+        pk = self.request.query_params.get(self.parent_url_kwarg)
         if pk is None and isinstance(self.request.data, dict):
             pk = self.request.data.get(self.parent_url_kwarg)
         return pk

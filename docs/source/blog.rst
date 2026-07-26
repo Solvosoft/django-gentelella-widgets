@@ -21,6 +21,16 @@ Then you must add URLs to urls.py as follow:
        path('blog/', include('djgentelella.blog.urls'))
    ]
 
+.. warning::
+
+   Entries are written in TinyMCE and stored as HTML, which gentelella renders
+   as-is without sanitizing it. The entry list and detail views are public and
+   have no permission check, so ``blog.add_entry`` and ``blog.change_entry``
+   amount to the ability to publish arbitrary HTML and JavaScript to every
+   visitor. Grant them to trusted authors only; if the blog is open to
+   untrusted writers, sanitize ``Entry.content`` and ``Entry.resume`` yourself
+   (for example in the form's ``clean_*``) before saving.
+
 The URL-name of the first view is **'blog:entrylist'.**
 Here you can preview the entries and updated them,
 this view offers a brief description of the entry,

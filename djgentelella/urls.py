@@ -60,7 +60,10 @@ wysiwyg_urls = [
 ]
 
 voice_urls = [
-    path('voice/transcribe/', login_required(VoiceTranscribeView.as_view()),
+    # No login_required here: the view answers 403 json itself, because the
+    # caller is the widget's fetch() and a redirect to the login page would come
+    # back as html it cannot parse.
+    path('voice/transcribe/', VoiceTranscribeView.as_view(),
          name='voice_transcribe'),
 ]
 

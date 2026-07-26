@@ -32,12 +32,14 @@ function build_voice_editor_tinymce(instance){
         // whole-file result replaces it on stop, then the span is unwrapped
         // into plain content. Appending into the node (not at the caret)
         // keeps it robust to the user moving the cursor.
+        function unwrapNode(sp){
+            let p = sp.parentNode;
+            if(!p) return;   // already detached (undo, setContent, editor teardown)
+            while(sp.firstChild){ p.insertBefore(sp.firstChild, sp); }
+            p.removeChild(sp);
+        }
         function clearOldMarkers(){
-            editor.dom.select('span[data-voice-preview]').forEach(function(sp){
-                let p = sp.parentNode;
-                while(sp.firstChild){ p.insertBefore(sp.firstChild, sp); }
-                p.removeChild(sp);
-            });
+            editor.dom.select('span[data-voice-preview]').forEach(unwrapNode);
         }
         function startPreview(){
             clearOldMarkers();
@@ -55,13 +57,14 @@ function build_voice_editor_tinymce(instance){
                 editor.getDoc().createTextNode(voiceLeadingSep(cur) + text)); }
             editor.nodeChanged();
         }
-        // Unwrap the marker span into plain content (keeps its text).
+        // Unwrap the marker span into plain content (keeps its text). The span
+        // may already be gone -- an undo or a setContent() drops it while the
+        // dictation is still running -- so this must not assume a parent.
         function unwrapPreview(){
             if(!previewSpan) return;
-            let p = previewSpan.parentNode;
-            while(previewSpan.firstChild){ p.insertBefore(previewSpan.firstChild, previewSpan); }
-            p.removeChild(previewSpan);
+            let sp = previewSpan;
             previewSpan = null;
+            unwrapNode(sp);
             editor.nodeChanged();
         }
         // single/hybrid modes: replace the preview with the whole-file text.
@@ -74,8 +77,13 @@ function build_voice_editor_tinymce(instance){
             unwrapPreview();
         }
 
+        let disposed = false;
         let cfg = voiceBaseConfig(instance);
         cfg.onStatus = function (status) {
+            // destroy() cancels the session, which reports status 0 back here.
+            // By then the editor is being torn down and touching its ui,
+            // notifications or document would throw.
+            if (disposed) return;
             if (mic_api) {
                 mic_api.setActive(status == 1);
                 // TinyMCE 5 toggle-button API uses setDisabled (not
@@ -111,8 +119,9 @@ function build_voice_editor_tinymce(instance){
             }
         });
 
-        // On editor teardown, stop recording and unbind the window listener.
-        editor.on('remove', function () { engine.destroy(); });
+        // On editor teardown, stop recording, drop any in-flight transcription
+        // and unbind the window listener.
+        editor.on('remove', function () { disposed = true; engine.destroy(); });
     };
 
     instance.tinymce(config);

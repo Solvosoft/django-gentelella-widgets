@@ -76,7 +76,10 @@ check-dist:
 	twine check dist/*
 	python build_check.py
 
-release: check-dist
+# Depends on sdist, not just check-dist: `twine upload dist/*` publishes whatever
+# is on disk, so releasing without rebuilding would tag one version and upload
+# whatever the previous build left behind.
+release: sdist
 	git tag -a "v$(version)" -m "Bump version $(version)"
 	git push origin "v$(version)"
 	twine upload dist/*

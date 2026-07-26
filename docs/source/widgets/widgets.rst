@@ -191,7 +191,7 @@ TinyMCE Widget
 Voice dictation ASR
 ^^^^^^^^^^^^^^^^^^^^^
 
-Transcription endpoint (``djgentelella:voice_transcribe``) and the optional
+Transcription endpoint (``voice_transcribe``) and the optional
 in-process Parakeet-v3 backend. See :doc:`voice` for usage and settings.
 
 .. automodule:: djgentelella.voice.views

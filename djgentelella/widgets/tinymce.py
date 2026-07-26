@@ -26,7 +26,7 @@ class VoiceEditorTinymce(EditorTinymce):
     (one request on stop) or ``hybrid`` (live segments then a whole-file rewrite
     on stop).
 
-    ``url`` is the transcription endpoint (``djgentelella:voice_transcribe`` or a
+    ``url`` is the transcription endpoint (``voice_transcribe`` or a
     proxy). ``language`` sets ``data-language``. Optional biasing context can be
     provided with ``data-hotwords`` and ``data-initial-prompt`` attrs; the
     endpoint may forward or ignore them.

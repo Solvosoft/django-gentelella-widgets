@@ -48,7 +48,7 @@ dictation ``data-mode`` chooses how it is transcribed:
 
 **Transcription endpoint**
 
-``djgentelella`` ships a ready-to-use endpoint, ``djgentelella:voice_transcribe``
+``djgentelella`` ships a ready-to-use endpoint, ``voice_transcribe``
 (``VoiceTranscribeView``), that accepts a POST with an audio ``file`` (plus
 optional ``language``/``hotwords``/``initial_prompt``) and returns
 ``{"text": "..."}``. It has two interchangeable backends selected by settings:
@@ -76,7 +76,17 @@ optional ``language``/``hotwords``/``initial_prompt``) and returns
     default model.
 
 If ``GENTELELLA_ASR_BACKEND`` is unset it defaults to ``remote`` when a remote
-URL is configured, otherwise ``local``.
+URL is configured, otherwise ``local``. Any other value raises
+``ImproperlyConfigured`` rather than silently falling back.
+
+.. warning::
+
+   Transcription is expensive in both backends — cpu in-process, billable API
+   calls remotely — and every request holds a worker for up to
+   ``GENTELELLA_ASR_TIMEOUT`` seconds. Uploads above
+   ``GENTELELLA_ASR_MAX_UPLOAD_BYTES`` are rejected with a 413 for that reason;
+   the endpoint applies no rate limiting of its own, so put the usual per-user
+   throttling in front of it if it is exposed to untrusted users.
 
 **Settings**
 
@@ -99,6 +109,10 @@ URL is configured, otherwise ``local``.
    * - ``GENTELELLA_ASR_TIMEOUT``
      - Remote request timeout (seconds)
      - ``120``
+   * - ``GENTELELLA_ASR_MAX_UPLOAD_BYTES``
+     - Largest audio accepted; above it the endpoint answers 413. Set to
+       ``None`` to disable the check
+     - ``26214400`` (25 MB)
    * - ``GENTELELLA_ASR_REMOTE_MODEL``
      - Model id sent to the remote ASR (omitted when unset → server default)
      - *(none)*

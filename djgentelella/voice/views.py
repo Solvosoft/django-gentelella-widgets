@@ -1,6 +1,16 @@
+import logging
+
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.http import JsonResponse
 from django.views import View
+
+logger = logging.getLogger(__name__)
+
+BACKENDS = ('local', 'remote')
+# OpenAI's /v1/audio/transcriptions caps uploads at 25 MB and the widget sends
+# WAV, so this is a generous ceiling for a single dictated phrase.
+DEFAULT_MAX_UPLOAD_BYTES = 25 * 1024 * 1024
 
 
 def _extract_text(payload):
@@ -38,19 +48,56 @@ class VoiceTranscribeView(View):
     ``language``, ``hotwords`` and ``initial_prompt``; ``language`` drives the
     local backend and is forwarded to the remote one, the others are forwarded
     to remote backends that support them) and returns ``{"text": ...}``.
+
+    Uploads larger than ``GENTELELLA_ASR_MAX_UPLOAD_BYTES`` (25 MB by default)
+    are rejected with a 413: transcription is expensive in both backends (CPU
+    in-process, billable API calls remotely) and each request holds a worker
+    for up to ``GENTELELLA_ASR_TIMEOUT`` seconds.
+
+    The view requires an authenticated user and enforces it itself, so it must
+    not be wrapped in ``login_required``: that redirects, and the widget's
+    ``fetch`` would follow the 302 and choke on the login page in ``.json()``.
     """
+
+    def dispatch(self, request, *args, **kwargs):
+        # Transcription costs cpu or money, so it is never open to the world.
+        # 403 with a json body rather than a redirect: the caller is a fetch(),
+        # and it has to be able to tell "log in again" from a server error.
+        if not request.user.is_authenticated:
+            return JsonResponse({'error': 'authentication required'}, status=403)
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_backend(self):
+        """Resolve the configured backend, failing loudly on a typo.
+
+        Both settings are commonly wired to ``os.getenv``, which yields ``''``
+        rather than leaving the setting out, so an empty value counts as unset.
+        """
+        remote_url = getattr(settings, 'GENTELELLA_ASR_REMOTE_URL', None) or None
+        backend = getattr(settings, 'GENTELELLA_ASR_BACKEND', None) or None
+        if backend is None:
+            backend = 'remote' if remote_url else 'local'
+        elif backend not in BACKENDS:
+            raise ImproperlyConfigured(
+                'GENTELELLA_ASR_BACKEND must be one of %s, got %r' % (
+                    ', '.join(BACKENDS), backend))
+        return backend, remote_url
 
     def post(self, request, *args, **kwargs):
         upload = request.FILES.get('file')
         if upload is None:
             return JsonResponse({'error': 'no audio file'}, status=400)
 
+        max_bytes = getattr(settings, 'GENTELELLA_ASR_MAX_UPLOAD_BYTES',
+                            DEFAULT_MAX_UPLOAD_BYTES)
+        if max_bytes and upload.size > max_bytes:
+            logger.warning('Rejected a %s byte audio upload (limit %s)',
+                           upload.size, max_bytes)
+            return JsonResponse(
+                {'error': 'audio file too large'}, status=413)
+
         language = request.POST.get('language') or None
-        # Both are commonly wired to os.getenv, which yields '' rather than
-        # leaving the setting out, so an empty value counts as unset.
-        remote_url = getattr(settings, 'GENTELELLA_ASR_REMOTE_URL', None) or None
-        backend = getattr(settings, 'GENTELELLA_ASR_BACKEND', None) or (
-            'remote' if remote_url else 'local')
+        backend, remote_url = self.get_backend()
 
         if backend == 'remote':
             return self._transcribe_remote(request, upload, remote_url)
@@ -59,17 +106,22 @@ class VoiceTranscribeView(View):
     def _transcribe_local(self, upload, language):
         # asr module import is light (onnx_asr/av are imported lazily inside its
         # functions), so a missing extra surfaces as ImportError at call time.
+        # Keep that import out of the try below: an ImportError raised *inside*
+        # transcribe() (a broken onnxruntime ABI, say) is not a missing extra
+        # and must not be reported as one.
         from djgentelella.voice.asr import transcribe
         try:
             # UploadedFile is a file-like object; av.open reads it directly,
             # avoiding a full in-memory copy of the (possibly multi-MB) audio.
             text = transcribe(upload, language=language)
-        except ImportError:
+        except ModuleNotFoundError as exc:
+            logger.warning('Local ASR backend is unavailable: %s', exc)
             return JsonResponse(
                 {'error': 'asr extra not installed: '
                           'pip install "djgentelella[asr]"'},
                 status=501)
         except Exception:
+            logger.exception('Local ASR transcription failed')
             return JsonResponse(
                 {'error': 'transcription failed'}, status=500)
         return JsonResponse({'text': text})
@@ -119,12 +171,15 @@ class VoiceTranscribeView(View):
 
     def _transcribe_remote(self, request, upload, remote_url):
         if not remote_url:
+            logger.error('GENTELELLA_ASR_BACKEND is "remote" but '
+                         'GENTELELLA_ASR_REMOTE_URL is not configured')
             return JsonResponse(
                 {'error': 'GENTELELLA_ASR_REMOTE_URL is not configured'},
                 status=500)
         try:
             import requests
-        except ImportError:
+        except ImportError as exc:
+            logger.warning('Remote ASR backend is unavailable: %s', exc)
             return JsonResponse(
                 {'error': 'asr-remote extra not installed: '
                           'pip install "djgentelella[asr-remote]"'},
@@ -151,6 +206,9 @@ class VoiceTranscribeView(View):
             resp.raise_for_status()
             payload = resp.json()
         except requests.RequestException:
+            # The client gets a generic message on purpose, but the operator
+            # needs to tell an expired token from a timeout from bad JSON.
+            logger.exception('Remote ASR request to %s failed', remote_url)
             return JsonResponse(
                 {'error': 'ASR server unavailable'}, status=502)
         return JsonResponse({'text': _extract_text(payload)})

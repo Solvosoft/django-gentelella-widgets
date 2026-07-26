@@ -33,22 +33,54 @@ See ``docs/source/object_management.rst`` for the full example.
 ``Entry.content`` are plain ``TextField``\ s edited with ``EditorTinymce``.
 Remove ``'markitup'`` from ``INSTALLED_APPS`` and drop the ``MARKITUP_FILTER``,
 ``MARKITUP_SET`` and ``markitup_preview`` URL entries. Existing databases are
-migrated by ``blog.0002``, which drops the ``_resume_rendered`` and
-``_content_rendered`` columns ``MarkupField`` used to maintain; without it every
-insert fails on those NOT NULL columns. Entry bodies are now stored and
-rendered as HTML rather than markdown, so existing markdown entries must be
-converted.
+migrated by ``blog.0002``, which moves the HTML held in the ``_resume_rendered``
+and ``_content_rendered`` columns into ``resume``/``content`` and then drops
+those columns; without it every insert fails on them (they are NOT NULL) and the
+markdown source would be served verbatim. The migration cannot be reversed, and
+its raw ``DROP COLUMN`` needs SQLite 3.35 or newer — **back up the blog tables
+before upgrading**.
+
+.. warning::
+
+   Entry bodies are now stored and served as HTML written in TinyMCE, and
+   gentelella does not sanitize them. Anyone holding ``blog.add_entry`` or
+   ``blog.change_entry`` can therefore place arbitrary HTML and JavaScript on
+   the public entry list and detail pages, which carry no permission check.
+   Grant those permissions to trusted authors only, or wrap the fields in your
+   own sanitizer if the blog is open to untrusted writers.
+
+**The tree select fields are form fields, not widgets.**
+``GentelellaTreeNodeChoiceField`` and ``GentelellaTreeNodeMultipleChoiceField``
+now derive from ``ModelChoiceField``/``ModelMultipleChoiceField`` instead of
+``forms.Select``, so they are declared as the field, not passed as ``widget=``::
+
+    # before (never actually worked)
+    node = forms.ModelChoiceField(queryset=..., widget=GentelellaTreeNodeChoiceField(...))
+    # now
+    node = GentelellaTreeNodeChoiceField(queryset=...)
+
+In practice nothing breaks: the previous code called
+``forms.Select.__init__(queryset)`` and raised ``AttributeError`` on
+construction, and it read MPTT internals that have not been a dependency since
+2022.
+
+**The transcription endpoint answers 403 json instead of redirecting.**
+``voice_transcribe`` enforces authentication itself and must not be wrapped in
+``login_required``: its caller is the widget's ``fetch``, which would follow the
+302 and fail parsing the login page as json.
 
 **Dependencies dropped**: ``djangoajax``, ``django-markitup`` and ``markdown``
 are no longer installed, and the dead ``static/django_ajax/`` files were
-removed.
+removed. The ``firmador`` extra now uses lower bounds instead of ``==`` pins,
+which made it unresolvable next to any project needing a newer ``requests``,
+``channels`` or ``django-cors-headers``.
 
 New features
 """"""""""""""
 
 **Voice dictation widgets** (``VoiceDictation``, ``VoiceEditorTinymce``) with
 progressive Web Audio + VAD capture, and a transcription endpoint
-(``djgentelella:voice_transcribe``) with two interchangeable backends selected
+(``voice_transcribe``) with two interchangeable backends selected
 by ``GENTELELLA_ASR_BACKEND``::
 
     pip install "djgentelella[asr]"          # local, in-process Parakeet-v3
@@ -70,12 +102,15 @@ The project is now classified **Production/Stable** rather than Beta.
 Fixes
 """""""
 
-- The tree select fields are rebuilt on ``django-tree-queries`` (they still
-  referenced MPTT internals and could not run). Options are now indented at any
-  depth: the themes only defined ``.l2`` and ``.l3``, so levels 0, 1 and 4+
-  rendered flush left. ``TreeSelectMultiple`` was never registered in
-  ``widgets.js`` and did not indent at all. ``disableN`` accepts any depth and
-  honours its value, so ``disable1=False`` no longer disables level 1.
+- The tree select fields are rebuilt on ``django-tree-queries`` (see the
+  breaking change above). Options are now indented at any depth: the themes only
+  defined ``.l2`` and ``.l3``, so levels 0, 1 and 4+ rendered flush left.
+  ``TreeSelectMultiple`` was never registered in ``widgets.js`` and did not
+  indent at all. ``disableN`` accepts any depth and honours its value, so
+  ``disable1=False`` no longer disables level 1. Replacing ``field.queryset``
+  after construction — the usual way to scope a field inside a form's
+  ``__init__`` — keeps the tree depths; it used to silently flatten the whole
+  tree.
 - ``BaseObjectManagement.list`` counted ``recordsTotal`` from the class level
   ``queryset`` instead of ``get_queryset()``, so any subclass narrowing the
   queryset reported the unfiltered total.
