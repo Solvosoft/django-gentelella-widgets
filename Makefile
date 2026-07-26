@@ -1,5 +1,5 @@
 .PHONY: help clean clean-pyc clean-build list test docs release sdist \
-	lint test-selenium run run-mailhog mailhog mailhog-stop migrate menu init_demo \
+	lint lint-fix test-selenium run run-mailhog mailhog mailhog-stop migrate menu init_demo \
 	notification_demo validate-mailhog loadstatic basejs process-loop
 
 version = $(shell python djgentelella/__init__.py)
@@ -21,7 +21,8 @@ help:
 	@echo "test - run tests quickly with the default Python"
 	@echo "test-selenium - Selenium E2E of the GUI against MailHog (needs make mailhog)"
 	@echo "validate-mailhog - send every email feature to MailHog and validate reception"
-	@echo "lint - check style with pycodestyle (max-line-length=88)"
+	@echo "lint - check style with pycodestyle (config in setup.cfg)"
+	@echo "lint-fix - auto-apply the mechanical style fixes with ruff"
 	@echo "-- Build / release --"
 	@echo "clean-build - remove build artifacts"
 	@echo "clean-pyc - remove Python file artifacts"
@@ -47,9 +48,18 @@ clean-pyc:
 	find . -name '*.pyo' -exec rm -f {} +
 	find . -name '*~' -exec rm -f {} +
 
+# Options live in setup.cfg (pycodestyle does not read pyproject.toml). Both
+# trees in one call, so a failure in the first no longer hides the second.
 lint:
-	pycodestyle --max-line-length=88 djgentelella --exclude=djgentelella/management/commands/loaddevstatic.py
-	pycodestyle --max-line-length=88 demo --exclude=demo/demoapp/gtstorymap.py
+	pycodestyle djgentelella demo
+
+# Apply the mechanical part of `make lint`: blank lines, trailing whitespace,
+# end-of-file, then re-wrap what is still too long. Only long strings, comments
+# and type comparisons are left for a human afterwards.
+lint-fix:
+	ruff check --select E,W --line-length 88 --preview --fix djgentelella demo
+	ruff format --line-length 88 $$(pycodestyle djgentelella demo | cut -d: -f1 | sort -u)
+	$(MAKE) lint
 
 test:
 	cd demo && python manage.py test --exclude-tag=selenium
