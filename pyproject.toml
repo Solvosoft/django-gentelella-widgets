@@ -40,10 +40,14 @@ readme = { file = "README.rst", content-type = "text/x-rst" }  # Optional
 # https://packaging.python.org/guides/distributing-packages-using-setuptools/#python-requires
 requires-python = ">=3.11"
 
-# This is either text indicating the license for the distribution, or a file
-# that contains the license
-# https://packaging.python.org/en/latest/specifications/core-metadata/#license
-license = { file = "LICENSE.txt" }
+# PEP 639: an SPDX expression, not a file. The `{ file = ... }` table it
+# replaces is deprecated from setuptools 77 (removal 2027-02-18) and inlined the
+# whole 354 line GPL text into the License: metadata field. LICENSE.txt is the
+# GPL v2 text; an old setup.py classifier claimed GPLv3+, which never matched
+# the file that shipped. v2-or-later is the resolution.
+# https://packaging.python.org/en/latest/specifications/license-expression/
+license = "GPL-2.0-or-later"
+license-files = ["LICENSE.txt", "AUTHORS"]
 
 
 # This field adds keywords for your project which will appear on the
@@ -112,7 +116,7 @@ dependencies = [# Optional
     'Pillow',
     'djangorestframework>=3.15.2',
     'django>=5.2',
-    'django_filter>=22.1',
+    'django-filter>=22.1',
     'pycryptodome>=3.23.0'
 ]
 
@@ -203,7 +207,12 @@ exclude = ["docs*", "demo*", "*.tests", "*.tests.*"]
 [build-system]
 # These are the assumed default build requirements from pip:
 # https://pip.pypa.io/en/stable/reference/pip/#pep-517-and-518-support
-requires = ["setuptools>=61.0.0,<69.3.0", "wheel"]
+# No ceiling: it was added along with the setup.py -> pyproject migration with
+# no reason recorded, and building with setuptools 83 produces a byte-identical
+# file list (1108 in the wheel, 1243 in the sdist). The floor is 77 because that
+# is where the PEP 639 `license` expression above is understood.
+# `wheel` is not listed: setuptools has carried bdist_wheel itself since 70.1.
+requires = ["setuptools>=77.0.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.dynamic]
