@@ -4,14 +4,16 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-import uuid
-from djgentelella.models import DeletedWithTrash
 from django.contrib.auth import get_user_model
 
-User = get_user_model()
+from djgentelella.fields.catalog import (
+    GTForeignKey,
+    GTManyToManyField,
+    GTOneToOneField,
+)
+from djgentelella.models import DeletedWithTrash
 
-# Create your models here.
-from djgentelella.fields.catalog import GTForeignKey, GTManyToManyField, GTOneToOneField
+User = get_user_model()
 
 
 class Country(models.Model):

@@ -25,7 +25,8 @@ def get_signature_default():
         "contact": "",
         "country": "CR",
         "dateFormat": "dd/MM/yyyy hh:mm:ss a",
-        "defaultSignMessage": "Esta es una representación gráfica únicamente,\nverifique la validez de la firma.",
+        "defaultSignMessage": "Esta es una representación gráfica únicamente,\n"
+        "verifique la validez de la firma.",
         "font": "Nimbus Sans Regular",
         "fontAlignment": "None",
         "fontColor": "000000",

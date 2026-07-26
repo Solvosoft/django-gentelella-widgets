@@ -21,9 +21,10 @@ The DigitalSignatureInput widget accepts several key parameters:
         In this example, it is set to "last". This parameter is optional.
 
     - ws_url (str, optional):
-        The WebSocket URL for the digital signature service. If not provided, the widget
-        will attempt to retrieve the value from the Django settings (FIRMADOR_WS_URL). This
-        parameter is critical for establishing the connection with the signing service.
+        The WebSocket URL for the digital signature service. If not provided,
+        the widget will attempt to retrieve the value from the Django settings
+        (FIRMADOR_WS_URL). This parameter is critical for establishing the
+        connection with the signing service.
 
 
 """

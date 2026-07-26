@@ -35,7 +35,8 @@ class FileChunkedUpload(FileInput):
         if value:
             name = Path(value.name).name
             self.value = mark_safe(
-                '{"name": "%(name)s", "display_name": "%(display_name)s", "url": "%(url)s" }'
+                '{"name": "%(name)s", "display_name": "%(display_name)s", '
+                '"url": "%(url)s" }'
                 % {"name": value.name, "display_name": name, "url": value.url}
             )
             return self.value

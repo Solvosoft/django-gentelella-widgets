@@ -97,7 +97,8 @@ class GetBackendTest(AsyncNotificationTestBase):
         self.assertIsNot(backend1, backend2)
 
     @override_settings(
-        ASYNC_NOTIFICATION_BACKEND="djgentelella.async_notification.backends.sync.SyncBackend"
+        ASYNC_NOTIFICATION_BACKEND="djgentelella.async_notification.backends"
+        ".sync.SyncBackend"
     )
     def test_explicit_backend_setting(self):
         reset_backend()

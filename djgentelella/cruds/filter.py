@@ -22,7 +22,11 @@ class FormFilter:
             rq_value = self.request.GET.get(value, "")
             if value and rq_value:
                 data_value = self.form_instance.cleaned_data[value]
-                if type(data_value) == models.QuerySet:
+                # isinstance, not type(...) == QuerySet: a model with a custom
+                # manager hands back a QuerySet subclass, and the exact-type
+                # check skipped it, so its multiple-choice filters never got
+                # the "__in" suffix and matched nothing.
+                if isinstance(data_value, models.QuerySet):
                     if data_value.count() == 1:
                         data_value = data_value.first()
                     elif "__in" not in value:
@@ -53,7 +57,7 @@ class FormFilter:
             rq_value = self.request.GET.get(value, "")
             if rq_value:
                 data = self.form_instance.cleaned_data[value]
-                if type(data) == models.QuerySet:
+                if isinstance(data, models.QuerySet):
                     for q in data:
                         params = self.get_build_param(value, q, params)
                 else:

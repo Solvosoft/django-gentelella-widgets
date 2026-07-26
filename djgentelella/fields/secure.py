@@ -23,7 +23,7 @@ def get_salt_session(size=16):
 
 
 def salt_encrypt(message, session_key=None):
-    if type(message) == str:
+    if isinstance(message, str):
         message = message.encode()
     session_key = get_salt_session()
     file_out = io.BytesIO()
@@ -70,7 +70,7 @@ class GTEncryptedText(models.TextField):
         if field is None:
             return None
         dev = salt_encrypt(field)
-        if type(dev) == bytes:
+        if isinstance(dev, bytes):
             dev = dev.decode()
         return dev
 

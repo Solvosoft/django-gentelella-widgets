@@ -43,7 +43,8 @@ class DigitalSignatureInput(HiddenInput, ValueDSParser):
             self.icon_url = "gentelella/images/firmador.ico"
         if self.render_basename is None:
             logger.warning(
-                "No base name for DigitalSignatureInput, this will generate a 500 error in the future"
+                "No base name for DigitalSignatureInput, this will generate "
+                "a 500 error in the future"
             )
         self.validate_attrs(attrs, default_page)
 
@@ -62,7 +63,8 @@ class DigitalSignatureInput(HiddenInput, ValueDSParser):
             attrs["data-default-page"] = default_page
         else:
             raise ValueError(
-                "The default_page attrs in DigitalSignatureInput, must be 'first', 'last' or a positive number."
+                "The default_page attrs in DigitalSignatureInput, must be "
+                "'first', 'last' or a positive number."
             )
 
     def get_icon_url(self, value):

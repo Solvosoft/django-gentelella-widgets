@@ -30,7 +30,8 @@ class GTBase64FileField(serializers.FileField):
         if not isinstance(datalist, list):
             raise serializers.ValidationError(
                 _(
-                    "A list of elements is expected, ej: [{name: 'name of file', value:'base64 string representation'}]"
+                    "A list of elements is expected, ej: [{name: 'name of "
+                    "file', value:'base64 string representation'}]"
                 )
             )
         if len(datalist) > self.max_files:
@@ -44,7 +45,9 @@ class GTBase64FileField(serializers.FileField):
                 if field not in data:
                     raise serializers.ValidationError(
                         _(
-                            "Invalid structure you need to provide {name: 'name of file', value:'base64 string representation'}"
+                            "Invalid structure you need to provide {name: "
+                            "'name of file', value:'base64 string "
+                            "representation'}"
                         )
                     )
             name = slugify(Path(data["name"]).stem)
@@ -90,8 +93,9 @@ class ChunkedFileField(serializers.FileField):
             value (str): The value to be parsed.
 
         Returns:
-            The parsed result if the value is valid and contains the required attributes,
-            one of url, token, or actions otherwise returns None.
+            The parsed result if the value is valid and contains the
+            required attributes, one of url, token, or actions; otherwise
+            returns None.
         """
         dev = None
         try:
@@ -110,8 +114,8 @@ class ChunkedFileField(serializers.FileField):
             data (str): The data to be converted.
 
         Returns:
-            The internal value representation of the data, or None if the data is invalid
-            or does not contain the required attributes.
+            The internal value representation of the data, or None if the
+            data is invalid or does not contain the required attributes.
         """
         token = self.parse_value(data)
         dev = None
@@ -148,8 +152,8 @@ class DigitalSignatureField(serializers.FileField, ValueDSParser):
             data (str): The data to be converted.
 
         Returns:
-            The internal value representation of the data, or None if the data is invalid
-            or does not contain the required attributes.
+            The internal value representation of the data, or None if the
+            data is invalid or does not contain the required attributes.
         """
         dev = None
         jsondata = self.get_json_file(data)

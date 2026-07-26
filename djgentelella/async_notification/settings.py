@@ -42,7 +42,8 @@ ASYNC_NOTIFICATION_BASE_TEMPLATES = getattr(
 ASYNC_NOTIFICATION_BRAND = getattr(settings, "ASYNC_NOTIFICATION_BRAND", {})
 
 # Custom SMTP server configs for newsletters:
-# {'config_name': {'host': ..., 'port': ..., 'username': ..., 'password': ..., 'use_tls': ...}}
+# {'config_name': {'host': ..., 'port': ..., 'username': ...,
+#                  'password': ..., 'use_tls': ...}}
 ASYNC_NEWSLETTER_SEVER_CONFIGS = getattr(
     settings, "ASYNC_NEWSLETTER_SEVER_CONFIGS", None
 )

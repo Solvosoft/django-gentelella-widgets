@@ -131,7 +131,8 @@ class SignatureConfigForm(GTForm, forms.ModelForm):
         return mark_safe(f"""
             <label for="image-preview"><strong>{label}:</strong></label><br>
             <div class="d-flex justify-content-center">
-                <img id="image-preview" alt="{label}" src="{src}" style="max-height:100px; max-width:300px; display:block;">
+                <img id="image-preview" alt="{label}" src="{src}"
+                     style="max-height:100px; max-width:300px; display:block;">
             </div>
         """)
 

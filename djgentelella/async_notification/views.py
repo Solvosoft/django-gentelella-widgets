@@ -704,7 +704,8 @@ def reassociate_files_view(request):
     POST parameters:
         upload_session: The UUID session used during uploads.
         object_id: The ID of the newly created object.
-        content_type: The app_label.model string (e.g. 'async_notification.emailnotification').
+        content_type: The app_label.model string
+            (e.g. 'async_notification.emailnotification').
     """
     if request.method != "POST":
         return JsonResponse({"error": "POST required"}, status=405)

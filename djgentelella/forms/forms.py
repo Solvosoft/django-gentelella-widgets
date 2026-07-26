@@ -7,7 +7,9 @@ from django.utils.safestring import mark_safe
 
 class GTForm(forms.Form):
     """
-    GTForm is the basis of form management, it does the work of django `forms.Form`, including enhancements and boostrap rendering, so it should be inherited from this form, rather than `forms.Form`.
+    GTForm is the basis of form management, it does the work of django
+    `forms.Form`, including enhancements and boostrap rendering, so it should
+    be inherited from this form, rather than `forms.Form`.
 
     Example of use:
 
@@ -166,7 +168,8 @@ class GTForm(forms.Form):
     def as_grid(self):
         """
         Allow you to arrange the form fields in rows and cols,
-        When you use this render needs to fill  `grid_representation` attribute in your form
+        When you use this render needs to fill  `grid_representation`
+        attribute in your form
         Return this form rendered as HTML using grid bootstrap approach.,
 
         .. code:: python
