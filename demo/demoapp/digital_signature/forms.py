@@ -40,21 +40,18 @@ from djgentelella.widgets.digital_signature import DigitalSignatureInput
 class DigitalSignatureAddForm(GTForm, forms.ModelForm):
     class Meta:
         model = DigitalSignature
-        fields = ['filename', 'file']
-        widgets = {
-            'filename': TextInput,
-            'file': FileInput
-        }
+        fields = ["filename", "file"]
+        widgets = {"filename": TextInput, "file": FileInput}
 
 
 class DigitalSignatureForm(GTForm, forms.ModelForm):
     class Meta:
         model = DigitalSignature
-        fields = ['file']
+        fields = ["file"]
         widgets = {
-            'file': DigitalSignatureInput(
+            "file": DigitalSignatureInput(
                 title=_("Widget Digital Signature"),
                 default_page="last",
-                render_basename="digital_signature_file_api"
+                render_basename="digital_signature_file_api",
             )
         }

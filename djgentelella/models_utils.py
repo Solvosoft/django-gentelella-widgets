@@ -11,10 +11,7 @@ logger = logging.getLogger("djgentelella")
 def get_file_name(instance, name):
     model_name = str(type(instance).__name__).lower()
 
-    return "%s-%s" % (
-        model_name,
-        name
-    )
+    return "%s-%s" % (model_name, name)
 
 
 def upload_files_by_model_and_dates(instance, filename):
@@ -57,8 +54,8 @@ def upload_files_by_model_and_month(instance, filename):
 
 def delete_file_and_folder(file_field):
     """
-        Delete the file associated with file_field and, if the containing folder is empty,
-        delete it.
+    Delete the file associated with file_field and, if the containing folder is empty,
+    delete it.
     """
     if not file_field:
         return

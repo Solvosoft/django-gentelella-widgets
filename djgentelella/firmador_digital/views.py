@@ -13,7 +13,9 @@ def update_signature_settings(request):
     config, is_created = UserSignatureConfig.objects.get_or_create(user=request.user)
 
     if request.method == "POST":
-        form = SignatureConfigForm(request.POST, request.FILES, instance=config, render_type="as_grid")
+        form = SignatureConfigForm(
+            request.POST, request.FILES, instance=config, render_type="as_grid"
+        )
         if form.is_valid():
             form.save()
             messages.success(request, _("Updated signature settings successfully."))
@@ -24,7 +26,5 @@ def update_signature_settings(request):
     return render(
         request,
         "gentelella/digital_signature/update_signature_settings.html",
-        context={
-            "form": form
-        }
+        context={"form": form},
     )

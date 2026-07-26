@@ -46,8 +46,7 @@ def add_log(
     if change_message:
         if action_flag != DELETION and changed_data:
             verbose_changes = [
-                str(object._meta.get_field(f).verbose_name)
-                for f in changed_data
+                str(object._meta.get_field(f).verbose_name) for f in changed_data
             ]
 
             change_message = _("%(msg)s. Fields: %(fields)s") % {
@@ -55,7 +54,9 @@ def add_log(
                 "fields": ", ".join(verbose_changes),
             }
         else:  # delete, restore, hard delete
-            change_message = _("The record %(obj)s of model %(model)s has been %(action)s") % {
+            change_message = _(
+                "The record %(obj)s of model %(model)s has been %(action)s"
+            ) % {
                 "obj": str(object),
                 "model": _(model_name),
                 "action": action_label,

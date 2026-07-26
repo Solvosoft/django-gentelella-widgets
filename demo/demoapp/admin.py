@@ -1,12 +1,26 @@
 from django.contrib import admin
 
-from .models import WithCatalog, Catalog, OneCatalog, Country, Person, Foo, \
-    Community, Employee, ChunkedUploadItem, Event, \
-        Calendar, DigitalSignature, SelectImage, Img, Customer
+from .models import (
+    WithCatalog,
+    Catalog,
+    OneCatalog,
+    Country,
+    Person,
+    Foo,
+    Community,
+    Employee,
+    ChunkedUploadItem,
+    Event,
+    Calendar,
+    DigitalSignature,
+    SelectImage,
+    Img,
+    Customer,
+)
 
 
 class DigitalSignatureAdmin(admin.ModelAdmin):
-    list_display = ('id', 'filename', 'file_code', 'created', 'updated')
+    list_display = ("id", "filename", "file_code", "created", "updated")
 
 
 class CustomerAdmin(admin.ModelAdmin):

@@ -19,14 +19,14 @@ class FormFilter:
     def get_cleaned_fields(self):
         values = {}
         for value in self.form_instance.cleaned_data:
-            rq_value = self.request.GET.get(value, '')
+            rq_value = self.request.GET.get(value, "")
             if value and rq_value:
                 data_value = self.form_instance.cleaned_data[value]
                 if type(data_value) == models.QuerySet:
                     if data_value.count() == 1:
                         data_value = data_value.first()
-                    elif '__in' not in value:
-                        value = value + '__in'
+                    elif "__in" not in value:
+                        value = value + "__in"
                 values[value] = data_value
         return values
 
@@ -50,7 +50,7 @@ class FormFilter:
         for value in self.form_instance.cleaned_data:
             if value in exclude:
                 continue
-            rq_value = self.request.GET.get(value, '')
+            rq_value = self.request.GET.get(value, "")
             if rq_value:
                 data = self.form_instance.cleaned_data[value]
                 if type(data) == models.QuerySet:

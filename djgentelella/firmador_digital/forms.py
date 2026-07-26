@@ -9,14 +9,18 @@ from django.templatetags.static import static
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
-from djgentelella.firmador_digital.models import UserSignatureConfig, \
-    get_signature_default, FORMATS_DATE, FONT_ALIGNMENT
+from djgentelella.firmador_digital.models import (
+    UserSignatureConfig,
+    get_signature_default,
+    FORMATS_DATE,
+    FONT_ALIGNMENT,
+)
 from djgentelella.firmador_digital.signvalue_utils import ValueDSParser
 from djgentelella.forms.forms import GTForm
 from djgentelella.widgets import core as genwidgets
 from djgentelella.widgets.core import FileInput
 
-logger = logging.getLogger('djgentelella')
+logger = logging.getLogger("djgentelella")
 
 
 class CardForm(GTForm):
@@ -27,40 +31,38 @@ class RenderValueForm(GTForm, ValueDSParser):
     value = forms.CharField(required=True)
 
     def clean_value(self):
-        value = self.cleaned_data['value']
+        value = self.cleaned_data["value"]
         jsondata = self.get_json_file(value)
         if not jsondata:
             raise ValidationError(
                 _("Invalid value not encoded as b64 o json parser error"),
-                code="invalid")
+                code="invalid",
+            )
         return jsondata
 
 
 class SignatureConfigForm(GTForm, forms.ModelForm):
     contact = forms.CharField(
-        required=False,
-        max_length=100,
-        widget=genwidgets.TextInput,
-        label=_("Contact")
+        required=False, max_length=100, widget=genwidgets.TextInput, label=_("Contact")
     )
     dateFormat = forms.ChoiceField(
         widget=genwidgets.Select,
         required=True,
         choices=FORMATS_DATE,
-        label=_("Date format")
+        label=_("Date format"),
     )
 
     defaultSignMessage = forms.CharField(
         widget=genwidgets.Textarea,
         required=False,
         max_length=100,
-        label=_("Signature message")
+        label=_("Signature message"),
     )
     fontAlignment = forms.ChoiceField(
         choices=FONT_ALIGNMENT,
         widget=genwidgets.Select,
         required=True,
-        label=_("Font alignment")
+        label=_("Font alignment"),
     )
     fontColor = forms.CharField(
         max_length=50,
@@ -74,29 +76,19 @@ class SignatureConfigForm(GTForm, forms.ModelForm):
         max_value=28,
         initial=7,
         widget=genwidgets.NumberInput,
-        label=_("Font size")
+        label=_("Font size"),
     )
     place = forms.CharField(
-        required=False,
-        max_length=100,
-        widget=genwidgets.TextInput,
-        label=_("Place")
+        required=False, max_length=100, widget=genwidgets.TextInput, label=_("Place")
     )
     reason = forms.CharField(
-        required=False,
-        max_length=100,
-        widget=genwidgets.TextInput,
-        label=_("Reason")
+        required=False, max_length=100, widget=genwidgets.TextInput, label=_("Reason")
     )
     isVisibleSignature = forms.BooleanField(
-        required=False,
-        widget=genwidgets.YesNoInput,
-        label=_("Visible signature")
+        required=False, widget=genwidgets.YesNoInput, label=_("Visible signature")
     )
     image = forms.ImageField(
-        required=False,
-        widget=FileInput,
-        label=_("Signature image")
+        required=False, widget=FileInput, label=_("Signature image")
     )
 
     default_render_type = "as_grid"
@@ -118,8 +110,11 @@ class SignatureConfigForm(GTForm, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        cfg = self.instance.config if getattr(self.instance, "config",
-                                              None) else get_signature_default()
+        cfg = (
+            self.instance.config
+            if getattr(self.instance, "config", None)
+            else get_signature_default()
+        )
         for key, value in cfg.items():
             if key in self.fields:
                 self.fields[key].initial = value
