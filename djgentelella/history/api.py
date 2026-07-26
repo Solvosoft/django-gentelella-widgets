@@ -14,7 +14,6 @@ from django.db.models import Q
 from django.contrib.contenttypes.models import ContentType
 
 
-
 class BaseViewSetWithLogs(AuthAllPermBaseObjectManagement):
 
     def perform_create(self, serializer):
@@ -99,7 +98,6 @@ class HistoryViewSet(AuthAllPermBaseObjectManagement):
 
             queryset = queryset.filter(content_type__in=allowed_ctypes).distinct()
 
-
         # check contenttype param in form
         ctypes_param = self.request.GET.get("contenttype")
         if ctypes_param and ctypes_param in allowed:
@@ -126,7 +124,6 @@ class HistoryViewSet(AuthAllPermBaseObjectManagement):
         if not q:
             return ContentType.objects.none()
         return ContentType.objects.filter(q)
-
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())

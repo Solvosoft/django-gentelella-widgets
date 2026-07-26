@@ -4,6 +4,7 @@ from djgentelella.widgets import core as gtw
 from django import forms
 from demoapp.models import Customer
 
+
 class CustomerForm(GTForm, forms.ModelForm):
     class Meta:
         model = Customer
@@ -14,4 +15,3 @@ class CustomerForm(GTForm, forms.ModelForm):
             "email": gtw.EmailInput,
             "phone_number": gtw.PhoneNumberMaskInput,
         }
-

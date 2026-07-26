@@ -4,6 +4,7 @@ from django_filters import DateTimeFromToRangeFilter
 from djgentelella.fields.drfdatetime import DateTimeRangeTextWidget
 from djgentelella.history.utils import ACTIONS
 
+
 class HistoryFilterSet(FilterSet):
     action_time = DateTimeFromToRangeFilter(
         widget=DateTimeRangeTextWidget(attrs={"placeholder": "DD/MM/YYYY/"})

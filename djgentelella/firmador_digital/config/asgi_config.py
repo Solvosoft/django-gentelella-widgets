@@ -6,6 +6,7 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 from djgentelella.firmador_digital.config.websocket_urls import websocket_urlpatterns
 
+
 class AsgiConfig:
 
     def __init__(self, settings_module: str):

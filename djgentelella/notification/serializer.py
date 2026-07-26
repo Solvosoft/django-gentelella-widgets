@@ -9,6 +9,7 @@ from djgentelella.fields.drfdatetime import DateTimeRangeTextWidget
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
+
 class NotificationFilterSet(FilterSet):
     creation_date = DateTimeFromToRangeFilter(
         widget=DateTimeRangeTextWidget(

@@ -1,5 +1,6 @@
 from rest_framework.renderers import BaseRenderer
 
+
 class PDFRenderer(BaseRenderer):
     media_type = 'application/pdf'
     format = 'pdf'

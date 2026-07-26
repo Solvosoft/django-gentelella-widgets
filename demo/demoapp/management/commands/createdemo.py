@@ -575,7 +575,6 @@ class Command(BaseCommand):
             only_icon=False
         )
 
-
     def create_countries(self):
         models.Country.objects.all().delete()
         data = [

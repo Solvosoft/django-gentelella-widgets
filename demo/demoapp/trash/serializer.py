@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.utils.translation import gettext_lazy as _
 from demoapp.models import Customer
 
+
 class CustomerSerializer(serializers.ModelSerializer):
     actions = serializers.SerializerMethodField()
 
@@ -42,4 +43,3 @@ class CustomerValidateSerializer(serializers.ModelSerializer):
             "email",
             "phone_number",
         )
-

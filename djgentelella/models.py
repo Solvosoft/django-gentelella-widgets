@@ -9,8 +9,9 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from .models_manager import ObjectManager, AllObjectsManager, \
     DeletedObjectsManager
-from  djgentelella.settings import USER_MODEL_BASE
+from djgentelella.settings import USER_MODEL_BASE
 from djgentelella.history.utils import add_log, ADDITION
+
 
 class GentelellaSettings(models.Model):
     """
@@ -58,6 +59,7 @@ class Help(models.Model):
 
     def __str__(self):
         return self.help_text
+
 
 class Notification(models.Model):
     STATE = [('visible', _('Visible')),
@@ -167,7 +169,6 @@ class Trash(models.Model):
             obj.restore()
 
         self.delete()  # delete the instance of trash
-
 
     def hard_delete(self):
         """

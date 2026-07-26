@@ -289,6 +289,7 @@ class DigitalSignature(models.Model):
     def __str__(self):
         return self.filename or str(self.file_code)
 
+
 class SelectImage(models.Model):
     name = models.CharField(max_length=255)
     img = models.FileField(upload_to="images", null=True, blank=True)

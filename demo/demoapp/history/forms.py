@@ -15,4 +15,3 @@ class HistoryFilterForm(GTForm, forms.Form):
         widget=genwidgets.Select,
         label=_("Category"),
     )
-

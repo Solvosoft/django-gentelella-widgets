@@ -9,8 +9,10 @@ from django.contrib.admin.models import LogEntry
 from djgentelella.history.utils import ACTIONS
 from django.utils.translation import gettext_lazy as _
 
+
 class MenuAdmin(admin.ModelAdmin):
     filter_horizontal = ['permission']
+
 
 class GentelellaSettingsAdmin(admin.ModelAdmin):
     list_display = ['key', 'value']
@@ -23,17 +25,21 @@ class GentelellaSettingsAdmin(admin.ModelAdmin):
 
     clean_settings_cache.short_description = "Clean settings cache"
 
+
 class NotificationAdmin(admin.ModelAdmin):
     list_display = ['description', 'state', 'message_type']
     list_editable = ['state']
+
 
 class ChunkedUploadAdmin(admin.ModelAdmin):
     list_display = ('upload_id', 'filename', 'status', 'created_on')
     search_fields = ('filename', 'filename')
     list_filter = ('status',)
 
+
 class UserSignatureConfigAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'config')
+
 
 class TrashAdmin(admin.ModelAdmin):
     list_display = ("id", "deleted_by", "content_type", "object_id", "object_repr", "created_at")
@@ -57,6 +63,7 @@ class ActionFlagFilter(admin.SimpleListFilter):
         except ValueError:
             return queryset.none()
 
+
 class LogEntryAdmin(admin.ModelAdmin):
     verbose_name = _("History")
     verbose_name_plural = _("History")
@@ -65,6 +72,7 @@ class LogEntryAdmin(admin.ModelAdmin):
     list_filter = (
         ActionFlagFilter,
     )
+
     def action_label(self, obj):
         return ACTIONS.get(obj.action_flag, obj.get_action_flag_display() or obj.action_flag)
     action_label.short_description = _("Action")

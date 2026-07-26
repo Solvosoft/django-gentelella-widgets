@@ -50,7 +50,6 @@ class TrashViewSet(AuthAllPermBaseObjectManagement):
 
         instance.hard_delete()
 
-
     @action(detail=True, methods=["POST"])
     def restore(self, request, org_pk=None, pk=None):
         try:

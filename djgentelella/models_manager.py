@@ -28,13 +28,14 @@ class ObjectManager(models.Manager):
     def get_queryset(self):
         return ObjectQuerySet(self.model, using=self._db).alive()
 
+
 class AllObjectsManager(models.Manager):
     # Explicit access to all objects
     def get_queryset(self):
         return ObjectQuerySet(self.model, using=self._db)
 
+
 class DeletedObjectsManager(models.Manager):
     # Only deleted objects
     def get_queryset(self):
         return ObjectQuerySet(self.model, using=self._db).dead()
-

@@ -308,7 +308,6 @@ class NewsLetterCreateSerializer(InlineAttachmentSerializerMixin,
     # rejects it with "not a file. Check the encoding type on the form."
     attached_file = GTBase64FileField(required=False, allow_empty_file=True)
 
-
     class Meta:
         model = NewsLetter
         fields = ('template', 'subject', 'message', 'recipients',

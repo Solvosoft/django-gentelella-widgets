@@ -8,6 +8,7 @@ from djgentelella.settings import USER_MODEL_BASE, GROUP_MODEL_BASE
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
+
 class FilterPermCategoryForm(GTForm, forms.Form):
     option = forms.ChoiceField(choices=((1, 'User'), (2, 'Group')), required=True)
     urlname = forms.CharField(required=True)

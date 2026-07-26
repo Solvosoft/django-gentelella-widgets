@@ -19,6 +19,7 @@ from djgentelella.notification.base import NotificationViewSet
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
+
 class ApiNotificationsTestCase(TestCase):
     def setUp(self):
         self.api_client = APIClient()

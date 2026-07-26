@@ -17,6 +17,7 @@ class CustomerAdmin(admin.ModelAdmin):
         # important to define for see deleted
         return Customer.objects_with_deleted.all()
 
+
 admin.site.register(DigitalSignature, DigitalSignatureAdmin)
 admin.site.register(Country)
 admin.site.register(Catalog)

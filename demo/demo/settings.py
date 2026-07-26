@@ -207,7 +207,7 @@ FIRMADOR_DELETE_FILE_URL = FIRMADOR_DOMAIN + "/firma/delete"
 
 # history
 GT_HISTORY_ALLOWED_MODELS = [
-    "djgentelella.trash", # add always trash when you use history
+    "djgentelella.trash",  # add always trash when you use history
     "demoapp.customer",
     # add more models here for history
 ]

@@ -54,7 +54,7 @@ def add_log(
                 "msg": change_message,
                 "fields": ", ".join(verbose_changes),
             }
-        else: # delete, restore, hard delete
+        else:  # delete, restore, hard delete
             change_message = _("The record %(obj)s of model %(model)s has been %(action)s") % {
                 "obj": str(object),
                 "model": _(model_name),
@@ -69,4 +69,3 @@ def add_log(
         action_flag=action_flag,
         change_message=change_message,
     )
-

@@ -5,7 +5,6 @@ from rest_framework import serializers
 from djgentelella.serializers import GTDateField, GTDateTimeField
 
 
-
 class HistorySerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
     action_flag = serializers.SerializerMethodField()
@@ -47,4 +46,3 @@ class HistoryDataTableSerializer(serializers.Serializer):
     draw = serializers.IntegerField(required=True)
     recordsFiltered = serializers.IntegerField(required=True)
     recordsTotal = serializers.IntegerField(required=True)
-

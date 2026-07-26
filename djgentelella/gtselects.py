@@ -6,6 +6,7 @@ from djgentelella.views.select2autocomplete import BaseSelect2View
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
+
 @register_lookups(prefix="userbase", basename="userbase")
 class User(BaseSelect2View, AllPermission):
     model = User

@@ -48,4 +48,3 @@ class CustomerViewSet(BaseViewSetWithLogs):
         )
         # add user to deleted_by for trash
         instance.delete(user=self.request.user)
-

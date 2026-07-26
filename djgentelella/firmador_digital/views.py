@@ -6,11 +6,11 @@ from django.utils.translation import gettext_lazy as _
 from djgentelella.firmador_digital.forms import SignatureConfigForm
 from djgentelella.firmador_digital.models import UserSignatureConfig
 
+
 @login_required
 def update_signature_settings(request):
 
     config, is_created = UserSignatureConfig.objects.get_or_create(user=request.user)
-
 
     if request.method == "POST":
         form = SignatureConfigForm(request.POST, request.FILES, instance=config, render_type="as_grid")
@@ -20,7 +20,6 @@ def update_signature_settings(request):
             return redirect("signature_config")
     else:
         form = SignatureConfigForm(instance=config, render_type="as_grid")
-
 
     return render(
         request,

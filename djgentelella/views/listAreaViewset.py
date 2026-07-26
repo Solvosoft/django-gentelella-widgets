@@ -31,7 +31,6 @@ class ListAreaViewset(mixins.ListModelMixin, GenericViewSet):
     extra_template_context = None
     html_id = None
 
-
     def distribution(self):
         return self.DISTRIBUTE.get(self.distribution_value, ("col-md-6", "col-md-6"))
 
