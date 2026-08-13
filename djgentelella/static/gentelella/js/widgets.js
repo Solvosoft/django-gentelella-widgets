@@ -220,8 +220,13 @@ document.gtwidgets = {
     },
     TextareaWysiwyg: function (instance) {
         $(instance).removeAttr('required');
+        var spellcheck = instance.attr('data-option-spellcheck') !== 'false';
+        var lang = instance.attr('data-option-lang') || 'en';
         instance.tinymce({
             menubar: false,
+            browser_spellcheck: spellcheck,
+            contextmenu: spellcheck ? false : 'link image table',
+            body_attrs: { lang: lang },
             toolbar: 'undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist checklist | forecolor backcolor casechange permanentpen formatpainter removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media pageembed template link anchor codesample | a11ycheck ltr rtl | showcomments addcomment',
             plugins: ['autolink', 'codesample', 'link', 'lists', 'media', 'quickbars', "advlist autolink lists link image charmap print preview anchor",
                 "searchreplace visualblocks code fullscreen", "insertdatetime media table paste imagetools wordcount",
