@@ -37,11 +37,15 @@ BUNDLED_ARTIFACTS = [
     'static/djgentelella.vendors.header.min.js',
     'static/djgentelella.vendors.min.js',
     'static/djgentelella.readonly.vendors.min.js',
+    'static/djgentelella.maps.vendors.min.js',
+    'static/djgentelella.maps.plugins.min.js',
     'static/gentelella/js/base.js',
     # gentelella/statics/stylesheets.html
     'static/djgentelella.vendors.min.css',
     'static/djgentelella.readonly.vendors.min.css',
     'static/djgentelella.flags.vendors.min.css',
+    'static/djgentelella.maps.vendors.min.css',
+    'static/djgentelella.maps.plugins.min.css',
     # compilemessages: django.po drives python/templates, djangojs.po the widgets
     'locale/es/LC_MESSAGES/django.mo',
     'locale/es/LC_MESSAGES/djangojs.mo',

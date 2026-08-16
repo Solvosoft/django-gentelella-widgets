@@ -1,0 +1,68 @@
+{% extends 'gentelella/base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>{% trans 'Place' %} <small>{% trans 'model field' %}</small></h2>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form.as_inline }}
+                    <button type="submit" class="btn btn-success">{% trans 'Save' %}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>{% trans 'Point' %} <small>{% trans 'widget only' %}</small></h2>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                {{ simple_form.as_inline }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>{% trans 'Saved places' %}</h2>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>{% trans 'Name' %}</th>
+                            <th>{% trans 'Country' %}</th>
+                            <th>{% trans 'City' %}</th>
+                            <th>{% trans 'Location' %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for place in places %}
+                            <tr>
+                                <td>{{ place.name }}</td>
+                                <td>{{ place.country }}</td>
+                                <td>{{ place.city }}</td>
+                                <td>{{ place.location }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="4">{% trans 'No places yet' %}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

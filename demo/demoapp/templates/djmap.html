@@ -1,0 +1,38 @@
+{% extends 'gentelella/base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>{% trans 'Places' %}</h2>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                {# data-country is resolved by gt_resolve_value, the same #}
+                {# '#selector' syntax the chart widget uses for filters. #}
+                <div class="mb-2">
+                    <select id="id_country_filter" class="form-control">
+                        <option value="">{% trans 'All countries' %}</option>
+                        {% for country in countries %}
+                            <option value="{{ country }}">{{ country }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% include 'gentelella/widgets/djmap.html' with map_url=places_url height='480px' dataparams='data-country="#id_country_filter"' %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+    $(document).ready(function () {
+        $('#id_country_filter').on('change', function () {
+            refreshGentelellaMap('.gentelella_map');
+        });
+    });
+</script>
+{% endblock %}

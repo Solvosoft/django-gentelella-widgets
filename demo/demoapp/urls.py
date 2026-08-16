@@ -31,6 +31,7 @@ from .select_image import views as select_image
 from .storyLine.views import storyline_view
 from .storymap.views import gigapixel_view, mapbased_view
 from .tagging import views as tagging
+from .maps.views import map_dashboard_view, map_point_view
 from .timeline.views import timeline_view
 from .views import knobView, YesNoInputView
 from .wysiwyg import views as tinymce
@@ -176,6 +177,8 @@ urlpatterns = (
         path("mapbased_view", mapbased_view, name="mapbased_view"),
         path("storyline_view", storyline_view, name="storyline_view"),
         path("timeline_view", timeline_view, name="timeline_view"),
+        path("maps/", map_point_view, name="map-point"),
+        path("maps/dashboard", map_dashboard_view, name="map-dashboard"),
         path("datatable_view", datatableViewExample, name="datatable_view"),
         # CardTable
         path("cardlist_view", cardListViewExample, name="cardlist_view"),

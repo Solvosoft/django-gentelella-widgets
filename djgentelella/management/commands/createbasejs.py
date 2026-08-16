@@ -34,11 +34,16 @@ class Command(BaseCommand):
             'voiceeditortinymce.js',
             'digital_signature.js',
             'api_list.js',
-            'tagify.js'
+            'tagify.js',
+            # maplib.js is the shared engine, so it has to come before the
+            # widget that consumes it -- same rule as voiceprogressive.js.
+            'maplib.js',
+            'mappoint.js'
         ]
         jquery_plugins = [
             'notifications.js',
             'chart.js',
+            'map.js',
             'custom.widgets.js',
             'fileupload.widget.js',
             'select2related.js',

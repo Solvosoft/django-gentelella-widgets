@@ -55,6 +55,7 @@ ________________________________
 - **REST API ready** — Built-in Django REST Framework serializers for notifications, history, and trash.
 - **Real-time notifications** — User notification system with WebSocket support via Django Channels.
 - **Voice dictation** — Speak into a textarea or a TinyMCE editor, transcribed in-process or by an external ASR service.
+- **Maps** — Ask users for a GPS point on a Leaflet map, and plot points from your API with clustering and heatmaps. No GeoDjango or PostGIS required.
 - **Digital signatures** — Integrate document signing workflows into your application.
 - **Permission management** — Organize and assign permissions by category with a visual interface.
 
@@ -70,7 +71,8 @@ ______________
 - File uploads with chunking and media recording (image, video, audio)
 - WYSIWYG and TinyMCE rich text editors
 - Voice dictation (``VoiceDictation``, ``VoiceEditorTinymce``) with live speech-to-text
-- Interactive components: calendars, timelines, story maps, charts
+- GPS point picking on a Leaflet map (``MapPointInput``, ``GTPointField``)
+- Interactive components: calendars, timelines, story maps, charts, maps (``DJMap``)
 - Digital signature capture
 
 **Application Components**

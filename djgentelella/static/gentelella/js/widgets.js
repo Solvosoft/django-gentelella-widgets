@@ -265,6 +265,12 @@ document.gtwidgets = {
     DJGraph: function (instance) {
         instance.gentelella_chart();
     },
+    DJMap: function (instance) {
+        instance.gentelella_map();
+    },
+    MapPointInput: function (instance) {
+        build_map_point(instance);
+    },
     NullBooleanSelect: function (instance) {
         instance.iCheck({
             checkboxClass: 'icheckbox_flat-green',

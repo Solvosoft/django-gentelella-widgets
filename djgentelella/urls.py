@@ -106,6 +106,7 @@ for app in settings.INSTALLED_APPS:
     import_module_app_gt(app, "gttimeline")
     import_module_app_gt(app, "gtstorymap")
     import_module_app_gt(app, "gtstoryline")
+    import_module_app_gt(app, "gtmaps")
 
 router = DefaultRouter()
 router.register("notificationtableview", NotificationViewSet, "api-notificationtable")

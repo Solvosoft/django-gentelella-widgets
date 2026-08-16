@@ -42,6 +42,9 @@ clean-build:
 	rm -fr *.egg-info
 	rm -fr djgentelella/static/vendors/*
 	rm -fr djgentelella/static/djgentelella.vendors*
+	rm -fr djgentelella/static/djgentelella.readonly.vendors*
+	rm -fr djgentelella/static/djgentelella.flags.vendors*
+	rm -fr djgentelella/static/djgentelella.maps.*
 
 clean-pyc:
 	find . -name '*.pyc' -exec rm -f {} +

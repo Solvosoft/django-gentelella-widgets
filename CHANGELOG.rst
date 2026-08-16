@@ -1,6 +1,47 @@
 Changelog
 ===========
 
+Unreleased
+------------
+
+New features
+""""""""""""""""""
+
+**Leaflet map widgets.** Two widgets sharing one JavaScript engine
+(``gentelella/js/base/maplib.js``):
+
+* :class:`~djgentelella.widgets.maps.MapPointInput` asks the user for a single
+  GPS point -- click, marker drag, "use my location", address search or
+  ``based_fields`` geocoding from other fields. It stores the plain string
+  ``"latitude,longitude"``, so **no GeoDjango, GDAL or PostGIS is needed** and
+  it works on SQLite. ``djgentelella.fields.maps`` adds the matching
+  ``GTPointField`` model field (with a proper ``deconstruct()``) and
+  ``GTPointFormField``.
+* ``DJMap`` draws many points fetched from an API, the sibling of ``DJGraph``:
+  marker popups, per-layer clustering, a heatmap and a layer switcher. Subclass
+  :class:`~djgentelella.views.maps.BaseMapView` in ``<app>/gtmaps.py`` and
+  include ``gentelella/widgets/djmap.html``. Filters use the same
+  ``#selector`` / ``{funcName}`` ``data-*`` syntax as the chart widget.
+
+Leaflet is always loaded. Marker clustering and the heatmap come with the new
+``use_maps`` define in ``DEFAULT_JS_IMPORTS``; without it maps still work, with
+clustered layers falling back to plain layer groups.
+
+Four new bundles are produced by ``pylp``:
+``djgentelella.maps.vendors.min.{js,css}`` and
+``djgentelella.maps.plugins.min.{js,css}``. They are emitted **after** the
+readonly bundle on purpose -- storymapjs embeds Leaflet 0.7.7 and assigns it to
+``window.L``, so the reverse order silently downgrades every map.
+
+See ``docs/source/widgets/maps.rst``.
+
+Fixes
+""""""""""""""""""
+
+``loaddevstatic`` dropped the last chunk of its download queue whenever the
+number of files was an exact multiple of the thread count, so a library could
+silently never appear under ``vendors/``.
+
 0.6.0
 -------
 

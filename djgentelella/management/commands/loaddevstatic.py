@@ -53,23 +53,18 @@ class Command(BaseCommand):
     threads_count = 10
 
     def get_urls_list(self, urls):
-        if self.threads_count == 1:
+        """Split urls into at most threads_count chunks, losing none of them.
+
+        The previous version walked `while nextt != end`, which dropped the
+        final chunk whenever len(urls) was an exact multiple of trunk_len --
+        silently, so a library simply never appeared under vendors/.
+        """
+        if self.threads_count <= 1 or self.threads_count >= len(urls):
             yield urls[:]
             return
-        if self.threads_count > len(urls):
-            yield urls[:]
-            return
-        trunk_len = len(urls) // self.threads_count
-        start = 0
-        nextt = trunk_len
-        end = len(urls)
-        while nextt != end:
-            yield urls[start:nextt]
-            start = nextt
-            nextt += trunk_len
-            if nextt > end:
-                yield urls[start:]
-                nextt = end
+        trunk_len = -(-len(urls) // self.threads_count)  # ceil
+        for start in range(0, len(urls), trunk_len):
+            yield urls[start:start + trunk_len]
 
     def download_urls(self):
         threads = []
@@ -395,6 +390,28 @@ class Command(BaseCommand):
                 "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/altText_spinner.svg",
                 "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/toolbarButton-menuArrow.svg",
                 "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/loading-icon.gif"
+            ],
+            'leaflet': [
+                'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
+                'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+            ],
+            # leaflet.css points at images/*.png relative to itself, so these have
+            # to land in the sibling folder or urlreplace cannot inline them and
+            # every default marker 404s in the bundled build.
+            'leaflet/images/': [
+                'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+                'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+                'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+                'https://unpkg.com/leaflet@1.9.4/dist/images/layers.png',
+                'https://unpkg.com/leaflet@1.9.4/dist/images/layers-2x.png',
+            ],
+            'leaflet-markercluster': [
+                'https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css',
+                'https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css',
+                'https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js',
+            ],
+            'leaflet-heat': [
+                'https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js',
             ]
         }
         compressed = {

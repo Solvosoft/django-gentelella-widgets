@@ -20,6 +20,7 @@ This section covers specialized widgets that provide enhanced functionality beyo
 .. include:: grid_slider.rst
 .. include:: chunkedupload.rst
 .. include:: storymap.rst
+.. include:: maps.rst
 .. include:: calendar.rst
 .. include:: storyline.rst
 .. include:: firmador_digital.rst

@@ -11,6 +11,7 @@ from djgentelella.fields.catalog import (
     GTManyToManyField,
     GTOneToOneField,
 )
+from djgentelella.fields.maps import GTPointField
 from djgentelella.models import DeletedWithTrash
 
 User = get_user_model()
@@ -345,3 +346,21 @@ class Customer(DeletedWithTrash):
         )
 
         return result
+
+
+# Maps
+class Place(models.Model):
+    name = models.CharField(max_length=150)
+    country = models.CharField(max_length=100, blank=True)
+    city = models.CharField(max_length=100, blank=True)
+    # based_fields geocodes from the two fields above when the point is empty.
+    location = GTPointField(
+        zoom=8,
+        center=(9.9327, -84.0875),
+        search=True,
+        based_fields=["#id_country", "#id_city"],
+        blank=True,
+    )
+
+    def __str__(self):
+        return self.name

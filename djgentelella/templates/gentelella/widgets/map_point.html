@@ -1,0 +1,32 @@
+{% load i18n %}
+<div id="{{ widget.attrs.id }}_container" class="gt-map-point">
+    <div class="input-group">
+        {# The real input stays visible and editable on purpose: the widget then #}
+        {# works without JS, is reachable by screen readers, and `required` does #}
+        {# what it says. django-location-field hides it and loses all three. #}
+        {% include "gentelella/widgets/input.html" %}
+        {% if show_locate %}
+            <button class="btn btn-outline-secondary" type="button"
+                    id="{{ widget.attrs.id }}_locate" title="{{ locate_title }}">
+                <i class="fa fa-crosshairs" aria-hidden="true"></i>
+                <span class="visually-hidden">{{ locate_title }}</span>
+            </button>
+        {% endif %}
+        <button class="btn btn-outline-secondary" type="button"
+                id="{{ widget.attrs.id }}_clear" title="{{ clear_title }}">
+            <i class="fa fa-times" aria-hidden="true"></i>
+            <span class="visually-hidden">{{ clear_title }}</span>
+        </button>
+    </div>
+    {% if show_search %}
+        <div class="gt-map-search-wrapper mt-1">
+            <input type="search" class="form-control" autocomplete="off"
+                   id="{{ widget.attrs.id }}_search" placeholder="{{ search_placeholder }}">
+            <ul class="list-group gt-map-search-results d-none"
+                id="{{ widget.attrs.id }}_results"></ul>
+        </div>
+    {% endif %}
+    <div class="gt-map mt-1" id="{{ widget.attrs.id }}_map"
+         {% if map_height %}style="height: {{ map_height }}"{% endif %}></div>
+    <small class="text-muted" id="{{ widget.attrs.id }}_status"></small>
+</div>

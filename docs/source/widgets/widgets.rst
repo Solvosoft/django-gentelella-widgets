@@ -124,6 +124,11 @@ Widget Categories
 - ``VoiceDictation`` - Textarea with progressive voice dictation (``djgentelella.widgets.core``)
 - ``VoiceEditorTinymce`` - TinyMCE editor with voice dictation (``djgentelella.widgets.tinymce``)
 
+**Map Widgets** (Leaflet, see :doc:`maps`)
+
+- ``MapPointInput`` - Pick a GPS point on a map (``djgentelella.widgets.maps``)
+- ``DJMap`` - Dashboard map fed by an API (``gentelella/widgets/djmap.html``)
+
 **Visualization Widgets** (readonly display)
 
 - ``UrlTimeLineInput`` - Timeline display (``djgentelella.widgets.timeline``)
@@ -198,4 +203,19 @@ in-process Parakeet-v3 backend. See :doc:`voice` for usage and settings.
    :members:
 
 .. automodule:: djgentelella.voice.asr
+   :members:
+
+Map Widgets
+^^^^^^^^^^^^^^^^^^^^^
+
+Leaflet based GPS point picker and dashboard map. See :doc:`maps` for usage,
+the ``use_maps`` flag and the API JSON contract.
+
+.. automodule:: djgentelella.widgets.maps
+   :members:
+
+.. automodule:: djgentelella.fields.maps
+   :members:
+
+.. automodule:: djgentelella.views.maps
    :members:
