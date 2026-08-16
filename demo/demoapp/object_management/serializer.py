@@ -119,6 +119,14 @@ class ObjectManagerDemoModelFilterSet(FilterSet):
 class ObjectManagerDemoNoteSerializer(serializers.ModelSerializer):
     created = GTDateTimeField(read_only=True)
 
+    # The inline template declares an `actions` column, so every row has to
+    # carry the per-object permissions it renders from. Without this key the
+    # column receives undefined and the whole table dies in the browser.
+    actions = serializers.SerializerMethodField()
+
+    def get_actions(self, obj):
+        return {"destroy": True, "update": True, "detail": True}
+
     class Meta:
         model = ObjectManagerDemoNote
         exclude = ("demo_object",)
