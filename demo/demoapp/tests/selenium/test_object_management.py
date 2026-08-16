@@ -8,14 +8,29 @@ which post to the viewset directly.
 The inline case (``BaseInlineObjectManagement``, new in 0.6.0) additionally has
 to keep one parent's children out of another parent's table -- the scoping is
 the whole point of the class, and getting it wrong leaks data across objects.
+
+The demo model has two required file fields, and neither needs a real upload to
+drive from a test. ``simple_archive`` is a plain file input, so selenium hands
+it a path and the form javascript base64s it. ``chunked_archive`` is a
+``FileChunkedUpload``: the widget uploads in the background and leaves
+``{"token": <upload_id>}`` in its hidden input, which is all the serializer
+reads -- so a ``ChunkedUpload`` row in the fixture plus that string in the
+hidden input is a completed upload as far as the page is concerned.
 """
 
+import shutil
+import tempfile
+from pathlib import Path
+
+from django.core.files.base import ContentFile
 from django.test import tag
 from django.utils import timezone
 
 from demoapp.models import (
     A, Community, Country, ObjectManagerDemoModel, ObjectManagerDemoNote,
 )
+from djgentelella.chunked_upload.constants import COMPLETE
+from djgentelella.models import ChunkedUpload
 from .base import By, EC, SeleniumTestCase
 
 
@@ -93,19 +108,28 @@ class ObjectManagementTableTest(SeleniumTestCase):
 
 @tag('selenium')
 class ObjectManagementWriteTest(SeleniumTestCase):
-    """Update and delete through the row actions and their modals.
-
-    Creation is covered by the inline notes below instead: the demo model has
-    two required FileFields (``simple_archive``, ``chunked_archive``), and the
-    chunked one only accepts an upload id produced by a prior resumable upload,
-    which is a fixture problem rather than anything about the modal.
-    """
+    """Create, update and delete through the row actions and their modals."""
 
     def setup_data(self):
         self.country = Country.objects.create(name='Costa Rica')
         self.community = Community.objects.create(name='Guanacaste')
+        self.letter = A.objects.create(display='letra a')
         self.obj = make_demo_object('objeto original', self.country,
-                                    self.community)
+                                    self.community, self.letter)
+
+        # What a finished resumable upload leaves behind. The widget writes
+        # {"token": upload_id} into its hidden input once the last chunk is
+        # acknowledged, and the serializer looks the row up by that id.
+        self.upload = ChunkedUpload.objects.create(
+            user=self.user, filename='subido.txt', offset=4, status=COMPLETE,
+            file=ContentFile(b'hola', name='subido.txt'))
+
+        # A real file on disk for the plain file input: selenium types the path
+        # into it and the form javascript reads it back as base64.
+        self.upload_dir = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.upload_dir, ignore_errors=True)
+        self.simple_file = self.upload_dir / 'adjunto.txt'
+        self.simple_file.write_text('contenido del adjunto')
 
     def _open(self):
         self.go('/object_management')
@@ -119,6 +143,152 @@ class ObjectManagementWriteTest(SeleniumTestCase):
         self.js(
             "call_obj_crud_event('setmeunique', arguments[0], 0);", action)
 
+    def _fill_scalars(self, prefix, name):
+        """Everything that is a value in an input, in one round trip."""
+        self.js(
+            "const p = arguments[0];"
+            "const set = (field, val) => {"
+            "  const e = document.querySelector('#id_' + p + '-' + field);"
+            "  if (!e) throw new Error('missing field ' + field);"
+            "  e.value = val;"
+            "  e.dispatchEvent(new Event('change', {bubbles: true})); };"
+            "set('name', arguments[1]);"
+            "set('float_number', '1.5');"
+            "set('knob_number', '10');"
+            "set('born_date', '16/08/2026');"
+            "set('last_time', '16/08/2026 10:00:00');"
+            "set('livetime_range', '01/01/2026 - 31/12/2026');"
+            "set('taging_list', 'uno,dos');"
+            # The radio group and the switch are read from `checked`, not from
+            # `value`, so they cannot go through set().
+            "document.querySelector("
+            "  '[name=\"' + p + '-radio_elements\"][value=\"1\"]')"
+            "  .checked = true;"
+            "document.querySelector('#id_' + p + '-yes_no').checked = true;",
+            prefix, name)
+
+    def _fill_selects(self, prefix):
+        """The four relational fields.
+
+        The two select2 autocompletes start with no options at all -- they are
+        filled from the API as the user types -- so an option has to be
+        appended before it can be selected, which is what select2 itself does
+        on pick.
+        """
+        self.js(
+            "const p = arguments[0];"
+            "const pick = (field, pk, label) => {"
+            "  const $e = jQuery('#id_' + p + '-' + field);"
+            "  $e.append(new Option(label, pk, true, true)).trigger('change');"
+            "};"
+            "pick('field_autocomplete', arguments[1], arguments[2]);"
+            "pick('m2m_autocomplete', arguments[1], arguments[2]);"
+            # These two are ordinary selects, rendered with their options.
+            "jQuery('#id_' + p + '-field_select').val(arguments[3])"
+            "  .trigger('change');"
+            "jQuery('#id_' + p + '-m2m_multipleselect').val([arguments[4]])"
+            "  .trigger('change');",
+            prefix, str(self.country.pk), self.country.name,
+            str(self.community.pk), str(self.letter.pk))
+
+    def _fill_editor(self, prefix, html):
+        """TinyMCE keeps its content in an iframe, not in the textarea.
+
+        ``save()`` copies it back into the textarea the form javascript reads.
+        TinyMCE also syncs on its own before the submit handler gets there, but
+        calling it makes the test say what it depends on instead of relying on
+        that.
+        """
+        self.js(
+            "const ed = tinymce.get('id_' + arguments[0] + '-description');"
+            "ed.setContent(arguments[1]);"
+            "ed.save();",
+            prefix, html)
+
+    def _attach_files(self, prefix):
+        """Both file fields, each the way its own widget delivers a file."""
+        self.driver.find_element(
+            By.ID, f'id_{prefix}-simple_archive').send_keys(
+                str(self.simple_file))
+        # The chunked widget's hidden input is the whole contract with the
+        # server: an upload id it can look a ChunkedUpload row up by.
+        self.js(
+            "const e = document.querySelector("
+            "  'input[name=\"' + arguments[0] + '-chunked_archive\"]');"
+            "e.value = JSON.stringify("
+            "  {token: arguments[1], display_name: arguments[2]});"
+            "e.dispatchEvent(new Event('change', {bubbles: true}));",
+            prefix, self.upload.upload_id, self.upload.filename)
+
+    def test_creating_through_the_modal_persists_every_field(self):
+        self._open()
+        self.js("new bootstrap.Modal('#create_obj_modal').show();")
+        self.wait.until(EC.visibility_of_element_located(
+            (By.ID, 'id_create-name')))
+
+        self._fill_scalars('create', 'objeto nuevo')
+        self._fill_selects('create')
+        self._fill_editor('create', '<p>creado desde el navegador</p>')
+        self._attach_files('create')
+        self.driver.find_element(
+            By.CSS_SELECTOR, '#create_obj_modal .formadd').click()
+
+        self.wait_rows(
+            '#object_table',
+            lambda rows: any('objeto nuevo' in r for r in rows),
+            'the new object never appeared in the table')
+
+        created = ObjectManagerDemoModel.objects.filter(
+            name='objeto nuevo').first()
+        self.assertIsNotNone(created, 'the object was not persisted')
+        self.assertIn('creado desde el navegador', created.description)
+        self.assertEqual(created.radio_elements, 1)
+        self.assertTrue(created.yes_no)
+        self.assertEqual(created.field_autocomplete_id, self.country.pk)
+        self.assertEqual(created.field_select_id, self.community.pk)
+        self.assertEqual(
+            list(created.m2m_autocomplete.values_list('pk', flat=True)),
+            [self.country.pk])
+        # Both files have to arrive with their contents, not merely with a
+        # name: base64 through the form for one, an upload id for the other.
+        self.assertEqual(created.simple_archive.read(),
+                         b'contenido del adjunto')
+        self.assertEqual(created.chunked_archive.read(), b'hola')
+
+    def test_updating_through_the_modal_keeps_the_files_it_was_not_given(self):
+        """An edit that touches no file must not lose the ones on record.
+
+        Both serializer fields fall back to the stored value when the payload
+        carries no new file -- an empty list for the base64 one, a value with a
+        `url` and no `token` for the chunked one. That fallback is what makes
+        editing anything else on the form safe.
+        """
+        self._open()
+        self._row_action('update')
+        self.wait.until(EC.visibility_of_element_located(
+            (By.ID, 'id_update-name')))
+        self.wait_js(
+            "return document.querySelector('#id_update-name').value"
+            " === 'objeto original'")
+
+        self._fill_scalars('update', 'objeto renombrado')
+        self._fill_selects('update')
+        self._fill_editor('update', '<p>editado desde el navegador</p>')
+        self.driver.find_element(
+            By.CSS_SELECTOR, '#update_obj_modal .formadd').click()
+
+        self.wait_rows(
+            '#object_table',
+            lambda rows: any('objeto renombrado' in r for r in rows),
+            'the renamed object never appeared in the table')
+
+        self.obj.refresh_from_db()
+        self.assertEqual(self.obj.name, 'objeto renombrado')
+        self.assertIn('editado desde el navegador', self.obj.description)
+        self.assertEqual(self.obj.simple_archive.name, 'files/demo.txt')
+        self.assertEqual(self.obj.chunked_archive.name,
+                         'chunked_files/demo.txt')
+
     def test_the_update_modal_opens_prefilled(self):
         self._open()
         self._row_action('update')
@@ -130,13 +300,6 @@ class ObjectManagementWriteTest(SeleniumTestCase):
             "return document.querySelector('#id_update-name').value"
             " === 'objeto original'",
             message='the update modal did not load the current values')
-
-    # Updating this model through the modal is not covered here: the API
-    # rejects a PUT that omits `simple_archive`/`chunked_archive`, which the
-    # modal cannot resend (a file input cannot be prefilled, and the chunked
-    # one wants an upload id). The full create + update cycle is covered on the
-    # Customer page instead, whose form is three plain fields --
-    # see test_trash_history.CustomerModalCrudTest.
 
     def test_deleting_through_the_modal_removes_the_row(self):
         self._open()
