@@ -1,4 +1,5 @@
 from django.apps import AppConfig
+from django.utils.module_loading import import_string
 
 
 class AsyncNotificationConfig(AppConfig):
@@ -7,15 +8,17 @@ class AsyncNotificationConfig(AppConfig):
     verbose_name = 'Async Notification'
 
     def ready(self):
-        from django.utils.module_loading import import_string
-        from djgentelella.async_notification.resolvers import (
+        # Deferred on purpose: ready() runs while the app registry is being
+        # populated, so these modules (which touch models) cannot be imported
+        # at module level.
+        from djgentelella.async_notification.resolvers import (  # noqa: PLC0415
             RecipientResolverRegistry, DjangoGroupResolver,
             ContentTypeResolver,
         )
-        from djgentelella.async_notification.interfaces import (
+        from djgentelella.async_notification.interfaces import (  # noqa: PLC0415
             register_news_basemodel
         )
-        from djgentelella.async_notification.settings import (
+        from djgentelella.async_notification.settings import (  # noqa: PLC0415
             ASYNC_NOTIFICATION_RESOLVERS, ASYNC_NEWS_BASE_MODELS
         )
 
@@ -40,4 +43,4 @@ class AsyncNotificationConfig(AppConfig):
                     pass
 
         # Import signals to connect them
-        import djgentelella.async_notification.signals  # noqa: F401
+        import djgentelella.async_notification.signals  # noqa: F401,PLC0415

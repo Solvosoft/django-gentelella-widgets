@@ -5,6 +5,7 @@ Provides lazy-loading singleton for the configured backend with
 autodetection support (Celery if available, otherwise sync).
 """
 
+from django.conf import settings
 from django.utils.module_loading import import_string
 
 from djgentelella.async_notification.settings import ASYNC_NOTIFICATION_BACKEND
@@ -19,8 +20,8 @@ def _get_default_backend_path():
     CELERY_BROKER_URL is configured, otherwise SyncBackend.
     """
     try:
-        import celery  # noqa: F401
-        from django.conf import settings
+        # Optional dependency: absence is the signal to fall back to sync.
+        import celery  # noqa: F401,PLC0415
         if getattr(settings, 'CELERY_BROKER_URL', None):
             return 'djgentelella.async_notification.backends.celery.CeleryBackend'
     except ImportError:

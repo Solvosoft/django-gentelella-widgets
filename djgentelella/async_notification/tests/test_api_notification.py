@@ -1,3 +1,4 @@
+from django.contrib.auth.models import Permission
 from django.core import mail
 from django.urls import reverse
 
@@ -10,8 +11,6 @@ class EmailNotificationAPITest(AsyncNotificationAPITestBase):
     def setUpTestData(cls):
         super().setUpTestData()
         # Give superuser all permissions
-        from django.contrib.auth.models import Permission
-
         cls.superuser.user_permissions.set(Permission.objects.all())
 
     def test_list(self):

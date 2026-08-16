@@ -11,6 +11,7 @@ from functools import wraps
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
+from django.core import signing
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.http import JsonResponse, HttpResponse
@@ -37,8 +38,13 @@ from djgentelella.async_notification.forms import (
 )
 from djgentelella.async_notification.interfaces import get_basemodel_info
 from djgentelella.async_notification.introspection import get_fields_for_context
+from djgentelella.async_notification.preview import (
+    build_dummy_context,
+    render_preview,
+)
 from djgentelella.async_notification.models import (
     EmailNotification,
+    EmailSuppression,
     EmailTemplate,
     AttachedFile,
     NewsLetterTemplate,
@@ -46,6 +52,10 @@ from djgentelella.async_notification.models import (
     NewsLetterTask,
 )
 from djgentelella.async_notification.resolvers import RecipientResolverRegistry
+# The module, not the value: the secret is read at call time so a test (or a
+# runtime reconfiguration) that patches the attribute is still honoured.
+from djgentelella.async_notification import settings as ansettings
+from djgentelella.async_notification.unsubscribe import read_token
 from djgentelella.async_notification.sending import (
     do_send_notification,
     do_send_newsletter,
@@ -745,11 +755,6 @@ def preview_template_view(request):
     if request.method != "POST":
         return JsonResponse({"error": "POST required"}, status=405)
 
-    from djgentelella.async_notification.preview import (
-        build_dummy_context,
-        render_preview,
-    )
-
     message = request.POST.get("message", "")
     context_code = request.POST.get("context_code", "")
     base_template_key = request.POST.get("base_template", "")
@@ -776,10 +781,6 @@ def unsubscribe_view(request, token):
     way the address is added to the suppression list. No auth/cookies (the
     request identity is the signed token in the URL).
     """
-    from django.core import signing
-    from djgentelella.async_notification.models import EmailSuppression
-    from djgentelella.async_notification.unsubscribe import read_token
-
     try:
         email = read_token(token)
     except signing.BadSignature:
@@ -815,14 +816,9 @@ def suppression_webhook(request):
     shared secret in the ``X-Webhook-Secret`` header. The endpoint is disabled
     (404) unless ASYNC_NOTIFICATION_WEBHOOK_SECRET is set.
     """
-    from djgentelella.async_notification.models import EmailSuppression
-    from djgentelella.async_notification.settings import (
-        ASYNC_NOTIFICATION_WEBHOOK_SECRET,
-    )
-
     if request.method != "POST":
         return JsonResponse({"error": "POST required"}, status=405)
-    secret = ASYNC_NOTIFICATION_WEBHOOK_SECRET
+    secret = ansettings.ASYNC_NOTIFICATION_WEBHOOK_SECRET
     if not secret:
         return JsonResponse({"error": "webhook disabled"}, status=404)
     # Header only (never the query string, which leaks into access logs and

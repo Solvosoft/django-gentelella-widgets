@@ -21,7 +21,7 @@ help:
 	@echo "test - run tests quickly with the default Python"
 	@echo "test-selenium - Selenium E2E of the GUI against MailHog (needs make mailhog)"
 	@echo "validate-mailhog - send every email feature to MailHog and validate reception"
-	@echo "lint - check style with pycodestyle (config in setup.cfg)"
+	@echo "lint - check style (pycodestyle) and import placement (ruff)"
 	@echo "lint-fix - auto-apply the mechanical style fixes with ruff"
 	@echo "-- Build / release --"
 	@echo "clean-build - remove build artifacts"
@@ -48,10 +48,14 @@ clean-pyc:
 	find . -name '*.pyo' -exec rm -f {} +
 	find . -name '*~' -exec rm -f {} +
 
-# Options live in setup.cfg (pycodestyle does not read pyproject.toml). Both
-# trees in one call, so a failure in the first no longer hides the second.
+# Two checkers, on purpose: pycodestyle owns style (options in setup.cfg, which
+# it reads instead of pyproject.toml), ruff owns what pycodestyle cannot see --
+# today PLC0415, imports that must live at the top of the module and not inside
+# a function. Both trees in one call, so a failure in the first no longer hides
+# the second.
 lint:
 	pycodestyle djgentelella demo
+	ruff check djgentelella demo
 
 # Apply the mechanical part of `make lint`: blank lines, trailing whitespace,
 # end-of-file, then re-wrap what is still too long. Only long strings, comments

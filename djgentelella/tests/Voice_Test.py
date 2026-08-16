@@ -334,7 +334,8 @@ class RemoteBackendTestCase(TestCase):
     @override_settings(GENTELELLA_ASR_BACKEND='remote',
                        GENTELELLA_ASR_REMOTE_URL=URL)
     def test_an_unreachable_asr_is_a_bad_gateway(self):
-        import requests
+        # Optional extra (asr-remote); the class is skipped without it.
+        import requests  # noqa: PLC0415
 
         audio = SimpleUploadedFile('dictation.wav', b'RIFFfake',
                                    content_type='audio/wav')
@@ -378,7 +379,8 @@ class DecodeAudioTestCase(TestCase):
     sees: mono, 16 kHz, float32 in [-1, 1]."""
 
     def test_it_resamples_to_16k_mono_float32(self):
-        import numpy as np
+        # Optional extra (asr); the class is skipped without it.
+        import numpy as np  # noqa: PLC0415
 
         audio = asr.decode_to_f32_16k(io.BytesIO(wav_bytes(seconds=0.25,
                                                            rate=48000)))

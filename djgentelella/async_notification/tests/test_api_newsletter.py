@@ -1,7 +1,8 @@
 import base64
 
+from django.contrib.auth.models import Permission
 from django.urls import reverse
-from django.utils import timezone
+from django.utils import formats, timezone
 
 from djgentelella.async_notification.tests import AsyncNotificationAPITestBase
 from djgentelella.async_notification.models import (
@@ -15,7 +16,6 @@ class NewsLetterAPITest(AsyncNotificationAPITestBase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
-        from django.contrib.auth.models import Permission
         cls.superuser.user_permissions.set(Permission.objects.all())
         cls.template = NewsLetterTemplate.objects.create(
             title='Test Template', slug='test-tpl', message='M')
@@ -101,7 +101,6 @@ class NewsLetterTaskAPITest(AsyncNotificationAPITestBase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
-        from django.contrib.auth.models import Permission
         cls.superuser.user_permissions.set(Permission.objects.all())
         cls.newsletter = NewsLetter.objects.create(
             subject='Task NL', message='M', recipients='a@b.com')
@@ -115,7 +114,6 @@ class NewsLetterTaskAPITest(AsyncNotificationAPITestBase):
     def test_create_schedules_task(self):
         self.client.force_login(self.superuser)
         url = reverse('async_notification:api-newslettertask-list')
-        from django.utils import formats
         fmt = formats.get_format('DATETIME_INPUT_FORMATS')[0]
         send_date = timezone.now().strftime(fmt)
         data = {

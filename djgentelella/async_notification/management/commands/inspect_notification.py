@@ -87,8 +87,6 @@ class Command(BaseCommand):
                 'preview_provider': config['preview_provider'],
             }
             if show_fields:
-                from djgentelella.async_notification.introspection import (
-                    get_fields_for_context)
                 entry['fields'] = get_fields_for_context(code)
             result[code] = entry
         return result

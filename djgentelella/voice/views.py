@@ -109,7 +109,7 @@ class VoiceTranscribeView(View):
         # Keep that import out of the try below: an ImportError raised *inside*
         # transcribe() (a broken onnxruntime ABI, say) is not a missing extra
         # and must not be reported as one.
-        from djgentelella.voice.asr import transcribe
+        from djgentelella.voice.asr import transcribe  # noqa: PLC0415
         try:
             # UploadedFile is a file-like object; av.open reads it directly,
             # avoiding a full in-memory copy of the (possibly multi-MB) audio.
@@ -177,7 +177,7 @@ class VoiceTranscribeView(View):
                 {'error': 'GENTELELLA_ASR_REMOTE_URL is not configured'},
                 status=500)
         try:
-            import requests
+            import requests  # noqa: PLC0415
         except ImportError as exc:
             logger.warning('Remote ASR backend is unavailable: %s', exc)
             return JsonResponse(

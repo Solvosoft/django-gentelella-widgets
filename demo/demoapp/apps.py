@@ -8,7 +8,11 @@ class DemoappConfig(AppConfig):
     def ready(self):
         # Register an email-template context so the model inspector and
         # dummy-data preview work in the async_notification demo.
-        from djgentelella.async_notification.registry import register_context
+        # ready() runs while the app registry is loading: importing the
+        # registry (and through it the models) at module level is not allowed.
+        from djgentelella.async_notification.registry import (  # noqa: PLC0415
+            register_context,
+        )
         register_context(
             code='welcome',
             subject='Welcome {{ user.first_name }}',

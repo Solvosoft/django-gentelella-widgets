@@ -2,7 +2,10 @@ import base64
 import json
 import logging
 
+from django.contrib.contenttypes.models import ContentType
 from rest_framework import serializers
+
+from djgentelella.models import ChunkedUpload
 
 logger = logging.getLogger('djgentelella')
 
@@ -30,7 +33,6 @@ class InstanceSerializer(serializers.Serializer):
         return jsondata
 
     def get_file_from_token(self, token):
-        from djgentelella.models import ChunkedUpload
         tmpupload = ChunkedUpload.objects.filter(upload_id=token).first()
         dev = None
         if tmpupload:
@@ -51,7 +53,6 @@ class InstanceSerializer(serializers.Serializer):
         return jsonparse
 
     def validate(self, attrs):
-        from django.contrib.contenttypes.models import ContentType
         cc = attrs.get("cc")
         pk = attrs.get("pk")
         ccinstance = ContentType.objects.get_for_id(cc)

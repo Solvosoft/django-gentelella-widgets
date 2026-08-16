@@ -1,7 +1,12 @@
+from django.contrib.contenttypes.models import ContentType
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.urls import reverse
 
 from djgentelella.async_notification.tests import AsyncNotificationTestBase
+from djgentelella.async_notification.models import (
+    AttachedFile, EmailNotification,
+)
 
 
 class HTMLViewsTest(AsyncNotificationTestBase):
@@ -127,11 +132,6 @@ class PermissionRequiredTest(AsyncNotificationTestBase):
                              f'{name} should be 403 for a user without perms')
 
     def test_preview_file_denied_without_perm(self):
-        from django.contrib.contenttypes.models import ContentType
-        from django.core.files.uploadedfile import SimpleUploadedFile
-        from djgentelella.async_notification.models import (
-            AttachedFile, EmailNotification,
-        )
         att = AttachedFile.objects.create(
             content_type=ContentType.objects.get_for_model(EmailNotification),
             object_id=0,

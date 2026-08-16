@@ -52,9 +52,13 @@ class ComposeEmailBrowserTest(StaticLiveServerTestCase):
     def setUpClass(cls):
         # Lazy requirement checks so the default suite never probes MailHog.
         try:
-            from selenium import webdriver
-            from selenium.webdriver.chrome.options import Options
-            from selenium.webdriver.chrome.service import Service
+            from selenium import webdriver  # noqa: PLC0415
+            from selenium.webdriver.chrome.options import (  # noqa: PLC0415
+                Options,
+            )
+            from selenium.webdriver.chrome.service import (  # noqa: PLC0415
+                Service,
+            )
         except ImportError:
             raise unittest.SkipTest('selenium not installed')
         if not os.path.exists(CHROMEDRIVER):
@@ -104,9 +108,15 @@ class ComposeEmailBrowserTest(StaticLiveServerTestCase):
 
     # -- test ----------------------------------------------------------------
     def test_compose_and_send_email(self):
-        from selenium.webdriver.common.by import By
-        from selenium.webdriver.support.ui import WebDriverWait
-        from selenium.webdriver.support import expected_conditions as EC
+        # selenium is an optional test dependency; setUpClass already skipped
+        # the class when it is missing, so these cannot move to module level.
+        from selenium.webdriver.common.by import By  # noqa: PLC0415
+        from selenium.webdriver.support.ui import (  # noqa: PLC0415
+            WebDriverWait,
+        )
+        from selenium.webdriver.support import (  # noqa: PLC0415
+            expected_conditions as EC,
+        )
 
         d = self.driver
         wait = WebDriverWait(d, 25)

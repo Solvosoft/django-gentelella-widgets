@@ -1,5 +1,7 @@
 from rest_framework.routers import SimpleRouter
 
+from djgentelella import settings
+
 routes = SimpleRouter()
 
 
@@ -17,7 +19,6 @@ def register_lookups(prefix='', basename=None):
     @wrap
     def decore(klass):
         if basename in ['userbase', 'groupbase']:
-            from djgentelella import settings
             if klass.__module__ == 'djgentelella.gtselects':
                 if settings.REGISTER_DEFAULT_USER_API:
                     routes.register(prefix, klass, basename=basename)

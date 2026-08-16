@@ -3,7 +3,9 @@
 from django.template.loader import render_to_string
 from django.test import TestCase
 
-from djgentelella.async_notification.preview import wrap_in_base_template
+from djgentelella.async_notification.preview import (
+    render_preview, wrap_in_base_template
+)
 
 BASE_KEYS = ['executive', 'product', 'transactional', 'newsletter']
 
@@ -59,7 +61,6 @@ class UtilityPartialTest(TestCase):
     def test_include_renders_through_preview(self):
         """The preview path renders {% include %} of a utility partial, so an
         author sees the same output the template-code send path produces."""
-        from djgentelella.async_notification.preview import render_preview
         html = render_preview(
             '<p>x</p>{% include '
             '"async_notification/base/utils/button.html" '

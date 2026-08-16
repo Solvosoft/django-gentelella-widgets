@@ -9,6 +9,9 @@ from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 from requests import HTTPError, Timeout, RequestException
 
+from djgentelella.firmador_digital.models import UserSignatureConfig
+from djgentelella.models import ChunkedUpload
+
 logger = logging.getLogger(__name__)
 
 
@@ -17,7 +20,6 @@ class RemoteSignerClient:
         self.user = user
 
     def load_settings(self, docsettings):
-        from djgentelella.firmador_digital.models import UserSignatureConfig
         sc = UserSignatureConfig.objects.filter(user=self.user).first()
         settings = {}
         if sc:
@@ -129,7 +131,6 @@ class RemoteSignerClient:
         }
 
     def complete_signature(self, data_to_sign):
-        from djgentelella.models import ChunkedUpload
         datatosign = {
             "signature": data_to_sign["signature"],
             "documentid": data_to_sign["documentid"],

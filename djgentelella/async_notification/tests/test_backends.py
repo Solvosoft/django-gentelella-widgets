@@ -8,6 +8,7 @@ from djgentelella.async_notification.models import (
     NewsLetter,
     NewsLetterTask,
 )
+from djgentelella.async_notification import backends
 from djgentelella.async_notification.backends import get_backend, reset_backend
 from djgentelella.async_notification.backends.sync import SyncBackend
 
@@ -102,9 +103,8 @@ class GetBackendTest(AsyncNotificationTestBase):
     )
     def test_explicit_backend_setting(self):
         reset_backend()
-        # Need to reimport settings since it's cached at module level
-        from djgentelella.async_notification import backends
-
+        # The module-level cache of the setting is patched directly:
+        # override_settings cannot reach a value already read at import time.
         old_val = backends.ASYNC_NOTIFICATION_BACKEND
         backends.ASYNC_NOTIFICATION_BACKEND = (
             "djgentelella.async_notification.backends.sync.SyncBackend"

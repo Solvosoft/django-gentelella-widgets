@@ -31,7 +31,7 @@ def _get_model():
     if _model is None:
         with _model_lock:
             if _model is None:
-                import onnx_asr
+                import onnx_asr  # noqa: PLC0415
                 model_id = getattr(settings, 'GENTELELLA_ASR_MODEL',
                                    'nemo-parakeet-tdt-0.6b-v3')
                 quant = getattr(settings, 'GENTELELLA_ASR_QUANTIZATION',
@@ -57,8 +57,8 @@ def decode_to_f32_16k(source):
     """Decode any container/codec PyAV supports (webm/opus, ogg, wav, ...) to a
     float32 mono 16 kHz waveform normalized to [-1, 1]. ``source`` may be a file
     path or a file-like object with ``read()``."""
-    import av
-    import numpy as np
+    import av  # noqa: PLC0415
+    import numpy as np  # noqa: PLC0415
 
     resampler = av.AudioResampler(format='s16', layout='mono', rate=16000)
     chunks = []

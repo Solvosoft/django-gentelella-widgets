@@ -220,3 +220,20 @@ version = { attr = "djgentelella.__version__" }
 
 [tool.black]
 target-version = ["py311"]
+
+# Style (line length, whitespace, ...) stays with pycodestyle in setup.cfg,
+# which is what `make lint` has always run. Ruff is here only for the checks
+# pycodestyle has no equivalent for -- today, import placement.
+[tool.ruff]
+line-length = 88
+# Mirrors the `exclude` in setup.cfg: generated migrations and the two files
+# that carry vendored URL tables.
+extend-exclude = ["migrations", "loaddevstatic.py", "gtstorymap.py"]
+
+[tool.ruff.lint]
+# PLC0415 (import-outside-top-level): imports belong at the top of the module.
+# A function-level import is allowed only where it is genuinely required --
+# an optional dependency, an AppConfig.ready() that runs before the app
+# registry is populated, or a circular import -- and each such case has to be
+# marked with `# noqa: PLC0415` plus a comment saying which of the three it is.
+select = ["PLC0415"]

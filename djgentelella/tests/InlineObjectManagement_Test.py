@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase
 from django.urls import reverse
 from django.utils.timezone import now
@@ -7,6 +8,7 @@ from rest_framework.test import APIClient
 
 from demoapp.models import Community, Country, ObjectManagerDemoModel, \
     ObjectManagerDemoNote
+from djgentelella.objectmanagement import BaseInlineObjectManagement
 
 
 class InlineObjectManagementTestCase(TestCase):
@@ -126,10 +128,6 @@ class InlineObjectManagementTestCase(TestCase):
         self.assertEqual(titles, ['first note'])
 
     def test_a_viewset_without_the_parent_settings_is_a_configuration_error(self):
-        from django.core.exceptions import ImproperlyConfigured
-
-        from djgentelella.objectmanagement import BaseInlineObjectManagement
-
         viewset = BaseInlineObjectManagement()
         viewset.kwargs = {'parent_pk': self.first.pk}
         with self.assertRaises(ImproperlyConfigured):
