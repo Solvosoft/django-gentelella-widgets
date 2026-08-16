@@ -22,8 +22,12 @@ and ``djgentelella/models.py`` imports it at module level, so leaving it out
 fails at startup with ``Model class django.contrib.admin.models.LogEntry
 doesn't declare an explicit app_label``.
 
-``djgentelella.blog`` and ``djgentelella.permission_management`` are optional;
-add them only if you use those apps. (``demoapp`` belongs to this repository's
+``djgentelella.blog`` and ``djgentelella.async_notification`` are optional; add
+them only if you use them. They are the only subpackages that are Django apps in
+their own right — ``permission_management``, ``notification``,
+``chunked_upload``, ``trash``, ``history``, ``voice`` and ``firmador_digital``
+are plain Python modules reached through ``djgentelella.urls``, and listing them
+in ``INSTALLED_APPS`` has no effect. (``demoapp`` belongs to this repository's
 demo project, not to an installation of the library.)
 
 Follow settings are required

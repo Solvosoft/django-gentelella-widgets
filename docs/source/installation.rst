@@ -77,6 +77,7 @@ Add the following to your ``INSTALLED_APPS`` in ``settings.py``:
 
     INSTALLED_APPS = [
         # Django apps...
+        'django.contrib.admin',
         'django.contrib.staticfiles',
 
         # Required apps
@@ -85,12 +86,24 @@ Add the following to your ``INSTALLED_APPS`` in ``settings.py``:
 
         # Optional apps (add as needed)
         'djgentelella.blog',
-        'djgentelella.permission_management',
-        'djgentelella.notification',
-        'djgentelella.chunked_upload',
+        'djgentelella.async_notification',
 
         # Your apps...
     ]
+
+``django.contrib.admin`` is not optional: the change tracking in
+``djgentelella.history`` records through ``django.contrib.admin.models.LogEntry``,
+which ``djgentelella/models.py`` imports at module level. Without it the project
+fails at startup with ``Model class django.contrib.admin.models.LogEntry doesn't
+declare an explicit app_label and isn't in an application in INSTALLED_APPS``.
+
+Only ``djgentelella.blog`` and ``djgentelella.async_notification`` are separate
+Django apps — they are the two that ship their own models, migrations, templates
+and static. The rest of the subpackages (``notification``,
+``permission_management``, ``chunked_upload``, ``trash``, ``history``, ``voice``,
+``firmador_digital``) are plain Python modules: their models, when they have any,
+belong to the ``djgentelella`` app and migrate with it, and their views are wired
+through ``djgentelella.urls``. Adding them to ``INSTALLED_APPS`` does nothing.
 
 2. Required Settings
 """"""""""""""""""""""
