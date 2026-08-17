@@ -23,19 +23,19 @@ class PermCategoryManagementForm(GTForm, forms.Form):
     urlname = forms.CharField(required=True)
 
     def clean_user(self):
-        option = self.cleaned_data.get("option")
-        user = self.cleaned_data.get("user")
+        option = self.cleaned_data.get('option')
+        user = self.cleaned_data.get('user')
         if option == 1:
-            if user == "" or user is None:
+            if user == '' or user is None:
                 raise forms.ValidationError(
-                    "Select " + USER_MODEL_BASE.split('.')[1].lower())
+                    'Select ' + USER_MODEL_BASE.split('.')[1].lower())
         return user
 
     def clean_group(self):
-        option = self.cleaned_data.get("option")
-        group = self.cleaned_data.get("group")
+        option = self.cleaned_data.get('option')
+        group = self.cleaned_data.get('group')
         if option == 2:
-            if group == "" or group is None:
+            if group == '' or group is None:
                 raise forms.ValidationError(
-                    "Select " + GROUP_MODEL_BASE.split('.')[1].lower())
+                    'Select ' + GROUP_MODEL_BASE.split('.')[1].lower())
         return group

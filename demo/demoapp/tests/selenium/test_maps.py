@@ -40,7 +40,7 @@ class LeafletBootstrapTest(MapsTestBase):
         would fail against a 0.7 API.
         """
         self.go('/maps/')
-        self.assertEqual(self.js("return L.version.charAt(0)"), '1')
+        self.assertEqual(self.js('return L.version.charAt(0)'), '1')
 
     def test_marker_icon_path_is_explicit(self):
         """pylp's urlreplace base64-inlines the CSS Leaflet uses to guess its
@@ -88,7 +88,7 @@ class MapPointInputTest(MapsTestBase):
         self.assertRegex(
             self.js("return document.getElementById('id_location').value"),
             LATLNG_RE)
-        self.assertGreaterEqual(self.js("return window.__changes"), 1)
+        self.assertGreaterEqual(self.js('return window.__changes'), 1)
 
     def set_location(self, value):
         """Set the input the way a user typing does.
@@ -175,9 +175,9 @@ class DJMapTest(MapsTestBase):
     def test_clustering_plugin_is_available(self):
         """use_maps is on in the demo settings, so both plugins must be there."""
         self.open_dashboard()
-        self.assertEqual(self.js("return typeof L.markerClusterGroup"),
+        self.assertEqual(self.js('return typeof L.markerClusterGroup'),
                          'function')
-        self.assertEqual(self.js("return typeof L.heatLayer"), 'function')
+        self.assertEqual(self.js('return typeof L.heatLayer'), 'function')
 
     def test_layer_control_lists_every_country_and_the_heatmap(self):
         self.open_dashboard()
@@ -215,11 +215,11 @@ class DJMapTest(MapsTestBase):
         ids; without the engine registry Leaflet throws "Map container is
         already initialized" and the old map keeps fetching tiles."""
         self.open_dashboard()
-        before = self.js("return Object.keys(_gt_maps).length;")
+        before = self.js('return Object.keys(_gt_maps).length;')
         self.js("gt_find_initialize(jQuery('body'));")
         self.wait_js("return !!jQuery('.gentelella_map').data('mapInstance')")
 
-        self.assertEqual(self.js("return Object.keys(_gt_maps).length;"), before)
+        self.assertEqual(self.js('return Object.keys(_gt_maps).length;'), before)
         errors = [entry['message'] for entry in self.driver.get_log('browser')
                   if 'already initialized' in entry['message']]
         self.assertEqual(errors, [])

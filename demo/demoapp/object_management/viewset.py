@@ -67,9 +67,9 @@ class ObjectManagerDemoNoteManagement(BaseInlineObjectManagement):
     @action(detail=False, methods=['get'])
     def detail_template(self, request, *args, **kwargs):
         return Response({
-            "title": "<% it.title %>",
+            'title': '<% it.title %>',
             # `safe` because the notes are written in a rich text editor. It
             # means whoever may write a note may inject html into this panel:
             # drop `| safe` if that is not who you want writing them.
-            "template": "<% it.body | safe %>"
+            'template': '<% it.body | safe %>'
         })

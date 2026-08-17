@@ -5,8 +5,12 @@
 // that knows how to build a map, how to tear one down, and how to work around
 // the two Leaflet integration problems this project has (see below).
 //
-// createbasejs.py must list this file before its consumers, the same way
-// voiceprogressive.js comes before voicedictation.js.
+// Load order: createbasejs.py lists this file in `basefiles`, after mappoint.js
+// needs it and -- more surprisingly -- after the whole `jquery_plugins` block
+// that contains map.js. That works only because everything here is a hoisted
+// function declaration and nothing calls it until the page is ready. Keep it
+// that way: turn any of these into a `var f = function(){}` and map.js breaks,
+// because its half of base.js is concatenated first.
 
 // Overridable by a project before boot, the way document.chartcallbacks is.
 document.gt_map_defaults = {
@@ -307,7 +311,6 @@ function createGTMap(container, opts) {
     };
 
     engine.destroy = function () {
-        if (engine._abort) engine._abort.abort();
         if (engine._moveTimer) clearTimeout(engine._moveTimer);
         map.off();
         map.remove();
@@ -327,11 +330,24 @@ function gt_map_marker_icon(point, layer) {
     var color = point.color || layer.color;
     var icon = point.icon || layer.icon;
     if (!color && !icon) return null;
-    var inner = icon ? '<i class="' + icon + '"></i>' : '';
+
+    // Built as DOM, not as an HTML string: `color` and `icon` come straight
+    // from the API payload, and concatenating them into markup made them an
+    // injection sink. Leaflet 1.x accepts an Element for `html` (see
+    // DivIcon.createIcon), so nothing has to be escaped -- `style.background`
+    // goes through the CSSOM, which drops anything that is not a valid colour,
+    // and className cannot carry markup.
+    var pin = document.createElement('span');
+    pin.className = 'gt-map-pin';
+    pin.style.background = color || '#3388ff';
+    if (icon) {
+        var i = document.createElement('i');
+        i.className = icon;
+        pin.appendChild(i);
+    }
     return L.divIcon({
         className: 'gt-map-divicon',
-        html: '<span class="gt-map-pin" style="background:' +
-              (color || '#3388ff') + '">' + inner + '</span>',
+        html: pin,
         iconSize: [24, 24],
         iconAnchor: [12, 24],
         popupAnchor: [0, -24]

@@ -12,7 +12,7 @@ from django.db import models
 def create_key(size=32):
     key = os.urandom(size)
     base64_encoded = base64.b64encode(key)
-    return base64_encoded.decode("utf-8")
+    return base64_encoded.decode('utf-8')
 
 
 def get_salt_session(size=16):
@@ -94,16 +94,16 @@ class GTEncryptedJSONField(models.JSONField):
         if value is not None:
             value = json.dumps(value)
             encrypted_value = salt_encrypt(
-                super().get_prep_value(value).encode("utf-8")
+                super().get_prep_value(value).encode('utf-8')
             )
-            return encrypted_value.decode("utf-8")  # Store as text in DB
+            return encrypted_value.decode('utf-8')  # Store as text in DB
         return value
 
     def from_db_value(self, value, expression, connection):
         # decrypt when loading from the database
         if value is not None:
-            decrypted_value = salt_decrypt(value.encode("utf-8"))
+            decrypted_value = salt_decrypt(value.encode('utf-8'))
             return super().from_db_value(
-                decrypted_value.decode("utf-8"), expression, connection
+                decrypted_value.decode('utf-8'), expression, connection
             )
         return value

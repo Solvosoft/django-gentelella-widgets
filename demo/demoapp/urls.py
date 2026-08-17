@@ -50,97 +50,97 @@ countryclss = Countryclass()
 menuclss = MenuItemclass()
 
 router = DefaultRouter()
-router.register("persontableview", PersonViewSet, "api-persontable")
-router.register("personlistcardview", PersonCardListViewSet, "api-personcard")
+router.register('persontableview', PersonViewSet, 'api-persontable')
+router.register('personlistcardview', PersonCardListViewSet, 'api-personcard')
 router.register(
-    "objectmanagement", ObjectManagerDemoModelManagement, "api-objectmanagement"
+    'objectmanagement', ObjectManagerDemoModelManagement, 'api-objectmanagement'
 )
 router.register(
-    r"objectmanagement/(?P<parent_pk>[^/.]+)/note",
+    r'objectmanagement/(?P<parent_pk>[^/.]+)/note',
     ObjectManagerDemoNoteManagement,
-    "api-objectmanagement-note",
+    'api-objectmanagement-note',
 )
 
 # Trash
-router.register("api_customer", CustomerViewSet, "api-customer")
+router.register('api_customer', CustomerViewSet, 'api-customer')
 
 urlpatterns = (
     [
-        path("object_management", object_management, name="object_management_index"),
+        path('object_management', object_management, name='object_management_index'),
         path(
-            "object_management/<int:pk>/notes",
+            'object_management/<int:pk>/notes',
             object_management_inline,
-            name="object_management_inline",
+            name='object_management_inline',
         ),
-        path("bt_modal_display", bt_modal_display, name="bt_modal_display"),
-        path("formset", add_formset, name="add_formset"),
-        path("modelformset", add_model_formset, name="add_model_formset"),
+        path('bt_modal_display', bt_modal_display, name='bt_modal_display'),
+        path('formset', add_formset, name='add_formset'),
+        path('modelformset', add_model_formset, name='add_model_formset'),
         path(
-            "create/notification", create_notification_view, name="create_notification"
+            'create/notification', create_notification_view, name='create_notification'
         ),
-        path("knobwidget/testform", knobView, name="knobwidgets"),
+        path('knobwidget/testform', knobView, name='knobwidgets'),
         path(
-            "digitalsignature/",
+            'digitalsignature/',
             digitalsignature.DigitalSignatureList.as_view(),
-            name="digitalsignature-list",
+            name='digitalsignature-list',
         ),
         path(
-            "digitalsignature/create/",
+            'digitalsignature/create/',
             digitalsignature.DigitalSignatureAdd.as_view(),
-            name="digitalsignature-add",
+            name='digitalsignature-add',
         ),
         path(
-            "digitalsignature/<int:pk>/",
+            'digitalsignature/<int:pk>/',
             digitalsignature.DigitalSignatureChange.as_view(),
-            name="digitalsignature-edit",
+            name='digitalsignature-edit',
         ),
         path(
-            "pgroup/", autocompleteviews.PeopleGroupList.as_view(), name="pgroup-list"
+            'pgroup/', autocompleteviews.PeopleGroupList.as_view(), name='pgroup-list'
         ),
         path(
-            "pgroup/create/",
+            'pgroup/create/',
             autocompleteviews.PeopleGroupAdd.as_view(),
-            name="pgroup-add",
+            name='pgroup-add',
         ),
         path(
-            "pgroup/<int:pk>/",
+            'pgroup/<int:pk>/',
             autocompleteviews.PeopleGroupChange.as_view(),
-            name="pgroup-edit",
+            name='pgroup-edit',
         ),
-        path("abcde/", autocompleteviews.ABCDEList.as_view(), name="abcde-list"),
+        path('abcde/', autocompleteviews.ABCDEList.as_view(), name='abcde-list'),
         path(
-            "abcde/create/", autocompleteviews.ABCDECreate.as_view(), name="abcde-add"
+            'abcde/create/', autocompleteviews.ABCDECreate.as_view(), name='abcde-add'
         ),
         path(
-            "abcde/<int:pk>/",
+            'abcde/<int:pk>/',
             autocompleteviews.ABCDEChange.as_view(),
-            name="abcde-edit",
+            name='abcde-edit',
         ),
-        path("inputmask/", input_mask.InsertMask.as_view(), name="input-mask-add"),
+        path('inputmask/', input_mask.InsertMask.as_view(), name='input-mask-add'),
         path(
-            "inputmask/<int:pk>", input_mask.EditMask.as_view(), name="input-mask-edit"
+            'inputmask/<int:pk>', input_mask.EditMask.as_view(), name='input-mask-edit'
         ),
-        path("inputmask/list", input_mask.listMask.as_view(), name="input-mask-list"),
-        path("daterange/", date_ranges.CreateDate.as_view(), name="date-range-add"),
+        path('inputmask/list', input_mask.listMask.as_view(), name='input-mask-list'),
+        path('daterange/', date_ranges.CreateDate.as_view(), name='date-range-add'),
         path(
-            "daterange/<int:pk>",
+            'daterange/<int:pk>',
             date_ranges.UpdateDate.as_view(),
-            name="date-range-edit",
+            name='date-range-edit',
         ),
-        path("daterange/list", date_ranges.ListDate.as_view(), name="date-range-list"),
-        path("chartjs", chart_js_view, name="chartjs_view"),  # antony
-        path("tagging/", tagging.InsertTagging.as_view(), name="input_tagging-add"),
+        path('daterange/list', date_ranges.ListDate.as_view(), name='date-range-list'),
+        path('chartjs', chart_js_view, name='chartjs_view'),  # antony
+        path('tagging/', tagging.InsertTagging.as_view(), name='input_tagging-add'),
         path(
-            "tagging/<int:pk>", tagging.EditTagging.as_view(), name="input_tagging-edit"
+            'tagging/<int:pk>', tagging.EditTagging.as_view(), name='input_tagging-edit'
         ),
-        path("tagging/list", tagging.ListTagging.as_view(), name="input_tagging-list"),
-        path("tinymce/", tinymce.InsertTinymce.as_view(), name="tinymce-add"),
-        path("tinymce/list", tinymce.ListTinymce.as_view(), name="tinymce-list"),
-        path("tinymce/<int:pk>", tinymce.EditTinymce.as_view(), name="tinymce-edit"),
+        path('tagging/list', tagging.ListTagging.as_view(), name='input_tagging-list'),
+        path('tinymce/', tinymce.InsertTinymce.as_view(), name='tinymce-add'),
+        path('tinymce/list', tinymce.ListTinymce.as_view(), name='tinymce-list'),
+        path('tinymce/<int:pk>', tinymce.EditTinymce.as_view(), name='tinymce-edit'),
         path(
-            "tinymce_show/<int:pk>",
+            'tinymce_show/<int:pk>',
             tinymce.DetailTinymce.as_view(),
-            name="tinymce-show",
+            name='tinymce-show',
         ),
         # Transcription costs CPU (or money, on a remote ASR). The
         # endpoint gates itself (403 json), so it is registered bare
@@ -148,73 +148,73 @@ urlpatterns = (
         # login_required, since its widgets are useless to someone who
         # cannot reach the endpoint.
         path(
-            "voice/", login_required(voice.VoiceDemoView.as_view()), name="voice-demo"
+            'voice/', login_required(voice.VoiceDemoView.as_view()), name='voice-demo'
         ),
         path(
-            "voice/transcribe", VoiceTranscribeView.as_view(), name="voice-transcribe"
+            'voice/transcribe', VoiceTranscribeView.as_view(), name='voice-transcribe'
         ),
-        path("yesnoinput/", YesNoInputView.as_view(), name="yes-no-input-add"),
-        path("gridslider/", grid.AddGrid.as_view(), name="grid-slider-add"),
-        path("gridslider/list", grid.ListGrid.as_view(), name="grid-slider-list"),
-        path("gridslider/<int:pk>", grid.UpdateGrid.as_view(), name="grid-slider-edit"),
+        path('yesnoinput/', YesNoInputView.as_view(), name='yes-no-input-add'),
+        path('gridslider/', grid.AddGrid.as_view(), name='grid-slider-add'),
+        path('gridslider/list', grid.ListGrid.as_view(), name='grid-slider-list'),
+        path('gridslider/<int:pk>', grid.UpdateGrid.as_view(), name='grid-slider-edit'),
         path(
-            "chunkedupload/",
+            'chunkedupload/',
             chunkedupload.Addchunkedupload.as_view(),
-            name="chunkeduploaditem-add",
+            name='chunkeduploaditem-add',
         ),
         path(
-            "chunkedupload/list",
+            'chunkedupload/list',
             chunkedupload.Listchunkedupload.as_view(),
-            name="chunkeduploaditem-list",
+            name='chunkeduploaditem-list',
         ),
         path(
-            "chunkedupload/<int:pk>",
+            'chunkedupload/<int:pk>',
             chunkedupload.Updatechunkedupload.as_view(),
-            name="chunkeduploaditem-edit",
+            name='chunkeduploaditem-edit',
         ),
-        path("calendar_view", calendar_view, name="calendar_view"),
-        path("gigapixel_view", gigapixel_view, name="gigapixel_view"),
-        path("mapbased_view", mapbased_view, name="mapbased_view"),
-        path("storyline_view", storyline_view, name="storyline_view"),
-        path("timeline_view", timeline_view, name="timeline_view"),
-        path("maps/", map_point_view, name="map-point"),
-        path("maps/dashboard", map_dashboard_view, name="map-dashboard"),
-        path("datatable_view", datatableViewExample, name="datatable_view"),
+        path('calendar_view', calendar_view, name='calendar_view'),
+        path('gigapixel_view', gigapixel_view, name='gigapixel_view'),
+        path('mapbased_view', mapbased_view, name='mapbased_view'),
+        path('storyline_view', storyline_view, name='storyline_view'),
+        path('timeline_view', timeline_view, name='timeline_view'),
+        path('maps/', map_point_view, name='map-point'),
+        path('maps/dashboard', map_dashboard_view, name='map-dashboard'),
+        path('datatable_view', datatableViewExample, name='datatable_view'),
         # CardTable
-        path("cardlist_view", cardListViewExample, name="cardlist_view"),
-        path("mediarecord_upload", mediaupload_view, name="mediaupload_view"),
-        path("tableapi/", include(router.urls)),
+        path('cardlist_view', cardListViewExample, name='cardlist_view'),
+        path('mediarecord_upload', mediaupload_view, name='mediaupload_view'),
+        path('tableapi/', include(router.urls)),
         # path('api/digital_signature_file/<int:pk>/',
         #      digital_signature_file, name='digital_signature_file'),
         path(
-            "api/digital_signature_file/<int:cc>/<int:pk>/",
+            'api/digital_signature_file/<int:cc>/<int:pk>/',
             DigitalSignatureFileAPIView.as_view(),
-            name="digital_signature_file_api",
+            name='digital_signature_file_api',
         ),
         path(
-            "api/digital_signature/test/<int:pk>",
+            'api/digital_signature/test/<int:pk>',
             DigitalSignatureAPIUpdateTest.as_view(),
-            name="digital_signature_api_test",
+            name='digital_signature_api_test',
         ),
         path(
-            "formset/digital_signature/",
+            'formset/digital_signature/',
             digitalsignature.digital_signature_formset,
-            name="digital_signature_formset",
+            name='digital_signature_formset',
         ),
-        path("imageselect/", select_image.ImageList.as_view(), name="imgselect-list"),
+        path('imageselect/', select_image.ImageList.as_view(), name='imgselect-list'),
         path(
-            "imageselect/create/", select_image.ImageAdd.as_view(), name="imgselect-add"
+            'imageselect/create/', select_image.ImageAdd.as_view(), name='imgselect-add'
         ),
         path(
-            "imageselect/<int:pk>/",
+            'imageselect/<int:pk>/',
             select_image.ImageChange.as_view(),
-            name="imgselect-edit",
+            name='imgselect-edit',
         ),
         # Trash
-        path("trash/", trash_view, name="trash"),
-        path("api/customer/", include(router.urls)),
+        path('trash/', trash_view, name='trash'),
+        path('api/customer/', include(router.urls)),
         # history
-        path("history/", history_view, name="history"),
+        path('history/', history_view, name='history'),
     ]
     + pclss.get_urls()
     + countryclss.get_urls()

@@ -7,14 +7,14 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
-@register_lookups(prefix="userbase", basename="userbase")
+@register_lookups(prefix='userbase', basename='userbase')
 class User(BaseSelect2View, AllPermission):
     model = User
     fields = ['username']
     perms = ['auth.change_user']
 
 
-@register_lookups(prefix="groupbase", basename="groupbase")
+@register_lookups(prefix='groupbase', basename='groupbase')
 class Group(BaseSelect2View, AllPermission):
     model = Group
     fields = ['name']

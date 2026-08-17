@@ -51,13 +51,13 @@ class Command(BaseCommand):
 
         with open(basepath / 'base.js', 'w') as fwriter:
             # load jquery plugins
-            fwriter.write("(function($){\n")
+            fwriter.write('(function($){\n')
             for f in jquery_plugins:
                 with open(basepath / 'base' / f, 'r') as rfile:
-                    fwriter.write("\n%s\n" % (rfile.read()))
-            fwriter.write("})(jQuery)\n")
+                    fwriter.write('\n%s\n' % (rfile.read()))
+            fwriter.write('})(jQuery)\n')
 
             # load base files
             for f in basefiles:
                 with open(basepath / 'base' / f, 'r') as rfile:
-                    fwriter.write("\n%s\n" % (rfile.read()))
+                    fwriter.write('\n%s\n' % (rfile.read()))

@@ -6,11 +6,11 @@ HARD_DELETION = 4
 RESTORE = 5
 
 ACTIONS = {
-    ADDITION: _("created"),
-    CHANGE: _("updated"),
-    DELETION: _("deleted"),
-    HARD_DELETION: _("hard deleted"),
-    RESTORE: _("restored"),
+    ADDITION: _('created'),
+    CHANGE: _('updated'),
+    DELETION: _('deleted'),
+    HARD_DELETION: _('hard deleted'),
+    RESTORE: _('restored'),
 }
 
 
@@ -20,8 +20,8 @@ def add_log(
     action_flag,
     model_name=None,
     changed_data=None,
-    object_repr="",
-    change_message="",
+    object_repr='',
+    change_message='',
     content_type=None,
 ):
     if content_type is None:
@@ -31,14 +31,14 @@ def add_log(
         model_name = object._meta.verbose_name
 
     if not isinstance(action_flag, int):
-        raise ValueError("action_flag must be an integer")
+        raise ValueError('action_flag must be an integer')
 
     action_label = ACTIONS.get(action_flag, str(action_flag))
 
     if not object_repr:
-        object_repr = _("An object of model %(model)s has been %(action)s") % {
-            "model": _(str(model_name).capitalize()),
-            "action": action_label,
+        object_repr = _('An object of model %(model)s has been %(action)s') % {
+            'model': _(str(model_name).capitalize()),
+            'action': action_label,
         }
 
     changed_data = changed_data or []
@@ -49,17 +49,17 @@ def add_log(
                 str(object._meta.get_field(f).verbose_name) for f in changed_data
             ]
 
-            change_message = _("%(msg)s. Fields: %(fields)s") % {
-                "msg": change_message,
-                "fields": ", ".join(verbose_changes),
+            change_message = _('%(msg)s. Fields: %(fields)s') % {
+                'msg': change_message,
+                'fields': ', '.join(verbose_changes),
             }
         else:  # delete, restore, hard delete
             change_message = _(
-                "The record %(obj)s of model %(model)s has been %(action)s"
+                'The record %(obj)s of model %(model)s has been %(action)s'
             ) % {
-                "obj": str(object),
-                "model": _(model_name),
-                "action": action_label,
+                'obj': str(object),
+                'model': _(model_name),
+                'action': action_label,
             }
 
     LogEntry.objects.log_action(

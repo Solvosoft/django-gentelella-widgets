@@ -61,7 +61,7 @@ class AutocompleteSelectMultipleBase(BaseAutocomplete, SelectMultiple):
                                                              extraskwargs=True)
 
 
-def AutocompleteSelect(url, url_suffix="-list", url_args=[], url_kwargs={}, attrs={}):
+def AutocompleteSelect(url, url_suffix='-list', url_args=[], url_kwargs={}, attrs={}):
     class AutocompleteSelect(AutocompleteSelectBase):
         baseurl = url + url_suffix
         extra_attrs = attrs.copy()
@@ -71,7 +71,7 @@ def AutocompleteSelect(url, url_suffix="-list", url_args=[], url_kwargs={}, attr
     return AutocompleteSelect
 
 
-def AutocompleteSelectMultiple(url, url_suffix="-list", url_args=[], url_kwargs={},
+def AutocompleteSelectMultiple(url, url_suffix='-list', url_args=[], url_kwargs={},
                                attrs={}):
     class AutocompleteSelectMultiple(AutocompleteSelectMultipleBase):
         baseurl = url + url_suffix
@@ -82,7 +82,7 @@ def AutocompleteSelectMultiple(url, url_suffix="-list", url_args=[], url_kwargs=
     return AutocompleteSelectMultiple
 
 
-def AutocompleteSelectImage(url, url_suffix="-list", url_args=[], url_kwargs={},
+def AutocompleteSelectImage(url, url_suffix='-list', url_args=[], url_kwargs={},
                             attrs={}):
     class ImgAutocompleteSelect(AutocompleteSelectBase):
         baseurl = url + url_suffix
@@ -105,7 +105,7 @@ def AutocompleteSelectImage(url, url_suffix="-list", url_args=[], url_kwargs={},
     return ImgAutocompleteSelect
 
 
-def AutocompleteSelectMultipleImage(url, url_suffix="-list", url_args=[], url_kwargs={},
+def AutocompleteSelectMultipleImage(url, url_suffix='-list', url_args=[], url_kwargs={},
                                     attrs={}):
     class ImgAutocompleteSelectMultiple(AutocompleteSelectMultipleBase):
         baseurl = url + url_suffix
@@ -117,7 +117,7 @@ def AutocompleteSelectMultipleImage(url, url_suffix="-list", url_args=[], url_kw
             if attrs is None:
                 attrs = {}
             attrs['data-widget'] = 'AutocompleteSelectMultipleImage'
-            attrs['class'] = "form-control select2_multiple"
+            attrs['class'] = 'form-control select2_multiple'
             if 'templateresult' not in attrs:
                 attrs['data-templateresult'] = 'decore_img_select2'
             if self.baseurl is None:

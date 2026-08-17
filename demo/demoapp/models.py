@@ -40,15 +40,15 @@ class Catalog(models.Model):
     description = models.CharField(max_length=500)
 
     def __str__(self):
-        return self.key + " - " + self.description
+        return self.key + ' - ' + self.description
 
 
 class WithCatalog(models.Model):
     mycatalog = GTForeignKey(
-        Catalog, on_delete=models.DO_NOTHING, key_name="key", key_value="Options"
+        Catalog, on_delete=models.DO_NOTHING, key_name='key', key_value='Options'
     )
     countries = GTManyToManyField(
-        Catalog, related_name="countryrel", key_name="key", key_value="countries"
+        Catalog, related_name='countryrel', key_name='key', key_value='countries'
     )
 
     def __str__(self):
@@ -57,7 +57,7 @@ class WithCatalog(models.Model):
 
 class OneCatalog(models.Model):
     me = GTOneToOneField(
-        Catalog, on_delete=models.CASCADE, key_name="key", key_value="countries"
+        Catalog, on_delete=models.CASCADE, key_name='key', key_value='countries'
     )
 
     def __str__(self):
@@ -77,7 +77,7 @@ class Foo(models.Model):
 class PeopleGroup(models.Model):
     name = models.CharField(max_length=150)
     people = models.ManyToManyField(Person)
-    communities = models.ManyToManyField("Community")
+    communities = models.ManyToManyField('Community')
     country = models.ForeignKey(
         Country, null=True, blank=True, on_delete=models.CASCADE
     )
@@ -125,28 +125,28 @@ class ABCDE(models.Model):
     e = models.ManyToManyField(E)
 
     def __str__(self):
-        return " ".join([x.display for x in self.e.all()])
+        return ' '.join([x.display for x in self.e.all()])
 
 
 def validate_inputs(value):
-    if value.find("_") != -1:
+    if value.find('_') != -1:
         raise ValidationError(
-            _("%(value)s need more digits"),
-            params={"value": value},
+            _('%(value)s need more digits'),
+            params={'value': value},
         )
 
 
 def validate_email(value):
-    position = value.split("@")
-    if value.find("_") != -1 and len(position[0]) > 0 and len(position[1]) > 4:
-        raise ValidationError(_("that email invalid"))
+    position = value.split('@')
+    if value.find('_') != -1 and len(position[0]) > 0 and len(position[1]) > 4:
+        raise ValidationError(_('that email invalid'))
 
 
 def validate_credit_card(value):
-    position = value.split("_")
+    position = value.split('_')
     value = position[0]
     if len(value) < 13:
-        raise ValidationError(_("that card invalid"))
+        raise ValidationError(_('that card invalid'))
 
     return value
 
@@ -160,7 +160,7 @@ class InputMask(models.Model):
     email = models.EmailField(validators=[validate_email])
 
     def __str__(self):
-        return str(self.id) + " - " + self.email
+        return str(self.id) + ' - ' + self.email
 
 
 class DateRange(models.Model):
@@ -187,7 +187,7 @@ class YesNoInput(models.Model):
     copy_number = models.IntegerField(default=0)
     has_meta = models.BooleanField(default=False)
     year = models.IntegerField(default=2020)
-    editorial = models.CharField(max_length=250, default="")
+    editorial = models.CharField(max_length=250, default='')
     display_publish = models.BooleanField(default=False)
 
 
@@ -214,7 +214,7 @@ class Employee(models.Model):
 
 class ChunkedUploadItem(models.Model):
     name = models.CharField(max_length=100)
-    fileexample = models.FileField(upload_to="filedemo")
+    fileexample = models.FileField(upload_to='filedemo')
 
 
 class Calendar(models.Model):
@@ -235,10 +235,10 @@ class Event(models.Model):
 
 class ObjectManagerDemoModel(models.Model):
     ELEMENTS = (
-        (1, "A"),
-        (2, "B"),
-        (3, "C"),
-        (4, "D"),
+        (1, 'A'),
+        (2, 'B'),
+        (3, 'C'),
+        (4, 'D'),
     )
     name = models.CharField(max_length=150)
     float_number = models.FloatField(default=0)
@@ -247,17 +247,17 @@ class ObjectManagerDemoModel(models.Model):
     last_time = models.DateTimeField()
     livetime_range = models.CharField(max_length=256)  # daterange field
     description = models.TextField()  # wysiwyg
-    simple_archive = models.FileField(upload_to="files")
-    chunked_archive = models.FileField(upload_to="chunked_files")
+    simple_archive = models.FileField(upload_to='files')
+    chunked_archive = models.FileField(upload_to='chunked_files')
     radio_elements = models.IntegerField(choices=ELEMENTS)
     taging_list = models.CharField(max_length=256)
     yes_no = models.BooleanField(default=False)
 
     field_autocomplete = models.ForeignKey(
-        Country, related_name="ct", on_delete=models.CASCADE
+        Country, related_name='ct', on_delete=models.CASCADE
     )
-    m2m_autocomplete = models.ManyToManyField(Country, related_name="autocomplext")
-    field_select = models.ForeignKey("Community", on_delete=models.CASCADE)
+    m2m_autocomplete = models.ManyToManyField(Country, related_name='autocomplext')
+    field_select = models.ForeignKey('Community', on_delete=models.CASCADE)
     m2m_multipleselect = models.ManyToManyField(A)
 
     def __str__(self):
@@ -268,7 +268,7 @@ class ObjectManagerDemoNote(models.Model):
     """Child of ObjectManagerDemoModel, managed with BaseInlineObjectManagement."""
 
     demo_object = models.ForeignKey(
-        ObjectManagerDemoModel, related_name="notes", on_delete=models.CASCADE
+        ObjectManagerDemoModel, related_name='notes', on_delete=models.CASCADE
     )
     title = models.CharField(max_length=150)
     body = models.TextField(blank=True)
@@ -281,14 +281,14 @@ class ObjectManagerDemoNote(models.Model):
 class DigitalSignature(models.Model):
     file_code = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     filename = models.CharField(max_length=50, null=True, blank=True)
-    file = models.FileField(upload_to="digital_signature/")
+    file = models.FileField(upload_to='digital_signature/')
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
         #  add name to filename
         if not self.filename and self.file:
-            self.filename = self.file.name.split("/")[-1]
+            self.filename = self.file.name.split('/')[-1]
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -297,7 +297,7 @@ class DigitalSignature(models.Model):
 
 class SelectImage(models.Model):
     name = models.CharField(max_length=255)
-    img = models.FileField(upload_to="images", null=True, blank=True)
+    img = models.FileField(upload_to='images', null=True, blank=True)
 
     def __str__(self):
         return (
@@ -305,24 +305,24 @@ class SelectImage(models.Model):
             + self.img.url
             + '">'
             + self.name
-            + "</span>"
+            + '</span>'
         )
 
 
 class Img(models.Model):
     multi_image = models.ManyToManyField(
-        SelectImage, blank=True, related_name="imges_x"
+        SelectImage, blank=True, related_name='imges_x'
     )
     related_name = models.ForeignKey(
         SelectImage,
         blank=True,
         null=True,
-        related_name="related_img",
+        related_name='related_img',
         on_delete=models.CASCADE,
     )
 
     def __str__(self):
-        return "Imgs %d" % (self.multi_image.count())
+        return 'Imgs %d' % (self.multi_image.count())
 
 
 # Trash
@@ -358,7 +358,7 @@ class Place(models.Model):
         zoom=8,
         center=(9.9327, -84.0875),
         search=True,
-        based_fields=["#id_country", "#id_city"],
+        based_fields=['#id_country', '#id_city'],
         blank=True,
     )
 

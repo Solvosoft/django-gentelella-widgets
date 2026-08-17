@@ -10,7 +10,7 @@ from djgentelella.serializers import GTDateField, GTDateTimeField
 class CountrySerializer(serializers.ModelSerializer):
     class Meta:
         model = Country
-        fields = "__all__"
+        fields = '__all__'
 
 
 class PersonSerializer(serializers.ModelSerializer):
@@ -24,7 +24,7 @@ class PersonSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Person
-        fields = "__all__"
+        fields = '__all__'
 
 
 class PersonCardSerializer(serializers.ModelSerializer):
@@ -41,7 +41,7 @@ class PersonCardSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Person
-        fields = "__all__"
+        fields = '__all__'
 
 
 class PersonCardListSerializer(serializers.Serializer):
@@ -63,12 +63,12 @@ class PersonCreateSerializer(serializers.ModelSerializer):
     def validate_num_children(self, value):
         num_children = value
         if num_children < 0:
-            raise ValidationError(detail=_("Value has to be positive or zero "))
+            raise ValidationError(detail=_('Value has to be positive or zero '))
         return num_children
 
     class Meta:
         model = Person
-        fields = "__all__"
+        fields = '__all__'
 
 
 class CountrySerializer(serializers.ModelSerializer):
@@ -84,4 +84,4 @@ class PersonUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Person
-        fields = "__all__"
+        fields = '__all__'

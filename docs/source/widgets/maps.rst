@@ -108,6 +108,10 @@ Or, with validation and a model field included:
    * - ``tile_url``
      - OpenStreetMap
      - Tile layer template.
+   * - ``tile_attribution``
+     - OpenStreetMap
+     - Attribution line for ``tile_url``. Most providers require one, so set
+       it whenever you set ``tile_url``.
    * - ``geocoder_url``
      - Nominatim
      - Nominatim compatible endpoint.

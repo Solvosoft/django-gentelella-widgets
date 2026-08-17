@@ -29,23 +29,23 @@ class FormCalendarWidgetTest(TestCase):
         self.events = [
             {
                 'title': 'Event 1',
-                'start': datetime.strftime(datetime.now(), "%Y-%m-%d %H:%M:%S.%f"),
+                'start': datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S.%f'),
                 'end': datetime.strftime(datetime.now() + timedelta(minutes=30),
-                                         "%Y-%m-%d %H:%M:%S.%f")
+                                         '%Y-%m-%d %H:%M:%S.%f')
             },
             {
                 'title': 'Event 2',
                 'start': datetime.strftime(datetime.now() + timedelta(days=1),
-                                           "%Y-%m-%d %H:%M:%S.%f"),
+                                           '%Y-%m-%d %H:%M:%S.%f'),
                 'end': datetime.strftime(datetime.now() + timedelta(days=1, minutes=30),
-                                         "%Y-%m-%d %H:%M:%S.%f")
+                                         '%Y-%m-%d %H:%M:%S.%f')
             },
             {
                 'title': 'Event 3',
                 'start': datetime.strftime(datetime.now() + timedelta(days=2),
-                                           "%Y-%m-%d %H:%M:%S.%f"),
+                                           '%Y-%m-%d %H:%M:%S.%f'),
                 'end': datetime.strftime(datetime.now() + timedelta(days=2, minutes=30),
-                                         "%Y-%m-%d %H:%M:%S.%f")
+                                         '%Y-%m-%d %H:%M:%S.%f')
             },
         ]
 

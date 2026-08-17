@@ -36,13 +36,13 @@ def get_datatables_translation(context):
     if lang and hasattr(settings, 'DATATABLES_SUPPORT_LANGUAGES'):
         if lang in settings.DATATABLES_SUPPORT_LANGUAGES:
             return settings.DATATABLES_SUPPORT_LANGUAGES[lang]
-    return static("vendors/datatables/en-GB.json")
+    return static('vendors/datatables/en-GB.json')
 
 
 @register.simple_tag(takes_context=True)
 def define_true(context, val):
     setattr(context['request'], val, True)
-    return ""
+    return ''
 
 
 @register.simple_tag(takes_context=True)
@@ -55,5 +55,5 @@ def get_define(context, val):
 
 
 @register.simple_tag(takes_context=True)
-def get_websocket_url(context, name, *args, default="sign_document", **kwargs):
+def get_websocket_url(context, name, *args, default='sign_document', **kwargs):
     return settings.FIRMADOR_WS + name

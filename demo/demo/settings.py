@@ -38,14 +38,14 @@ INSTALLED_APPS = [
     'demoapp',
     'djgentelella.blog',
     'djgentelella.permission_management',
-    "corsheaders",
-    "channels",
+    'corsheaders',
+    'channels',
     'djgentelella.async_notification',
 ]
 
 MIDDLEWARE = [
-    "corsheaders.middleware.CorsMiddleware",
-    "django.middleware.security.SecurityMiddleware",
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.security.SecurityMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -104,12 +104,12 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "0.0.0.0"]
-CSRF_TRUSTED_SCHEME = "http"
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
+CSRF_TRUSTED_SCHEME = 'http'
 CSRF_TRUSTED_ORIGINS = [
-    f"{CSRF_TRUSTED_SCHEME}://localhost",
-    f"{CSRF_TRUSTED_SCHEME}://127.0.0.1",
-    f"{CSRF_TRUSTED_SCHEME}://0.0.0.0",
+    f'{CSRF_TRUSTED_SCHEME}://localhost',
+    f'{CSRF_TRUSTED_SCHEME}://127.0.0.1',
+    f'{CSRF_TRUSTED_SCHEME}://0.0.0.0',
 ]
 
 CORS_ALLOW_ALL_ORIGINS = False
@@ -178,39 +178,39 @@ DEFAULT_JS_IMPORTS = {
 }
 
 # Authentication settings
-LOGOUT_REDIRECT_URL = reverse_lazy("login")
-LOGIN_REDIRECT_URL = reverse_lazy("home")
+LOGOUT_REDIRECT_URL = reverse_lazy('login')
+LOGIN_REDIRECT_URL = reverse_lazy('home')
 
 # FIRMADOR DIGITAL
 DO_STATIC = os.getenv('DO_STATIC', default='True').lower() == 'true'
-DJANGO_ASETTINGS_MODULE = "demo.asettings"
-GUNICORN_BIND = os.getenv('GUNICORN_BIND', "127.0.0.1:9022")
-GUNICORN_ASGI_APP = "demo.asgi:application"
-GUNICORN_WSGI_APP = "demo.wsgi:application"
+DJANGO_ASETTINGS_MODULE = 'demo.asettings'
+GUNICORN_BIND = os.getenv('GUNICORN_BIND', '127.0.0.1:9022')
+GUNICORN_ASGI_APP = 'demo.asgi:application'
+GUNICORN_WSGI_APP = 'demo.wsgi:application'
 GUNICORN_WORKERS = 1 if DEBUG else 2
-GUNICORN_WORKER_CLASS = "sync"
-GUNICORN_USER = os.getenv('GUNICORN_USER', "demo")
-GUNICORN_GROUP = os.getenv('GUNICORN_GROUP', "demo")
+GUNICORN_WORKER_CLASS = 'sync'
+GUNICORN_USER = os.getenv('GUNICORN_USER', 'demo')
+GUNICORN_GROUP = os.getenv('GUNICORN_GROUP', 'demo')
 
-UVICORN_BIND = os.getenv('UVICORN_BIND', "127.0.0.1:8022")
+UVICORN_BIND = os.getenv('UVICORN_BIND', '127.0.0.1:8022')
 UVICORN_WORKER = 1 if DEBUG else 2
-UVICORN_WORKER_CLASS = "demo.asgi_worker.UvicornWorker"
+UVICORN_WORKER_CLASS = 'demo.asgi_worker.UvicornWorker'
 
 if DEBUG:
     FIRMADOR_WS_URL = os.getenv('FIRMADOR_WS',
-                                "ws://%s/async/sign_document" % UVICORN_BIND)
+                                'ws://%s/async/sign_document' % UVICORN_BIND)
 else:
-    FIRMADOR_WS_URL = os.getenv('FIRMADOR_WS', "/async/sign_document")
-FIRMADOR_DOMAIN = os.getenv('FIRMADOR_DOMAIN', "http://localhost:9001")
-FIRMADOR_VALIDA_URL = FIRMADOR_DOMAIN + "/valida/"
-FIRMADOR_SIGN_URL = FIRMADOR_DOMAIN + "/firma/firme"
-FIRMADOR_SIGN_COMPLETE = FIRMADOR_DOMAIN + "/firma/completa"
-FIRMADOR_DELETE_FILE_URL = FIRMADOR_DOMAIN + "/firma/delete"
+    FIRMADOR_WS_URL = os.getenv('FIRMADOR_WS', '/async/sign_document')
+FIRMADOR_DOMAIN = os.getenv('FIRMADOR_DOMAIN', 'http://localhost:9001')
+FIRMADOR_VALIDA_URL = FIRMADOR_DOMAIN + '/valida/'
+FIRMADOR_SIGN_URL = FIRMADOR_DOMAIN + '/firma/firme'
+FIRMADOR_SIGN_COMPLETE = FIRMADOR_DOMAIN + '/firma/completa'
+FIRMADOR_DELETE_FILE_URL = FIRMADOR_DOMAIN + '/firma/delete'
 
 # history
 GT_HISTORY_ALLOWED_MODELS = [
-    "djgentelella.trash",  # add always trash when you use history
-    "demoapp.customer",
+    'djgentelella.trash',  # add always trash when you use history
+    'demoapp.customer',
     # add more models here for history
 ]
 
@@ -218,27 +218,27 @@ GT_HISTORY_ALLOWED_MODELS = [
 # Console by default (prints emails). Point at MailHog (make mailhog) to
 # validate real sending/reception: EMAIL_BACKEND=smtp EMAIL_HOST/PORT via env.
 EMAIL_BACKEND = os.getenv(
-    'EMAIL_BACKEND', "django.core.mail.backends.console.EmailBackend")
-DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', "no-reply@example.com")
+    'EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'no-reply@example.com')
 
 # Base HTML layouts an EmailTemplate can wrap its content in.
 ASYNC_NOTIFICATION_BASE_TEMPLATES = {
-    "default": "async_notification/email_base.html",
-    "executive": "async_notification/base/executive.html",
-    "product": "async_notification/base/product.html",
-    "transactional": "async_notification/base/transactional.html",
-    "newsletter": "async_notification/base/newsletter.html",
+    'default': 'async_notification/email_base.html',
+    'executive': 'async_notification/base/executive.html',
+    'product': 'async_notification/base/product.html',
+    'transactional': 'async_notification/base/transactional.html',
+    'newsletter': 'async_notification/base/newsletter.html',
 }
 
 # Brand info exposed to the base templates as {{ brand.* }}.
 ASYNC_NOTIFICATION_BRAND = {
-    "name": "Demo Org",
-    "color": "#3b5bdb",
-    "color_text_on": "#ffffff",
-    "site_url": "https://example.com",
-    "address": "Demo Org · 123 Example St · Springfield",
-    "support_email": "support@example.com",
-    "tagline": "Building better software",
+    'name': 'Demo Org',
+    'color': '#3b5bdb',
+    'color_text_on': '#ffffff',
+    'site_url': 'https://example.com',
+    'address': 'Demo Org · 123 Example St · Springfield',
+    'support_email': 'support@example.com',
+    'tagline': 'Building better software',
 }
 
 # Compliance / deliverability (demo values).
@@ -250,9 +250,9 @@ ASYNC_NOTIFICATION_UNSUBSCRIBE_MAILTO = 'unsubscribe@example.com'
 
 # Newsletter base models: {key: [dotted_model, description, interface_path]}.
 ASYNC_NEWS_BASE_MODELS = {
-    "users": [
-        "auth.User",
-        "Site users",
-        "demoapp.newsletter_interfaces.UserNewsLetterInterface",
+    'users': [
+        'auth.User',
+        'Site users',
+        'demoapp.newsletter_interfaces.UserNewsLetterInterface',
     ],
 }

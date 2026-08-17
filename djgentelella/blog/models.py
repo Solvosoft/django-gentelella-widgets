@@ -47,7 +47,7 @@ class Entry(models.Model):
             return mark_safe(self.resume)
 
     class Meta:
-        verbose_name_plural = "entries"
+        verbose_name_plural = 'entries'
 
     def get_absolute_url(self):
         return reverse('blog:entrydetail', args=[self.slug])
@@ -104,7 +104,7 @@ class EntryImage(models.Model):
         return self.image.url
 
     def __str__(self):
-        return u"{entry} - {image}".format(
+        return u'{entry} - {image}'.format(
             entry=truncatechars(self.entry, 10),
             image=truncatechars(self.image.name, 10),
         )

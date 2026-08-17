@@ -8,19 +8,19 @@ from djgentelella.chunked_upload.utils import (
 
 
 class Command(BaseCommand):
-    help = "Deletes chunked uploads that have already expired."
+    help = 'Deletes chunked uploads that have already expired.'
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "--interactive",
-            action="store_true",
-            dest="interactive",
+            '--interactive',
+            action='store_true',
+            dest='interactive',
             default=False,
-            help="Prompt confirmation before each deletion.",
+            help='Prompt confirmation before each deletion.',
         )
 
     def handle(self, *args, **options):
-        interactive = options.get("interactive")
+        interactive = options.get('interactive')
 
         if interactive:
             result = self._handle_interactive()
@@ -42,18 +42,18 @@ class Command(BaseCommand):
         exclude_ids = []
 
         for chunked_upload in get_expired_uploads():
-            prompt = f"Do you want to delete {chunked_upload}? (y/n): "
+            prompt = f'Do you want to delete {chunked_upload}? (y/n): '
             answer = input(prompt).lower()
-            while answer not in ("y", "n"):
+            while answer not in ('y', 'n'):
                 answer = input(prompt).lower()
 
-            if answer == "n":
+            if answer == 'n':
                 exclude_ids.append(chunked_upload.id)
             else:
                 count[chunked_upload.status] += 1
                 chunked_upload.delete()
 
         return {
-            "complete": count[COMPLETE],
-            "uploading": count[UPLOADING],
+            'complete': count[COMPLETE],
+            'uploading': count[UPLOADING],
         }

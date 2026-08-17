@@ -8,14 +8,14 @@ class CustomerSerializer(serializers.ModelSerializer):
 
     def get_actions(self, obj):
         return {
-            "create": True,
-            "update": True,
-            "destroy": True,
+            'create': True,
+            'update': True,
+            'destroy': True,
         }
 
     class Meta:
         model = Customer
-        fields = "__all__"
+        fields = '__all__'
 
 
 class CustomerDataTableSerializer(serializers.Serializer):
@@ -39,7 +39,7 @@ class CustomerValidateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
         fields = (
-            "name",
-            "email",
-            "phone_number",
+            'name',
+            'email',
+            'phone_number',
         )

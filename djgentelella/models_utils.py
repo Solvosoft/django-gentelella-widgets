@@ -5,13 +5,13 @@ from pathlib import Path
 
 from django.utils.text import slugify
 
-logger = logging.getLogger("djgentelella")
+logger = logging.getLogger('djgentelella')
 
 
 def get_file_name(instance, name):
     model_name = str(type(instance).__name__).lower()
 
-    return "%s-%s" % (model_name, name)
+    return '%s-%s' % (model_name, name)
 
 
 def upload_files_by_model_and_dates(instance, filename):
@@ -20,17 +20,17 @@ def upload_files_by_model_and_dates(instance, filename):
 
         myfile = models.FileField(upload_to=upload_files_by_model_and_dates)
     """
-    date = int(datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
+    date = int(datetime.datetime.now().strftime('%Y%m%d%H%M%S'))
     path = Path(filename)
     extension = path.suffix
 
-    if extension == ".zip":
+    if extension == '.zip':
         name = path.stem
     else:
         name = get_file_name(instance, slugify(path.stem))
 
     model_name = str(type(instance).__name__).lower()
-    return f"{model_name}/{date}/{name}{extension}"
+    return f'{model_name}/{date}/{name}{extension}'
 
 
 def upload_files_by_model_and_month(instance, filename):
@@ -39,17 +39,17 @@ def upload_files_by_model_and_month(instance, filename):
 
         myfile = models.FileField(upload_to=upload_files_by_model_and_dates)
     """
-    dates = datetime.datetime.now().strftime("%Y%m")
+    dates = datetime.datetime.now().strftime('%Y%m')
     path = Path(filename)
     extension = path.suffix
 
-    if extension == ".zip":
+    if extension == '.zip':
         name = path.stem
     else:
         name = get_file_name(instance, slugify(path.stem))
 
     model_name = str(type(instance).__name__).lower()
-    return f"{model_name}/{dates}/{name}{extension}"
+    return f'{model_name}/{dates}/{name}{extension}'
 
 
 def delete_file_and_folder(file_field):
@@ -65,9 +65,9 @@ def delete_file_and_folder(file_field):
     if os.path.exists(file_path):
         try:
             os.remove(file_path)
-            logger.info(f"Deleted file: {file_path}")
+            logger.info(f'Deleted file: {file_path}')
         except Exception as e:
-            logger.error(f"Error deleting file: {file_path}", exc_info=e)
+            logger.error(f'Error deleting file: {file_path}', exc_info=e)
 
     # Obtener la carpeta contenedora del archivo
     directory = os.path.dirname(file_path)
@@ -79,6 +79,6 @@ def delete_file_and_folder(file_field):
         if not files:
             try:
                 os.rmdir(directory)
-                logger.info(f"Folder created: {directory}")
+                logger.info(f'Folder created: {directory}')
             except Exception as e:
-                logger.error(f"Error deleting folder: {directory}", exc_info=e)
+                logger.error(f'Error deleting folder: {directory}', exc_info=e)

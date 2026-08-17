@@ -20,17 +20,17 @@ class FooModelForm(GTForm, forms.ModelForm):
                   'age')
         widgets = {
             'number_of_eyes': knobwidget.NumberKnobInput(attrs={
-                "value": 0
+                'value': 0
             }),
             'speed_in_miles_per_hour': knobwidget.NumberKnobInput(
                 attrs={
-                    "value": 1,
-                    "data-min": 1,
-                    "data-step": 0.1,
-                    "data-max": 50
+                    'value': 1,
+                    'data-min': 1,
+                    'data-step': 0.1,
+                    'data-max': 50
                 }),
             'age': knobwidget.NumberKnobInput(attrs={
-                "value": 0
+                'value': 0
             })
         }
 
@@ -41,14 +41,14 @@ class FooBasicForm(GTForm, forms.Form):
         widget=knobwidget.NumberKnobInput(attrs={}), initial=15)
     speed_in_miles_per_hour = forms.FloatField(
         widget=knobwidget.NumberKnobInput(attrs={
-            "data-min": 1,
-            "data-step": 0.1,
-            "data-max": 50}))
+            'data-min': 1,
+            'data-step': 0.1,
+            'data-max': 50}))
     number_of_eyes = forms.IntegerField(
         widget=knobwidget.NumberKnobInput(attrs={
-            "data-min": 1,
-            "steps": 0.1,
-            "data-max": 50}))
+            'data-min': 1,
+            'steps': 0.1,
+            'data-max': 50}))
 
 
 class PersonForm(GTForm, forms.ModelForm):
@@ -126,10 +126,10 @@ class ObjectManagementForm(GTForm, forms.ModelForm):
             'float_number': genwidgets.FloatInput,
             'knob_number': knobwidget.NumberKnobInput(
                 attrs={
-                    "value": 10,
-                    "data-min": 1,
-                    "data-step": 1,
-                    "data-max": 50
+                    'value': 10,
+                    'data-min': 1,
+                    'data-step': 1,
+                    'data-max': 50
                 }),
             'born_date': genwidgets.DateInput,
             'last_time': genwidgets.DateTimeInput,

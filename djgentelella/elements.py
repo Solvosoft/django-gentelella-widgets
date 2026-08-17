@@ -6,7 +6,7 @@ class Element:
         self.position = position
         self.brothers = brothers
         if brothers == 0:
-            raise Exception("Not allowed 0 elements on this class")
+            raise Exception('Not allowed 0 elements on this class')
 
     def load_data(self):
         pass
@@ -18,7 +18,7 @@ class Element:
         pos_sm = pos * 2
         if pos_sm > 12:
             pos_sm = 12
-        return "col-md-%d col-sm-%d" % (pos, pos_sm)
+        return 'col-md-%d col-sm-%d' % (pos, pos_sm)
 
 
 class StatsElement(Element):
@@ -48,28 +48,28 @@ class StatsElement(Element):
         return dev
 
     def get_bottom_icon_text(self):
-        return ""
+        return ''
 
     def get_top_icon(self):
-        return ""
+        return ''
 
     def get_top_text(self):
-        return ""
+        return ''
 
     def get_count(self):
-        return ""
+        return ''
 
     def get_count_color(self):
-        return ""
+        return ''
 
     def get_bottom_color(self):
-        return "green"
+        return 'green'
 
     def get_bottom_text(self):
-        return ""
+        return ''
 
     def get_bottom_icon(self):
-        return ""
+        return ''
 
     def _get_count(self):
         return """<div class="count %s">%s</div>""" % (
@@ -81,27 +81,27 @@ class StatsElement(Element):
         icon = self.get_top_icon()
         if icon:
             return '<i class="%s"></i>' % (icon,)
-        return ""
+        return ''
 
     def _get_bottom_icon(self):
         icon = self.get_bottom_icon()
         if icon:
             return '<i class="%s"></i>' % (icon,)
-        return ""
+        return ''
 
 
 class BoxTileElement(Element):
     def get_icon(self):
-        return ""
+        return ''
 
     def get_number(self):
-        return ""
+        return ''
 
     def get_title(self):
-        return ""
+        return ''
 
     def get_subtitle(self):
-        return ""
+        return ''
 
     def render(self):
         return """
@@ -134,7 +134,7 @@ class BaseListElement:
             dev += '<div class="' + view.get_columns() + ' tile_stats_count">'
             dev += view.render()
             dev += '</div>'
-        dev += "</div></div>"
+        dev += '</div></div>'
         return mark_safe(dev)
 
 

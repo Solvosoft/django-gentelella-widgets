@@ -10,5 +10,5 @@ def calendar_view(request):
         form = CalendarModelform(request.POST, initial={'options': '{}'})
         if form.is_valid():
             form.save()
-            messages.success(request, "Form submitted succesfully")
+            messages.success(request, 'Form submitted succesfully')
     return render(request, 'gentelella/index.html', {'form': form})

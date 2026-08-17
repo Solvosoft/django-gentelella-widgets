@@ -4,17 +4,17 @@ from djgentelella.chartjs import VerticalBarChart, HorizontalBarChart, \
     StackedBarChart, LineChart, PieChart, DoughnutChart, ScatterChart
 from djgentelella.groute import register_lookups
 
-default_colors = ["229, 158, 64", "240, 180, 150", "0, 168, 150", "207, 130, 182",
-                  "2, 128, 144", "1, 148, 147",
-                  "240, 112, 96", "153, 235, 168", "241, 179, 167", "242, 137, 76",
-                  "175, 151, 195",
-                  "161, 178, 200",
-                  "245, 216, 144", "216, 15, 53", "233, 175, 97", "4, 115, 143",
-                  "162, 237, 133", "226, 148, 72",
-                  "5, 102, 141", "241, 125, 90", "236, 194, 128", "220, 239, 133",
-                  "242, 157, 175", "187, 141, 189",
-                  "238, 186, 140", "238, 16, 58", "2, 195, 154", "121, 219, 172",
-                  "239, 98, 104", "231, 167, 81"]
+default_colors = ['229, 158, 64', '240, 180, 150', '0, 168, 150', '207, 130, 182',
+                  '2, 128, 144', '1, 148, 147',
+                  '240, 112, 96', '153, 235, 168', '241, 179, 167', '242, 137, 76',
+                  '175, 151, 195',
+                  '161, 178, 200',
+                  '245, 216, 144', '216, 15, 53', '233, 175, 97', '4, 115, 143',
+                  '162, 237, 133', '226, 148, 72',
+                  '5, 102, 141', '241, 125, 90', '236, 194, 128', '220, 239, 133',
+                  '242, 157, 175', '187, 141, 189',
+                  '238, 186, 140', '238, 16, 58', '2, 195, 154', '121, 219, 172',
+                  '239, 98, 104', '231, 167, 81']
 
 
 class BaseChart:
@@ -71,7 +71,7 @@ class CircularBase(BaseChart):
                 ]
 
 
-@register_lookups(prefix="verticalbar", basename="verticalbar")
+@register_lookups(prefix='verticalbar', basename='verticalbar')
 class VerticalBarChartExample(BaseChart, VerticalBarChart):
 
     def get_title(self):
@@ -80,7 +80,7 @@ class VerticalBarChartExample(BaseChart, VerticalBarChart):
                 }
 
 
-@register_lookups(prefix="horizontalbar", basename="horizontalbar")
+@register_lookups(prefix='horizontalbar', basename='horizontalbar')
 class HorizontalBarChartExample(BaseChart, HorizontalBarChart):
     def get_title(self):
         return {'display': True,
@@ -88,7 +88,7 @@ class HorizontalBarChartExample(BaseChart, HorizontalBarChart):
                 }
 
 
-@register_lookups(prefix="stackedbar", basename="stackedbar")
+@register_lookups(prefix='stackedbar', basename='stackedbar')
 class StackedBarChartExample(BaseChart, StackedBarChart):
     def get_title(self):
         return {'display': True,
@@ -96,7 +96,7 @@ class StackedBarChartExample(BaseChart, StackedBarChart):
                 }
 
 
-@register_lookups(prefix="line", basename="line")
+@register_lookups(prefix='line', basename='line')
 class LineChartExample(BaseChart, LineChart):
     def get_title(self):
         return {'display': True,
@@ -104,7 +104,7 @@ class LineChartExample(BaseChart, LineChart):
                 }
 
 
-@register_lookups(prefix="steppedline", basename="steppedline")
+@register_lookups(prefix='steppedline', basename='steppedline')
 class steppedLineChartExample(BaseChart, LineChart):
     def get_title(self):
         return {'display': True,
@@ -137,7 +137,7 @@ class steppedLineChartExample(BaseChart, LineChart):
                 ]
 
 
-@register_lookups(prefix="arealine", basename="arealine")
+@register_lookups(prefix='arealine', basename='arealine')
 class AreaChartExample(BaseChart, LineChart):
     def get_title(self):
         return {'display': True,
@@ -170,7 +170,7 @@ class AreaChartExample(BaseChart, LineChart):
                 ]
 
 
-@register_lookups(prefix="pie", basename="pie")
+@register_lookups(prefix='pie', basename='pie')
 class PieChartExample(BaseChart, PieChart):
     def get_title(self):
         return {'display': True,
@@ -188,7 +188,7 @@ class PieChartExample(BaseChart, PieChart):
                  }, ]
 
 
-@register_lookups(prefix="doughnut", basename="doughnut")
+@register_lookups(prefix='doughnut', basename='doughnut')
 class DoughnutChartExample(CircularBase, DoughnutChart):
     def get_title(self):
         return {'display': True,
@@ -207,7 +207,7 @@ class DoughnutChartExample(CircularBase, DoughnutChart):
         }
 
 
-@register_lookups(prefix="linebar", basename="linebar")
+@register_lookups(prefix='linebar', basename='linebar')
 class LineBarChartExample(BaseChart, LineChart):
     def get_title(self):
         return {'display': True,
@@ -221,7 +221,7 @@ class LineBarChartExample(BaseChart, LineChart):
         return dataset
 
 
-@register_lookups(prefix="scatter", basename="scatter")
+@register_lookups(prefix='scatter', basename='scatter')
 class ScatterChartExample(BaseChart, ScatterChart):
 
     def get_title(self):

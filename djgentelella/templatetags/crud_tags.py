@@ -78,7 +78,7 @@ def format_value(obj, field_name):
                 url = getattr(value, 'get_absolute_url')()
                 return mark_safe('<a href="%s">%s</a>' % (url, escape(value)))
     if value is None:
-        value = ""
+        value = ''
     return value
 
 
@@ -147,7 +147,7 @@ def get_fields(model, fields=None):
 def render_boolean_field(obj_field):
     filter = (
         'true' if obj_field else 'false',
-        "fa-check-square" if obj_field else 'fa-square-o'
+        'fa-check-square' if obj_field else 'fa-square-o'
     )
     return mark_safe(
         """<div class="text-center %s" ><i class="fa %s"></i></div>""" % filter)
@@ -183,20 +183,20 @@ def form_get_form_display(context, form, **kwargs):
 
 @register.simple_tag(takes_context=True)
 def icon_fa_tag(context, icon_name, **kwargs):
-    icon = "fa fa-meh-o"
-    if icon_name == "delete":
-        icon = "fa fa-times"
-    elif icon_name == "create":
+    icon = 'fa fa-meh-o'
+    if icon_name == 'delete':
+        icon = 'fa fa-times'
+    elif icon_name == 'create':
         icon = 'fa fa-plus-circle'
-    elif icon_name == "submit" or icon_name == "save":
+    elif icon_name == 'submit' or icon_name == 'save':
         icon = 'fa fa-floppy-o'
-    elif icon_name == "edit":
+    elif icon_name == 'edit':
         icon = 'fa fa-pencil-square-o'
-    elif icon_name == "cancel":
+    elif icon_name == 'cancel':
         icon = 'fa fa-ban'
-    elif icon_name == "show":
+    elif icon_name == 'show':
         icon = 'fa fa-eye'
-    elif icon_name == "accept":
+    elif icon_name == 'accept':
         icon = 'fa fa-check'
     icon_result = "<i class='" + icon + "'></i>"
     return mark_safe(icon_result)

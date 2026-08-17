@@ -24,17 +24,17 @@ from django.utils.translation import gettext as _
 from djgentelella.models import ChunkedUpload
 
 
-def update_kwargs(attrs, widget, base_class="form-control "):
+def update_kwargs(attrs, widget, base_class='form-control '):
     if attrs is not None:
         attrs = attrs.copy()
 
     if attrs is None:
         attrs = {}
-    if "class" in attrs:
-        attrs.update({"class": base_class + attrs["class"]})
+    if 'class' in attrs:
+        attrs.update({'class': base_class + attrs['class']})
     else:
-        attrs.update({"class": base_class})
-    attrs["data-widget"] = widget
+        attrs.update({'class': base_class})
+    attrs['data-widget'] = widget
     return attrs
 
 
@@ -43,7 +43,7 @@ class Input(DJInput):
     Base class for all <input> widgets.
     """
 
-    template_name = "gentelella/widgets/input.html"
+    template_name = 'gentelella/widgets/input.html'
 
     def __init__(self, attrs=None, extraskwargs=True):
         if extraskwargs:
@@ -52,24 +52,24 @@ class Input(DJInput):
 
 
 class TextInput(Input):
-    input_type = "text"
-    template_name = "gentelella/widgets/text.html"
+    input_type = 'text'
+    template_name = 'gentelella/widgets/text.html'
 
 
 class ColorInput(Input):
-    input_type = "color"
-    template_name = "gentelella/widgets/input.html"
+    input_type = 'color'
+    template_name = 'gentelella/widgets/input.html'
 
 
 class HiddenInput(Input):
-    input_type = "hidden"
-    template_name = "gentelella/widgets/text.html"
+    input_type = 'hidden'
+    template_name = 'gentelella/widgets/text.html'
 
 
 def GridSlider(attrs={}):
     class GridSlider(Input):
-        input_type = "text"
-        template_name = "gentelella/widgets/input.html"
+        input_type = 'text'
+        template_name = 'gentelella/widgets/input.html'
         extra_attrs = attrs.copy()
 
         def __init__(self, attrs=None, extraskwargs=True):
@@ -83,8 +83,8 @@ def GridSlider(attrs={}):
 
 def DateGridSlider(attrs={}):
     class DateGridSlider(Input):
-        input_type = "text"
-        template_name = "gentelella/widgets/input.html"
+        input_type = 'text'
+        template_name = 'gentelella/widgets/input.html'
         extra_attrs = attrs.copy()
 
         def __init__(self, attrs=None, extraskwargs=True):
@@ -98,8 +98,8 @@ def DateGridSlider(attrs={}):
 
 def SingleGridSlider(attrs={}):
     class SingleGridSlider(Input):
-        input_type = "text"
-        template_name = "gentelella/widgets/input.html"
+        input_type = 'text'
+        template_name = 'gentelella/widgets/input.html'
         extra_attrs = attrs.copy()
 
         def __init__(self, attrs=None, extraskwargs=True):
@@ -112,8 +112,8 @@ def SingleGridSlider(attrs={}):
 
 
 class NumberInput(Input):
-    input_type = "number"
-    template_name = "gentelella/widgets/number.html"
+    input_type = 'number'
+    template_name = 'gentelella/widgets/number.html'
 
     # min_value y max_value
 
@@ -124,23 +124,23 @@ class NumberInput(Input):
 
 
 class FloatInput(Input):
-    input_type = "number"
-    template_name = "gentelella/widgets/number.html"
+    input_type = 'number'
+    template_name = 'gentelella/widgets/number.html'
 
     # min_value y max_value
 
     def __init__(self, attrs=None, extraskwargs=True):
         if extraskwargs:
             attrs = update_kwargs(attrs, self.__class__.__name__)
-        if "step" not in attrs:
-            attrs["step"] = "0.1"
-        attrs["inputmode"] = "decimal"
+        if 'step' not in attrs:
+            attrs['step'] = '0.1'
+        attrs['inputmode'] = 'decimal'
         super().__init__(attrs, extraskwargs=extraskwargs)
 
 
 class EmailInput(Input):
-    input_type = "email"
-    template_name = "gentelella/widgets/email.html"
+    input_type = 'email'
+    template_name = 'gentelella/widgets/email.html'
 
     def __init__(self, attrs=None, extraskwargs=True):
         if extraskwargs:
@@ -149,19 +149,19 @@ class EmailInput(Input):
 
 
 class URLInput(Input):
-    input_type = "url"
-    template_name = "gentelella/widgets/url.html"
+    input_type = 'url'
+    template_name = 'gentelella/widgets/url.html'
 
     def __init__(self, attrs=None, extraskwargs=True):
         if extraskwargs:
             attrs = update_kwargs(attrs, self.__class__.__name__)
-        attrs["placeholder"] = "https://"
+        attrs['placeholder'] = 'https://'
         super().__init__(attrs, extraskwargs=extraskwargs)
 
 
 class PasswordInput(DJPasswordInput):
-    input_type = "password"
-    template_name = "gentelella/widgets/password.html"
+    input_type = 'password'
+    template_name = 'gentelella/widgets/password.html'
 
     def __init__(self, attrs=None, extraskwargs=True):
         if extraskwargs:
@@ -173,21 +173,21 @@ class PasswordInput(DJPasswordInput):
 
 
 class FileInput(DJFileInput):
-    input_type = "file"
+    input_type = 'file'
     needs_multipart_form = True
-    template_name = "gentelella/widgets/file.html"
+    template_name = 'gentelella/widgets/file.html'
 
     def __init__(self, attrs=None, extraskwargs=True):
         if extraskwargs:
             attrs = update_kwargs(
                 attrs,
                 self.__class__.__name__,
-                base_class="djgentelella-file-input form-control",
+                base_class='djgentelella-file-input form-control',
             )
-        if "data-href" not in attrs:
-            attrs.update({"data-href": reverse_lazy("upload_file_view")})
-        if "data-done" not in attrs:
-            attrs["data-done"] = reverse_lazy("upload_file_done")
+        if 'data-href' not in attrs:
+            attrs.update({'data-href': reverse_lazy('upload_file_view')})
+        if 'data-done' not in attrs:
+            attrs['data-done'] = reverse_lazy('upload_file_done')
         super().__init__(attrs)
 
     def format_value(self, value):
@@ -200,7 +200,7 @@ class FileInput(DJFileInput):
         if token:
             load_token = json.loads(token)
             tmpupload = ChunkedUpload.objects.filter(
-                upload_id=load_token["token"]
+                upload_id=load_token['token']
             ).first()
             if tmpupload:
                 dev = tmpupload.get_uploaded_file()
@@ -217,11 +217,11 @@ class ImageRecordInput(DJFileInput):
     """
 
     needs_multipart_form = True
-    template_name = "gentelella/widgets/record_photo.html"
+    template_name = 'gentelella/widgets/record_photo.html'
 
     def __init__(self, attrs=None, extraskwargs=True):
         if extraskwargs:
-            attrs = update_kwargs(attrs, self.__class__.__name__, base_class="d-none")
+            attrs = update_kwargs(attrs, self.__class__.__name__, base_class='d-none')
         super().__init__(attrs)
 
 
@@ -233,21 +233,21 @@ class VideoRecordInput(DJFileInput):
     """
 
     needs_multipart_form = True
-    template_name = "gentelella/widgets/record_video.html"
+    template_name = 'gentelella/widgets/record_video.html'
 
     def __init__(self, attrs=None, extraskwargs=True):
         if extraskwargs:
-            attrs = update_kwargs(attrs, self.__class__.__name__, base_class="d-none")
+            attrs = update_kwargs(attrs, self.__class__.__name__, base_class='d-none')
         super().__init__(attrs)
 
 
 class AudioRecordInput(DJFileInput):
     needs_multipart_form = True
-    template_name = "gentelella/widgets/record_audio.html"
+    template_name = 'gentelella/widgets/record_audio.html'
 
     def __init__(self, attrs=None, extraskwargs=True):
         if extraskwargs:
-            attrs = update_kwargs(attrs, self.__class__.__name__, base_class="d-none")
+            attrs = update_kwargs(attrs, self.__class__.__name__, base_class='d-none')
         super().__init__(attrs)
 
 
@@ -260,27 +260,52 @@ class VoiceDictation(DJTextarea):
     live), ``single`` (one request on stop) or ``hybrid`` (live segments then a
     whole-file rewrite on stop).
 
-    ``url`` is the transcription endpoint (``voice_transcribe`` or a
-    proxy). ``language`` sets ``data-language``. Optional biasing context can be
-    provided with ``data-hotwords`` and ``data-initial-prompt`` attrs; the
-    endpoint may forward or ignore them.
+    Two kwargs, the rest through ``attrs``: ``url`` is the transcription
+    endpoint (``voice_transcribe`` or a proxy) and ``language`` sets
+    ``data-language``. Everything else is configured with plain ``data-``
+    attributes, which is deliberate -- the javascript reads them straight off
+    the element, so a project can add its own without the widget growing a
+    kwarg for each one, and a template can override one per field::
+
+        VoiceDictation(url=reverse_lazy('voice_transcribe'),
+                       language='es',
+                       attrs={'data-mode': 'single'})
+
+    The ones the shipped engine understands:
+
+    :``data-mode``: dictation strategy -- ``segments`` (default, transcribes
+        each speech segment live), ``single`` (one request when the user stops)
+        or ``hybrid`` (live segments, then a whole-file rewrite on stop). An
+        unknown value falls back to ``segments``.
+    :``data-hotwords``: comma separated words to bias the recogniser towards.
+    :``data-initial-prompt``: free text giving the recogniser context.
+
+    Capture tuning, all numeric and all optional -- the defaults live in the
+    engine, and these are the seven keys ``voiceVadConfig`` reads
+    (``gentelella/js/base/voiceprogressive.js``):
+    ``data-vad-silence-ms``, ``data-vad-min-speech-ms``,
+    ``data-vad-max-segment-ms``, ``data-rms-threshold``, ``data-pool-size``,
+    ``data-max-session-ms`` and ``data-request-timeout-ms``.
+
+    ``hotwords`` and ``initial_prompt`` only reach a remote backend that was
+    configured to accept them; the bundled Parakeet backend ignores both.
     """
 
-    template_name = "gentelella/widgets/voice_dictation.html"
+    template_name = 'gentelella/widgets/voice_dictation.html'
 
     def __init__(self, attrs=None, extraskwargs=True, url=None, language=None):
         if extraskwargs:
             attrs = update_kwargs(attrs, self.__class__.__name__)
         attrs = attrs or {}
         if url is not None:
-            attrs["data-url"] = url
+            attrs['data-url'] = url
         if language is not None:
-            attrs["data-language"] = language
+            attrs['data-language'] = language
         super().__init__(attrs)
 
 
 class ClearableFileInput(DJClearableFileInput):
-    template_name = "gentelella/widgets/file.html"
+    template_name = 'gentelella/widgets/file.html'
 
     def __init__(self, attrs=None, extraskwargs=True):
         if extraskwargs:
@@ -289,67 +314,70 @@ class ClearableFileInput(DJClearableFileInput):
 
 
 class Textarea(DJTextarea):
-    template_name = "gentelella/widgets/textarea.html"
+    template_name = 'gentelella/widgets/textarea.html'
 
     def __init__(self, attrs=None, extraskwargs=True):
         if extraskwargs:
             attrs = update_kwargs(
                 attrs,
                 self.__class__.__name__,
-                base_class="resizable_textarea form-control",
+                base_class='resizable_textarea form-control',
             )
-        attrs["rows"] = "3"
+        # update_kwargs is what normally turns None into a dict, so without
+        # this `Textarea(extraskwargs=False)` died on the next line.
+        attrs = attrs or {}
+        attrs['rows'] = '3'
         super().__init__(attrs)
 
 
 class DateFormatConverter:
     JS_FORMATS = {
-        "%A": "dddd",
+        '%A': 'dddd',
         # Weekday as locale’s full name: (In English: Sunday, .., Saturday)(Auf
         # Deutsch: Sonntag, .., Samstag)
-        "%a": "ddd",
+        '%a': 'ddd',
         # Weekday abbreivated: (In English: Sun, .., Sat)(Auf Deutsch: So, ..,
         # Sa)
-        "%B": "MMMM",
+        '%B': 'MMMM',
         # Month name: (In English: January, .., December)(Auf Deutsch: Januar,
         # .., Dezember)
-        "%b": "MMM",
+        '%b': 'MMM',
         # Month name abbreviated: (In English: Jan, .., Dec)(Auf Deutsch: Jan,
         # .., Dez)
-        "%c": "ddd MMM DD HH:mm:ss YYYY",
+        '%c': 'ddd MMM DD HH:mm:ss YYYY',
         # Locale’s appropriate date and time representation: (English: Sun Oct
         # 13 23:30:00 1996)(Deutsch: So 13 Oct 22:30:00 1996)
-        "%d": "DD",  # Day 0 padded: (01, .., 31)
-        "%f": "SSS",  # Microseconds 0 padded: (000000, .., 999999)
-        "%H": "HH",  # Hour (24-Hour) 0 padded: (00, .., 23)
-        "%I": "hh",  # Hour (12-Hour) 0 padded: (01, .., 12)
-        "%j": "DDDD",  # Day of Year 0 padded: (001, .., 366)
-        "%M": "mm",  # Minute 0 padded: (01, .. 59)
-        "%m": "MM",  # Month 0 padded: (01, .., 12)
-        "%p": "A",  # Locale equivalent of AM/PM: (EN: AM, PM)(DE: am, pm)
-        "%S": "ss",  # Second 0 padded: (00, .., 59)
-        "%U": "ww",
+        '%d': 'DD',  # Day 0 padded: (01, .., 31)
+        '%f': 'SSS',  # Microseconds 0 padded: (000000, .., 999999)
+        '%H': 'HH',  # Hour (24-Hour) 0 padded: (00, .., 23)
+        '%I': 'hh',  # Hour (12-Hour) 0 padded: (01, .., 12)
+        '%j': 'DDDD',  # Day of Year 0 padded: (001, .., 366)
+        '%M': 'mm',  # Minute 0 padded: (01, .. 59)
+        '%m': 'MM',  # Month 0 padded: (01, .., 12)
+        '%p': 'A',  # Locale equivalent of AM/PM: (EN: AM, PM)(DE: am, pm)
+        '%S': 'ss',  # Second 0 padded: (00, .., 59)
+        '%U': 'ww',
         # Week  of Year (Sunday): (00, .., 53)  All days in a new year
         # preceding the first Sunday are considered to be in week 0.
-        "%W": "ww",
+        '%W': 'ww',
         # Week  of Year (Monday): (00, .., 53)  All days in a new year
         # preceding the first Monday are considered to be in week 0.
-        "%w": "d",  # Weekday as : (0, 6)
-        "%X": "HH:mm:ss",
+        '%w': 'd',  # Weekday as : (0, 6)
+        '%X': 'HH:mm:ss',
         # Locale's appropriate time representation: (EN: 23:30:00)(DE:
         # 23:30:00)
-        "%x": "MM/DD/YYYY",
+        '%x': 'MM/DD/YYYY',
         # Locale's appropriate date representation: (None: 02/14/16)(EN:
         # 02/14/16)(DE: 14.02.16)
-        "%Y": "YYYY",  # Year as : (1970, 2000, 2038, 292,277,026,596)
-        "%y": "YY",  # Year without century 0 padded: (00, .., 99)
-        "%Z": "z",
+        '%Y': 'YYYY',  # Year as : (1970, 2000, 2038, 292,277,026,596)
+        '%y': 'YY',  # Year without century 0 padded: (00, .., 99)
+        '%Z': 'z',
         # Time zone name: ((empty), UTC, EST, CST) (empty string if the object
         # is naive).
-        "%z": "ZZ",
+        '%z': 'ZZ',
         # UTC offset in the form +HHMM or -HHMM: ((empty), +0000, -0400, +1030)
         # Empty string if the the object is naive.
-        "%%": "%",  # A literal '%' character: (%)
+        '%%': '%',  # A literal '%' character: (%)
     }
 
     def convert_python_to_js(self, value):
@@ -375,13 +403,13 @@ class DateInput(DJDateInput, DateFormatConverter):
         By limitation on js datetime widget format conversion
     """
 
-    format_key = "DATE_INPUT_FORMATS"
-    template_name = "gentelella/widgets/date.html"
+    format_key = 'DATE_INPUT_FORMATS'
+    template_name = 'gentelella/widgets/date.html'
 
     def __init__(self, attrs=None, format=None):
         attrs = update_kwargs(attrs, self.__class__.__name__)
         format_js = self.get_format_js()
-        attrs["data-format"] = format_js
+        attrs['data-format'] = format_js
         super().__init__(attrs, format=format or self.format)
 
 
@@ -397,61 +425,61 @@ class DateTimeInput(DJDateTimeInput, DateFormatConverter):
         By limitation on js datetime widget format conversion
     """
 
-    format_key = "DATETIME_INPUT_FORMATS"
-    template_name = "gentelella/widgets/datetime.html"
+    format_key = 'DATETIME_INPUT_FORMATS'
+    template_name = 'gentelella/widgets/datetime.html'
 
     def __init__(self, attrs=None, format=None):
         attrs = update_kwargs(attrs, self.__class__.__name__)
         format_js = self.get_format_js()
-        attrs["data-format"] = format_js
+        attrs['data-format'] = format_js
         super().__init__(attrs, format or self.format)
 
 
 class TimeInput(DJTimeInput, DateFormatConverter):
-    format_key = "TIME_INPUT_FORMATS"
-    template_name = "gentelella/widgets/time.html"
+    format_key = 'TIME_INPUT_FORMATS'
+    template_name = 'gentelella/widgets/time.html'
 
     def __init__(self, attrs=None, format=None):
         attrs = update_kwargs(attrs, self.__class__.__name__)
         format_js = self.get_format_js()
-        attrs["data-format"] = format_js
+        attrs['data-format'] = format_js
         super().__init__(attrs, format or self.format)
 
 
 class CheckboxInput(DJCheckboxInput):
-    input_type = "checkbox"
-    template_name = "gentelella/widgets/checkbox.html"
+    input_type = 'checkbox'
+    template_name = 'gentelella/widgets/checkbox.html'
 
     def __init__(self, attrs=None):
-        attrs = update_kwargs(attrs, self.__class__.__name__, base_class="flat ")
+        attrs = update_kwargs(attrs, self.__class__.__name__, base_class='flat ')
         super().__init__(attrs)
         self.format = format or None
 
 
 class YesNoInput(DJCheckboxInput):
-    input_type = "checkbox"
-    template_name = "gentelella/widgets/checkyesno.html"
+    input_type = 'checkbox'
+    template_name = 'gentelella/widgets/checkyesno.html'
 
-    def __init__(self, attrs=None, shparent=".form-group"):
-        attrs = update_kwargs(attrs, self.__class__.__name__, base_class="")
+    def __init__(self, attrs=None, shparent='.form-group'):
+        attrs = update_kwargs(attrs, self.__class__.__name__, base_class='')
 
-        if "rel" in attrs:
-            rel = attrs.pop("rel")
-            attrs["data-rel"] = ";".join(rel)
-        if "rel_start_hidden" in attrs:
-            rel = attrs.pop("rel_start_hidden")
-            attrs["data-relhidden"] = ";".join(rel)
-        attrs["data-shparent"] = shparent
+        if 'rel' in attrs:
+            rel = attrs.pop('rel')
+            attrs['data-rel'] = ';'.join(rel)
+        if 'rel_start_hidden' in attrs:
+            rel = attrs.pop('rel_start_hidden')
+            attrs['data-relhidden'] = ';'.join(rel)
+        attrs['data-shparent'] = shparent
         super().__init__(attrs)
         self.format = format or None
 
 
 class Select(DJSelect):
-    input_type = "select"
-    template_name = "gentelella/widgets/select.html"
-    option_template_name = "gentelella/widgets/select_option.html"
+    input_type = 'select'
+    template_name = 'gentelella/widgets/select.html'
+    option_template_name = 'gentelella/widgets/select_option.html'
     add_id_index = False
-    checked_attribute = {"selected": True}
+    checked_attribute = {'selected': True}
     option_inherits_attrs = False
 
     def __init__(self, attrs=None, choices=(), extraskwargs=True):
@@ -459,22 +487,22 @@ class Select(DJSelect):
             attrs = update_kwargs(
                 attrs,
                 self.__class__.__name__,
-                base_class="select2_single form-control ",
+                base_class='select2_single form-control ',
             )
         super().__init__(attrs, choices=choices)
 
 
 class SelectWithAdd(Select):
-    template_name = "gentelella/widgets/addselect.html"
-    option_template_name = "gentelella/widgets/select_option.html"
+    template_name = 'gentelella/widgets/addselect.html'
+    option_template_name = 'gentelella/widgets/select_option.html'
 
     def __init__(self, attrs=None, choices=(), extraskwargs=True):
         if extraskwargs:
             attrs = update_kwargs(
-                attrs, self.__class__.__name__, base_class="form-control "
+                attrs, self.__class__.__name__, base_class='form-control '
             )
-        if "add_url" not in attrs:
-            raise ValueError("SelectWithAdd requires add_url in attrs")
+        if 'add_url' not in attrs:
+            raise ValueError('SelectWithAdd requires add_url in attrs')
         super().__init__(attrs, choices=choices, extraskwargs=False)
 
 
@@ -486,22 +514,22 @@ class SelectMultiple(DJSelectMultiple):
             attrs = update_kwargs(
                 attrs,
                 self.__class__.__name__,
-                base_class="select2_multiple form-control ",
+                base_class='select2_multiple form-control ',
             )
         super(SelectMultiple, self).__init__(attrs, choices=choices)
 
 
 class SelectMultipleAdd(SelectMultiple):
     allow_multiple_selected = True
-    template_name = "gentelella/widgets/addselect.html"
-    option_template_name = "gentelella/widgets/select_option.html"
+    template_name = 'gentelella/widgets/addselect.html'
+    option_template_name = 'gentelella/widgets/select_option.html'
 
     def __init__(self, attrs=None, choices=(), extraskwargs=True):
         if extraskwargs:
             attrs = update_kwargs(
                 attrs,
                 self.__class__.__name__,
-                base_class="select2_multiple form-control ",
+                base_class='select2_multiple form-control ',
             )
         super(SelectMultipleAdd, self).__init__(
             attrs, choices=choices, extraskwargs=False
@@ -509,29 +537,29 @@ class SelectMultipleAdd(SelectMultiple):
 
 
 class RadioHorizontalSelect(Select):
-    input_type = "radio"
-    template_name = "gentelella/widgets/radio.html"
-    option_template_name = "gentelella/widgets/attrs.html"
+    input_type = 'radio'
+    template_name = 'gentelella/widgets/radio.html'
+    option_template_name = 'gentelella/widgets/attrs.html'
 
     def __init__(self, attrs=None, choices=(), extraskwargs=True):
         if extraskwargs:
-            attrs = update_kwargs(attrs, self.__class__.__name__, "gtradio")
+            attrs = update_kwargs(attrs, self.__class__.__name__, 'gtradio')
         super().__init__(attrs, choices=choices, extraskwargs=False)
 
 
 class RadioVerticalSelect(Select):
-    input_type = "radio"
-    template_name = "gentelella/widgets/radio.html"
-    option_template_name = "gentelella/widgets/attrs.html"
+    input_type = 'radio'
+    template_name = 'gentelella/widgets/radio.html'
+    option_template_name = 'gentelella/widgets/attrs.html'
 
     def __init__(self, attrs=None, choices=(), extraskwargs=True):
         if extraskwargs:
-            attrs = update_kwargs(attrs, self.__class__.__name__, "gtradio")
+            attrs = update_kwargs(attrs, self.__class__.__name__, 'gtradio')
         super().__init__(attrs, choices=choices, extraskwargs=False)
 
     def get_context(self, name, value, attrs):
         context = super(RadioVerticalSelect, self).get_context(name, value, attrs)
-        context["widget"]["br"] = True
+        context['widget']['br'] = True
         return context
 
 
@@ -543,9 +571,9 @@ class NullBooleanSelect(RadioSelect):
         self,
         attrs=None,
         choices=(
-            ("unknown", _("Unknown")),
-            ("true", _("Yes")),
-            ("false", _("No")),
+            ('unknown', _('Unknown')),
+            ('true', _('Yes')),
+            ('false', _('No')),
         ),
     ):
         attrs = update_kwargs(attrs, self.__class__.__name__)
@@ -554,44 +582,44 @@ class NullBooleanSelect(RadioSelect):
     def format_value(self, value):
         try:
             return {
-                True: "true",
-                False: "false",
-                "true": "true",
-                "false": "false",
+                True: 'true',
+                False: 'false',
+                'true': 'true',
+                'false': 'false',
                 # For backwards compatibility with Django < 2.2.
-                "2": "true",
-                "3": "false",
+                '2': 'true',
+                '3': 'false',
             }[value]
         except KeyError:
-            return "unknown"
+            return 'unknown'
 
     def value_from_datadict(self, data, files, name):
         value = data.get(name)
         return {
             True: True,
-            "True": True,
-            "False": False,
+            'True': True,
+            'False': False,
             False: False,
-            "true": True,
-            "false": False,
+            'true': True,
+            'false': False,
             # For backwards compatibility with Django < 2.2.
-            "2": True,
-            "3": False,
+            '2': True,
+            '3': False,
         }.get(value)
 
 
 class CheckboxSelectMultiple(DJCheckboxSelectMultiple):
-    input_type = "checkbox"
-    template_name = "gentelella/widgets/checkbox_select.html"
-    option_template_name = "gentelella/widgets/checkbox_option.html"
+    input_type = 'checkbox'
+    template_name = 'gentelella/widgets/checkbox_select.html'
+    option_template_name = 'gentelella/widgets/checkbox_option.html'
 
     def __init__(self, attrs=None, check_test=None):
-        attrs = update_kwargs(attrs, self.__class__.__name__, base_class="flat ")
+        attrs = update_kwargs(attrs, self.__class__.__name__, base_class='flat ')
         super().__init__(attrs)
 
 
 class SplitDateTimeWidget(DJSplitDateTimeWidget):
-    template_name = "gentelella/widgets/splitdatetime.html"
+    template_name = 'gentelella/widgets/splitdatetime.html'
 
     def __init__(self, attrs=None):
         attrs = update_kwargs(attrs, self.__class__.__name__)
@@ -599,7 +627,7 @@ class SplitDateTimeWidget(DJSplitDateTimeWidget):
 
 
 class SplitHiddenDateTimeWidget(DJSplitHiddenDateTimeWidget):
-    template_name = "gentelella/widgets/splithiddendatetime.html"
+    template_name = 'gentelella/widgets/splithiddendatetime.html'
 
     def __init__(self, attrs=None):
         attrs = update_kwargs(attrs, self.__class__.__name__)
@@ -607,7 +635,7 @@ class SplitHiddenDateTimeWidget(DJSplitHiddenDateTimeWidget):
 
 
 class SelectDateWidget(DJSelectDateWidget):
-    template_name = "gentelella/widgets/select_date.html"
+    template_name = 'gentelella/widgets/select_date.html'
 
     def __init__(self, attrs=None):
         attrs = update_kwargs(attrs, self.__class__.__name__)
@@ -615,8 +643,8 @@ class SelectDateWidget(DJSelectDateWidget):
 
 
 class DateMaskInput(DJDateInput):
-    format_key = "DATE_FORMAT"
-    template_name = "gentelella/widgets/date_input_mask.html"
+    format_key = 'DATE_FORMAT'
+    template_name = 'gentelella/widgets/date_input_mask.html'
 
     def __init__(self, attrs=None):
         attrs = update_kwargs(attrs, self.__class__.__name__)
@@ -624,8 +652,8 @@ class DateMaskInput(DJDateInput):
 
 
 class DateTimeMaskInput(DJDateTimeInput):
-    format_key = "DATETIME_INPUT_FORMATS"
-    template_name = "gentelella/widgets/datetime_input_mask.html"
+    format_key = 'DATETIME_INPUT_FORMATS'
+    template_name = 'gentelella/widgets/datetime_input_mask.html'
 
     def __init__(self, attrs=None):
         attrs = update_kwargs(attrs, self.__class__.__name__)
@@ -633,7 +661,7 @@ class DateTimeMaskInput(DJDateTimeInput):
 
 
 class EmailMaskInput(TextInput):
-    template_name = "gentelella/widgets/email_input_mask.html"
+    template_name = 'gentelella/widgets/email_input_mask.html'
 
     def __init__(self, attrs=None):
         attrs = update_kwargs(attrs, self.__class__.__name__)
@@ -642,8 +670,8 @@ class EmailMaskInput(TextInput):
 
 
 class DateRangeTimeInput(DJDateTimeInput):
-    format_key = "DATETIME_INPUT_FORMATS"
-    template_name = "gentelella/widgets/daterangetime.html"
+    format_key = 'DATETIME_INPUT_FORMATS'
+    template_name = 'gentelella/widgets/daterangetime.html'
 
     def __init__(self, attrs=None, format=None):
         attrs = update_kwargs(attrs, self.__class__.__name__)
@@ -651,29 +679,29 @@ class DateRangeTimeInput(DJDateTimeInput):
 
 
 class DateRangeInput(DJDateInput):
-    format_key = "DATE_INPUT_FORMATS"
-    template_name = "gentelella/widgets/daterange.html"
+    format_key = 'DATE_INPUT_FORMATS'
+    template_name = 'gentelella/widgets/daterange.html'
 
     def __init__(self, attrs=None, format=None):
         attrs = update_kwargs(attrs, self.__class__.__name__)
-        attrs["autocomplete"] = "off"
-        attrs["data-format"] = "DD/MM/YYYY"
+        attrs['autocomplete'] = 'off'
+        attrs['data-format'] = 'DD/MM/YYYY'
         super().__init__(attrs, format=format)
 
 
 class DateRangeInputCustom(DJDateInput):
-    format_key = "DATE_INPUT_FORMATS"
-    template_name = "gentelella/widgets/daterange.html"
+    format_key = 'DATE_INPUT_FORMATS'
+    template_name = 'gentelella/widgets/daterange.html'
 
     def __init__(self, attrs=None, format=None):
         attrs = update_kwargs(attrs, self.__class__.__name__)
-        attrs["autocomplete"] = "off"
+        attrs['autocomplete'] = 'off'
         super().__init__(attrs, format=format)
 
 
 class SerialNumberMaskInput(TextInput):
-    input_type = "text"
-    template_name = "gentelella/widgets/input_mask.html"
+    input_type = 'text'
+    template_name = 'gentelella/widgets/input_mask.html'
 
     def __init__(self, attrs=None, format=None):
         attrs = update_kwargs(attrs, self.__class__.__name__)
@@ -681,8 +709,8 @@ class SerialNumberMaskInput(TextInput):
 
 
 class TaxIDMaskInput(TextInput):
-    input_type = "text"
-    template_name = "gentelella/widgets/input_mask.html"
+    input_type = 'text'
+    template_name = 'gentelella/widgets/input_mask.html'
 
     def __init__(self, attrs=None, format=None):
         attrs = update_kwargs(attrs, self.__class__.__name__)
@@ -690,8 +718,8 @@ class TaxIDMaskInput(TextInput):
 
 
 class CreditCardMaskInput(TextInput):
-    input_type = "text"
-    template_name = "gentelella/widgets/input_mask.html"
+    input_type = 'text'
+    template_name = 'gentelella/widgets/input_mask.html'
 
     def __init__(self, attrs=None, format=None):
         attrs = update_kwargs(attrs, self.__class__.__name__)
@@ -699,8 +727,8 @@ class CreditCardMaskInput(TextInput):
 
 
 class PhoneNumberTwoDigitMaskInput(TextInput):
-    input_type = "text"
-    template_name = "gentelella/widgets/phone_number_input_mask.html"
+    input_type = 'text'
+    template_name = 'gentelella/widgets/phone_number_input_mask.html'
 
     def __init__(self, attrs=None):
         attrs = update_kwargs(attrs, self.__class__.__name__)
@@ -709,8 +737,8 @@ class PhoneNumberTwoDigitMaskInput(TextInput):
 
 
 class PhoneNumberMaskInput(TextInput):
-    input_type = "text"
-    template_name = "gentelella/widgets/phone_number_input_mask.html"
+    input_type = 'text'
+    template_name = 'gentelella/widgets/phone_number_input_mask.html'
 
     def __init__(self, attrs=None):
         attrs = update_kwargs(attrs, self.__class__.__name__)
@@ -719,8 +747,8 @@ class PhoneNumberMaskInput(TextInput):
 
 
 class PhoneNumberMaskInput(TextInput):
-    input_type = "text"
-    template_name = "gentelella/widgets/phone_number_input_mask.html"
+    input_type = 'text'
+    template_name = 'gentelella/widgets/phone_number_input_mask.html'
 
     def __init__(self, attrs=None):
         attrs = update_kwargs(attrs, self.__class__.__name__)

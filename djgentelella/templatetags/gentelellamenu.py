@@ -18,7 +18,7 @@ def validate_menu_item(item, context):
     user = context['context']['request'].user
     if not item.permission.exists():
         return item
-    perms = ["%s.%s" % (i.content_type.app_label, i.codename) for i in
+    perms = ['%s.%s' % (i.content_type.app_label, i.codename) for i in
              item.permission.all()]
     if user.has_perms(perms):
         return item
@@ -27,17 +27,17 @@ def validate_menu_item(item, context):
 def render_item(item, env={}, widget_list=[], level=0, ariabylabel=''):
     item = validate_menu_item(item, env)
     if not item:
-        return ""
+        return ''
 
     children = item.children.exists()
-    dropdown = "nav-item dropdown"
-    a_class = ""
-    icon = ""
+    dropdown = 'nav-item dropdown'
+    a_class = ''
+    icon = ''
     if level > 0:
 
-        dropdown = "dropdown-submenu pull-left"
+        dropdown = 'dropdown-submenu pull-left'
         if not children:
-            dropdown = ""
+            dropdown = ''
     dev = '<li id="i_%d" role="presentation" class="%s imenu%d"  >' % (
         item.pk, dropdown, item.pk)
 
@@ -99,7 +99,7 @@ def top_menu(context, *args, **kwargs):
 def render_sidebar_item(item, father_pos=0, level=0, env={}, widget_list=[]):
     item = validate_menu_item(item, env)
     if not item:
-        return ""
+        return ''
 
     children, icon = item.children.exists(), ''
     if item.icon:
@@ -116,13 +116,13 @@ def render_sidebar_item(item, father_pos=0, level=0, env={}, widget_list=[]):
 
     if children:
         dev += '<ul class="%s">' % (
-            "nav side-menu" if not level and not father_pos else "nav child_menu")
+            'nav side-menu' if not level and not father_pos else 'nav child_menu')
         for i, node in enumerate(item.children.all()):
             dev += render_sidebar_item(node, i, env=env, level=level + 1,
                                        widget_list=widget_list)
         dev += '</ul>'
     if not level:
-        dev += "</div>"
+        dev += '</div>'
     else:
         dev += '</li>'
     return dev
@@ -151,10 +151,10 @@ def sidebar_menu(context, *args, **kwargs):
 def render_footer_sidebar_item(item, env={}, widget_list=[]):
     item = validate_menu_item(item, env)
     if not item:
-        return ""
+        return ''
 
     context = {
-        'id': "fsb_" + str(item.id),
+        'id': 'fsb_' + str(item.id),
 
         'title': '',
         'link': '',

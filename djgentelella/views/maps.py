@@ -5,7 +5,10 @@ from djgentelella.serializers.maps import GTMapSerializer
 
 
 class BaseMapView(ViewSet):
-    """Serves the point payload a ``DJMap`` widget draws.
+    """Serves the point payload the ``DJMap`` javascript widget draws.
+
+    ``DJMap`` has no python widget class: a template includes
+    ``gentelella/widgets/djmap.html`` and points it at this view's URL.
 
     Subclass it in ``<app>/gtmaps.py``, override the hooks and register it::
 
@@ -20,6 +23,13 @@ class BaseMapView(ViewSet):
 
     Filters sent by the widget arrive in ``self.request.query_params``; narrow
     the queryset inside the hooks, the same contract the chart getters use.
+
+    No ``permission_classes`` here on purpose: this is a base class meant to be
+    combined, and the subclass -- or the viewset it is mixed into -- is what
+    declares the authentication and permissions, the same way
+    :class:`~djgentelella.views.timeline.BaseTimelineView` does. Whatever
+    ``get_layers()`` returns is served to whoever can reach the URL, so a
+    subclass over a non-public queryset has to say so.
     """
 
     serializer = GTMapSerializer
@@ -39,7 +49,7 @@ class BaseMapView(ViewSet):
         return False
 
     def get_layers(self):
-        raise NotImplementedError("BaseMapView subclasses must define get_layers")
+        raise NotImplementedError('BaseMapView subclasses must define get_layers')
 
     def get_heatmap(self):
         return None
@@ -48,20 +58,23 @@ class BaseMapView(ViewSet):
         return self.serializer(data)
 
     def list(self, request, format=None):
-        # Set first, so the hooks below can read query_params.
+        # Redundant -- APIView.dispatch already bound self.request before it
+        # routed here -- but kept for symmetry with the other base views
+        # (views/timeline.py, views/storymap.py) and so the hooks below can be
+        # read as depending on nothing but self.
         self.request = request
         response = {
-            "fit_bounds": self.get_fit_bounds(),
-            "cluster": self.get_cluster(),
-            "layers": self.get_layers(),
+            'fit_bounds': self.get_fit_bounds(),
+            'cluster': self.get_cluster(),
+            'layers': self.get_layers(),
         }
         center = self.get_center()
         if center is not None:
-            response["center"] = center
+            response['center'] = center
         zoom = self.get_zoom()
         if zoom is not None:
-            response["zoom"] = zoom
+            response['zoom'] = zoom
         heatmap = self.get_heatmap()
         if heatmap is not None:
-            response["heatmap"] = heatmap
+            response['heatmap'] = heatmap
         return Response(self.get_serializer(response).data)

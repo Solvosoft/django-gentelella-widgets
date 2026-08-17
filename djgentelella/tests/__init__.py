@@ -5,6 +5,7 @@ from .Notification_Test import *
 from .StoryLine_Test import *
 from .StoryMap_Test import *
 from .TimeLine_Test import *
+from .Trash_Test import *
 from .TreeFields_Test import *
 from .Voice_Test import *
 from .fields.MapField_Test import *

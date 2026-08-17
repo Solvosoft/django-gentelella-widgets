@@ -7,8 +7,8 @@ def history_view(request):
 
     return render(
         request,
-        "gentelella/history/history.html",
+        'gentelella/history/history.html',
         context={
-            "form": HistoryFilterForm(),
+            'form': HistoryFilterForm(),
         }
     )

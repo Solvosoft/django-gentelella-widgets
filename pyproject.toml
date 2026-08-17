@@ -218,9 +218,6 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools.dynamic]
 version = { attr = "djgentelella.__version__" }
 
-[tool.black]
-target-version = ["py311"]
-
 # Style (line length, whitespace, ...) stays with pycodestyle in setup.cfg,
 # which is what `make lint` has always run. Ruff is here only for the checks
 # pycodestyle has no equivalent for -- today, import placement.
@@ -230,10 +227,59 @@ line-length = 88
 # that carry vendored URL tables.
 extend-exclude = ["migrations", "loaddevstatic.py", "gtstorymap.py"]
 
+# Single quotes are what this codebase has always used. A `ruff format` run
+# with the default (double) is what split the tree in two, so the preference is
+# recorded here rather than left to whoever runs the formatter next. It only
+# takes effect if someone runs `ruff format`; the rule that is actually
+# enforced by `make lint` is Q, configured under [tool.ruff.lint] below.
+[tool.ruff.format]
+quote-style = "single"
+
 [tool.ruff.lint]
 # PLC0415 (import-outside-top-level): imports belong at the top of the module.
 # A function-level import is allowed only where it is genuinely required --
 # an optional dependency, an AppConfig.ready() that runs before the app
 # registry is populated, or a circular import -- and each such case has to be
 # marked with `# noqa: PLC0415` plus a comment saying which of the three it is.
-select = ["PLC0415"]
+#
+# Q (flake8-quotes): quote style. Enforced as a lint rule rather than by
+# running `ruff format`, because the formatter would also re-wrap lines and
+# rewrite trailing commas across the whole tree -- 11k lines of churn to fix a
+# quote character. This keeps `make lint` failing when double quotes creep back
+# in without reformatting anything else.
+select = ["PLC0415", "Q"]
+
+[tool.ruff.lint.flake8-quotes]
+inline-quotes = "single"
+# Docstrings and triple-quoted blocks stay double: that is PEP 257, and it is
+# already what the whole tree does.
+multiline-quotes = "double"
+docstring-quotes = "double"
+
+# `make coverage` / `make coverage-all`. The tests only run from demo/, so the
+# measured tree is named by package (`source_pkgs`) and not by path: a relative
+# `source` would resolve against demo/ and measure nothing.
+[tool.coverage.run]
+source_pkgs = ["djgentelella"]
+branch = true
+# The unit pass and the selenium pass are two separate processes writing to the
+# same COVERAGE_FILE; without this the second would overwrite the first.
+parallel = true
+# No `relative_files`: it would store the paths relative to demo/, which is
+# where the runs happen, and `coverage report` runs from the repository root.
+omit = [
+    "*/migrations/*",
+    # The test modules themselves: measuring them says nothing about the
+    # library and only inflates the total.
+    "*/tests/*",
+    "*/tests.py",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+exclude_also = [
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+]

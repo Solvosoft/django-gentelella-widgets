@@ -36,11 +36,11 @@ class GTBase64FileField(serializers.FileField):
             )
         if len(datalist) > self.max_files:
             raise serializers.ValidationError(
-                _(f"Too many elements, max_file = {self.max_files}")
+                _(f'Too many elements, max_file = {self.max_files}')
             )
 
         for data in datalist:
-            required_fields = ["name", "value"]
+            required_fields = ['name', 'value']
             for field in required_fields:
                 if field not in data:
                     raise serializers.ValidationError(
@@ -50,16 +50,16 @@ class GTBase64FileField(serializers.FileField):
                             "representation'}"
                         )
                     )
-            name = slugify(Path(data["name"]).stem)
-            suffix = Path(data["name"]).suffix
+            name = slugify(Path(data['name']).stem)
+            suffix = Path(data['name']).suffix
             file_name = name + suffix
-            file_value = data["value"]
+            file_value = data['value']
 
             try:
                 # Decodificar el contenido en base64
                 decoded_value = base64.b64decode(file_value)
             except base64.binascii.Error:
-                self.fail("invalid")
+                self.fail('invalid')
                 # raise serializers.ValidationError(_(
                 #    "The 'value' is not a valid base64 string"))
 
@@ -75,13 +75,13 @@ class GTBase64FileField(serializers.FileField):
             if hasattr(self.root.instance, self.source):
                 return getattr(self.root.instance, self.source)
         if not self.allow_empty_file:
-            self.fail("required")
+            self.fail('required')
 
     def to_representation(self, value):
         data = super().to_representation(value)
         if data and value.name and value.storage.exists(value.name):
             name = Path(value.name).name
-            return {"name": name, "url": data}
+            return {'name': name, 'url': data}
 
 
 class ChunkedFileField(serializers.FileField):
@@ -100,7 +100,7 @@ class ChunkedFileField(serializers.FileField):
         dev = None
         try:
             dev = json.loads(value)
-            if not ("url" in dev or "token" in dev or "actions" in dev):
+            if not ('url' in dev or 'token' in dev or 'actions' in dev):
                 dev = None
         except Exception as e:
             pass
@@ -120,11 +120,11 @@ class ChunkedFileField(serializers.FileField):
         token = self.parse_value(data)
         dev = None
         if token:
-            if "actions" in token and token["actions"] == "delete":
+            if 'actions' in token and token['actions'] == 'delete':
                 return False
-            if "token" in token:
+            if 'token' in token:
                 tmpupload = ChunkedUpload.objects.filter(
-                    upload_id=token["token"]
+                    upload_id=token['token']
                 ).first()
                 if tmpupload:
                     dev = tmpupload.get_uploaded_file()
@@ -140,7 +140,7 @@ class ChunkedFileField(serializers.FileField):
         data = super().to_representation(value)
         if data and value.name and value.storage.exists(value.name):
             name = Path(value.name).name
-            return {"name": value.name, "url": data, "display_name": name}
+            return {'name': value.name, 'url': data, 'display_name': name}
 
 
 class DigitalSignatureField(serializers.FileField, ValueDSParser):
@@ -165,4 +165,4 @@ class DigitalSignatureField(serializers.FileField, ValueDSParser):
         data = super().to_representation(value)
         if data and value.name and value.storage.exists(value.name):
             name = Path(value.name).name
-            return {"name": value.name, "url": data, "display_name": name}
+            return {'name': value.name, 'url': data, 'display_name': name}

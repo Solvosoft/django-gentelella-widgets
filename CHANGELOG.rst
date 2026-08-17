@@ -42,6 +42,32 @@ Fixes
 number of files was an exact multiple of the thread count, so a library could
 silently never appear under ``vendors/``.
 
+``MapPointInput`` leaked event handlers. The ``based_fields`` listeners are
+bound on *other* fields, and ``destroy()`` only unbound the widget's own input,
+so a re-rendered widget -- a formset row, a reopened modal -- left a live
+handler on a sibling field closing over a map that no longer existed. A
+malformed ``data-based-fields`` also threw out of ``JSON.parse`` and killed the
+rest of the widget initialisation, leaving an input with no map; it now falls
+back to no geocoding and reports the problem on the console.
+
+``TrashViewSet.restore`` printed the exception to stdout instead of logging it,
+so the reason a restore failed never reached the application log.
+
+Tooling
+""""""""""""""""""
+
+``make test-selenium`` now runs inside its own X server (``xvfb-run -a``), so
+the browser the tests drive cannot steal focus from the developer's session.
+``SELENIUM_HEADLESS=0`` draws a real Chrome inside it -- useful for the
+Leaflet, canvas and TinyMCE widgets -- and ``make test-selenium-run`` keeps the
+old behaviour of running on the caller's display.
+
+``make coverage`` and ``make coverage-all`` measure the package, the second one
+combining the unit and the browser suites into a single report. Configuration
+lives in ``pyproject.toml``; ``coverage`` is not a declared dependency, install
+it yourself. The unused ``[tool.black]`` section was dropped -- the formatter
+this project actually uses is ``ruff format``.
+
 0.6.0
 -------
 

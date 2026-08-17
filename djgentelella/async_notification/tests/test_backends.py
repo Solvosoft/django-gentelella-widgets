@@ -23,18 +23,18 @@ class SyncBackendTest(AsyncNotificationTestBase):
     def test_sync_send(self):
         backend = SyncBackend()
         notification = EmailNotification.objects.create(
-            subject="Sync Test",
-            message="<p>Hello</p>",
-            recipients="sync@example.com",
+            subject='Sync Test',
+            message='<p>Hello</p>',
+            recipients='sync@example.com',
         )
         backend.send(notification.pk)
         notification.refresh_from_db()
-        self.assertEqual(notification.status, "sent")
+        self.assertEqual(notification.status, 'sent')
         self.assertEqual(len(mail.outbox), 1)
 
     def test_sync_schedule(self):
         newsletter = NewsLetter.objects.create(
-            subject="NL", message="M", recipients="a@b.com"
+            subject='NL', message='M', recipients='a@b.com'
         )
         task = NewsLetterTask.objects.create(
             newsletter=newsletter,
@@ -43,35 +43,35 @@ class SyncBackendTest(AsyncNotificationTestBase):
         backend = SyncBackend()
         backend.schedule(task.pk)
         task.refresh_from_db()
-        self.assertEqual(task.status, "scheduled")
+        self.assertEqual(task.status, 'scheduled')
 
     def test_sync_revoke(self):
         newsletter = NewsLetter.objects.create(
-            subject="NL", message="M", recipients="a@b.com"
+            subject='NL', message='M', recipients='a@b.com'
         )
         task = NewsLetterTask.objects.create(
             newsletter=newsletter,
             send_date=timezone.now(),
-            status="scheduled",
+            status='scheduled',
         )
         backend = SyncBackend()
         backend.revoke(task.pk)
         task.refresh_from_db()
-        self.assertEqual(task.status, "revoked")
+        self.assertEqual(task.status, 'revoked')
 
     def test_sync_revoke_only_pending_or_scheduled(self):
         newsletter = NewsLetter.objects.create(
-            subject="NL", message="M", recipients="a@b.com"
+            subject='NL', message='M', recipients='a@b.com'
         )
         task = NewsLetterTask.objects.create(
             newsletter=newsletter,
             send_date=timezone.now(),
-            status="sent",
+            status='sent',
         )
         backend = SyncBackend()
         backend.revoke(task.pk)
         task.refresh_from_db()
-        self.assertEqual(task.status, "sent")  # Not changed
+        self.assertEqual(task.status, 'sent')  # Not changed
 
 
 class GetBackendTest(AsyncNotificationTestBase):
@@ -98,8 +98,8 @@ class GetBackendTest(AsyncNotificationTestBase):
         self.assertIsNot(backend1, backend2)
 
     @override_settings(
-        ASYNC_NOTIFICATION_BACKEND="djgentelella.async_notification.backends"
-        ".sync.SyncBackend"
+        ASYNC_NOTIFICATION_BACKEND='djgentelella.async_notification.backends'
+        '.sync.SyncBackend'
     )
     def test_explicit_backend_setting(self):
         reset_backend()
@@ -107,7 +107,7 @@ class GetBackendTest(AsyncNotificationTestBase):
         # override_settings cannot reach a value already read at import time.
         old_val = backends.ASYNC_NOTIFICATION_BACKEND
         backends.ASYNC_NOTIFICATION_BACKEND = (
-            "djgentelella.async_notification.backends.sync.SyncBackend"
+            'djgentelella.async_notification.backends.sync.SyncBackend'
         )
         try:
             backend = get_backend()
@@ -131,24 +131,24 @@ class SignalDispatchTest(AsyncNotificationTestBase):
         """
         with self.captureOnCommitCallbacks(execute=True):
             notification = EmailNotification.objects.create(
-                subject="Signal Test",
-                message="<p>Immediate</p>",
-                recipients="signal@example.com",
+                subject='Signal Test',
+                message='<p>Immediate</p>',
+                recipients='signal@example.com',
                 enqueued=False,
             )
         notification.refresh_from_db()
-        self.assertEqual(notification.status, "sent")
+        self.assertEqual(notification.status, 'sent')
         self.assertTrue(notification.sent)
         self.assertEqual(len(mail.outbox), 1)
 
     def test_enqueued_does_not_trigger_signal(self):
         """Creating notification with enqueued=True does not send immediately."""
         notification = EmailNotification.objects.create(
-            subject="Queued",
-            message="<p>Later</p>",
-            recipients="queued@example.com",
+            subject='Queued',
+            message='<p>Later</p>',
+            recipients='queued@example.com',
             enqueued=True,
         )
         notification.refresh_from_db()
-        self.assertEqual(notification.status, "pending")
+        self.assertEqual(notification.status, 'pending')
         self.assertEqual(len(mail.outbox), 0)

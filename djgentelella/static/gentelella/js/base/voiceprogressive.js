@@ -457,6 +457,9 @@ function createProgressiveVoiceEngine(opts){
         },
 
         _abortInflight: function(){
+            // abort() on a controller whose request already settled is a no-op
+            // by spec; the guard is for the engines that still throw on it.
+            // Nothing to report either way -- the request is over.
             this.inflight.forEach(function(c){ try{ c.abort(); }catch(e){} });
             this.inflight = [];
         },
@@ -503,11 +506,31 @@ function createProgressiveVoiceEngine(opts){
             }
         },
 
+        // Release the capture chain. Every call here throws when the object is
+        // already in the state being asked for -- disconnect() on a node that
+        // is not connected, close() on a closed context -- and teardown runs
+        // from stop(), cancel() and the unload handler, so reaching it twice is
+        // normal. Those throws are ignored on purpose: the goal is "released",
+        // and it is met either way. Nothing else is swallowed here.
         _teardown: function(){
-            if(this.node){ try{ this.node.disconnect(); }catch(e){} this.node = null; }
-            if(this.source){ try{ this.source.disconnect(); }catch(e){} this.source = null; }
+            if(this.node){
+                try{ this.node.disconnect(); }catch(e){}   // not connected
+                this.node = null;
+            }
+            if(this.source){
+                try{ this.source.disconnect(); }catch(e){}   // not connected
+                this.source = null;
+            }
             if(this.tracks){ this.tracks.forEach(function(t){ t.stop(); }); this.tracks = null; }
-            if(this.ctx){ try{ this.ctx.close(); }catch(e){} this.ctx = null; }
+            if(this.ctx){
+                // close() *rejects*, it does not throw, when the context is
+                // already closed -- so the try/catch alone left an unhandled
+                // promise rejection in the console on the second teardown.
+                let closing = null;
+                try{ closing = this.ctx.close(); }catch(e){}   // already closed
+                if(closing && closing.catch){ closing.catch(function(){}); }
+                this.ctx = null;
+            }
             this.stream = null;
         },
 

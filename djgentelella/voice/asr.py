@@ -14,13 +14,17 @@ Configurable via settings:
 - ``GENTELELLA_ASR_MODEL``        (default ``"nemo-parakeet-tdt-0.6b-v3"``)
 - ``GENTELELLA_ASR_QUANTIZATION`` (default ``"int8"``)
 - ``GENTELELLA_ASR_LANGUAGE``     (default ``"es"``)
+- ``GENTELELLA_ASR_PNC``          (default ``True``) -- punctuation & capitals
 
 Note: Parakeet does not support ``hotwords``/``initial_prompt`` biasing; those
 widget attrs are ignored by this backend.
 """
+import logging
 import threading
 
 from django.conf import settings
+
+logger = logging.getLogger(__name__)
 
 _model = None
 _model_lock = threading.Lock()
@@ -36,17 +40,30 @@ def _get_model():
                                    'nemo-parakeet-tdt-0.6b-v3')
                 quant = getattr(settings, 'GENTELELLA_ASR_QUANTIZATION',
                                 'int8')
+                # Worth a line: the first call downloads ~670 MB and blocks the
+                # request thread doing it, which otherwise looks like a hang.
+                logger.info('Loading ASR model %s (%s); the first load '
+                            'downloads it from Hugging Face', model_id, quant)
                 _model = onnx_asr.load_model(model_id, quantization=quant)
+                logger.info('ASR model %s ready', model_id)
     return _model
 
 
 def _resample(resampler, frame):
-    """Resample one frame to a list of output frames. ``frame=None`` flushes the
-    resampler (PyAV >= 9); older PyAV neither returns a list nor supports the
-    flush call, both normalized here."""
+    """Resample one frame to a list of output frames.
+
+    ``frame=None`` flushes the resampler, which only PyAV >= 9 supports; older
+    versions raise instead, and since there is nothing buffered to lose that is
+    the one failure worth ignoring. A failure on a real frame is re-raised on
+    purpose: swallowing it turned a decode error into "empty audio", so
+    :func:`transcribe` returned an empty string and nothing anywhere said why.
+    """
     try:
         out = resampler.resample(frame)
     except (ValueError, TypeError):
+        if frame is not None:
+            raise
+        logger.debug('this PyAV cannot flush the resampler; skipping the flush')
         return []
     if out is None:
         return []
@@ -78,9 +95,10 @@ def transcribe(source, language=None):
     """Decode ``source`` and return the transcribed text (empty string if the
     audio has no decodable samples).
 
-    ``target_language`` is pinned to the source ``language`` so Parakeet-v3
-    transcribes rather than translates to English. Punctuation & capitals
-    (``pnc``) are on by default.
+    ``language`` defaults to ``GENTELELLA_ASR_LANGUAGE``. Whatever it resolves
+    to is also passed to the model as ``target_language``, which is what stops
+    Parakeet-v3 from translating to English instead of transcribing.
+    Punctuation & capitals (``GENTELELLA_ASR_PNC``) are on by default.
     """
     audio = decode_to_f32_16k(source)
     if audio.size == 0:

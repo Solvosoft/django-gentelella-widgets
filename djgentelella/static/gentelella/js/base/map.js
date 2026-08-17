@@ -51,7 +51,9 @@ $.fn.gentelella_map = function () {
                     engine.setData(result);
                 },
                 error: function (xhr, resp, text) {
-                    console.log('Error loading map:', text);
+                    // The map just stays blank, so the console is the only
+                    // place this ever surfaces -- make it an error, not a log.
+                    console.error('Error loading map:', url, text);
                 }
             });
         };

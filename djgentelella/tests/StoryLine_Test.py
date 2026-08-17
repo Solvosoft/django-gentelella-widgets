@@ -7,7 +7,7 @@ from django.test import TestCase
 from djgentelella.views.storyline import OptionsSerializer
 from djgentelella.widgets.storyline import UrlStoryLineInput
 
-attrs = {"data-url": 'examplestoryline-url/', "height": 568}
+attrs = {'data-url': 'examplestoryline-url/', 'height': 568}
 
 
 class FormClass(forms.Form):
@@ -55,8 +55,8 @@ class UrlStorylineWidgetUnitTest(TestCase):
         reason:  required prevent form submit and disabled can change css behaviour.
         """
         form = self.render('{{form}}', {'form': self.multiitemsform})
-        self.assertNotIn("required", form)
-        self.assertNotIn("disabled", form)
+        self.assertNotIn('required', form)
+        self.assertNotIn('disabled', form)
 
     def test_check_datawidget(self):
         """
@@ -73,10 +73,10 @@ class UrlStorylineWidgetUnitTest(TestCase):
         """
 
         with self.assertRaisesRegex(ImproperlyConfigured,
-                                    "You must add data-url on attrs"):
+                                    'You must add data-url on attrs'):
             class InvalidForm(forms.Form):
                 storyline = forms.CharField(widget=UrlStoryLineInput)
-                storytwo = forms.CharField(widget=UrlStoryLineInput({"height": 20}))
+                storytwo = forms.CharField(widget=UrlStoryLineInput({'height': 20}))
 
     def test_widget_formset(self):
         storyLineFormSet = formset_factory(FormClass, extra=2)
@@ -84,58 +84,58 @@ class UrlStorylineWidgetUnitTest(TestCase):
         for formIndex in range(len(formset)):
             form_str = self.render('{{form}}', {'form': formset[formIndex]})
             self.assertIn(f'id_form-{formIndex}-storyline', form_str)
-            self.assertNotIn("required", form_str)
-            self.assertNotIn("disabled", form_str)
+            self.assertNotIn('required', form_str)
+            self.assertNotIn('disabled', form_str)
             self.assertIn('data-widget="UrlStoryLineInput"', form_str)
 
 
 class SerializerCheckTest(TestCase):
     def setUp(self):
         self.data = {
-            "url": 'myurl/',
-            "datetime_column_name": "date",
-            "datetime_format": "%Y-%m-%d",
-            "data_column_name": "income"}
+            'url': 'myurl/',
+            'datetime_column_name': 'date',
+            'datetime_format': '%Y-%m-%d',
+            'data_column_name': 'income'}
 
         self.invalid_data_1 = {
-            "datetime_format": "%Y-%m-%d",
-            "data_column_name": "income"
+            'datetime_format': '%Y-%m-%d',
+            'data_column_name': 'income'
         }
         self.invalid_data_2 = {
-            "datetime_column_name": "date",
-            "datetime_format": "%Y-%m-%d"
+            'datetime_column_name': 'date',
+            'datetime_format': '%Y-%m-%d'
         }
         self.invalid_data_3 = {
-            "datetime_column_name": "date",
-            "data_column_name": "income"
+            'datetime_column_name': 'date',
+            'data_column_name': 'income'
         }
 
         self.chart = {
-            "datetime_format": "%Y",
-            "y_axis_label": "Income"
+            'datetime_format': '%Y',
+            'y_axis_label': 'Income'
         }
         self.invalid_chart = {
-            "y_axis_label": "Income"
+            'y_axis_label': 'Income'
         }
 
         self.slider = {
-            "start_at_card": "1",
-            "title_column_name": "title",
-            "text_column_name": "text",
+            'start_at_card': '1',
+            'title_column_name': 'title',
+            'text_column_name': 'text',
         }
         self.invalid_slider_1 = {
-            "start_at_card": "1",
-            "text_column_name": "text",
+            'start_at_card': '1',
+            'text_column_name': 'text',
         }
         self.invalid_slider_2 = {
-            "start_at_card": "1",
-            "title_column_name": "title",
+            'start_at_card': '1',
+            'title_column_name': 'title',
         }
 
         self.options = {
-            "data": self.data,
-            "chart": self.chart,
-            "slider": self.slider
+            'data': self.data,
+            'chart': self.chart,
+            'slider': self.slider
         }
 
     def test_OptionsSerializer_data(self):

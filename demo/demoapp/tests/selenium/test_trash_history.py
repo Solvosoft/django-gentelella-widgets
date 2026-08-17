@@ -111,7 +111,7 @@ class TrashPageTest(SeleniumTestCase):
                       'delete_obj_modal', 'delete_trash_modal'):
             with self.subTest(modal=modal):
                 self.assertIsNotNone(
-                    self.js("return document.getElementById(arguments[0])",
+                    self.js('return document.getElementById(arguments[0])',
                             modal),
                     f'#{modal} is missing from the trash page')
 
@@ -200,7 +200,7 @@ class CustomerModalCrudTest(SeleniumTestCase):
         self._fill('create', 'cliente malo', '7777-7777', 'esto-no-es-un-mail')
         self.driver.find_element(
             By.CSS_SELECTOR, '#create_obj_modal .formadd').click()
-        self.wait_js("return true")
+        self.wait_js('return true')
 
         self.assertEqual(
             Customer.objects.count(), before,

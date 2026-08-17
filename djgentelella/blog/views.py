@@ -45,7 +45,7 @@ class EntriesList(ListView):
                 )
 
         if values:
-            dev += "&".join(values)
+            dev += '&'.join(values)
 
         if dev != '?':
             dev += '&'
@@ -142,7 +142,7 @@ def category_add(request):
             return JsonResponse({'ok': True, 'id': instance.pk, 'text': str(instance)})
 
         return JsonResponse({'ok': False,
-                             'title': _("An error happen, please try again"),
+                             'title': _('An error happen, please try again'),
                              'message': render_to_string(
                                  'gentelella/blog/category_add.html',
                                  context={

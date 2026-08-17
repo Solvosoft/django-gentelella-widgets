@@ -19,7 +19,7 @@ from djgentelella.notification.serializer import (
 
 @login_required
 def notification_list_view(request):
-    return render(request, "gentelella/menu/notification_list.html")
+    return render(request, 'gentelella/menu/notification_list.html')
 
 
 class NotificacionAPIView(
@@ -36,10 +36,10 @@ class NotificacionAPIView(
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        return queryset.filter(user=self.request.user, state="visible")
+        return queryset.filter(user=self.request.user, state='visible')
 
     def get_serializer_class(self):
-        if self.request.method == "PUT":
+        if self.request.method == 'PUT':
             return NotificationSerializerUpdate
         return super().get_serializer_class()
 
@@ -49,13 +49,13 @@ class NotificationViewSet(viewsets.ModelViewSet):
     pagination_class = LimitOffsetPagination
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
     search_fields = (
-        "description",
-        "message_type",
-        "state",
+        'description',
+        'message_type',
+        'state',
     )
     filterset_class = NotificationFilterSet
-    ordering_fields = ["creation_date", "message_type", "description", "link", "state"]
-    ordering = ("-message_type",)
+    ordering_fields = ['creation_date', 'message_type', 'description', 'link', 'state']
+    ordering = ('-message_type',)
 
     def filter_queryset(self, queryset):
         return super().filter_queryset(queryset)
@@ -69,10 +69,10 @@ class NotificationViewSet(viewsets.ModelViewSet):
         queryset = self.filter_queryset(self.get_queryset())
         data = self.paginate_queryset(queryset)
         response = {
-            "data": data,
-            "recordsTotal": Notification.objects.filter(user=self.request.user).count(),
-            "recordsFiltered": queryset.count(),
-            "draw": self.request.GET.get("draw", 1),
+            'data': data,
+            'recordsTotal': Notification.objects.filter(user=self.request.user).count(),
+            'recordsFiltered': queryset.count(),
+            'draw': self.request.GET.get('draw', 1),
         }
 
         return Response(self.get_serializer(response).data)

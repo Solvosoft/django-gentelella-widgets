@@ -20,12 +20,12 @@ from .models import (
 
 
 class DigitalSignatureAdmin(admin.ModelAdmin):
-    list_display = ("id", "filename", "file_code", "created", "updated")
+    list_display = ('id', 'filename', 'file_code', 'created', 'updated')
 
 
 class CustomerAdmin(admin.ModelAdmin):
-    list_display = ("id", "name", "email", "phone_number", "is_deleted")
-    list_filter = ("is_deleted",)
+    list_display = ('id', 'name', 'email', 'phone_number', 'is_deleted')
+    list_filter = ('is_deleted',)
 
     def get_queryset(self, request):
         # important to define for see deleted

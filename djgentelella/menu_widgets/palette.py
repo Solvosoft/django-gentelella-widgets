@@ -22,16 +22,16 @@ class PalleteWidget:
         if self.context['item'].reversed_kwargs:
             item_permissions = self.context['item'].reversed_kwargs.split(',')
         else:
-            item_permissions = ["djgentelella.add_help", "djgentelella.change_help",
-                                "djgentelella.view_help", "djgentelella.delete_help"]
+            item_permissions = ['djgentelella.add_help', 'djgentelella.change_help',
+                                'djgentelella.view_help', 'djgentelella.delete_help']
 
         for item in item_permissions:
             permissions[item] = self.context['context']['request'].user.has_perm(item)
 
         data = {
             'id_view': view_name,
-            "help_url": help_url,
-            "permissions": permissions
+            'help_url': help_url,
+            'permissions': permissions
         }
         return """
 <script>document.help_widget=%(data)s;
@@ -51,10 +51,10 @@ class PalleteWidget:
 
     def get_menu_item(self):
         dev = {
-            'id': "fsb_%s" % self.context['item'].id,
+            'id': 'fsb_%s' % self.context['item'].id,
             'title': 'Help',
-            'link': "#content_%s" % self.context['id'],
-            'divref': "content_%s" % self.context['id'],
+            'link': '#content_%s' % self.context['id'],
+            'divref': 'content_%s' % self.context['id'],
             'icon': self.context['item'].icon
         }
         return """

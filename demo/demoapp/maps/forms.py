@@ -11,14 +11,14 @@ class PlaceForm(GTForm, forms.ModelForm):
 
     class Meta:
         model = Place
-        fields = ["name", "country", "city", "location"]
+        fields = ['name', 'country', 'city', 'location']
 
 
 class SimplePointForm(GTForm, forms.Form):
     """The widget used on its own, without the model field."""
 
     location = forms.CharField(
-        label="Location",
+        label='Location',
         required=False,
         widget=MapPointInput(zoom=8, center=(9.9327, -84.0875), search=True),
     )

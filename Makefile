@@ -1,6 +1,8 @@
 .PHONY: help clean clean-pyc clean-build list test docs release sdist \
-	lint lint-fix test-selenium run run-mailhog mailhog mailhog-stop migrate menu init_demo \
-	notification_demo validate-mailhog loadstatic basejs process-loop
+	lint lint-fix test-selenium test-selenium-run run run-mailhog mailhog mailhog-stop \
+	migrate menu init_demo notification_demo validate-mailhog loadstatic basejs process-loop \
+	coverage coverage-all coverage-unit coverage-selenium coverage-selenium-run \
+	coverage-report coverage-clean
 
 version = $(shell python djgentelella/__init__.py)
 
@@ -19,7 +21,10 @@ help:
 	@echo "basejs - regenerate base.js from widgets"
 	@echo "-- Quality --"
 	@echo "test - run tests quickly with the default Python"
-	@echo "test-selenium - Selenium E2E of the GUI against MailHog (needs make mailhog)"
+	@echo "test-selenium - Selenium E2E of the GUI, inside its own Xvfb display"
+	@echo "test-selenium-run - the same, on the caller's display (no Xvfb)"
+	@echo "coverage - unit suite under coverage + report + htmlcov/"
+	@echo "coverage-all - the same, plus the selenium suite, combined"
 	@echo "validate-mailhog - send every email feature to MailHog and validate reception"
 	@echo "lint - check style (pycodestyle) and import placement (ruff)"
 	@echo "lint-fix - auto-apply the mechanical style fixes with ruff"
@@ -71,8 +76,63 @@ lint-fix:
 test:
 	cd demo && python manage.py test --exclude-tag=selenium
 
+# Every label the project has. Discovery starts in demo/, and the package tests
+# live outside it, so each one has to be named explicitly or it is never run.
+TEST_LABELS = demoapp djgentelella.tests djgentelella.blog.tests \
+	djgentelella.async_notification
+
+# The browser tests get a display of their own: `xvfb-run -a` picks the first
+# free one, so the chromium they drive never steals focus from -- or paints
+# over -- the session that launched them. Headless (the default) would not need
+# an X server at all; the point of the Xvfb is that SELENIUM_HEADLESS=0 then
+# works without touching the developer's screen, and that is the mode where
+# Leaflet, the canvases and TinyMCE render as they do for a real user.
+XVFB_ARGS ?= -screen 0 1600x1200x24
+SELENIUM_HEADLESS ?= 1
+
 test-selenium:
-	cd demo && python manage.py test $(or $(TEST),) --tag=selenium
+	xvfb-run -a -s "$(XVFB_ARGS)" $(MAKE) test-selenium-run
+
+# Same suite without the Xvfb wrapper, for watching the browser on your own
+# screen while debugging a failure.
+test-selenium-run:
+	cd demo && SELENIUM_HEADLESS=$(SELENIUM_HEADLESS) \
+		python manage.py test $(or $(TEST),) --tag=selenium
+
+# -- coverage ----------------------------------------------------------------
+# Configuration lives in pyproject.toml ([tool.coverage.*]). Two things force
+# the shape of these targets: manage.py inserts '..' relative to the *current
+# directory*, so the tests only run from demo/; and coverage resolves both its
+# rcfile and its data file relative to that directory too. Hence the absolute
+# $(CURDIR) paths -- otherwise the unit pass and the selenium pass would write
+# two unrelated data files inside demo/ and `combine` would have nothing to do.
+COVERAGE_FILE ?= $(CURDIR)/.coverage
+COV = COVERAGE_FILE=$(COVERAGE_FILE) coverage run --rcfile=$(CURDIR)/pyproject.toml
+
+coverage: coverage-clean coverage-unit coverage-report
+
+coverage-all: coverage-clean coverage-unit coverage-selenium coverage-report
+
+coverage-unit:
+	cd demo && $(COV) manage.py test $(TEST_LABELS) --exclude-tag=selenium
+
+# Worth including: the live server runs in a thread of this same process, so
+# coverage does see the views, serializers and template tags the browser hits.
+coverage-selenium:
+	xvfb-run -a -s "$(XVFB_ARGS)" $(MAKE) coverage-selenium-run
+
+coverage-selenium-run:
+	cd demo && SELENIUM_HEADLESS=$(SELENIUM_HEADLESS) \
+		$(COV) manage.py test $(or $(TEST),) --tag=selenium
+
+coverage-report:
+	COVERAGE_FILE=$(COVERAGE_FILE) coverage combine
+	COVERAGE_FILE=$(COVERAGE_FILE) coverage report
+	COVERAGE_FILE=$(COVERAGE_FILE) coverage html -d htmlcov
+	@echo "HTML report -> htmlcov/index.html"
+
+coverage-clean:
+	rm -rf htmlcov .coverage .coverage.*
 
 docs:
 	$(MAKE) -C docs clean

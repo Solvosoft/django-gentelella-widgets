@@ -22,6 +22,9 @@ class BaseObjectManagement(viewsets.ModelViewSet):
         'get_values_for_update': None
     }
 
+    # The commented lines are the template for the subclass: everything here is
+    # inherited as-is unless the child redefines it, and these show the shape
+    # each override has to have. Only `queryset` is mandatory.
     # authentication_classes = (TokenAuthentication, SessionAuthentication)
     # queryset =
     pagination_class = LimitOffsetPagination
@@ -47,6 +50,9 @@ class BaseObjectManagement(viewsets.ModelViewSet):
                     'draw': self.request.GET.get('draw', 1)}
         return Response(self.get_serializer(response).data)
 
+    # Declared even though it only delegates: it is the hook a subclass
+    # overrides, and keeping it here puts it next to list() where it is looked
+    # for.
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
 
@@ -59,8 +65,8 @@ class BaseObjectManagement(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def detail_template(self, request, *args, **kwargs):
         data = {
-            "title": "Name <% it.name %>",
-            "template": "Description: <% it.description | safe  %>"
+            'title': 'Name <% it.name %>',
+            'template': 'Description: <% it.description | safe  %>'
         }
         return Response(data)
 
@@ -141,6 +147,10 @@ class BaseInlineObjectManagement(BaseObjectManagement):
         queryset = super().get_queryset()
         return queryset.filter(**{self.parent_field: self.get_parent_object()})
 
+    # Identical on purpose, and kept as two separate hooks because that is what
+    # a subclass overrides: both re-pin the parent from the URL and never from
+    # the payload, so an update cannot move a child under a different parent by
+    # posting another parent id.
     def perform_create(self, serializer):
         serializer.save(**{self.parent_field: self.get_parent_object()})
 

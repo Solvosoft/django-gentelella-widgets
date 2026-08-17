@@ -4,7 +4,7 @@ from djgentelella.models import MenuItem
 
 
 class Command(BaseCommand):
-    help = "Load demo site structure"
+    help = 'Load demo site structure'
 
     def handle(self, *args, **options):
         base1 = MenuItem.objects.create(

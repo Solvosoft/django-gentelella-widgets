@@ -193,8 +193,20 @@ function getMapPointWidget(element) {
     // --- based fields -----------------------------------------------------
     // Geocode from other fields (country, city...). Selectors go through
     // gt_resolve_value, so the same syntax the chart filters use works here.
+    var basedBound = [];
     var basedFields = input.data('based-fields') || [];
-    if (typeof basedFields === 'string') basedFields = JSON.parse(basedFields);
+    if (typeof basedFields === 'string') {
+        // A malformed data-based-fields must cost the geocoding, not the whole
+        // widget: without this the throw aborts the rest of the wiring and the
+        // user gets an input with no map at all.
+        try {
+            basedFields = JSON.parse(basedFields);
+        } catch (error) {
+            console.error('map point: invalid data-based-fields', basedFields,
+                          error);
+            basedFields = [];
+        }
+    }
     var basedOverwrite = input.data('based-overwrite') === 'true' ||
                          input.data('based-overwrite') === true;
 
@@ -247,6 +259,16 @@ function getMapPointWidget(element) {
             var field = scope.find(selector).first();
             if (!field.length) field = $(selector).first();
             field.on('change.gtmap keyup.gtmap', onBasedChange);
+            // Remembered because these handlers sit on *other* elements: the
+            // `input.off('.gtmap')` in destroy() only reaches this widget's own
+            // input, so without this list a re-rendered widget (a formset row,
+            // a reopened modal) leaves a live handler on a sibling field
+            // closing over an engine that no longer has a map. The handler is
+            // named on the way out too, since two widgets can watch the same
+            // field and a bare .off('.gtmap') would unbind the other one.
+            basedBound.push(function () {
+                field.off('change.gtmap keyup.gtmap', onBasedChange);
+            });
         });
     }
 
@@ -263,7 +285,7 @@ function getMapPointWidget(element) {
             searchEl.off('.gtmap');
             locateBtn.off('.gtmap');
             clearBtn.off('.gtmap');
-            $(document).off('.gtmap-' + id);
+            basedBound.forEach(function (unbind) { unbind(); });
             engine.destroy();
         }
     };

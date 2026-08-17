@@ -6,5 +6,5 @@ class GentelellaLoginView(LoginView):
 
 
 class GentelellaLogoutView(LogoutView):
-    http_method_names = ["get", "post", "options"]
-    template_name = "gentelella/registration/logout.html"
+    http_method_names = ['get', 'post', 'options']
+    template_name = 'gentelella/registration/logout.html'

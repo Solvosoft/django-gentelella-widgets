@@ -12,8 +12,12 @@ still letting the package import cleanly when selenium is not installed --
 Requirements: selenium, a chromium + chromedriver. Tagged ``selenium``, so the
 default suite (``--exclude-tag=selenium``) never starts a browser::
 
-    make test-selenium              # everything tagged selenium
+    make test-selenium              # everything tagged selenium, inside Xvfb
+    make test-selenium-run          # the same, on the caller's own display
     python manage.py test demoapp.tests.selenium.test_widgets --tag=selenium
+
+``make test-selenium`` wraps the run in ``xvfb-run -a``, so the browser lives on
+a display of its own and never steals focus from the session that launched it.
 """
 
 import os
@@ -37,6 +41,14 @@ except ImportError:                                  # pragma: no cover
 CHROMEDRIVER = os.getenv('CHROMEDRIVER', '/usr/bin/chromedriver')
 CHROMIUM = os.getenv('CHROME_BIN', '/usr/bin/chromium')
 
+# Headless is the default: it is what CI wants and what a bare `manage.py test
+# --tag=selenium` should do on a machine with no X server at all.
+# SELENIUM_HEADLESS=0 draws a real browser instead, which is only worth it
+# inside the Xvfb that `make test-selenium` starts -- Leaflet, the canvases and
+# TinyMCE then render the way they do for a user, without a window ever
+# appearing on the developer's own display.
+HEADLESS = os.getenv('SELENIUM_HEADLESS', '1').lower() not in ('0', 'false', 'no')
+
 USERNAME = 'admin'
 PASSWORD = 'admin12345'
 
@@ -46,7 +58,8 @@ TIMEOUT = 25
 
 
 class SeleniumTestCase(StaticLiveServerTestCase):
-    """Live server + headless chromium, with a superuser already logged in.
+    """Live server + chromium (headless unless ``SELENIUM_HEADLESS=0``), with a
+    superuser already logged in.
 
     Subclasses get ``self.driver``, ``self.wait``, and the ``go``/``js``/
     ``wait_js`` helpers. Override :meth:`setup_data` to create fixtures; it
@@ -62,7 +75,8 @@ class SeleniumTestCase(StaticLiveServerTestCase):
 
         super().setUpClass()
         opts = Options()
-        opts.add_argument('--headless=new')
+        if HEADLESS:
+            opts.add_argument('--headless=new')
         opts.add_argument('--no-sandbox')
         opts.add_argument('--disable-dev-shm-usage')
         opts.add_argument('--window-size=1500,1100')

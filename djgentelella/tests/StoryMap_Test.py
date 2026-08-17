@@ -6,7 +6,7 @@ from django.test import TestCase
 
 from djgentelella.widgets.storymap import GigaPixelStoryMapInput, MapBasedStoryMapInput
 
-attrs = {"data-url": 'storymap-url/'}
+attrs = {'data-url': 'storymap-url/'}
 
 
 class FormClass(forms.Form):
@@ -61,8 +61,8 @@ class StoryMapFormWidgetTest(TestCase):
         reason:  required prevent form submit and disabled can change css behaviour.
         """
         form = self.render('{{form}}', {'form': self.multiitemsform})
-        self.assertNotIn("required", form)
-        self.assertNotIn("disabled", form)
+        self.assertNotIn('required', form)
+        self.assertNotIn('disabled', form)
 
     def test_check_data_url_required(self):
         """
@@ -71,7 +71,7 @@ class StoryMapFormWidgetTest(TestCase):
         """
 
         with self.assertRaisesRegex(ImproperlyConfigured,
-                                    "You must add data-url on attrs"):
+                                    'You must add data-url on attrs'):
             class InvalidForm(forms.Form):
                 storyline = forms.CharField(widget=MapBasedStoryMapInput)
                 storytwo = forms.CharField(widget=GigaPixelStoryMapInput)
@@ -86,7 +86,7 @@ class StoryMapFormWidgetTest(TestCase):
         # managementform
         # self.assertIn(f'id_form-_PREFIX_-gp_storymap', form_str)
         # self.assertIn(f'id_form-_PREFIX_-mb_storymap', form_str)
-        self.assertNotIn("required", form_str)
-        self.assertNotIn("disabled", form_str)
+        self.assertNotIn('required', form_str)
+        self.assertNotIn('disabled', form_str)
         self.assertIn('data-widget="GigaPixelStoryMapInput"', form_str)
         self.assertIn('data-widget="MapBasedStoryMapInput"', form_str)

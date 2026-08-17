@@ -28,7 +28,7 @@ def crud_url_name(model, action, prefix=None):
     Returns url name for given model and action.
     """
     if prefix is None:
-        prefix = ""
+        prefix = ''
     app_label = model._meta.app_label
     model_lower = model.__name__.lower()
     return '%s%s_%s_%s' % (prefix, app_label, model_lower, action)

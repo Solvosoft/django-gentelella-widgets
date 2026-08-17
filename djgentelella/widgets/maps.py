@@ -33,10 +33,13 @@ class MapPointInput(TextInput):
     :param based_overwrite: let ``based_fields`` move a point the user already
                             placed. Off by default.
     :param tile_url: tile layer template, defaults to OpenStreetMap
+    :param tile_attribution: attribution line for ``tile_url``. Most tile
+                             providers require one, so set it whenever you set
+                             ``tile_url``.
     :param geocoder_url: Nominatim compatible endpoint, for self-hosting
     """
 
-    template_name = "gentelella/widgets/map_point.html"
+    template_name = 'gentelella/widgets/map_point.html'
 
     def __init__(self, attrs=None, extraskwargs=True, zoom=None, center=None,
                  height=None, search=False, locate=True, based_fields=None,
@@ -46,21 +49,21 @@ class MapPointInput(TextInput):
             attrs = update_kwargs(attrs, self.__class__.__name__)
         attrs = attrs or {}
         if zoom is not None:
-            attrs["data-zoom"] = zoom
+            attrs['data-zoom'] = zoom
         if center is not None:
-            attrs["data-center"] = self.format_center(center)
+            attrs['data-center'] = self.format_center(center)
         if height is not None:
-            attrs["data-height"] = height
+            attrs['data-height'] = height
         if based_fields:
-            attrs["data-based-fields"] = json.dumps(list(based_fields))
+            attrs['data-based-fields'] = json.dumps(list(based_fields))
         if based_overwrite:
-            attrs["data-based-overwrite"] = "true"
+            attrs['data-based-overwrite'] = 'true'
         if tile_url is not None:
-            attrs["data-tile-url"] = tile_url
+            attrs['data-tile-url'] = tile_url
         if tile_attribution is not None:
-            attrs["data-tile-attribution"] = tile_attribution
+            attrs['data-tile-attribution'] = tile_attribution
         if geocoder_url is not None:
-            attrs["data-geocoder-url"] = geocoder_url
+            attrs['data-geocoder-url'] = geocoder_url
         self.search = search
         self.locate = locate
         super().__init__(attrs, extraskwargs=False)
@@ -68,7 +71,7 @@ class MapPointInput(TextInput):
     @staticmethod
     def format_center(center):
         if isinstance(center, (list, tuple)):
-            return "%s,%s" % (center[0], center[1])
+            return '%s,%s' % (center[0], center[1])
         return center
 
     def get_context(self, name, value, attrs):
@@ -76,10 +79,10 @@ class MapPointInput(TextInput):
         # Django templates cannot read widget.attrs.data-search (the hyphen is
         # parsed as a subtraction), so the flags travel through the context the
         # way CalendarInput passes events/options.
-        context["show_search"] = self.search
-        context["show_locate"] = self.locate
-        context["map_height"] = self.attrs.get("data-height")
-        context["search_placeholder"] = _("Search address")
-        context["locate_title"] = _("Use my location")
-        context["clear_title"] = _("Clear")
+        context['show_search'] = self.search
+        context['show_locate'] = self.locate
+        context['map_height'] = self.attrs.get('data-height')
+        context['search_placeholder'] = _('Search address')
+        context['locate_title'] = _('Use my location')
+        context['clear_title'] = _('Clear')
         return context

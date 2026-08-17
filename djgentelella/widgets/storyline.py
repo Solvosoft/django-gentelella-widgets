@@ -7,9 +7,9 @@ class UrlStoryLineInput(TextInput):
     template_name = 'gentelella/widgets/storyline.html'
 
     def __init__(self, attrs=None):
-        if attrs is None or "data-url" not in attrs:
-            raise ImproperlyConfigured("You must add data-url on attrs")
-        attrs = update_kwargs(attrs, self.__class__.__name__, "")
+        if attrs is None or 'data-url' not in attrs:
+            raise ImproperlyConfigured('You must add data-url on attrs')
+        attrs = update_kwargs(attrs, self.__class__.__name__, '')
         super(UrlStoryLineInput, self).__init__(attrs=attrs, extraskwargs=False)
 
     def render(self, name, value, attrs=None, renderer=None):

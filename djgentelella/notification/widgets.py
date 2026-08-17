@@ -50,4 +50,4 @@ class NotificationMenu:
         return """<script > $('.notificationmenu').notificationWidget(); </script>"""
 
     def render_content(self):
-        return ""
+        return ''

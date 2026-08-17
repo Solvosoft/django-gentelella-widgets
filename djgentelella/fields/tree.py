@@ -25,10 +25,13 @@ def pop_disabled_levels(kwargs):
     leaves level 1 selectable.
     """
     levels = set()
-    for key in [key for key in kwargs if DISABLE_KWARG.match(key)]:
-        level = int(DISABLE_KWARG.match(key).group(1))
+    # The matches are materialised first: the loop pops from kwargs, and
+    # iterating a dict while mutating it raises.
+    matches = [(key, match) for key in kwargs
+               if (match := DISABLE_KWARG.match(key))]
+    for key, match in matches:
         if kwargs.pop(key):
-            levels.add(level)
+            levels.add(int(match.group(1)))
     return levels
 
 

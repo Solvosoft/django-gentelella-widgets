@@ -8,10 +8,10 @@ from demoapp.models import Customer
 class CustomerForm(GTForm, forms.ModelForm):
     class Meta:
         model = Customer
-        fields = "__all__"
-        exclude = ["is_deleted"]
+        fields = '__all__'
+        exclude = ['is_deleted']
         widgets = {
-            "name": gtw.TextInput,
-            "email": gtw.EmailInput,
-            "phone_number": gtw.PhoneNumberMaskInput,
+            'name': gtw.TextInput,
+            'email': gtw.EmailInput,
+            'phone_number': gtw.PhoneNumberMaskInput,
         }

@@ -6,65 +6,65 @@ from djgentelella.elements import StatsElement, BoxStatsCountList, BoxTileElemen
 
 class MemberStats(StatsElement):
     def get_top_icon(self):
-        return "fa fa-user"
+        return 'fa fa-user'
 
     def get_top_text(self):
-        return " Total Males"
+        return ' Total Males'
 
     def get_count(self):
-        return "2,500"
+        return '2,500'
 
     def get_count_color(self):
         return 'green'
 
     def get_bottom_color(self):
-        return "red"
+        return 'red'
 
     def get_bottom_text(self):
-        return "From last Week"
+        return 'From last Week'
 
     def get_bottom_icon(self):
-        return "fa fa-sort-asc"
+        return 'fa fa-sort-asc'
 
     def get_bottom_icon_text(self):
-        return "20%"
+        return '20%'
 
 
 class ClockTime(StatsElement):
     def get_top_icon(self):
-        return "fa fa-clock-o"
+        return 'fa fa-clock-o'
 
     def get_top_text(self):
-        return "Average Time"
+        return 'Average Time'
 
     def get_count(self):
-        return "123.50"
+        return '123.50'
 
     def get_bottom_icon_text(self):
-        return "2%"
+        return '2%'
 
     def get_bottom_color(self):
-        return "green"
+        return 'green'
 
     def get_bottom_text(self):
-        return "From last Week"
+        return 'From last Week'
 
     def get_bottom_icon(self):
-        return "fa fa-sort-asc"
+        return 'fa fa-sort-asc'
 
 
 class SignupsBox(BoxTileElement):
     def get_icon(self):
-        return "fa fa-caret-square-o-right"
+        return 'fa fa-caret-square-o-right'
 
     def get_number(self):
-        return "179"
+        return '179'
 
     def get_title(self):
-        return "New Sign ups"
+        return 'New Sign ups'
 
     def get_subtitle(self):
-        return "Lorem ipsum psdea itgum rixt."
+        return 'Lorem ipsum psdea itgum rixt.'
 
 
 class StatsCountListExample(StatsCountList):
