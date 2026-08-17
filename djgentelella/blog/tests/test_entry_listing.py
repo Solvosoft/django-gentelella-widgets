@@ -15,7 +15,7 @@ class TestEntryListing(TestCase):
         self.post_3 = models.Entry.objects.create(title=u'Last Post', is_published=True)
         self.post_4 = models.Entry.objects.create(title=u'Back again!')
 
-        self.url = reverse('andablog:entrylist')
+        self.url = reverse('blog:entrylist')
 
     def test_anonymous_get(self):
         """Only published entries should be listed by descending published timestamp"""

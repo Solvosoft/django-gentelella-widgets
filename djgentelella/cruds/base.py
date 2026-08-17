@@ -1,14 +1,14 @@
 # encoding: utf-8
 
-'''
+"""
 Free as freedom will be 26/8/2016
 
 @author: luisza
-'''
+"""
 
 import types
+import warnings
 
-from django.conf.urls import include
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
@@ -33,12 +33,12 @@ class CRUDMixin(object):
 
     def get_template_names(self):
         dev = []
-        base_name = "%s/%s/" % (self.model._meta.app_label,
+        base_name = '%s/%s/' % (self.model._meta.app_label,
                                 self.model.__name__.lower())
         dev.append(base_name + self.template_name)
         dev.append(self.template_name)
-        base = self.template_name.split("/")[-1]
-        dev.append("gentelella/cruds/" + base)
+        base = self.template_name.split('/')[-1]
+        dev.append('gentelella/cruds/' + base)
 
         return dev
 
@@ -62,8 +62,8 @@ class CRUDMixin(object):
 
         if filter_params:
             if self.getparams:
-                self.getparams += "&"
-            self.getparams += "&".join(filter_params)
+                self.getparams += '&'
+            self.getparams += '&'.join(filter_params)
 
     def validate_user_perms(self, user, perm, view):
         if isinstance(perm, types.FunctionType):
@@ -128,9 +128,6 @@ class CRUDMixin(object):
         })
         context.update({'blocks': self.template_blocks})
 
-        if self.view_type in ['update', 'detail']:
-            context['inlines'] = self.inlines
-
         if 'object' not in context:
             context['object'] = self.model
 
@@ -147,8 +144,8 @@ class CRUDMixin(object):
         context['template_father'] = self.template_father
 
         context.update(self.context_rel)
-        context['getparams'] = "?" + self.getparams
-        context['getparams'] += "&" if self.getparams else ""
+        context['getparams'] = '?' + self.getparams
+        context['getparams'] += '&' if self.getparams else ''
         return context
 
     def dispatch(self, request, *args, **kwargs):
@@ -163,11 +160,11 @@ class CRUDMixin(object):
                     self.model, related)
                 self.context_rel[related] = get_object_or_404(
                     Classrelated, pk=pk)
-                getparams.append("%s=%s" % (
+                getparams.append('%s=%s' % (
                     related, str(self.context_rel[related].pk)))
 
         if getparams:
-            self.getparams = "&".join(getparams)
+            self.getparams = '&'.join(getparams)
         for perm in self.perms:
             if not self.validate_user_perms(request.user, perm,
                                             self.view_type):
@@ -291,11 +288,11 @@ class CRUDView(object):
     """
 
     model = None
-    template_name_base = "cruds"
+    template_name_base = 'cruds'
     template_blocks = {}
     namespace = None
     fields = '__all__'
-    urlprefix = ""
+    urlprefix = ''
     check_login = True
     check_perms = True
     paginate_by = 10
@@ -305,9 +302,8 @@ class CRUDView(object):
     add_form = None
     display_fields = None
     list_fields = None
-    inlines = None
     views_available = None
-    template_father = "gentelella/base.html"
+    template_father = 'gentelella/base.html'
     search_fields = None
     split_space_search = False
     related_fields = None
@@ -406,7 +402,6 @@ class CRUDView(object):
             all_perms = self.perms
             view_type = 'detail'
             display_fields = self.display_fields
-            inlines = self.inlines
             views_available = self.views_available[:]
             check_perms = self.check_perms
             template_father = self.template_father
@@ -434,7 +429,6 @@ class CRUDView(object):
             form_class = self.update_form
             all_perms = self.perms
             view_type = 'update'
-            inlines = self.inlines
             views_available = self.views_available[:]
             check_perms = self.check_perms
             template_father = self.template_father
@@ -557,7 +551,6 @@ class CRUDView(object):
 
             def get_success_url(self):
                 url = super(ODeleteView, self).get_success_url()
-                print(self.getparams)
                 if (self.getparams):  # fixed filter delete action
                     url += '?' + self.getparams
                 return url
@@ -570,7 +563,7 @@ class CRUDView(object):
         url = utils.crud_url_name(
             self.model, 'list', prefix=self.urlprefix)
         if self.namespace:
-            url = self.namespace + ":" + url
+            url = self.namespace + ':' + url
 
         fields = self.fields
         if self.add_form:
@@ -595,7 +588,7 @@ class CRUDView(object):
         url = utils.crud_url_name(
             self.model, 'list', prefix=self.urlprefix)
         if self.namespace:
-            url = self.namespace + ":" + url
+            url = self.namespace + ':' + url
         fields = self.fields
         if self.update_form:
             fields = None
@@ -618,7 +611,7 @@ class CRUDView(object):
         url = utils.crud_url_name(
             self.model, 'list', prefix=self.urlprefix)
         if self.namespace:
-            url = self.namespace + ":" + url
+            url = self.namespace + ':' + url
         self.delete = self.decorator_delete(ODeleteView.as_view(
             model=self.model,
             success_url=reverse_lazy(url),
@@ -628,7 +621,7 @@ class CRUDView(object):
     def get_base_name(self):
         ns = self.template_name_base
         if not self.template_name_base:
-            ns = "%s/%s" % (
+            ns = '%s/%s' % (
                 self.model._meta.app_label,
                 self.model.__name__.lower())
         return ns
@@ -641,12 +634,12 @@ class CRUDView(object):
         except BaseException:
             notfollow = True
         if not notfollow and not Permission.objects.filter(
-            content_type=model, codename="view_%s" %
+            content_type=model, codename='view_%s' %
                                          (name,)).exists():
             Permission.objects.create(
                 content_type=model,
-                codename="view_%s" % (name,),
-                name=_("Can see available %s" % (name,)))
+                codename='view_%s' % (name,),
+                name=_('Can see available %s' % (name,)))
 
     def initialize_perms(self):
         if self.perms is None:
@@ -662,12 +655,12 @@ class CRUDView(object):
         name = self.model.__name__.lower()
         if self.check_perms:
             self.check_create_perm(applabel, name)
-            self.perms['create'].append("%s.add_%s" % (applabel, name))
-            self.perms['update'].append("%s.change_%s" % (applabel, name))
-            self.perms['delete'].append("%s.delete_%s" % (applabel, name))
+            self.perms['create'].append('%s.add_%s' % (applabel, name))
+            self.perms['update'].append('%s.change_%s' % (applabel, name))
+            self.perms['delete'].append('%s.delete_%s' % (applabel, name))
             # maybe other default perm can be here
-            self.perms['list'].append("%s.view_%s" % (applabel, name))
-            self.perms['detail'].append("%s.view_%s" % (applabel, name))
+            self.perms['list'].append('%s.view_%s' % (applabel, name))
+            self.perms['detail'].append('%s.view_%s' % (applabel, name))
 
     def initialize_views_available(self):
         if self.views_available is None:
@@ -706,26 +699,38 @@ class CRUDView(object):
             self.initialize_delete(basename + '/delete.html')
 
     def get_urls(self):
+        # `inlines` used to add a set of InlineAjaxCRUD urls here. Both are gone
+        # in 0.6.0, and a subclass that still defines it gets no error at all:
+        # the urls simply stop existing and its templates fail later, in an
+        # unrelated `reverse`. Say so at the place that used to honour it.
+        if getattr(self, 'inlines', None):
+            warnings.warn(
+                '%s.inlines is ignored: InlineAjaxCRUD was removed in '
+                'djgentelella 0.6.0 and no inline urls are registered. Port it '
+                'to djgentelella.objectmanagement.BaseInlineObjectManagement '
+                '(see docs/source/object_management.rst).'
+                % self.__class__.__name__,
+                DeprecationWarning, stacklevel=2)
 
-        pre = ""
+        pre = ''
         try:
             if self.cruds_url:
-                pre = "%s/" % self.cruds_url
+                pre = '%s/' % self.cruds_url
         except AttributeError:
-            pre = ""
-        base_name = "%s%s/%s" % (pre, self.model._meta.app_label,
+            pre = ''
+        base_name = '%s%s/%s' % (pre, self.model._meta.app_label,
                                  self.model.__name__.lower())
         myurls = []
         if 'list' in self.views_available:
             myurls.append(
                 re_path(
-                    "^%s/list$" %
+                    '^%s/list$' %
                     (base_name,), self.list, name=utils.crud_url_name(
                         self.model, 'list', prefix=self.urlprefix)))
         if 'create' in self.views_available:
             myurls.append(
                 re_path(
-                    "^%s/create$" %
+                    '^%s/create$' %
                     (base_name,), self.create, name=utils.crud_url_name(
                         self.model, 'create', prefix=self.urlprefix)))
         if 'detail' in self.views_available:
@@ -737,42 +742,17 @@ class CRUDView(object):
         if 'update' in self.views_available:
             myurls.append(
                 re_path(
-                    "^%s/(?P<pk>[^/]+)/update$" %
+                    '^%s/(?P<pk>[^/]+)/update$' %
                     (base_name,), self.update, name=utils.crud_url_name(
                         self.model, 'update', prefix=self.urlprefix)))
         if 'delete' in self.views_available:
             myurls.append(
                 re_path(
-                    r"^%s/(?P<pk>[^/]+)/delete$" %
+                    r'^%s/(?P<pk>[^/]+)/delete$' %
                     (base_name,), self.delete, name=utils.crud_url_name(
                         self.model, 'delete', prefix=self.urlprefix)))
 
-        myurls += self.add_inlines(base_name)
         return myurls
-
-    def add_inlines(self, base_name):
-        dev = []
-        if self.inlines:
-            for i, inline in enumerate(self.inlines):
-                klass = inline
-                if isinstance(klass, type):
-                    # FIXME: This is a dirty hack to act on repeated calls to get_urls()
-                    #        as those mean that inline is a type instance not a
-                    #        class from the second run onwars.
-                    klass = klass()
-                self.inlines[i] = klass
-                if self.namespace:
-                    dev.append(
-                        re_path('^inline/',
-                                include(klass.get_urls(),
-                                        namespace=self.namespace))
-                    )
-                else:
-                    dev.append(
-                        re_path('^inline/', include(klass.get_urls()))
-
-                    )
-        return dev
 
 
 class UserCRUDView(CRUDView):

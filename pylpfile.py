@@ -152,6 +152,29 @@ READONLY_WIDGETS_JS = [str(BASE_PATH / path) for path in [
     'vendors/bootstrap-tree/bootstrap-treeview.min.js'
 ]]
 
+# Leaflet gets a bundle of its own instead of riding along in JS_FILES, because
+# storymapjs embeds Leaflet 0.7.7 and assigns it to window.L. The readonly
+# bundle therefore has to be emitted first and this one after it, or every map
+# runs against a 0.7 API. See gentelella/statics/javascript.html.
+MAPS_CSS = [str(BASE_PATH / path) for path in [
+    'vendors/leaflet/leaflet.css',
+]]
+
+MAPS_JS = [str(BASE_PATH / path) for path in [
+    'vendors/leaflet/leaflet.js',
+]]
+
+# Both plugins monkey-patch L, so they must come after leaflet.js at runtime.
+MAPS_PLUGINS_CSS = [str(BASE_PATH / path) for path in [
+    'vendors/leaflet-markercluster/MarkerCluster.css',
+    'vendors/leaflet-markercluster/MarkerCluster.Default.css',
+]]
+
+MAPS_PLUGINS_JS = [str(BASE_PATH / path) for path in [
+    'vendors/leaflet-markercluster/leaflet.markercluster.js',
+    'vendors/leaflet-heat/leaflet-heat.js',
+]]
+
 pylp.task('css', lambda:
 pylp.src(CSS_FILES)
           .pipe(urlreplace())
@@ -188,5 +211,32 @@ pylp.src(READONLY_WIDGETS_JS)
           .pipe(concat('djgentelella.readonly.vendors.min.js'))
           .pipe(pylp.dest(str(BASE_PATH)))
           )
-pylp.task('default', ['css', 'flagcss', 'readonlycss', 'jsheader', 'js', 'readonlyjs'])
+pylp.task('mapscss', lambda:
+pylp.src(MAPS_CSS)
+          .pipe(urlreplace())
+          .pipe(concat('djgentelella.maps.vendors.min.css'))
+          .pipe(pylp.dest(str(BASE_PATH)))
+          )
+
+pylp.task('mapspluginscss', lambda:
+pylp.src(MAPS_PLUGINS_CSS)
+          .pipe(urlreplace())
+          .pipe(concat('djgentelella.maps.plugins.min.css'))
+          .pipe(pylp.dest(str(BASE_PATH)))
+          )
+
+pylp.task('mapsjs', lambda:
+pylp.src(MAPS_JS)
+          .pipe(concat('djgentelella.maps.vendors.min.js'))
+          .pipe(pylp.dest(str(BASE_PATH)))
+          )
+
+pylp.task('mapspluginsjs', lambda:
+pylp.src(MAPS_PLUGINS_JS)
+          .pipe(concat('djgentelella.maps.plugins.min.js'))
+          .pipe(pylp.dest(str(BASE_PATH)))
+          )
+
+pylp.task('default', ['css', 'flagcss', 'readonlycss', 'jsheader', 'js', 'readonlyjs',
+                      'mapscss', 'mapspluginscss', 'mapsjs', 'mapspluginsjs'])
 # pylp.task('default', ['flagcss'])

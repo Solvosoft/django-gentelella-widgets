@@ -6,11 +6,12 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 from djgentelella.firmador_digital.config.websocket_urls import websocket_urlpatterns
 
+
 class AsgiConfig:
 
     def __init__(self, settings_module: str):
         # Configuramos la variable de entorno con el módulo de settings
-        os.environ.setdefault("DJANGO_SETTINGS_MODULE", settings_module)
+        os.environ.setdefault('DJANGO_SETTINGS_MODULE', settings_module)
         # variable de la aplicación
         self.application = self._build_application()
 
@@ -19,8 +20,8 @@ class AsgiConfig:
         Construye y retorna la aplicación ASGI compuesta.
         """
         return ProtocolTypeRouter({
-            "http": get_asgi_application(),
-            "websocket": AuthMiddlewareStack(
+            'http': get_asgi_application(),
+            'websocket': AuthMiddlewareStack(
                 URLRouter(websocket_urlpatterns)
             ),
         })

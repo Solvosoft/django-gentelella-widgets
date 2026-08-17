@@ -7,7 +7,9 @@ from django.utils.safestring import mark_safe
 
 class GTForm(forms.Form):
     """
-    GTForm is the basis of form management, it does the work of django `forms.Form`, including enhancements and boostrap rendering, so it should be inherited from this form, rather than `forms.Form`.
+    GTForm is the basis of form management, it does the work of django
+    `forms.Form`, including enhancements and boostrap rendering, so it should
+    be inherited from this form, rather than `forms.Form`.
 
     Example of use:
 
@@ -34,6 +36,7 @@ class GTForm(forms.Form):
         myform = myGTForm(render_type='as_inline', ... )
 
     """
+
     exposed_method = ('as_plain', 'as_inline', 'as_horizontal')
     default_render_type = None
     template_name_plain = 'forms/as_plain.html'
@@ -43,7 +46,11 @@ class GTForm(forms.Form):
     grid_representation = None
 
     def __init__(self, *args, **kwargs):
-        render_type = self.default_render_type if self.default_render_type is not None else 'as_horizontal'
+        render_type = (
+            self.default_render_type
+            if self.default_render_type is not None
+            else 'as_horizontal'
+        )
         if 'render_type' in kwargs and hasattr(self, kwargs['render_type']):
             render_type = kwargs.pop('render_type')
 
@@ -107,8 +114,12 @@ class GTForm(forms.Form):
                             )
                         else:
                             if hasattr(self, field):
-                                row_list.append((getattr(self, field)(),
-                                                 self.get_error_for_grid(field)))
+                                row_list.append(
+                                    (
+                                        getattr(self, field)(),
+                                        self.get_error_for_grid(field),
+                                    )
+                                )
                     col_list.append(row_list)
                 grid.append(col_list)
             return grid
@@ -118,20 +129,21 @@ class GTForm(forms.Form):
         "Returns this form rendered as HTML using as_plain bootstrap approach."
         if hasattr(self, '_html_output'):
             return self._html_output(
-                normal_row='<div class="as_plain"><div %(html_class_attr)s ' +
-                           '>%(label)s%(errors)s%(field)s%(help_text)s</div></div>',
+                normal_row='<div class="as_plain"><div %(html_class_attr)s '
+                + '>%(label)s%(errors)s%(field)s%(help_text)s</div></div>',
                 error_row='%s',
                 row_ender=' ',
                 help_text_html='<br /><span class="helptext">%s</span>',
-                errors_on_separate_row=False)
+                errors_on_separate_row=False,
+            )
         return self.render(self.template_name_plain)
 
     def as_inline(self):
         "Return this form rendered as HTML using as_inline bootstrap approach."
         if hasattr(self, '_html_output'):
             return self._html_output(
-                normal_row='<div class="mb-4"><span class="">%(label)s</span>' +
-                           ' %(errors)s%(field)s%(help_text)s</div>',
+                normal_row='<div class="mb-4"><span class="">%(label)s</span>'
+                + ' %(errors)s%(field)s%(help_text)s</div>',
                 error_row='%s',
                 row_ender='</div>',
                 help_text_html=' <span class="helptext">%s</span>',
@@ -143,9 +155,9 @@ class GTForm(forms.Form):
         "Return this form rendered as HTML using as_horizontal bootstrap approach."
         if hasattr(self, '_html_output'):
             return self._html_output(
-                normal_row='<div class="form-group row"><span class="col-sm-3">' +
-                           '%(label)s</span> <div class="col-sm-9 " ' +
-                           '>%(errors)s%(field)s%(help_text)s</div></div>',
+                normal_row='<div class="form-group row"><span class="col-sm-3">'
+                + '%(label)s</span> <div class="col-sm-9 " '
+                + '>%(errors)s%(field)s%(help_text)s</div></div>',
                 error_row='%s',
                 row_ender='</div>',
                 help_text_html=' <span class="helptext">%s</span>',
@@ -156,7 +168,8 @@ class GTForm(forms.Form):
     def as_grid(self):
         """
         Allow you to arrange the form fields in rows and cols,
-        When you use this render needs to fill  `grid_representation` attribute in your form
+        When you use this render needs to fill  `grid_representation`
+        attribute in your form
         Return this form rendered as HTML using grid bootstrap approach.,
 
         .. code:: python
@@ -170,7 +183,7 @@ class GTForm(forms.Form):
         return self.render(self.template_name_grid)
 
     def closediv(self):
-        return "</div>"
+        return '</div>'
 
 
 class BaseFormset:

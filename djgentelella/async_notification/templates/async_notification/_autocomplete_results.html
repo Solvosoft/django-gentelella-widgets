@@ -1,0 +1,11 @@
+{% load i18n %}
+{% for result in results %}
+<div class="autocomplete-item" data-value="{{ result.value }}">
+  <span class="autocomplete-label">{{ result.label }}</span>
+  <small class="text-muted">{{ result.value }}</small>
+</div>
+{% empty %}
+<div class="autocomplete-empty text-muted p-2">
+  {% trans "No results found." %}
+</div>
+{% endfor %}

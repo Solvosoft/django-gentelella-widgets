@@ -1,0 +1,53 @@
+{% load i18n %}
+{# Newsletter editor modal: form + preview + recipients panel. #}
+<div aria-hidden="true" id="{{ modal_id }}" class="modal fade"
+	data-bs-focus="false" role="dialog" tabindex="-1">
+	<div class="modal-dialog modal-xl" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">{{ title }}</h5>
+				<button aria-label="{% trans 'Close' %}" class="btn-close" data-bs-dismiss="modal" type="button"></button>
+			</div>
+			<div class="modal-body">
+				<div class="row an-editor-preview">
+					<div class="col-md-7">
+						<form id="{{ form_id }}" method="POST" autocomplete="off" action="{{ url }}">
+							{% csrf_token %}
+							{{ form }}
+							<input type="hidden" name="prefix" class="form_prefix" value="{{ form.prefix|default_if_none:'' }}">
+						</form>
+					</div>
+					<div class="col-md-5">
+						<div class="card">
+							<div class="card-header py-2 d-flex justify-content-between align-items-center">
+								<h6 class="mb-0">{% trans "Email preview" %}</h6>
+								<button class="btn btn-info btn-sm btn-preview-template" type="button">
+									<i class="fa fa-eye"></i> {% trans "Refresh" %}
+								</button>
+							</div>
+							<div class="card-body">
+								<iframe class="an-preview-frame"></iframe>
+							</div>
+						</div>
+						<div class="card mt-2">
+							<div class="card-header py-2 d-flex justify-content-between align-items-center">
+								<h6 class="mb-0">{% trans "Recipients" %}</h6>
+								<button class="btn btn-secondary btn-sm btn-preview-recipients" type="button">
+									<i class="fa fa-users"></i> {% trans "Preview" %}
+								</button>
+							</div>
+							<div class="card-body">
+								<div class="filter-form-container"></div>
+								<div class="recipients-result mt-2"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-secondary" data-bs-dismiss="modal" type="button">{% trans 'Close' %}</button>
+				<button class="btn btn-primary formadd" type="button">{% trans 'Save changes' %}</button>
+			</div>
+		</div>
+	</div>
+</div>

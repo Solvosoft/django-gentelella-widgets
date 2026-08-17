@@ -3,7 +3,7 @@ from random import randint
 
 from django.conf import settings
 from django.core.files import File
-from django.core.management import BaseCommand
+from django.core.management import BaseCommand, call_command
 from django.urls import reverse
 from django.utils.timezone import now
 
@@ -13,7 +13,7 @@ from djgentelella.models import MenuItem
 
 
 class Command(BaseCommand):
-    help = "Load demo site structure"
+    help = 'Load demo site structure'
 
     def create_menu(self):
 
@@ -27,7 +27,7 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-home',
-            only_icon=False
+            only_icon=False,
         )
         blog = MenuItem.objects.create(
             parent=None,
@@ -39,7 +39,7 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-quote-left',
-            only_icon=False
+            only_icon=False,
         )
         blogentry = MenuItem.objects.create(
             parent=blog,
@@ -51,7 +51,7 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-wordpress',
-            only_icon=False
+            only_icon=False,
         )
         blogentry = MenuItem.objects.create(
             parent=blog,
@@ -63,7 +63,7 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-pencil-square-o',
-            only_icon=False
+            only_icon=False,
         )
         dashboard = MenuItem.objects.create(
             parent=item,
@@ -75,7 +75,7 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-tachometer',
-            only_icon=False
+            only_icon=False,
         )
         item = MenuItem.objects.create(
             parent=item,
@@ -87,7 +87,7 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-plus-circle',
-            only_icon=False
+            only_icon=False,
         )
 
         extrawidget = MenuItem.objects.create(
@@ -100,7 +100,7 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='',
-            only_icon=False
+            only_icon=False,
         )
         cwidget = MenuItem.objects.create(
             parent=extrawidget,
@@ -112,7 +112,7 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-play',
-            only_icon=False
+            only_icon=False,
         )
 
         cwidget = MenuItem.objects.create(
@@ -125,7 +125,7 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-server',
-            only_icon=False
+            only_icon=False,
         )
         c1widget = MenuItem.objects.create(
             parent=cwidget,
@@ -137,7 +137,7 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-plus-square',
-            only_icon=False
+            only_icon=False,
         )
         c2widget = MenuItem.objects.create(
             parent=cwidget,
@@ -149,7 +149,7 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-list-alt',
-            only_icon=False
+            only_icon=False,
         )
         cwidget = MenuItem.objects.create(
             parent=extrawidget,
@@ -161,7 +161,7 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-table',
-            only_icon=False
+            only_icon=False,
         )
         cwidget = MenuItem.objects.create(
             parent=extrawidget,
@@ -173,7 +173,7 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-stop',
-            only_icon=False
+            only_icon=False,
         )
 
         cwidget = MenuItem.objects.create(
@@ -186,7 +186,7 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-tasks',
-            only_icon=False
+            only_icon=False,
         )
         readonlywidget = MenuItem.objects.create(
             parent=extrawidget,
@@ -198,7 +198,7 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-newspaper-o',
-            only_icon=False
+            only_icon=False,
         )
         MenuItem.objects.create(
             parent=cwidget,
@@ -210,7 +210,7 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-adjust',
-            only_icon=False
+            only_icon=False,
         )
         inputmask = MenuItem.objects.create(
             parent=cwidget,
@@ -222,7 +222,7 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-ellipsis-h',
-            only_icon=False
+            only_icon=False,
         )
         daterange = MenuItem.objects.create(
             parent=cwidget,
@@ -234,7 +234,7 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-calendar',
-            only_icon=False
+            only_icon=False,
         )
         tagging = MenuItem.objects.create(
             parent=cwidget,
@@ -246,7 +246,7 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-sticky-note-o',
-            only_icon=False
+            only_icon=False,
         )
         Tinymce = MenuItem.objects.create(
             parent=cwidget,
@@ -258,7 +258,7 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-text-width',
-            only_icon=False
+            only_icon=False,
         )
 
         Calendar = MenuItem.objects.create(
@@ -271,7 +271,7 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-calendar',
-            only_icon=False
+            only_icon=False,
         )
 
         Gigapixel = MenuItem.objects.create(
@@ -284,7 +284,7 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-picture-o',
-            only_icon=False
+            only_icon=False,
         )
 
         Mapbased = MenuItem.objects.create(
@@ -297,7 +297,47 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-map',
-            only_icon=False
+            only_icon=False,
+        )
+
+        # The two Leaflet widgets get a group of their own rather than going
+        # under ReadOnly Widgets with the storymaps: MapPointInput is a form
+        # field that submits a value, so it does not belong there.
+        mapwidget = MenuItem.objects.create(
+            parent=extrawidget,
+            title='Maps',
+            url_name='#',
+            category='sidebar',
+            is_reversed=False,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-map-marker',
+            only_icon=False,
+        )
+        MenuItem.objects.create(
+            parent=mapwidget,
+            title='Pick a point',
+            url_name='map-point',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-map-marker',
+            only_icon=False,
+        )
+        MenuItem.objects.create(
+            parent=mapwidget,
+            title='Map dashboard',
+            url_name='map-dashboard',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-globe',
+            only_icon=False,
         )
 
         StoryLine = MenuItem.objects.create(
@@ -310,7 +350,7 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-area-chart',
-            only_icon=False
+            only_icon=False,
         )
         TimeLine = MenuItem.objects.create(
             parent=readonlywidget,
@@ -322,7 +362,7 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-clock-o',
-            only_icon=False
+            only_icon=False,
         )
         # CardList
         cardwidget = MenuItem.objects.create(
@@ -335,7 +375,7 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-list-alt',
-            only_icon=False
+            only_icon=False,
         )
         MenuItem.objects.create(
             parent=readonlywidget,
@@ -347,7 +387,7 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-trash',
-            only_icon=False
+            only_icon=False,
         )
         MenuItem.objects.create(
             parent=readonlywidget,
@@ -359,7 +399,7 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-clock-o',
-            only_icon=False
+            only_icon=False,
         )
         chart = MenuItem.objects.create(
             parent=dashboard,
@@ -371,7 +411,7 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-line-chart',
-            only_icon=False
+            only_icon=False,
         )
 
         daterange = MenuItem.objects.create(
@@ -384,7 +424,7 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-calendar-plus-o',
-            only_icon=False
+            only_icon=False,
         )
 
         chunkedupload = MenuItem.objects.create(
@@ -397,7 +437,7 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-download',
-            only_icon=False
+            only_icon=False,
         )
 
         chunkedupload = MenuItem.objects.create(
@@ -410,7 +450,7 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-mouse-pointer',
-            only_icon=False
+            only_icon=False,
         )
 
         noti = MenuItem.objects.create(
@@ -423,7 +463,7 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-plus-square-o',
-            only_icon=False
+            only_icon=False,
         )
 
         MenuItem.objects.create(
@@ -436,7 +476,7 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-envelope-o',
-            only_icon=False
+            only_icon=False,
         )
 
         MenuItem.objects.create(
@@ -449,7 +489,7 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-list',
-            only_icon=False
+            only_icon=False,
         )
         MenuItem.objects.create(
             parent=item,
@@ -461,7 +501,7 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-list-ol',
-            only_icon=False
+            only_icon=False,
         )
         MenuItem.objects.create(
             parent=dashboard,
@@ -473,7 +513,7 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-table',
-            only_icon=False
+            only_icon=False,
         )
         item = MenuItem.objects.create(
             parent=None,
@@ -485,7 +525,7 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-power-off',
-            only_icon=True
+            only_icon=True,
         )
         item = MenuItem.objects.create(
             parent=None,
@@ -497,7 +537,7 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-cog',
-            only_icon=True
+            only_icon=True,
         )
 
         item = MenuItem.objects.create(
@@ -510,7 +550,7 @@ class Command(BaseCommand):
             reversed_args=reverse('help'),
             is_widget=True,
             icon='fa fa-envelope-o',
-            only_icon=True
+            only_icon=True,
         )
         item = MenuItem.objects.create(
             parent=None,
@@ -522,7 +562,7 @@ class Command(BaseCommand):
             reversed_args=reverse('notifications'),
             is_widget=True,
             icon='fa fa-envelope',
-            only_icon=False
+            only_icon=False,
         )
 
     def create_autocomplete_menu(self):
@@ -536,7 +576,7 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='',
-            only_icon=False
+            only_icon=False,
         )
         MenuItem.objects.create(
             parent=item,
@@ -548,7 +588,7 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-sort-desc',
-            only_icon=False
+            only_icon=False,
         )
         MenuItem.objects.create(
             parent=item,
@@ -560,7 +600,7 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-sort',
-            only_icon=False
+            only_icon=False,
         )
         selectimage = MenuItem.objects.create(
             parent=item,
@@ -572,38 +612,76 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-camera',
-            only_icon=False
+            only_icon=False,
         )
-
 
     def create_countries(self):
         models.Country.objects.all().delete()
         data = [
-            models.Country(name="Costa Rica"),
-            models.Country(name="Panamá"),
-            models.Country(name="Nicaragua"),
-            models.Country(name="El Salvador"),
-            models.Country(name="Guatemala"),
-            models.Country(name="Hondura"),
-            models.Country(name="Belize"),
+            models.Country(name='Costa Rica'),
+            models.Country(name='Panamá'),
+            models.Country(name='Nicaragua'),
+            models.Country(name='El Salvador'),
+            models.Country(name='Guatemala'),
+            models.Country(name='Hondura'),
+            models.Country(name='Belize'),
         ]
         models.Country.objects.bulk_create(data)
+
+    def create_places(self):
+        """Points for the two map pages.
+
+        Without these both pages render an empty map: /maps/dashboard draws
+        whatever PlacesMapView returns, and that view reads this table. The
+        seven Costa Rican cities are what makes the dashboard worth opening --
+        enough points in one country to see the clustering group them and the
+        heatmap light up -- and the other capitals give the layer switcher and
+        the country filter something to switch between.
+
+        Coordinates carry six decimals because that is the precision
+        MapPointInput writes; a value edited on /maps/ and one loaded here then
+        look the same.
+        """
+        models.Place.objects.all().delete()
+        cities = [
+            # Costa Rica, the country the dashboard opens on.
+            ('Oficina San Jose', 'Costa Rica', 'San Jose', '9.928100,-84.090700'),
+            ('Oficina Alajuela', 'Costa Rica', 'Alajuela', '10.016200,-84.211600'),
+            ('Oficina Cartago', 'Costa Rica', 'Cartago', '9.864400,-83.919400'),
+            ('Oficina Heredia', 'Costa Rica', 'Heredia', '9.998100,-84.119700'),
+            ('Oficina Liberia', 'Costa Rica', 'Liberia', '10.633900,-85.437700'),
+            ('Oficina Puntarenas', 'Costa Rica', 'Puntarenas',
+             '9.976300,-84.838400'),
+            ('Oficina Limon', 'Costa Rica', 'Limon', '9.990700,-83.035900'),
+            # One per neighbouring country, so the layer switcher has layers.
+            ('Sede Guatemala', 'Guatemala', 'Ciudad de Guatemala',
+             '14.634900,-90.506900'),
+            ('Sede Panama', 'Panamá', 'Ciudad de Panamá', '8.982400,-79.519900'),
+            ('Sede Managua', 'Nicaragua', 'Managua', '12.114900,-86.236200'),
+            ('Sede San Salvador', 'El Salvador', 'San Salvador',
+             '13.692900,-89.218200'),
+            ('Sede Tegucigalpa', 'Hondura', 'Tegucigalpa', '14.072300,-87.192100'),
+        ]
+        models.Place.objects.bulk_create([
+            models.Place(name=name, country=country, city=city, location=location)
+            for name, country, city, location in cities
+        ])
 
     def create_person(self):
         models.Person.objects.all().delete()
         for x in range(10):
             models.Person.objects.create(
-                name="Person " + str(x),
+                name='Person ' + str(x),
                 num_children=randint(1, 10),
                 country=models.Country.objects.all().order_by('?').first(),
                 born_date=now(),
-                last_time=now()
+                last_time=now(),
             )
 
     def create_communities(self):
         models.Community.objects.all().delete()
         for x in range(10):
-            models.Community.objects.create(name="Community " + str(x))
+            models.Community.objects.create(name='Community ' + str(x))
 
     def abcde(self):
         models.A.objects.all().delete()
@@ -611,29 +689,115 @@ class Command(BaseCommand):
         bid = cid = did = eid = 0
 
         for a in range(1, 11):
-            al.append(models.A(display="A " + str(a), id=a))
+            al.append(models.A(display='A ' + str(a), id=a))
             for b in range(1, 11):
                 bid += 1
-                bl.append(models.B(display="B %d a(%d)" %
-                                           (b, a), id=bid, a_id=a))
+                bl.append(models.B(display='B %d a(%d)' % (b, a), id=bid, a_id=a))
                 for c in range(1, 6):
                     cid += 1
-                    cl.append(models.C(display="C %d b(%d) a(%d)" %
-                                               (c, b, a), id=cid, b_id=bid))
+                    cl.append(
+                        models.C(
+                            display='C %d b(%d) a(%d)' % (c, b, a), id=cid, b_id=bid
+                        )
+                    )
                     for d in range(1, 5):
                         did += 1
-                        dl.append(models.D(display="D %d c(%d) b(%d) a(%d)" % (
-                            d, c, b, a), id=did, c_id=cid))
+                        dl.append(
+                            models.D(
+                                display='D %d c(%d) b(%d) a(%d)' % (d, c, b, a),
+                                id=did,
+                                c_id=cid,
+                            )
+                        )
                         for e in range(1, 4):
                             eid += 1
                             el.append(
-                                models.E(display="E %d d(%d) c(%d) b(%d) a(%d)" % (
-                                    e, d, c, b, a), id=eid, d_id=did))
+                                models.E(
+                                    display='E %d d(%d) c(%d) b(%d) a(%d)'
+                                    % (e, d, c, b, a),
+                                    id=eid,
+                                    d_id=did,
+                                )
+                            )
         models.A.objects.bulk_create(al)
         models.B.objects.bulk_create(bl)
         models.C.objects.bulk_create(cl)
         models.D.objects.bulk_create(dl)
         models.E.objects.bulk_create(el)
+
+    def create_async_notification_menu(self):
+        parent = MenuItem.objects.create(
+            parent=None,
+            title='Async Notifications',
+            url_name='/',
+            category='sidebar',
+            is_reversed=False,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-envelope',
+            only_icon=False,
+        )
+        MenuItem.objects.create(
+            parent=parent,
+            title='Email Notifications',
+            url_name='async_notification:email_notification',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-envelope-o',
+            only_icon=False,
+        )
+        MenuItem.objects.create(
+            parent=parent,
+            title='Email Templates',
+            url_name='async_notification:email_template',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-file-text-o',
+            only_icon=False,
+        )
+        MenuItem.objects.create(
+            parent=parent,
+            title='Newsletters',
+            url_name='async_notification:newsletter',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-newspaper-o',
+            only_icon=False,
+        )
+        MenuItem.objects.create(
+            parent=parent,
+            title='Newsletter Templates',
+            url_name='async_notification:newsletter_template',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-columns',
+            only_icon=False,
+        )
+        MenuItem.objects.create(
+            parent=parent,
+            title='Newsletter Tasks',
+            url_name='async_notification:newsletter_task',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-clock-o',
+            only_icon=False,
+        )
 
     def create_avanced(self):
         parent_item = MenuItem.objects.create(
@@ -646,7 +810,7 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='',
-            only_icon=False
+            only_icon=False,
         )
 
         item1 = MenuItem.objects.create(
@@ -659,7 +823,7 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-vine',
-            only_icon=False
+            only_icon=False,
         )
         item1 = MenuItem.objects.create(
             parent=parent_item,
@@ -671,19 +835,18 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-vine',
-            only_icon=False
+            only_icon=False,
         )
 
     def create_images_demo(self):
-        workdir = Path(
-            settings.BASE_DIR) / "../djgentelella/static/gentelella/images/"
-        workdir = workdir.glob("*.png")
+        workdir = Path(settings.BASE_DIR) / '../djgentelella/static/gentelella/images/'
+        workdir = workdir.glob('*.png')
         for f in workdir:
-            if not SelectImage.objects.filter(
-                name=f.name.replace(".png", "")).exists():
+            if not SelectImage.objects.filter(name=f.name.replace('.png', '')).exists():
                 SelectImage.objects.create(
-                    name=f.name.replace(".png", ""),
-                    img=File(open(f, 'rb'), name=f.name))
+                    name=f.name.replace('.png', ''),
+                    img=File(open(f, 'rb'), name=f.name),
+                )
 
     def handle(self, *args, **options):
 
@@ -692,8 +855,11 @@ class Command(BaseCommand):
         self.create_menu()
         self.create_autocomplete_menu()
         self.create_countries()
+        self.create_places()
         self.create_person()
         self.create_communities()
         self.abcde()
+        self.create_async_notification_menu()
         self.create_avanced()
         self.create_images_demo()
+        call_command('create_notification_demo', '--clear')

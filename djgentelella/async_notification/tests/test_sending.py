@@ -1,0 +1,444 @@
+import base64
+from unittest.mock import patch
+
+from django.contrib.contenttypes.models import ContentType
+from django.core import mail
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.mail import EmailMessage
+from django.contrib.auth.models import Group
+from django.utils import timezone
+
+from djgentelella.async_notification.tests import AsyncNotificationTestBase
+from djgentelella.async_notification.models import (
+    AttachedFile, EmailNotification, EmailTemplate, NewsLetter, NewsLetterTask
+)
+from djgentelella.async_notification import settings as ansettings
+from djgentelella.async_notification.sending import (
+    resolve_all_recipients, chunk_list, do_send_notification,
+    do_send_newsletter, build_email_message, rewrite_inline_images,
+    send_email_from_template,
+)
+from djgentelella.async_notification.resolvers import (
+    RecipientResolverRegistry, DjangoGroupResolver
+)
+
+# 1x1 transparent PNG
+PNG_BYTES = base64.b64decode(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8z8BQDwAE'
+    'hQGAhKmMIQAAAABJRU5ErkJggg==')
+
+
+class ResolveAllRecipientsTest(AsyncNotificationTestBase):
+
+    def test_empty_string(self):
+        self.assertEqual(resolve_all_recipients(''), [])
+
+    def test_none(self):
+        self.assertEqual(resolve_all_recipients(None), [])
+
+    def test_single_email(self):
+        result = resolve_all_recipients('user@example.com')
+        self.assertEqual(result, ['user@example.com'])
+
+    def test_multiple_emails(self):
+        result = resolve_all_recipients('a@b.com, c@d.com')
+        self.assertEqual(result, ['a@b.com', 'c@d.com'])
+
+    def test_deduplication(self):
+        result = resolve_all_recipients('a@b.com, a@b.com, c@d.com')
+        self.assertEqual(result, ['a@b.com', 'c@d.com'])
+
+    def test_group_resolution(self):
+        group = Group.objects.create(name='senders')
+        self.user.groups.add(group)
+        result = resolve_all_recipients('senders@group.local')
+        self.assertIn(self.user.email, result)
+
+
+class ChunkListTest(AsyncNotificationTestBase):
+
+    def test_basic_chunking(self):
+        result = chunk_list([1, 2, 3, 4, 5], 2)
+        self.assertEqual(result, [[1, 2], [3, 4], [5]])
+
+    def test_chunk_larger_than_list(self):
+        result = chunk_list([1, 2], 10)
+        self.assertEqual(result, [[1, 2]])
+
+    def test_empty_list(self):
+        result = chunk_list([], 5)
+        self.assertEqual(result, [])
+
+    def test_zero_size(self):
+        result = chunk_list([1, 2, 3], 0)
+        self.assertEqual(result, [[1, 2, 3]])
+
+
+class DoSendNotificationTest(AsyncNotificationTestBase):
+
+    def test_simple_send(self):
+        notification = EmailNotification.objects.create(
+            subject='Test Send',
+            message='<p>Hello</p>',
+            recipients='recipient@example.com',
+        )
+        do_send_notification(notification.pk)
+        notification.refresh_from_db()
+        self.assertEqual(notification.status, 'sent')
+        self.assertTrue(notification.sent)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].subject, 'Test Send')
+        self.assertEqual(mail.outbox[0].to, ['recipient@example.com'])
+
+    def test_send_multiple_recipients(self):
+        notification = EmailNotification.objects.create(
+            subject='Multi',
+            message='<p>Hi</p>',
+            recipients='a@b.com, c@d.com',
+        )
+        do_send_notification(notification.pk)
+        notification.refresh_from_db()
+        self.assertEqual(notification.status, 'sent')
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn('a@b.com', mail.outbox[0].to)
+
+    def test_send_individually(self):
+        notification = EmailNotification.objects.create(
+            subject='Individual',
+            message='<p>Hi</p>',
+            recipients='a@b.com, c@d.com',
+            send_individually=True,
+        )
+        do_send_notification(notification.pk)
+        notification.refresh_from_db()
+        self.assertEqual(notification.status, 'sent')
+        self.assertEqual(len(mail.outbox), 2)
+
+    def test_send_with_bcc_cc(self):
+        notification = EmailNotification.objects.create(
+            subject='BCC/CC',
+            message='<p>Hi</p>',
+            recipients='main@example.com',
+            bcc='bcc@example.com',
+            cc='cc@example.com',
+        )
+        do_send_notification(notification.pk)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn('bcc@example.com', mail.outbox[0].bcc)
+        self.assertIn('cc@example.com', mail.outbox[0].cc)
+
+    def test_no_recipients(self):
+        notification = EmailNotification.objects.create(
+            subject='Empty',
+            message='<p>Hi</p>',
+            recipients='',
+        )
+        do_send_notification(notification.pk)
+        notification.refresh_from_db()
+        self.assertEqual(notification.status, 'sent')
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_nonexistent_notification(self):
+        # Should not raise
+        do_send_notification(99999)
+
+    def test_already_sent(self):
+        notification = EmailNotification.objects.create(
+            subject='Already Sent',
+            message='<p>Hi</p>',
+            recipients='a@b.com',
+            status='sent',
+        )
+        do_send_notification(notification.pk)
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_resolved_recipients_stored(self):
+        notification = EmailNotification.objects.create(
+            subject='Test',
+            message='<p>Hi</p>',
+            recipients='a@b.com, c@d.com',
+        )
+        do_send_notification(notification.pk)
+        notification.refresh_from_db()
+        self.assertIn('a@b.com', notification.recipients_raw)
+        self.assertIn('c@d.com', notification.recipients_raw)
+
+
+class SendEmailFromTemplateTest(AsyncNotificationTestBase):
+
+    def test_basic_template_send(self):
+        EmailTemplate.objects.create(
+            code='welcome',
+            subject='Welcome {{ name }}',
+            message='<p>Hello {{ name }}, welcome!</p>',
+        )
+        notification = send_email_from_template(
+            code='welcome',
+            recipient='new@user.com',
+            context={'name': 'Alice'},
+            enqueued=True,
+        )
+        self.assertEqual(notification.subject, 'Welcome Alice')
+        self.assertIn('Hello Alice', notification.message)
+        self.assertEqual(notification.recipients, ['new@user.com'])
+        self.assertTrue(notification.enqueued)
+
+    def test_template_with_bcc_cc(self):
+        EmailTemplate.objects.create(
+            code='with-bcc',
+            subject='Subject',
+            message='Message',
+            bcc='template-bcc@example.com',
+            cc='template-cc@example.com',
+        )
+        notification = send_email_from_template(
+            code='with-bcc',
+            recipient='user@example.com',
+            context={},
+            bcc='extra-bcc@example.com',
+            cc='extra-cc@example.com',
+        )
+        self.assertIn('template-bcc@example.com', notification.bcc)
+        self.assertIn('extra-bcc@example.com', notification.bcc)
+        self.assertIn('template-cc@example.com', notification.cc)
+        self.assertIn('extra-cc@example.com', notification.cc)
+
+    def test_template_not_found(self):
+        with self.assertRaises(EmailTemplate.DoesNotExist):
+            send_email_from_template(
+                code='nonexistent',
+                recipient='a@b.com',
+                context={},
+            )
+
+    def test_immediate_send(self):
+        EmailTemplate.objects.create(
+            code='immediate',
+            subject='Immediate',
+            message='<p>Now</p>',
+        )
+        notification = send_email_from_template(
+            code='immediate',
+            recipient='now@user.com',
+            context={},
+            enqueued=False,
+        )
+        self.assertFalse(notification.enqueued)
+
+    def test_body_renders_utility_include(self):
+        """A template body may {% include %} the utility partials; they are
+        resolved through the app template loaders at render time (the stored
+        notification body already contains the rendered output)."""
+        EmailTemplate.objects.create(
+            code='with-button',
+            subject='Hi',
+            message='<p>Body</p>'
+                    '{% include "async_notification/base/utils/button.html"'
+                    ' with url="https://x/go" label="GoNow" %}',
+        )
+        notification = send_email_from_template(
+            code='with-button', recipient='a@b.com', context={})
+        self.assertIn('GoNow', notification.message)
+        self.assertIn('https://x/go', notification.message)
+        self.assertIn('v:roundrect', notification.message)  # Outlook VML
+
+
+class InlineImageSendTest(AsyncNotificationTestBase):
+
+    def test_rewrite_inline_images(self):
+        html = '<p><img src="https://x/async_notification/preview-file/7/"></p>'
+        self.assertIn('src="cid:img_7"', rewrite_inline_images(html))
+
+    def test_cid_and_inline_attachment(self):
+        notification = EmailNotification.objects.create(
+            subject='Inline', message='placeholder',
+            recipients=['dest@example.com'])
+        att = AttachedFile.objects.create(
+            content_type=ContentType.objects.get_for_model(EmailNotification),
+            object_id=notification.pk,
+            file=SimpleUploadedFile('img.png', PNG_BYTES,
+                                    content_type='image/png'),
+            is_inline=True,
+        )
+        notification.message = (
+            f'<p><img src="/async_notification/preview-file/{att.pk}/"></p>')
+        notification.save(update_fields=['message'])
+
+        do_send_notification(notification.pk)
+
+        self.assertEqual(len(mail.outbox), 1)
+        sent = mail.outbox[0]
+        self.assertIn(f'cid:img_{att.pk}', sent.alternatives[0][0])
+        cids = [p.get('Content-ID') for p in sent.message().walk()
+                if p.get('Content-ID')]
+        self.assertIn(f'img_{att.pk}', cids)
+
+    def test_inline_image_unlinked_still_embeds(self):
+        """An uploaded image (object_id=0, not reassociated) still embeds."""
+        att = AttachedFile.objects.create(
+            content_type=ContentType.objects.get_for_model(EmailNotification),
+            object_id=0,
+            file=SimpleUploadedFile('img.png', PNG_BYTES,
+                                    content_type='image/png'),
+            is_inline=True,
+        )
+        notification = EmailNotification.objects.create(
+            subject='Inline', recipients=['dest@example.com'],
+            message=(f'<p><img src="/async_notification/preview-file/'
+                     f'{att.pk}/"></p>'))
+        do_send_notification(notification.pk)
+        sent = mail.outbox[0]
+        self.assertIn(f'cid:img_{att.pk}', sent.alternatives[0][0])
+        cids = [p.get('Content-ID') for p in sent.message().walk()
+                if p.get('Content-ID')]
+        self.assertIn(f'img_{att.pk}', cids)
+
+
+class BaseTemplateSendTest(AsyncNotificationTestBase):
+
+    def setUp(self):
+        self._orig = dict(ansettings.ASYNC_NOTIFICATION_BASE_TEMPLATES)
+        ansettings.ASYNC_NOTIFICATION_BASE_TEMPLATES['default'] = (
+            'async_notification/email_base.html')
+
+    def tearDown(self):
+        ansettings.ASYNC_NOTIFICATION_BASE_TEMPLATES.clear()
+        ansettings.ASYNC_NOTIFICATION_BASE_TEMPLATES.update(self._orig)
+
+    def test_base_template_wraps_body(self):
+        notification = EmailNotification.objects.create(
+            subject='Wrapped', message='<p>Hello</p>',
+            recipients=['dest@example.com'], base_template='default')
+        msg = build_email_message(notification, ['dest@example.com'])
+        html = msg.alternatives[0][0]
+        self.assertIn('async-email-body', html)
+        self.assertIn('Hello', html)
+        # plain-text alternative is present and carries the text
+        self.assertIn('Hello', msg.body)
+
+    def test_send_from_template_sets_base_template(self):
+        EmailTemplate.objects.create(
+            code='wrapped', subject='S', message='<p>Hi</p>',
+            base_template='default')
+        notification = send_email_from_template(
+            code='wrapped', recipient='u@x.com', context={})
+        self.assertEqual(notification.base_template, 'default')
+
+
+class RetryBackoffTest(AsyncNotificationTestBase):
+
+    def _failing_send(self, notification):
+        with patch('djgentelella.async_notification.sending.get_connection') \
+                as gc:
+            gc.return_value.open.side_effect = Exception('smtp down')
+            do_send_notification(notification.pk)
+
+    def test_failure_increments_and_stays_pending(self):
+        notification = EmailNotification.objects.create(
+            subject='S', message='M', recipients=['a@b.com'], max_retries=3)
+        self._failing_send(notification)
+        notification.refresh_from_db()
+        self.assertEqual(notification.status, 'pending')
+        self.assertEqual(notification.retry_count, 1)
+        self.assertIsNotNone(notification.last_attempt)
+        self.assertIn('smtp down', notification.error_message)
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_exhausted_retries_marked_failed(self):
+        notification = EmailNotification.objects.create(
+            subject='S', message='M', recipients=['a@b.com'], max_retries=1)
+        self._failing_send(notification)
+        notification.refresh_from_db()
+        self.assertEqual(notification.status, 'failed')
+        self.assertEqual(notification.retry_count, 1)
+
+
+class ResumeAfterBatchFailureTest(AsyncNotificationTestBase):
+    """A retry after a mid-batch failure must not re-send earlier batches."""
+
+    def test_no_duplicate_delivery_on_retry(self):
+        recipients = ['a@x.com', 'b@x.com', 'c@x.com', 'd@x.com', 'e@x.com']
+        notification = EmailNotification.objects.create(
+            subject='Resume', message='<p>hi</p>', recipients=recipients,
+            max_retries=5)
+
+        real_send = EmailMessage.send
+        state = {'calls': 0}
+
+        def flaky_send(self, *a, **k):
+            state['calls'] += 1
+            if state['calls'] == 3:      # 3rd batch of the first attempt
+                raise Exception('smtp drop mid-batch')
+            return real_send(self, *a, **k)
+
+        # MAX_PER_MAIL=2 -> batches [a,b],[c,d],[e]
+        with patch('djgentelella.async_notification.sending.'
+                   'ASYNC_NOTIFICATION_MAX_PER_MAIL', 2), \
+                patch.object(EmailMessage, 'send', flaky_send):
+            do_send_notification(notification.pk)   # attempt 1: batch 3 fails
+            notification.refresh_from_db()
+            self.assertEqual(notification.status, 'pending')
+            self.assertEqual(notification.retry_count, 1)
+            self.assertEqual(set(notification.sent_recipients),
+                             {'a@x.com', 'b@x.com', 'c@x.com', 'd@x.com'})
+
+            do_send_notification(notification.pk)   # attempt 2: only [e]
+            notification.refresh_from_db()
+
+        self.assertEqual(notification.status, 'sent')
+        self.assertEqual(set(notification.sent_recipients), set(recipients))
+        # 3 successful messages (2 in attempt 1 + 1 in attempt 2); no address
+        # is delivered twice.
+        self.assertEqual(len(mail.outbox), 3)
+        delivered = [addr for m in mail.outbox for addr in m.to]
+        self.assertEqual(sorted(delivered), sorted(recipients))
+        self.assertEqual(len(delivered), len(set(delivered)))
+
+    def test_bcc_delivered_once_across_batches(self):
+        notification = EmailNotification.objects.create(
+            subject='Bcc once', message='<p>hi</p>',
+            recipients=['a@x.com', 'b@x.com', 'c@x.com'],
+            bcc=['boss@x.com'])
+        with patch('djgentelella.async_notification.sending.'
+                   'ASYNC_NOTIFICATION_MAX_PER_MAIL', 2):
+            do_send_notification(notification.pk)
+        # 2 batches, but boss@x.com (bcc) must appear in exactly one message.
+        self.assertEqual(len(mail.outbox), 2)
+        with_bcc = [m for m in mail.outbox if 'boss@x.com' in m.bcc]
+        self.assertEqual(len(with_bcc), 1)
+
+
+class NewsletterResumeTest(AsyncNotificationTestBase):
+    """A re-run after a mid-list newsletter failure must not re-send."""
+
+    def test_no_duplicate_delivery_on_rerun(self):
+        recipients = ['a@x.com', 'b@x.com', 'c@x.com', 'd@x.com']
+        newsletter = NewsLetter.objects.create(
+            subject='NL', message='<p>hi</p>', recipients=recipients)
+        task = NewsLetterTask.objects.create(
+            newsletter=newsletter, send_date=timezone.now())
+
+        real_send = EmailMessage.send
+        state = {'calls': 0}
+
+        def flaky_send(self, *a, **k):
+            state['calls'] += 1
+            if state['calls'] == 3:      # 3rd recipient of the first run
+                raise Exception('smtp drop mid-list')
+            return real_send(self, *a, **k)
+
+        with patch.object(EmailMessage, 'send', flaky_send):
+            do_send_newsletter(task.pk)      # run 1: fails on c@x.com
+            task.refresh_from_db()
+            self.assertEqual(task.status, 'failed')
+            self.assertEqual(set(task.sent_recipients),
+                             {'a@x.com', 'b@x.com'})
+
+            do_send_newsletter(task.pk)      # run 2: resumes c,d
+            task.refresh_from_db()
+
+        self.assertEqual(task.status, 'sent')
+        self.assertEqual(set(task.sent_recipients), set(recipients))
+        delivered = [addr for m in mail.outbox for addr in m.to]
+        self.assertEqual(sorted(delivered), sorted(recipients))
+        self.assertEqual(len(delivered), len(set(delivered)))

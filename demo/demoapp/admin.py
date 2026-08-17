@@ -1,8 +1,22 @@
 from django.contrib import admin
 
-from .models import WithCatalog, Catalog, OneCatalog, Country, Person, Foo, \
-    Community, Employee, ChunkedUploadItem, Event, \
-        Calendar, DigitalSignature, SelectImage, Img, Customer
+from .models import (
+    WithCatalog,
+    Catalog,
+    OneCatalog,
+    Country,
+    Person,
+    Foo,
+    Community,
+    Employee,
+    ChunkedUploadItem,
+    Event,
+    Calendar,
+    DigitalSignature,
+    SelectImage,
+    Img,
+    Customer,
+)
 
 
 class DigitalSignatureAdmin(admin.ModelAdmin):
@@ -10,12 +24,13 @@ class DigitalSignatureAdmin(admin.ModelAdmin):
 
 
 class CustomerAdmin(admin.ModelAdmin):
-    list_display = ("id", "name", "email", "phone_number", "is_deleted")
-    list_filter = ("is_deleted",)
+    list_display = ('id', 'name', 'email', 'phone_number', 'is_deleted')
+    list_filter = ('is_deleted',)
 
     def get_queryset(self, request):
         # important to define for see deleted
         return Customer.objects_with_deleted.all()
+
 
 admin.site.register(DigitalSignature, DigitalSignatureAdmin)
 admin.site.register(Country)

@@ -12,8 +12,14 @@ from djgentelella.models import ChunkedUpload
 
 
 class GTBase64FileField(serializers.FileField):
-    def __init__(self, *args, max_files=1, delete_if_empty=False,
-                 allow_empty_file=False, **kwargs):
+    def __init__(
+        self,
+        *args,
+        max_files=1,
+        delete_if_empty=False,
+        allow_empty_file=False,
+        **kwargs,
+    ):
         self.max_files = max_files
         self.delete_if_empty = delete_if_empty
         self.allow_empty_file = allow_empty_file
@@ -23,21 +29,31 @@ class GTBase64FileField(serializers.FileField):
         result = []
         if not isinstance(datalist, list):
             raise serializers.ValidationError(
-                _("A list of elements is expected, ej: [{name: 'name of file', value:'base64 string representation'}]"))
+                _(
+                    "A list of elements is expected, ej: [{name: 'name of "
+                    "file', value:'base64 string representation'}]"
+                )
+            )
         if len(datalist) > self.max_files:
             raise serializers.ValidationError(
-                _(f"Too many elements, max_file = {self.max_files}"))
+                _(f'Too many elements, max_file = {self.max_files}')
+            )
 
         for data in datalist:
-            required_fields = ["name", "value"]
+            required_fields = ['name', 'value']
             for field in required_fields:
                 if field not in data:
                     raise serializers.ValidationError(
-                        _("Invalid structure you need to provide {name: 'name of file', value:'base64 string representation'}"))
-            name = slugify(Path(data["name"]).stem)
-            suffix = Path(data["name"]).suffix
+                        _(
+                            "Invalid structure you need to provide {name: "
+                            "'name of file', value:'base64 string "
+                            "representation'}"
+                        )
+                    )
+            name = slugify(Path(data['name']).stem)
+            suffix = Path(data['name']).suffix
             file_name = name + suffix
-            file_value = data["value"]
+            file_value = data['value']
 
             try:
                 # Decodificar el contenido en base64
@@ -69,7 +85,6 @@ class GTBase64FileField(serializers.FileField):
 
 
 class ChunkedFileField(serializers.FileField):
-
     def parse_value(self, value):
         """
         Parses the given value and returns the parsed result.
@@ -78,8 +93,9 @@ class ChunkedFileField(serializers.FileField):
             value (str): The value to be parsed.
 
         Returns:
-            The parsed result if the value is valid and contains the required attributes,
-            one of url, token, or actions otherwise returns None.
+            The parsed result if the value is valid and contains the
+            required attributes, one of url, token, or actions; otherwise
+            returns None.
         """
         dev = None
         try:
@@ -98,8 +114,8 @@ class ChunkedFileField(serializers.FileField):
             data (str): The data to be converted.
 
         Returns:
-            The internal value representation of the data, or None if the data is invalid
-            or does not contain the required attributes.
+            The internal value representation of the data, or None if the
+            data is invalid or does not contain the required attributes.
         """
         token = self.parse_value(data)
         dev = None
@@ -108,7 +124,8 @@ class ChunkedFileField(serializers.FileField):
                 return False
             if 'token' in token:
                 tmpupload = ChunkedUpload.objects.filter(
-                    upload_id=token['token']).first()
+                    upload_id=token['token']
+                ).first()
                 if tmpupload:
                     dev = tmpupload.get_uploaded_file()
                     # tmpupload.delete()
@@ -135,8 +152,8 @@ class DigitalSignatureField(serializers.FileField, ValueDSParser):
             data (str): The data to be converted.
 
         Returns:
-            The internal value representation of the data, or None if the data is invalid
-            or does not contain the required attributes.
+            The internal value representation of the data, or None if the
+            data is invalid or does not contain the required attributes.
         """
         dev = None
         jsondata = self.get_json_file(data)

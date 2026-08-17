@@ -1,8 +1,9 @@
 function show_errors_media_record(error){
+    let name = (error && error.name) ? ' [' + error.name + ']' : '';
     Swal.fire({
           icon: 'error',
           title: gettext('Sorry, there is a problem'),
-          text: gettext('Media device is not available'),
+          text: gettext('Media device is not available') + name,
         })
 }
 function getPhotoRecord(element){

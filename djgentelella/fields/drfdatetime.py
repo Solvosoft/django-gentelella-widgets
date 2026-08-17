@@ -35,8 +35,8 @@ class DateRangeTextWidget(forms.Widget):
         if len(dates) != 2:
             if (len(dates) == 6):
                 dates = [
-                    "%s-%s-%s" % (dates[0], dates[1], dates[2]),
-                    ("%s-%s-%s" % (dates[3], dates[4], dates[5])).strip(),
+                    '%s-%s-%s' % (dates[0], dates[1], dates[2]),
+                    ('%s-%s-%s' % (dates[3], dates[4], dates[5])).strip(),
                 ]
             else:
                 return
@@ -73,8 +73,8 @@ class DateTimeRangeTextWidget(forms.Widget):
         if len(dates) != 2:
             if (len(dates) == 6):
                 dates = [
-                    "%s-%s-%s" % (dates[0], dates[1], dates[2]),
-                    ("%s-%s-%s" % (dates[3], dates[4], dates[5])).strip(),
+                    '%s-%s-%s' % (dates[0], dates[1], dates[2]),
+                    ('%s-%s-%s' % (dates[3], dates[4], dates[5])).strip(),
                 ]
             else:
                 return

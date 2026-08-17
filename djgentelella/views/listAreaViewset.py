@@ -12,13 +12,13 @@ from djgentelella.serializers.paginators import PageListPagination
 
 class ListAreaViewset(mixins.ListModelMixin, GenericViewSet):
     DISTRIBUTE = {
-        "1": ("", "p-3"),
-        "1/1": ("col-md-6", "col-md-6 p-3 p-md-0"),
-        "2/1": ("col-md-8", "col-md-4 p-3 p-md-0"),
-        "3/1": ("col-md-9", "col-md-3 p-3 p-md-0"),
-        "1/1p": ("col-md-6", "col-md-6 p-0 p-md-3"),
-        "2/1p": ("col-md-8", "col-md-4 p-0 p-md-3"),
-        "3/1p": ("col-md-9", "col-md-3 p-0 p-md-3"),
+        '1': ('', 'p-3'),
+        '1/1': ('col-md-6', 'col-md-6 p-3 p-md-0'),
+        '2/1': ('col-md-8', 'col-md-4 p-3 p-md-0'),
+        '3/1': ('col-md-9', 'col-md-3 p-3 p-md-0'),
+        '1/1p': ('col-md-6', 'col-md-6 p-0 p-md-3'),
+        '2/1p': ('col-md-8', 'col-md-4 p-0 p-md-3'),
+        '3/1p': ('col-md-9', 'col-md-3 p-0 p-md-3'),
     }
 
     pagination_class = PageListPagination
@@ -26,14 +26,13 @@ class ListAreaViewset(mixins.ListModelMixin, GenericViewSet):
     template_name = 'gentelella/blocks/listcard_template.html'
     filter_form = None
     pagination_top = True
-    distribution_value = "1/1"
+    distribution_value = '1/1'
     with_actions = True
     extra_template_context = None
     html_id = None
 
-
     def distribution(self):
-        return self.DISTRIBUTE.get(self.distribution_value, ("col-md-6", "col-md-6"))
+        return self.DISTRIBUTE.get(self.distribution_value, ('col-md-6', 'col-md-6'))
 
     def get_html_id(self):
         if self.html_id:
@@ -82,8 +81,8 @@ class ListAreaViewset(mixins.ListModelMixin, GenericViewSet):
             context=context,
             request=request)
 
-        response_data["template"] = rendered_template  # Agregar plantilla renderizada
-        response_data["actions"] = self.get_actions()
+        response_data['template'] = rendered_template  # Agregar plantilla renderizada
+        response_data['actions'] = self.get_actions()
         return Response(response_data)
 
     def get_actions(self):

@@ -2,19 +2,20 @@ from rest_framework import serializers
 from django.utils.translation import gettext_lazy as _
 from demoapp.models import Customer
 
+
 class CustomerSerializer(serializers.ModelSerializer):
     actions = serializers.SerializerMethodField()
 
     def get_actions(self, obj):
         return {
-            "create": True,
-            "update": True,
-            "destroy": True,
+            'create': True,
+            'update': True,
+            'destroy': True,
         }
 
     class Meta:
         model = Customer
-        fields = "__all__"
+        fields = '__all__'
 
 
 class CustomerDataTableSerializer(serializers.Serializer):
@@ -38,8 +39,7 @@ class CustomerValidateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
         fields = (
-            "name",
-            "email",
-            "phone_number",
+            'name',
+            'email',
+            'phone_number',
         )
-

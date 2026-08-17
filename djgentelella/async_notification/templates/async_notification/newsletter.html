@@ -1,0 +1,234 @@
+{% extends 'gentelella/base_site.html' %}
+{% load i18n static %}
+
+{% block extra_css %}{{ block.super }}
+<link rel="stylesheet" href="{% static 'async_notification/async_notification.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="row">
+	<div class="col-12">
+		<div class="card">
+			<div class="card-header">
+				<h4>{% trans "Newsletters" %}</h4>
+			</div>
+			<div class="card-body">
+				<table class="table table-striped w-100" id="datatable"></table>
+			</div>
+		</div>
+	</div>
+</div>
+
+{% url "async_notification:api-newsletter-list" as create_url %}
+{% url "async_notification:api-newsletter-detail" 0 as update_url %}
+{% trans 'Create Newsletter' as create_title %}
+{% trans 'Update Newsletter' as update_title %}
+
+{% include 'async_notification/_newsletter_modal.html' with modal_id="create_modal" title=create_title form_id="create_form" form=create_form url=create_url %}
+{% include 'async_notification/_newsletter_modal.html' with modal_id="update_modal" title=update_title form_id="update_form" form=update_form url=update_url %}
+
+{% trans 'Delete Newsletter' as delete_title %}
+{% include 'gentelella/blocks/modal_template_delete.html' with id="delete_modal" title=delete_title form_id="delete_form" url=update_url %}
+
+{% endblock %}
+
+{% block js %}
+{{ block.super }}
+{{ create_form.media }}
+<script src="{% static 'async_notification/an_preview.js' %}"></script>
+<script src="{% static 'async_notification/recipient_autocomplete.js' %}"></script>
+<script>
+window.AN_URLS = {
+	autocomplete: "{% url 'async_notification:email_autocomplete' %}",
+	preview_template: "{% url 'async_notification:preview_template' %}",
+	filter_form: "{% url 'async_notification:newsletter_filter_form' %}",
+	recipients_preview: "{% url 'async_notification:newsletter_recipients_preview' %}",
+};
+
+var object_urls = {
+	list_url: "{% url 'async_notification:api-newsletter-list' %}",
+	create_url: "{{ create_url }}",
+	destroy_url: "{% url 'async_notification:api-newsletter-detail' 0 %}",
+	update_url: "{{ update_url }}",
+	get_values_for_update_url: "{% url 'async_notification:api-newsletter-get-values-for-update' 0 %}",
+	template_detail_url: "{% url 'async_notification:api-newslettertemplate-detail' 0 %}",
+};
+
+var datatable_inits = {
+	columns: [
+		{data: "subject", name: "subject", title: gettext("Subject"), type: "string", visible: true},
+		{data: "template_title", name: "template_title", title: gettext("Template"), type: "string", visible: true},
+		{data: "created_by_display", name: "created_by_display", title: gettext("Created By"), type: "string", visible: true},
+		{data: "created_at", name: "created_at", title: gettext("Created"), type: "date",
+			render: DataTable.render.datetime(), dateformat: document.datetime_format, visible: true},
+		{data: "actions", name: "actions", title: gettext("Actions"), type: "string", visible: true}
+	],
+	addfilter: true,
+};
+
+var modal_ids = {create: "#create_modal", update: "#update_modal", destroy: "#delete_modal"};
+
+var actions = {
+	table_actions: [],
+	object_actions: [
+		{name: 'preview_recipients', action: 'preview_recipients', in_action_column: true,
+			i_class: 'fa fa-users', method: 'GET', title: gettext('Preview Recipients')}
+	],
+	title: gettext('Actions'),
+	className: "no-export-col"
+};
+
+var objconfig = {
+	urls: object_urls,
+	datatable_element: "#datatable",
+	modal_ids: modal_ids,
+	actions: actions,
+	datatable_inits: datatable_inits,
+	add_filter: true,
+	delete_display: function(data) { return data['subject']; },
+	events: {
+		/* Flag this fill as an edit-load, not a user picking a template,
+		 * so the template-select 'change' handler below skips the
+		 * "replace content?" prompt/copy for the newsletter's own saved
+		 * message. Cleared on the next tick so it never leaks into a
+		 * later, genuine template pick within the same modal. */
+		update_data: function(data) {
+			$('#update_modal').data('an-editing', true);
+			setTimeout(function() { $('#update_modal').removeData('an-editing'); }, 0);
+			return data;
+		}
+	}
+};
+
+var ocrud = ObjectCRUD("newsletter", objconfig);
+
+/* Row action: quick recipients preview from a saved newsletter */
+ocrud.preview_recipients = function(data, actiondef) {
+	var url = object_urls.destroy_url.replace("0", data.id).replace(/\/$/, '') + '/preview_recipients/';
+	$.ajax({url: url, type: 'GET', success: function(response) {
+		var html = '<p><strong>' + gettext('Total') + ':</strong> ' + response.count + '</p><ul class="recipient-list">';
+		response.recipients.forEach(function(r) {
+			html += '<li>' + $('<span>').text(r).html() + '</li>';
+		});
+		html += '</ul>';
+		Swal.fire({title: gettext('Recipients'), html: html, width: 700});
+	}});
+};
+
+ocrud.init();
+
+/* ---- Editor helpers (create + update modals) ---- */
+
+/* Copy the base template content into the newsletter when a template is chosen */
+$(document).on('change', '[name$="-template"]', function() {
+	var $modal = $(this).closest('.modal');
+	var pk = $(this).val();
+	var $container = $modal.find('.filter-form-container');
+	$container.data('template', pk);
+	if (!pk) { $container.empty(); return; }
+	var isEditLoad = $modal.data('an-editing');
+
+	/* Load the recipient filter form for this template's model_base */
+	fetch(window.AN_URLS.filter_form + '?template=' + encodeURIComponent(pk))
+		.then(function(r) { return r.text(); })
+		.then(function(html) {
+			$container.html(html);
+			/* Editing: re-apply the newsletter's saved filters onto the
+			 * freshly-injected (otherwise blank) checkboxes/fields. */
+			var saved = $modal.find('form [name$="-filters_querystring"]').val();
+			if (!saved) { return; }
+			new URLSearchParams(saved).forEach(function(value, key) {
+				var $field = $container.find('[name="' + key + '"]');
+				if ($field.length === 0) { return; }
+				if ($field.attr('type') === 'checkbox') {
+					$field.prop('checked', true);
+				} else {
+					$field.val(value);
+				}
+			});
+		});
+
+	/* Editing an existing newsletter: it already has its own saved
+	 * message/base_template, don't offer to overwrite them just because
+	 * fill_form() re-selected the template to load the filter form above. */
+	if (isEditLoad) { return; }
+
+	/* Copy the template body into the message editor */
+	var url = object_urls.template_detail_url.replace("0", pk);
+	$.getJSON(url, function(tpl) {
+		var applyContent = function() {
+			var $ta = $modal.find('textarea[name$="-message"]');
+			var editor = tinymce.get($ta.attr('id'));
+			if (editor) { editor.setContent(tpl.message || ''); }
+			else { $ta.val(tpl.message || ''); }
+			if (tpl.base_template !== undefined) {
+				$modal.find('[name$="-base_template"]').val(tpl.base_template).trigger('change');
+			}
+		};
+		var $ta = $modal.find('textarea[name$="-message"]');
+		var editor = tinymce.get($ta.attr('id'));
+		var current = editor ? editor.getContent() : ($ta.val() || '');
+		if (current.trim()) {
+			Swal.fire({
+				title: gettext('Replace content?'),
+				text: gettext('Load this template body over the current message?'),
+				icon: 'question', showCancelButton: true,
+				confirmButtonText: gettext('Replace'), cancelButtonText: gettext('Keep')
+			}).then(function(res) { if (res.isConfirmed) { applyContent(); } });
+		} else {
+			applyContent();
+		}
+	});
+});
+
+/* Serialize the injected filter form into the hidden filters_querystring.
+ * The filter checkboxes live outside <form> (right column, recipients
+ * card), so they must be located via the modal, not .closest('form'). */
+$(document).on('input change', '.filter-form-container :input', function() {
+	var $container = $(this).closest('.filter-form-container');
+	var $modal = $container.closest('.modal');
+	$modal.find('form [name$="-filters_querystring"]')
+		.val($container.find(':input').serialize());
+});
+
+/* Preview recipients from the current (unsaved) form state */
+$(document).on('click', '.btn-preview-recipients', function() {
+	var $modal = $(this).closest('.modal');
+	var $container = $modal.find('.filter-form-container');
+	var $out = $modal.find('.recipients-result');
+	var $form = $modal.find('form');
+	var body = 'template=' + encodeURIComponent($modal.find('[name$="-template"]').val() || '') +
+		'&filters_querystring=' + encodeURIComponent($container.find(':input').serialize()) +
+		'&recipients=' + encodeURIComponent($modal.find('[name$="-recipients"]').val() || '');
+	fetch(window.AN_URLS.recipients_preview, {
+		method: 'POST',
+		headers: {'X-CSRFToken': getCookie('csrftoken'),
+			'Content-Type': 'application/x-www-form-urlencoded'},
+		body: body
+	}).then(function(r) { return r.json(); }).then(function(data) {
+		var html = '<p class="mb-1"><strong>' + gettext('Total') + ':</strong> ' + data.count + '</p>';
+		html += '<ul class="recipient-list">';
+		data.recipients.forEach(function(r) {
+			var safe = $('<span>').text(r).html();
+			html += '<li data-email="' + safe + '"><span>' + safe + '</span>' +
+				'<span class="recipient-exclude" title="' + gettext('Exclude') + '">&times;</span></li>';
+		});
+		html += '</ul>';
+		$out.html(html);
+	});
+});
+
+/* Exclude an address: hide it and append to the filter form's excludeemail */
+$(document).on('click', '.recipient-exclude', function() {
+	var $li = $(this).closest('li');
+	var email = $li.data('email');
+	var $modal = $(this).closest('.modal');
+	var $exclude = $modal.find('.filter-form-container [name="excludeemail"]');
+	if ($exclude.length) {
+		var cur = $exclude.val().trim();
+		$exclude.val(cur ? cur + ',' + email : email).trigger('change');
+	}
+	$li.addClass('recipient-hidden');
+});
+</script>
+{% endblock %}

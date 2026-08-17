@@ -49,9 +49,16 @@ Django Gentelella Widgets (``djgentelella``) is a reusable Django application th
    object_management
    permissionmanagement
    notifications
+   async_notification/async_notification
    history
    trash
    drf_serializers
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Project
+
+   changelog
 
 
 Indices and tables

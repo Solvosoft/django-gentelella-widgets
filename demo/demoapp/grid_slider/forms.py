@@ -12,7 +12,7 @@ class gridSliderForm(forms.ModelForm, GTForm):
                'data-step': 2,
                'data-grid': 'true',
                'data-from_fixed': 'false',
-               'data-prefix': "$",
+               'data-prefix': '$',
                'data-to_fixed': 'false',
                'data-to_max': 800,
                'data-from_min': 200,

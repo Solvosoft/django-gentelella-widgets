@@ -30,7 +30,7 @@ class DigitalSignatureAdd(CreateView):
 
     def get_context_data(self, **kwargs):
         messages.info(self.request,
-                      "You can sign your document on edit view, just upload some files")
+                      'You can sign your document on edit view, just upload some files')
         return super().get_context_data(**kwargs)
 
 
@@ -49,7 +49,7 @@ class DigitalSignatureList(ListView):
 
     def get_context_data(self, **kwargs):
         messages.info(self.request,
-                      "You can sign your document on edit view, just upload some files")
+                      'You can sign your document on edit view, just upload some files')
         return super().get_context_data(**kwargs)
 
 
@@ -68,7 +68,7 @@ def digital_signature_formset(request):
         valid = fset.is_valid()
         if valid:
             r = fset.save()
-            messages.success(request, "Formset saved successfully")
+            messages.success(request, 'Formset saved successfully')
     if valid:
         fset = formset(queryset=models.DigitalSignature.objects.all(), prefix='pff')
 

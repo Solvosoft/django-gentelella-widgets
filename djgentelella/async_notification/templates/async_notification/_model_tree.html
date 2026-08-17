@@ -1,0 +1,18 @@
+{% load i18n %}
+{% for prefix, fields in grouped_fields.items %}
+{% if prefix == "extra_variables" %}
+{% for field in fields %}
+<div class="ms-2"><code>{{ field.template_var }}</code> - {{ field.verbose_name }}</div>
+{% endfor %}
+{% else %}
+{% for field in fields %}
+<div class="ms-2">
+  <code>{{ field.template_var }}</code>
+  <span class="badge bg-secondary">{{ field.type }}</span>
+  <small class="text-muted">{{ field.verbose_name }}</small>
+</div>
+{% endfor %}
+{% endif %}
+{% empty %}
+<p class="text-muted small">{% trans "No fields found." %}</p>
+{% endfor %}

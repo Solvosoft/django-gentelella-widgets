@@ -1,5 +1,14 @@
 document.formset = [];
 
+/* Prevent Bootstrap 5 from stealing focus when TinyMCE opens its own dialogs
+   (e.g. insert link, insert image). Without this, typing in TinyMCE dialogs
+   inside a Bootstrap modal is impossible. */
+document.addEventListener('focusin', function(e) {
+    if (e.target.closest('.tox-tinymce-aux, .moxman-window, .tam-assetmanager-root')) {
+        e.stopImmediatePropagation();
+    }
+}, true);
+
 document.gtwidgets = {
     ImageRecordInput: function (instance) {
         instance.each(function (i, e) {
@@ -14,6 +23,11 @@ document.gtwidgets = {
     AudioRecordInput: function (instance) {
         instance.each(function (i, e) {
             getMediaRecord(e, 'audio');
+        });
+    },
+    VoiceDictation: function (instance) {
+        instance.each(function (i, e) {
+            getVoiceDictation(e);
         });
     },
     Select: function (instance) {
@@ -34,6 +48,14 @@ document.gtwidgets = {
     },
     TreeSelect: function (instance) {
 
+        instance.each(function (i, e) {
+            let s2instance = $(e);
+            let contexts2 = {templateResult: decore_select2};
+            extract_select2_context(contexts2, s2instance);
+            s2instance.select2(contexts2);
+        });
+    },
+    TreeSelectMultiple: function (instance) {
         instance.each(function (i, e) {
             let s2instance = $(e);
             let contexts2 = {templateResult: decore_select2};
@@ -220,54 +242,17 @@ document.gtwidgets = {
     },
     TextareaWysiwyg: function (instance) {
         $(instance).removeAttr('required');
-        var spellcheck = instance.attr('data-option-spellcheck') !== 'false';
-        var lang = instance.attr('data-option-lang') || 'en';
-        instance.tinymce({
-            menubar: false,
-            browser_spellcheck: spellcheck,
-            contextmenu: spellcheck ? false : 'link image table',
-            body_attrs: { lang: lang },
-            toolbar: 'undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist checklist | forecolor backcolor casechange permanentpen formatpainter removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media pageembed template link anchor codesample | a11ycheck ltr rtl | showcomments addcomment',
-            plugins: ['autolink', 'codesample', 'link', 'lists', 'media', 'quickbars', "advlist autolink lists link image charmap print preview anchor",
-                "searchreplace visualblocks code fullscreen", "insertdatetime media table paste imagetools wordcount",
-                "autoresize", "hr", "image",
-            ],
-            quickbars_insert_toolbar: 'quicktable | hr pagebreak',
-            file_picker_callback: function (callback, value, meta) {
-                var input = document.createElement('input');
-                input.setAttribute('type', 'file');
-                input.setAttribute('accept', 'image/*');
-                input.onchange = function () {
-                    var file = this.files[0];
-                    upload_files(callback, meta, file, instance.attr('data-option-image'),
-                        instance.attr('data-option-video'));
-                };
-                input.click();
-            },
-        });
+        instance.tinymce(gentelella_tinymce_config(instance));
     },
 
     EditorTinymce: function (instance) {
         $(instance).removeAttr('required');
-        instance.tinymce({
-            menubar: false,
-            toolbar: 'undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist checklist | forecolor backcolor casechange permanentpen formatpainter removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media pageembed template link anchor codesample | a11ycheck ltr rtl | showcomments addcomment',
-            plugins: ['autolink', 'codesample', 'link', 'lists', 'media', 'quickbars', "advlist autolink lists link image charmap print preview anchor",
-                "searchreplace visualblocks code fullscreen", "insertdatetime media table paste imagetools wordcount",
-                "autoresize", "hr", "image",
-            ],
-            quickbars_insert_toolbar: 'quicktable | hr pagebreak',
-            file_picker_callback: function (callback, value, meta) {
-                var input = document.createElement('input');
-                input.setAttribute('type', 'file');
-                input.setAttribute('accept', 'image/*');
-                input.onchange = function () {
-                    var file = this.files[0];
-                    upload_files(callback, meta, file, instance.attr('data-option-image'),
-                        instance.attr('data-option-video'));
-                };
-                input.click();
-            },
+        instance.tinymce(gentelella_tinymce_config(instance));
+    },
+
+    VoiceEditorTinymce: function (instance) {
+        instance.each(function (i, e) {
+            build_voice_editor_tinymce($(e));
         });
     },
 
@@ -279,6 +264,12 @@ document.gtwidgets = {
     },
     DJGraph: function (instance) {
         instance.gentelella_chart();
+    },
+    DJMap: function (instance) {
+        instance.gentelella_map();
+    },
+    MapPointInput: function (instance) {
+        build_map_point(instance);
     },
     NullBooleanSelect: function (instance) {
         instance.iCheck({

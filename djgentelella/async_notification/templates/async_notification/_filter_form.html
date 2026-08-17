@@ -1,0 +1,7 @@
+{% load i18n %}
+{% if form %}
+<fieldset class="border rounded p-2 mt-2">
+	<legend class="fs-6">{% trans "Recipient filters" %}</legend>
+	{{ form.as_p }}
+</fieldset>
+{% endif %}

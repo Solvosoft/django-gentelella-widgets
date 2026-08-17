@@ -156,13 +156,18 @@ function GTBaseFormModal(modal_id, datatable_element, form_config) {
                             var newOption = new Option(datainstance[e][x][display_name_key], datainstance[e][x]['id'], true, true);
                             $('#id_' + instance.prefix + e).append(newOption);
                         }
-                    } else {
+                    } else if (typeof datainstance[e] === 'object') {
                         if ($('#id_' + instance.prefix + e + ' option[value="' + datainstance[e]['id'] + '"]').length > 0) {
                             $('#id_' + instance.prefix + e).val(datainstance[e]['id']);
                         } else {
                             var newOption = new Option(datainstance[e][display_name_key], datainstance[e]['id'], true, true);
                             $('#id_' + instance.prefix + e).append(newOption);
                         }
+                    } else {
+                        // A select2-styled field with static (non-relational)
+                        // choices, e.g. a CharField: the value IS the option
+                        // value, not a {id, text} relation pair.
+                        $('#id_' + instance.prefix + e).val(datainstance[e]);
                     }
                     $('#id_' + instance.prefix + e).trigger('change')
                 }
@@ -424,13 +429,18 @@ function ObjectCRUD(uniqueid, objconfig = {}) {
 
     const config = Object.assign({}, default_config, objconfig);
 
+    // Read the merged config, not the caller's raw object: `actions` is
+    // optional and default_config already supplies the empty lists. Reading
+    // objconfig.actions threw "Cannot use 'in' operator to search for
+    // 'table_actions' in undefined" and aborted init() for every page that did
+    // not declare actions of its own -- the inline CRUD demo among them.
     per_table_actions = []
     per_object_actions = []
-    if ("table_actions" in objconfig.actions) {
-        per_table_actions = objconfig.actions.table_actions;
+    if ("table_actions" in config.actions) {
+        per_table_actions = config.actions.table_actions;
     }
-    if ("object_actions" in objconfig.actions) {
-        per_object_actions = objconfig.actions.object_actions;
+    if ("object_actions" in config.actions) {
+        per_object_actions = config.actions.object_actions;
     }
     obj = {
         "uniqueid": uniqueid,
@@ -439,7 +449,7 @@ function ObjectCRUD(uniqueid, objconfig = {}) {
         "can_create": config.modal_ids.hasOwnProperty("create"),
         "can_destroy": config.urls.hasOwnProperty("destroy_url") && config.modal_ids.hasOwnProperty("destroy"),
         "can_list": config.urls.hasOwnProperty("list_url"),
-        "can_detail": objconfig.urls.hasOwnProperty("detail_url") && config.modal_ids.hasOwnProperty("detail")
+        "can_detail": config.urls.hasOwnProperty("detail_url") && config.modal_ids.hasOwnProperty("detail")
             && config.urls.hasOwnProperty("detail_template_url"),
         "can_update": config.modal_ids.hasOwnProperty("update"),
         "use_get_values_for_update": config.urls.hasOwnProperty("get_values_for_update_url"),
@@ -587,7 +597,12 @@ function ObjectCRUD(uniqueid, objconfig = {}) {
                                 let action = instance.object_actions[x];
                                 let display_in_column = true;
                                 do_action = true
-                                if (action.name in data) {
+                                // `data` is the row's `actions` value. A
+                                // serializer that does not send the key leaves
+                                // it undefined, and the bare `in` threw there,
+                                // taking the entire table down instead of just
+                                // falling back to "allowed".
+                                if (data && action.name in data) {
                                     do_action = data[action.name];
                                 }
                                 if (do_action) {

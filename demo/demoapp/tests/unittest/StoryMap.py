@@ -33,18 +33,18 @@ class GigaPixelStoryMapWidgetTestCase(TestCase):
 
     def get_storymap_options(self):
         return {
-            "map_type": "zoomify",
-            "map_background_color": "#333",
-            "map_as_image": True,
-            "calculate_zoom": False,
-            "zoomify": {
-                "path": "http://cdn.verite.co/maps/zoomify/seurat/",
-                "width": 30000,
-                "height": 19970,
-                "tolerance": 0.9,
-                "attribution":
+            'map_type': 'zoomify',
+            'map_background_color': '#333',
+            'map_as_image': True,
+            'calculate_zoom': False,
+            'zoomify': {
+                'path': 'http://cdn.verite.co/maps/zoomify/seurat/',
+                'width': 30000,
+                'height': 19970,
+                'tolerance': 0.9,
+                'attribution':
                     "<a href='http://www.google.com/culturalinstitute/asset-viewer/" +
-                    "a-sunday-on-la-grande-jatte-1884/twGyqq52R-lYpA?projectId=" +
+                    'a-sunday-on-la-grande-jatte-1884/twGyqq52R-lYpA?projectId=' +
                     "art-project' target='_blank'>Google Art Project</a>"
             }
         }

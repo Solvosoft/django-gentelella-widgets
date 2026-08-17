@@ -7,6 +7,6 @@ from djgentelella.widgets.storyline import UrlStoryLineInput
 
 class StoryLineForm(GTForm, forms.Form):
     storyline = forms.CharField(widget=UrlStoryLineInput(
-        attrs={"data-url": reverse_lazy('examplestoryline-list'),
-               "height": 568}
+        attrs={'data-url': reverse_lazy('examplestoryline-list'),
+               'height': 568}
     ))

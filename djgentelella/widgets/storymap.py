@@ -7,8 +7,8 @@ class MapBasedStoryMapInput(TextInput):
     template_name = 'gentelella/widgets/storymap_mapbased.html'
 
     def __init__(self, attrs=None):
-        if attrs is None or "data-url" not in attrs:
-            raise ImproperlyConfigured("You must add data-url on attrs")
+        if attrs is None or 'data-url' not in attrs:
+            raise ImproperlyConfigured('You must add data-url on attrs')
         attrs = update_kwargs(attrs, self.__class__.__name__,
                               base_class='form-control')
         super(MapBasedStoryMapInput, self).__init__(attrs=attrs, extraskwargs=False)
@@ -36,8 +36,8 @@ class GigaPixelStoryMapInput(TextInput):
     template_name = 'gentelella/widgets/storymap_gigapixel.html'
 
     def __init__(self, attrs=None):
-        if attrs is None or "data-url" not in attrs:
-            raise ImproperlyConfigured("You must add data-url on attrs")
+        if attrs is None or 'data-url' not in attrs:
+            raise ImproperlyConfigured('You must add data-url on attrs')
         attrs = update_kwargs(attrs, self.__class__.__name__,
                               base_class='form-control')
         super(GigaPixelStoryMapInput, self).__init__(attrs=attrs, extraskwargs=False)

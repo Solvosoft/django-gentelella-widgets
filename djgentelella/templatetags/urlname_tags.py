@@ -43,7 +43,7 @@ def get_or_create_permission_context(val, app, perms_code, names, category):
                     'name': instance['name'],
                     'category': category,
                 })
-    return ""
+    return ''
 
 
 @register.simple_tag(takes_context=True)
@@ -51,7 +51,7 @@ def define_urlname_action(context, val):
     if not hasattr(context['request'], 'urlnamecontext'):
         setattr(context['request'], 'urlnamecontext', [])
     context['request'].urlnamecontext.append(val)
-    return ""
+    return ''
 
 
 @register.simple_tag(takes_context=True)
@@ -59,6 +59,6 @@ def get_urlname_action(context):
     value = getattr(context['request'], 'urlnamecontext', [])
     result = ''
     if value:
-        result = ",".join(value)
+        result = ','.join(value)
 
     return result

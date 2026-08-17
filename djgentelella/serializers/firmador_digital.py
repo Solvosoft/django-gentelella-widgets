@@ -2,7 +2,10 @@ import base64
 import json
 import logging
 
+from django.contrib.contenttypes.models import ContentType
 from rest_framework import serializers
+
+from djgentelella.models import ChunkedUpload
 
 logger = logging.getLogger('djgentelella')
 
@@ -26,11 +29,10 @@ class InstanceSerializer(serializers.Serializer):
             instance = base64.b64decode(value.encode())
             jsondata = json.loads(instance.decode())
         except Exception as e:
-            logger.error("Validation of value on digital signature fail", exc_info=e)
+            logger.error('Validation of value on digital signature fail', exc_info=e)
         return jsondata
 
     def get_file_from_token(self, token):
-        from djgentelella.models import ChunkedUpload
         tmpupload = ChunkedUpload.objects.filter(upload_id=token).first()
         dev = None
         if tmpupload:
@@ -47,16 +49,15 @@ class InstanceSerializer(serializers.Serializer):
     def validate_value(self, data):
         jsonparse = self.get_json_file(data)
         if not jsonparse:
-            raise serializers.ValidationError("Invalid encode value")
+            raise serializers.ValidationError('Invalid encode value')
         return jsonparse
 
     def validate(self, attrs):
-        from django.contrib.contenttypes.models import ContentType
-        cc = attrs.get("cc")
-        pk = attrs.get("pk")
+        cc = attrs.get('cc')
+        pk = attrs.get('pk')
         ccinstance = ContentType.objects.get_for_id(cc)
         instance = ccinstance.get_object_for_this_type(pk=pk)
-        value = attrs.get("value")
+        value = attrs.get('value')
         if 'token' in value:
             attrs['value'] = self.get_file_from_token(value['token'])
         elif 'field_name' in value:
@@ -104,6 +105,7 @@ class CompleteSignatureSerializer(serializers.Serializer):
     signature = SignatureSerializer()
     logo_url = serializers.CharField(required=False, allow_null=True, allow_blank=True)
     instance = InstanceSerializer()
+
 
 class ValidateDocumentSerializer(serializers.Serializer):
     action = serializers.CharField()

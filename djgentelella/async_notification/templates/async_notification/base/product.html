@@ -1,0 +1,47 @@
+{% extends "async_notification/base/_layout.html" %}{% load i18n %}
+{% comment %}
+Product announcement layout. Accent-colored hero with the brand mark and a
+tagline/eyebrow, generous body spacing, and a call-to-action strip below the
+content. Best for launches, feature announcements and product marketing.
+
+Optional context: cta_url, cta_label to render the footer call-to-action.
+{% endcomment %}
+{% block preheader %}{{ brand.tagline|default:_("What's new") }}{% endblock %}
+
+{% block header %}
+<tr>
+	<td align="center" class="an-px" style="background:{{ brand.color|default:'#3b5bdb' }}; padding:36px 32px 30px;">
+		{% if brand.logo_url %}
+		<img src="{{ brand.logo_url }}" height="32" alt="{{ brand.name|default:'' }}" style="display:block; margin:0 auto 12px; max-height:32px;">
+		{% elif brand.name %}
+		<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:16px; font-weight:700; color:{{ brand.color_text_on|default:'#ffffff' }}; margin-bottom:10px;">{{ brand.name }}</div>
+		{% endif %}
+		<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:12px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:{{ brand.color_text_on|default:'#ffffff' }}; opacity:0.9;">
+			{{ brand.tagline|default:_("Product update") }}
+		</div>
+	</td>
+</tr>
+{% endblock %}
+
+{% block after_content %}
+{% if cta_url %}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:12px;">
+	<tr><td align="center" style="padding-top:12px;">
+		{% include "async_notification/base/utils/button.html" with url=cta_url label=cta_label|default:_("Learn more") color=brand.color %}
+	</td></tr>
+</table>
+{% endif %}
+{% endblock %}
+
+{% block footer %}
+<tr>
+	<td align="center" class="an-px" style="padding:20px 32px; background:#f6f8fa; border-top:1px solid #e6e9ee; font-family:Arial,Helvetica,sans-serif;">
+		{% if brand.site_url %}
+		<p style="margin:0 0 6px; font-size:12px;"><a href="{{ brand.site_url }}" style="color:{{ brand.color|default:'#3b5bdb' }};">{{ brand.site_url }}</a></p>
+		{% endif %}
+		<p class="an-muted" style="margin:0; font-size:12px; line-height:1.5; color:#8a9199;">
+			{% if brand.name %}&copy; {% now "Y" %} {{ brand.name }}. {% endif %}{% if brand.address %}{{ brand.address }}{% endif %}
+		</p>
+	</td>
+</tr>
+{% endblock %}

@@ -10,6 +10,6 @@ class ImageForm(GTForm, forms.ModelForm):
         model = Img
         fields = '__all__'
         widgets = {
-            'multi_image': selects.AutocompleteSelectMultipleImage("imagebasename"),
-            'related_name': selects.AutocompleteSelectImage("imagebasename"),
+            'multi_image': selects.AutocompleteSelectMultipleImage('imagebasename'),
+            'related_name': selects.AutocompleteSelectImage('imagebasename'),
         }

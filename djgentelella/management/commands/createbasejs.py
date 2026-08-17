@@ -29,13 +29,21 @@ class Command(BaseCommand):
             'calendar.js',
             'timeline.js',
             'mediarecord.js',
+            'voiceprogressive.js',
+            'voicedictation.js',
+            'voiceeditortinymce.js',
             'digital_signature.js',
             'api_list.js',
-            'tagify.js'
+            'tagify.js',
+            # maplib.js is the shared engine, so it has to come before the
+            # widget that consumes it -- same rule as voiceprogressive.js.
+            'maplib.js',
+            'mappoint.js'
         ]
         jquery_plugins = [
             'notifications.js',
             'chart.js',
+            'map.js',
             'custom.widgets.js',
             'fileupload.widget.js',
             'select2related.js',
@@ -43,13 +51,13 @@ class Command(BaseCommand):
 
         with open(basepath / 'base.js', 'w') as fwriter:
             # load jquery plugins
-            fwriter.write("(function($){\n")
+            fwriter.write('(function($){\n')
             for f in jquery_plugins:
                 with open(basepath / 'base' / f, 'r') as rfile:
-                    fwriter.write("\n%s\n" % (rfile.read()))
-            fwriter.write("})(jQuery)\n")
+                    fwriter.write('\n%s\n' % (rfile.read()))
+            fwriter.write('})(jQuery)\n')
 
             # load base files
             for f in basefiles:
                 with open(basepath / 'base' / f, 'r') as rfile:
-                    fwriter.write("\n%s\n" % (rfile.read()))
+                    fwriter.write('\n%s\n' % (rfile.read()))

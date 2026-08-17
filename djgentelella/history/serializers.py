@@ -5,7 +5,6 @@ from rest_framework import serializers
 from djgentelella.serializers import GTDateField, GTDateTimeField
 
 
-
 class HistorySerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
     action_flag = serializers.SerializerMethodField()
@@ -15,15 +14,15 @@ class HistorySerializer(serializers.ModelSerializer):
 
     def get_user(self, obj):
         if not obj or not obj.user:
-            return _("No user found")
+            return _('No user found')
         name = obj.user.get_full_name()
         return name or obj.user.username
 
     def get_action_flag(self, obj):
         if obj.action_flag == 4:
-            return _("Hard deleted")
+            return _('Hard deleted')
         elif obj.action_flag == 5:
-            return _("Restored")
+            return _('Restored')
 
         return obj.get_action_flag_display()
 
@@ -32,14 +31,14 @@ class HistorySerializer(serializers.ModelSerializer):
 
     def get_actions(self, obj):
         return {
-            "create": False,
-            "update": False,
-            "destroy": False,
+            'create': False,
+            'update': False,
+            'destroy': False,
         }
 
     class Meta:
         model = LogEntry
-        fields = "__all__"
+        fields = '__all__'
 
 
 class HistoryDataTableSerializer(serializers.Serializer):
@@ -47,4 +46,3 @@ class HistoryDataTableSerializer(serializers.Serializer):
     draw = serializers.IntegerField(required=True)
     recordsFiltered = serializers.IntegerField(required=True)
     recordsTotal = serializers.IntegerField(required=True)
-

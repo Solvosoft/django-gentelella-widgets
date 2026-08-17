@@ -1,16 +1,21 @@
-django-tree-queries>=0.11.0
+# Core, mirrors [project.dependencies] in pyproject.toml
+django>=5.2
 djangorestframework>=3.15.2
-djangoajax>=3.3
-django-markitup>=4.0.0
-markdown>=3.4.1
+django-filter>=22.1
+django-tree-queries>=0.11.0
 Pillow>=10.4.0
-django>=4.0
-django_filter>=22.1
+pycryptodome>=3.23.0
+
+# firmador, mirrors the [firmador] extra
 django-cors-headers==4.6.0
-# firmador
-uvicorn==0.32.1
-uvicorn-worker==0.2.0
+uvicorn>=0.51.0
+uvicorn-worker>=0.4.0
 channels==4.2.0
 wsproto==1.2.0
 requests>=2.32.4
-pycryptodome>=3.23.0
+
+# The [asr] extra is deliberately left out: it downloads a ~670 MB model and is
+# only needed to run the voice dictation transcription in-process. Install it
+# with `pip install -e ".[asr]"` when working on that. The remote backend needs
+# only requests, already listed above ([asr-remote] covers it on a bare
+# install).

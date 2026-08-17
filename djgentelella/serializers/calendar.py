@@ -13,9 +13,9 @@ class EventSerializer(serializers.Serializer):
             set2 = set(fields)
             is_subset = set1.issubset(set2)
             if not is_subset:
-                raise serializers.ValidationError("Serializer data is not accepted.")
+                raise serializers.ValidationError('Serializer data is not accepted.')
         else:
-            raise serializers.ValidationError("Empty event parameter.")
+            raise serializers.ValidationError('Empty event parameter.')
         super().__init__(self)
 
     id = serializers.CharField(max_length=255, required=False)
@@ -74,9 +74,9 @@ class EventSerializer(serializers.Serializer):
             if date_values.issubset(set(data.keys())):
                 if data['start'] > data['end']:
                     raise serializers.ValidationError(
-                        "Event end date must occur after start date")
+                        'Event end date must occur after start date')
             if time_values.issubset(set(data.keys())):
                 if data['startTime'] > data['endTime']:
                     raise serializers.ValidationError(
-                        "Event end date must occur after start date")
+                        'Event end date must occur after start date')
         return data

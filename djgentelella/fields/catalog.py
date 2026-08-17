@@ -13,8 +13,8 @@ class GTForeignKey(models.ForeignKey):
 
     def formfield(self, *, using=None, **kwargs):
         if isinstance(self.remote_field.model, str):
-            raise ValueError("Cannot create form field for %r yet, because "
-                             "its related model %r has not been loaded yet" %
+            raise ValueError('Cannot create form field for %r yet, because '
+                             'its related model %r has not been loaded yet' %
                              (self.name, self.remote_field.model))
 
         queryset = self.remote_field.model._default_manager.using(using)

@@ -1,0 +1,60 @@
+{% extends 'gentelella/base_site.html' %}
+{% block content %}
+<div class="row">
+    <div class="col-sm-12 col-md-12 col-lg-6">
+        <div class="card">
+            <div class="card-body">
+                <div class="card-title titles">
+                    <h2>Voice dictation — Textarea</h2>
+                    <p class="text-muted">
+                        <code>VoiceDictation</code> in the three <code>data-mode</code>
+                        strategies: <b>segments</b> (live, per pause), <b>single</b>
+                        (one request on stop) and <b>hybrid</b> (segments live, then
+                        the whole recording rewrites them).
+                    </p>
+                </div>
+                <form action="" method="POST">
+                    {% csrf_token %}
+                    {{ textarea_form.as_inline }}
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-12 col-md-12 col-lg-6">
+        <div class="card">
+            <div class="card-body">
+                <div class="card-title titles">
+                    <h2>Voice dictation — WYSIWYG</h2>
+                    <p class="text-muted">
+                        <code>VoiceEditorTinymce</code>: microphone button inside the
+                        TinyMCE toolbar; text is inserted at the cursor via
+                        <code>editor.insertContent</code>.
+                    </p>
+                </div>
+                <form action="" method="POST">
+                    {% csrf_token %}
+                    {{ wysiwyg_form.as_inline }}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="alert alert-info">
+            The <code>voice-transcribe</code> endpoint in this demo runs a real ASR:
+            <code>VoiceTranscribeView</code> with the backend selected by
+            <code>GENTELELLA_ASR_BACKEND</code> (default <code>local</code>,
+            in-process Parakeet-v3 via <code>pip install "djgentelella[voice]"</code>).
+            Set it to <code>remote</code> to forward the audio to an external ASR API
+            (<code>GENTELELLA_ASR_REMOTE_URL</code>) instead.
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block js %}
+{{ textarea_form.media }}
+{{ wysiwyg_form.media }}
+{% endblock %}

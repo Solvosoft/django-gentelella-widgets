@@ -21,9 +21,10 @@ The DigitalSignatureInput widget accepts several key parameters:
         In this example, it is set to "last". This parameter is optional.
 
     - ws_url (str, optional):
-        The WebSocket URL for the digital signature service. If not provided, the widget
-        will attempt to retrieve the value from the Django settings (FIRMADOR_WS_URL). This
-        parameter is critical for establishing the connection with the signing service.
+        The WebSocket URL for the digital signature service. If not provided,
+        the widget will attempt to retrieve the value from the Django settings
+        (FIRMADOR_WS_URL). This parameter is critical for establishing the
+        connection with the signing service.
 
 
 """
@@ -41,10 +42,7 @@ class DigitalSignatureAddForm(GTForm, forms.ModelForm):
     class Meta:
         model = DigitalSignature
         fields = ['filename', 'file']
-        widgets = {
-            'filename': TextInput,
-            'file': FileInput
-        }
+        widgets = {'filename': TextInput, 'file': FileInput}
 
 
 class DigitalSignatureForm(GTForm, forms.ModelForm):
@@ -53,8 +51,8 @@ class DigitalSignatureForm(GTForm, forms.ModelForm):
         fields = ['file']
         widgets = {
             'file': DigitalSignatureInput(
-                title=_("Widget Digital Signature"),
-                default_page="last",
-                render_basename="digital_signature_file_api"
+                title=_('Widget Digital Signature'),
+                default_page='last',
+                render_basename='digital_signature_file_api',
             )
         }

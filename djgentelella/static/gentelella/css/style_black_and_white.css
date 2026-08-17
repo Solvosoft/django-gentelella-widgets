@@ -5144,14 +5144,19 @@ table thead .checkbox.radio { margin-top:-7px;margin-top:-21px; }
 	height: calc(2.5em + 0.75rem + 2px);
 }
 
-.l2 {
-	padding-left: 0.2em;
-	color: #1abb9c;
-}
-
-.l3 {
-	padding-left: 2em;
-}
+/* Tree select indentation, one step per depth level.
+   Set by gentelella/widgets/tree_select_option.html on each <option> and
+   copied to the select2 result by decore_select2. */
+.l0 { padding-left: 0; }
+.l1 { padding-left: 1em; }
+.l2 { padding-left: 2em; }
+.l3 { padding-left: 3em; }
+.l4 { padding-left: 4em; }
+.l5 { padding-left: 5em; }
+.l6 { padding-left: 6em; }
+.l7 { padding-left: 7em; }
+.l8 { padding-left: 8em; }
+.l9 { padding-left: 9em; }
 
 h1 {
 	color: #a97c0a;

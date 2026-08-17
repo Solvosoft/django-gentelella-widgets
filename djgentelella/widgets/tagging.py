@@ -18,7 +18,7 @@ class TaggingInput(Input):
         value = data.get(name)
         if value:
             data = json.loads(value)
-            value = ", ".join([item['value'] for item in data])
+            value = ', '.join([item['value'] for item in data])
         return value
 
 
@@ -35,23 +35,23 @@ class EmailTaggingInput(Input):
         value = data.get(name)
         if value:
             data = json.loads(value)
-            value = ", ".join([item['value'] for item in data])
+            value = ', '.join([item['value'] for item in data])
         return value
 
 
 class RemoteAutocompleteEmailTagifyWidget(Widget):
-    template_name = "gentelella/widgets/tagifyselect.html"
+    template_name = 'gentelella/widgets/tagifyselect.html'
 
     def build_attrs(self, base_attrs, extra_attrs=None):
         """Build an attribute dictionary."""
         dev = {**base_attrs, **(extra_attrs or {})}
-        dev["data-url"] = self.base_url
-        dev["data-widget"] = self.__class__.__name__
+        dev['data-url'] = self.base_url
+        dev['data-widget'] = self.__class__.__name__
         return dev
 
     @classmethod
     def newwidget(cls, url):
-        widget = type("RemoteAutocompleteEmailTagifyWidget", cls.__bases__,
+        widget = type('RemoteAutocompleteEmailTagifyWidget', cls.__bases__,
                       dict(cls.__dict__))
         widget.base_url = url
         return widget

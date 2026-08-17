@@ -1,0 +1,194 @@
+{% extends 'gentelella/base_site.html' %}
+{% load i18n static %}
+
+{% block extra_css %}{{ block.super }}
+<link rel="stylesheet" href="{% static 'async_notification/async_notification.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="row">
+	<div class="col-12">
+		<div class="card">
+			<div class="card-header">
+				<h4>{% trans "Email Notifications" %}</h4>
+			</div>
+			<div class="card-body">
+				<table class="table table-striped w-100" id="datatable"></table>
+			</div>
+		</div>
+	</div>
+</div>
+
+{% url "async_notification:api-emailnotification-list" as create_url %}
+{% url "async_notification:api-emailnotification-detail" 0 as update_url %}
+{% trans 'Compose email' as create_title %}
+{% trans 'Update email' as update_title %}
+
+{% include 'async_notification/_editor_modal.html' with modal_id="create_modal" title=create_title form_id="create_form" form=create_form url=create_url show_inspector=0 %}
+{% include 'async_notification/_editor_modal.html' with modal_id="update_modal" title=update_title form_id="update_form" form=update_form url=update_url show_inspector=0 %}
+
+{% trans 'Delete Notification' as delete_title %}
+{% include 'gentelella/blocks/modal_template_delete.html' with id="delete_modal" title=delete_title form_id="delete_form" url=update_url %}
+
+{% include 'async_notification/_preview_modal.html' %}
+
+{% endblock %}
+
+{% block js %}
+{{ block.super }}
+{{ create_form.media }}
+<script src="{% static 'async_notification/an_preview.js' %}"></script>
+<script src="{% static 'async_notification/recipient_autocomplete.js' %}"></script>
+<script>
+window.AN_URLS = {
+	autocomplete: "{% url 'async_notification:email_autocomplete' %}",
+	preview_template: "{% url 'async_notification:preview_template' %}",
+};
+
+var object_urls = {
+	list_url: "{% url 'async_notification:api-emailnotification-list' %}",
+	create_url: "{{ create_url }}",
+	destroy_url: "{% url 'async_notification:api-emailnotification-detail' 0 %}",
+	update_url: "{{ update_url }}",
+	get_values_for_update_url: "{% url 'async_notification:api-emailnotification-get-values-for-update' 0 %}",
+};
+
+var datatable_inits = {
+	columns: [
+		{data: "subject", name: "subject", title: gettext("Subject"), type: "string", visible: true},
+		{data: "status", name: "status", title: gettext("Status"), type: "string", visible: true,
+			render: window.AN.statusBadge()},
+		{data: "enqueued", name: "enqueued", title: gettext("Queued"), type: "string", visible: true},
+		{data: "retry_count", name: "retry_count", title: gettext("Retries"), type: "string", visible: true},
+		{data: "created_at", name: "created_at", title: gettext("Created"), type: "date",
+			render: DataTable.render.datetime(), dateformat: document.datetime_format, visible: true},
+		{data: "user_display", name: "user_display", title: gettext("User"), type: "string", visible: true},
+		{data: "actions", name: "actions", title: gettext("Actions"), type: "string", visible: true}
+	],
+	addfilter: true,
+};
+
+var modal_ids = {create: "#create_modal", update: "#update_modal", destroy: "#delete_modal"};
+
+var actions = {
+	table_actions: [
+		{
+			action: function(e, dt, node, config) {
+				var pks = get_selected_items(dt, '#datatable');
+				if (!pks || pks.length === 0) {
+					Swal.fire({icon: 'warning', title: gettext('Warning'),
+						text: gettext('No notifications selected')});
+					return;
+				}
+				$.ajax({
+					url: "{% url 'async_notification:api-emailnotification-send-selected' %}",
+					type: 'POST', contentType: 'application/json',
+					headers: {'X-CSRFToken': getCookie('csrftoken')},
+					data: JSON.stringify({pks: pks}),
+					success: function(response) {
+						Swal.fire({icon: 'success', title: gettext('Success'),
+							text: response.detail, confirmButtonText: gettext('Accept')});
+						ocrud.datatable.ajax.reload();
+					},
+					error: function() {
+						Swal.fire({icon: 'error', title: gettext('Error'),
+							text: gettext('Sorry, an error occurred.'),
+							confirmButtonText: gettext('Accept')});
+					}
+				});
+			},
+			text: '<i class="fa fa-paper-plane" aria-hidden="true"></i> ' + gettext('Send Selected'),
+			titleAttr: gettext('Send selected notifications'),
+			className: "btn btn-success"
+		}
+	],
+	object_actions: [
+		{name: 'preview', action: 'preview', in_action_column: true,
+			i_class: 'fa fa-eye', method: 'POST', title: gettext('View')},
+		{name: 'send_email', action: 'send_email', in_action_column: true,
+			i_class: 'fa fa-paper-plane', method: 'POST', title: gettext('Send Now')},
+		{name: 'duplicate', action: 'duplicate', in_action_column: true,
+			i_class: 'fa fa-copy', method: 'POST', title: gettext('Duplicate as pending')}
+	],
+	title: gettext('Actions'),
+	className: "no-export-col"
+};
+
+var objconfig = {
+	urls: object_urls,
+	datatable_element: "#datatable",
+	modal_ids: modal_ids,
+	actions: actions,
+	datatable_inits: datatable_inits,
+	add_filter: true,
+	checkable: true,
+	delete_display: function(data) { return data['subject']; },
+};
+
+var ocrud = ObjectCRUD("emailnotification", objconfig);
+
+ocrud.send_email = function(data, actiondef) {
+	var url = object_urls.destroy_url.replace("0", data.id).replace(/\/$/, '') + '/send_email/';
+	$.ajax({
+		url: url, type: 'POST', headers: {'X-CSRFToken': getCookie('csrftoken')},
+		success: function(response) {
+			Swal.fire({icon: response.result ? 'success' : 'warning',
+				title: response.result ? gettext('Success') : gettext('Warning'),
+				text: response.detail, confirmButtonText: gettext('Accept')});
+			ocrud.datatable.ajax.reload();
+		},
+		error: function(xhr) {
+			var detail = xhr.responseJSON && xhr.responseJSON.detail;
+			Swal.fire({icon: 'warning', title: gettext('Warning'),
+				text: detail || gettext('Sorry, an error occurred.'),
+				confirmButtonText: gettext('Accept')});
+		}
+	});
+};
+
+ocrud.duplicate = function(data, actiondef) {
+	var url = object_urls.destroy_url.replace("0", data.id).replace(/\/$/, '') + '/duplicate/';
+	$.ajax({
+		url: url, type: 'POST', headers: {'X-CSRFToken': getCookie('csrftoken')},
+		success: function(response) {
+			Swal.fire({icon: 'success', title: gettext('Success'),
+				text: gettext('Duplicated as a pending draft.'),
+				confirmButtonText: gettext('Accept')});
+			ocrud.datatable.ajax.reload();
+		},
+		error: function(xhr) {
+			var detail = xhr.responseJSON && xhr.responseJSON.detail;
+			Swal.fire({icon: 'error', title: gettext('Error'),
+				text: detail || gettext('Sorry, an error occurred.'),
+				confirmButtonText: gettext('Accept')});
+		}
+	});
+};
+
+/* View a stored/sent email rendered in an iframe */
+ocrud.preview = function(data, actiondef) {
+	var url = object_urls.destroy_url.replace("0", data.id).replace(/\/$/, '') + '/preview/';
+	$.ajax({
+		url: url, type: 'POST', headers: {'X-CSRFToken': getCookie('csrftoken')},
+		success: function(response) {
+			$('#preview-subject').text(response.subject);
+			var meta = gettext('Status') + ': ' + response.status;
+			if (response.recipients_raw) { meta += ' | ' + gettext('To') + ': ' + response.recipients_raw; }
+			if (response.error_message) { meta += ' | ' + gettext('Error') + ': ' + response.error_message; }
+			$('#preview-meta').text(meta);
+			window.AN.preview($('#preview_modal'), {
+				message: response.message, base_template: response.base_template
+			});
+			new bootstrap.Modal('#preview_modal').show();
+		},
+		error: function() {
+			Swal.fire({icon: 'error', title: gettext('Error'),
+				text: gettext('Sorry, an error occurred.'),
+				confirmButtonText: gettext('Accept')});
+		}
+	});
+};
+
+ocrud.init();
+</script>
+{% endblock %}

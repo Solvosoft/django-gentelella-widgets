@@ -19,8 +19,11 @@ class FileChunkedUpload(FileInput):
 
     def __init__(self, attrs=None, extraskwargs=True):
         if extraskwargs:
-            attrs = update_kwargs(attrs, self.__class__.__name__,
-                                  base_class='djgentelella-file-input form-control')
+            attrs = update_kwargs(
+                attrs,
+                self.__class__.__name__,
+                base_class='djgentelella-file-input form-control',
+            )
         if 'data-href' not in attrs:
             attrs.update({'data-href': reverse_lazy('upload_file_view')})
         if 'data-done' not in attrs:
@@ -32,10 +35,10 @@ class FileChunkedUpload(FileInput):
         if value:
             name = Path(value.name).name
             self.value = mark_safe(
-                '{"name": "%(name)s", "display_name": "%(display_name)s", "url": "%(url)s" }' % {
-                    'name': value.name,
-                    'display_name': name,
-                    'url': value.url})
+                '{"name": "%(name)s", "display_name": "%(display_name)s", '
+                '"url": "%(url)s" }'
+                % {'name': value.name, 'display_name': name, 'url': value.url}
+            )
             return self.value
         return ''
 
@@ -45,8 +48,8 @@ class FileChunkedUpload(FileInput):
             dev = json.loads(value)
             if not ('url' in dev or 'token' in dev or 'actions' in dev):
                 dev = None
-        except json.JSONDecodeError as e:
-            logger.warning("Json error parsing: " + repr(value))
+        except json.JSONDecodeError:
+            logger.warning('Json error parsing: %r', value)
         return dev
 
     def value_from_datadict(self, data, files, name):
@@ -58,7 +61,8 @@ class FileChunkedUpload(FileInput):
                 return False
             if 'token' in token:
                 tmpupload = ChunkedUpload.objects.filter(
-                    upload_id=token['token']).first()
+                    upload_id=token['token']
+                ).first()
                 if tmpupload:
                     dev = tmpupload.get_uploaded_file()
                     tmpupload.delete()

@@ -12,29 +12,29 @@ class TrashSerializer(serializers.ModelSerializer):
     deleted_by = serializers.SerializerMethodField()
 
     def get_actions(self, obj):
-        user = self.context["request"].user
+        user = self.context['request'].user
         return {
-            "restore": user.has_perm("djgentelella.delete_trash"),
-            "destroy": user.has_perm("djgentelella.delete_trash"),
+            'restore': user.has_perm('djgentelella.delete_trash'),
+            'destroy': user.has_perm('djgentelella.delete_trash'),
         }
 
     def get_model_name(self, obj):
         if obj.content_object is None:
-            return _("Deleted object")
+            return _('Deleted object')
 
         if obj.content_type.model:
             return obj.content_type.model
 
-        return "-"
+        return '-'
 
     def get_deleted_by(self, obj):
         if obj.deleted_by:
             return str(obj.deleted_by)
-        return "-"
+        return '-'
 
     class Meta:
         model = Trash
-        fields = "__all__"
+        fields = '__all__'
 
 
 class TrashDataTableSerializer(serializers.Serializer):
@@ -42,4 +42,3 @@ class TrashDataTableSerializer(serializers.Serializer):
     draw = serializers.IntegerField(required=True)
     recordsFiltered = serializers.IntegerField(required=True)
     recordsTotal = serializers.IntegerField(required=True)
-

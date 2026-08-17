@@ -4,13 +4,17 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-import uuid
-from djgentelella.models import DeletedWithTrash
 from django.contrib.auth import get_user_model
-User = get_user_model()
 
-# Create your models here.
-from djgentelella.fields.catalog import GTForeignKey, GTManyToManyField, GTOneToOneField
+from djgentelella.fields.catalog import (
+    GTForeignKey,
+    GTManyToManyField,
+    GTOneToOneField,
+)
+from djgentelella.fields.maps import GTPointField
+from djgentelella.models import DeletedWithTrash
+
+User = get_user_model()
 
 
 class Country(models.Model):
@@ -36,40 +40,38 @@ class Catalog(models.Model):
     description = models.CharField(max_length=500)
 
     def __str__(self):
-        return self.key + " - " + self.description
+        return self.key + ' - ' + self.description
 
 
 class WithCatalog(models.Model):
     mycatalog = GTForeignKey(
-        Catalog, on_delete=models.DO_NOTHING, key_name="key", key_value="Options")
+        Catalog, on_delete=models.DO_NOTHING, key_name='key', key_value='Options'
+    )
     countries = GTManyToManyField(
-        Catalog, related_name="countryrel", key_name="key", key_value="countries")
+        Catalog, related_name='countryrel', key_name='key', key_value='countries'
+    )
 
     def __str__(self):
         return str(self.mycatalog)
 
 
 class OneCatalog(models.Model):
-    me = GTOneToOneField(Catalog, on_delete=models.CASCADE,
-                         key_name="key", key_value="countries")
+    me = GTOneToOneField(
+        Catalog, on_delete=models.CASCADE, key_name='key', key_value='countries'
+    )
 
     def __str__(self):
         return str(self.me)
 
 
 class Foo(models.Model):
-    age = models.IntegerField(validators=[
-        MaxValueValidator(120),
-        MinValueValidator(1)
-    ])
-    speed_in_miles_per_hour = models.FloatField(validators=[
-        MinValueValidator(1),
-        MaxValueValidator(50)
-    ])
-    number_of_eyes = models.IntegerField(validators=[
-        MinValueValidator(0),
-        MaxValueValidator(10)
-    ])
+    age = models.IntegerField(validators=[MaxValueValidator(120), MinValueValidator(1)])
+    speed_in_miles_per_hour = models.FloatField(
+        validators=[MinValueValidator(1), MaxValueValidator(50)]
+    )
+    number_of_eyes = models.IntegerField(
+        validators=[MinValueValidator(0), MaxValueValidator(10)]
+    )
 
 
 class PeopleGroup(models.Model):
@@ -77,7 +79,8 @@ class PeopleGroup(models.Model):
     people = models.ManyToManyField(Person)
     communities = models.ManyToManyField('Community')
     country = models.ForeignKey(
-        Country, null=True, blank=True, on_delete=models.CASCADE)
+        Country, null=True, blank=True, on_delete=models.CASCADE
+    )
 
     def __str__(self):
         return self.name
@@ -122,13 +125,15 @@ class ABCDE(models.Model):
     e = models.ManyToManyField(E)
 
     def __str__(self):
-        return " ".join([x.display for x in self.e.all()])
+        return ' '.join([x.display for x in self.e.all()])
 
 
 def validate_inputs(value):
     if value.find('_') != -1:
         raise ValidationError(
-            _('%(value)s need more digits'), params={'value': value}, )
+            _('%(value)s need more digits'),
+            params={'value': value},
+        )
 
 
 def validate_email(value):
@@ -149,11 +154,9 @@ def validate_credit_card(value):
 class InputMask(models.Model):
     date = models.DateField()
     phone = models.CharField(max_length=14, validators=[validate_inputs])
-    serial_number = models.CharField(
-        max_length=23, validators=[validate_inputs])
+    serial_number = models.CharField(max_length=23, validators=[validate_inputs])
     taxid = models.CharField(max_length=11, validators=[validate_inputs])
-    credit_card = models.CharField(
-        max_length=19, validators=[validate_credit_card])
+    credit_card = models.CharField(max_length=19, validators=[validate_credit_card])
     email = models.EmailField(validators=[validate_email])
 
     def __str__(self):
@@ -232,11 +235,10 @@ class Event(models.Model):
 
 class ObjectManagerDemoModel(models.Model):
     ELEMENTS = (
-        (1, "A"),
-        (2, "B"),
-        (3, "C"),
-        (4, "D"),
-
+        (1, 'A'),
+        (2, 'B'),
+        (3, 'C'),
+        (4, 'D'),
     )
     name = models.CharField(max_length=150)
     float_number = models.FloatField(default=0)
@@ -251,14 +253,29 @@ class ObjectManagerDemoModel(models.Model):
     taging_list = models.CharField(max_length=256)
     yes_no = models.BooleanField(default=False)
 
-    field_autocomplete = models.ForeignKey(Country, related_name='ct',
-                                           on_delete=models.CASCADE)
+    field_autocomplete = models.ForeignKey(
+        Country, related_name='ct', on_delete=models.CASCADE
+    )
     m2m_autocomplete = models.ManyToManyField(Country, related_name='autocomplext')
     field_select = models.ForeignKey('Community', on_delete=models.CASCADE)
     m2m_multipleselect = models.ManyToManyField(A)
 
     def __str__(self):
         return self.name
+
+
+class ObjectManagerDemoNote(models.Model):
+    """Child of ObjectManagerDemoModel, managed with BaseInlineObjectManagement."""
+
+    demo_object = models.ForeignKey(
+        ObjectManagerDemoModel, related_name='notes', on_delete=models.CASCADE
+    )
+    title = models.CharField(max_length=150)
+    body = models.TextField(blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
 
 
 class DigitalSignature(models.Model):
@@ -277,24 +294,35 @@ class DigitalSignature(models.Model):
     def __str__(self):
         return self.filename or str(self.file_code)
 
+
 class SelectImage(models.Model):
     name = models.CharField(max_length=255)
-    img = models.FileField(upload_to="images", null=True, blank=True)
+    img = models.FileField(upload_to='images', null=True, blank=True)
 
     def __str__(self):
-        return ('<span><img style="width: 2em; height: 2em;" src="' +
-                self.img.url + '">' + self.name + '</span>')
+        return (
+            '<span><img style="width: 2em; height: 2em;" src="'
+            + self.img.url
+            + '">'
+            + self.name
+            + '</span>'
+        )
 
 
 class Img(models.Model):
-    multi_image = models.ManyToManyField(SelectImage, blank=True,
-                                         related_name='imges_x')
-    related_name = models.ForeignKey(SelectImage, blank=True, null=True,
-                                     related_name="related_img",
-                                     on_delete=models.CASCADE)
+    multi_image = models.ManyToManyField(
+        SelectImage, blank=True, related_name='imges_x'
+    )
+    related_name = models.ForeignKey(
+        SelectImage,
+        blank=True,
+        null=True,
+        related_name='related_img',
+        on_delete=models.CASCADE,
+    )
 
     def __str__(self):
-        return "Imgs %d" % (self.multi_image.count())
+        return 'Imgs %d' % (self.multi_image.count())
 
 
 # Trash
@@ -306,15 +334,33 @@ class Customer(DeletedWithTrash):
     def __str__(self):
         return self.name
 
-    def delete(self, using=None, keep_parents=False, *, hard=False, user=None,
-               **kwargs):
+    def delete(
+        self, using=None, keep_parents=False, *, hard=False, user=None, **kwargs
+    ):
 
         if self.is_deleted and not hard:
             return
 
         result = super().delete(
-            using=using, keep_parents=keep_parents,
-            hard=hard, user=user
+            using=using, keep_parents=keep_parents, hard=hard, user=user
         )
 
         return result
+
+
+# Maps
+class Place(models.Model):
+    name = models.CharField(max_length=150)
+    country = models.CharField(max_length=100, blank=True)
+    city = models.CharField(max_length=100, blank=True)
+    # based_fields geocodes from the two fields above when the point is empty.
+    location = GTPointField(
+        zoom=8,
+        center=(9.9327, -84.0875),
+        search=True,
+        based_fields=['#id_country', '#id_city'],
+        blank=True,
+    )
+
+    def __str__(self):
+        return self.name

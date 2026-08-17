@@ -38,14 +38,13 @@ INSTALLED_APPS = [
     'demoapp',
     'djgentelella.blog',
     'djgentelella.permission_management',
-    'markitup',
-    "corsheaders",
-    "channels",
+    'corsheaders',
+    'channels',
+    'djgentelella.async_notification',
 ]
 
 MIDDLEWARE = [
-    "corsheaders.middleware.CorsMiddleware",
-    "django.middleware.security.SecurityMiddleware",
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -104,12 +103,24 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "0.0.0.0"]
-CSRF_TRUSTED_SCHEME = "http"
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
+
+# Django defaults this to 'same-origin', which tells the browser to send no
+# Referer at all on cross-origin requests -- and every tile the Leaflet widgets
+# fetch is cross-origin. OpenStreetMap's tile usage policy requires a Referer
+# or a User-Agent identifying the application, and answers 403 without one, so
+# the default turns the maps into a grid of empty squares.
+# 'strict-origin-when-cross-origin' sends only the origin (no path, no query)
+# to another site, which is what the tile server needs and what current
+# browsers use as their own default.
+# https://operations.osmfoundation.org/policies/tiles/
+SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+
+CSRF_TRUSTED_SCHEME = 'http'
 CSRF_TRUSTED_ORIGINS = [
-    f"{CSRF_TRUSTED_SCHEME}://localhost",
-    f"{CSRF_TRUSTED_SCHEME}://127.0.0.1",
-    f"{CSRF_TRUSTED_SCHEME}://0.0.0.0",
+    f'{CSRF_TRUSTED_SCHEME}://localhost',
+    f'{CSRF_TRUSTED_SCHEME}://127.0.0.1',
+    f'{CSRF_TRUSTED_SCHEME}://0.0.0.0',
 ]
 
 CORS_ALLOW_ALL_ORIGINS = False
@@ -119,7 +130,14 @@ CORS_ALLOW_ALL_ORIGINS = False
 
 LANGUAGE_CODE = 'es'
 
-TIME_ZONE = 'UTC'
+# The DateTimeInput widget (js/base/datetime.html) sends whatever the user
+# typed as a plain naive string, with no timezone marker at all. Django
+# interprets that naive input as being in TIME_ZONE, so it must match the
+# zone the person filling the form is actually in, or times like
+# NewsLetterTask.send_date silently land N hours off from what was typed
+# (storage stays UTC-aware either way; this only affects how naive input is
+# read and how aware datetimes are displayed).
+TIME_ZONE = os.getenv('TIME_ZONE', 'America/Costa_Rica')
 
 USE_I18N = True
 
@@ -137,52 +155,115 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 TINYMCE_UPLOAD_PATH = os.path.join(MEDIA_ROOT, 'tinymce')
 SUMMERNOTE_UPLOAD_PATH = os.path.join(MEDIA_ROOT, 'summernote')
 
-EMAIL_HOST = 'localhost'
-EMAIL_PORT = '1025'
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'localhost')
+EMAIL_PORT = os.getenv('EMAIL_PORT', '1025')
 
-MARKITUP_FILTER = ('markdown.markdown', {'safe_mode': True})
-MARKITUP_SET = 'markitup/sets/markdown/'
 JQUERY_URL = None
+
+# Voice dictation ASR backend for the djgentelella voice widgets.
+# 'local' runs Parakeet-v3 in-process (needs `pip install "djgentelella[asr]"`).
+# Set GENTELELLA_ASR_BACKEND=remote to forward audio to the external ASR API
+# at GENTELELLA_ASR_REMOTE_URL instead.
+GENTELELLA_ASR_BACKEND = os.getenv('GENTELELLA_ASR_BACKEND', 'local')
+GENTELELLA_ASR_REMOTE_URL = os.getenv(
+    'GENTELELLA_ASR_REMOTE_URL',
+    'http://localhost:8001/api/audio/transcribe')
+# Bearer token gentelella presents to the external ASR API (must match a token
+# accepted by the external ASR server). Empty = no Authorization header sent.
+GENTELELLA_ASR_REMOTE_TOKEN = os.getenv('GENTELELLA_ASR_REMOTE_TOKEN', '')
+# The remote request defaults to the OpenAI /v1/audio/transcriptions shape, so
+# it talks to OpenAI/Groq/vLLM/faster-whisper-server as-is. Remap the field
+# names for other servers; for Deepgram set HOTWORDS_PARAM=keyterm.
+GENTELELLA_ASR_REMOTE_MODEL = os.getenv('GENTELELLA_ASR_REMOTE_MODEL', '')
+GENTELELLA_ASR_REMOTE_PROMPT_PARAM = os.getenv(
+    'GENTELELLA_ASR_REMOTE_PROMPT_PARAM', 'prompt')
+GENTELELLA_ASR_REMOTE_HOTWORDS_PARAM = os.getenv(
+    'GENTELELLA_ASR_REMOTE_HOTWORDS_PARAM', '')
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 DEFAULT_JS_IMPORTS = {
     'use_readonlywidgets': True,
-    'use_flags': True
+    'use_flags': True,
+    # Adds Leaflet.markercluster and Leaflet.heat. Leaflet itself always loads.
+    'use_maps': True
 }
 
 # Authentication settings
-LOGOUT_REDIRECT_URL = reverse_lazy("login")
-LOGIN_REDIRECT_URL = reverse_lazy("home")
+LOGOUT_REDIRECT_URL = reverse_lazy('login')
+LOGIN_REDIRECT_URL = reverse_lazy('home')
 
 # FIRMADOR DIGITAL
 DO_STATIC = os.getenv('DO_STATIC', default='True').lower() == 'true'
-DJANGO_ASETTINGS_MODULE = "demo.asettings"
-GUNICORN_BIND = os.getenv('GUNICORN_BIND', "127.0.0.1:9022")
-GUNICORN_ASGI_APP = "demo.asgi:application"
-GUNICORN_WSGI_APP = "demo.wsgi:application"
+DJANGO_ASETTINGS_MODULE = 'demo.asettings'
+GUNICORN_BIND = os.getenv('GUNICORN_BIND', '127.0.0.1:9022')
+GUNICORN_ASGI_APP = 'demo.asgi:application'
+GUNICORN_WSGI_APP = 'demo.wsgi:application'
 GUNICORN_WORKERS = 1 if DEBUG else 2
-GUNICORN_WORKER_CLASS = "sync"
-GUNICORN_USER = os.getenv('GUNICORN_USER', "demo")
-GUNICORN_GROUP = os.getenv('GUNICORN_GROUP', "demo")
+GUNICORN_WORKER_CLASS = 'sync'
+GUNICORN_USER = os.getenv('GUNICORN_USER', 'demo')
+GUNICORN_GROUP = os.getenv('GUNICORN_GROUP', 'demo')
 
-UVICORN_BIND = os.getenv('UVICORN_BIND', "127.0.0.1:8022")
+UVICORN_BIND = os.getenv('UVICORN_BIND', '127.0.0.1:8022')
 UVICORN_WORKER = 1 if DEBUG else 2
-UVICORN_WORKER_CLASS = "demo.asgi_worker.UvicornWorker"
+UVICORN_WORKER_CLASS = 'demo.asgi_worker.UvicornWorker'
 
 if DEBUG:
     FIRMADOR_WS_URL = os.getenv('FIRMADOR_WS',
-                                "ws://%s/async/sign_document" % UVICORN_BIND)
+                                'ws://%s/async/sign_document' % UVICORN_BIND)
 else:
-    FIRMADOR_WS_URL = os.getenv('FIRMADOR_WS', "/async/sign_document")
-FIRMADOR_DOMAIN = os.getenv('FIRMADOR_DOMAIN', "http://localhost:9001")
-FIRMADOR_VALIDA_URL = FIRMADOR_DOMAIN + "/valida/"
-FIRMADOR_SIGN_URL = FIRMADOR_DOMAIN + "/firma/firme"
-FIRMADOR_SIGN_COMPLETE = FIRMADOR_DOMAIN + "/firma/completa"
-FIRMADOR_DELETE_FILE_URL = FIRMADOR_DOMAIN + "/firma/delete"
+    FIRMADOR_WS_URL = os.getenv('FIRMADOR_WS', '/async/sign_document')
+FIRMADOR_DOMAIN = os.getenv('FIRMADOR_DOMAIN', 'http://localhost:9001')
+FIRMADOR_VALIDA_URL = FIRMADOR_DOMAIN + '/valida/'
+FIRMADOR_SIGN_URL = FIRMADOR_DOMAIN + '/firma/firme'
+FIRMADOR_SIGN_COMPLETE = FIRMADOR_DOMAIN + '/firma/completa'
+FIRMADOR_DELETE_FILE_URL = FIRMADOR_DOMAIN + '/firma/delete'
 
 # history
 GT_HISTORY_ALLOWED_MODELS = [
-    "djgentelella.trash", # add always trash when you use history
-    "demoapp.customer",
+    'djgentelella.trash',  # add always trash when you use history
+    'demoapp.customer',
     # add more models here for history
 ]
+
+# async_notification
+# Console by default (prints emails). Point at MailHog (make mailhog) to
+# validate real sending/reception: EMAIL_BACKEND=smtp EMAIL_HOST/PORT via env.
+EMAIL_BACKEND = os.getenv(
+    'EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'no-reply@example.com')
+
+# Base HTML layouts an EmailTemplate can wrap its content in.
+ASYNC_NOTIFICATION_BASE_TEMPLATES = {
+    'default': 'async_notification/email_base.html',
+    'executive': 'async_notification/base/executive.html',
+    'product': 'async_notification/base/product.html',
+    'transactional': 'async_notification/base/transactional.html',
+    'newsletter': 'async_notification/base/newsletter.html',
+}
+
+# Brand info exposed to the base templates as {{ brand.* }}.
+ASYNC_NOTIFICATION_BRAND = {
+    'name': 'Demo Org',
+    'color': '#3b5bdb',
+    'color_text_on': '#ffffff',
+    'site_url': 'https://example.com',
+    'address': 'Demo Org · 123 Example St · Springfield',
+    'support_email': 'support@example.com',
+    'tagline': 'Building better software',
+}
+
+# Compliance / deliverability (demo values).
+ASYNC_NOTIFICATION_BASE_URL = os.getenv(
+    'ASYNC_NOTIFICATION_BASE_URL', 'http://localhost:8000')
+ASYNC_NOTIFICATION_MAILING_ADDRESS = (
+    'Demo Org · 123 Example St · Springfield')
+ASYNC_NOTIFICATION_UNSUBSCRIBE_MAILTO = 'unsubscribe@example.com'
+
+# Newsletter base models: {key: [dotted_model, description, interface_path]}.
+ASYNC_NEWS_BASE_MODELS = {
+    'users': [
+        'auth.User',
+        'Site users',
+        'demoapp.newsletter_interfaces.UserNewsLetterInterface',
+    ],
+}

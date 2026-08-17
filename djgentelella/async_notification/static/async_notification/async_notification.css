@@ -1,0 +1,96 @@
+/* Shared styles for the async_notification admin GUI. */
+
+/* Live preview iframe (template / newsletter / email composer) */
+.an-preview-frame,
+.preview-frame {
+    width: 100%;
+    min-height: 260px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #fff;
+}
+
+/* Model / variable inspector tree */
+.model-fields-tree {
+    max-height: 220px;
+    overflow-y: auto;
+    font-size: 0.85rem;
+}
+
+/* Recipient autocomplete dropdown */
+.ac-dropdown {
+    position: absolute;
+    z-index: 1060;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.ac-dropdown .autocomplete-item {
+    padding: 4px 10px;
+    cursor: pointer;
+}
+
+.ac-dropdown .autocomplete-item:hover {
+    background: #f0f4ff;
+}
+
+/* Resolved-recipient list with per-address exclusion */
+.recipient-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 2px 12px;
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 0;
+}
+
+.recipient-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2px 6px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.recipient-list li.recipient-hidden {
+    display: none;
+}
+
+.recipient-exclude {
+    color: #dc3545;
+    cursor: pointer;
+    font-weight: bold;
+    margin-left: 8px;
+}
+
+.recipient-clear {
+    cursor: pointer;
+}
+
+/* Status badges */
+.an-badge {
+    display: inline-block;
+    padding: 0.2em 0.55em;
+    font-size: 0.75rem;
+    border-radius: 0.35rem;
+    color: #fff;
+    text-transform: capitalize;
+}
+
+.an-badge-pending { background: #6c757d; }
+.an-badge-queued { background: #0d6efd; }
+.an-badge-scheduled { background: #0dcaf0; color: #08343f; }
+.an-badge-sending { background: #fd7e14; }
+.an-badge-sent { background: #198754; }
+.an-badge-failed { background: #dc3545; }
+.an-badge-cancelled,
+.an-badge-revoked { background: #adb5bd; color: #212529; }
+
+/* Two-column editor modal helper */
+.an-editor-preview .card + .card {
+    margin-top: 0.5rem;
+}

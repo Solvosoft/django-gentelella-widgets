@@ -25,11 +25,12 @@ from .views import home, logeado, add_view_select, serve_static
 
 urlpatterns = djgentelellaurls + [
     path('admin/', admin.site.urls),
-    path('', home, name="home"),
+    path('', home, name='home'),
     path('logueado', logeado),
     path('dashboard', show_top_counts, name='dashboard'),
     path('add_view_select', add_view_select, name='add_view_select'),
     path('blog/', include('djgentelella.blog.urls')),
+    path('async_notification/', include('djgentelella.async_notification.urls')),
 ] + demourls + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DO_STATIC:

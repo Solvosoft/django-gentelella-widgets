@@ -1,0 +1,12 @@
+{% comment %}
+Horizontal divider. Optional params: color (default #e6e9ee), space (vertical
+padding px, default 16).
+  {% include "async_notification/base/utils/divider.html" %}
+{% endcomment %}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+	<tr>
+		<td style="padding:{{ space|default:'16' }}px 0;">
+			<div class="an-divider" style="border-top:1px solid {{ color|default:'#e6e9ee' }}; font-size:0; line-height:0;">&nbsp;</div>
+		</td>
+	</tr>
+</table>

@@ -1,6 +1,7 @@
 {% load static gtsettings urlname_tags i18n %}
 {% get_settings 'use_compress_static' as use_compress %}
 {% get_define 'use_readonlywidgets' as use_readonlywidgets %}
+{% get_define 'use_maps' as use_maps %}
 
 	<!-- Pdf js -->
 	<script type="module" src="{% static 'vendors/pdfjs/pdf.min.mjs' %}?v={% get_version %}"></script>
@@ -10,6 +11,22 @@
 	<script src="{% static 'djgentelella.vendors.min.js' %}?v={% get_version %}"></script>
 	{% if use_readonlywidgets %}
 		<script src="{% static 'djgentelella.readonly.vendors.min.js' %}?v={% get_version %}"></script>
+	{% endif %}
+	{# Leaflet goes after the readonly bundle on purpose: storymapjs ships an #}
+	{# embedded Leaflet 0.7.7 that assigns itself to window.L, so loading ours #}
+	{# first would silently downgrade every map to a 0.7 API. #}
+	{# Spelled out one by one rather than as a directory: Leaflet's own path #}
+	{# detection reads a CSS background-image, and urlreplace turns that into a #}
+	{# base64 data URI in the bundled build. ManifestStaticFilesStorage also #}
+	{# hashes each file separately, so a directory prefix would not resolve. #}
+	<script>document.gt_leaflet_images = {
+		iconUrl: "{% static 'vendors/leaflet/images/marker-icon.png' %}",
+		iconRetinaUrl: "{% static 'vendors/leaflet/images/marker-icon-2x.png' %}",
+		shadowUrl: "{% static 'vendors/leaflet/images/marker-shadow.png' %}"
+	};</script>
+	<script src="{% static 'djgentelella.maps.vendors.min.js' %}?v={% get_version %}"></script>
+	{% if use_maps %}
+		<script src="{% static 'djgentelella.maps.plugins.min.js' %}?v={% get_version %}"></script>
 	{% endif %}
 	<script src="{% static 'vendors/tinymce/tinymce.min.js' %}?v={% get_version %}"></script>
 	<script src="{% static 'vendors/tinymce/jquery.tinymce.min.js' %}?v={% get_version %}"></script>
@@ -72,6 +89,17 @@
 <script src="{% static 'vendors/storymapjs/storymap.js' %}?v={% get_version %}"></script>
 <script src="{% static 'vendors/storylinejs/storyline.js' %}?v={% get_version %}"></script>
 <script src="{% static 'vendors/bootstrap-tree/bootstrap-treeview.min.js' %}?v={% get_version %}"></script>
+{% endif %}
+{# See the comment in the compressed branch: this has to stay after storymapjs. #}
+<script>document.gt_leaflet_images = {
+	iconUrl: "{% static 'vendors/leaflet/images/marker-icon.png' %}",
+	iconRetinaUrl: "{% static 'vendors/leaflet/images/marker-icon-2x.png' %}",
+	shadowUrl: "{% static 'vendors/leaflet/images/marker-shadow.png' %}"
+};</script>
+<script src="{% static 'vendors/leaflet/leaflet.js' %}?v={% get_version %}"></script>
+{% if use_maps %}
+<script src="{% static 'vendors/leaflet-markercluster/leaflet.markercluster.js' %}?v={% get_version %}"></script>
+<script src="{% static 'vendors/leaflet-heat/leaflet-heat.js' %}?v={% get_version %}"></script>
 {% endif %}
 {% endif %}
 

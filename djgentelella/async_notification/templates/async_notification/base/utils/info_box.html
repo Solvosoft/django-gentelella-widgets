@@ -1,0 +1,15 @@
+{% comment %}
+Colored callout / info box.
+
+Usage:
+  {% include "async_notification/base/utils/info_box.html" with title="Heads up" text="Your trial ends soon." %}
+Optional params: color (accent, default #3b5bdb), bg (default #f2f6ff).
+{% endcomment %}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:12px 0;">
+	<tr>
+		<td style="background:{{ bg|default:'#f2f6ff' }}; border-left:4px solid {{ color|default:'#3b5bdb' }}; border-radius:4px; padding:14px 16px; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; color:#2d3339; font-size:14px; line-height:1.55;">
+			{% if title %}<strong style="display:block; margin-bottom:4px; color:{{ color|default:'#3b5bdb' }};">{{ title }}</strong>{% endif %}
+			{{ text }}
+		</td>
+	</tr>
+</table>

@@ -1,0 +1,881 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Auditoría de release · djgentelella</title>
+<style>
+:root {
+  --ground:  #f6f8f7;
+  --surface: #ffffff;
+  --sunken:  #eef2f0;
+  --ink:     #151b18;
+  --muted:   #5c6a64;
+  --line:    #dde5e1;
+  --accent:  #0c4b33;
+  --applied: #2e7d5b;
+  --pending: #a2701a;
+  --risk:    #a63d2f;
+  --shadow:  0 1px 2px rgba(21, 27, 24, .06), 0 8px 24px -16px rgba(21, 27, 24, .28);
+
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --sans:  system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --mono:  ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground:  #121614;
+    --surface: #1a201d;
+    --sunken:  #222a26;
+    --ink:     #e4eae6;
+    --muted:   #94a19b;
+    --line:    #2b332f;
+    --accent:  #63c39a;
+    --applied: #5cb98c;
+    --pending: #d3a34e;
+    --risk:    #e0796a;
+    --shadow:  0 1px 2px rgba(0, 0, 0, .5), 0 8px 24px -16px rgba(0, 0, 0, .8);
+  }
+}
+
+:root[data-theme="dark"] {
+  --ground:  #121614;
+  --surface: #1a201d;
+  --sunken:  #222a26;
+  --ink:     #e4eae6;
+  --muted:   #94a19b;
+  --line:    #2b332f;
+  --accent:  #63c39a;
+  --applied: #5cb98c;
+  --pending: #d3a34e;
+  --risk:    #e0796a;
+  --shadow:  0 1px 2px rgba(0, 0, 0, .5), 0 8px 24px -16px rgba(0, 0, 0, .8);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap {
+  max-width: 68rem;
+  margin: 0 auto;
+  padding: clamp(2rem, 5vw, 4.5rem) clamp(1rem, 4vw, 3rem) 6rem;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2.5rem, 5vw, 4rem);
+}
+
+/* ---- head ---------------------------------------------------------- */
+
+header { display: flex; flex-direction: column; gap: .75rem; }
+
+.eyebrow {
+  font-family: var(--mono);
+  font-size: .72rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0;
+}
+
+h1 {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: clamp(2rem, 5vw, 3rem);
+  line-height: 1.1;
+  letter-spacing: -.015em;
+  text-wrap: balance;
+  margin: 0;
+}
+
+.lede {
+  margin: 0;
+  max-width: 60ch;
+  font-size: 1.075rem;
+  color: var(--muted);
+}
+
+/* ---- metric tiles --------------------------------------------------- */
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.tile {
+  background: var(--surface);
+  padding: 1.15rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+}
+
+.tile dt {
+  font-family: var(--mono);
+  font-size: .68rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.tile dd {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 1.75rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  letter-spacing: -.02em;
+}
+
+.tile .unit { font-size: .95rem; color: var(--muted); letter-spacing: 0; }
+.tile .note { font-size: .8rem; color: var(--muted); font-family: var(--sans); }
+.ok  { color: var(--applied); }
+.hot { color: var(--pending); }
+
+/* ---- sections ------------------------------------------------------- */
+
+section { display: flex; flex-direction: column; gap: 1.25rem; }
+
+h2 {
+  font-family: var(--serif);
+  font-size: clamp(1.375rem, 3vw, 1.75rem);
+  font-weight: 600;
+  letter-spacing: -.01em;
+  margin: 0;
+  padding-bottom: .6rem;
+  border-bottom: 2px solid var(--ink);
+  text-wrap: balance;
+}
+
+h3 {
+  font-family: var(--mono);
+  font-size: .74rem;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: .75rem 0 0;
+  font-weight: 600;
+}
+
+p { margin: 0; max-width: 68ch; }
+.section-intro { color: var(--muted); }
+
+/* ---- findings ------------------------------------------------------- */
+
+.findings { display: flex; flex-direction: column; gap: .6rem; }
+
+.finding {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: .2rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--stripe, var(--line));
+  border-radius: 3px;
+  padding: .85rem 1.1rem;
+}
+
+.finding.applied { --stripe: var(--applied); }
+.finding.pending { --stripe: var(--pending); }
+.finding.risk    { --stripe: var(--risk); }
+
+.loc {
+  grid-column: 1;
+  grid-row: 1;
+  font-family: var(--mono);
+  font-size: .82rem;
+  color: var(--accent);
+  white-space: nowrap;
+  align-self: start;
+  padding-top: .12rem;
+}
+
+.finding p {
+  grid-column: 2;
+  grid-row: 1;
+  margin: 0;
+  font-size: .95rem;
+}
+
+@media (max-width: 44rem) {
+  .finding { grid-template-columns: 1fr; gap: .35rem; }
+  .loc, .finding p { grid-column: 1; grid-row: auto; white-space: normal; }
+}
+
+.chip {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: .66rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  padding: .1rem .45rem;
+  border-radius: 2px;
+  border: 1px solid currentColor;
+  vertical-align: .08em;
+  margin-right: .45rem;
+}
+
+.chip.risk    { color: var(--risk); }
+.chip.pending { color: var(--pending); }
+
+code {
+  font-family: var(--mono);
+  font-size: .88em;
+  background: var(--sunken);
+  padding: .08em .35em;
+  border-radius: 2px;
+}
+
+.finding .loc code { background: none; padding: 0; font-size: 1em; }
+
+/* ---- tables --------------------------------------------------------- */
+
+.scroller {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+
+th, td {
+  text-align: left;
+  padding: .55rem .9rem;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+
+thead th {
+  font-family: var(--mono);
+  font-size: .68rem;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: var(--sunken);
+  font-weight: 600;
+}
+
+tbody tr:last-child td { border-bottom: none; }
+td.num { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; }
+td.path { font-family: var(--mono); font-size: .84rem; }
+tfoot td { font-weight: 600; background: var(--sunken); border-top: 2px solid var(--line); }
+tfoot td.num { font-family: var(--mono); }
+
+.bar {
+  display: inline-block;
+  width: 5rem;
+  height: .4rem;
+  border-radius: 2px;
+  background: var(--sunken);
+  overflow: hidden;
+  vertical-align: middle;
+}
+.bar > i { display: block; height: 100%; background: var(--accent); }
+
+/* ---- code block ----------------------------------------------------- */
+
+pre {
+  margin: 0;
+  overflow-x: auto;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 1rem 1.15rem;
+  font-family: var(--mono);
+  font-size: .85rem;
+  line-height: 1.65;
+}
+
+pre code { background: none; padding: 0; font-size: 1em; }
+pre .c { color: var(--muted); }
+
+/* ---- misc ----------------------------------------------------------- */
+
+ul { margin: 0; padding-left: 1.15rem; max-width: 68ch; }
+li { margin-bottom: .3rem; }
+li::marker { color: var(--accent); }
+
+footer {
+  border-top: 1px solid var(--line);
+  padding-top: 1.25rem;
+  color: var(--muted);
+  font-size: .85rem;
+  font-family: var(--mono);
+}
+
+a { color: var(--accent); }
+a:focus-visible, :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="eyebrow">djgentelella · development → master</p>
+  <h1>Auditoría de calidad del release</h1>
+  <p class="lede">22 commits sobre <code>master</code>: 200 archivos, +10.313/−3.405. Mapas Leaflet,
+  dictado por voz, <code>BaseInlineObjectManagement</code>, tree fields sobre django-tree-queries y
+  una suite de navegador nueva. Este informe recoge lo que se arregló, lo que queda a tu
+  decisión, y cuánto del paquete pasa realmente por pruebas.</p>
+</header>
+
+<section>
+  <h2>Estado</h2>
+  <dl class="tiles">
+    <div class="tile">
+      <dt>Suite unitaria</dt>
+      <dd class="ok">385 <span class="unit">OK</span></dd>
+      <span class="note">4 labels, ~2,2 min</span>
+    </div>
+    <div class="tile">
+      <dt>Suite navegador</dt>
+      <dd class="ok">56 <span class="unit">OK</span></dd>
+      <span class="note">6 módulos, ~3,8 min</span>
+    </div>
+    <div class="tile">
+      <dt>Lint</dt>
+      <dd class="ok">rc 0</dd>
+      <span class="note">pycodestyle + ruff</span>
+    </div>
+    <div class="tile">
+      <dt>Coverage combinado</dt>
+      <dd>58<span class="unit">%</span></dd>
+      <span class="note">4.915 / 7.753 sentencias</span>
+    </div>
+    <div class="tile">
+      <dt>Hallazgos aplicados</dt>
+      <dd>30</dd>
+      <span class="note">sin cambio de comportamiento</span>
+    </div>
+    <div class="tile">
+      <dt>Pendientes</dt>
+      <dd class="hot">1</dd>
+      <span class="note">aplazado a propósito</span>
+    </div>
+  </dl>
+</section>
+
+<section>
+  <h2>Infraestructura de pruebas</h2>
+  <p class="section-intro">Dos cosas que no existían: aislamiento del navegador y medición de
+  cobertura.</p>
+
+  <h3>Xvfb: el navegador ya no toca tu escritorio</h3>
+  <p>Las pruebas ya corrían con <code>--headless=new</code>, así que nunca abrieron una ventana; lo
+  que faltaba era poder correrlas <em>con</em> navegador real sin invadir tu sesión.
+  <code>make test-selenium</code> ahora envuelve la corrida en <code>xvfb-run -a</code>, que toma el
+  primer display libre. Verificado en esta corrida: <code>Xvfb :99 -screen 0 1600x1200x24</code>,
+  los dos chromium con <code>DISPLAY=:99</code>, y tu <code>$DISPLAY</code> intacto en
+  <code>:0</code>.</p>
+  <p><code>SELENIUM_HEADLESS</code> (por defecto <code>1</code>) lo lee
+  <code>demo/demoapp/tests/selenium/base.py</code>. Con <code>SELENIUM_HEADLESS=0</code> se dibuja un
+  Chrome de verdad dentro de ese Xvfb, que es la forma de reproducir un fallo de render en Leaflet,
+  un canvas o TinyMCE. <code>make test-selenium-run</code> es la misma suite sin el envoltorio, para
+  depurar mirando el navegador en tu pantalla.</p>
+
+  <h3>Coverage</h3>
+  <p>Configuración en <code>pyproject.toml</code>. Dos detalles obligan la forma de los targets:
+  <code>demo/manage.py</code> inserta <code>..</code> relativo al <em>directorio actual</em>, así que
+  las pruebas sólo corren desde <code>demo/</code>; y coverage resuelve su rcfile y su fichero de
+  datos contra ese mismo directorio. De ahí las rutas absolutas <code>$(CURDIR)</code> y
+  <code>source_pkgs</code> — un <code>source</code> relativo se resolvería contra <code>demo/</code>
+  y no mediría nada.</p>
+  <pre><code>make coverage        <span class="c"># sólo labels unitarios → report + htmlcov/</span>
+make coverage-all    <span class="c"># los mismos, más la suite selenium, combinados</span></code></pre>
+  <p>El pase selenium cuenta de verdad: el live server corre en un hilo del mismo proceso, así que
+  coverage sí ve las vistas, serializers y template tags que el navegador toca.</p>
+  <p><code>coverage</code> y <code>selenium</code> siguen sin declararse como dependencias, por
+  decisión tuya: instálalos a mano en el entorno.</p>
+</section>
+
+<section>
+  <h2>Nota sobre el diff</h2>
+  <p class="section-intro">Antes de revisar nada: el ~90 % del diff de <code>widgets/core.py</code>
+  (430 líneas), <code>urls.py</code> (208), <code>trash/api.py</code>, <code>widgets/files.py</code>
+  y <code>widgets/digital_signature.py</code> es reformateo de <code>ruff format</code> — comilla
+  simple a doble, del commit <code>88fd5f2</code>, que tocó 33 archivos. No es lógica. Quien revise
+  el diff debería saberlo antes de buscar cambios de comportamiento donde no los hay.</p>
+</section>
+
+<section>
+  <h2>Aplicado</h2>
+  <p class="section-intro">Nada de esto cambia el comportamiento observable, salvo donde se
+  indica que sustituye un fallo garantizado.</p>
+
+  <h3>Restos de depuración</h3>
+  <div class="findings">
+    <div class="finding applied">
+      <span class="loc"><code>trash/api.py:86</code></span>
+      <p><code>print(str(e))</code> dentro de un <code>except Exception</code>: la razón de un
+      restore fallido nunca llegaba al log de la aplicación. Ahora
+      <code>logger.exception()</code>.</p>
+    </div>
+    <div class="finding applied">
+      <span class="loc"><code>cruds/base.py:554</code></span>
+      <p><code>print(self.getparams)</code> en <code>get_success_url</code>, imprimiendo en cada
+      borrado. Eliminado. Preexistente en <code>master</code>.</p>
+    </div>
+    <div class="finding applied">
+      <span class="loc"><code>consumers/sign.py</code></span>
+      <p>Tres <code>print()</code> de diagnóstico del logo de firma, uno de ellos duplicando un
+      <code>logger.error</code> que ya estaba justo debajo. Pasados a <code>logger</code>.</p>
+    </div>
+    <div class="finding applied">
+      <span class="loc"><code>base/map.js:54</code></span>
+      <p>El único <code>console.log</code> real del JS nuevo, y en la rama de error: cuando la carga
+      del mapa falla, la consola es el único sitio donde eso aparece. Ahora
+      <code>console.error</code> e incluye la URL.</p>
+    </div>
+  </div>
+
+  <h3>Código muerto</h3>
+  <div class="findings">
+    <div class="finding applied">
+      <span class="loc"><code>trash/api.py:55-64</code></span>
+      <p><code>get_object_or_404(...)</code> seguido de <code>if not trash: return 400</code>. La
+      rama es inalcanzable: <code>get_object_or_404</code> lanza. Borrada — y verificado el lado
+      cliente, ver abajo.</p>
+    </div>
+    <div class="finding applied">
+      <span class="loc"><code>maplib.js:310</code></span>
+      <p><code>engine._abort.abort()</code> en <code>destroy()</code>, pero <code>_abort</code> no se
+      asigna en ninguna parte del proyecto. Defensa muerta. <code>_moveTimer</code>, en la línea
+      siguiente, sí lo asigna <code>map.js:70</code> y se conserva.</p>
+    </div>
+    <div class="finding applied">
+      <span class="loc"><code>mappoint.js:266</code></span>
+      <p><code>$(document).off('.gtmap-' + id)</code>: nada bindea nunca en ese namespace.</p>
+    </div>
+    <div class="finding applied">
+      <span class="loc"><code>pyproject.toml:221</code></span>
+      <p><code>[tool.black]</code> con black en ninguna parte del repo: ni requirements, ni CI, ni
+      Makefile. El formateador real es <code>ruff format</code>.</p>
+    </div>
+  </div>
+
+  <h3>Comentarios incoherentes</h3>
+  <div class="findings">
+    <div class="finding applied">
+      <span class="loc"><code>maplib.js:8</code></span>
+      <p>«createbasejs.py must list this file before its consumers». <strong>Falso, y verificado</strong>:
+      <code>createbasejs.py</code> escribe primero <code>jquery_plugins</code> — que contiene
+      <code>map.js</code>, un consumidor — dentro de un IIFE, y sólo después <code>basefiles</code>,
+      donde está <code>maplib.js</code>. Funciona por hoisting de declaraciones de función en el
+      <code>base.js</code> concatenado. El comentario ahora explica eso, y advierte que convertir
+      cualquiera de esas funciones en <code>var f = function(){}</code> rompe <code>map.js</code>.</p>
+    </div>
+    <div class="finding applied">
+      <span class="loc"><code>views/maps.py:52</code></span>
+      <p>«Set first, so the hooks below can read query_params» sobre <code>self.request = request</code>.
+      <code>APIView.dispatch</code> ya lo asignó antes de enrutar aquí. La línea se conserva por
+      simetría con las otras vistas base, pero el comentario ya no afirma una necesidad
+      inexistente.</p>
+    </div>
+    <div class="finding applied">
+      <span class="loc"><code>views/maps.py:8</code></span>
+      <p>«the point payload a <code>DJMap</code> widget draws»: <code>DJMap</code> no tiene clase
+      Python, sólo entrada JS y el template <code>djmap.html</code>. Precisado.</p>
+    </div>
+    <div class="finding applied">
+      <span class="loc"><code>voice/asr.py:12</code></span>
+      <p>El docstring listaba tres settings y omitía <code>GENTELELLA_ASR_PNC</code>, que el código
+      lee en la línea 89.</p>
+    </div>
+    <div class="finding applied">
+      <span class="loc"><code>voice/asr.py:81</code></span>
+      <p><code>transcribe()</code> documentaba <code>target_language</code> como si fuera un
+      parámetro. No existe: es una clave de opciones que se deriva de <code>language</code>.</p>
+    </div>
+    <div class="finding applied">
+      <span class="loc"><code>widgets/maps.py:35</code></span>
+      <p>La lista de parámetros documentaba <code>tile_url</code> y <code>geocoder_url</code> pero no
+      <code>tile_attribution</code>, que sí es kwarg aceptado. Añadido también a
+      <code>docs/source/widgets/maps.rst</code>.</p>
+    </div>
+    <div class="finding applied">
+      <span class="loc"><code>digital_signature.py:45</code></span>
+      <p>«this will generate a 500 error in the future»: un TODO en prosa, vago. Ahora dice qué falla
+      y cuándo — <code>reverse(None)</code> es <code>NoReverseMatch</code>, y sólo al renderizar un
+      valor ligado.</p>
+    </div>
+    <div class="finding applied">
+      <span class="loc"><code>test_async_notification.py:111</code></span>
+      <p>«these cannot move to module level», con tres <code>noqa: PLC0415</code> apoyándose en esa
+      afirmación. <code>base.py:25-35</code> demuestra que sí pueden. Resuelto al deduplicar el
+      módulo.</p>
+    </div>
+  </div>
+
+  <h3>Fugas y robustez en el JS nuevo</h3>
+  <div class="findings">
+    <div class="finding applied">
+      <span class="loc"><code>mappoint.js:249</code></span>
+      <p><strong>Fuga real.</strong> Los handlers <code>change.gtmap keyup.gtmap</code> de
+      <code>based_fields</code> se bindean sobre <em>otros</em> elementos
+      (<code>scope.find(selector)</code>), y <code>destroy()</code> sólo desbindeaba el input propio
+      del widget. Un widget re-renderizado — una fila de formset, un modal reabierto — dejaba un
+      handler vivo sobre un campo hermano, cerrando sobre un engine cuyo mapa ya no existe. Ahora se
+      guardan los desbindeos y se ejecutan en <code>destroy()</code>, nombrando el handler para que
+      dos widgets que vigilan el mismo campo no se desbindeen mutuamente.</p>
+    </div>
+    <div class="finding applied">
+      <span class="loc"><code>mappoint.js:197</code></span>
+      <p><code>JSON.parse(basedFields)</code> sin guard: un <code>data-based-fields</code> malformado
+      lanzaba y abortaba el resto de la inicialización, dejando un input sin mapa. Ahora degrada a
+      «sin geocoding» y lo reporta en consola.</p>
+    </div>
+  </div>
+
+  <h3>Duplicación</h3>
+  <div class="findings">
+    <div class="finding applied">
+      <span class="loc"><code>fields/maps.py</code></span>
+      <p><code>parse_point</code> y <code>validate_latlng</code> reimplementaban el mismo
+      split/float/rango, así que un arreglo en uno se saltaba el otro. Unificados en
+      <code>_read_latlng()</code>, que devuelve <code>(código_error, punto)</code>; los cuatro
+      mensajes por modo de fallo viven ahora en <code>LATLNG_ERRORS</code>. De paso desaparecen los
+      tres <code>raise ValidationError</code> dentro de <code>except</code> sin <code>from</code>.</p>
+    </div>
+    <div class="finding applied">
+      <span class="loc"><code>fields/tree.py:28</code></span>
+      <p><code>DISABLE_KWARG.match(key)</code> ejecutado dos veces por clave. Un solo match con
+      walrus, y el comentario que explica por qué la lista se materializa antes del bucle (se hace
+      <code>pop</code> sobre el dict que se itera).</p>
+    </div>
+    <div class="finding applied">
+      <span class="loc"><code>test_async_notification.py</code></span>
+      <p>Único módulo selenium que no usaba <code>SeleniumTestCase</code>: duplicaba el arranque del
+      driver, la creación del superusuario y los imports con <code>noqa</code>. Reescrito sobre la
+      clase base — quedan sólo el <code>override_settings</code> de SMTP, el skip por MailHog caído y
+      los helpers <code>_mh_*</code>. Con esto <code>SELENIUM_HEADLESS</code> aplica a los 6
+      módulos.</p>
+    </div>
+  </div>
+
+  <h3>Fallo latente convertido en código que funciona</h3>
+  <div class="findings">
+    <div class="finding applied">
+      <span class="loc"><code>core.py:294</code> · <code>tinymce.py:14</code></span>
+      <p><code>Textarea</code> y <code>EditorTinymce</code> escribían en <code>attrs</code> fuera del
+      guard <code>if extraskwargs:</code>, de modo que <code>extraskwargs=False, attrs=None</code>
+      lanzaba <code>TypeError</code> — <code>update_kwargs</code> es lo que normalmente convierte el
+      <code>None</code> en dict. Preexistente, pero <code>VoiceEditorTinymce</code> lo volvía
+      alcanzable desde una clase pública nueva, y <code>VoiceDictation</code> ya se protegía: dos
+      idiomas en el mismo archivo. Añadido <code>attrs = attrs or {}</code> en ambos. Nadie puede
+      depender de un <code>TypeError</code>, así que el cambio es seguro.</p>
+    </div>
+    <div class="finding applied">
+      <span class="loc"><code>urls.py:99</code> · <code>files.py:51</code></span>
+      <p>Variables de excepción ligadas y nunca usadas. En <code>urls.py</code> además el
+      <code>except ModuleNotFoundError: pass</code> silenciaba un <code>gtmaps.py</code> que existe
+      pero falla al importar: el registro desaparecía sin traza y el síntoma era un 404 en un mapa
+      «que sí registré». Ahora lo registra en <code>logger.debug</code>.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>El 404 de restore, del lado del cliente</h2>
+  <p class="section-intro">Al borrar la rama muerta de <code>restore()</code> quedaba la pregunta de
+  qué ve el navegador cuando el registro ya no existe. Medido con peticiones reales contra la API,
+  no supuesto:</p>
+
+  <div class="scroller">
+    <table>
+      <thead>
+        <tr><th>Escenario</th><th class="num">Status</th><th>Content-Type</th><th>Body</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Hoy — el <code>except Exception</code> atrapa el <code>Http404</code></td>
+          <td class="num">400</td>
+          <td class="path">application/json</td>
+          <td class="path">{"result":false,"detail":"No se pudo restaurar el registro."}</td>
+        </tr>
+        <tr>
+          <td>Si el <code>Http404</code> llegara a DRF</td>
+          <td class="num">404</td>
+          <td class="path">application/json</td>
+          <td class="path">{"detail":"No Trash matches the given query."}</td>
+        </tr>
+        <tr>
+          <td>Sin permiso <code>change_trash</code></td>
+          <td class="num">403</td>
+          <td class="path">application/json</td>
+          <td class="path">{"detail":"Usted no tiene permiso…"}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p><strong>Los tres son JSON.</strong> DRF nunca sirve la página HTML de error de Django en estas
+  vistas, así que el cliente no puede romperse por el content-type — y el cambio de 400 a 404, si
+  algún día se hace, no rompería nada tampoco.</p>
+  <p>El problema real era otro: el handler <code>error:</code> de
+  <code>demoapp/templates/gentelella/trash/trash.html</code> <em>no leía el cuerpo en absoluto</em> y
+  mostraba siempre «Sorry, an error occurred.», tirando el <code>detail</code> traducido que el
+  servidor sí manda. Ahora lee <code>xhr.responseJSON.detail</code> y sólo cae al mensaje genérico
+  cuando el cuerpo no es JSON — una página de error de un proxy, un 500 de un middleware. Ese
+  template no es sólo demo: la librería no trae JS de restore, cada proyecto copia este.</p>
+  <p>Y como la forma de la respuesta de error es contrato público, no detalle interno, la fija ahora
+  un test: <code>djgentelella/tests/Trash_Test.py</code>, 3 casos — restore correcto, pk inexistente
+  y sin permiso — que comprueban el content-type, la presencia de <code>detail</code> y, vía
+  <code>assertLogs</code>, que la excepción llega al log. <code>trash/api.py</code> pasa de no tener
+  ninguna prueba unitaria a tenerlas.</p>
+</section>
+
+<section>
+  <h2>Descartado tras revisión</h2>
+  <p class="section-intro">Tres hallazgos que la auditoría clasificó como código muerto y no lo
+  eran. Revertidos al estado original.</p>
+  <div class="findings">
+    <div class="finding">
+      <span class="loc"><code>objectmanagement.py:25-34</code></span>
+      <p>El bloque comentado (<code>authentication_classes</code>, <code>queryset</code>,
+      <code>search_fields</code>, <code>filterset_class</code>, <code>ordering_fields</code>,
+      <code>ordering</code>) <strong>no es residuo: es la plantilla de herencia</strong>. Muestra la
+      forma concreta que debe tener cada atributo cuando el hijo lo sobrescribe —
+      <code>ordering = ('-num_children',)</code> enseña que va una tupla, <code>search_fields</code>
+      que va una lista de nombres. Sustituirlo por prosa perdía esa información. Restaurado, con una
+      línea que dice explícitamente para qué está.</p>
+    </div>
+    <div class="finding">
+      <span class="loc"><code>objectmanagement.py:53</code></span>
+      <p><code>retrieve()</code> delega en <code>super()</code> y no añade nada, pero es un punto de
+      extensión declarado del que puede depender cualquier proyecto que herede de la clase.
+      Restaurado con un comentario que dice por qué está ahí.</p>
+    </div>
+    <div class="finding">
+      <span class="loc"><code>objectmanagement.py:149</code></span>
+      <p><code>perform_create</code> y <code>perform_update</code> son idénticos, pero unificarlos en
+      un alias los vuelve menos reconocibles como los dos hooks que DRF documenta y que un hijo
+      sobrescribe por separado. Vuelven a ser dos métodos; lo que faltaba —el comentario que explica
+      por qué coinciden— se queda.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Segunda ronda: resueltos</h2>
+  <p class="section-intro">Siete de los ocho pendientes, cerrados tras tu revisión. En dos casos la
+  auditoría se quedaba corta y aparecieron cosas que no había visto.</p>
+
+  <div class="findings">
+    <div class="finding applied">
+      <span class="loc"><code>maplib.js:330</code></span>
+      <p><span class="chip">inyección</span><code>gt_map_marker_icon</code> concatenaba
+      <code>point.color</code> y <code>point.icon</code> crudos dentro del <code>html:</code> del
+      <code>divIcon</code>. En vez de escaparlos, el marcador se construye ahora con DOM:
+      Leaflet 1.x acepta un <code>Element</code> en <code>html</code> —verificado en el
+      <code>DivIcon.createIcon</code> del 1.1.1 que va empaquetado— así que no queda nada que
+      escapar. <code>style.background</code> pasa por el CSSOM, que descarta cualquier cosa que no
+      sea un color válido, y un <code>className</code> no puede transportar markup.</p>
+    </div>
+    <div class="finding applied">
+      <span class="loc"><code>trash/api.py:58</code></span>
+      <p>El <code>get_object_or_404</code> sale del <code>try</code>: un registro inexistente es
+      ahora un <strong>404</strong>, no un 400 con «no se pudo restaurar». El catch-all se queda
+      —<code>restore()</code> alcanza código de modelo arbitrario por la relación genérica— pero
+      cubre sólo lo que de verdad es un fallo de restore. Los tests de contrato se actualizaron:
+      son 4, y uno nuevo fuerza un <code>RuntimeError</code> dentro de <code>restore()</code> para
+      comprobar que ese camino sigue devolviendo 400 con JSON y dejando el motivo en el log.</p>
+    </div>
+    <div class="finding applied">
+      <span class="loc"><code>core.py:254</code> · <code>tinymce.py:19</code></span>
+      <p>Los <code>data-</code> se documentan en vez de convertirse en kwargs: son libres a
+      propósito, el JS los lee del elemento y un proyecto puede añadir los suyos sin que el widget
+      crezca un parámetro por opción. <strong>Y al documentarlos apareció un error</strong>: mi
+      borrador decía <code>data-vad-*</code>, pero sólo tres de las siete claves llevan ese prefijo
+      —las otras son <code>data-rms-threshold</code>, <code>data-pool-size</code>,
+      <code>data-max-session-ms</code> y <code>data-request-timeout-ms</code>—. También corregí el
+      ejemplo: el nombre de URL va sin namespace (<code>reverse_lazy('voice_transcribe')</code>),
+      porque <code>djgentelella/urls.py</code> no declara <code>app_name</code>.</p>
+    </div>
+    <div class="finding applied">
+      <span class="loc"><code>voiceprogressive.js:507</code></span>
+      <p><strong>Uno de los cuatro <code>catch{}</code> vacíos no era cosmético.</strong>
+      <code>AudioContext.close()</code> devuelve una Promise y <em>rechaza</em> —no lanza— cuando el
+      contexto ya está cerrado, así que el <code>try/catch</code> no lo cubría: el segundo teardown
+      dejaba un unhandled rejection en la consola. Ahora se encadena un <code>.catch()</code> sobre
+      la promesa. Los otros tres sí son correctos (desconectar un nodo ya desconectado, abortar una
+      petición ya resuelta) y llevan cada uno el comentario que dice por qué, más una nota de
+      política sobre <code>_teardown</code>: se ignora «ya está en ese estado», nada más.</p>
+    </div>
+    <div class="finding applied">
+      <span class="loc"><code>voice/asr.py:49</code></span>
+      <p>El <code>except (ValueError, TypeError)</code> cubría dos cosas distintas. Ahora sólo
+      tolera el caso real —el flush del resampler, que sólo PyAV ≥ 9 soporta y donde no hay nada
+      buffereado que perder— y <strong>re-lanza si el fallo fue sobre un frame de verdad</strong>,
+      que era lo que convertía un error de decodificación en «audio vacío». El módulo tiene logger:
+      <code>debug</code> para el flush no soportado e <code>info</code> alrededor de la carga del
+      modelo, que descarga ~670 MB bloqueando el hilo de la petición y hasta ahora parecía un
+      cuelgue.</p>
+    </div>
+    <div class="finding applied">
+      <span class="loc"><code>views/maps.py:8</code></span>
+      <p>No es un hallazgo: <code>BaseMapView</code> es una clase para heredar y el permiso lo fija
+      la subclase o el viewset con el que se combina, igual que
+      <code>BaseTimelineView</code>. Queda documentado en el docstring para que la próxima
+      auditoría no lo vuelva a levantar, con la advertencia de que una subclase sobre un queryset no
+      público tiene que declararlo.</p>
+    </div>
+    <div class="finding applied">
+      <span class="loc">205 archivos</span>
+      <p><span class="chip">estilo</span>Comillas unificadas en simple: <strong>3.316
+      correcciones en 139 archivos</strong>. Se hizo con <code>ruff check --select Q --fix</code> y
+      no con <code>ruff format</code>: el formateador habría re-envuelto líneas y reescrito trailing
+      commas en todo el árbol —11.161 líneas en 225 archivos— para cambiar un carácter de comilla.
+      Ruff deja en dobles las cadenas que contienen comillas simples, que es lo correcto. La regla
+      <code>Q</code> entra en <code>make lint</code>, así que la divergencia no puede volver;
+      docstrings y bloques triples siguen en dobles, según PEP 257.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Pendiente</h2>
+  <div class="findings">
+    <div class="finding pending">
+      <span class="loc"><code>voice/views.py:197</code></span>
+      <p><span class="chip pending">aplazado</span>El token de la API remota viaja como
+      <code>Authorization: Bearer</code> sin validar que <code>GENTELELLA_ASR_REMOTE_URL</code> sea
+      https, y no hay rate limiting. <strong>Decisión tuya: se queda así de momento, sirve para
+      desarrollo.</strong> Anotado aquí para que no se pierda antes de que alguien apunte el backend
+      remoto a producción.</p>
+    </div>
+  </div>
+</section>
+
+<section id="coverage-section">
+  <h2>Cobertura</h2>
+  <p class="section-intro"><strong>58 %</strong> de <code>djgentelella</code> — 4.920 de 7.755
+  sentencias, con medición de ramas. Es el número combinado de las dos pasadas: unitaria
+  (385 tests, incluidos los 215 de <code>async_notification</code>) y navegador (56 tests, con
+  MailHog levantado). Las migraciones y los propios módulos de test quedan fuera de la
+  medición.</p>
+
+  <div class="scroller">
+    <table>
+      <thead>
+        <tr>
+          <th>Subpaquete</th>
+          <th class="num">Archivos</th>
+          <th class="num">Sentencias</th>
+          <th class="num">Cobertura</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="path">trash/</td><td class="num">3</td><td class="num">79</td><td class="num">94 %</td><td><span class="bar"><i style="width:94%"></i></span></td></tr>
+        <tr><td class="path">voice/</td><td class="num">3</td><td class="num">138</td><td class="num">93 %</td><td><span class="bar"><i style="width:93%"></i></span></td></tr>
+        <tr><td class="path">history/</td><td class="num">4</td><td class="num">147</td><td class="num">90 %</td><td><span class="bar"><i style="width:90%"></i></span></td></tr>
+        <tr><td class="path">widgets/</td><td class="num">16</td><td class="num">887</td><td class="num">83 %</td><td><span class="bar"><i style="width:83%"></i></span></td></tr>
+        <tr><td class="path">blog/</td><td class="num">10</td><td class="num">223</td><td class="num">82 %</td><td><span class="bar"><i style="width:82%"></i></span></td></tr>
+        <tr><td class="path">notification/</td><td class="num">4</td><td class="num">135</td><td class="num">76 %</td><td><span class="bar"><i style="width:76%"></i></span></td></tr>
+        <tr><td class="path">(raíz del paquete)</td><td class="num">16</td><td class="num">747</td><td class="num">74 %</td><td><span class="bar"><i style="width:74%"></i></span></td></tr>
+        <tr><td class="path">serializers/</td><td class="num">11</td><td class="num">373</td><td class="num">70 %</td><td><span class="bar"><i style="width:70%"></i></span></td></tr>
+        <tr><td class="path">async_notification/</td><td class="num">30</td><td class="num">2.167</td><td class="num">69 %</td><td><span class="bar"><i style="width:69%"></i></span></td></tr>
+        <tr><td class="path">fields/</td><td class="num">7</td><td class="num">357</td><td class="num">64 %</td><td><span class="bar"><i style="width:64%"></i></span></td></tr>
+        <tr><td class="path">views/</td><td class="num">9</td><td class="num">333</td><td class="num">64 %</td><td><span class="bar"><i style="width:64%"></i></span></td></tr>
+        <tr><td class="path">forms/</td><td class="num">4</td><td class="num">139</td><td class="num">58 %</td><td><span class="bar"><i style="width:58%"></i></span></td></tr>
+        <tr><td class="path">cruds/</td><td class="num">4</td><td class="num">583</td><td class="num">48 %</td><td><span class="bar"><i style="width:48%"></i></span></td></tr>
+        <tr><td class="path">templatetags/</td><td class="num">9</td><td class="num">438</td><td class="num">44 %</td><td><span class="bar"><i style="width:44%"></i></span></td></tr>
+        <tr><td class="path">chunked_upload/</td><td class="num">6</td><td class="num">221</td><td class="num">39 %</td><td><span class="bar"><i style="width:39%"></i></span></td></tr>
+        <tr><td class="path">permission_management/</td><td class="num">4</td><td class="num">197</td><td class="num">36 %</td><td><span class="bar"><i style="width:36%"></i></span></td></tr>
+        <tr><td class="path">wysiwyg/</td><td class="num">2</td><td class="num">22</td><td class="num">32 %</td><td><span class="bar"><i style="width:32%"></i></span></td></tr>
+        <tr><td class="path">firmador_digital/</td><td class="num">14</td><td class="num">393</td><td class="num">23 %</td><td><span class="bar"><i style="width:23%"></i></span></td></tr>
+        <tr><td class="path">management/</td><td class="num">5</td><td class="num">130</td><td class="num">0 %</td><td><span class="bar"><i style="width:0%"></i></span></td></tr>
+        <tr><td class="path">menu_widgets/</td><td class="num">2</td><td class="num">27</td><td class="num">0 %</td><td><span class="bar"><i style="width:0%"></i></span></td></tr>
+        <tr><td class="path">decorators/</td><td class="num">2</td><td class="num">19</td><td class="num">0 %</td><td><span class="bar"><i style="width:0%"></i></span></td></tr>
+      </tbody>
+      <tfoot>
+        <tr><td>Total</td><td class="num">165</td><td class="num">7.755</td><td class="num">58 %</td><td><span class="bar"><i style="width:58%"></i></span></td></tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <h3>Lo que dicen estos números</h3>
+  <ul>
+    <li><code>async_notification/</code> es el 28 % del paquete por tamaño y está al 69 %. Sus 215
+      tests corren en local y usan el backend <code>locmem</code>, así que MailHog no los afecta:
+      lo que MailHog habilita es el test de navegador que ejercita el camino SMTP real de punta a
+      punta. Sigue siendo el módulo que CI nunca ejecuta.</li>
+    <li>Lo nuevo del release está bien: <code>voice/</code> al 93 %, <code>widgets/</code> al 83 %,
+      <code>fields/</code> al 64 % (la parte de mapas y tree fields tira hacia arriba, los widgets
+      de fichero hacia abajo). <code>trash/</code> encabeza la tabla al 94 % gracias a los tests de
+      contrato nuevos — <code>trash/api.py</code> pasó del 87 % al 95 %.</li>
+    <li><code>firmador_digital/</code> al 23 % y <code>cruds/</code> al 48 % son la deuda vieja:
+      juntas son casi 1.000 sentencias, y <code>cruds/base.py</code> es de lo más usado de la
+      librería.</li>
+    <li><code>management/</code> al 0 % es esperable — son comandos que se invocan a mano
+      (<code>createbasejs</code>, <code>loaddevstatic</code>) — pero <code>loaddevstatic</code>
+      acaba de tener un fallo real de particionado, así que el 0 % no es gratis.</li>
+    <li>Estos porcentajes son sólo de Python. El JavaScript no se mide, y es donde vive la lógica
+      más delicada del branch.</li>
+  </ul>
+
+  <h3>Sin ninguna prueba unitaria</h3>
+  <ul>
+    <li><code>widgets/core.py::VoiceDictation</code> y
+      <code>widgets/tinymce.py::VoiceEditorTinymce</code> — ninguna prueba las menciona; sólo se
+      ejercitan a mano en el demo.</li>
+    <li><code>trash/api.py</code>, <code>widgets/files.py</code>,
+      <code>widgets/digital_signature.py</code> — sólo selenium, indirectamente.</li>
+    <li><strong>Todo el JS.</strong> No hay pruebas unitarias de JavaScript. La lógica VAD, el
+      ordenador de segmentos y el pool de <code>voiceprogressive.js</code> — 597 líneas, lo más
+      intrincado del branch — no las toca nada, ni siquiera de refilón.</li>
+  </ul>
+
+  <h3>Cubiertos por pruebas propias</h3>
+  <ul>
+    <li><code>voice/asr.py</code> y <code>voice/views.py</code> → <code>Voice_Test.py</code></li>
+    <li><code>fields/maps.py</code>, <code>views/maps.py</code>, <code>serializers/maps.py</code> →
+      <code>tests/fields/MapField_Test.py</code></li>
+    <li><code>widgets/maps.py</code> → <code>Map_Test.py</code></li>
+    <li><code>fields/tree.py</code> → <code>TreeFields_Test.py</code></li>
+    <li><code>BaseInlineObjectManagement</code> → <code>InlineObjectManagement_Test.py</code></li>
+  </ul>
+</section>
+
+<section>
+  <h2>Cómo reproducirlo</h2>
+  <pre><code>make lint                          <span class="c"># pycodestyle + ruff</span>
+
+cd demo &amp;&amp; python manage.py test \
+    djgentelella.tests djgentelella.async_notification \
+    djgentelella.blog.tests demoapp --exclude-tag=selenium
+
+make mailhog                       <span class="c"># SMTP :1025, UI :8025</span>
+make test-selenium                 <span class="c"># dentro de su propio Xvfb</span>
+SELENIUM_HEADLESS=0 make test-selenium   <span class="c"># Chrome real, mismo Xvfb</span>
+make mailhog-stop
+
+pip install coverage
+make coverage-all                  <span class="c"># → htmlcov/index.html</span></code></pre>
+  <p>Tras tocar cualquier fichero de <code>static/gentelella/js/base/</code> hay que regenerar el
+  bundle con <code>make basejs</code>, o las pruebas de navegador seguirán ejecutando el JS
+  anterior.</p>
+</section>
+
+<footer id="footer">djgentelella 0.6.0 · rama development</footer>
+
+</div>
+</body>
+</html>

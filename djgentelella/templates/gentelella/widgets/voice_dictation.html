@@ -1,0 +1,11 @@
+{% load i18n %}
+<div id="{{ widget.attrs.id }}_container" >
+    <textarea name="{{ widget.name }}" {% include "gentelella/widgets/attrs.html" %}>{% if widget.value %}{{ widget.value }}{% endif %}</textarea>
+    <div class="mt-1">
+        <button class="btn btn-success" type="button" id="{{ widget.attrs.id }}_btn"><i class="fa fa-microphone" aria-hidden="true"></i>
+ <span>{% trans 'Dictate' %}</span> </button>
+        <button class="btn btn-danger" type="button" id="{{ widget.attrs.id }}_cancel"><i class="fa fa-stop-circle-o" aria-hidden="true"></i>
+ {% trans 'Cancel' %} </button>
+        <span id="{{ widget.attrs.id }}_status" class="text-muted ms-2"></span>
+    </div>
+</div>
