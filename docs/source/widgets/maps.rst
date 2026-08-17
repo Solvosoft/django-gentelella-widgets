@@ -124,6 +124,26 @@ Or, with validation and a model field included:
 
 .. warning::
 
+   **Blank tiles, or a 403 saying a referer is required?** Django sets
+   ``SECURE_REFERRER_POLICY = 'same-origin'`` by default (since 3.1), which
+   tells the browser to send no ``Referer`` at all on cross-origin requests --
+   and every tile a map fetches is cross-origin.
+   `OpenStreetMap's tile usage policy
+   <https://operations.osmfoundation.org/policies/tiles/>`_ requires a
+   ``Referer`` or a ``User-Agent`` identifying the application and answers 403
+   without one, so the default leaves you with a grid of empty squares.
+
+   Set it to the value current browsers use themselves, which sends only the
+   origin -- no path, no query -- to another site::
+
+       SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+
+   The alternative is not to depend on OSM's public servers at all: point
+   ``tile_url`` (and ``tile_attribution``) at your own tile server or a
+   provider you have an API key for.
+
+.. warning::
+
    Address search and ``based_fields`` geocode through
    `Nominatim <https://operations.osmfoundation.org/policies/nominatim/>`_,
    whose usage policy caps callers at one request per second and forbids heavy

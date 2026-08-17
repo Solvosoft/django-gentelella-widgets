@@ -20,6 +20,11 @@ PLACES = [
 
 LATLNG_RE = r'^-?\d+\.\d{6},-?\d+\.\d{6}$'
 
+#: Ciudad de Guatemala. Deliberately nowhere near the form's default centre
+#: (San Jose, Costa Rica), so a point that lands on the default instead of
+#: where it was asked for cannot pass unnoticed.
+GUATEMALA_CITY = (14.6349, -90.5069)
+
 
 class MapsTestBase(SeleniumTestCase):
     def setup_data(self):
@@ -148,6 +153,62 @@ class MapPointInputTest(MapsTestBase):
         place = Place.objects.get(name='Nueva sede')
         self.assertEqual(place.location, '9.932700,-84.087500')
 
+    def test_a_point_picked_on_the_map_lands_where_it_was_clicked(self):
+        """Fill the whole form, placing the point by clicking the map.
+
+        The other click test only checks the value *looks* like a point. This
+        one pans the map over Guatemala City and clicks dead centre, so the
+        assertion is on the coordinates themselves.
+
+        What that catches is the click resolving against the wrong view --
+        landing on the widget's configured centre, or on a stale one, instead
+        of where the map is actually looking. Verified by removing the pan:
+        the point comes back as 9.932717,-84.087514, the Costa Rica default,
+        and the test fails by 4.7 degrees. Note it would not catch a *uniform*
+        projection error, since the same constant drives the pan and the
+        expectation; what it pins is that the two agree.
+
+        A capital far from the default centre on purpose: a wrong-view bug
+        that landed a few kilometres off would otherwise pass unnoticed.
+        """
+        self.open_form()
+
+        # setView, not setPoint: this moves the viewport without placing
+        # anything, so the point that ends up stored can only come from the
+        # click below.
+        self.js(
+            "window._gt_map_point_widgets['id_location'].engine.map"
+            "  .setView([%s, %s], 15);" % GUATEMALA_CITY)
+        self.wait_js(
+            "return window._gt_map_point_widgets['id_location'].engine.map"
+            "  .getZoom() === 15")
+
+        self.js("document.getElementById('id_name').value = 'Sede Guatemala';"
+                "document.getElementById('id_country').value = 'Guatemala';"
+                "document.getElementById('id_city').value = "
+                "  'Ciudad de Guatemala';")
+        self.driver.find_element(By.CSS_SELECTOR, '#id_location_map').click()
+        self.wait_js("return document.getElementById('id_location').value !== ''")
+
+        value = self.js("return document.getElementById('id_location').value")
+        self.assertRegex(value, LATLNG_RE)
+        lat, lng = (float(part) for part in value.split(','))
+        # One tenth of a degree is ~11 km: wide enough for the click landing a
+        # few pixels off centre, far tighter than the distance to any other
+        # capital.
+        self.assertAlmostEqual(lat, GUATEMALA_CITY[0], delta=0.1)
+        self.assertAlmostEqual(lng, GUATEMALA_CITY[1], delta=0.1)
+
+        self.driver.find_element(
+            By.CSS_SELECTOR, 'form button[type=submit]').click()
+        self.wait_js("return document.readyState === 'complete'")
+
+        place = Place.objects.get(name='Sede Guatemala')
+        self.assertEqual(place.city, 'Ciudad de Guatemala')
+        # Saved verbatim: the widget owns the formatting, the field stores the
+        # string it produced.
+        self.assertEqual(place.location, value)
+
 
 @tag('selenium')
 class DJMapTest(MapsTestBase):
@@ -171,6 +232,70 @@ class DJMapTest(MapsTestBase):
         self.wait_js("return document.querySelectorAll("
                      "'.leaflet-marker-icon').length > 0")
         self.assertGreater(self.marker_count(), 0)
+
+    def layer_markers(self, layer_name):
+        """The markers a layer actually put on the map, with their popups.
+
+        Read off the Leaflet group rather than the DOM: clustering is on for
+        this dashboard, so at the default zoom the individual markers are
+        collapsed into cluster icons and simply are not in the document. The
+        group holds them either way, which is what "the layer drew them" means
+        here.
+        """
+        return self.js(
+            "const engine = jQuery('.gentelella_map').data('mapInstance');"
+            "const layer = engine.layers[arguments[0]];"
+            "if (!layer) return null;"
+            "return {"
+            "  onMap: engine.map.hasLayer(layer.group),"
+            "  markers: layer.group.getLayers().map(function (m) {"
+            "    return {lat: m.getLatLng().lat, lng: m.getLatLng().lng,"
+            "            popup: m.getPopup() ? m.getPopup().getContent() : ''};"
+            "  })"
+            "};", layer_name)
+
+    def test_the_costa_rica_layer_draws_every_city_the_api_returned(self):
+        """The Costa Rica cities reach the map, with the right coordinates.
+
+        test_points_are_drawn only counts icons, so it passes with one marker
+        in the wrong place. This checks the payload survived the whole trip:
+        the Places exist only in the database, the page holds no coordinates of
+        its own, so anything asserted here got there through
+        /gtapis/places/ -- the BaseMapView in demoapp/gtmaps.py -- and then
+        through gt_map_render_data into a Leaflet group.
+        """
+        self.open_dashboard()
+        self.wait_js(
+            "const e = jQuery('.gentelella_map').data('mapInstance');"
+            "return !!(e && e.layers && e.layers['Costa Rica']);")
+
+        layer = self.layer_markers('Costa Rica')
+        self.assertIsNotNone(layer, 'the API returned no Costa Rica layer')
+        self.assertTrue(layer['onMap'],
+                        'the Costa Rica layer was built but never added')
+
+        expected = {city: location for _, country, city, location in PLACES
+                    if country == 'Costa Rica'}
+        self.assertEqual(len(layer['markers']), len(expected))
+
+        # Keyed by city, taken out of the popup the serializer built, so a
+        # mismatch names the city instead of just a coordinate pair.
+        drawn = {}
+        for marker in layer['markers']:
+            city = marker['popup'].split('<br>')[-1]
+            drawn[city] = (marker['lat'], marker['lng'])
+
+        self.assertEqual(sorted(drawn), sorted(expected))
+        for city, location in expected.items():
+            lat, lng = (float(part) for part in location.split(','))
+            self.assertAlmostEqual(drawn[city][0], lat, places=4, msg=city)
+            self.assertAlmostEqual(drawn[city][1], lng, places=4, msg=city)
+
+        # Panama has its own layer: the split is per country, not one bag of
+        # points with a country attribute.
+        panama = self.layer_markers('Panama')
+        self.assertEqual(len(panama['markers']), 1)
+        self.assertNotIn('Panama City', drawn)
 
     def test_clustering_plugin_is_available(self):
         """use_maps is on in the demo settings, so both plugins must be there."""

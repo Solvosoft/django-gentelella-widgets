@@ -300,6 +300,46 @@ class Command(BaseCommand):
             only_icon=False,
         )
 
+        # The two Leaflet widgets get a group of their own rather than going
+        # under ReadOnly Widgets with the storymaps: MapPointInput is a form
+        # field that submits a value, so it does not belong there.
+        mapwidget = MenuItem.objects.create(
+            parent=extrawidget,
+            title='Maps',
+            url_name='#',
+            category='sidebar',
+            is_reversed=False,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-map-marker',
+            only_icon=False,
+        )
+        MenuItem.objects.create(
+            parent=mapwidget,
+            title='Pick a point',
+            url_name='map-point',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-map-marker',
+            only_icon=False,
+        )
+        MenuItem.objects.create(
+            parent=mapwidget,
+            title='Map dashboard',
+            url_name='map-dashboard',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-globe',
+            only_icon=False,
+        )
+
         StoryLine = MenuItem.objects.create(
             parent=readonlywidget,
             title='StoryLine',
@@ -588,6 +628,45 @@ class Command(BaseCommand):
         ]
         models.Country.objects.bulk_create(data)
 
+    def create_places(self):
+        """Points for the two map pages.
+
+        Without these both pages render an empty map: /maps/dashboard draws
+        whatever PlacesMapView returns, and that view reads this table. The
+        seven Costa Rican cities are what makes the dashboard worth opening --
+        enough points in one country to see the clustering group them and the
+        heatmap light up -- and the other capitals give the layer switcher and
+        the country filter something to switch between.
+
+        Coordinates carry six decimals because that is the precision
+        MapPointInput writes; a value edited on /maps/ and one loaded here then
+        look the same.
+        """
+        models.Place.objects.all().delete()
+        cities = [
+            # Costa Rica, the country the dashboard opens on.
+            ('Oficina San Jose', 'Costa Rica', 'San Jose', '9.928100,-84.090700'),
+            ('Oficina Alajuela', 'Costa Rica', 'Alajuela', '10.016200,-84.211600'),
+            ('Oficina Cartago', 'Costa Rica', 'Cartago', '9.864400,-83.919400'),
+            ('Oficina Heredia', 'Costa Rica', 'Heredia', '9.998100,-84.119700'),
+            ('Oficina Liberia', 'Costa Rica', 'Liberia', '10.633900,-85.437700'),
+            ('Oficina Puntarenas', 'Costa Rica', 'Puntarenas',
+             '9.976300,-84.838400'),
+            ('Oficina Limon', 'Costa Rica', 'Limon', '9.990700,-83.035900'),
+            # One per neighbouring country, so the layer switcher has layers.
+            ('Sede Guatemala', 'Guatemala', 'Ciudad de Guatemala',
+             '14.634900,-90.506900'),
+            ('Sede Panama', 'Panamá', 'Ciudad de Panamá', '8.982400,-79.519900'),
+            ('Sede Managua', 'Nicaragua', 'Managua', '12.114900,-86.236200'),
+            ('Sede San Salvador', 'El Salvador', 'San Salvador',
+             '13.692900,-89.218200'),
+            ('Sede Tegucigalpa', 'Hondura', 'Tegucigalpa', '14.072300,-87.192100'),
+        ]
+        models.Place.objects.bulk_create([
+            models.Place(name=name, country=country, city=city, location=location)
+            for name, country, city, location in cities
+        ])
+
     def create_person(self):
         models.Person.objects.all().delete()
         for x in range(10):
@@ -776,6 +855,7 @@ class Command(BaseCommand):
         self.create_menu()
         self.create_autocomplete_menu()
         self.create_countries()
+        self.create_places()
         self.create_person()
         self.create_communities()
         self.abcde()

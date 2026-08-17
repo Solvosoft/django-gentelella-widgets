@@ -53,6 +53,14 @@ back to no geocoding and reports the problem on the console.
 ``TrashViewSet.restore`` printed the exception to stdout instead of logging it,
 so the reason a restore failed never reached the application log.
 
+**Maps rendered as empty squares on a default Django project.** Django sets
+``SECURE_REFERRER_POLICY = 'same-origin'``, so the browser sends no ``Referer``
+on the cross-origin requests every tile is, and OpenStreetMap's tile policy
+answers 403 without one. The demo now sets
+``SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'`` and
+``docs/source/widgets/maps.rst`` says why any project using these widgets has
+to do the same. The demo also listed ``SecurityMiddleware`` twice.
+
 Tooling
 """"""""""""""""""
 

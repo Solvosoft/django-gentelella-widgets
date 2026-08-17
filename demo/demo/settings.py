@@ -46,7 +46,6 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -105,6 +104,18 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
+
+# Django defaults this to 'same-origin', which tells the browser to send no
+# Referer at all on cross-origin requests -- and every tile the Leaflet widgets
+# fetch is cross-origin. OpenStreetMap's tile usage policy requires a Referer
+# or a User-Agent identifying the application, and answers 403 without one, so
+# the default turns the maps into a grid of empty squares.
+# 'strict-origin-when-cross-origin' sends only the origin (no path, no query)
+# to another site, which is what the tile server needs and what current
+# browsers use as their own default.
+# https://operations.osmfoundation.org/policies/tiles/
+SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+
 CSRF_TRUSTED_SCHEME = 'http'
 CSRF_TRUSTED_ORIGINS = [
     f'{CSRF_TRUSTED_SCHEME}://localhost',
