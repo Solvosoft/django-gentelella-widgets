@@ -141,16 +141,31 @@ class MapPointInputTest(MapsTestBase):
             "return window._gt_map_point_widgets['id_location']"
             ".engine.getPoint()"))
 
+    def submit_and_wait_for(self, name):
+        """Submit the form and return the Place once it is really in the table.
+
+        Not `wait_js("readyState === 'complete'")`: the click only *starts* the
+        navigation, and the document it asks about is the one still on screen,
+        which has been complete all along. That wait returns immediately, so
+        the assertion races the POST -- it wins on an idle machine and loses
+        under the full suite, which is exactly the kind of flake that gets a
+        real failure dismissed. Waiting for the row is the thing actually being
+        waited for.
+        """
+        self.driver.find_element(
+            By.CSS_SELECTOR, 'form button[type=submit]').click()
+        self.wait.until(
+            lambda driver: Place.objects.filter(name=name).exists(),
+            'the form submit never reached the database')
+        return Place.objects.get(name=name)
+
     def test_point_round_trips_through_a_form_submit(self):
         """The only assertion that proves the whole contract end to end."""
         self.open_form()
         self.js("document.getElementById('id_name').value = 'Nueva sede';")
         self.set_location('9.932700,-84.087500')
-        self.driver.find_element(
-            By.CSS_SELECTOR, 'form button[type=submit]').click()
-        self.wait_js("return document.readyState === 'complete'")
 
-        place = Place.objects.get(name='Nueva sede')
+        place = self.submit_and_wait_for('Nueva sede')
         self.assertEqual(place.location, '9.932700,-84.087500')
 
     def test_a_point_picked_on_the_map_lands_where_it_was_clicked(self):
@@ -199,11 +214,7 @@ class MapPointInputTest(MapsTestBase):
         self.assertAlmostEqual(lat, GUATEMALA_CITY[0], delta=0.1)
         self.assertAlmostEqual(lng, GUATEMALA_CITY[1], delta=0.1)
 
-        self.driver.find_element(
-            By.CSS_SELECTOR, 'form button[type=submit]').click()
-        self.wait_js("return document.readyState === 'complete'")
-
-        place = Place.objects.get(name='Sede Guatemala')
+        place = self.submit_and_wait_for('Sede Guatemala')
         self.assertEqual(place.city, 'Ciudad de Guatemala')
         # Saved verbatim: the widget owns the formatting, the field stores the
         # string it produced.
