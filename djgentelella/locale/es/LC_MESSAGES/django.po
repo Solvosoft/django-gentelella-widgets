@@ -770,3 +770,51 @@ msgstr "Eliminar"
 
 msgid "Unknown"
 msgstr "Desconocido"
+
+msgid "Pending"
+msgstr "Pendiente"
+
+msgid "Sent"
+msgstr "Enviada"
+
+msgid "Failed"
+msgstr "Fallido"
+
+msgid "Scheduled"
+msgstr "Programada"
+
+msgid "Revoked"
+msgstr "Revocada"
+
+msgid "Send Date"
+msgstr "Fecha de Envío"
+
+msgid "Template Preview"
+msgstr "Previsualización de plantilla"
+
+msgid "Email Templates"
+msgstr "Plantillas de correos"
+
+msgid "Code"
+msgstr "Codigo"
+
+msgid "Message"
+msgstr "Mensaje"
+
+msgid "Context Code"
+msgstr "Contexto de codigo"
+
+msgid "Base Template"
+msgstr "Plantilla Base"
+
+msgid "Model Inspector"
+msgstr "Modelo Inspector"
+
+msgid "Select a context code to inspect available fields."
+msgstr "Seleccione un código de contexto para inspeccionar los campos disponibles."
+
+msgid "No context selected."
+msgstr "Contexto no seleccionado."
+
+msgid "Update Template"
+msgstr "Actualizar Plantilla"
