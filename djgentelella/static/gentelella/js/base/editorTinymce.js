@@ -43,7 +43,11 @@ function upload_files(callback, meta, file, image, video) {
 // `toolbar`, add a `setup`). `instance` is the jQuery textarea handle used by
 // the image/video upload picker.
 function gentelella_tinymce_config(instance) {
+    var spellcheck = instance.attr('data-option-spellcheck') !== 'false';
+    var lang = instance.attr("data-option-lang") || "en";
     return {
+        browser_spellcheck: spellcheck,
+        contextmenu: spellcheck ? false : 'link image table',
         menubar: false,
         toolbar: 'undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist checklist | forecolor backcolor casechange permanentpen formatpainter removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media pageembed template link anchor codesample | a11ycheck ltr rtl | showcomments addcomment',
         plugins: ['advlist', 'autolink', 'lists', 'link', 'image', 'charmap',
@@ -61,6 +65,22 @@ function gentelella_tinymce_config(instance) {
                     instance.attr('data-option-video'));
             };
             input.click();
-        }
+        },
+        paste_preprocess: function(plugin, args) {
+                // Crear un DOM temporal para manipular el HTML pegado
+                const div = document.createElement('div');
+                div.innerHTML = args.content;
+
+                // Buscar todas las imágenes de Twemoji (X/Twitter usa twemoji.maxcdn.com o cdn.jsdelivr.net/gh/twitter/twemoji)
+                div.querySelectorAll('img[src*="twemoji"], img.emoji, img[draggable="false"][alt]').forEach(function(img) {
+                  // El atributo alt contiene el emoji Unicode real
+                  if (img.alt) {
+                    const textNode = document.createTextNode(img.alt);
+                    img.replaceWith(textNode);
+                  }
+                });
+
+                args.content = div.innerHTML;
+            },
     };
 }
