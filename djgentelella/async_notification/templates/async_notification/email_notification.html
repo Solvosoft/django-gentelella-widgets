@@ -52,17 +52,33 @@ var object_urls = {
 	update_url: "{{ update_url }}",
 	get_values_for_update_url: "{% url 'async_notification:api-emailnotification-get-values-for-update' 0 %}",
 };
+const OPTIONS = [
+    ["True", gettext("Yes")],
+    ["False", gettext("No")],
+]
 
+const STATUS_CHOICES = [
+        ['pending', gettext('Pending')],
+        ['queued', gettext('Queued')],
+        ['sending', gettext('Sending')],
+        ['sent', gettext('Sent')],
+        ['failed', gettext('Failed')],
+        ['cancelled', gettext('Cancelled')],
+    ]
 var datatable_inits = {
 	columns: [
 		{data: "subject", name: "subject", title: gettext("Subject"), type: "string", visible: true},
-		{data: "status", name: "status", title: gettext("Status"), type: "string", visible: true,
+		{data: "status", name: "status", title: gettext("Status"), type: "select",
+		 choices: STATUS_CHOICES,
+		 visible: true,
 			render: window.AN.statusBadge()},
-		{data: "enqueued", name: "enqueued", title: gettext("Queued"), type: "string", visible: true},
+		{data: "enqueued", name: "enqueued", title: gettext("Queued"), type: "select",  choices: OPTIONS,
+     render: yesnoprint,visible: true},
 		{data: "retry_count", name: "retry_count", title: gettext("Retries"), type: "string", visible: true},
 		{data: "created_at", name: "created_at", title: gettext("Created"), type: "date",
 			render: DataTable.render.datetime(), dateformat: document.datetime_format, visible: true},
-		{data: "user_display", name: "user_display", title: gettext("User"), type: "string", visible: true},
+		{data: "user", name: "user", title: gettext("User"), type: "string", visible: true,
+		render:  selectobjprint({display_name: "text"})},
 		{data: "actions", name: "actions", title: gettext("Actions"), type: "string", visible: true}
 	],
 	addfilter: true,

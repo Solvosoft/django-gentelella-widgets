@@ -44,17 +44,27 @@ var object_urls = {
 	update_url: "{{ update_url }}",
 	get_values_for_update_url: "{% url 'async_notification:api-newslettertask-get-values-for-update' 0 %}",
 };
-
+const STATUS_CHOICES = [
+        ['pending', gettext('Pending')],
+        ['scheduled', gettext('Scheduled')],
+        ['sending', gettext('Sending')],
+        ['sent', gettext('Sent')],
+        ['failed', gettext('Failed')],
+        ['revoked', gettext('Revoked')]
+    ]
 var datatable_inits = {
 	columns: [
-		{data: "newsletter_subject", name: "newsletter_subject", title: gettext("Newsletter"), type: "string", visible: true},
+		{data: "newsletter", name: "newsletter__subject", title: gettext("Newsletter"), type: "string", visible: true,
+		render: selectobjprint({display_name: "text"})},
 		{data: "send_date", name: "send_date", title: gettext("Send Date"), type: "date",
 			render: DataTable.render.datetime(), dateformat: document.datetime_format, visible: true},
-		{data: "status", name: "status", title: gettext("Status"), type: "string", visible: true,
+		{data: "status", name: "status", title: gettext("Status"), type: "select",
+		 choices: STATUS_CHOICES,
+		 visible: true,
 			render: window.AN.statusBadge()},
 		{data: "created_at", name: "created_at", title: gettext("Created"), type: "date",
 			render: DataTable.render.datetime(), dateformat: document.datetime_format, visible: true},
-		{data: "actions", name: "actions", title: gettext("Actions"), type: "string", visible: true}
+		{data: "actions", name: "actions", title: gettext("Actions"), type: "readonly", visible: true}
 	],
 	addfilter: true,
 };
