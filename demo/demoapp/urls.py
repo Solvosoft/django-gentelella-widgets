@@ -5,7 +5,7 @@ from rest_framework.routers import DefaultRouter
 from demoapp.cruds import Personclass, Countryclass, MenuItemclass
 from demoapp.views import create_notification_view, bt_modal_display
 from .autocomplete import views as autocompleteviews
-from .calendar.views import calendar_view
+from .calendar.views import calendar_view, event_create, event_delete, event_update
 from .cardlist.views import cardListViewExample
 from .cardlist.viewsets import PersonCardListViewSet
 from .chartjs import chart_js_view
@@ -173,6 +173,9 @@ urlpatterns = (
             name='chunkeduploaditem-edit',
         ),
         path('calendar_view', calendar_view, name='calendar_view'),
+        path('calendar_view/event', event_create, name='calendar-event-create'),
+        path('calendar_view/event/update', event_update, name='calendar-event-update'),
+        path('calendar_view/event/delete', event_delete, name='calendar-event-delete'),
         path('gigapixel_view', gigapixel_view, name='gigapixel_view'),
         path('mapbased_view', mapbased_view, name='mapbased_view'),
         path('storyline_view', storyline_view, name='storyline_view'),

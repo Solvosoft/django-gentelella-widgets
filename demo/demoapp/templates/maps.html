@@ -2,9 +2,9 @@
 {% load i18n %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-6">
-        <div class="x_panel">
+<div class="row mb-4">
+    <div class="col-md-6 d-flex">
+        <div class="x_panel h-100 w-100">
             <div class="x_title">
                 <h2>{% trans 'Place' %} <small>{% trans 'model field' %}</small></h2>
                 <div class="clearfix"></div>
@@ -12,14 +12,14 @@
             <div class="x_content">
                 <form method="post">
                     {% csrf_token %}
-                    {{ form.as_inline }}
+                    {{ form.as_grid }}
                     <button type="submit" class="btn btn-success">{% trans 'Save' %}</button>
                 </form>
             </div>
         </div>
     </div>
-    <div class="col-md-6">
-        <div class="x_panel">
+    <div class="col-md-6 d-flex">
+        <div class="x_panel h-100 w-100">
             <div class="x_title">
                 <h2>{% trans 'Point' %} <small>{% trans 'widget only' %}</small></h2>
                 <div class="clearfix"></div>
