@@ -1,27 +1,27 @@
 #!/bin/bash
-# Levanta servicios de soporte para el demo. Por defecto solo MailHog; --sign
-# suma el servidor de firma digital; --celery suma Redis (broker) para
-# probar el dispatch en cola de async_notification.
+# Runs support services for the demo. MailHog only by default; --sign adds
+# the digital-signature server; --celery adds Redis (broker) to exercise
+# async_notification's queued dispatch.
 #
-#   - MailHog:   captura el correo que manda djgentelella.async_notification
-#                (newsletters, notificaciones) sin un SMTP real.
-#                SMTP :1025, UI web http://localhost:8025
-#   - Firmador:  servidor de firma digital (extra [firmador], settings
-#                FIRMADOR_*). Imagen "firmadorlibreserver" -- hay que
-#                buildearla antes, ver docs/source/firmador-setup.rst (este
-#                script no la genera). Puerto host 9001 -> contenedor 9999
-#                (FIRMADOR_DOMAIN default).
-#   - Redis:     broker de Celery (extra [celery], setting CELERY_BROKER_URL).
-#                Sin esto (o sin CELERY_BROKER_URL seteado) async_notification
-#                cae solo a SyncBackend -- Redis es solo para probar la cola
-#                de verdad. Puerto host 6379.
+#   - MailHog:   captures the mail djgentelella.async_notification sends
+#                (newsletters, notifications) without a real SMTP server.
+#                SMTP :1025, web UI http://localhost:8025
+#   - Firmador:  digital-signature server (extra [firmador], FIRMADOR_*
+#                settings). Image "firmadorlibreserver" -- build it first,
+#                see docs/source/firmador-setup.rst (this script doesn't
+#                build it). Host port 9001 -> container 9999 (matches
+#                FIRMADOR_DOMAIN's default).
+#   - Redis:     Celery broker (extra [celery], CELERY_BROKER_URL setting).
+#                Without this (or without CELERY_BROKER_URL set)
+#                async_notification just falls back to SyncBackend -- Redis
+#                is only for exercising the real queue. Host port 6379.
 #
-# Uso:
-#   ./scripts/run_services.sh            # solo MailHog
+# Usage:
+#   ./scripts/run_services.sh            # MailHog only
 #   ./scripts/run_services.sh --sign     # MailHog + Firmador
 #   ./scripts/run_services.sh --celery   # MailHog + Redis
 #
-# Foreground: Ctrl+C detiene y borra los contenedores levantados.
+# Foreground: Ctrl+C stops and removes the containers.
 set -euo pipefail
 
 SIGN=0
@@ -30,7 +30,7 @@ for arg in "$@"; do
   case "$arg" in
     --sign) SIGN=1 ;;
     --celery) CELERY=1 ;;
-    *) echo "uso: $0 [--sign] [--celery]" >&2; exit 1 ;;
+    *) echo "usage: $0 [--sign] [--celery]" >&2; exit 1 ;;
   esac
 done
 
@@ -44,7 +44,7 @@ trap cleanup EXIT
 
 docker run -d --rm --name "$MAILHOG" -p 8025:8025 -p 1025:1025 mailhog/mailhog
 echo "MailHog:  UI http://localhost:8025  ·  SMTP localhost:1025"
-echo "          demo server default is the console backend (prints, doesn't send) --"
+echo "          the demo server defaults to the console backend (prints, doesn't send) --"
 echo "          run it with 'make run-mailhog' (or EMAIL_BACKEND=smtp EMAIL_HOST=localhost"
 echo "          EMAIL_PORT=1025) so email actually lands here"
 
@@ -61,7 +61,7 @@ if [ "$CELERY" = 1 ]; then
   echo "          and run: cd demo && celery -A demo worker -l info"
 fi
 
-echo "Ctrl+C para detener"
+echo "Ctrl+C to stop"
 
 for c in "${CONTAINERS[@]}"; do
   docker logs -f "$c" &
