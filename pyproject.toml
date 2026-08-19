@@ -148,9 +148,10 @@ firmador = [
     "requests>=2.32.4"
 ]
 # Celery backend for async_notification. Without it the notifications are
-# dispatched synchronously by SyncBackend, no configuration needed.
+# dispatched synchronously by SyncBackend, no configuration needed. Redis
+# transport bundled in: it's what `scripts/run_services.sh --celery` provides.
 celery = [
-    "celery>=5.3"
+    "celery[redis]>=5.3"
 ]
 # Speech recognition for the voice dictation widgets. Neither extra is needed
 # to install or import djgentelella: the widgets ship with it, only the

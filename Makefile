@@ -1,7 +1,7 @@
 .PHONY: help clean clean-pyc clean-build list test docs release sdist fuzzysdist \
-	lint lint-fix test-selenium test-selenium-run run run-mailhog \
+	lint lint-fix test-selenium test-selenium-run run run-mailhog run-celery \
 	migrate menu init_demo notification_demo validate-mailhog loadstatic basejs assets \
-	patch-pylp services services-sign process-loop \
+	patch-pylp services services-mail services-sign services-celery celery-worker process-loop \
 	coverage coverage-all coverage-unit coverage-selenium coverage-selenium-run \
 	coverage-report coverage-clean
 
@@ -11,8 +11,12 @@ help:
 	@echo "-- Run / demo --"
 	@echo "run - run the demo dev server (PORT=8000 by default)"
 	@echo "run-mailhog - run the demo server sending email to MailHog (SMTP :1025)"
-	@echo "services - run support services in the foreground (MailHog only); Ctrl+C stops them"
-	@echo "services-sign - same as services, plus the Firmador digital-signature server"
+	@echo "run-celery - run-mailhog, plus CELERY_BROKER_URL set (queued async_notification dispatch)"
+	@echo "services - run every support service in the foreground (MailHog + Firmador + Redis); Ctrl+C stops them"
+	@echo "services-mail - same, MailHog only"
+	@echo "services-sign - same, MailHog + Firmador"
+	@echo "services-celery - same, MailHog + Redis"
+	@echo "celery-worker - run the Celery worker for async_notification (needs services or services-celery)"
 	@echo "init_demo - reset the demo DB and load demo data + superuser"
 	@echo "migrate - make and apply migrations for the demo"
 	@echo "menu - (re)create demo data"
@@ -208,11 +212,26 @@ run-mailhog:
 		EMAIL_HOST=localhost EMAIL_PORT=1025 \
 		python manage.py runserver $(PORT)
 
-services:
+run-celery:
+	cd demo && EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend \
+		EMAIL_HOST=localhost EMAIL_PORT=1025 \
+		CELERY_BROKER_URL=redis://localhost:6379/0 \
+		python manage.py runserver $(PORT)
+
+services-mail:
 	./scripts/run_services.sh
 
 services-sign:
 	./scripts/run_services.sh --sign
+
+services-celery:
+	./scripts/run_services.sh --celery
+
+services:
+	./scripts/run_services.sh --sign --celery
+
+celery-worker:
+	cd demo && CELERY_BROKER_URL=redis://localhost:6379/0 PYTHONPATH=.. celery -A demo worker -l info
 
 notification_demo:
 	cd demo && python manage.py create_notification_demo

@@ -233,11 +233,11 @@ them on its own. This is what CI runs:
 
 The Selenium tests are tagged ``selenium`` and excluded by default. They drive a
 real browser against MailHog, so start it first, in another terminal (``make
-services`` runs in the foreground; Ctrl+C stops it):
+services-mail`` runs in the foreground; Ctrl+C stops it):
 
 .. code:: bash
 
-    make services
+    make services-mail
 
 .. code:: bash
 
