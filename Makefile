@@ -229,6 +229,7 @@ validate-mailhog:
 	cd demo && python manage.py validate_mailhog
 
 loadstatic:
+	pip install -q requests && \
 	cd demo && python manage.py loaddevstatic
 
 basejs:

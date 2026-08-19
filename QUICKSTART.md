@@ -13,10 +13,13 @@ python3.13 -m venv .venv && source .venv/bin/activate
 
 pip install -r requirements.txt
 
-make patch-pylp    # asyncio.wait compat fix for the pylp build tool (pulls test_requirements.txt too)
 make loadstatic    # download vendor JS/CSS (needs internet)
 make basejs        # generate djgentelella/static/gentelella/js/base.js
 make assets        # build djgentelella's own bundles + collectstatic
+                   # (pulls in patch-pylp automatically; MUST run after
+                   #  loadstatic + basejs -- it bundles what they produce,
+                   #  and silently skips writing anything if they haven't
+                   #  run yet, no error)
 
 make init_demo     # demo DB: migrate, demo data, superuser (asks for credentials)
 make run           # http://127.0.0.1:8000
