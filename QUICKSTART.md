@@ -38,14 +38,37 @@ pip install -e ".[asr]"
 ## Support services
 
 ```bash
-make services       # MailHog only (SMTP :1025, UI :8025) -- captures async_notification email
+make services-mail  # MailHog only (SMTP :1025, UI :8025) -- captures async_notification email
 make services-sign  # MailHog + Firmador (digital signature server, :9001)
+make services-celery # MailHog + Redis (Celery broker, see below)
+make services        # all three at once
 ```
 
 Ctrl+C stops and removes the containers. `services-sign` needs the
 `firmadorlibreserver` image built locally first -- see
 [docs/source/firmador-setup.rst](docs/source/firmador-setup.rst) for the
 two-repo Maven build and the desktop signing agent download.
+
+## Celery (optional, queued dispatch)
+
+Not on by default -- `async_notification` sends in-process (`SyncBackend`)
+without it, no setup needed. Only worth it to actually exercise the queued
+path (`CeleryBackend`):
+
+```bash
+pip install -e ".[celery]"
+
+make services-celery   # MailHog + Redis (the broker)
+make celery-worker     # separate terminal: the worker, discovers
+                        # send_email_task / send_newsletter_task
+make run-celery         # separate terminal: the demo server, with
+                        # CELERY_BROKER_URL set so it actually queues
+```
+
+All three need to be running together. `async_notification` autodetects:
+it only switches to `CeleryBackend` when Celery is installed **and**
+`CELERY_BROKER_URL` is set -- drop any one of the three and it silently
+falls back to sending in-process.
 
 ## Tests
 
@@ -56,7 +79,7 @@ make test                 # everything except selenium
 make lint                 # pycodestyle + ruff
 make lint-fix             # auto-apply the mechanical fixes
 
-make services              # selenium suite drives MailHog for real -- runs in
+make services-mail         # selenium suite drives MailHog for real -- runs in
                             # the foreground, use another terminal for what's next
 make test-selenium         # ... inside Xvfb (no display needed)
 make test-selenium-run     # ... on your own display, for watching it fail
