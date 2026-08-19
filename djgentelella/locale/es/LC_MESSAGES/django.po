@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-18 21:41+0000\n"
+"POT-Creation-Date: 2026-08-19 16:45-0600\n"
 "PO-Revision-Date: 2025-03-29 16:43-0600\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -25,6 +25,500 @@ msgstr "Acciones"
 
 msgid "History"
 msgstr "Historial"
+
+msgid "Send selected emails now"
+msgstr ""
+
+#, python-format
+msgid "%(n)d email(s) sent."
+msgstr ""
+
+msgid "Recipients"
+msgstr ""
+
+msgid "Send selected newsletters now"
+msgstr ""
+
+#, python-format
+msgid "%(n)d newsletter(s) sent."
+msgstr ""
+
+msgid "Send selected tasks now"
+msgstr ""
+
+#, python-format
+msgid "%(n)d task(s) sent."
+msgstr ""
+
+msgid "Comma-separated emails or groups"
+msgstr ""
+
+msgid "BCC addresses"
+msgstr ""
+
+msgid "CC addresses"
+msgstr ""
+
+msgid "Recipients must be a list."
+msgstr ""
+
+#, python-format
+msgid "Invalid recipient: %(token)s"
+msgstr ""
+
+msgid "Code"
+msgstr "Codigo"
+
+msgid "Unique identifier for this template"
+msgstr ""
+
+msgid "Subject"
+msgstr ""
+
+msgid "Message"
+msgstr "Mensaje"
+
+msgid "HTML content with Django template syntax"
+msgstr ""
+
+msgid "BCC"
+msgstr ""
+
+msgid "CC"
+msgstr ""
+
+msgid "Context Code"
+msgstr "Contexto de codigo"
+
+msgid "Registered context code for variable suggestions"
+msgstr ""
+
+msgid "Base Template"
+msgstr "Plantilla Base"
+
+msgid "Base template key from settings to wrap the email content"
+msgstr ""
+
+#, fuzzy
+#| msgid "Email Templates"
+msgid "Email Template"
+msgstr "Plantillas de correos"
+
+msgid "Email Templates"
+msgstr "Plantillas de correos"
+
+msgid "Pending"
+msgstr "Pendiente"
+
+msgid "Queued"
+msgstr ""
+
+#, fuzzy
+#| msgid "Pending"
+msgid "Sending"
+msgstr "Pendiente"
+
+msgid "Sent"
+msgstr "Enviada"
+
+msgid "Failed"
+msgstr "Fallido"
+
+#, fuzzy
+#| msgid "Cancel"
+msgid "Cancelled"
+msgstr "Cancelar"
+
+msgid "List of email addresses or group references"
+msgstr ""
+
+#, fuzzy
+#| msgid "State"
+msgid "Status"
+msgstr "Estado"
+
+msgid "Base template key from settings to wrap the email body"
+msgstr ""
+
+msgid "Resolved Recipients"
+msgstr ""
+
+msgid "Resolved email addresses after processing"
+msgstr ""
+
+msgid "Delivered Recipients"
+msgstr ""
+
+msgid ""
+"Addresses already delivered; a retry resumes from here instead of re-sending "
+"already-delivered batches"
+msgstr ""
+
+msgid "Retry Count"
+msgstr ""
+
+msgid "Max Retries"
+msgstr ""
+
+msgid "Maximum number of send attempts before failing"
+msgstr ""
+
+msgid "Last Attempt"
+msgstr ""
+
+#, fuzzy
+#| msgid "Message"
+msgid "Error Message"
+msgstr "Mensaje"
+
+msgid "Enqueued"
+msgstr ""
+
+msgid ""
+"If True, processed by backend/cron. If False, sent immediately via signal."
+msgstr ""
+
+msgid "Send Individually"
+msgstr ""
+
+msgid "Send one email per recipient instead of batching"
+msgstr ""
+
+msgid "Promotional"
+msgstr ""
+
+msgid ""
+"Marketing/promotional email: adds one-click unsubscribe headers, honors the "
+"suppression list, and is sent one message per recipient. Leave off for "
+"transactional mail (password resets, receipts, etc.)."
+msgstr ""
+
+#, fuzzy
+#| msgid "Create"
+msgid "Created By"
+msgstr "Crear"
+
+#, fuzzy
+#| msgid "Show all notifications"
+msgid "Email Notification"
+msgstr "Ver todas las notificaciones"
+
+#, fuzzy
+#| msgid "Show all notifications"
+msgid "Email Notifications"
+msgstr "Ver todas las notificaciones"
+
+#, fuzzy
+#| msgid "Context Code"
+msgid "Content Type"
+msgstr "Contexto de codigo"
+
+msgid "Object ID"
+msgstr ""
+
+msgid "File"
+msgstr ""
+
+msgid "Is Inline"
+msgstr ""
+
+msgid "If True, embedded as inline image (cid:)"
+msgstr ""
+
+#, fuzzy
+#| msgid "Context Code"
+msgid "Content ID"
+msgstr "Contexto de codigo"
+
+msgid "Content-ID for inline attachments"
+msgstr ""
+
+msgid "Attached File"
+msgstr ""
+
+msgid "Attached Files"
+msgstr ""
+
+msgid "Title"
+msgstr "Título"
+
+msgid "Slug"
+msgstr ""
+
+msgid "HTML content for the newsletter template"
+msgstr ""
+
+#, fuzzy
+#| msgid "Model Inspector"
+msgid "Model Base"
+msgstr "Modelo Inspector"
+
+msgid "Key from ASYNC_NEWS_BASE_MODELS settings"
+msgstr ""
+
+msgid "Base template key from settings to wrap the content"
+msgstr ""
+
+#, fuzzy
+#| msgid "Base Template"
+msgid "Newsletter Template"
+msgstr "Plantilla Base"
+
+#, fuzzy
+#| msgid "Base Template"
+msgid "Newsletter Templates"
+msgstr "Plantilla Base"
+
+#, fuzzy
+#| msgid "Base Template"
+msgid "Template"
+msgstr "Plantilla Base"
+
+msgid "Filters Querystring"
+msgstr ""
+
+msgid "Querystring for filtering recipients"
+msgstr ""
+
+msgid "Newsletter"
+msgstr ""
+
+msgid "Newsletters"
+msgstr ""
+
+msgid "Scheduled"
+msgstr "Programada"
+
+msgid "Revoked"
+msgstr "Revocada"
+
+msgid "Send Date"
+msgstr "Fecha de Envío"
+
+msgid "Celery Task ID"
+msgstr ""
+
+msgid ""
+"Addresses already delivered; a re-run resumes from here instead of re-"
+"sending to already-delivered recipients"
+msgstr ""
+
+msgid "Newsletter Task"
+msgstr ""
+
+msgid "Newsletter Tasks"
+msgstr ""
+
+msgid "Unsubscribed"
+msgstr ""
+
+msgid "Spam complaint"
+msgstr ""
+
+msgid "Hard bounce"
+msgstr ""
+
+msgid "Manual"
+msgstr ""
+
+msgid "Email"
+msgstr ""
+
+msgid "Reason"
+msgstr "Razón"
+
+msgid "Email Suppression"
+msgstr ""
+
+msgid "Email Suppressions"
+msgstr ""
+
+msgid "Granted"
+msgstr ""
+
+msgid "Source"
+msgstr ""
+
+msgid "Email Consent"
+msgstr ""
+
+#, fuzzy
+#| msgid "Email Templates"
+msgid "Email Consents"
+msgstr "Plantillas de correos"
+
+#, fuzzy
+#| msgid "Not found"
+msgid "No results found."
+msgstr "No se encontró"
+
+msgid "Close"
+msgstr "Cerrar"
+
+msgid "Variables"
+msgstr ""
+
+msgid "Select a context code to inspect available fields."
+msgstr ""
+"Seleccione un código de contexto para inspeccionar los campos disponibles."
+
+msgid "Preview"
+msgstr "Previsualizar"
+
+msgid "Refresh"
+msgstr ""
+
+msgid "Save changes"
+msgstr "Guardar cambios"
+
+msgid "Don't want these emails?"
+msgstr ""
+
+msgid "Unsubscribe"
+msgstr ""
+
+#, fuzzy
+#| msgid "Clean filter"
+msgid "Recipient filters"
+msgstr "Limpiar filtros"
+
+#, fuzzy
+#| msgid "Not found"
+msgid "No fields found."
+msgstr "No se encontró"
+
+#, fuzzy
+#| msgid "Image preview"
+msgid "Email preview"
+msgstr "Vista previa de imagen"
+
+msgid "Official communication"
+msgstr ""
+
+msgid "Company"
+msgstr ""
+
+msgid ""
+"This message and any attachments are confidential and intended solely for "
+"the addressee."
+msgstr ""
+
+msgid "Latest news and updates"
+msgstr ""
+
+#, fuzzy
+#| msgid "Create new"
+msgid "What's new"
+msgstr "Nuevo"
+
+msgid "Product update"
+msgstr ""
+
+msgid "Learn more"
+msgstr ""
+
+#, fuzzy
+#| msgid "Account activation on"
+msgid "Account notification"
+msgstr "Activación de cuentas"
+
+msgid "You are receiving this message because it relates to your account."
+msgstr ""
+
+msgid "Need help?"
+msgstr ""
+
+#, fuzzy
+#| msgid "Send email"
+msgid "Compose email"
+msgstr "Enviar correo"
+
+#, fuzzy
+#| msgid "Update Template"
+msgid "Update email"
+msgstr "Actualizar Plantilla"
+
+#, fuzzy
+#| msgid "List of notifications"
+msgid "Delete Notification"
+msgstr "Lista de notificaciones"
+
+#, fuzzy
+#| msgid "Update Template"
+msgid "Create Template"
+msgstr "Actualizar Plantilla"
+
+msgid "Model Inspector"
+msgstr "Modelo Inspector"
+
+msgid "Update Template"
+msgstr "Actualizar Plantilla"
+
+#, fuzzy
+#| msgid "Update Template"
+msgid "Delete Template"
+msgstr "Actualizar Plantilla"
+
+msgid "Template Preview"
+msgstr "Previsualización de plantilla"
+
+#, fuzzy
+#| msgid "Create new"
+msgid "Create Newsletter"
+msgstr "Nuevo"
+
+#, fuzzy
+#| msgid "Update Template"
+msgid "Update Newsletter"
+msgstr "Actualizar Plantilla"
+
+#, fuzzy
+#| msgid "Delete this file"
+msgid "Delete Newsletter"
+msgstr "Eliminar este archivo"
+
+#, fuzzy
+#| msgid "Scheduled"
+msgid "Schedule Task"
+msgstr "Programada"
+
+#, fuzzy
+#| msgid "Update"
+msgid "Update Task"
+msgstr "Actualizar"
+
+#, fuzzy
+#| msgid "Delete"
+msgid "Delete Task"
+msgstr "Eliminar"
+
+#, fuzzy
+#| msgid "Base Template"
+msgid "Create Newsletter Template"
+msgstr "Plantilla Base"
+
+#, fuzzy
+#| msgid "Update Template"
+msgid "Update Newsletter Template"
+msgstr "Actualizar Plantilla"
+
+msgid "You have been unsubscribed"
+msgstr ""
+
+#, python-format
+msgid ""
+"<span class=\"email\">%(email)s</span> will no\n"
+"\t\t\t\tlonger receive these emails."
+msgstr ""
+
+#, python-format
+msgid ""
+"Do you want to stop receiving these emails at\n"
+"\t\t\t\t<span class=\"email\">%(email)s</span>?"
+msgstr ""
+
+msgid "Yes, unsubscribe me"
+msgstr ""
 
 msgid "created"
 msgstr "creado"
@@ -62,9 +556,6 @@ msgstr "Anónimo"
 msgid "(More...)"
 msgstr "(Más...)"
 
-msgid "Preview"
-msgstr "Previsualizar"
-
 msgid "Update"
 msgstr "Actualizar"
 
@@ -100,12 +591,31 @@ msgstr ""
 "Se espera una lista de elementos, ej: [{name: 'nombre del archivo', "
 "value:'representación en cadena base64'}]"
 
+#, python-brace-format
+msgid "Too many elements, max_file = {self.max_files}"
+msgstr ""
+
 msgid ""
 "Invalid structure you need to provide {name: 'name of file', value:'base64 "
 "string representation'}"
 msgstr ""
 "Estructura inválida, necesitas proporcionar {name: 'nombre del archivo', "
 "value:'representación en cadena base64'}"
+
+msgid "Enter a point as 'latitude,longitude'."
+msgstr ""
+
+msgid "Latitude and longitude must be numbers."
+msgstr ""
+
+msgid "Latitude must be between -90 and 90."
+msgstr ""
+
+msgid "Longitude must be between -180 and 180."
+msgstr ""
+
+msgid "GPS point stored as 'latitude,longitude'"
+msgstr ""
 
 msgid "Invalid request."
 msgstr "Petición inválida."
@@ -140,9 +650,6 @@ msgstr "Tamaño de fuente"
 
 msgid "Place"
 msgstr "Lugar"
-
-msgid "Reason"
-msgstr "Razón"
 
 msgid "Visible signature"
 msgstr "Firma visible"
@@ -240,10 +747,6 @@ msgstr "%(msg)s. Campos: %(fields)s"
 msgid "The record %(obj)s of model %(model)s has been %(action)s"
 msgstr "El registro %(obj)s del modelo %(model)s ha sido %(action)s"
 
-#, python-brace-format
-msgid "Do you want to delete {obj}?"
-msgstr "¿Desea eliminar {obj}?"
-
 msgid "Help title"
 msgstr "Título de ayuda"
 
@@ -301,9 +804,6 @@ msgstr "Permiso"
 msgid "Content type"
 msgstr ""
 
-msgid "Object ID"
-msgstr ""
-
 msgid "Object repr"
 msgstr ""
 
@@ -328,36 +828,6 @@ msgstr "Este es un correo HTML, por favor use un cliente con soporte HTML"
 msgid "You have a new notification"
 msgstr "Usted tiene una nueva notificación"
 
-msgid "Cancel"
-msgstr "Cancelar"
-
-msgid "Submit"
-msgstr "Enviar"
-
-msgid "New"
-msgstr "Nuevo"
-
-msgid "Remove"
-msgstr "Eliminar"
-
-msgid "Do you really want to remove"
-msgstr "¿Está seguro de eliminar"
-
-msgid "Confirm remove"
-msgstr "Confirmar eliminación"
-
-msgid "Actions"
-msgstr "Acciones"
-
-msgid "Show"
-msgstr "Ver"
-
-msgid "Edit"
-msgstr "Editar"
-
-msgid "No items yet."
-msgstr "Sin elementos."
-
 msgid "All Rights Reserved."
 msgstr "Todos los derechos reservados."
 
@@ -370,14 +840,11 @@ msgstr "Buscar"
 msgid "Clean"
 msgstr "Limpiar filtros"
 
-msgid "Close"
-msgstr "Cerrar"
-
-msgid "Save changes"
-msgstr "Guardar cambios"
-
 msgid "Confirmation for delete. Are you sure?"
 msgstr "Confirmación de borrado, ¿está seguro?"
+
+msgid "Cancel"
+msgstr "Cancelar"
 
 msgid "Confirm"
 msgstr "Confirmar"
@@ -403,11 +870,26 @@ msgstr "Error 403"
 msgid "Return to Main Page"
 msgstr "Volver a inicio"
 
+msgid "Submit"
+msgstr "Enviar"
+
 msgid "Create new"
 msgstr "Nuevo"
 
 msgid "Back to"
 msgstr "Atrás"
+
+msgid "New"
+msgstr "Nuevo"
+
+msgid "Remove"
+msgstr "Eliminar"
+
+msgid "Edit"
+msgstr "Editar"
+
+msgid "Confirm remove"
+msgstr "Confirmar eliminación"
 
 msgid "Detail of"
 msgstr "Detalle de"
@@ -436,6 +918,15 @@ msgstr "Filtro"
 msgid "Clean filter"
 msgstr "Limpiar filtros"
 
+msgid "Actions"
+msgstr "Acciones"
+
+msgid "Show"
+msgstr "Ver"
+
+msgid "No items yet."
+msgstr "Sin elementos."
+
 msgid "Previous"
 msgstr "Anterior"
 
@@ -447,9 +938,6 @@ msgstr "de"
 
 msgid "Next"
 msgstr "Siguiente"
-
-msgid "Create"
-msgstr "Crear"
 
 msgid "Signature settings"
 msgstr "Configuración de firma"
@@ -669,6 +1157,32 @@ msgstr "Se han guardado exitosamente los permisos."
 msgid "An error occurred while saving."
 msgstr "Ha ocurrido un error al guardar."
 
+msgid "Add event"
+msgstr "Agregar evento"
+
+msgctxt "calendar widget"
+msgid "Date"
+msgstr "Fecha"
+
+msgid "Time"
+msgstr "Hora"
+
+msgid "Color"
+msgstr "Color"
+
+msgid "Edit event"
+msgstr "Editar evento"
+
+msgid "Event"
+msgstr "Evento"
+
+msgid "Start"
+msgstr "Iniciar"
+
+msgctxt "calendar widget"
+msgid "End"
+msgstr "Fin"
+
 msgid "No"
 msgstr "No"
 
@@ -751,11 +1265,10 @@ msgstr "Cargando..."
 msgid "Please wait while the document is being signed."
 msgstr "Por favor, espere mientras se firma el documento."
 
-msgid "Start"
-msgstr "Iniciar"
-
-msgid "This registry of trash does not exist."
-msgstr "Este registro de papelera no existe."
+#, fuzzy
+#| msgid "State"
+msgid "Dictate"
+msgstr "Estado"
 
 msgid "The registry was successfully restored."
 msgstr "El registro fue restaurado con éxito."
@@ -771,50 +1284,15 @@ msgstr "Eliminar"
 msgid "Unknown"
 msgstr "Desconocido"
 
-msgid "Pending"
-msgstr "Pendiente"
+#, fuzzy
+#| msgid "Search"
+msgid "Search address"
+msgstr "Buscar"
 
-msgid "Sent"
-msgstr "Enviada"
+msgid "Use my location"
+msgstr ""
 
-msgid "Failed"
-msgstr "Fallido"
-
-msgid "Scheduled"
-msgstr "Programada"
-
-msgid "Revoked"
-msgstr "Revocada"
-
-msgid "Send Date"
-msgstr "Fecha de Envío"
-
-msgid "Template Preview"
-msgstr "Previsualización de plantilla"
-
-msgid "Email Templates"
-msgstr "Plantillas de correos"
-
-msgid "Code"
-msgstr "Codigo"
-
-msgid "Message"
-msgstr "Mensaje"
-
-msgid "Context Code"
-msgstr "Contexto de codigo"
-
-msgid "Base Template"
-msgstr "Plantilla Base"
-
-msgid "Model Inspector"
-msgstr "Modelo Inspector"
-
-msgid "Select a context code to inspect available fields."
-msgstr "Seleccione un código de contexto para inspeccionar los campos disponibles."
-
-msgid "No context selected."
-msgstr "Contexto no seleccionado."
-
-msgid "Update Template"
-msgstr "Actualizar Plantilla"
+#, fuzzy
+#| msgid "Clean"
+msgid "Clear"
+msgstr "Limpiar filtros"

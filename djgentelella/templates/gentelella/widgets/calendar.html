@@ -1,7 +1,142 @@
+{% load i18n %}
+<style>
+    /* Scoped to this instance's own container (#id_xxx, not the bare
+       .fc-daygrid-* classes): those are FullCalendar's own, shared by every
+       calendar on the page (or in the consuming project), so an unscoped
+       override here would reach every other one of them too. */
+    #{{ widget.attrs.id }} .fc-event-title {
+        /* FullCalendar doesn't clip a long title on its own -- it just
+           overflows the day cell. */
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    /* Without a cap a busy day pushes every row below it taller instead of
+       scrolling its own events -- the whole month grid warps around one day.
+       height (not just max-height) + overflow:hidden on the frame, because
+       the frame sits in a <td>: a table cell grows to fit its tallest child
+       regardless of that child's max-height unless the child itself refuses
+       to grow past a fixed height. !important throughout: FullCalendar's own
+       stylesheet targets fc-daygrid-day-frame with a selector this specific,
+       loaded after this block, so an unqualified override here loses the
+       cascade even though it comes later in the source. */
+    #{{ widget.attrs.id }} .fc-daygrid-day-frame { height: 130px !important; max-height: 130px !important; overflow: hidden !important; }
+    #{{ widget.attrs.id }} .fc-daygrid-day-events { max-height: 90px !important; overflow-y: auto !important; }
+
+    /* .modal-footer .btn+.btn (custom.css, a Bootstrap-3-era margin hack)
+       fights Bootstrap 5's own flex centering on the footer -- one extra
+       margin-bottom is enough to knock a button off-center both ways. gap-2
+       on the footer already spaces these buttons; the leftover margin only
+       hurts. */
+    #{{widget.name}}_add_modal .modal-footer .btn,
+    #{{widget.name}}_detail_modal .modal-footer .btn { margin: 0 !important; }
+</style>
+
 <div  {% include "gentelella/widgets/attrs.html" %} name="{{widget.name}}_display">
 
 </div>
 <input type="hidden" id="{{widget.name}}_events-input-src" name="{{widget.name}}">
+
+{% if can_add %}
+<div class="modal fade" id="{{widget.name}}_add_modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{% trans 'Add event' %}</h5>
+                <button aria-label="{% trans 'Close' %}" class="btn-close" data-bs-dismiss="modal" type="button"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label" for="{{widget.name}}_add_title">{% trans 'Title' %}</label>
+                        <input type="text" class="form-control" id="{{widget.name}}_add_title">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label" for="{{widget.name}}_add_date">{% trans 'Date' context 'calendar widget' %}</label>
+                        <div class="input-group date">
+                            <input type="text" class="form-control" id="{{widget.name}}_add_date" data-format="YYYY-MM-DD">
+                            <span class="input-group-text"><span class="fa fa-calendar"></span></span>
+                        </div>
+                    </div>
+                    <div class="col-8">
+                        <label class="form-label" for="{{widget.name}}_add_time">{% trans 'Time' %}</label>
+                        <div class="input-group date">
+                            <input type="text" class="form-control" id="{{widget.name}}_add_time" data-format="HH:mm">
+                            <span class="input-group-text"><i class="fa fa-clock-o"></i></span>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <label class="form-label" for="{{widget.name}}_add_color">{% trans 'Color' %}</label>
+                        <input type="color" class="form-control form-control-color w-100" id="{{widget.name}}_add_color" value="#4e73df">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label" for="{{widget.name}}_add_description">{% trans 'Description' %}</label>
+                        <textarea class="form-control" id="{{widget.name}}_add_description" rows="2"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer gap-2">
+                <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">{% trans 'Cancel' %}</button>
+                <button class="btn btn-success" type="button" id="{{widget.name}}_add_save">{% trans 'Save' %}</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="modal fade" id="{{widget.name}}_detail_modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{% if can_edit %}{% trans 'Edit event' %}{% else %}{% trans 'Event' %}{% endif %}</h5>
+                <button aria-label="{% trans 'Close' %}" class="btn-close" data-bs-dismiss="modal" type="button"></button>
+            </div>
+            <div class="modal-body">
+                {% if can_edit %}
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label" for="{{widget.name}}_detail_title_input">{% trans 'Title' %}</label>
+                        <input type="text" class="form-control" id="{{widget.name}}_detail_title_input">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label" for="{{widget.name}}_detail_date_input">{% trans 'Date' context 'calendar widget' %}</label>
+                        <div class="input-group date">
+                            <input type="text" class="form-control" id="{{widget.name}}_detail_date_input" data-format="YYYY-MM-DD">
+                            <span class="input-group-text"><span class="fa fa-calendar"></span></span>
+                        </div>
+                    </div>
+                    <div class="col-8">
+                        <label class="form-label" for="{{widget.name}}_detail_time_input">{% trans 'Time' %}</label>
+                        <div class="input-group date">
+                            <input type="text" class="form-control" id="{{widget.name}}_detail_time_input" data-format="HH:mm">
+                            <span class="input-group-text"><i class="fa fa-clock-o"></i></span>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <label class="form-label" for="{{widget.name}}_detail_color_input">{% trans 'Color' %}</label>
+                        <input type="color" class="form-control form-control-color w-100" id="{{widget.name}}_detail_color_input">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label" for="{{widget.name}}_detail_description_input">{% trans 'Description' %}</label>
+                        <textarea class="form-control" id="{{widget.name}}_detail_description_input" rows="2"></textarea>
+                    </div>
+                </div>
+                {% else %}
+                <p id="{{widget.name}}_detail_title"></p>
+                <p><strong>{% trans 'Start' %}:</strong> <span id="{{widget.name}}_detail_start"></span></p>
+                <p id="{{widget.name}}_detail_end_p"><strong>{% trans 'End' context 'calendar widget' %}:</strong> <span id="{{widget.name}}_detail_end"></span></p>
+                {% endif %}
+            </div>
+            <div class="modal-footer gap-2">
+                {% if can_delete %}
+                <button class="btn btn-danger me-auto" type="button" id="{{widget.name}}_detail_delete">{% trans 'Delete' %}</button>
+                {% endif %}
+                <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">{% trans 'Close' %}</button>
+                {% if can_edit %}
+                <button class="btn btn-success" type="button" id="{{widget.name}}_detail_save">{% trans 'Save' %}</button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
     var calendar_options{{widget.name}} = {{ options|safe }};
