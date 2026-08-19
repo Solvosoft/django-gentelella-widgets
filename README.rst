@@ -156,14 +156,14 @@ Run migrations
 
 .. code:: bash
 
-    python manage.py migrate
+    cd demo && python manage.py migrate
 
 Create statics files downloading from internet (you need to install requests for this step).
 
 .. code:: bash
 
      pip install requests
-     python manage.py loaddevstatic
+     cd demo && python manage.py loaddevstatic
 
 Add djgentelella urls in your project urls.py file
 
@@ -232,11 +232,15 @@ them on its own. This is what CI runs:
     python manage.py test djgentelella.blog.tests
 
 The Selenium tests are tagged ``selenium`` and excluded by default. They drive a
-real browser against MailHog, so start it first:
+real browser against MailHog, so start it first, in another terminal (``make
+services`` runs in the foreground; Ctrl+C stops it):
 
 .. code:: bash
 
-    make mailhog
+    make services
+
+.. code:: bash
+
     make test-selenium
 
 Lint
@@ -257,6 +261,8 @@ reason.
 
 Run the demo
 ---------------
+
+For the short, copy-pasteable version of everything below, see `QUICKSTART.md <QUICKSTART.md>`_.
 
 .. code:: bash
 
@@ -284,7 +290,7 @@ ____________________________
 
 .. code:: bash
 
-    python manage.py createbasejs
+    cd demo && python manage.py createbasejs
 
 Remember update the package version before make deploy it on server.
 
