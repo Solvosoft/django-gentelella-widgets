@@ -7,6 +7,8 @@ class Command(BaseCommand):
     help = 'Load demo site structure'
 
     def handle(self, *args, **options):
+        MenuItem.objects.filter(title__startswith='Base').delete()
+
         base1 = MenuItem.objects.create(
             parent=None,
             title='Base 1',
