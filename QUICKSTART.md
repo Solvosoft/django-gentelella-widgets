@@ -66,3 +66,32 @@ python manage.py test --exclude-tag=selenium
 python manage.py test djgentelella.tests
 python manage.py test djgentelella.blog.tests
 ```
+
+## PyCharm run configurations
+
+`make run` covers most work from a terminal; these are the two Run/Debug
+configurations for running the demo from PyCharm instead. Interpreter is the
+project's `.venv` in both.
+
+**main** -- plain WSGI dev server, everything except digital signature:
+
+| Field | Value |
+|---|---|
+| Script | `demo/manage.py` |
+| Script parameters | `runserver 9022` |
+| Working directory | `demo/` |
+| Environment variables | `PYTHONUNBUFFERED=1` |
+
+**asgi** -- gunicorn + uvicorn worker, needed for `firmador_digital`
+(websockets don't work under `runserver`):
+
+| Field | Value |
+|---|---|
+| Module name | `gunicorn` |
+| Parameters | `-c djgentelella/firmador_digital/gunicorn/config_asgi.py` |
+| Environment variables | `PYTHONUNBUFFERED=1` |
+
+The gunicorn config hardcodes `demo.asettings` as `DJANGO_SETTINGS_MODULE` and
+binds `127.0.0.1:9022` (`UVICORN_BIND`) -- same port as **main**, so run
+either one, not both, and switch to **asgi** only when testing signing (after
+`make services-sign`, see above).
