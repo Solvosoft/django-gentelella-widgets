@@ -352,3 +352,6 @@ msgstr "Usuario"
 
 msgid "Duplicate as pending"
 msgstr "Duplicado como pendiente"
+
+msgid "No context selected."
+msgstr "Contexto no seleccionado."
