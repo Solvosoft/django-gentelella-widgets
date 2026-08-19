@@ -36,6 +36,15 @@ FLAGS = ['ac', 'ad', 'ae', 'af', 'ag', 'ai', 'al', 'am', 'ao', 'aq', 'ar', 'as',
          'zm', 'zw']
 
 
+def _is_html_error_page(content):
+    # Some CDNs (friconix.com's included) answer a dead path with 200 and
+    # their normal HTML homepage instead of a 404 -- status alone won't
+    # catch that, and writing it as the "library" corrupts every bundle
+    # it gets concatenated into.
+    head = content[:512].lstrip().lower()
+    return head.startswith(b'<!doctype html') or head.startswith(b'<html')
+
+
 def download(urls):
     thread = current_thread()
     for url in urls:
@@ -43,7 +52,7 @@ def download(urls):
         filename = url[1]
         print("%s) Downloading %s --> %s" % (thread.name, download_url, filename))
         r = requests.get(download_url)
-        if not r.ok:
+        if not r.ok or _is_html_error_page(r.content):
             # Don't save the error page as the file, don't raise either --
             # a few CDN paths are permanently gone, that shouldn't kill the thread.
             print("%s) FAILED (%s): %s" % (thread.name, r.status_code, download_url))
@@ -95,7 +104,7 @@ class Command(BaseCommand):
             with open(basepath, 'wb') as arch:
                 for url in files:
                     r = requests.get(url)
-                    if not r.ok:
+                    if not r.ok or _is_html_error_page(r.content):
                         print("FAILED (%s): %s" % (r.status_code, url))
                         continue
                     arch.write(r.content)
