@@ -4,12 +4,14 @@ from random import randint
 from django.conf import settings
 from django.core.files import File
 from django.core.management import BaseCommand, call_command
+from django.templatetags.static import static
 from django.urls import reverse
 from django.utils.timezone import now
 
 from demoapp import models
 from demoapp.models import SelectImage
 from djgentelella.models import MenuItem
+from djgentelella.utils import set_settings
 
 
 class Command(BaseCommand):
@@ -848,11 +850,21 @@ class Command(BaseCommand):
                     img=File(open(f, 'rb'), name=f.name),
                 )
 
+    def create_settings(self):
+        # GentelellaSettings values go through mark_safe as-is, so the URL
+        # has to be resolved here -- storing the {% static %} tag itself
+        # would render literally, not the image.
+        set_settings(
+            'site_logo',
+            f'<img src="{static("images/logo.png")}" alt="logo" height="40">',
+        )
+
     def handle(self, *args, **options):
 
         MenuItem.objects.all().delete()
 
         self.create_menu()
+        self.create_settings()
         self.create_autocomplete_menu()
         self.create_countries()
         self.create_places()
