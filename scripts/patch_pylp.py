@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """
 Patch pylp 0.2.10's runner so asyncio.wait() receives Tasks, not bare
-coroutines. Python 3.12+ raises TypeError for the latter, and there is no
+coroutines: some Python 3.11/3.12+ builds raise TypeError for the latter
+(the exact cutoff moved around between patch releases), and there is no
 upstream fix released (https://github.com/pylp/pylp, last release 0.2.10).
+Wrapping in asyncio.create_task is a no-op on unaffected versions, so this
+always applies the patch rather than guessing a version cutoff.
 
-Idempotent and version-gated: no-ops on Python < 3.12 (unaffected) and on an
-already-patched install.
+Idempotent: no-ops on an already-patched install.
 """
 import sys
 from pathlib import Path
@@ -15,12 +17,6 @@ NEW = "await asyncio.wait(map(lambda runner: asyncio.create_task(runner.future),
 
 
 def main():
-    if sys.version_info < (3, 12):
-        print(f"pylp needs no patch on Python {'.'.join(map(str, sys.version_info[:3]))}")
-        return 0
-
-    # Imported here, not at module level: <3.12 must no-op above without
-    # requiring pylp to be installed for that interpreter.
     try:
         import pylp.cli.run as _run_module
     except ModuleNotFoundError:

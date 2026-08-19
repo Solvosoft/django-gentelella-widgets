@@ -21,7 +21,7 @@ help:
 	@echo "loadstatic - download frontend libraries from CDN"
 	@echo "basejs - regenerate base.js from widgets"
 	@echo "assets - build the min.js/min.css bundles (pylp) and collectstatic for the demo"
-	@echo "patch-pylp - patch the installed pylp for Python 3.12+ (asyncio.wait compat)"
+	@echo "patch-pylp - patch the installed pylp for asyncio.wait compat"
 	@echo "-- Quality --"
 	@echo "test - run tests quickly with the default Python"
 	@echo "test-selenium - Selenium E2E of the GUI, inside its own Xvfb display"

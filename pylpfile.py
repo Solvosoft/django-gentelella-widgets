@@ -10,7 +10,7 @@ from pylpconcat import concat
 ##
 ##  pip install pylp pylpconcat css-html-js-minify
 ##
-##  pylp 0.2.10 needs a Python 3.12+ compat patch: run `make patch-pylp`
+##  pylp 0.2.10 needs an asyncio.wait compat patch: run `make patch-pylp`
 ##  (or `scripts/patch_pylp.py`) once per venv before invoking pylp.
 ##
 

@@ -6,11 +6,14 @@ inside your own project.
 ```bash
 git clone https://github.com/Solvosoft/django-gentelella-widgets.git
 cd django-gentelella-widgets
-python -m venv .venv && source .venv/bin/activate
+python3.13 -m venv .venv && source .venv/bin/activate
+# any Python 3.11+ works (README's Requirements) -- 3.13 pinned here to match
+# the PyCharm run configs below and what this guide was tested against.
+# No python3.13 on your system? Install it or swap in your own 3.11+.
 
 pip install -r requirements.txt
 
-make patch-pylp    # Python 3.12+ compat fix for the pylp build tool (pulls test_requirements.txt too)
+make patch-pylp    # asyncio.wait compat fix for the pylp build tool (pulls test_requirements.txt too)
 make loadstatic    # download vendor JS/CSS (needs internet)
 make basejs        # generate djgentelella/static/gentelella/js/base.js
 make assets        # build djgentelella's own bundles + collectstatic
