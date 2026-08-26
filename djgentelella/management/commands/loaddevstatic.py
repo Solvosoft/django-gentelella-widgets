@@ -18,7 +18,7 @@ FLAGS = ['ac', 'ad', 'ae', 'af', 'ag', 'ai', 'al', 'am', 'ao', 'aq', 'ar', 'as',
          'bm', 'bn', 'bo', 'bq', 'br', 'bs', 'bt', 'bv', 'bw', 'by', 'bz', 'ca', 'cc',
          'cd', 'cf', 'cg', 'ch', 'ci', 'ck', 'cl', 'cm', 'cn', 'co', 'cr', 'cu', 'cv',
          'cw', 'cx', 'cy', 'cz', 'de', 'dj', 'dk', 'dm', 'do', 'dz', 'ec', 'ee', 'eg',
-         'eh', 'er', 'es-ca', 'es', 'et', 'eu', 'fi', 'fj', 'fk', 'fm', 'fo', 'fr',
+         'eh', 'er', 'es', 'et', 'eu', 'fi', 'fj', 'fk', 'fm', 'fo', 'fr',
          'ga', 'gb-eng', 'gb-nir', 'gb-sct', 'gb-wls', 'gb', 'gd', 'ge', 'gf', 'gg',
          'gh', 'gi', 'gl', 'gm', 'gn', 'gp', 'gq', 'gr', 'gs', 'gt', 'gu', 'gw', 'gy',
          'hk', 'hm', 'hn', 'hr', 'ht', 'hu', 'id', 'ie', 'il', 'im', 'in', 'io', 'iq',
@@ -36,6 +36,15 @@ FLAGS = ['ac', 'ad', 'ae', 'af', 'ag', 'ai', 'al', 'am', 'ao', 'aq', 'ar', 'as',
          'zm', 'zw']
 
 
+def _is_html_error_page(content):
+    # Some CDNs (friconix.com's included) answer a dead path with 200 and
+    # their normal HTML homepage instead of a 404 -- status alone won't
+    # catch that, and writing it as the "library" corrupts every bundle
+    # it gets concatenated into.
+    head = content[:512].lstrip().lower()
+    return head.startswith(b'<!doctype html') or head.startswith(b'<html')
+
+
 def download(urls):
     thread = current_thread()
     for url in urls:
@@ -43,6 +52,11 @@ def download(urls):
         filename = url[1]
         print("%s) Downloading %s --> %s" % (thread.name, download_url, filename))
         r = requests.get(download_url)
+        if not r.ok or _is_html_error_page(r.content):
+            # Don't save the error page as the file, don't raise either --
+            # a few CDN paths are permanently gone, that shouldn't kill the thread.
+            print("%s) FAILED (%s): %s" % (thread.name, r.status_code, download_url))
+            continue
         with open(filename, 'wb') as arch:
             arch.write(r.content)
 
@@ -90,6 +104,9 @@ class Command(BaseCommand):
             with open(basepath, 'wb') as arch:
                 for url in files:
                     r = requests.get(url)
+                    if not r.ok or _is_html_error_page(r.content):
+                        print("FAILED (%s): %s" % (r.status_code, url))
+                        continue
                     arch.write(r.content)
                     arch.write(b'\n')
 
@@ -245,10 +262,13 @@ class Command(BaseCommand):
                 # 'https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.4.6/css/flag-icon.min.css',
             ],
             'flags/1x1': [
-                'https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.4.6/flags/1x1/%s.svg' % flag
+                # Must match the CSS version above (6.6.6): 3.4.6 predates the
+                # es-ca -> es-ct rename and never had ac/cp/dg/ea/es-ga/ic/ta/xx,
+                # so those classes 404'd even though flag-icons.min.css defines them.
+                'https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/flags/1x1/%s.svg' % flag
                 for flag in FLAGS],
             'flags/4x3': [
-                'https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.4.6/flags/4x3/%s.svg' % flag
+                'https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/flags/4x3/%s.svg' % flag
                 for flag in FLAGS],
             'datatables': [
                 'https://cdn.datatables.net/v/bs5/jszip-2.5.0/dt-1.12.1/af-2.4.0/b-2.2.3/b-colvis-2.2.3/b-html5-2.2.3/b-print-2.2.3/cr-1.5.6/date-1.1.2/fc-4.1.0/fh-3.2.4/kt-2.7.0/r-2.3.0/rg-1.2.0/rr-1.2.8/sc-2.0.7/sb-1.3.4/sp-2.0.2/sl-1.4.0/sr-1.1.1/datatables.min.js',

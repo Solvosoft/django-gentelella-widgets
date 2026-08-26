@@ -26,6 +26,8 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 
+from djgentelella.async_notification.filterset import NewsletterFilterSet, \
+    NewsletterTemplateFilterSet, EmailTemplateFilterSet, NewsLetterTaskFilterSet
 from djgentelella.objectmanagement import AuthAllPermBaseObjectManagement
 
 from djgentelella.async_notification.backends import get_backend
@@ -84,7 +86,6 @@ from djgentelella.async_notification.serializers import (
     NewsLetterTaskTableSerializer,
     NewsLetterTaskCreateSerializer,
     NewsLetterTaskDetailSerializer,
-    NewsLetterTaskFilterSet,
 )
 from djgentelella.async_notification.settings import (
     ASYNC_NOTIFICATION_USER_LOOKUP_FIELDS,
@@ -292,6 +293,7 @@ class EmailTemplateManagement(AuthAllPermBaseObjectManagement):
     queryset = EmailTemplate.objects.all()
     pagination_class = LimitOffsetPagination
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
+    filterset_class = EmailTemplateFilterSet
     search_fields = ['code', 'subject']
     ordering_fields = ['created_at', 'code', 'subject']
     ordering = ('-created_at',)
@@ -332,6 +334,7 @@ class NewsLetterTemplateManagement(AuthAllPermBaseObjectManagement):
     queryset = NewsLetterTemplate.objects.all()
     pagination_class = LimitOffsetPagination
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
+    filterset_class = NewsletterTemplateFilterSet
     search_fields = ['title', 'slug']
     ordering_fields = ['created_at', 'title']
     ordering = ('-created_at',)
@@ -373,7 +376,8 @@ class NewsLetterManagement(AuthAllPermBaseObjectManagement):
     queryset = NewsLetter.objects.select_related('template', 'created_by')
     pagination_class = LimitOffsetPagination
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
-    search_fields = ['subject']
+    filterset_class = NewsletterFilterSet
+    search_fields = ['subject', 'code']
     ordering_fields = ['created_at', 'subject']
     ordering = ('-created_at',)
 

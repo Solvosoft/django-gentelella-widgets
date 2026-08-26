@@ -1,6 +1,7 @@
-.PHONY: help clean clean-pyc clean-build list test docs release sdist \
-	lint lint-fix test-selenium test-selenium-run run run-mailhog mailhog mailhog-stop \
-	migrate menu init_demo notification_demo validate-mailhog loadstatic basejs process-loop \
+.PHONY: help clean clean-pyc clean-build list test docs release sdist fuzzysdist \
+	lint lint-fix test-selenium test-selenium-run run run-mailhog run-celery \
+	migrate menu init_demo notification_demo validate-mailhog loadstatic basejs assets \
+	patch-pylp services services-mail services-sign services-celery celery-worker process-loop \
 	coverage coverage-all coverage-unit coverage-selenium coverage-selenium-run \
 	coverage-report coverage-clean
 
@@ -10,8 +11,12 @@ help:
 	@echo "-- Run / demo --"
 	@echo "run - run the demo dev server (PORT=8000 by default)"
 	@echo "run-mailhog - run the demo server sending email to MailHog (SMTP :1025)"
-	@echo "mailhog - start a MailHog container (SMTP :1025, web UI :8025)"
-	@echo "mailhog-stop - stop the MailHog container"
+	@echo "run-celery - run-mailhog, plus CELERY_BROKER_URL set (queued async_notification dispatch)"
+	@echo "services - run every support service in the foreground (MailHog + Firmador + Redis); Ctrl+C stops them"
+	@echo "services-mail - same, MailHog only"
+	@echo "services-sign - same, MailHog + Firmador"
+	@echo "services-celery - same, MailHog + Redis"
+	@echo "celery-worker - run the Celery worker for async_notification (needs services or services-celery)"
 	@echo "init_demo - reset the demo DB and load demo data + superuser"
 	@echo "migrate - make and apply migrations for the demo"
 	@echo "menu - (re)create demo data"
@@ -19,6 +24,8 @@ help:
 	@echo "process-loop - simulate cron: run process_notifications every INTERVAL seconds (default 15)"
 	@echo "loadstatic - download frontend libraries from CDN"
 	@echo "basejs - regenerate base.js from widgets"
+	@echo "assets - build the min.js/min.css bundles (pylp) and collectstatic for the demo"
+	@echo "patch-pylp - patch the installed pylp for asyncio.wait compat"
 	@echo "-- Quality --"
 	@echo "test - run tests quickly with the default Python"
 	@echo "test-selenium - Selenium E2E of the GUI, inside its own Xvfb display"
@@ -37,7 +44,6 @@ help:
 	@echo "fuzzysdist - package"
 	@echo "messages - load translations"
 	@echo "trans - compile translations"
-	@echo "start_sign - start sign server"
 
 clean: clean-build clean-pyc
 
@@ -161,7 +167,7 @@ release: sdist
 	git push origin "v$(version)"
 	twine upload dist/*
 
-sdist: clean check-migrations
+sdist: clean check-migrations patch-pylp
 	cd demo && python manage.py loaddevstatic && python manage.py createbasejs
 	python -m pylp
 	cd djgentelella && django-admin compilemessages -l es
@@ -169,7 +175,7 @@ sdist: clean check-migrations
 	$(MAKE) check-dist
 	ls -l dist
 
-fuzzysdist:
+fuzzysdist: patch-pylp
 	cd demo && python manage.py makemigrations && python manage.py loaddevstatic && python manage.py createbasejs
 	cd djgentelella && django-admin compilemessages -l es
 	python -m pylp
@@ -180,9 +186,6 @@ messages:
 
 trans:
 	cd djgentelella && django-admin compilemessages --locale es
-
-docker_sign:
-	docker run -d --rm  --name firmadorserver -p 9001:9999 -d firmadorlibreserver
 
 menu:
 	cd demo && python manage.py createdemo
@@ -200,7 +203,6 @@ init_demo:
 	python manage.py createsuperuser
 
 PORT ?= 8000
-MAILHOG_NAME ?= djgentelella_mailhog
 
 run:
 	cd demo && python manage.py runserver $(PORT)
@@ -210,13 +212,26 @@ run-mailhog:
 		EMAIL_HOST=localhost EMAIL_PORT=1025 \
 		python manage.py runserver $(PORT)
 
-mailhog:
-	docker run -d --rm --name $(MAILHOG_NAME) \
-		-p 8025:8025 -p 1025:1025 mailhog/mailhog
-	@echo "MailHog up -> SMTP localhost:1025, web UI http://localhost:8025"
+run-celery:
+	cd demo && EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend \
+		EMAIL_HOST=localhost EMAIL_PORT=1025 \
+		CELERY_BROKER_URL=redis://localhost:6379/0 \
+		python manage.py runserver $(PORT)
 
-mailhog-stop:
-	docker stop $(MAILHOG_NAME)
+services-mail:
+	./scripts/run_services.sh
+
+services-sign:
+	./scripts/run_services.sh --sign
+
+services-celery:
+	./scripts/run_services.sh --celery
+
+services:
+	./scripts/run_services.sh --sign --celery
+
+celery-worker:
+	cd demo && CELERY_BROKER_URL=redis://localhost:6379/0 PYTHONPATH=.. celery -A demo worker -l info
 
 notification_demo:
 	cd demo && python manage.py create_notification_demo
@@ -233,7 +248,16 @@ validate-mailhog:
 	cd demo && python manage.py validate_mailhog
 
 loadstatic:
+	pip install -q requests && \
 	cd demo && python manage.py loaddevstatic
 
 basejs:
 	cd demo && python manage.py createbasejs
+
+patch-pylp:
+	pip install -q -r test_requirements.txt
+	python scripts/patch_pylp.py
+
+assets: patch-pylp
+	python -m pylp && \
+	cd demo && python manage.py collectstatic --noinput

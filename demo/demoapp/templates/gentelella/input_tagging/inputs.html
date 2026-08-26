@@ -5,8 +5,8 @@
  {% define_urlname_action 'input_tagging-add'%}
  {% define_urlname_action 'input_tagging-edit'%}
 {% endblock %}
-<div class="row">
-    <div class='col-sm-12 col-md-12 col-lg-6'>
+<div class="row justify-content-center mt-5">
+    <div class='col-sm-12 col-md-12 col-lg-8'>
         <div class="card gencrud">
             <div class="card-body">
                 <div class="card-title titles">
@@ -17,7 +17,7 @@
 
                 <form action="" method="POST">
                     {% csrf_token %}
-                    {{form.as_inline}}
+                    {{form.as_grid}}
                     <a class="btn btn-primary" href="{% url 'input_tagging-add' %}">Cancel</a>
                     <input class="btn btn-success" type="submit" value="Save" />
                 </form>

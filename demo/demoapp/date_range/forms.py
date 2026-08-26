@@ -9,6 +9,12 @@ class DateRangeForms(forms.ModelForm, GTForm):
     x = forms.CharField(widget=widget.DateRangeInput)
     y = forms.CharField(widget=widget.DateRangeTimeInput)
 
+    grid_representation = [
+        [['date_range'], ['date_custom']],
+        [['date_time'], ['x']],
+        [['y']],
+    ]
+
     class Meta:
         model = models.DateRange
         fields = '__all__'

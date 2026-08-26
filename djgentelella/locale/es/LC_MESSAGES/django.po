@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-18 21:41+0000\n"
+"POT-Creation-Date: 2026-08-19 16:45-0600\n"
 "PO-Revision-Date: 2025-03-29 16:43-0600\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -18,13 +18,453 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.2.2\n"
 
-#, fuzzy
-#| msgid "Actions"
 msgid "Action"
 msgstr "Acciones"
 
 msgid "History"
 msgstr "Historial"
+
+msgid "Send selected emails now"
+msgstr "Enviar los correos seleccionados ahora"
+
+#, python-format
+msgid "%(n)d email(s) sent."
+msgstr "%(n)d correo(s) enviado(s)."
+
+msgid "Recipients"
+msgstr "Destinatarios"
+
+msgid "Send selected newsletters now"
+msgstr "Enviar los boletines seleccionados ahora"
+
+#, python-format
+msgid "%(n)d newsletter(s) sent."
+msgstr "%(n)d boletín(es) enviado(s)."
+
+msgid "Send selected tasks now"
+msgstr "Enviar las tareas seleccionadas ahora"
+
+#, python-format
+msgid "%(n)d task(s) sent."
+msgstr "%(n)d tarea(s) enviada(s)."
+
+msgid "Comma-separated emails or groups"
+msgstr "Correos o grupos separados por comas"
+
+msgid "BCC addresses"
+msgstr "Direcciones CCO"
+
+msgid "CC addresses"
+msgstr "Direcciones CC"
+
+msgid "Recipients must be a list."
+msgstr "Los destinatarios deben ser una lista."
+
+#, python-format
+msgid "Invalid recipient: %(token)s"
+msgstr "Destinatario inválido: %(token)s"
+
+msgid "Code"
+msgstr "Codigo"
+
+msgid "Unique identifier for this template"
+msgstr "Identificador único para esta plantilla"
+
+msgid "Subject"
+msgstr "Asunto"
+
+msgid "Message"
+msgstr "Mensaje"
+
+msgid "HTML content with Django template syntax"
+msgstr "Contenido HTML con sintaxis de plantillas de Django"
+
+msgid "BCC"
+msgstr "CCO"
+
+msgid "CC"
+msgstr "CC"
+
+msgid "Context Code"
+msgstr "Contexto de codigo"
+
+msgid "Registered context code for variable suggestions"
+msgstr "Código de contexto registrado para sugerencias de variables"
+
+msgid "Base Template"
+msgstr "Plantilla Base"
+
+msgid "Base template key from settings to wrap the email content"
+msgstr ""
+"Clave de plantilla base (en settings) para envolver el contenido del correo"
+
+msgid "Email Template"
+msgstr "Plantillas de correos"
+
+msgid "Email Templates"
+msgstr "Plantillas de correos"
+
+msgid "Pending"
+msgstr "Pendiente"
+
+msgid "Queued"
+msgstr "En cola"
+
+msgid "Sending"
+msgstr "Pendiente"
+
+msgid "Sent"
+msgstr "Enviada"
+
+msgid "Failed"
+msgstr "Fallido"
+
+msgid "Cancelled"
+msgstr "Cancelar"
+
+msgid "List of email addresses or group references"
+msgstr "Lista de direcciones de correo o referencias a grupos"
+
+msgid "Status"
+msgstr "Estado"
+
+msgid "Base template key from settings to wrap the email body"
+msgstr ""
+"Clave de plantilla base (en settings) para envolver el cuerpo del correo"
+
+msgid "Resolved Recipients"
+msgstr "Destinatarios resueltos"
+
+msgid "Resolved email addresses after processing"
+msgstr "Direcciones de correo resueltas después del procesamiento"
+
+msgid "Delivered Recipients"
+msgstr "Destinatarios entregados"
+
+msgid ""
+"Addresses already delivered; a retry resumes from here instead of re-sending"
+" already-delivered batches"
+msgstr ""
+"Direcciones ya entregadas; un reintento continúa desde aquí en vez de "
+"reenviar los lotes ya entregados"
+
+msgid "Retry Count"
+msgstr "Cantidad de reintentos"
+
+msgid "Max Retries"
+msgstr "Máximo de reintentos"
+
+msgid "Maximum number of send attempts before failing"
+msgstr "Número máximo de intentos de envío antes de fallar"
+
+msgid "Last Attempt"
+msgstr "Último intento"
+
+msgid "Error Message"
+msgstr "Mensaje"
+
+msgid "Enqueued"
+msgstr "Encolado"
+
+msgid ""
+"If True, processed by backend/cron. If False, sent immediately via signal."
+msgstr ""
+"Si es verdadero, se procesa por backend/cron. Si es falso, se envía de "
+"inmediato vía señal."
+
+msgid "Send Individually"
+msgstr "Enviar individualmente"
+
+msgid "Send one email per recipient instead of batching"
+msgstr "Enviar un correo por destinatario en lugar de agruparlos"
+
+
+msgid ""
+"Marketing/promotional email: adds one-click unsubscribe headers, honors the "
+"suppression list, and is sent one message per recipient. Leave off for "
+"transactional mail (password resets, receipts, etc.)."
+msgstr ""
+"Correo de marketing/promocional: agrega encabezados de cancelación de "
+"suscripción con un clic, respeta la lista de supresión, y se envía un "
+"mensaje por destinatario. Déjelo desactivado para correo transaccional "
+"(restablecimiento de contraseña, recibos, etc.)."
+
+msgid "Created By"
+msgstr "Crear"
+
+msgid "Email Notification"
+msgstr "Notificacion de correo"
+
+msgid "Email Notifications"
+msgstr "Ver todas las notificaciones"
+
+msgid "Content Type"
+msgstr "Contexto de codigo"
+
+msgid "Object ID"
+msgstr "ID del objeto"
+
+msgid "File"
+msgstr "Archivo"
+
+msgid "Is Inline"
+msgstr "Es en línea"
+
+msgid "If True, embedded as inline image (cid:)"
+msgstr "Si es verdadero, se incrusta como imagen en línea (cid:)"
+
+msgid "Content ID"
+msgstr "Contexto de codigo"
+
+msgid "Content-ID for inline attachments"
+msgstr "Content-ID para adjuntos en línea"
+
+msgid "Attached File"
+msgstr "Archivo adjunto"
+
+msgid "Attached Files"
+msgstr "Archivos adjuntos"
+
+msgid "Title"
+msgstr "Título"
+
+msgid "Slug"
+msgstr "Slug"
+
+msgid "HTML content for the newsletter template"
+msgstr "Contenido HTML para la plantilla del boletín"
+
+msgid "Model Base"
+msgstr "Modelo Inspector"
+
+msgid "Key from ASYNC_NEWS_BASE_MODELS settings"
+msgstr "Clave de la configuración ASYNC_NEWS_BASE_MODELS"
+
+msgid "Base template key from settings to wrap the content"
+msgstr "Clave de plantilla base (en settings) para envolver el contenido"
+
+msgid "Newsletter Template"
+msgstr "Plantilla Base"
+
+msgid "Newsletter Templates"
+msgstr "Plantilla Base"
+
+msgid "Template"
+msgstr "Plantilla"
+
+msgid "Filters Querystring"
+msgstr "Querystring de filtros"
+
+msgid "Querystring for filtering recipients"
+msgstr "Querystring para filtrar destinatarios"
+
+msgid "Newsletter"
+msgstr "Boletín"
+
+msgid "Newsletters"
+msgstr "Boletines"
+
+msgid "Scheduled"
+msgstr "Programada"
+
+msgid "Revoked"
+msgstr "Revocada"
+
+msgid "Send Date"
+msgstr "Fecha de Envío"
+
+msgid "Celery Task ID"
+msgstr "ID de tarea de Celery"
+
+msgid ""
+"Addresses already delivered; a re-run resumes from here instead of re-"
+"sending to already-delivered recipients"
+msgstr ""
+"Direcciones ya entregadas; una nueva ejecución continúa desde aquí en vez de"
+" reenviar a destinatarios ya entregados"
+
+msgid "Newsletter Task"
+msgstr "Tarea de boletín"
+
+msgid "Newsletter Tasks"
+msgstr "Tareas de boletín"
+
+msgid "Unsubscribed"
+msgstr "Desuscrito"
+
+msgid "Spam complaint"
+msgstr "Queja de spam"
+
+msgid "Hard bounce"
+msgstr "Rebote permanente"
+
+msgid "Manual"
+msgstr "Manual"
+
+msgid "Email"
+msgstr "Correo electrónico"
+
+msgid "Reason"
+msgstr "Razón"
+
+msgid "Email Suppression"
+msgstr "Supresión de correo"
+
+msgid "Email Suppressions"
+msgstr "Supresiones de correo"
+
+msgid "Granted"
+msgstr "Otorgado"
+
+msgid "Source"
+msgstr "Origen"
+
+msgid "Email Consent"
+msgstr "Consentimiento de correo"
+
+msgid "Email Consents"
+msgstr "Plantillas de correos"
+
+msgid "No results found."
+msgstr "No se encontró"
+
+msgid "Close"
+msgstr "Cerrar"
+
+msgid "Variables"
+msgstr "Variables"
+
+msgid "Select a context code to inspect available fields."
+msgstr ""
+"Seleccione un código de contexto para inspeccionar los campos disponibles."
+
+msgid "Preview"
+msgstr "Previsualizar"
+
+msgid "Refresh"
+msgstr "Actualizar"
+
+msgid "Save changes"
+msgstr "Guardar cambios"
+
+msgid "Don't want these emails?"
+msgstr "¿No quiere recibir estos correos?"
+
+msgid "Unsubscribe"
+msgstr "Cancelar suscripción"
+
+msgid "Recipient filters"
+msgstr "Limpiar filtros"
+
+msgid "No fields found."
+msgstr "No se encontró"
+
+msgid "Email preview"
+msgstr "Vista previa de imagen"
+
+msgid "Official communication"
+msgstr "Comunicación oficial"
+
+msgid "Company"
+msgstr "Empresa"
+
+msgid ""
+"This message and any attachments are confidential and intended solely for "
+"the addressee."
+msgstr ""
+"Este mensaje y cualquier archivo adjunto son confidenciales y están "
+"destinados únicamente al destinatario."
+
+msgid "Latest news and updates"
+msgstr "Últimas noticias y actualizaciones"
+
+msgid "What's new"
+msgstr "Nuevo"
+
+msgid "Product update"
+msgstr "Actualización de producto"
+
+msgid "Learn more"
+msgstr "Saber más"
+
+msgid "Account notification"
+msgstr "Activación de cuentas"
+
+msgid "You are receiving this message because it relates to your account."
+msgstr "Recibe este mensaje porque está relacionado con su cuenta."
+
+msgid "Need help?"
+msgstr "¿Necesita ayuda?"
+
+msgid "Compose email"
+msgstr "Enviar correo"
+
+msgid "Update email"
+msgstr "Actualizar Plantilla"
+
+msgid "Delete Notification"
+msgstr "Lista de notificaciones"
+
+msgid "Create Template"
+msgstr "Actualizar Plantilla"
+
+msgid "Model Inspector"
+msgstr "Modelo Inspector"
+
+msgid "Update Template"
+msgstr "Actualizar Plantilla"
+
+msgid "Delete Template"
+msgstr "Actualizar Plantilla"
+
+msgid "Template Preview"
+msgstr "Previsualización de plantilla"
+
+msgid "Create Newsletter"
+msgstr "Nuevo"
+
+msgid "Update Newsletter"
+msgstr "Actualizar Plantilla"
+
+msgid "Delete Newsletter"
+msgstr "Eliminar este archivo"
+
+msgid "Schedule Task"
+msgstr "Programada"
+
+msgid "Update Task"
+msgstr "Actualizar"
+
+msgid "Delete Task"
+msgstr "Eliminar"
+
+msgid "Create Newsletter Template"
+msgstr "Plantilla Base"
+
+msgid "Update Newsletter Template"
+msgstr "Actualizar Plantilla"
+
+msgid "You have been unsubscribed"
+msgstr "Ha cancelado su suscripción"
+
+#, python-format
+msgid ""
+"<span class=\"email\">%(email)s</span> will no\n"
+"\t\t\t\tlonger receive these emails."
+msgstr ""
+"<span class=\"email\">%(email)s</span> ya no\n"
+"\t\t\t\trecibirá más estos correos."
+
+#, python-format
+msgid ""
+"Do you want to stop receiving these emails at\n"
+"\t\t\t\t<span class=\"email\">%(email)s</span>?"
+msgstr ""
+"¿Desea dejar de recibir estos correos en\n"
+"\t\t\t\t<span class=\"email\">%(email)s</span>?"
+
+msgid "Yes, unsubscribe me"
+msgstr "Sí, cancelar mi suscripción"
 
 msgid "created"
 msgstr "creado"
@@ -62,9 +502,6 @@ msgstr "Anónimo"
 msgid "(More...)"
 msgstr "(Más...)"
 
-msgid "Preview"
-msgstr "Previsualizar"
-
 msgid "Update"
 msgstr "Actualizar"
 
@@ -100,12 +537,31 @@ msgstr ""
 "Se espera una lista de elementos, ej: [{name: 'nombre del archivo', "
 "value:'representación en cadena base64'}]"
 
+#, python-brace-format
+msgid "Too many elements, max_file = {self.max_files}"
+msgstr "Demasiados elementos, max_file = {self.max_files}"
+
 msgid ""
 "Invalid structure you need to provide {name: 'name of file', value:'base64 "
 "string representation'}"
 msgstr ""
 "Estructura inválida, necesitas proporcionar {name: 'nombre del archivo', "
 "value:'representación en cadena base64'}"
+
+msgid "Enter a point as 'latitude,longitude'."
+msgstr "Ingrese un punto como 'latitud,longitud'."
+
+msgid "Latitude and longitude must be numbers."
+msgstr "La latitud y la longitud deben ser números."
+
+msgid "Latitude must be between -90 and 90."
+msgstr "La latitud debe estar entre -90 y 90."
+
+msgid "Longitude must be between -180 and 180."
+msgstr "La longitud debe estar entre -180 y 180."
+
+msgid "GPS point stored as 'latitude,longitude'"
+msgstr "Punto GPS almacenado como 'latitud,longitud'"
 
 msgid "Invalid request."
 msgstr "Petición inválida."
@@ -141,9 +597,6 @@ msgstr "Tamaño de fuente"
 msgid "Place"
 msgstr "Lugar"
 
-msgid "Reason"
-msgstr "Razón"
-
 msgid "Visible signature"
 msgstr "Firma visible"
 
@@ -154,19 +607,19 @@ msgid "Image preview"
 msgstr "Vista previa de imagen"
 
 msgid "None"
-msgstr ""
+msgstr "Ninguno"
 
 msgid "Right"
-msgstr ""
+msgstr "Derecha"
 
 msgid "Left"
-msgstr ""
+msgstr "Izquierda"
 
 msgid "Top"
-msgstr ""
+msgstr "Arriba"
 
 msgid "Bottom"
-msgstr ""
+msgstr "Abajo"
 
 msgid "An unexpected error occurred during the signing process."
 msgstr ""
@@ -188,23 +641,15 @@ msgstr "Un error ha ocurrido enviando la petición a los servicios de firmado."
 msgid "Updated signature settings successfully."
 msgstr "Configuración de firma actualizada correctamente."
 
-#, fuzzy
-#| msgid "Create"
 msgid "Created"
 msgstr "Crear"
 
-#, fuzzy
-#| msgid "Update"
 msgid "Updated"
 msgstr "Actualizar"
 
-#, fuzzy
-#| msgid "Delete"
 msgid "Deleted"
 msgstr "Eliminar"
 
-#, fuzzy
-#| msgid "Not found"
 msgid "No user found"
 msgstr "No se encontró"
 
@@ -214,8 +659,6 @@ msgstr "Eliminación permanente"
 msgid "Restored"
 msgstr "Restaurado"
 
-#, fuzzy
-#| msgid "Update"
 msgid "updated"
 msgstr "Actualizar"
 
@@ -228,21 +671,14 @@ msgstr "eliminado permanentemente"
 msgid "restored"
 msgstr "restaurado"
 
-#, python-format
 msgid "An object of model %(model)s has been %(action)s"
 msgstr "Un objeto del modelo %(model)s ha sido %(action)s"
 
-#, python-format
 msgid "%(msg)s. Fields: %(fields)s"
 msgstr "%(msg)s. Campos: %(fields)s"
 
-#, python-format
 msgid "The record %(obj)s of model %(model)s has been %(action)s"
 msgstr "El registro %(obj)s del modelo %(model)s ha sido %(action)s"
-
-#, python-brace-format
-msgid "Do you want to delete {obj}?"
-msgstr "¿Desea eliminar {obj}?"
 
 msgid "Help title"
 msgstr "Título de ayuda"
@@ -299,24 +735,19 @@ msgid "Permission"
 msgstr "Permiso"
 
 msgid "Content type"
-msgstr ""
-
-msgid "Object ID"
-msgstr ""
+msgstr "Tipo de contenido"
 
 msgid "Object repr"
-msgstr ""
+msgstr "Representación del objeto"
 
 msgid "Value of str(instance) at deletion time"
-msgstr ""
+msgstr "Valor de str(instance) al momento de la eliminación"
 
-#, fuzzy
-#| msgid "Delete"
 msgid "Deleted by"
 msgstr "Eliminar"
 
 msgid "Trash"
-msgstr ""
+msgstr "Papelera"
 
 #, python-format
 msgid "%(obj)s in trash"
@@ -327,36 +758,6 @@ msgstr "Este es un correo HTML, por favor use un cliente con soporte HTML"
 
 msgid "You have a new notification"
 msgstr "Usted tiene una nueva notificación"
-
-msgid "Cancel"
-msgstr "Cancelar"
-
-msgid "Submit"
-msgstr "Enviar"
-
-msgid "New"
-msgstr "Nuevo"
-
-msgid "Remove"
-msgstr "Eliminar"
-
-msgid "Do you really want to remove"
-msgstr "¿Está seguro de eliminar"
-
-msgid "Confirm remove"
-msgstr "Confirmar eliminación"
-
-msgid "Actions"
-msgstr "Acciones"
-
-msgid "Show"
-msgstr "Ver"
-
-msgid "Edit"
-msgstr "Editar"
-
-msgid "No items yet."
-msgstr "Sin elementos."
 
 msgid "All Rights Reserved."
 msgstr "Todos los derechos reservados."
@@ -370,14 +771,11 @@ msgstr "Buscar"
 msgid "Clean"
 msgstr "Limpiar filtros"
 
-msgid "Close"
-msgstr "Cerrar"
-
-msgid "Save changes"
-msgstr "Guardar cambios"
-
 msgid "Confirmation for delete. Are you sure?"
 msgstr "Confirmación de borrado, ¿está seguro?"
+
+msgid "Cancel"
+msgstr "Cancelar"
 
 msgid "Confirm"
 msgstr "Confirmar"
@@ -403,11 +801,26 @@ msgstr "Error 403"
 msgid "Return to Main Page"
 msgstr "Volver a inicio"
 
+msgid "Submit"
+msgstr "Enviar"
+
 msgid "Create new"
 msgstr "Nuevo"
 
 msgid "Back to"
 msgstr "Atrás"
+
+msgid "New"
+msgstr "Nuevo"
+
+msgid "Remove"
+msgstr "Eliminar"
+
+msgid "Edit"
+msgstr "Editar"
+
+msgid "Confirm remove"
+msgstr "Confirmar eliminación"
 
 msgid "Detail of"
 msgstr "Detalle de"
@@ -436,6 +849,15 @@ msgstr "Filtro"
 msgid "Clean filter"
 msgstr "Limpiar filtros"
 
+msgid "Actions"
+msgstr "Acciones"
+
+msgid "Show"
+msgstr "Ver"
+
+msgid "No items yet."
+msgstr "Sin elementos."
+
 msgid "Previous"
 msgstr "Anterior"
 
@@ -447,9 +869,6 @@ msgstr "de"
 
 msgid "Next"
 msgstr "Siguiente"
-
-msgid "Create"
-msgstr "Crear"
 
 msgid "Signature settings"
 msgstr "Configuración de firma"
@@ -509,8 +928,7 @@ msgid ""
 "\t\t\t\t\t\t\tplease login with an account that has access."
 msgstr ""
 "Su cuenta no tiene permisos de acceso para ver esta página. Para proceder,\n"
-"                        por favor inicie sesión con otra cuenta con permisos "
-"suficientes."
+"                        por favor inicie sesión con otra cuenta con permisos suficientes."
 
 msgid "Please login to see this page."
 msgstr "Por favor inicie sesión para ver esta página."
@@ -537,8 +955,8 @@ msgstr ""
 msgid ""
 "You are very close to logging out; to do so, please click the logout button."
 msgstr ""
-"Estás muy cerca de cerrar session, para eso debes hacer click en el botón de "
-"salida."
+"Estás muy cerca de cerrar session, para eso debes hacer click en el botón de"
+" salida."
 
 msgid "We look forward to seeing you again soon."
 msgstr "Esperamos verte de nuevo pronto."
@@ -610,13 +1028,10 @@ msgid "Here"
 msgstr "Aquí"
 
 msgid ""
-"This email was send because someone try to reset your password, if you "
-"didn't request a reset, please delete this email and do not more actions\n"
+"This email was send because someone try to reset your password, if you didn't request a reset, please delete this email and do not more actions\n"
 "    "
 msgstr ""
-"Este correo fue enviado por que alguien, posiblemente usted trató de "
-"reiniciar la contraseña. Si no ha hecho la petición de reinicio, por favor "
-"elimine este correo y no realice ninguna otra acción\n"
+"Este correo fue enviado por que alguien, posiblemente usted trató de reiniciar la contraseña. Si no ha hecho la petición de reinicio, por favor elimine este correo y no realice ninguna otra acción\n"
 "   "
 
 msgid "Reset password"
@@ -644,6 +1059,7 @@ msgstr ""
 
 msgid "You updated correctly your password please login again."
 msgstr ""
+"Actualizó su contraseña correctamente, por favor inicie sesión de nuevo."
 
 msgid "Select an User"
 msgstr "Seleccione a un Usuario"
@@ -668,6 +1084,32 @@ msgstr "Se han guardado exitosamente los permisos."
 
 msgid "An error occurred while saving."
 msgstr "Ha ocurrido un error al guardar."
+
+msgid "Add event"
+msgstr "Agregar evento"
+
+msgctxt "calendar widget"
+msgid "Date"
+msgstr "Fecha"
+
+msgid "Time"
+msgstr "Hora"
+
+msgid "Color"
+msgstr "Color"
+
+msgid "Edit event"
+msgstr "Editar evento"
+
+msgid "Event"
+msgstr "Evento"
+
+msgid "Start"
+msgstr "Iniciar"
+
+msgctxt "calendar widget"
+msgid "End"
+msgstr "Fin"
 
 msgid "No"
 msgstr "No"
@@ -751,11 +1193,8 @@ msgstr "Cargando..."
 msgid "Please wait while the document is being signed."
 msgstr "Por favor, espere mientras se firma el documento."
 
-msgid "Start"
-msgstr "Iniciar"
-
-msgid "This registry of trash does not exist."
-msgstr "Este registro de papelera no existe."
+msgid "Dictate"
+msgstr "Estado"
 
 msgid "The registry was successfully restored."
 msgstr "El registro fue restaurado con éxito."
@@ -763,10 +1202,33 @@ msgstr "El registro fue restaurado con éxito."
 msgid "The registry could not be restored."
 msgstr "No se pudo restaurar el registro."
 
-#, fuzzy
-#| msgid "Delete"
 msgid "Deleted object"
 msgstr "Eliminar"
 
 msgid "Unknown"
 msgstr "Desconocido"
+
+msgid "Search address"
+msgstr "Buscar"
+
+msgid "Use my location"
+msgstr "Usar mi ubicación"
+
+msgid "Clear"
+msgstr "Limpiar filtros"
+
+msgid "Create"
+msgstr "Crear"
+
+msgid "Do you really want to remove"
+msgstr "¿Está seguro de eliminar"
+
+#, python-brace-format
+msgid "Do you want to delete {obj}?"
+msgstr "¿Desea eliminar {obj}?"
+
+msgid "This registry of trash does not exist."
+msgstr "Este registro de papelera no existe."
+
+msgid "Promotional"
+msgstr "Promocional"

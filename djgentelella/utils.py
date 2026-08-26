@@ -19,13 +19,8 @@ def get_settings(key, none_asdefault=False):
 
 
 def set_settings(key, value):
-    instance = GentelellaSettings.objects.filter(key=key, value=value).first()
-    if instance:
-        instance.key = key
-        instance.value = value
-        instance.save()
-    else:
-        GentelellaSettings.objects.create(key=key, value=value)
+    GentelellaSettings.objects.update_or_create(key=key, defaults={'value': value})
+    cache.delete(key)
 
 
 def clean_cache(keys):

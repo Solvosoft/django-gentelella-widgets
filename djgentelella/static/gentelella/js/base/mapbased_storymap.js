@@ -3,6 +3,10 @@ function build_mapbased_storymap(instance) {
         var instanceid = document.getElementById(element.id).id;
         var data_url = element.getAttribute('data-url');
 
+        if (window.L_storymap) {
+            window.L = window.L_storymap;
+        }
+
         var storymap = new KLStoryMap.StoryMap(instanceid, data_url);
 
         var e = $(window).height(),
