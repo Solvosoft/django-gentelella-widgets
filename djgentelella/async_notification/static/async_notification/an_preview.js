@@ -53,11 +53,22 @@
             });
     };
 
-    /* DataTables render helper: a colored status badge. */
-    window.AN.statusBadge = function () {
+    /* DataTables render helper: a colored status badge.
+     * @param {Array} choices - Optional array of [value, label] pairs for translation.
+     */
+    window.AN.statusBadge = function (choices) {
         return function (data) {
             if (!data) { return ''; }
-            var safe = $('<span>').text(data).html();
+            var label = data;
+            if (choices) {
+                for (var i = 0; i < choices.length; i++) {
+                    if (choices[i][0] === data) {
+                        label = choices[i][1];
+                        break;
+                    }
+                }
+            }
+            var safe = $('<span>').text(label).html();
             return '<span class="an-badge an-badge-' + data + '">' +
                 safe + '</span>';
         };

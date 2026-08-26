@@ -18,8 +18,6 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.2.2\n"
 
-#, fuzzy
-#| msgid "Actions"
 msgid "Action"
 msgstr "Acciones"
 
@@ -100,8 +98,6 @@ msgid "Base template key from settings to wrap the email content"
 msgstr ""
 "Clave de plantilla base (en settings) para envolver el contenido del correo"
 
-#, fuzzy
-#| msgid "Email Templates"
 msgid "Email Template"
 msgstr "Plantillas de correos"
 
@@ -114,8 +110,6 @@ msgstr "Pendiente"
 msgid "Queued"
 msgstr "En cola"
 
-#, fuzzy
-#| msgid "Pending"
 msgid "Sending"
 msgstr "Pendiente"
 
@@ -125,16 +119,12 @@ msgstr "Enviada"
 msgid "Failed"
 msgstr "Fallido"
 
-#, fuzzy
-#| msgid "Cancel"
 msgid "Cancelled"
 msgstr "Cancelar"
 
 msgid "List of email addresses or group references"
 msgstr "Lista de direcciones de correo o referencias a grupos"
 
-#, fuzzy
-#| msgid "State"
 msgid "Status"
 msgstr "Estado"
 
@@ -170,8 +160,6 @@ msgstr "Número máximo de intentos de envío antes de fallar"
 msgid "Last Attempt"
 msgstr "Último intento"
 
-#, fuzzy
-#| msgid "Message"
 msgid "Error Message"
 msgstr "Mensaje"
 
@@ -190,8 +178,6 @@ msgstr "Enviar individualmente"
 msgid "Send one email per recipient instead of batching"
 msgstr "Enviar un correo por destinatario en lugar de agruparlos"
 
-msgid "Promotional"
-msgstr "Promocional"
 
 msgid ""
 "Marketing/promotional email: adds one-click unsubscribe headers, honors the "
@@ -203,23 +189,15 @@ msgstr ""
 "mensaje por destinatario. Déjelo desactivado para correo transaccional "
 "(restablecimiento de contraseña, recibos, etc.)."
 
-#, fuzzy
-#| msgid "Create"
 msgid "Created By"
 msgstr "Crear"
 
-#, fuzzy
-#| msgid "Show all notifications"
 msgid "Email Notification"
-msgstr "Ver todas las notificaciones"
+msgstr "Notificacion de correo"
 
-#, fuzzy
-#| msgid "Show all notifications"
 msgid "Email Notifications"
 msgstr "Ver todas las notificaciones"
 
-#, fuzzy
-#| msgid "Context Code"
 msgid "Content Type"
 msgstr "Contexto de codigo"
 
@@ -235,8 +213,6 @@ msgstr "Es en línea"
 msgid "If True, embedded as inline image (cid:)"
 msgstr "Si es verdadero, se incrusta como imagen en línea (cid:)"
 
-#, fuzzy
-#| msgid "Context Code"
 msgid "Content ID"
 msgstr "Contexto de codigo"
 
@@ -258,8 +234,6 @@ msgstr "Slug"
 msgid "HTML content for the newsletter template"
 msgstr "Contenido HTML para la plantilla del boletín"
 
-#, fuzzy
-#| msgid "Model Inspector"
 msgid "Model Base"
 msgstr "Modelo Inspector"
 
@@ -269,20 +243,14 @@ msgstr "Clave de la configuración ASYNC_NEWS_BASE_MODELS"
 msgid "Base template key from settings to wrap the content"
 msgstr "Clave de plantilla base (en settings) para envolver el contenido"
 
-#, fuzzy
-#| msgid "Base Template"
 msgid "Newsletter Template"
 msgstr "Plantilla Base"
 
-#, fuzzy
-#| msgid "Base Template"
 msgid "Newsletter Templates"
 msgstr "Plantilla Base"
 
-#, fuzzy
-#| msgid "Base Template"
 msgid "Template"
-msgstr "Plantilla Base"
+msgstr "Plantilla"
 
 msgid "Filters Querystring"
 msgstr "Querystring de filtros"
@@ -354,13 +322,9 @@ msgstr "Origen"
 msgid "Email Consent"
 msgstr "Consentimiento de correo"
 
-#, fuzzy
-#| msgid "Email Templates"
 msgid "Email Consents"
 msgstr "Plantillas de correos"
 
-#, fuzzy
-#| msgid "Not found"
 msgid "No results found."
 msgstr "No se encontró"
 
@@ -389,18 +353,12 @@ msgstr "¿No quiere recibir estos correos?"
 msgid "Unsubscribe"
 msgstr "Cancelar suscripción"
 
-#, fuzzy
-#| msgid "Clean filter"
 msgid "Recipient filters"
 msgstr "Limpiar filtros"
 
-#, fuzzy
-#| msgid "Not found"
 msgid "No fields found."
 msgstr "No se encontró"
 
-#, fuzzy
-#| msgid "Image preview"
 msgid "Email preview"
 msgstr "Vista previa de imagen"
 
@@ -420,8 +378,6 @@ msgstr ""
 msgid "Latest news and updates"
 msgstr "Últimas noticias y actualizaciones"
 
-#, fuzzy
-#| msgid "Create new"
 msgid "What's new"
 msgstr "Nuevo"
 
@@ -431,8 +387,6 @@ msgstr "Actualización de producto"
 msgid "Learn more"
 msgstr "Saber más"
 
-#, fuzzy
-#| msgid "Account activation on"
 msgid "Account notification"
 msgstr "Activación de cuentas"
 
@@ -442,23 +396,15 @@ msgstr "Recibe este mensaje porque está relacionado con su cuenta."
 msgid "Need help?"
 msgstr "¿Necesita ayuda?"
 
-#, fuzzy
-#| msgid "Send email"
 msgid "Compose email"
 msgstr "Enviar correo"
 
-#, fuzzy
-#| msgid "Update Template"
 msgid "Update email"
 msgstr "Actualizar Plantilla"
 
-#, fuzzy
-#| msgid "List of notifications"
 msgid "Delete Notification"
 msgstr "Lista de notificaciones"
 
-#, fuzzy
-#| msgid "Update Template"
 msgid "Create Template"
 msgstr "Actualizar Plantilla"
 
@@ -468,51 +414,33 @@ msgstr "Modelo Inspector"
 msgid "Update Template"
 msgstr "Actualizar Plantilla"
 
-#, fuzzy
-#| msgid "Update Template"
 msgid "Delete Template"
 msgstr "Actualizar Plantilla"
 
 msgid "Template Preview"
 msgstr "Previsualización de plantilla"
 
-#, fuzzy
-#| msgid "Create new"
 msgid "Create Newsletter"
 msgstr "Nuevo"
 
-#, fuzzy
-#| msgid "Update Template"
 msgid "Update Newsletter"
 msgstr "Actualizar Plantilla"
 
-#, fuzzy
-#| msgid "Delete this file"
 msgid "Delete Newsletter"
 msgstr "Eliminar este archivo"
 
-#, fuzzy
-#| msgid "Scheduled"
 msgid "Schedule Task"
 msgstr "Programada"
 
-#, fuzzy
-#| msgid "Update"
 msgid "Update Task"
 msgstr "Actualizar"
 
-#, fuzzy
-#| msgid "Delete"
 msgid "Delete Task"
 msgstr "Eliminar"
 
-#, fuzzy
-#| msgid "Base Template"
 msgid "Create Newsletter Template"
 msgstr "Plantilla Base"
 
-#, fuzzy
-#| msgid "Update Template"
 msgid "Update Newsletter Template"
 msgstr "Actualizar Plantilla"
 
@@ -713,23 +641,15 @@ msgstr "Un error ha ocurrido enviando la petición a los servicios de firmado."
 msgid "Updated signature settings successfully."
 msgstr "Configuración de firma actualizada correctamente."
 
-#, fuzzy
-#| msgid "Create"
 msgid "Created"
 msgstr "Crear"
 
-#, fuzzy
-#| msgid "Update"
 msgid "Updated"
 msgstr "Actualizar"
 
-#, fuzzy
-#| msgid "Delete"
 msgid "Deleted"
 msgstr "Eliminar"
 
-#, fuzzy
-#| msgid "Not found"
 msgid "No user found"
 msgstr "No se encontró"
 
@@ -739,8 +659,6 @@ msgstr "Eliminación permanente"
 msgid "Restored"
 msgstr "Restaurado"
 
-#, fuzzy
-#| msgid "Update"
 msgid "updated"
 msgstr "Actualizar"
 
@@ -753,15 +671,12 @@ msgstr "eliminado permanentemente"
 msgid "restored"
 msgstr "restaurado"
 
-#, python-format
 msgid "An object of model %(model)s has been %(action)s"
 msgstr "Un objeto del modelo %(model)s ha sido %(action)s"
 
-#, python-format
 msgid "%(msg)s. Fields: %(fields)s"
 msgstr "%(msg)s. Campos: %(fields)s"
 
-#, python-format
 msgid "The record %(obj)s of model %(model)s has been %(action)s"
 msgstr "El registro %(obj)s del modelo %(model)s ha sido %(action)s"
 
@@ -828,8 +743,6 @@ msgstr "Representación del objeto"
 msgid "Value of str(instance) at deletion time"
 msgstr "Valor de str(instance) al momento de la eliminación"
 
-#, fuzzy
-#| msgid "Delete"
 msgid "Deleted by"
 msgstr "Eliminar"
 
@@ -1280,8 +1193,6 @@ msgstr "Cargando..."
 msgid "Please wait while the document is being signed."
 msgstr "Por favor, espere mientras se firma el documento."
 
-#, fuzzy
-#| msgid "State"
 msgid "Dictate"
 msgstr "Estado"
 
@@ -1291,24 +1202,18 @@ msgstr "El registro fue restaurado con éxito."
 msgid "The registry could not be restored."
 msgstr "No se pudo restaurar el registro."
 
-#, fuzzy
-#| msgid "Delete"
 msgid "Deleted object"
 msgstr "Eliminar"
 
 msgid "Unknown"
 msgstr "Desconocido"
 
-#, fuzzy
-#| msgid "Search"
 msgid "Search address"
 msgstr "Buscar"
 
 msgid "Use my location"
 msgstr "Usar mi ubicación"
 
-#, fuzzy
-#| msgid "Clean"
 msgid "Clear"
 msgstr "Limpiar filtros"
 
@@ -1325,84 +1230,5 @@ msgstr "¿Desea eliminar {obj}?"
 msgid "This registry of trash does not exist."
 msgstr "Este registro de papelera no existe."
 
-
 msgid "Promotional"
 msgstr "Promocional"
-
-msgid "Refresh"
-msgstr "Refrescar"
-
-msgid "Recipients"
-msgstr "Destinatarios"
-
-msgid "Subject"
-msgstr "Motivo"
-
-msgid "Send Individually"
-msgstr "Envío individual"
-
-msgid "Enqueued"
-msgstr "En cola"
-
-msgid "Compose email"
-msgstr "Redactar correo electrónico"
-
-msgid "Update email"
-msgstr "Actualizar correo"
-
-msgid "Email Notifications"
-msgstr "Notificaciones de correos"
-
-msgid "Create Template"
-msgstr "Crear Plantilla"
-
-msgid "Newsletter"
-msgstr "Boletin informativo"
-
-msgid "Create Newsletter"
-msgstr "Crear Boletin informativo"
-
-msgid "Attached File"
-msgstr "Adjunte archivo"
-
-msgid "Email preview"
-msgstr "Previsualizar Correo"
-
-msgid "Update Newsletter"
-msgstr "Actualizar Boletin informativo"
-
-msgid "Recipient filters"
-msgstr "Filtro de destinatarios"
-
-msgid "Only active users"
-msgstr "Solo usuarios activos"
-
-msgid "Only staff"
-msgstr "Solo Staff"
-
-msgid "Exclude emails (comma separated)"
-msgstr "Excluír correos (separar por commas)"
-
-msgid "Comma-separated emails or groups"
-msgstr "Use la comma para separar emails o grupos"
-
-msgid "Template"
-msgstr "Plantilla"
-
-msgid "CC addresses"
-msgstr "CC Direcciones"
-
-msgid "BCC addresses"
-msgstr "BCC direcciones"
-
-msgid "Newsletters"
-msgstr "Boletines informativos"
-
-msgid "Model Base"
-msgstr "Modelo Base"
-
-msgid "Title"
-msgstr "Titulo"
-
-msgid "Newsletter Templates"
-msgstr "Plantillas de Boletines informativos"

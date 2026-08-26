@@ -71,7 +71,7 @@ var datatable_inits = {
 		{data: "status", name: "status", title: gettext("Status"), type: "select",
 		 choices: STATUS_CHOICES,
 		 visible: true,
-			render: window.AN.statusBadge()},
+			render: window.AN.statusBadge(STATUS_CHOICES)},
 		{data: "enqueued", name: "enqueued", title: gettext("Queued"), type: "select",  choices: OPTIONS,
      render: yesnoprint,visible: true},
 		{data: "retry_count", name: "retry_count", title: gettext("Retries"), type: "string", visible: true},

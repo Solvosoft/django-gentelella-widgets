@@ -61,7 +61,7 @@ var datatable_inits = {
 		{data: "status", name: "status", title: gettext("Status"), type: "select",
 		 choices: STATUS_CHOICES,
 		 visible: true,
-			render: window.AN.statusBadge()},
+			render: window.AN.statusBadge(STATUS_CHOICES)},
 		{data: "created_at", name: "created_at", title: gettext("Created"), type: "date",
 			render: DataTable.render.datetime(), dateformat: document.datetime_format, visible: true},
 		{data: "actions", name: "actions", title: gettext("Actions"), type: "readonly", visible: true}
