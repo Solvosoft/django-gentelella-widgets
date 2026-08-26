@@ -283,3 +283,91 @@ msgstr "Transcribiendo..."
 #: static/gentelella/js/base/voiceeditortinymce.js
 msgid "The transcription service is not available"
 msgstr "El servicio de transcripción no está disponible"
+
+msgid "Template"
+msgstr "Plantilla"
+
+msgid "Created By"
+msgstr "Creado por"
+
+msgid "Title"
+msgstr "Titulo"
+
+msgid "Audience"
+msgstr "Audiencia"
+
+msgid "Created"
+msgstr "Creado"
+
+msgid "Send Date"
+msgstr "Fecha de envío"
+
+msgid "Status"
+msgstr "Estado"
+
+msgid "Newsletter"
+msgstr "Hoja informativa"
+
+msgid "Code"
+msgstr "Codigo"
+
+msgid "Preview"
+msgstr "Previsualizar"
+
+msgid "Send Now"
+msgstr "Enviarlo ya!"
+
+msgid "Pending"
+msgstr "Pendiente"
+
+msgid "Sent"
+msgstr "Enviada"
+
+msgid "Failed"
+msgstr "Fallido"
+
+msgid "Scheduled"
+msgstr "Programada"
+
+msgid "Revoked"
+msgstr "Revocada"
+
+msgid "Sending"
+msgstr "Enviando"
+
+msgid "Cancelled"
+msgstr "Cancelado"
+
+msgid "Queued"
+msgstr "En cola"
+
+msgid "Send Selected"
+msgstr "Enviar Seleccionado"
+
+msgid "Retries"
+msgstr "Repetir"
+
+msgid "User"
+msgstr "Usuario"
+
+msgid "Duplicate as pending"
+msgstr "Duplicado como pendiente"
+
+msgid "No context selected."
+msgstr "Contexto no seleccionado."
+
+msgid "Subject"
+msgstr "Motivo"
+
+msgid "Preview Recipients"
+msgstr "Previsualizar Destinatarios"
+
+msgid "Recipients"
+msgstr "Destinatarios"
+
+msgid "CC addresses"
+msgstr "CC Direcciones"
+
+msgid "BCC addresses"
+msgstr "BCC direcciones"
+

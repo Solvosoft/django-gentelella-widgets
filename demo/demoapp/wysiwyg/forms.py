@@ -10,6 +10,6 @@ class EditorTinymce(forms.ModelForm, GTForm):
         model = WysiwygModel
         fields = '__all__'
         widgets = {
-            'information': widget.EditorTinymce,
+            'information': widget.EditorTinymce(attrs={'data-option-lang': "es"}),
             'extra_information': widget.EditorTinymce,
         }

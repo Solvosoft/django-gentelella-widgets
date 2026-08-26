@@ -6,6 +6,11 @@ from djgentelella.widgets.tagging import TaggingInput, EmailTaggingInput
 
 
 class TaggingForm(GTForm, forms.ModelForm):
+    grid_representation = [
+        [['text_list'], ['email_list']],
+        [['area_list']],
+    ]
+
     class Meta:
         model = TaggingModel
         fields = '__all__'

@@ -5,9 +5,11 @@ Follows the DataTable wrapper pattern used throughout djgentelella.
 """
 
 from django.core.exceptions import ValidationError as DjangoValidationError
-from django_filters import FilterSet, DateTimeFromToRangeFilter
+from django.db.models import Q
+from django_filters import FilterSet, DateTimeFromToRangeFilter, CharFilter
 from rest_framework import serializers
 
+from djgentelella.fields.drfdatetime import DateTimeRangeTextWidget
 from djgentelella.fields.files import GTBase64FileField
 from djgentelella.serializers import GTDateTimeField
 from djgentelella.serializers.selects import (
@@ -99,16 +101,13 @@ class EmailNotificationSerializer(serializers.ModelSerializer):
     """Row serializer for DataTable display."""
     created_at = GTDateTimeField(read_only=True)
     sent = serializers.BooleanField(read_only=True)
-    user_display = serializers.SerializerMethodField()
+    user = GTS2SerializerBase(many=False)
     actions = serializers.SerializerMethodField()
 
     class Meta:
         model = EmailNotification
         fields = ('id', 'subject', 'status', 'sent', 'enqueued',
-                  'retry_count', 'created_at', 'user_display', 'actions')
-
-    def get_user_display(self, obj):
-        return str(obj.user) if obj.user else '-'
+                  'retry_count', 'created_at', 'user', 'actions')
 
     def get_actions(self, obj):
         return {'update': True, 'destroy': True, 'send_email': True,
@@ -153,15 +152,26 @@ class EmailNotificationDetailSerializer(serializers.ModelSerializer):
 
 
 class EmailNotificationFilterSet(FilterSet):
-    created_at = DateTimeFromToRangeFilter()
+    created_at = DateTimeFromToRangeFilter(
+        widget=DateTimeRangeTextWidget(attrs={"placeholder": "YYYY/MM/DD"})
+    )
+    user = CharFilter(method='filter_user')
 
     class Meta:
         model = EmailNotification
         fields = {
+            'subject': ["icontains"],
             'status': ['exact'],
             'enqueued': ['exact'],
+            'retry_count': ['exact']
         }
 
+    def filter_user(self, queryset, name, value):
+        return queryset.filter(
+            Q(user__username__icontains=value) |
+            Q(user__first_name__icontains=value) |
+            Q(user__last_name__icontains=value)
+        )
 
 # =============================================================================
 # EmailTemplate Serializers
@@ -270,20 +280,17 @@ class NewsLetterTemplateSelect2Serializer(GTS2SerializerBase):
 class NewsLetterSerializer(serializers.ModelSerializer):
     """Row serializer for DataTable display."""
     created_at = GTDateTimeField(read_only=True)
-    template_title = serializers.SerializerMethodField()
-    created_by_display = serializers.SerializerMethodField()
+    template = GTS2SerializerBase(many=False)
+    created_by = GTS2SerializerBase(many=False)
     actions = serializers.SerializerMethodField()
 
     class Meta:
         model = NewsLetter
-        fields = ('id', 'subject', 'template_title',
-                  'created_by_display', 'created_at', 'actions')
+        fields = ('id', 'subject', 'template',
+                  'created_by', 'created_at', 'actions')
 
     def get_template_title(self, obj):
         return obj.template.title if obj.template else '-'
-
-    def get_created_by_display(self, obj):
-        return str(obj.created_by) if obj.created_by else '-'
 
     def get_actions(self, obj):
         return {'update': True, 'destroy': True, 'preview_recipients': True}
@@ -346,16 +353,14 @@ class NewsLetterTaskSerializer(serializers.ModelSerializer):
     """Row serializer for DataTable display."""
     send_date = GTDateTimeField(read_only=True)
     created_at = GTDateTimeField(read_only=True)
-    newsletter_subject = serializers.SerializerMethodField()
+    newsletter = GTS2SerializerBase(many=False)
     actions = serializers.SerializerMethodField()
 
     class Meta:
         model = NewsLetterTask
-        fields = ('id', 'newsletter_subject', 'send_date', 'status',
+        fields = ('id', 'newsletter', 'send_date', 'status',
                   'created_at', 'actions')
 
-    def get_newsletter_subject(self, obj):
-        return obj.newsletter.subject if obj.newsletter else '-'
 
     def get_actions(self, obj):
         return {'update': True, 'destroy': True, 'send_now': True}
@@ -389,14 +394,3 @@ class NewsLetterTaskDetailSerializer(serializers.ModelSerializer):
         model = NewsLetterTask
         fields = ('id', 'newsletter', 'send_date', 'status',
                   'celery_task_id', 'created_at', 'updated_at')
-
-
-class NewsLetterTaskFilterSet(FilterSet):
-    send_date = DateTimeFromToRangeFilter()
-
-    class Meta:
-        model = NewsLetterTask
-        fields = {
-            'status': ['exact'],
-            'newsletter': ['exact'],
-        }

@@ -96,25 +96,36 @@ class Community(models.Model):
 class A(models.Model):
     display = models.CharField(max_length=150)
 
+    def __str__(self):
+        return self.display
 
 class B(models.Model):
     display = models.CharField(max_length=150)
     a = models.ForeignKey(A, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.display
 
 class C(models.Model):
     display = models.CharField(max_length=150)
     b = models.ForeignKey(B, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.display
 
 class D(models.Model):
     display = models.CharField(max_length=150)
     c = models.ForeignKey(C, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.display
 
 class E(models.Model):
     display = models.CharField(max_length=150)
     d = models.ForeignKey(D, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.display
 
 
 class ABCDE(models.Model):
@@ -228,6 +239,8 @@ class Event(models.Model):
     title = models.CharField(max_length=255, null=True, blank=True)
     start = models.DateTimeField(null=True, blank=True)
     end = models.DateTimeField(null=True, blank=True)
+    color = models.CharField(max_length=20, null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return self.title

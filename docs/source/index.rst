@@ -13,6 +13,7 @@ Django Gentelella Widgets (``djgentelella``) is a reusable Django application th
    installation
    settings
    demo
+   firmador-setup
 
 .. toctree::
    :maxdepth: 2

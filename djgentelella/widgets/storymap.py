@@ -1,3 +1,5 @@
+import json
+
 from django.core.exceptions import ImproperlyConfigured
 
 from .core import TextInput, update_kwargs
@@ -38,6 +40,7 @@ class GigaPixelStoryMapInput(TextInput):
     def __init__(self, attrs=None):
         if attrs is None or 'data-url' not in attrs:
             raise ImproperlyConfigured('You must add data-url on attrs')
+        self.storymap_options = attrs.pop('storymap_options', None)
         attrs = update_kwargs(attrs, self.__class__.__name__,
                               base_class='form-control')
         super(GigaPixelStoryMapInput, self).__init__(attrs=attrs, extraskwargs=False)
@@ -58,5 +61,7 @@ class GigaPixelStoryMapInput(TextInput):
         attrs = super().build_attrs(base_attrs, extra_attrs=extra_attrs)
         if self.value is not None:
             attrs['data-url'] = self.value
+        if self.storymap_options is not None:
+            attrs['storymap_options'] = json.dumps(self.storymap_options)
 
         return attrs

@@ -226,11 +226,16 @@ GT_HISTORY_ALLOWED_MODELS = [
 ]
 
 # async_notification
-# Console by default (prints emails). Point at MailHog (make mailhog) to
+# Console by default (prints emails). Point at MailHog (make services) to
 # validate real sending/reception: EMAIL_BACKEND=smtp EMAIL_HOST/PORT via env.
 EMAIL_BACKEND = os.getenv(
     'EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'no-reply@example.com')
+
+# Unset by default: async_notification then dispatches in-process
+# (SyncBackend). Set it (with the [celery] extra and a worker running) to
+# switch to queued dispatch -- see QUICKSTART.md's Celery section.
+CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL') or None
 
 # Base HTML layouts an EmailTemplate can wrap its content in.
 ASYNC_NOTIFICATION_BASE_TEMPLATES = {

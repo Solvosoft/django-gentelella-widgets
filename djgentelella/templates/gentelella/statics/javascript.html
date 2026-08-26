@@ -11,6 +11,8 @@
 	<script src="{% static 'djgentelella.vendors.min.js' %}?v={% get_version %}"></script>
 	{% if use_readonlywidgets %}
 		<script src="{% static 'djgentelella.readonly.vendors.min.js' %}?v={% get_version %}"></script>
+		{# Preserve Leaflet 0.7.7 from StoryMapJS before loading modern Leaflet #}
+		<script>if(typeof L !== 'undefined') { window.L_storymap = L; }</script>
 	{% endif %}
 	{# Leaflet goes after the readonly bundle on purpose: storymapjs ships an #}
 	{# embedded Leaflet 0.7.7 that assigns itself to window.L, so loading ours #}
@@ -89,6 +91,8 @@
 <script src="{% static 'vendors/storymapjs/storymap.js' %}?v={% get_version %}"></script>
 <script src="{% static 'vendors/storylinejs/storyline.js' %}?v={% get_version %}"></script>
 <script src="{% static 'vendors/bootstrap-tree/bootstrap-treeview.min.js' %}?v={% get_version %}"></script>
+{# Preserve Leaflet 0.7.7 from StoryMapJS before loading modern Leaflet #}
+<script>if(typeof L !== 'undefined') { window.L_storymap = L; }</script>
 {% endif %}
 {# See the comment in the compressed branch: this has to stay after storymapjs. #}
 <script>document.gt_leaflet_images = {

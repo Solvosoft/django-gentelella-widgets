@@ -62,10 +62,10 @@
                                 </a>
                             {% endif %}
                             {% if perms.blog.change_entry %}
-                                <a class="btn btn-outline-warning" href="{% url 'blog:entry_update' entry.pk %}">{% trans 'Update' %}<i class=" fa fa-edit yellow"></i></a>
+                                <a class="btn btn-outline-warning" href="{% url 'blog:entry_update' entry.pk %}">{% trans 'Update' %} <i class=" fa fa-edit yellow"></i></a>
                             {% endif %}
                             {% if perms.blog.delete_entry %}
-                                <a class="btn btn-outline-danger" href="{% url 'blog:entry_delete' entry.pk %}">{% trans 'Delete' %}<i class=" fa fa-trash red"></i></a>
+                                <a class="btn btn-outline-danger" href="{% url 'blog:entry_delete' entry.pk %}">{% trans 'Delete' %} <i class=" fa fa-trash red"></i></a>
                             {% endif %}
                 </div>
                 <div class="clearfix"></div>
