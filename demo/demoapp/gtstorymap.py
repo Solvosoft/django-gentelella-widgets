@@ -304,8 +304,8 @@ class MapBasedStoryMapExample(BaseStoryMapMBView):
                     "line": True
                 },
                 "media": {
-                    "url": "https://d2xuzatlfjyc9k.cloudfront.net/wp-content/uploads/2014/05/Manuel-Antonio-National-Park-1.jpg",
-                    "credit": "costaricaexperts.com",
+                    "url": "https://upload.wikimedia.org/wikipedia/commons/8/86/Parque_Nacional_Manuel_Antonio_01.jpg",
+                    "credit": "wikipedia",
                     "caption": "Manuel Antonio National Park CR."
                 }
             }, {
