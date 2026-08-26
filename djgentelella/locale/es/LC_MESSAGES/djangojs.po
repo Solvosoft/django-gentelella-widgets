@@ -355,3 +355,19 @@ msgstr "Duplicado como pendiente"
 
 msgid "No context selected."
 msgstr "Contexto no seleccionado."
+
+msgid "Subject"
+msgstr "Motivo"
+
+msgid "Preview Recipients"
+msgstr "Previsualizar Destinatarios"
+
+msgid "Recipients"
+msgstr "Destinatarios"
+
+msgid "CC addresses"
+msgstr "CC Direcciones"
+
+msgid "BCC addresses"
+msgstr "BCC direcciones"
+

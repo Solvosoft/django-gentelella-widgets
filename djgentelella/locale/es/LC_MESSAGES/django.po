@@ -1324,3 +1324,85 @@ msgstr "¿Desea eliminar {obj}?"
 
 msgid "This registry of trash does not exist."
 msgstr "Este registro de papelera no existe."
+
+
+msgid "Promotional"
+msgstr "Promocional"
+
+msgid "Refresh"
+msgstr "Refrescar"
+
+msgid "Recipients"
+msgstr "Destinatarios"
+
+msgid "Subject"
+msgstr "Motivo"
+
+msgid "Send Individually"
+msgstr "Envío individual"
+
+msgid "Enqueued"
+msgstr "En cola"
+
+msgid "Compose email"
+msgstr "Redactar correo electrónico"
+
+msgid "Update email"
+msgstr "Actualizar correo"
+
+msgid "Email Notifications"
+msgstr "Notificaciones de correos"
+
+msgid "Create Template"
+msgstr "Crear Plantilla"
+
+msgid "Newsletter"
+msgstr "Boletin informativo"
+
+msgid "Create Newsletter"
+msgstr "Crear Boletin informativo"
+
+msgid "Attached File"
+msgstr "Adjunte archivo"
+
+msgid "Email preview"
+msgstr "Previsualizar Correo"
+
+msgid "Update Newsletter"
+msgstr "Actualizar Boletin informativo"
+
+msgid "Recipient filters"
+msgstr "Filtro de destinatarios"
+
+msgid "Only active users"
+msgstr "Solo usuarios activos"
+
+msgid "Only staff"
+msgstr "Solo Staff"
+
+msgid "Exclude emails (comma separated)"
+msgstr "Excluír correos (separar por commas)"
+
+msgid "Comma-separated emails or groups"
+msgstr "Use la comma para separar emails o grupos"
+
+msgid "Template"
+msgstr "Plantilla"
+
+msgid "CC addresses"
+msgstr "CC Direcciones"
+
+msgid "BCC addresses"
+msgstr "BCC direcciones"
+
+msgid "Newsletters"
+msgstr "Boletines informativos"
+
+msgid "Model Base"
+msgstr "Modelo Base"
+
+msgid "Title"
+msgstr "Titulo"
+
+msgid "Newsletter Templates"
+msgstr "Plantillas de Boletines informativos"
