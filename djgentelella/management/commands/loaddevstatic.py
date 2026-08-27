@@ -1,3 +1,4 @@
+import hashlib
 import os
 import re
 import shutil
@@ -40,6 +41,36 @@ def _mdi_woff2_only(content):
                   content, count=1)
 
 
+# Sources that serve no version, so a pin is impossible and the only defence
+# against the code changing under us is to record what was last vetted.
+#
+# Knightlab publishes numbered releases, but they are not the same software:
+# `latest` is the current webpack build (storymap.js, 260 KB, KLStoryMap
+# namespace) while the newest tag, 0.7.1, is unminified 2019 code on the old VCO
+# architecture, twice the size. Pinning to it would be a four-year downgrade,
+# not a pin. friconix has no version at all -- its npm package was unpublished
+# in 2020 and there is no repository.
+#
+# A mismatch is reported, not fatal: upstream is allowed to move, but nobody
+# should find out by accident. Verify the new build, then paste the new hash.
+PINNED_CHECKSUMS = {
+    'https://cdn.knightlab.com/libs/storymapjs/latest/js/storymap.js':
+        'c9ce90e87a0b78dfad5d5cba29848302cc3804a68fc9c6bc41d4e37bcf0a8c03',
+    'https://cdn.knightlab.com/libs/storymapjs/latest/css/storymap.css':
+        '6bda7de7c58eecf3e247bebdbc2deacc5974c51f76bf2012c4fa4123fc6e2076',
+    'https://cdn.knightlab.com/libs/timeline3/latest/js/timeline.js':
+        '8d87fa72477f5ed45f1ec5e4df08a2379d6c7524790f0523d555c3af72842863',
+    'https://cdn.knightlab.com/libs/timeline3/latest/css/timeline.css':
+        'bf78018d195b3b47e934585b78da0c0b620868c3f29b923164dcf302235484f4',
+    'https://friconix.com/cdn/friconix.js':
+        'd1d8bea7160815e06bd384008dba74155c61299be7533bda60940636250564ab',
+}
+
+# Filled by the download threads, reported once at the end of the command --
+# a warning printed among two hundred download lines is a warning nobody reads.
+CHECKSUM_MISMATCHES = []
+
+
 # Rewrites applied to a downloaded file, keyed by its name.
 POST_PROCESS = {
     'materialdesignicons.min.css': _mdi_woff2_only,
@@ -59,6 +90,11 @@ def download(urls):
             print("%s) FAILED (%s): %s" % (thread.name, r.status_code, download_url))
             continue
         content = r.content
+        expected = PINNED_CHECKSUMS.get(download_url)
+        if expected is not None:
+            actual = hashlib.sha256(content).hexdigest()
+            if actual != expected:
+                CHECKSUM_MISMATCHES.append((download_url, expected, actual))
         post_process = POST_PROCESS.get(Path(filename).name)
         if post_process is not None:
             content = post_process(content)
@@ -267,7 +303,7 @@ class Command(BaseCommand):
                 'https://cdnjs.cloudflare.com/ajax/libs/parsley.js/2.9.2/parsley.min.js'
             ],
             'autosize': [
-                'https://cdnjs.cloudflare.com/ajax/libs/autosize.js/3.0.15/autosize.min.js'
+                'https://cdnjs.cloudflare.com/ajax/libs/autosize.js/6.0.1/autosize.min.js'
             ],
             'bootstrap-maxlength': [
                 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-maxlength/1.10.0/bootstrap-maxlength.min.js',
@@ -326,8 +362,8 @@ class Command(BaseCommand):
             ],
             "img/": [],
             'bootstrap-tree': [
-                'https://github.com/patternfly/patternfly-bootstrap-treeview/raw/master/dist/bootstrap-treeview.min.js',
-                'https://raw.githubusercontent.com/patternfly/patternfly-bootstrap-treeview/master/dist/bootstrap-treeview.min.css'
+                'https://github.com/patternfly/patternfly-bootstrap-treeview/raw/v2.1.10/dist/bootstrap-treeview.min.js',
+                'https://raw.githubusercontent.com/patternfly/patternfly-bootstrap-treeview/v2.1.10/dist/bootstrap-treeview.min.css'
             ],
             'tagify': [
                 'https://cdn.jsdelivr.net/npm/@yaireo/tagify@4.38.0/dist/tagify.min.js',
@@ -338,8 +374,8 @@ class Command(BaseCommand):
                 'https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/css/ion.rangeSlider.min.css'
             ],
             'sweetalert2': [
-                'https://cdn.jsdelivr.net/npm/sweetalert2@10.10.0/dist/sweetalert2.all.min.js',
-                'https://cdn.jsdelivr.net/npm/sweetalert2@10.10.0/dist/sweetalert2.min.css'
+                'https://cdn.jsdelivr.net/npm/sweetalert2@11.26.25/dist/sweetalert2.all.min.js',
+                'https://cdn.jsdelivr.net/npm/sweetalert2@11.26.25/dist/sweetalert2.min.css'
             ],
             'tinymce': [
                 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/tinymce.min.js',
@@ -501,3 +537,16 @@ class Command(BaseCommand):
                 self.get_static_list_file(compressed[files][name],
                                           currentbasepath)
         self.download_urls()
+        self.report_checksum_mismatches()
+
+    def report_checksum_mismatches(self):
+        if not CHECKSUM_MISMATCHES:
+            return
+        self.stdout.write(self.style.WARNING(
+            '\n%s\n%d unversioned source(s) changed since they were last '
+            'vetted.\nCheck what moved, then update PINNED_CHECKSUMS in %s:\n'
+            % ('=' * 78, len(CHECKSUM_MISMATCHES), Path(__file__).name)))
+        for url, expected, actual in CHECKSUM_MISMATCHES:
+            self.stdout.write(self.style.WARNING(
+                '  %s\n    recorded %s\n    now      %s'
+                % (url, expected, actual)))

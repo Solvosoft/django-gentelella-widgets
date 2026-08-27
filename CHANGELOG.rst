@@ -166,6 +166,29 @@ against the browser suite (57 Selenium tests):
 ``cdn.jsdelivr.net/npm/interactjs/`` that resolved to whatever was current that
 day. Both copies are now pinned to 1.10.28.
 
+Two more moved a major version each, both verified in a browser rather than by
+version number alone: ``autosize`` 3.0.15 -> 6.0.1 (the global still takes a
+textarea and still grows it) and ``sweetalert2`` 10.10.0 -> 11.26.25
+(``Swal.fire``, ``Swal.mixin``, ``stopTimer``/``resumeTimer`` and the
+``didOpen`` hook all survive; none of the options v11 dropped were in use).
+
+``patternfly-bootstrap-treeview`` was downloaded from the **master branch** and
+is now pinned to ``v2.1.10``, which is byte-identical to what master serves
+today -- a pin that swaps nothing.
+
+**Checksums for the sources that cannot be pinned.** Knightlab's StoryMap and
+Timeline are fetched from ``latest``, and friconix from a URL with no version at
+all, so two builds of the same commit could differ with nothing to show for it.
+``loaddevstatic`` now records a SHA-256 for each and reports, in a summary block
+at the end of the run, any that changed since they were last vetted.
+
+Knightlab's numbered releases are deliberately **not** used: ``latest`` is the
+current webpack build of StoryMapJS (260 KB, ``KLStoryMap`` namespace) while its
+newest tag, 0.7.1, is unminified 2019 code on the old ``VCO`` architecture at
+twice the size. Pinning to it would be a four-year downgrade, not a pin --
+and it embeds a different Leaflet, which ``maplib.js`` asserts against at
+runtime.
+
 Removed from ``loaddevstatic``:
 
 * **summernote 0.8.18** -- downloaded and packaged, but in no bundle and no
