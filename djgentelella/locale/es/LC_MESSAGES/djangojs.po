@@ -223,7 +223,6 @@ msgstr "El documento no está firmado digitalmente. Por favor, firme el document
 msgid "The document was saved"
 msgstr "El documento se ha guardado"
 
-# history
 msgid "Restoration"
 msgstr "Restaurado"
 
@@ -371,3 +370,20 @@ msgstr "CC Direcciones"
 msgid "BCC addresses"
 msgstr "BCC direcciones"
 
+msgid "Addiction"
+msgstr "Añadido"
+
+msgid "Modification"
+msgstr "Modificado"
+
+msgid "Deletion"
+msgstr "Borrado"
+
+msgid "Hard deletion"
+msgstr "Eliminación permanente"
+
+msgid "Date"
+msgstr "Fecha"
+
+msgid "Information"
+msgstr "Información"
