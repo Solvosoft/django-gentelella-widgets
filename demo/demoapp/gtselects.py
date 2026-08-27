@@ -1,4 +1,5 @@
 from demoapp import models
+from djgentelella.flags import flag_url
 from djgentelella.groute import register_lookups
 from djgentelella.views.select2autocomplete import (
     BaseSelect2View,
@@ -32,6 +33,23 @@ class CommunityGModelLookup(BaseSelect2View):
 class CountryGModelLookup(BaseSelect2View):
     model = models.Country
     fields = ['name']
+
+
+@register_lookups(prefix='countryflag', basename='countryflagbasename')
+class CountryFlagLookup(BaseSelectImg2View):
+    """Country autocomplete with a flag beside each option.
+
+    Nothing else is needed: AutocompleteSelectImage already asks select2 to
+    render options through decore_img_select2, which draws whatever `get_url`
+    returns as an <img>. flag_url points that at the flags view, so the browser
+    fetches only the flags actually shown in the dropdown.
+    """
+
+    model = models.Country
+    fields = ['name']
+
+    def get_url(self, obj):
+        return flag_url(obj.code) if obj.code else ''
 
 
 @register_lookups(prefix='a', basename='a')

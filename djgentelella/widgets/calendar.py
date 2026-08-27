@@ -39,8 +39,15 @@ class CalendarInput(TextInput):
 
     template_name = 'gentelella/widgets/calendar.html'
 
-    def __init__(self, attrs=None, calendar_attrs=None, events=None,
-                add_url=None, update_url=None, delete_url=None):
+    def __init__(
+        self,
+        attrs=None,
+        calendar_attrs=None,
+        events=None,
+        add_url=None,
+        update_url=None,
+        delete_url=None,
+    ):
         self.events = events
         self.calendar_attrs = calendar_attrs
         self.add_url = add_url
@@ -63,8 +70,9 @@ class CalendarInput(TextInput):
         if extra_attrs is not None:
             if 'required' in extra_attrs:
                 extra_attrs.pop('required')
-        attrs = super(CalendarInput, self).build_attrs(base_attrs,
-                                                       extra_attrs=extra_attrs)
+        attrs = super(CalendarInput, self).build_attrs(
+            base_attrs, extra_attrs=extra_attrs
+        )
         return attrs
 
     def get_context(self, name, value, attrs):

@@ -35,6 +35,66 @@ readonly bundle on purpose -- storymapjs embeds Leaflet 0.7.7 and assigns it to
 
 See ``docs/source/widgets/maps.rst``.
 
+Backwards incompatible
+""""""""""""""""""""""""
+
+**Country flags are no longer CSS classes.** ``<i class="fi fi-cr"></i>`` and
+the ``use_flags`` define are gone, along with
+``djgentelella.flags.vendors.min.css``. Replace them with the ``gtflags``
+template tags::
+
+    {% load gtflags %}
+    {% flag 'cr' %}                  <!-- was <i class="fi fi-cr"></i> -->
+    {% flag 'cr' square=True %}      <!-- was <i class="fi fi-cr fis"></i> -->
+
+That stylesheet was 6.35 MB. It carried all 532 flag SVGs base64-inlined into
+``background-image``, a 232x inflation of the 27 KB it started as, and a page
+showing three flags downloaded every country in both aspect ratios before it
+could render. The 532 SVGs were shipped a second time under
+``static/vendors/flags/``, and ``loaddevstatic`` re-downloaded all of them from
+a CDN on every run -- a network hiccup during a release quietly produced broken
+flags.
+
+Removing it also frees the ``.fi`` class, which flag-icons 6.6.6 and Friconix
+both claim: with ``use_flags`` on, every Friconix ``<i class="fi fi-...">`` was
+silently picking up flag-icons' ``background-size``, ``display`` and ``width``.
+
+Projects that never used flags need to change nothing.
+
+New features
+""""""""""""""""""
+
+**Country flags from a committed sprite, served on demand.** All 266 flags now
+ship as one gzipped SVG sprite,
+``static/gentelella/flags/flags.4x3.svg.gz`` (~650 KB), built by the new
+``manage.py buildflagsprite`` command and committed to the repository -- nothing
+is downloaded at build or install time.
+
+* ``{% flag 'cr' %}`` (``djgentelella.templatetags.gtflags``) renders an
+  ``<svg><use>`` into the sprite: one request serves every flag on the page,
+  cached across pages. ``square=True``, ``css_class`` and ``title`` are
+  supported, and an unknown code renders nothing.
+* ``/flags/<code>.svg`` returns a single flag, with optional ``size``, ``shape``
+  (``circle`` or ``rounded``) and ``title`` applied at request time.
+  ``djgentelella.flags.flag_url()`` builds the URL from Python.
+* ``/flags/sprite.svg`` serves the sprite, handed over still gzipped.
+* Flags in a select2 autocomplete need no new JavaScript: a
+  ``BaseSelectImg2View`` whose ``get_url()`` returns ``flag_url(obj.code)``
+  makes ``AutocompleteSelectImage`` draw a flag per option. The demo shows it at
+  ``/imageselect/create/``, where the same widget sits beside one fed by
+  uploaded ``FileField`` images -- the only difference between them is what
+  ``get_url()`` returns -- and on the person form, where it also has to survive
+  being cloned into a formset row and a modal.
+
+``cefta`` was missing from the download list, so ``.fi-cefta`` had been defined
+in the CSS and 404ing since 6.6.6 landed; the sprite has it.
+
+The wheel is 2.4 MB smaller to download (11.8 MB -> 9.5 MB) and about
+11.9 MB smaller once installed, where the base64 and the SVGs were no
+longer compressed.
+
+See ``docs/source/icons.rst``.
+
 Fixes
 """"""""""""""""""
 
@@ -60,6 +120,80 @@ answers 403 without one. The demo now sets
 ``SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'`` and
 ``docs/source/widgets/maps.rst`` says why any project using these widgets has
 to do the same. The demo also listed ``SecurityMiddleware`` twice.
+
+**Material Design Icons, opt-in.** 7448 icons as a webfont, shipped inside the
+package -- nothing is fetched from a CDN at runtime -- and loaded only where a
+template asks for it::
+
+    {% load gtsettings %}
+    {% block pre_head %}{% define_true "use_mdi" %}{% endblock %}
+
+    <i class="mdi mdi-home"></i>
+
+Only the woff2 is downloaded. Upstream's ``@font-face`` also lists eot, woff and
+ttf -- the same glyphs in three encodings no supported browser would pick -- so
+``loaddevstatic`` rewrites the rule to the woff2 alone instead of shipping
+2.3 MB of fonts. It is deliberately not part of any pylp bundle: ``urlreplace``
+would base64 the font into ``djgentelella.vendors.min.css``, and the point of a
+webfont is that the browser fetches one 403 KB file and caches it.
+
+**A reference page per icon set**, under an **Icons** menu in the demo sidebar:
+``/icons/fontawesome`` (786), ``/icons/friconix`` (1559), ``/icons/mdi`` (7448)
+and ``/icons/flags`` (266). Each is searchable, and each reads its set from what
+the browser already loaded -- friconix's ``paths`` global, the CSS rules Font
+Awesome and MDI declare, the ``<symbol>`` elements of the flags sprite -- so no
+list can drift from the version ``loaddevstatic`` downloaded. The flags page
+also previews the ``square``, ``circle`` and ``rounded`` shapes, and the
+friconix page lets you try a mask against every icon at once.
+
+Dependencies
+""""""""""""""""""
+
+Eleven frontend libraries moved up, all within a compatible range and verified
+against the browser suite (57 Selenium tests):
+
+* ``select2`` 4.1.0-**rc.0** -> 4.1.0 -- the bundle had been shipping a release
+  candidate.
+* ``moment.js`` 2.13.0 -> 2.30.1. The pin was from 2016 and sat below every
+  security fix in the 2.29.x line.
+* ``bootstrap`` 5.2.0 -> 5.3.8 and ``@popperjs/core`` 2.11.5 -> 2.11.8.
+* ``parsley.js`` 2.3.13 -> 2.9.2, ``@yaireo/tagify`` 4.33.2 -> 4.38.0,
+  ``htmx.org`` 2.0.4 -> 2.0.10, ``squirrelly`` 9.0.0 -> 9.1.1,
+  ``spark-md5`` 3.0.0 -> 3.0.2, ``iCheck`` 1.0.2 -> 1.0.3,
+  ``interact.js`` 1.10.27 -> 1.10.28.
+
+``interact.js`` was also being downloaded twice, once from an **unpinned**
+``cdn.jsdelivr.net/npm/interactjs/`` that resolved to whatever was current that
+day. Both copies are now pinned to 1.10.28.
+
+Removed from ``loaddevstatic``:
+
+* **summernote 0.8.18** -- downloaded and packaged, but in no bundle and no
+  template. The only caller was ``uploadFile()`` in
+  ``gentelella/js/base/wysiwyg.js``, which nothing called either and which would
+  have thrown ``$(...).summernote is not a function`` if it had. Both are gone;
+  the wysiwyg widgets use TinyMCE's own upload endpoints.
+* **Bootstrap 3 glyphicons** (216 KB, five font files from the retired MaxCDN)
+  -- no bundled stylesheet has ever referenced one. ``vendors/fonts/`` now holds
+  only the Font Awesome faces that ``font-awesome.min.css`` actually reaches.
+* A ``bootstrap-datetimepicker`` sourcemap that has always 404ed, printing a
+  ``FAILED`` line on every run.
+
+Fixes
+""""""""""""""""""
+
+**Friconix icons never appeared on anything built after page load.** Friconix
+hooks ``document.onreadystatechange``, scans once and has no
+``MutationObserver``, so an ``<i class="fi-...">`` inside a formset row, a
+reopened modal or a DataTables redraw stayed an empty element. djgentelella now
+rescans from ``gt_find_initialize()`` -- the hook every widget already
+re-initialises through -- and exposes ``gt_friconix_refresh()`` for markup
+injected by hand. Removing the flag-icons stylesheet helps here too: it defined
+``.fi``, the same class friconix marks its icons with.
+
+The demo gained a searchable grid of all 1559 icons at ``/friconix``, and
+``docs/source/icons.rst`` now documents the six-letter mask grammar instead of
+pointing at an external site.
 
 Tooling
 """"""""""""""""""

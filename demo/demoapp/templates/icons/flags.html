@@ -1,0 +1,79 @@
+{% extends 'icons/base.html' %}
+{% load i18n gtflags %}
+
+{% block icon_title %}{% trans 'Country flags' %}{% endblock %}
+
+{% block icon_help %}
+<p>
+    {% blocktrans trimmed %}
+    All 266 flags ship as one gzipped SVG sprite and are always available. The
+    template tag draws an <code>&lt;svg&gt;</code> pointing into it, so the
+    browser fetches the sprite once for the whole page.
+    {% endblocktrans %}
+</p>
+<pre><code>{% templatetag openblock %} load gtflags {% templatetag closeblock %}
+
+{% templatetag openvariable %} flag 'cr' {% templatetag closevariable %}
+{% templatetag openblock %} flag 'cr' {% templatetag closeblock %}
+{% templatetag openblock %} flag 'cr' square=True {% templatetag closeblock %}
+{% templatetag openblock %} flag 'cr' css_class="me-2" title="Costa Rica" {% templatetag closeblock %}</code></pre>
+<p>
+    {% blocktrans trimmed %}
+    For an <code>&lt;img&gt;</code> or anywhere a URL is needed, one flag at a
+    time — with an optional size and shape applied by the server:
+    {% endblocktrans %}
+</p>
+<pre><code>&lt;img src="{% templatetag openblock %} flag_url 'cr' size=48 shape='circle' {% templatetag closeblock %}"&gt;</code></pre>
+<p>
+    {% trans 'Examples:' %}
+    {% flag 'cr' %} {% flag 'es' %} {% flag 'gb-sct' %}
+    {% flag 'jp' square=True %}
+    <img src="{% flag_url 'br' size=32 shape='circle' %}" alt="Brasil">
+    <img src="{% flag_url 'de' size=32 shape='rounded' %}" alt="Deutschland">
+</p>
+{% endblock %}
+
+{% block icon_search_cols %}col-md-8{% endblock %}
+
+{% block icon_controls %}
+<div class="col-md-4">
+    <select id="icon-shape" class="form-control">
+        <option value="">{% trans 'Original shape (4:3)' %}</option>
+        <option value="square">{% trans 'Square' %}</option>
+        <option value="circle">{% trans 'Circle' %}</option>
+        <option value="rounded">{% trans 'Rounded' %}</option>
+    </select>
+</div>
+{% endblock %}
+
+{% block icon_script %}
+    /* The sprite is the only list of what exists, so the page reads the codes
+       out of it -- the same document the {% templatetag openblock %} flag {% templatetag closeblock %} tag references. */
+    var codes = fetch('{% flag_sprite_url %}')
+        .then(function (r) { return r.text(); })
+        .then(function (svg) {
+            var out = [], re = /<symbol id="fi-([^"]+)"/g, m;
+            while ((m = re.exec(svg)) !== null) out.push(m[1]);
+            return out.sort();
+        });
+
+    gt_icons_grid({
+        names: codes,
+        controls: '#icon-shape',
+        markup: function (code) {
+            var shape = $('#icon-shape').val();
+            if (shape === 'square') {
+                return '<svg class="gt-flag gt-flag-square"><use href="' +
+                       '{% flag_sprite_url %}#fi-' + code + '"></use></svg>';
+            }
+            if (shape) {
+                // circle and rounded are cropped by the server, not by CSS.
+                return '<img src="/flags/' + code + '.svg?size=32&shape=' +
+                       shape + '" alt="' + code + '">';
+            }
+            return '<svg class="gt-flag"><use href="' +
+                   '{% flag_sprite_url %}#fi-' + code + '"></use></svg>';
+        },
+        empty: '{% trans "No flag matches." %}'
+    });
+{% endblock %}

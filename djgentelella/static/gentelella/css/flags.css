@@ -1,0 +1,26 @@
+/* Country flags rendered by {% flag %} out of gentelella/flags/flags.4x3.svg.gz.
+ *
+ * Replaces the .fi / .fi-xx classes of flag-icons, which came with a 6.35 MB
+ * stylesheet that base64-inlined all 266 flags. Sizing only: the artwork is in
+ * the sprite, so this file stays under a kilobyte and is always loaded.
+ */
+
+.gt-flag {
+    display: inline-block;
+    width: 1.33333333em;
+    height: 1em;
+    vertical-align: middle;
+    line-height: 1em;
+}
+
+/* The symbols carry preserveAspectRatio="xMidYMid slice", so a square box crops
+ * the sides of the 4:3 artwork instead of letterboxing it. */
+.gt-flag-square {
+    width: 1em;
+}
+
+/* Flags inside a select2 option, rendered as <img> by decore_img_select2. */
+img.img-flag {
+    vertical-align: middle;
+    object-fit: contain;
+}

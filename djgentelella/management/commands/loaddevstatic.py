@@ -1,4 +1,5 @@
 import os
+import re
 import shutil
 from pathlib import Path
 from threading import Thread, current_thread
@@ -12,29 +13,6 @@ except BaseException:
     print("Requests is required try pip install requests")
     exit(1)
 
-FLAGS = ['ac', 'ad', 'ae', 'af', 'ag', 'ai', 'al', 'am', 'ao', 'aq', 'ar', 'as', 'at',
-         'au', 'cp', 'dg', 'ea', 'es-ct', 'es-ga', 'ic', 'ta',
-         'aw', 'ax', 'az', 'ba', 'bb', 'bd', 'be', 'bf', 'bg', 'bh', 'bi', 'bj', 'bl',
-         'bm', 'bn', 'bo', 'bq', 'br', 'bs', 'bt', 'bv', 'bw', 'by', 'bz', 'ca', 'cc',
-         'cd', 'cf', 'cg', 'ch', 'ci', 'ck', 'cl', 'cm', 'cn', 'co', 'cr', 'cu', 'cv',
-         'cw', 'cx', 'cy', 'cz', 'de', 'dj', 'dk', 'dm', 'do', 'dz', 'ec', 'ee', 'eg',
-         'eh', 'er', 'es', 'et', 'eu', 'fi', 'fj', 'fk', 'fm', 'fo', 'fr',
-         'ga', 'gb-eng', 'gb-nir', 'gb-sct', 'gb-wls', 'gb', 'gd', 'ge', 'gf', 'gg',
-         'gh', 'gi', 'gl', 'gm', 'gn', 'gp', 'gq', 'gr', 'gs', 'gt', 'gu', 'gw', 'gy',
-         'hk', 'hm', 'hn', 'hr', 'ht', 'hu', 'id', 'ie', 'il', 'im', 'in', 'io', 'iq',
-         'ir', 'is', 'it', 'je', 'jm', 'jo', 'jp', 'ke', 'kg', 'kh', 'ki', 'km', 'kn',
-         'kp', 'kr', 'kw', 'ky', 'kz', 'la', 'lb', 'lc', 'li', 'lk', 'lr', 'ls', 'lt',
-         'lu', 'lv', 'ly', 'ma', 'mc', 'md', 'me', 'mf', 'mg', 'mh', 'mk', 'ml', 'mm',
-         'mn', 'mo', 'mp', 'mq', 'mr', 'ms', 'mt', 'mu', 'mv', 'mw', 'mx', 'my', 'mz',
-         'na', 'nc', 'ne', 'nf', 'ng', 'ni', 'nl', 'no', 'np', 'nr', 'nu', 'nz', 'om',
-         'pa', 'pe', 'pf', 'pg', 'ph', 'pk', 'pl', 'pm', 'pn', 'pr', 'ps', 'pt', 'pw',
-         'py', 'qa', 're', 'ro', 'rs', 'ru', 'rw', 'sa', 'sb', 'sc', 'sd', 'se', 'sg',
-         'sh', 'si', 'sj', 'sk', 'sl', 'sm', 'sn', 'so', 'sr', 'ss', 'st', 'sv', 'sx',
-         'sy', 'sz', 'tc', 'td', 'tf', 'tg', 'th', 'tj', 'tk', 'tl', 'tm', 'tn', 'to',
-         'tr', 'tt', 'tv', 'tw', 'tz', 'ua', 'ug', 'um', 'un', 'us', 'uy', 'uz', 'va',
-         'vc', 've', 'vg', 'vi', 'vn', 'vu', 'wf', 'ws', 'xk', 'xx', 'ye', 'yt', 'za',
-         'zm', 'zw']
-
 
 def _is_html_error_page(content):
     # Some CDNs (friconix.com's included) answer a dead path with 200 and
@@ -43,6 +21,29 @@ def _is_html_error_page(content):
     # it gets concatenated into.
     head = content[:512].lstrip().lower()
     return head.startswith(b'<!doctype html') or head.startswith(b'<html')
+
+
+def _mdi_woff2_only(content):
+    """Point Material Design Icons' @font-face at the woff2 alone.
+
+    Its stylesheet lists eot, woff2, woff and ttf -- 2.3 MB of the same glyphs
+    in four encodings, of which every browser this project supports picks the
+    403 KB woff2. Only that one is downloaded, so the other three URLs would be
+    dead: harmless for the rendering, a 404 in the network tab for whoever goes
+    looking.
+    """
+    woff2 = re.search(rb'url\("([^"]*\.woff2[^"]*)"\)', content)
+    if not woff2:  # upstream changed shape -- leave it alone rather than guess
+        return content
+    return re.sub(rb'src:url\([^)]*\.eot[^)]*\);src:[^;]*;',
+                  b'src:url("%s") format("woff2");' % woff2.group(1),
+                  content, count=1)
+
+
+# Rewrites applied to a downloaded file, keyed by its name.
+POST_PROCESS = {
+    'materialdesignicons.min.css': _mdi_woff2_only,
+}
 
 
 def download(urls):
@@ -57,8 +58,12 @@ def download(urls):
             # a few CDN paths are permanently gone, that shouldn't kill the thread.
             print("%s) FAILED (%s): %s" % (thread.name, r.status_code, download_url))
             continue
+        content = r.content
+        post_process = POST_PROCESS.get(Path(filename).name)
+        if post_process is not None:
+            content = post_process(content)
         with open(filename, 'wb') as arch:
-            arch.write(r.content)
+            arch.write(content)
 
 
 class Command(BaseCommand):
@@ -135,24 +140,36 @@ class Command(BaseCommand):
 
         libs = {
             'bootstrap': [
-                'https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css',
-                'https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.min.js',
-                'https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.5/dist/umd/popper.min.js',
-                'https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js'
+                'https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css',
+                'https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js',
+                'https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js',
+                'https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js'
             ],
             'fonts': [
-                'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/fonts/glyphicons-halflings-regular.eot',
-                'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/fonts/glyphicons-halflings-regular.ttf',
-                'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/fonts/glyphicons-halflings-regular.woff2',
-                'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/fonts/glyphicons-halflings-regular.svg',
-                'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/fonts/glyphicons-halflings-regular.woff',
-                'https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/fonts/glyphicons-halflings-regular.svg',
+                # Only Font Awesome's own faces belong here: font-awesome.min.css
+                # reaches them as ../fonts/ and urlreplace inlines them at bundle
+                # time. Bootstrap 3's glyphicons used to be downloaded alongside
+                # them and no bundled stylesheet has ever referenced one.
                 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/fontawesome-webfont.svg',
                 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/FontAwesome.otf',
                 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/fontawesome-webfont.eot',
                 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/fontawesome-webfont.ttf',
                 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/fontawesome-webfont.woff',
                 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/fontawesome-webfont.woff2',
+            ],
+            # Material Design Icons: 7448 icons as a webfont, opt-in through
+            # the `use_mdi` define. Not in any pylp bundle on purpose -- urlreplace
+            # would base64 the font into the vendors stylesheet, and the whole
+            # point of a webfont is that the browser fetches one 403 KB woff2 and
+            # caches it. Keeping upstream's css/ + fonts/ layout is what makes the
+            # stylesheet's own ../fonts/ reference resolve.
+            'mdi/css': [
+                'https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/'
+                'materialdesignicons.min.css',
+            ],
+            'mdi/fonts': [
+                'https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/fonts/'
+                'materialdesignicons-webfont.woff2',
             ],
             'font-awesome': [
                 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css',
@@ -178,40 +195,39 @@ class Command(BaseCommand):
                 # 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/6.0.1/js/tempus-dominus.min.js',
 
                 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js',
-                'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css.map',
                 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css'
             ],
             'select2': [
-                'https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/js/select2.min.js',
-                'https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/css/select2.min.css',
+                'https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0/js/select2.min.js',
+                'https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0/css/select2.min.css',
                 'https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css'
                 # 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js',
                 # 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css'
             ],
             "squirrelly": [
-                "https://unpkg.com/squirrelly@9.0.0/dist/browser/squirrelly.min.js"
+                "https://unpkg.com/squirrelly@9.1.1/dist/browser/squirrelly.min.js"
             ],
             'switchery': [
                 'https://cdnjs.cloudflare.com/ajax/libs/switchery/0.8.2/switchery.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/switchery/0.8.2/switchery.min.css',
             ],
             'iCheck': [
-                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.2/icheck.min.js',
-                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.2/skins/flat/green.css',
-                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.2/skins/flat/blue.css',
-                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.2/skins/flat/aero.css',
-                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.2/skins/flat/yellow.css',
-                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.2/skins/flat/orange.css',
-                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.2/skins/flat/green.png',
-                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.2/skins/flat/blue.png',
-                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.2/skins/flat/aero.png',
-                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.2/skins/flat/yellow.png',
-                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.2/skins/flat/orange.png',
-                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.2/skins/flat/green@2x.png',
-                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.2/skins/flat/blue@2x.png',
-                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.2/skins/flat/aero@2x.png',
-                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.2/skins/flat/yellow@2x.png',
-                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.2/skins/flat/orange@2x.png',
+                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.3/icheck.min.js',
+                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.3/skins/flat/green.css',
+                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.3/skins/flat/blue.css',
+                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.3/skins/flat/aero.css',
+                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.3/skins/flat/yellow.css',
+                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.3/skins/flat/orange.css',
+                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.3/skins/flat/green.png',
+                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.3/skins/flat/blue.png',
+                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.3/skins/flat/aero.png',
+                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.3/skins/flat/yellow.png',
+                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.3/skins/flat/orange.png',
+                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.3/skins/flat/green@2x.png',
+                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.3/skins/flat/blue@2x.png',
+                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.3/skins/flat/aero@2x.png',
+                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.3/skins/flat/yellow@2x.png',
+                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.3/skins/flat/orange@2x.png',
             ],
             'bootstrap-progressbar': [
 
@@ -245,10 +261,10 @@ class Command(BaseCommand):
                 'https://cdnjs.cloudflare.com/ajax/libs/inputmask/3.3.11/inputmask/jquery.inputmask.min.js',
             ],
             'moment': [
-                'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment-with-locales.min.js'
+                'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment-with-locales.min.js'
             ],
             'parsleyjs': [
-                'https://cdnjs.cloudflare.com/ajax/libs/parsley.js/2.3.13/parsley.min.js'
+                'https://cdnjs.cloudflare.com/ajax/libs/parsley.js/2.9.2/parsley.min.js'
             ],
             'autosize': [
                 'https://cdnjs.cloudflare.com/ajax/libs/autosize.js/3.0.15/autosize.min.js'
@@ -257,19 +273,6 @@ class Command(BaseCommand):
                 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-maxlength/1.10.0/bootstrap-maxlength.min.js',
                 # 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-maxlength/1.9.0/bootstrap-maxlength.min.js'
             ],
-            'flag-icon-css': [
-                'https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css',
-                # 'https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.4.6/css/flag-icon.min.css',
-            ],
-            'flags/1x1': [
-                # Must match the CSS version above (6.6.6): 3.4.6 predates the
-                # es-ca -> es-ct rename and never had ac/cp/dg/ea/es-ga/ic/ta/xx,
-                # so those classes 404'd even though flag-icons.min.css defines them.
-                'https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/flags/1x1/%s.svg' % flag
-                for flag in FLAGS],
-            'flags/4x3': [
-                'https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/flags/4x3/%s.svg' % flag
-                for flag in FLAGS],
             'datatables': [
                 'https://cdn.datatables.net/v/bs5/jszip-2.5.0/dt-1.12.1/af-2.4.0/b-2.2.3/b-colvis-2.2.3/b-html5-2.2.3/b-print-2.2.3/cr-1.5.6/date-1.1.2/fc-4.1.0/fh-3.2.4/kt-2.7.0/r-2.3.0/rg-1.2.0/rr-1.2.8/sc-2.0.7/sb-1.3.4/sp-2.0.2/sl-1.4.0/sr-1.1.1/datatables.min.js',
                 'https://cdn.datatables.net/v/bs5/jszip-2.5.0/dt-1.12.1/af-2.4.0/b-2.2.3/b-colvis-2.2.3/b-html5-2.2.3/b-print-2.2.3/cr-1.5.6/date-1.1.2/fc-4.1.0/fh-3.2.4/kt-2.7.0/r-2.3.0/rg-1.2.0/rr-1.2.8/sc-2.0.7/sb-1.3.4/sp-2.0.2/sl-1.4.0/sr-1.1.1/datatables.min.css',
@@ -281,7 +284,7 @@ class Command(BaseCommand):
                 'https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.32.0/js/jquery.fileupload.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.32.0/js/jquery.iframe-transport.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.32.0/js/vendor/jquery.ui.widget.min.js',
-                'https://cdnjs.cloudflare.com/ajax/libs/spark-md5/3.0.0/spark-md5.min.js',
+                'https://cdnjs.cloudflare.com/ajax/libs/spark-md5/3.0.2/spark-md5.min.js',
             ],
             'fullcalendar': [
                 'https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js',
@@ -290,7 +293,7 @@ class Command(BaseCommand):
             ],
             'interact': [
                 # 'https://cdnjs.cloudflare.com/ajax/libs/interact.js/1.0.2/interact.min.js'
-                'https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js'
+                'https://cdn.jsdelivr.net/npm/interactjs@1.10.28/dist/interact.min.js'
             ],
             'timeline/': [],
             'timeline/css': [
@@ -327,8 +330,8 @@ class Command(BaseCommand):
                 'https://raw.githubusercontent.com/patternfly/patternfly-bootstrap-treeview/master/dist/bootstrap-treeview.min.css'
             ],
             'tagify': [
-                'https://cdn.jsdelivr.net/npm/@yaireo/tagify@4.33.2/dist/tagify.min.js',
-                'https://cdn.jsdelivr.net/npm/@yaireo/tagify@4.33.2/dist/tagify.min.css'
+                'https://cdn.jsdelivr.net/npm/@yaireo/tagify@4.38.0/dist/tagify.min.js',
+                'https://cdn.jsdelivr.net/npm/@yaireo/tagify@4.38.0/dist/tagify.min.css'
             ],
             'grid-slider': [
                 'https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/js/ion.rangeSlider.min.js',
@@ -337,10 +340,6 @@ class Command(BaseCommand):
             'sweetalert2': [
                 'https://cdn.jsdelivr.net/npm/sweetalert2@10.10.0/dist/sweetalert2.all.min.js',
                 'https://cdn.jsdelivr.net/npm/sweetalert2@10.10.0/dist/sweetalert2.min.css'
-            ],
-            'summernote': [
-                'https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js',
-                'https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css'
             ],
             'tinymce': [
                 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/tinymce.min.js',
@@ -388,11 +387,11 @@ class Command(BaseCommand):
                 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/pdf_viewer.min.css',
                 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/pdf.min.mjs',
                 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/pdf.worker.min.mjs',
-                'https://cdnjs.cloudflare.com/ajax/libs/interact.js/1.10.27/interact.min.js',
+                'https://cdnjs.cloudflare.com/ajax/libs/interact.js/1.10.28/interact.min.js',
             ],
 
             'htmlx': [
-                'https://unpkg.com/htmx.org@2.0.4/dist/htmx.min.js'
+                'https://unpkg.com/htmx.org@2.0.10/dist/htmx.min.js'
             ],
             'pdfjs/images/': [
                 "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/messageBar_warning.svg",
@@ -488,8 +487,6 @@ class Command(BaseCommand):
                     'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide/skin.min.css',
                 ]}}
 
-        if not os.path.exists(basepath / 'flags'):
-            (basepath / 'flags').mkdir(parents=True)
         for lib in libs:
             currentbasepath = basepath / lib
             if not os.path.exists(currentbasepath):

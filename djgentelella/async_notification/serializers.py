@@ -153,14 +153,14 @@ class EmailNotificationDetailSerializer(serializers.ModelSerializer):
 
 class EmailNotificationFilterSet(FilterSet):
     created_at = DateTimeFromToRangeFilter(
-        widget=DateTimeRangeTextWidget(attrs={"placeholder": "YYYY/MM/DD"})
+        widget=DateTimeRangeTextWidget(attrs={'placeholder': 'YYYY/MM/DD'})
     )
     user = CharFilter(method='filter_user')
 
     class Meta:
         model = EmailNotification
         fields = {
-            'subject': ["icontains"],
+            'subject': ['icontains'],
             'status': ['exact'],
             'enqueued': ['exact'],
             'retry_count': ['exact']
@@ -176,6 +176,7 @@ class EmailNotificationFilterSet(FilterSet):
 # =============================================================================
 # EmailTemplate Serializers
 # =============================================================================
+
 
 class EmailTemplateSerializer(serializers.ModelSerializer):
     """Row serializer for DataTable display."""
@@ -360,7 +361,6 @@ class NewsLetterTaskSerializer(serializers.ModelSerializer):
         model = NewsLetterTask
         fields = ('id', 'newsletter', 'send_date', 'status',
                   'created_at', 'actions')
-
 
     def get_actions(self, obj):
         return {'update': True, 'destroy': True, 'send_now': True}

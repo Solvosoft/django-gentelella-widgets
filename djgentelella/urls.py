@@ -18,6 +18,7 @@ from djgentelella.notification.base import (
     notification_list_view,
 )
 from djgentelella.permission_management import views as permissions
+from djgentelella.views.flags import FlagIconView, FlagSpriteView
 from djgentelella.widgets.helper import HelperWidgetView
 from djgentelella.wysiwyg import views as wysiwyg
 from djgentelella.voice.views import VoiceTranscribeView
@@ -130,6 +131,14 @@ history_router.register('api_history', HistoryViewSet, basename='api-history')
 
 base_urlpatterns = [
     re_path('gtapis/', include(routes.urls)),
+    path('flags/sprite.svg', FlagSpriteView.as_view(), name='flag_sprite'),
+    # The pattern is the whitelist: no slash and no dot can reach the lookup,
+    # which is a dict of the sprite's symbols anyway.
+    re_path(
+        r'^flags/(?P<code>[a-z]{2,5}(?:-[a-z]{2,3})?)\.svg$',
+        FlagIconView.as_view(),
+        name='flag_icon',
+    ),
     path('djgentelella/upload/', ChunkedUploadView.as_view(), name='upload_file_view'),
     path(
         'djgentelella/upload/done/',

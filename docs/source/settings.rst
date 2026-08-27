@@ -52,7 +52,6 @@ Optional  You can define a default import of some JS an CSS, see section "Using 
 
     DEFAULT_JS_IMPORTS = {
         'use_readonlywidgets': True,
-        'use_flags': True
     }
 
 

@@ -230,6 +230,54 @@ class AutocompleteSelectTest(SeleniumTestCase):
 
 
 @tag('selenium')
+class AutocompleteSelectImageFlagsTest(SeleniumTestCase):
+    """``AutocompleteSelectImage`` drawing flags from the packaged sprite.
+
+    The widget itself has no idea what a flag is: it asks select2 to render
+    options through ``decore_img_select2``, which draws whatever URL the lookup
+    returns. What matters here is the whole chain -- CountryFlagLookup ->
+    flag_url() -> the flags view -> an <img> the browser actually paints --
+    because every link of it can fail while the dropdown still looks populated.
+    """
+
+    def setup_data(self):
+        Country.objects.create(name='Costa Rica', code='cr')
+        Country.objects.create(name='Japan', code='jp')
+
+    def open_country_dropdown(self):
+        self.go('/imageselect/create/')
+        self.wait_js(
+            "return document.querySelector('#id_country')"
+            "?.classList.contains('select2-hidden-accessible')",
+            message='select2 never initialised on #id_country')
+        self.js("jQuery('#id_country').select2('open');")
+        self.wait_js(
+            "return document.querySelectorAll("
+            "'.select2-results__option img.img-flag').length > 0",
+            message='the dropdown drew no flag images')
+
+    def test_each_option_carries_a_flag_from_the_flags_view(self):
+        self.open_country_dropdown()
+        sources = self.js(
+            "return Array.from(document.querySelectorAll("
+            "'.select2-results__option img.img-flag')).map(i => i.src);")
+        self.assertTrue(
+            any('/flags/cr.svg' in src for src in sources),
+            f'the option image does not come from the flags view: {sources}')
+
+    def test_the_flag_images_actually_render(self):
+        """A 404 or a broken SVG still leaves the <img> in the DOM."""
+        self.open_country_dropdown()
+        painted = self.js(
+            "return Array.from(document.querySelectorAll("
+            "'.select2-results__option img.img-flag'))"
+            ".filter(i => i.complete && i.naturalWidth > 0).length;")
+        self.assertEqual(
+            painted, Country.objects.count(),
+            'the browser did not paint every flag the dropdown listed')
+
+
+@tag('selenium')
 class KnobWidgetTest(SeleniumTestCase):
     """``NumberKnobInput`` draws a canvas dial over a number input."""
 

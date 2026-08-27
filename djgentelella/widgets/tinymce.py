@@ -11,8 +11,8 @@ class EditorTinymce(Textarea):
 
     def __init__(self, attrs=None, extraskwargs=True):
         attrs = attrs or {}
-        attrs.setdefault("data-option-spellcheck", "true")
-        attrs.setdefault("data-option-lang", get_language() or settings.LANGUAGE_CODE)
+        attrs.setdefault('data-option-spellcheck', 'true')
+        attrs.setdefault('data-option-lang', get_language() or settings.LANGUAGE_CODE)
         if extraskwargs:
             attrs = update_kwargs(attrs, self.__class__.__name__,
                                   base_class='wysiwyg form-control')

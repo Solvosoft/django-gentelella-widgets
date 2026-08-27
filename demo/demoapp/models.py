@@ -19,6 +19,9 @@ User = get_user_model()
 
 class Country(models.Model):
     name = models.CharField(max_length=150)
+    # ISO 3166-1 alpha-2, the code the flag sprite is indexed by. Feeds
+    # CountryFlagLookup.get_url() -> djgentelella.flags.flag_url().
+    code = models.CharField(max_length=8, blank=True, default='')
 
     def __str__(self):
         return self.name
@@ -99,12 +102,14 @@ class A(models.Model):
     def __str__(self):
         return self.display
 
+
 class B(models.Model):
     display = models.CharField(max_length=150)
     a = models.ForeignKey(A, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.display
+
 
 class C(models.Model):
     display = models.CharField(max_length=150)
@@ -113,12 +118,14 @@ class C(models.Model):
     def __str__(self):
         return self.display
 
+
 class D(models.Model):
     display = models.CharField(max_length=150)
     c = models.ForeignKey(C, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.display
+
 
 class E(models.Model):
     display = models.CharField(max_length=150)
@@ -332,6 +339,19 @@ class Img(models.Model):
         null=True,
         related_name='related_img',
         on_delete=models.CASCADE,
+    )
+    # Same select2-with-images widget as the two fields above, pointed at a
+    # different source of pictures: SelectImage serves an uploaded FileField,
+    # CountryFlagLookup serves the flags view.
+    country = models.ForeignKey(
+        Country,
+        blank=True,
+        null=True,
+        related_name='img_country',
+        on_delete=models.CASCADE,
+    )
+    countries = models.ManyToManyField(
+        Country, blank=True, related_name='img_countries'
     )
 
     def __str__(self):

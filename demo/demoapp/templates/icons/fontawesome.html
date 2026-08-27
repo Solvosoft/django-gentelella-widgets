@@ -1,0 +1,32 @@
+{% extends 'icons/base.html' %}
+{% load i18n %}
+
+{% block icon_title %}{% trans 'Font Awesome 4.7' %}{% endblock %}
+
+{% block icon_help %}
+<p>
+    {% blocktrans trimmed %}
+    Font Awesome is always loaded — it is what the menus, buttons and CRUD
+    templates use throughout djgentelella.
+    {% endblocktrans %}
+</p>
+<pre><code>&lt;i class="fa fa-home"&gt;&lt;/i&gt;
+&lt;i class="fa fa-user fa-2x"&gt;&lt;/i&gt;
+&lt;i class="fa fa-spinner fa-spin"&gt;&lt;/i&gt;</code></pre>
+<p class="text-muted">
+    {% blocktrans trimmed %}
+    This is version 4.7, whose class names differ from Font Awesome 5 and later
+    (<code>fa fa-user</code> here, <code>fas fa-user</code> there).
+    {% endblocktrans %}
+</p>
+{% endblock %}
+
+{% block icon_script %}
+    gt_icons_grid({
+        names: gt_icons_from_css(/^\.fa-([a-z0-9-]+):{1,2}before$/),
+        markup: function (name) {
+            return '<i class="fa fa-' + name + '"></i>';
+        },
+        empty: '{% trans "No icon matches." %}'
+    });
+{% endblock %}

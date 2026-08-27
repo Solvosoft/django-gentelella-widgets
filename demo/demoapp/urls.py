@@ -33,7 +33,14 @@ from .storymap.views import gigapixel_view, mapbased_view
 from .tagging import views as tagging
 from .maps.views import map_dashboard_view, map_point_view
 from .timeline.views import timeline_view
-from .views import knobView, YesNoInputView
+from .views import (
+    knobView,
+    YesNoInputView,
+    friconix_icons,
+    mdi_icons,
+    fontawesome_icons,
+    flag_icons,
+)
 from .wysiwyg import views as tinymce
 from .voice import views as voice
 from djgentelella.voice.views import VoiceTranscribeView
@@ -73,6 +80,10 @@ urlpatterns = (
             name='object_management_inline',
         ),
         path('bt_modal_display', bt_modal_display, name='bt_modal_display'),
+        path('icons/fontawesome', fontawesome_icons, name='fontawesome_icons'),
+        path('icons/friconix', friconix_icons, name='friconix_icons'),
+        path('icons/mdi', mdi_icons, name='mdi_icons'),
+        path('icons/flags', flag_icons, name='flag_icons'),
         path('formset', add_formset, name='add_formset'),
         path('modelformset', add_model_formset, name='add_model_formset'),
         path(

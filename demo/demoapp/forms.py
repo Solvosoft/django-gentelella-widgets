@@ -7,7 +7,11 @@ from djgentelella.widgets import files
 from djgentelella.widgets import numberknobinput as knobwidget
 from djgentelella.widgets import tagging
 from djgentelella.widgets import tinymce
-from djgentelella.widgets.selects import AutocompleteSelect, AutocompleteSelectMultiple
+from djgentelella.widgets.selects import (
+    AutocompleteSelect,
+    AutocompleteSelectImage,
+    AutocompleteSelectMultiple,
+)
 from .models import Foo, Person, Community, YesNoInput, ObjectManagerDemoModel, \
     ObjectManagerDemoNote
 
@@ -56,7 +60,9 @@ class PersonForm(GTForm, forms.ModelForm):
         model = Person
         fields = '__all__'
         widgets = {
-            'country': AutocompleteSelect('countrybasename'),
+            # The image variant, so the flag shows in a plain form as well as
+            # in the formset and modal that reuse this form.
+            'country': AutocompleteSelectImage('countryflagbasename'),
             'last_time': genwidgets.DateTimeInput,
             'born_date': genwidgets.DateInput,
             'name': genwidgets.TextInput,

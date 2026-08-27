@@ -3,16 +3,22 @@
 <script> datatables_lang = "{% get_datatables_translation %}"; </script>
 {% get_settings 'use_compress_static' as use_compress %}
 {% get_define 'use_maps' as use_maps %}
+{% get_define 'use_mdi' as use_mdi %}
+{# Material Design Icons, opt-in: 347 KB of CSS plus a 403 KB woff2. Linked as #}
+{# the vendor file rather than bundled, so the font stays a separate cached    #}
+{# request instead of being base64'd into the stylesheet by urlreplace.        #}
+{% if use_mdi %}
+<link href="{% static 'vendors/mdi/css/materialdesignicons.min.css' %}?v={% get_version %}" rel="stylesheet">
+{% endif %}
 {# Our own map styles, never behind the flag: without them .gt-map has no #}
 {# height and a project that forgot use_maps gets a zero-pixel grey box. #}
 <link href="{% static 'gentelella/css/maps.css' %}?v={% get_version %}" rel="stylesheet">
+{# Sizing for {% flag %}; under a kilobyte, and the artwork it positions comes #}
+{# from the flags sprite view, so there is nothing to gate behind a define. #}
+<link href="{% static 'gentelella/css/flags.css' %}?v={% get_version %}" rel="stylesheet">
 {% if use_compress == 'true' %}
 	<link href="{% static 'gentelella/css/pdfviewer.css' %}?v={% get_version %}" rel="stylesheet">
 	<link href="{% static 'djgentelella.vendors.min.css' %}?v={% get_version %}" rel="stylesheet">
-	{% get_define 'use_flags' as use_flags %}
-	{% if use_flags %}
-		<link href="{% static 'djgentelella.flags.vendors.min.css' %}?v={% get_version %}" rel="stylesheet">
-	{% endif %}
 	<link href="{% static 'vendors/tinymce/skin.min.css' %}?v={% get_version %}" rel="stylesheet"/>
 	{% get_define 'use_readonlywidgets' as use_readonlywidgets %}
 	{% if use_readonlywidgets %}
@@ -36,7 +42,6 @@
 <link href="{% static 'vendors/bootstrap-progressbar/bootstrap-progressbar-3.3.4.min.css' %}?v={% get_version %}"
 						rel="stylesheet">
 <link href="{% static 'vendors/nprogress/nprogress.min.css' %}?v={% get_version %}" rel="stylesheet">
-<link href="{% static 'vendors/flag-icon-css/flag-icons.min.css' %}?v={% get_version %}" rel="stylesheet">
 <link href="{% static 'vendors/tagify/tagify.min.css' %}?v={% get_version %}" rel="stylesheet">
 <link href="{% static 'vendors/grid-slider/ion.rangeSlider.min.css' %}?v={% get_version %}" rel="stylesheet">
 <link href="{% static 'vendors/tinymce/skin.min.css' %}?v={% get_version %}" rel="stylesheet"/>

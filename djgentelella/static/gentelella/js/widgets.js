@@ -325,6 +325,11 @@ function gt_find_initialize(instance) {
     if (autocomplete.length > 0) {
         document.gtwidgets['GTAutocompleteSelect'](autocomplete);
     }
+    // Friconix scans only once, on page load. Anything built after that -- this
+    // subtree included -- keeps its icons as empty <i> without a rescan.
+    if (typeof gt_friconix_refresh === 'function') {
+        gt_friconix_refresh();
+    }
 }
 function gt_find_initialize_from_dom(instance) {
     gt_find_initialize($(instance));

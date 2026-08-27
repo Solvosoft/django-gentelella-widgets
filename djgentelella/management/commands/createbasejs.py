@@ -15,6 +15,7 @@ class Command(BaseCommand):
 
         basefiles = [
             'form.common.js',
+            'friconix.js',
             'formset.js',
             'helper_widget.js',
             'autocompleteSelect2.js',
@@ -22,7 +23,6 @@ class Command(BaseCommand):
             'dateranges_gridslider.js',
             'booleanFields.js',
             'editorTinymce.js',
-            'wysiwyg.js',
             'gigapixel_storymap.js',
             'mapbased_storymap.js',
             'storyline.js',

@@ -356,7 +356,6 @@ You can configure default JavaScript imports in settings:
 
     DEFAULT_JS_IMPORTS = {
         'use_readonlywidgets': True,
-        'use_flags': True
     }
 
 

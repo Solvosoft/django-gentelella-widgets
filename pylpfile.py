@@ -106,10 +106,6 @@ READONLY_WIDGETS_CSS = [str(BASE_PATH / path) for path in [
     'vendors/storylinejs/storyline.css',
 ]]
 
-FLAGS_CSS = [str(BASE_PATH / path) for path in [
-    'vendors/flag-icon-css/flag-icons.min.css',
-]]
-
 JS_FILES_HEADER = [str(BASE_PATH / path) for path in [
     'vendors/jquery/jquery.min.js',
     'vendors/friconix/friconix.js',
@@ -191,12 +187,6 @@ pylp.src(READONLY_WIDGETS_CSS)
           .pipe(pylp.dest(str(BASE_PATH)))
           )
 
-pylp.task('flagcss', lambda: pylp.src(FLAGS_CSS)
-          .pipe(urlreplace())
-          .pipe(concat('djgentelella.flags.vendors.min.css'))
-          .pipe(pylp.dest(str(BASE_PATH)))
-          )
-
 pylp.task('jsheader', lambda:
 pylp.src(JS_FILES_HEADER)
           .pipe(concat('djgentelella.vendors.header.min.js'))
@@ -240,6 +230,5 @@ pylp.src(MAPS_PLUGINS_JS)
           .pipe(pylp.dest(str(BASE_PATH)))
           )
 
-pylp.task('default', ['css', 'flagcss', 'readonlycss', 'jsheader', 'js', 'readonlyjs',
+pylp.task('default', ['css', 'readonlycss', 'jsheader', 'js', 'readonlyjs',
                       'mapscss', 'mapspluginscss', 'mapsjs', 'mapspluginsjs'])
-# pylp.task('default', ['flagcss'])

@@ -26,6 +26,10 @@ REQUIRED_TREES = [
     'blog/static',
     'async_notification/templates',
     'async_notification/static',
+    # Downloaded by loaddevstatic rather than kept in the tree, and reached only
+    # through the `use_mdi` define -- so nothing would fail at import time if it
+    # went missing from the wheel, the icons would just silently be squares.
+    'static/vendors/mdi',
 ]
 
 # Built at release time by `make sdist`, so they are absent from a bare build.
@@ -43,7 +47,6 @@ BUNDLED_ARTIFACTS = [
     # gentelella/statics/stylesheets.html
     'static/djgentelella.vendors.min.css',
     'static/djgentelella.readonly.vendors.min.css',
-    'static/djgentelella.flags.vendors.min.css',
     'static/djgentelella.maps.vendors.min.css',
     'static/djgentelella.maps.plugins.min.css',
     # compilemessages: django.po drives python/templates, djangojs.po the widgets

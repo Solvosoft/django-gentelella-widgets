@@ -183,7 +183,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 DEFAULT_JS_IMPORTS = {
     'use_readonlywidgets': True,
-    'use_flags': True,
     # Adds Leaflet.markercluster and Leaflet.heat. Leaflet itself always loads.
     'use_maps': True
 }

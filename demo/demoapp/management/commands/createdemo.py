@@ -621,15 +621,27 @@ class Command(BaseCommand):
     def create_countries(self):
         models.Country.objects.all().delete()
         data = [
-            models.Country(name='Costa Rica'),
-            models.Country(name='Panamá'),
-            models.Country(name='Nicaragua'),
-            models.Country(name='El Salvador'),
-            models.Country(name='Guatemala'),
-            models.Country(name='Hondura'),
-            models.Country(name='Belize'),
+            models.Country(name='Costa Rica', code='cr'),
+            models.Country(name='Panamá', code='pa'),
+            models.Country(name='Nicaragua', code='ni'),
+            models.Country(name='El Salvador', code='sv'),
+            models.Country(name='Guatemala', code='gt'),
+            models.Country(name='Hondura', code='hn'),
+            models.Country(name='Belize', code='bz'),
         ]
         models.Country.objects.bulk_create(data)
+
+    def create_img_flags(self):
+        """Give the image-select demo a row that uses the flag autocomplete."""
+        countries = list(models.Country.objects.exclude(code=''))
+        if not countries:
+            return
+        img = models.Img.objects.first()
+        if img is None:
+            img = models.Img.objects.create()
+        img.country = countries[0]
+        img.save()
+        img.countries.set(countries[:3])
 
     def create_places(self):
         """Points for the two map pages.
@@ -884,6 +896,7 @@ class Command(BaseCommand):
         self.create_settings()
         self.create_autocomplete_menu()
         self.create_countries()
+        self.create_img_flags()
         self.create_places()
         self.create_person()
         self.create_calendar_events()
