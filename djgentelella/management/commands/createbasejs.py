@@ -46,6 +46,7 @@ class Command(BaseCommand):
             'map.js',
             'custom.widgets.js',
             'fileupload.widget.js',
+            'pdfviewer.widget.js',
             'select2related.js',
         ]
 

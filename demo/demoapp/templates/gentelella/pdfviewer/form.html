@@ -1,0 +1,25 @@
+{% extends "gentelella/base.html" %}
+{% load i18n static %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>{% if object %}{% trans "Edit" %}{% else %}{% trans "Create" %}{% endif %} {% trans "PDF Document" %}</h2>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ form.as_horizontal }}
+                    <div class="form-group text-center mt-3">
+                        <a href="{% url 'pdfviewer-list' %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
+                        <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

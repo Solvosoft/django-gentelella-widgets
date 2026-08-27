@@ -315,6 +315,19 @@ class DigitalSignature(models.Model):
         return self.filename or str(self.file_code)
 
 
+class PDFDocument(models.Model):
+    name = models.CharField(max_length=255)
+    pdf_file = models.FileField(upload_to='pdfdocuments/', blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'PDF Document'
+        verbose_name_plural = 'PDF Documents'
+
+
 class SelectImage(models.Model):
     name = models.CharField(max_length=255)
     img = models.FileField(upload_to='images', null=True, blank=True)

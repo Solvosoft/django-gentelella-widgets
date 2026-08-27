@@ -1,0 +1,67 @@
+{% load i18n %}
+
+<div class="pdfviewer-widget" {% if pdf_url %}data-pdf-url="{{ pdf_url }}"{% endif %}>
+<div class="input-group flex-nowrap">
+  <div class="input-group-text {{ widget.name }}_progress"><i class="fa fa-file-pdf-o"></i></div>
+  <div class="uploadfilecontent pdfupload">
+    <input class="pdfupload-input" type="{{ widget.type }}" accept="application/pdf,.pdf" data-inputtoken="{{ widget.name }}" data-process=".{{ widget.name }}_progress" data-message=".{{ widget.name }}_messages" name="{{ widget.name }}_widget" {% include "gentelella/widgets/attrs.html" %}>
+  </div>
+  <div class="form-control {{ widget.name }}_messages" style="display:none;"></div>
+   <input type="hidden" name="{{ widget.name }}" value="{{ widget.value|default:'' }}" autocomplete="off" />
+   <div class="input-group-text pdfviewer-toggle"><i class="fa fa-eye"></i></div>
+  <div id="download_{{ widget.name }}" class="input-group-text bg-primary" {% if not widget.value %}style="display:none;"{% endif %}>
+    <a href="{% if widget.value %}{{ widget.value.url }}{% endif %}" target="_blank"><i class="fa fa-download text-light"></i></a>
+  </div>
+</div>
+
+{# PDF Preview #}
+<div class="pdfviewer-preview {% if not has_value %}d-none{% endif %}">
+    <div class="pdfviewer-controls my-2 d-flex align-items-center justify-content-center gap-2 flex-wrap">
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-light btn-sm pdfviewer-prev" title="{% trans 'Previous page' %}">
+                <i class="fa fa-angle-left"></i>
+            </button>
+            <span class="btn btn-light btn-sm disabled pdfviewer-page-info">
+                <span class="pdfviewer-page-num">1</span> / <span class="pdfviewer-page-count">1</span>
+            </span>
+            <button type="button" class="btn btn-light btn-sm pdfviewer-next" title="{% trans 'Next page' %}">
+                <i class="fa fa-angle-right"></i>
+            </button>
+        </div>
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-light btn-sm pdfviewer-zoom-out" title="{% trans 'Zoom out' %}">
+                <i class="fa fa-minus"></i>
+            </button>
+            <span class="btn btn-light btn-sm disabled pdfviewer-zoom-level">100%</span>
+            <button type="button" class="btn btn-light btn-sm pdfviewer-zoom-in" title="{% trans 'Zoom in' %}">
+                <i class="fa fa-plus"></i>
+            </button>
+        </div>
+        <button type="button" class="btn btn-light btn-sm pdfviewer-fit-width" title="{% trans 'Fit to width' %}">
+            <i class="fa fa-arrows-h"></i>
+        </button>
+    </div>
+    <div class="pdfviewer-canvas-container">
+        <canvas class="pdfviewer-canvas"></canvas>
+    </div>
+    <div class="pdfviewer-loading d-none">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">{% trans 'Loading...' %}</span>
+        </div>
+    </div>
+    <div class="pdfviewer-error d-none alert alert-danger mt-2">
+        <i class="fa fa-exclamation-triangle"></i>
+        <span class="pdfviewer-error-message"></span>
+    </div>
+</div>
+
+{# Delete checkbox #}
+<div id="remove_{{ widget.name }}" class="checkbox">
+    <label class="">
+        <div class="icheckbox_flat-green" style="position: relative;">
+            <input id="id_remove_{{ widget.name }}" type="checkbox" autocomplete="off" data-widget="CheckboxInput" name="remove_{{ widget.name }}_gt" class="flat" style="position: absolute; opacity: 0;">
+            <ins class="iCheck-helper"></ins></div>
+        {% trans 'Delete this file' %}
+    </label>
+</div>
+</div>

@@ -240,6 +240,54 @@ class ChunkedUploadView(ChunkedUploadBaseView):
                         status=http_status.HTTP_200_OK)
 
 
+class PDFChunkedUploadView(ChunkedUploadView):
+    """
+    Chunked upload view with PDF-specific validation.
+    Validates content type, file extension, and PDF magic bytes.
+    """
+    ALLOWED_CONTENT_TYPES = ['application/pdf']
+    ALLOWED_EXTENSIONS = ['.pdf']
+    PDF_MAGIC_BYTES = b'%PDF-'
+
+    def validate(self, request):
+        super().validate(request)
+        chunk = request.FILES.get(self.field_name)
+        if chunk is None:
+            return
+
+        content_type = chunk.content_type
+        if content_type not in self.ALLOWED_CONTENT_TYPES:
+            raise ChunkedUploadError(
+                status=http_status.HTTP_400_BAD_REQUEST,
+                detail='Invalid file type: %s. Only PDF files are allowed.'
+                       % content_type
+            )
+
+        filename = chunk.name.lower() if chunk.name else ''
+        if not any(filename.endswith(ext) for ext in self.ALLOWED_EXTENSIONS):
+            raise ChunkedUploadError(
+                status=http_status.HTTP_400_BAD_REQUEST,
+                detail='Invalid file extension. Only .pdf files are allowed.'
+            )
+
+        content_range = request.META.get(self.content_range_header, '')
+        match = self.content_range_pattern.match(content_range)
+        is_first_chunk = True
+        if match:
+            start = int(match.group('start'))
+            is_first_chunk = (start == 0)
+
+        if is_first_chunk:
+            chunk.seek(0)
+            first_bytes = chunk.read(len(self.PDF_MAGIC_BYTES))
+            chunk.seek(0)
+            if first_bytes != self.PDF_MAGIC_BYTES:
+                raise ChunkedUploadError(
+                    status=http_status.HTTP_400_BAD_REQUEST,
+                    detail='File does not appear to be a valid PDF.'
+                )
+
+
 class ChunkedUploadCompleteView(ChunkedUploadBaseView):
     """
     Completes an chunked upload. Method `on_completion` is a placeholder to
@@ -301,3 +349,8 @@ class ChunkedUploadCompleteView(ChunkedUploadBaseView):
 
         return Response(self.get_response_data(chunked_upload, request),
                         status=http_status.HTTP_200_OK)
+
+
+class PDFChunkedUploadCompleteView(ChunkedUploadCompleteView):
+    """Complete view for PDF chunked uploads."""
+    pass

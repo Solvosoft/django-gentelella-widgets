@@ -11,6 +11,8 @@ from rest_framework.routers import DefaultRouter
 from djgentelella.chunked_upload.views import (
     ChunkedUploadView,
     ChunkedUploadCompleteView,
+    PDFChunkedUploadView,
+    PDFChunkedUploadCompleteView,
 )
 from djgentelella.notification.base import (
     NotificacionAPIView,
@@ -144,6 +146,16 @@ base_urlpatterns = [
         'djgentelella/upload/done/',
         ChunkedUploadCompleteView.as_view(),
         name='upload_file_done',
+    ),
+    path(
+        'djgentelella/upload/pdf/',
+        PDFChunkedUploadView.as_view(),
+        name='upload_pdf_view',
+    ),
+    path(
+        'djgentelella/upload/pdf/done/',
+        PDFChunkedUploadCompleteView.as_view(),
+        name='upload_pdf_done',
     ),
     re_path(
         r'help/(?P<pk>\d+)?',

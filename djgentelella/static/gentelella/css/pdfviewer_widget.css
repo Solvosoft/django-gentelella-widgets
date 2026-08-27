@@ -1,0 +1,91 @@
+/**
+ * PDF Viewer Widget Styles
+ */
+
+.pdfviewer-widget {
+    position: relative;
+    width: 100%;
+}
+
+/* Preview section */
+.pdfviewer-preview {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #f8f9fa;
+    padding: 10px;
+    margin-top: 10px;
+}
+
+/* Controls */
+.pdfviewer-controls {
+    background: #fff;
+    padding: 8px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.pdfviewer-controls .btn {
+    min-width: 36px;
+}
+
+.pdfviewer-page-info,
+.pdfviewer-zoom-level {
+    font-family: monospace;
+    min-width: 60px;
+    text-align: center;
+}
+
+/* Canvas container */
+.pdfviewer-canvas-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    overflow: auto;
+    max-height: 500px;
+    background: #e9ecef;
+    border-radius: 4px;
+    padding: 10px;
+    margin-top: 10px;
+}
+
+.pdfviewer-canvas {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    background: #fff;
+}
+
+/* Loading indicator */
+.pdfviewer-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 100;
+    background: rgba(255,255,255,0.9);
+    padding: 20px;
+    border-radius: 8px;
+}
+
+/* Toggle button */
+.pdfviewer-toggle {
+    cursor: pointer;
+}
+
+.pdfviewer-toggle:hover {
+    background-color: #e9ecef;
+}
+
+/* Download button */
+.pdfviewer-widget .bg-primary a {
+    color: inherit;
+    text-decoration: none;
+}
+
+@media (max-width: 576px) {
+    .pdfviewer-controls {
+        flex-direction: column;
+        gap: 8px;
+    }
+    .pdfviewer-canvas-container {
+        max-height: 300px;
+    }
+}

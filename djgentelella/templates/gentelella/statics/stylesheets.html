@@ -16,6 +16,10 @@
 {# Sizing for {% flag %}; under a kilobyte, and the artwork it positions comes #}
 {# from the flags sprite view, so there is nothing to gate behind a define. #}
 <link href="{% static 'gentelella/css/flags.css' %}?v={% get_version %}" rel="stylesheet">
+{# Same reasoning as maps.css: PDFViewerWidget is unusable without it -- the #}
+{# canvas has no size and the controls no layout -- and a project that has to #}
+{# remember to link a widget's own stylesheet will forget. #}
+<link href="{% static 'gentelella/css/pdfviewer_widget.css' %}?v={% get_version %}" rel="stylesheet">
 {% if use_compress == 'true' %}
 	<link href="{% static 'gentelella/css/pdfviewer.css' %}?v={% get_version %}" rel="stylesheet">
 	<link href="{% static 'djgentelella.vendors.min.css' %}?v={% get_version %}" rel="stylesheet">

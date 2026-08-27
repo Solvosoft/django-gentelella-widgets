@@ -443,6 +443,19 @@ class Command(BaseCommand):
             only_icon=False,
         )
 
+        MenuItem.objects.create(
+            parent=cwidget,
+            title='PDF Viewer',
+            url_name='pdfviewer-list',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-file-pdf-o',
+            only_icon=False
+        )
+
         chunkedupload = MenuItem.objects.create(
             parent=cwidget,
             title='Select in modal',

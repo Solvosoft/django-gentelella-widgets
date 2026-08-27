@@ -1,0 +1,23 @@
+{% extends "gentelella/base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>{% trans "Delete PDF Document" %}</h2>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <p>{% blocktrans with name=object.name %}Are you sure you want to delete "{{ name }}"?{% endblocktrans %}</p>
+                <form method="post">
+                    {% csrf_token %}
+                    <a href="{% url 'pdfviewer-list' %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
+                    <button type="submit" class="btn btn-danger">{% trans "Delete" %}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

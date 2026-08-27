@@ -3,6 +3,7 @@ from .Flags_Test import *
 from .InlineObjectManagement_Test import *
 from .Map_Test import *
 from .Notification_Test import *
+from .Pdf_Test import *
 from .StoryLine_Test import *
 from .StoryMap_Test import *
 from .TimeLine_Test import *

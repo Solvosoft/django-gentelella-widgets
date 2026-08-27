@@ -148,7 +148,11 @@ class PdfSignatureComponent {
             console.warn("The variable 'sign_doc' is not defined.");
             return;
         }
-        pdfjsLib.getDocument(this.urls['sign_doc'] + "?" + this.urls['renderattr']).promise.then((pdfDoc_) => {
+        // pdf.js 6 dropped the bare-string shorthand for getDocument; it needs
+        // the url as a named parameter or it rejects the promise.
+        pdfjsLib.getDocument({
+            url: this.urls['sign_doc'] + "?" + this.urls['renderattr']
+        }).promise.then((pdfDoc_) => {
             this.pdfDoc = pdfDoc_;
             this.page_count.textContent = pdfDoc_.numPages;
 

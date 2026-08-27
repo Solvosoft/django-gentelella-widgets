@@ -308,6 +308,9 @@ document.gtwidgets = {
             build_cors_headers(e);
         });
     },
+    PDFViewerWidget: function (instance) {
+        instance.pdfviewerwidget();
+    },
 
 }
 

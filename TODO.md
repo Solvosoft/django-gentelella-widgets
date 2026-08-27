@@ -2,11 +2,11 @@
 
 ## Widgets
 
-- [ ] **PDF Viewer Widget** - Create a widget that displays PDF files from a FileField
-  - Use PDF.js (already bundled in vendors)
-  - Support for navigation (page controls)
-  - Optional: zoom controls, fullscreen mode
-  - Example usage: `PDFViewerWidget` for FileField displaying uploaded PDFs
+- [x] **PDF Viewer Widget** - Widget that displays PDF files from a FileField
+  - Uses PDF.js for client-side rendering with page navigation and zoom
+  - Extends FileChunkedUpload for chunked PDF uploads with server-side validation
+  - PDFFileField validates extension, content type, and magic bytes
+  - Usage: `PDFViewerWidget` widget + `PDFFileField` field + chunked upload URLs
 
 ## Views & Utilities
 

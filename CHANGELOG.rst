@@ -137,6 +137,17 @@ ttf -- the same glyphs in three encodings no supported browser would pick -- so
 would base64 the font into ``djgentelella.vendors.min.css``, and the point of a
 webfont is that the browser fetches one 403 KB file and caches it.
 
+**PDF viewer widget.** ``PDFViewerWidget`` displays a PDF from a ``FileField``
+with page navigation and zoom, rendering client-side through pdf.js;
+``PDFFileField`` validates the extension, the content type and the magic bytes,
+and uploads go through a PDF-specific chunked endpoint
+(``upload_pdf_view`` / ``upload_pdf_done``) rather than the generic one. Demo at
+``/pdfviewer/``.
+
+``gentelella/css/pdfviewer_widget.css`` is linked from the base template rather
+than left for each project to remember, on the same reasoning as ``maps.css``:
+without it the canvas has no size and the controls no layout.
+
 **A reference page per icon set**, under an **Icons** menu in the demo sidebar:
 ``/icons/fontawesome`` (786), ``/icons/friconix`` (1559), ``/icons/mdi`` (7448)
 and ``/icons/flags`` (266). Each is searchable, and each reads its set from what
@@ -166,10 +177,13 @@ against the browser suite (57 Selenium tests):
 ``cdn.jsdelivr.net/npm/interactjs/`` that resolved to whatever was current that
 day. Both copies are now pinned to 1.10.28.
 
-``pdf.js`` 4.6.82 -> 6.2.108. The API in use is three calls wide --
-``getDocument``, ``getViewport``, ``render`` -- and ``globalThis.pdfjsLib`` is
-still exposed by the ``.mjs`` build, so the jump is smaller than the version
-numbers suggest; verified rendering a document in a browser on 6.2.108.
+``pdf.js`` 4.6.82 -> 6.2.108. ``globalThis.pdfjsLib`` is still exposed by the
+``.mjs`` build and ``getViewport``/``render`` are unchanged, but **6.x dropped
+``getDocument``'s bare-string shorthand**: a relative string, an absolute string
+and even a ``URL`` object are all rejected with "expected either ``data``,
+``range``, or ``url`` parameter", and the rejection is asynchronous, so the
+canvas simply stays blank at its default 300x150. Both call sites now pass
+``{url: ...}``.
 ``pdf_viewer.min.css`` is gone from the bundle: 6.x no longer publishes it, and
 it styled only the text, annotation and XFA layers, none of which anything here
 renders. Its 15 ``images/`` SVGs went with it -- they existed solely to feed its

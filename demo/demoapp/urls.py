@@ -19,6 +19,7 @@ from .digital_signature.api import (
 )
 from .filechunkedupload import views as chunkedupload
 from .formset import add_formset, add_model_formset
+from demoapp.pdfviewer import views as pdfviewer_views
 from .grid_slider import views as grid
 from .input_masks import views as input_mask
 from .media_upload.views import mediaupload_view
@@ -84,6 +85,27 @@ urlpatterns = (
         path('icons/friconix', friconix_icons, name='friconix_icons'),
         path('icons/mdi', mdi_icons, name='mdi_icons'),
         path('icons/flags', flag_icons, name='flag_icons'),
+        # PDF viewer
+        path(
+            'pdfviewer/',
+            pdfviewer_views.PDFViewerListView.as_view(),
+            name='pdfviewer-list',
+        ),
+        path(
+            'pdfviewer/create/',
+            pdfviewer_views.PDFViewerCreateView.as_view(),
+            name='pdfviewer-add',
+        ),
+        path(
+            'pdfviewer/<int:pk>/',
+            pdfviewer_views.PDFViewerUpdateView.as_view(),
+            name='pdfviewer-edit',
+        ),
+        path(
+            'pdfviewer/<int:pk>/delete/',
+            pdfviewer_views.PDFViewerDeleteView.as_view(),
+            name='pdfviewer-delete',
+        ),
         path('formset', add_formset, name='add_formset'),
         path('modelformset', add_model_formset, name='add_model_formset'),
         path(
