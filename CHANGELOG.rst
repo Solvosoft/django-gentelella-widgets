@@ -166,6 +166,15 @@ against the browser suite (57 Selenium tests):
 ``cdn.jsdelivr.net/npm/interactjs/`` that resolved to whatever was current that
 day. Both copies are now pinned to 1.10.28.
 
+``pdf.js`` 4.6.82 -> 6.2.108. The API in use is three calls wide --
+``getDocument``, ``getViewport``, ``render`` -- and ``globalThis.pdfjsLib`` is
+still exposed by the ``.mjs`` build, so the jump is smaller than the version
+numbers suggest; verified rendering a document in a browser on 6.2.108.
+``pdf_viewer.min.css`` is gone from the bundle: 6.x no longer publishes it, and
+it styled only the text, annotation and XFA layers, none of which anything here
+renders. Its 15 ``images/`` SVGs went with it -- they existed solely to feed its
+``url()``\ s.
+
 Two more moved a major version each, both verified in a browser rather than by
 version number alone: ``autosize`` 3.0.15 -> 6.0.1 (the global still takes a
 textarea and still grows it) and ``sweetalert2`` 10.10.0 -> 11.26.25
@@ -201,6 +210,12 @@ Removed from ``loaddevstatic``:
   only the Font Awesome faces that ``font-awesome.min.css`` actually reaches.
 * A ``bootstrap-datetimepicker`` sourcemap that has always 404ed, printing a
   ``FAILED`` line on every run.
+
+**pdf.js parsed every document on the main thread.** The worker was loaded as a
+second ``<script type="module">``, which downloads a megabyte into the page and
+leaves ``GlobalWorkerOptions.workerSrc`` empty -- so pdf.js silently fell back
+to its fake worker and blocked the UI while parsing. It is now handed to pdf.js
+as a URL, and the parsing really does happen off-thread.
 
 Fixes
 """"""""""""""""""

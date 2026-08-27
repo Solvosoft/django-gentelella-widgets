@@ -5,7 +5,15 @@
 
 	<!-- Pdf js -->
 	<script type="module" src="{% static 'vendors/pdfjs/pdf.min.mjs' %}?v={% get_version %}"></script>
-	<script type="module" src="{% static 'vendors/pdfjs/pdf.worker.min.mjs' %}?v={% get_version %}"></script>
+	{# The worker must be handed to pdf.js as a URL, not loaded as a script of #}
+	{# its own: it used to be a second <script type="module">, which downloaded #}
+	{# a megabyte into the main thread and left GlobalWorkerOptions.workerSrc  #}
+	{# empty, so pdf.js quietly parsed every document on the UI thread.        #}
+	{# Module scripts run in document order, so pdfjsLib is defined here.      #}
+	<script type="module">
+		pdfjsLib.GlobalWorkerOptions.workerSrc =
+			"{% static 'vendors/pdfjs/pdf.worker.min.mjs' %}?v={% get_version %}";
+	</script>
 
 {% if use_compress  == 'true' %}
 	<script src="{% static 'djgentelella.vendors.min.js' %}?v={% get_version %}"></script>

@@ -96,7 +96,6 @@ CSS_FILES = [str(BASE_PATH / path) for path in [
     'vendors/sweetalert2/sweetalert2.min.css',
     'vendors/chartjs/Chart.min.css',
     'vendors/datatables/datatables.min.css',
-    'vendors/pdfjs/pdf_viewer.min.css',
 ]]
 
 READONLY_WIDGETS_CSS = [str(BASE_PATH / path) for path in [

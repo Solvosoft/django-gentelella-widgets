@@ -420,31 +420,19 @@ class Command(BaseCommand):
                 'https://cdn.knightlab.com/libs/storyline/1.1.0/js/storyline.js',
             ],
             'pdfjs': [
-                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/pdf_viewer.min.css',
-                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/pdf.min.mjs',
-                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/pdf.worker.min.mjs',
+                # pdf_viewer.css is not downloaded: it styles the text,
+                # annotation and XFA layers, and nothing here renders one --
+                # both the signature widget and the shelved viewer draw straight
+                # to a canvas through getDocument/getViewport/render. It took
+                # the whole images/ directory with it, which existed only to
+                # feed its url()s.
+                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/6.2.108/pdf.min.mjs',
+                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/6.2.108/pdf.worker.min.mjs',
                 'https://cdnjs.cloudflare.com/ajax/libs/interact.js/1.10.28/interact.min.js',
             ],
 
             'htmlx': [
                 'https://unpkg.com/htmx.org@2.0.10/dist/htmx.min.js'
-            ],
-            'pdfjs/images/': [
-                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/messageBar_warning.svg",
-                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/messageBar_closingButton.svg",
-                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/cursor-editorInk.svg",
-                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/cursor-editorTextHighlight.svg",
-                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/cursor-editorFreeHighlight.svg",
-                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/altText_warning.svg",
-                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/cursor-editorFreeText.svg",
-                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/editor-toolbar-delete.svg",
-                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/toolbarButton-editorHighlight.svg",
-                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/altText_add.svg",
-                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/altText_done.svg",
-                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/altText_disclaimer.svg",
-                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/altText_spinner.svg",
-                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/toolbarButton-menuArrow.svg",
-                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/loading-icon.gif"
             ],
             'leaflet': [
                 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
