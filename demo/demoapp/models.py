@@ -96,25 +96,36 @@ class Community(models.Model):
 class A(models.Model):
     display = models.CharField(max_length=150)
 
+    def __str__(self):
+        return self.display
 
 class B(models.Model):
     display = models.CharField(max_length=150)
     a = models.ForeignKey(A, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.display
 
 class C(models.Model):
     display = models.CharField(max_length=150)
     b = models.ForeignKey(B, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.display
 
 class D(models.Model):
     display = models.CharField(max_length=150)
     c = models.ForeignKey(C, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.display
 
 class E(models.Model):
     display = models.CharField(max_length=150)
     d = models.ForeignKey(D, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.display
 
 
 class ABCDE(models.Model):
