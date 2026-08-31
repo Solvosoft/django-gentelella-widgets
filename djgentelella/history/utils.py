@@ -151,14 +151,18 @@ def add_log(
             'action': action_label,
         }
 
-    log_entry = LogEntry.objects.log_action(
+    # Not LogEntry.objects.log_action()/log_actions(): the former is removed
+    # in Django 6.0 and the latter recomputes object_repr from str(obj),
+    # discarding the localized message built above.
+    log_entry = LogEntry(
         user_id=user.id,
         content_type_id=content_type.id,
         object_id=object.pk,
-        object_repr=object_repr,
+        object_repr=object_repr[:200],
         action_flag=action_flag,
         change_message=change_message,
     )
+    log_entry.save()
 
     _save_relations(log_entry, related_objects, extra)
 

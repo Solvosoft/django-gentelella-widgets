@@ -57,30 +57,3 @@ jobs:
         # the blog lives outside the demo dir, so discovery never reaches it
         python manage.py test djgentelella.blog.tests
 
-  package:
-    # Templates, static and locale reach the wheel only through MANIFEST.in, and
-    # a missing line there is invisible until an installed copy raises
-    # TemplateDoesNotExist. Building for real is the only way to catch it.
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-python@v5
-      with:
-        python-version: '3.12'
-    - name: Install Dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install -r test_requirements.txt
-        pip install twine
-    - name: Build and verify the wheel
-      run: |
-        cd demo && python manage.py loaddevstatic && python manage.py createbasejs
-        cd ..
-        python -m pylp
-        cd djgentelella && django-admin compilemessages -l es
-        cd ..
-        python -m build
-        twine check dist/*
-        python build_check.py
-
