@@ -16,8 +16,19 @@ function build_storyline(instance){
                     $(element).html('<div>'+e.responseText+'</div>');
                 },
             }).done(function(msg){
-                window.storyline = new Storyline(instance_element, msg);
-                window.storyline.resetWidth(widget_width, 'scroll');
+                var storyline = new Storyline(instance_element, msg);
+                window.storyline = storyline;
+                // Storyline's own init() fetches/builds the chart+slider
+                // asynchronously; this.slider does not exist until that
+                // promise resolves, so resetWidth() would throw if called
+                // right away.
+                (function waitForSlider() {
+                    if (storyline.slider) {
+                        storyline.resetWidth(widget_width, 'scroll');
+                    } else {
+                        setTimeout(waitForSlider, 20);
+                    }
+                })();
             });
         });
 }

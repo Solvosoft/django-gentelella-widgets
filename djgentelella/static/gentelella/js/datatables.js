@@ -140,9 +140,10 @@ function addSearchInputsAndFooterDataTable(dataTable, tableId, columns) {
         if(columnType === 'checkable'){
              $(this).html("");
              checkable_count=1;
-             if($(dataTable.context[0].nTable).data()['checkable']==undefined){
-                 $(dataTable.context[0].nTable).find('.checkableall').click(toggle_select_all);
-                 $(dataTable.context[0].nTable).data()['checkable']=true;
+             let table_node = $(dataTable.table().node());
+             if(table_node.data()['checkable']==undefined){
+                 table_node.find('.checkableall').click(toggle_select_all);
+                 table_node.data()['checkable']=true;
              }
         }
 
@@ -205,10 +206,13 @@ function objshowlink(data, type, row, meta){ return data ? '<a href="'+data.url+
 function objnode(data, type, row, meta){ return data ? '<'+data.tagName+' href="'+data.url+'" '+data.extraattr+' class="'+(data.class!=undefined ? data.class : 'link')+'"> '+data.display_name+ '</'+data.tagName+'>': ''; };
 function objShowBool(data, type, row, meta){ return data ? '<i class="fa fa-check-circle" title="' + data + '">': '<i class="fa fa-times-circle" title="' +  data + '">'; };
 
-document.table_default_dom = "<'row mb-1'<'col-sm-4 col-md-4 d-flex align-items-center justify-content-start'f>" +
-                 "<'col-sm-4 col-md-4 d-flex align-items-center justify-content-center'B>" +
-                 "<'col-sm-3 col-md-3 d-flex align-items-center justify-content-end 'l>>" +
-                 "<'row'<'col-sm-12'tr>><'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>";
+document.table_default_layout = {
+    topStart: 'search',
+    top: 'buttons',
+    topEnd: 'pageLength',
+    bottomStart: 'info',
+    bottomEnd: 'paging'
+};
 
 $.fn.dataTable.Buttons.defaults.dom.button.className="btn btn-sm";
 
@@ -233,7 +237,7 @@ function gtCreateDataTable(id, url, table_options={}){
         columns: [
            // {data: "item_sequence", name: "item_sequence", title: "Sequence", type: "string", visible: true},
         ],
-        dom: document.table_default_dom,
+        layout: document.table_default_layout,
         buttons: [
             {
                 action: function ( e, dt, node, config ) {clearDataTableFilters(dt, id)},

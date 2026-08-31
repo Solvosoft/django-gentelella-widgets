@@ -1,3 +1,4 @@
+from django.contrib.auth.models import Permission
 from django.urls import reverse
 
 from djgentelella.async_notification.tests import AsyncNotificationAPITestBase
@@ -9,7 +10,6 @@ class EmailTemplateAPITest(AsyncNotificationAPITestBase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
-        from django.contrib.auth.models import Permission
         cls.superuser.user_permissions.set(Permission.objects.all())
 
     def test_list(self):

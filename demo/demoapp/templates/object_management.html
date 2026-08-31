@@ -42,6 +42,10 @@
 {{block.super}}
 <script>
 
+	// Inline CRUDAL demo: notes belonging to one object, see
+	// object_management_inline.html. `0` is the parent pk placeholder.
+	var note_page_url = "{% url 'object_management_inline' 0 %}";
+
 	var object_urls ={
 		list_url: "{% url 'api-objectmanagement-list' %}",
 		destroy_url: "{% url 'api-objectmanagement-detail' 0 %}",
@@ -84,12 +88,20 @@
 	}
 	var obj_actions = {
 			table_actions: [{
-                    action: (e, dt, node, config) => { console.log( get_selected_items(dt, dt.context[0].nTable)); },
+                    action: (e, dt, node, config) => { console.log( get_selected_items(dt, dt.table().node())); },
                     text:  '<i class="fa fa-eye" aria-hidden="true"></i>',
                     titleAttr: gettext('Apply selected action'),
                     className: "btn btn-success"
                 }],  //table_actions
-			object_actions: [],  // object_actions
+			// A navigation action: link:true makes do_action() go to the url
+			// instead of fetching it. Here it opens the inline notes page.
+			object_actions: [{
+					name: "notes",
+					title: gettext('Notes'),
+					i_class: "fa fa-sticky-note fa-lg",
+					link: true,
+					url_fn: data => note_page_url.replace('/0/', '/' + data.id + '/')
+			}],  // object_actions
 			title: gettext('Actions'),
 			className:  "no-export-col"
 	}

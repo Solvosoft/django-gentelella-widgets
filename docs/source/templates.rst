@@ -63,7 +63,6 @@ Available Javascript Libraries
 This list could be grow in the next future.
 
 - use_readonlywidgets : Active widget timeline, fullcalendar, storymapjs, storylinejs, bootstrap-tree
-- use_flags  :  Active country flags for widget SelectFlags
 
 
 

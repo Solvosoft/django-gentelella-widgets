@@ -1,24 +1,27 @@
+// Tooltip callbacks cannot travel as JSON, so the server sends the name of one
+// of these and the browser looks it up. Chart.js 3 replaced the v2
+// `(item, data)` pair with a single tooltip context object.
 document.chartcallbacks = {
-   doughnutlabels: function (item, data) {
-
-        var label = data.datasets[item.datasetIndex].label;
-        var value = data.datasets[item.datasetIndex].data[item.index];
-        return label + ': ' + value;
+   doughnutlabels: function (context) {
+        return context.dataset.label + ': ' + context.parsed;
     },
-   doughnutbeforeLabel: function(tooltipItem, chart){
-        return chart.datasets[tooltipItem.datasetIndex]['label']
+   doughnutbeforeLabel: function (context) {
+        return context.dataset.label;
     }
 }
 $.fn.gentelella_chart = function(){
     var reservedAttrs = ['url', 'widget'];
 
     var check_callbacks = function(result) {
-        if (result.options && result.options.tooltips && result.options.tooltips.callbacks) {
-            var cback = result.options.tooltips.callbacks;
+        // options.tooltips became options.plugins.tooltip in Chart.js 3.
+        var tooltip = result.options && result.options.plugins &&
+            result.options.plugins.tooltip;
+        if (tooltip && tooltip.callbacks) {
+            var cback = tooltip.callbacks;
             var callbackTypes = ['label', 'beforeLabel', 'afterLabel', 'title', 'footer'];
             callbackTypes.forEach(function(type) {
                 if (cback[type] && document.chartcallbacks && document.chartcallbacks.hasOwnProperty(cback[type])) {
-                    result.options.tooltips.callbacks[type] = document.chartcallbacks[cback[type]];
+                    cback[type] = document.chartcallbacks[cback[type]];
                 }
             });
         }

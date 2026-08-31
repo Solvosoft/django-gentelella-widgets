@@ -45,7 +45,7 @@ class EntriesList(ListView):
                 )
 
         if values:
-            dev += "&".join(values)
+            dev += '&'.join(values)
 
         if dev != '?':
             dev += '&'
@@ -99,7 +99,7 @@ class EntryCreate(PermissionRequiredMixin, CreateView):
         if publishbtn:
             self.object.is_published = True
         if self.object.is_published and publishbtn:
-            self.object.published_content = self.object.content.rendered
+            self.object.published_content = self.object.content
         if self.object.author is None:
             self.object.author = self.request.user
         self.object.save()
@@ -119,7 +119,7 @@ class EntryUpdate(PermissionRequiredMixin, UpdateView):
         if publishbtn:
             self.object.is_published = True
         if self.object.is_published and publishbtn:
-            self.object.published_content = self.object.content.rendered
+            self.object.published_content = self.object.content
         if self.object.author is None:
             self.object.author = self.request.user
         self.object.save()
@@ -142,7 +142,7 @@ def category_add(request):
             return JsonResponse({'ok': True, 'id': instance.pk, 'text': str(instance)})
 
         return JsonResponse({'ok': False,
-                             'title': _("An error happen, please try again"),
+                             'title': _('An error happen, please try again'),
                              'message': render_to_string(
                                  'gentelella/blog/category_add.html',
                                  context={

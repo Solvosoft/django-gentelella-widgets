@@ -19,12 +19,14 @@ import math
 import time
 import urllib.request
 from email import message_from_string
+from unittest.mock import patch
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.base import ContentFile
+from django.core.mail import EmailMessage
 from django.core.management.base import BaseCommand
 from django.core.management import call_command
 from django.utils import timezone
@@ -318,7 +320,6 @@ class Command(BaseCommand):
     def scenario_promotional_unsubscribe(self):
         # Promotional email: suppressed address skipped, one-click unsubscribe
         # headers present, sent one message per recipient.
-        from unittest.mock import patch
         EmailSuppression.objects.create(
             email='promo_skip@example.com', reason='unsubscribe')
         n = EmailNotification.objects.create(
@@ -331,8 +332,6 @@ class Command(BaseCommand):
 
     def scenario_batch_failure_resume(self):
         # A mid-batch failure must not re-deliver earlier batches on retry.
-        from unittest.mock import patch
-        from django.core.mail import EmailMessage
         recipients = [f'bf{i}@example.com' for i in range(5)]
         n = EmailNotification.objects.create(
             subject=f'{TAG} BatchFail', message='<p>x</p>',

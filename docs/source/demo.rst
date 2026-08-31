@@ -141,7 +141,7 @@ The demo site includes examples of:
 - Date and time pickers
 - File upload with chunked upload support
 - Masked inputs (phone, credit card, etc.)
-- WYSIWYG editors (TinyMCE, MarkItUp)
+- WYSIWYG editors (TinyMCE, Summernote)
 
 **Data Tables**
 

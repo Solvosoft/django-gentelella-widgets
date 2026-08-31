@@ -4,21 +4,25 @@
         <div class="input-group-text {{ widget.name }}_progress"><i class="fa fa-file"></i></div>
         <div class="uploadfilecontent chunkedupload">
             <input class="chunkedupload-input"  type="{{ widget.type }}" data-inputtoken="{{ widget.name }}" data-process=".{{ widget.name }}_progress"  data-message=".{{ widget.name }}_messages"  name="{{ widget.name }}_widget" {% include "gentelella/widgets/attrs.html" %}>
+            <span class="gt-upload-hint">
+                <i class="fa fa-cloud-upload" aria-hidden="true"></i>
+                <span><strong>{% trans 'Choose a file' %}</strong><span
+                    class="gt-upload-hint-long"> {% trans 'or drop it here' %}</span></span>
+            </span>
         </div>
         <div   class="form-control {{ widget.name }}_messages" style="display:none;"></div>
         <input class="chunkedvalue" type="hidden" name="{{ widget.name }}" value='{{widget.value}}' autocomplete="off"/>
-        <div class="input-group-text fileshow" ><i class="fa fa-eye"></i></div>
-        <div id="download_{{ widget.name }}" class="input-group-text bg-danger" {% if not widget.value %}style="display:none;"{% endif %} >
-            <a href="" target="_blank"><i class="fa fa-download text-light"></i></a>
+        <div class="input-group-text fileshow" role="button" tabindex="0"
+             title="{% trans 'Show or change the file' %}"><i class="fa fa-eye"></i></div>
+        <div id="download_{{ widget.name }}" class="input-group-text" {% if not widget.value %}style="display:none;"{% endif %} >
+            <a href="" target="_blank" title="{% trans 'Download' %}"><i class="fa fa-download"></i></a>
         </div>
     </div>
-    <div id="remove_{{ widget.name }}" class="checkbox">
-        <label class="">
-            <div class="icheckbox_flat-green" style="position: relative;">
-                <input id="id_remove_{{ widget.name }}" type="checkbox" autocomplete="off" data-widget="CheckboxInput" name="remove_{{ widget.name }}_gt"  class="flat"  style="position: absolute; opacity: 0;">
-                <ins class="iCheck-helper"  ></ins></div>
-            				{% trans 'Delete this file' %}
+    <div class="gt-upload-progress" aria-hidden="true"></div>
+    <div id="remove_{{ widget.name }}" class="gt-upload-remove">
+        <label>
+            <input id="id_remove_{{ widget.name }}" type="checkbox" autocomplete="off" data-widget="CheckboxInput" name="remove_{{ widget.name }}_gt" class="gt-check">
+            <span class="gt-upload-remove-text">{% trans 'Delete this file' %}</span>
         </label>
     </div>
-
 </div>

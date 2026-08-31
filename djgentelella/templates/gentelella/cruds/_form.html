@@ -9,8 +9,7 @@
     {% csrf_token %}
     <div class="box-body row">
         <div class="col-md-12">
-            {% form_get_form_display form as render_field %}
-            {{ render_field }}
+            {{ form }}
         </div>
     </div>
 

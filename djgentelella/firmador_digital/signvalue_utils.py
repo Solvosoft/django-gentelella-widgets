@@ -6,7 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from djgentelella.models import ChunkedUpload
 
-logger = logging.getLogger("djgentelella")
+logger = logging.getLogger('djgentelella')
 
 
 class ValueDSParser:
@@ -24,7 +24,7 @@ class ValueDSParser:
             instance = base64.b64decode(value.encode())
             jsondata = json.loads(instance.decode())
         except Exception as e:
-            logger.error("Validation of value on digital signature fail", exc_info=e)
+            logger.error('Validation of value on digital signature fail', exc_info=e)
         return jsondata
 
     def get_filefield(self, jsondata):

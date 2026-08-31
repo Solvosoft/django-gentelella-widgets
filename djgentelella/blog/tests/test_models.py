@@ -46,7 +46,7 @@ class TestEntryModel(TestCase):
     def test_long_slugs_should_not_get_split_midword(self):
         """The slug should not get split mid-word."""
         self.entry.title = SafeText(
-            "Please tell me where everyone is getting their assumptions about me?" * 100
+            'Please tell me where everyone is getting their assumptions about me?' * 100
         )
         self.entry.save()
         # The ending should not be a split word.

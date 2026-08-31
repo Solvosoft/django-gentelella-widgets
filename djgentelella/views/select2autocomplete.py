@@ -35,7 +35,7 @@ class GPaginator(PageNumberPagination):
     def get_paginated_response(self, data):
         return Response(OrderedDict([
             ('total_count', self.page.paginator.count),
-            ("pagination", {'more': self.page.has_next()}),
+            ('pagination', {'more': self.page.has_next()}),
             ('results', data)
         ]))
 

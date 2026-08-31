@@ -1,0 +1,59 @@
+{% extends "gentelella/base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-10 offset-md-1">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>{% trans "PDF Documents" %}</h2>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <a href="{% url 'pdfviewer-add' %}" class="btn btn-primary mb-3">
+                    <i class="fa fa-plus"></i> {% trans "Add Document" %}
+                </a>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>{% trans "Name" %}</th>
+                            <th>{% trans "File" %}</th>
+                            <th>{% trans "Created" %}</th>
+                            <th>{% trans "Actions" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for doc in documents %}
+                        <tr>
+                            <td>{{ doc.name }}</td>
+                            <td>
+                                {% if doc.pdf_file %}
+                                <a href="{{ doc.pdf_file.url }}" target="_blank">
+                                    <i class="fa fa-file-pdf-o"></i> {{ doc.pdf_file.name|cut:"pdfdocuments/" }}
+                                </a>
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                            <td>{{ doc.created_at|date:"Y-m-d H:i" }}</td>
+                            <td>
+                                <a href="{% url 'pdfviewer-edit' doc.pk %}" class="btn btn-sm btn-info">
+                                    <i class="fa fa-pencil"></i>
+                                </a>
+                                <a href="{% url 'pdfviewer-delete' doc.pk %}" class="btn btn-sm btn-danger">
+                                    <i class="fa fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center">{% trans "No documents found." %}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

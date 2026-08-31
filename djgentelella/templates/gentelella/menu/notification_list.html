@@ -24,10 +24,13 @@
 {% block js %}
 
 <script>
-    document.table_default_dom = "<'row'<'col-sm-12 col-md-12 mb-1 d-flex' f>" +
-                 "<'col-sm-11 col-md-11 mt-1 p-0 d-flex align-items-center justify-content-start'l>" +
-                 "<'col-sm-1 col-md-1 mt-1 d-flex align-items-center justify-content-end 'B>>" +
-                 "<'row'<'col-sm-12'tr>><'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>";
+    document.table_default_layout = {
+        top2Start: 'search',
+        topStart: 'pageLength',
+        topEnd: 'buttons',
+        bottomStart: 'info',
+        bottomEnd: 'paging'
+    };
 
     notificationdatatable=createDataTable('#notificationdatatable', '{% url "api-notificationtable-list" %}', {
      columns: [
@@ -49,11 +52,9 @@
     }, addfilter=true);
 
     $(document).ready(function() {
-      $('.dataTables_filter').addClass('w-100');
-      $('.dataTables_filter input').addClass('filter-input').css('width', '96%');
-      $('.dataTables_filter label').addClass('filter-label').css('width', '100%');
-      $('.dataTables_paginate').removeClass('paging_full_numbers');
-      $('.dataTables_paginate').addClass('paging_simple_numbers');
+      $('.dt-search').addClass('w-100');
+      $('.dt-search input').addClass('filter-input').css('width', '96%');
+      $('.dt-search label').addClass('filter-label').css('width', '100%');
       $('#notificationdatatable').removeClass('dtr-inline');
     });
 

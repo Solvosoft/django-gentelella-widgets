@@ -6,6 +6,12 @@ from djgentelella.widgets import core as widget
 
 
 class InputMaskForms(forms.ModelForm, GTForm):
+    grid_representation = [
+        [['date'], ['phone']],
+        [['serial_number'], ['taxid']],
+        [['credit_card'], ['email']],
+    ]
+
     class Meta:
         model = models.InputMask
         fields = '__all__'

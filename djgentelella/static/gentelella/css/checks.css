@@ -1,0 +1,174 @@
+/* Checkboxes, radios and switches, drawn on the native input.
+ *
+ * These replace iCheck (a 2015 PNG sprite, no animation at all) and switchery
+ * (2013, animated by injecting inline styles from javascript). Both of them
+ * worked the same way: hide the real <input> and put their own DOM next to it.
+ * That is what forced every caller to go through an imperative API --
+ * .iCheck('check'), the ifChecked/ifToggled events, the data-switchery marker
+ * a form reset had to look for -- because setting input.checked no longer
+ * showed on screen.
+ *
+ * Here the input *is* the widget: `appearance: none` removes the platform
+ * rendering and everything is painted with a background image. So
+ * `el.checked = true` shows immediately, `change` is the native event, reset
+ * works on its own, the label's `for` works, keyboard and screen readers get a
+ * real checkbox, and the artwork is vector at any pixel density -- the iCheck
+ * sprite had one @2x variant and nothing beyond it.
+ *
+ * Sizes and colours are custom properties, so a project restyles them without
+ * recompiling anything:
+ *
+ *     .my-form { --gt-check-color: #2a6fb5; --gt-check-size: 24px; }
+ */
+
+:root {
+    /* The green switchery was configured with in js/widgets.js. */
+    --gt-check-color: #26b99a;
+    --gt-check-size: 20px;
+    --gt-check-bg: #fff;
+    --gt-check-border: #d5d8dc;
+    --gt-check-disabled-bg: #eceff1;
+    --gt-check-disabled-border: #dfe3e6;
+    --gt-check-focus-ring: rgba(38, 185, 154, .35);
+    --gt-switch-width: 50px;
+    --gt-switch-height: 30px;
+    /* Overshoots on purpose: the knob and the tick settle with a small
+     * bounce, which is what makes the control feel physical rather than
+     * repainted. */
+    --gt-check-spring: cubic-bezier(.34, 1.45, .64, 1);
+}
+
+.gt-check,
+.gt-switch {
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
+    padding: 0;
+    vertical-align: middle;
+    cursor: pointer;
+    background-repeat: no-repeat;
+    background-color: var(--gt-check-bg);
+    border: 1px solid var(--gt-check-border);
+    /* Safari draws a shadow of its own on form controls. */
+    box-shadow: none;
+    print-color-adjust: exact;
+}
+
+/* -- checkbox and radio -------------------------------------------------- */
+
+.gt-check {
+    width: var(--gt-check-size);
+    height: var(--gt-check-size);
+    border-radius: 2px;
+    background-position: center;
+    /* The tick is scaled up from nothing on check, so it pops in instead of
+     * appearing between two frames the way the sprite did. */
+    background-size: 0 0;
+    transition: background-color .18s ease,
+                border-color .18s ease,
+                background-size .22s var(--gt-check-spring),
+                box-shadow .15s ease,
+                transform .12s ease;
+}
+
+.gt-check[type=radio] {
+    border-radius: 50%;
+}
+
+.gt-check:checked,
+.gt-check:indeterminate {
+    background-color: var(--gt-check-color);
+    border-color: var(--gt-check-color);
+    background-size: 74% 74%;
+}
+
+.gt-check:checked {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' d='M4 10.5l4 4 8-8'/%3e%3c/svg%3e");
+}
+
+.gt-check[type=radio]:checked {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3ccircle cx='10' cy='10' r='6' fill='%23fff'/%3e%3c/svg%3e");
+    background-size: 58% 58%;
+}
+
+/* Checkboxes can be neither on nor off -- the "select all" box of a table with
+ * a partial selection. iCheck could not draw this state at all. */
+.gt-check:indeterminate {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath stroke='%23fff' stroke-width='3' stroke-linecap='round' d='M5 10h10'/%3e%3c/svg%3e");
+}
+
+/* -- switch -------------------------------------------------------------- */
+
+.gt-switch {
+    width: var(--gt-switch-width);
+    height: var(--gt-switch-height);
+    border-radius: var(--gt-switch-height);
+    /* content-box plus the padding is what insets the knob from the track, so
+     * `left center` and `right center` land where they should at any size. */
+    padding: 2px;
+    background-origin: content-box;
+    background-clip: content-box;
+    background-position: left center;
+    background-size: auto 100%;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3e%3ccircle cx='16' cy='17.5' r='14' fill='%23000' fill-opacity='.22'/%3e%3ccircle cx='16' cy='16' r='14' fill='%23fff'/%3e%3c/svg%3e");
+    transition: background-position .28s var(--gt-check-spring),
+                background-color .2s ease,
+                border-color .2s ease,
+                box-shadow .15s ease;
+}
+
+.gt-switch:checked {
+    background-color: var(--gt-check-color);
+    border-color: var(--gt-check-color);
+    background-position: right center;
+}
+
+/* -- shared states ------------------------------------------------------- */
+
+.gt-check:focus-visible,
+.gt-switch:focus-visible {
+    outline: 0;
+    box-shadow: 0 0 0 3px var(--gt-check-focus-ring);
+}
+
+/* Pressing gives way slightly. Only the square controls: squashing a pill
+ * reads as a glitch rather than as a press. */
+.gt-check:not(:disabled):active {
+    transform: scale(.88);
+}
+
+.gt-check:disabled,
+.gt-switch:disabled {
+    cursor: not-allowed;
+    background-color: var(--gt-check-disabled-bg);
+    border-color: var(--gt-check-disabled-border);
+}
+
+.gt-check:disabled:checked,
+.gt-check:disabled:indeterminate,
+.gt-switch:disabled:checked {
+    /* Still legible, but plainly inert. */
+    background-color: #b9c1c6;
+    border-color: #b9c1c6;
+}
+
+.gt-check:disabled ~ label,
+.gt-switch:disabled ~ label,
+label:has(> .gt-check:disabled),
+label:has(> .gt-switch:disabled) {
+    cursor: not-allowed;
+    opacity: .65;
+}
+
+/* Someone who asked the operating system to stop animations gets the end
+ * state, immediately -- not a slower version of it. */
+@media (prefers-reduced-motion: reduce) {
+    .gt-check,
+    .gt-switch {
+        transition: none;
+    }
+
+    .gt-check:not(:disabled):active {
+        transform: none;
+    }
+}

@@ -15,7 +15,51 @@ function convertFileToBase64(file) {
     });
 }
 
+/* Push every editor's content back into the textarea it replaced.
+ *
+ * TinyMCE edits inside an iframe and only writes back to its <textarea> when
+ * the form is submitted, through a hook it installs on the form itself. A form
+ * that is read by javascript instead of submitted -- which is every modal and
+ * every inline form here -- never fires that, so the textarea still holds
+ * whatever it had when the editor booted: usually nothing. The field then
+ * arrives empty and the server answers "this field cannot be blank" over a box
+ * with visible text in it.
+ */
+function flush_editors(form) {
+    if (typeof tinymce === 'undefined') {
+        return;
+    }
+    form.querySelectorAll('textarea[id]').forEach(function (textarea) {
+        var editor = tinymce.get(textarea.id);
+        if (editor) {
+            editor.save();
+        }
+    });
+}
+
+/* Put `value` into the editor that took over `textarea`, if there is one.
+ *
+ * The write path used to name two widgets, EditorTinymce and TextareaWysiwyg,
+ * so any other editor widget -- VoiceEditorTinymce, or one a project subclasses
+ * -- had its value written into a textarea nobody can see, and the form opened
+ * looking empty over data that was there. Asking TinyMCE whether it manages the
+ * element covers every variant, including ones that do not exist yet.
+ */
+function set_editor_content(inputfield, value) {
+    if (typeof tinymce === 'undefined') {
+        return false;
+    }
+    var editor = tinymce.get(inputfield.attr('id'));
+    if (!editor) {
+        return false;
+    }
+    editor.setContent(value === null || value === undefined ? '' : value);
+    return true;
+}
+
+
 async function obtainFormAsJSON(form, prefix = '', extras = {}, format = true) {
+    flush_editors(form);
     const fields = form.elements;
     const formData = {};
     // typeof variable === 'function'
@@ -119,12 +163,9 @@ function response_manage_type_data(instance, err_json_fn, error_text_fn) {
 }
 
 function clear_action_form(form) {
-    // clear switchery before the form reset so the check status doesn't get changed before the validation
-    $(form).find("input[data-switchery=true]").each(function () {
-        if ($(this).prop("checked")) {  // only reset it if it is checked
-            $(this).trigger("click").prop("checked", false);
-        }
-    });
+    // Switches used to need unwinding by hand here: switchery painted a
+    // <span> next to the input and a native form reset left that span behind.
+    // The switch is the input now, so reset repaints it on its own.
     $(form).find('[data-widget="TaggingInput"],[data-widget="EmailTaggingInput"]').each(function (i, e) {
         var tg = $(e).data().tagify;
         if(tg != undefined){
@@ -185,28 +226,17 @@ function updateInstanceValuesForm(form, name, value) {
             }
             done = true;
         } else if (inputfield.attr('type') === "radio") {
-            var is_icheck = inputfield.closest('.gtradio').length > 0;
             var sel = inputfield.filter(function () {
                 return this.value === value.toString()
             });
             if (sel.length > 0) {
                 sel.prop("checked", true);
-                if (is_icheck) {
-                    sel.iCheck('update');
-                    sel.iCheck('check');
-                }
-
             } else {
                 inputfield.prop("checked", false);
-                if (is_icheck) {
-                    inputfield.iCheck('update');
-                    inputfield.iCheck('uncheck');
-                }
             }
             done = true;
         }
-        if (inputfield.data().widget === "EditorTinymce" || inputfield.data().widget === "TextareaWysiwyg") {
-            tinymce.get(inputfield.attr('id')).setContent(value);
+        if (set_editor_content(inputfield, value)) {
             done = true;
         }
         if (inputfield.data().widget === "TaggingInput" || inputfield.data().widget === "EmailTaggingInput") {

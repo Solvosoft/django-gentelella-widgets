@@ -8,6 +8,7 @@ from djgentelella.async_notification.tests import AsyncNotificationTestBase
 from djgentelella.async_notification.models import (
     EmailNotification, NewsLetter, NewsLetterTask
 )
+from djgentelella.async_notification.sending import do_send_notification
 
 
 class ProcessNotificationsCommandTest(AsyncNotificationTestBase):
@@ -126,7 +127,6 @@ class ClaimIdempotencyTest(AsyncNotificationTestBase):
     """The atomic claim prevents a second concurrent send of the same row."""
 
     def test_send_skips_row_already_sending(self):
-        from djgentelella.async_notification.sending import do_send_notification
         n = EmailNotification.objects.create(
             subject='Racing', message='<p>x</p>', recipients=['a@b.com'],
             status='sending')

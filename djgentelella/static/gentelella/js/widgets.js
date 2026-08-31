@@ -25,6 +25,11 @@ document.gtwidgets = {
             getMediaRecord(e, 'audio');
         });
     },
+    VoiceDictation: function (instance) {
+        instance.each(function (i, e) {
+            getVoiceDictation(e);
+        });
+    },
     Select: function (instance) {
         instance.each(function (i, e) {
             let s2instance = $(e);
@@ -50,28 +55,27 @@ document.gtwidgets = {
             s2instance.select2(contexts2);
         });
     },
-    CheckboxInput: function (instance) {
-
-        var checkklass = instance.data('checkboxclass') || 'icheckbox_flat-green';
-        var radioklass = instance.data('radioclass') || 'iradio_flat-green';
-        instance.iCheck({
-            checkboxClass: checkklass,
-            radioClass: radioklass
+    TreeSelectMultiple: function (instance) {
+        instance.each(function (i, e) {
+            let s2instance = $(e);
+            let contexts2 = {templateResult: decore_select2};
+            extract_select2_context(contexts2, s2instance);
+            s2instance.select2(contexts2);
         });
     },
+    // CheckboxInput, NullBooleanSelect, RadioVerticalSelect and
+    // RadioHorizontalSelect have no initialiser any more: what they used to do
+    // here was hand the input to iCheck, and the .gt-check class their widgets
+    // stamp is drawn by gentelella/css/checks.css instead.
+    //
+    // They are still widgets, and their `data-widget` attribute still has to be
+    // on the element: it is how a widget is identified, how this registry
+    // dispatches, and what the code that reacts to a widget's events -- showing
+    // and hiding related sections, the delete checkbox of the upload widgets --
+    // looks for. Only the drawing changed.
     YesNoInput: function (instance) {
         instance.each(function (index, element) {
-            switchery = new Switchery(element, {color: '#26B99A'});
-            instance.data('switchery', switchery);
             showHideRelatedFormFields($(element));
-        });
-    },
-    NullBooleanSelect: function (instance) {
-        var checkklass = instance.data('checkboxclass') || 'icheckbox_flat-green';
-        var radioklass = instance.data('radioclass') || 'iradio_flat-green';
-        instance.iCheck({
-            checkboxClass: checkklass,
-            radioClass: radioklass
         });
     },
     DateRangeInput: function (instance) {
@@ -94,12 +98,6 @@ document.gtwidgets = {
     },
     DateRangeInputCustom: function (instance) {
         instance.daterangepicker(load_date_range_custom(instance));
-    },
-    RadioVerticalSelect: function (instance) {
-        instance.find('input').iCheck({radioClass: 'iradio_flat-green'});
-    },
-    RadioHorizontalSelect: function (instance) {
-        instance.find('input').iCheck({radioClass: 'iradio_flat-green'});
     },
     DateRangeTimeInput: function (instance) {
         instance.daterangepicker(load_datetime_range(instance));
@@ -131,7 +129,7 @@ document.gtwidgets = {
         autosize(instance);
         instance.each(function (i, e) {
             if ($(e).attr('maxlength') != undefined) {
-                $(e).maxlength({alwaysShow: true, warningClass: "label label-success"});
+                $(e).maxlength({alwaysShow: true, warningClass: 'badge text-bg-success'});
             }
         });
     },
@@ -225,53 +223,21 @@ document.gtwidgets = {
         instance.inputmask({"mask": "9999-9999-9999-9999"});
     },
     NumberKnobInput: function (instance) {
-        instance.knob();
+        instance.gt_knob();
     },
     TextareaWysiwyg: function (instance) {
         $(instance).removeAttr('required');
-        instance.tinymce({
-            menubar: false,
-            toolbar: 'undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist checklist | forecolor backcolor casechange permanentpen formatpainter removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media pageembed template link anchor codesample | a11ycheck ltr rtl | showcomments addcomment',
-            plugins: ['autolink', 'codesample', 'link', 'lists', 'media', 'quickbars', "advlist autolink lists link image charmap print preview anchor",
-                "searchreplace visualblocks code fullscreen", "insertdatetime media table paste imagetools wordcount",
-                "autoresize", "hr", "image",
-            ],
-            quickbars_insert_toolbar: 'quicktable | hr pagebreak',
-            file_picker_callback: function (callback, value, meta) {
-                var input = document.createElement('input');
-                input.setAttribute('type', 'file');
-                input.setAttribute('accept', 'image/*');
-                input.onchange = function () {
-                    var file = this.files[0];
-                    upload_files(callback, meta, file, instance.attr('data-option-image'),
-                        instance.attr('data-option-video'));
-                };
-                input.click();
-            },
-        });
+        gentelella_tinymce_init(instance, gentelella_tinymce_config(instance));
     },
 
     EditorTinymce: function (instance) {
         $(instance).removeAttr('required');
-        instance.tinymce({
-            menubar: false,
-            toolbar: 'undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist checklist | forecolor backcolor casechange permanentpen formatpainter removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media pageembed template link anchor codesample | a11ycheck ltr rtl | showcomments addcomment',
-            plugins: ['autolink', 'codesample', 'link', 'lists', 'media', 'quickbars', "advlist autolink lists link image charmap print preview anchor",
-                "searchreplace visualblocks code fullscreen", "insertdatetime media table paste imagetools wordcount",
-                "autoresize", "hr", "image",
-            ],
-            quickbars_insert_toolbar: 'quicktable | hr pagebreak',
-            file_picker_callback: function (callback, value, meta) {
-                var input = document.createElement('input');
-                input.setAttribute('type', 'file');
-                input.setAttribute('accept', 'image/*');
-                input.onchange = function () {
-                    var file = this.files[0];
-                    upload_files(callback, meta, file, instance.attr('data-option-image'),
-                        instance.attr('data-option-video'));
-                };
-                input.click();
-            },
+        gentelella_tinymce_init(instance, gentelella_tinymce_config(instance));
+    },
+
+    VoiceEditorTinymce: function (instance) {
+        instance.each(function (i, e) {
+            build_voice_editor_tinymce($(e));
         });
     },
 
@@ -284,11 +250,11 @@ document.gtwidgets = {
     DJGraph: function (instance) {
         instance.gentelella_chart();
     },
-    NullBooleanSelect: function (instance) {
-        instance.iCheck({
-            checkboxClass: 'icheckbox_flat-green',
-            radioClass: 'iradio_flat-green'
-        });
+    DJMap: function (instance) {
+        instance.gentelella_map();
+    },
+    MapPointInput: function (instance) {
+        build_map_point(instance);
     },
     UrlTimeLineInput: function (instance) {
         build_timeline(instance);
@@ -321,6 +287,9 @@ document.gtwidgets = {
             build_cors_headers(e);
         });
     },
+    PDFViewerWidget: function (instance) {
+        instance.pdfviewerwidget();
+    },
 
 }
 
@@ -337,6 +306,11 @@ function gt_find_initialize(instance) {
     var autocomplete = instance.find(textautocomplete);
     if (autocomplete.length > 0) {
         document.gtwidgets['GTAutocompleteSelect'](autocomplete);
+    }
+    // Friconix scans only once, on page load. Anything built after that -- this
+    // subtree included -- keeps its icons as empty <i> without a rescan.
+    if (typeof gt_friconix_refresh === 'function') {
+        gt_friconix_refresh();
     }
 }
 function gt_find_initialize_from_dom(instance) {

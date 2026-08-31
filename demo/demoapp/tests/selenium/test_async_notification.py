@@ -7,13 +7,14 @@ This exercises the full user-facing stack: auth/permissions, the ObjectCRUD
 modal, TinyMCE, the DRF create serializer (single-email coercion), the
 post-save signal, SMTP, and delivery.
 
-Tagged ``selenium`` (organilab convention): excluded from the default suite
-(``--exclude-tag=selenium``) and run with ``--tag=selenium``. Requires
-selenium, a chromium/chromedriver, and a running MailHog (SMTP :1025,
-API :8025); skips cleanly at setUpClass when any is missing. Run with:
+Tagged ``selenium``, so the default suite (``--exclude-tag=selenium``) never
+starts a browser. On top of what :class:`SeleniumTestCase` already needs
+(selenium, chromium + chromedriver) this one also wants a running MailHog
+(SMTP :1025, API :8025); it skips cleanly at ``setUpClass`` when MailHog is
+unreachable. Run with::
 
     make mailhog          # start the receiver
-    make test-selenium    # python manage.py test --tag=selenium
+    make test-selenium    # everything tagged selenium, inside Xvfb
 """
 
 import json
@@ -22,13 +23,11 @@ import time
 import unittest
 import urllib.request
 
-from django.contrib.auth import get_user_model
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import override_settings, tag
 
+from .base import EC, By, SeleniumTestCase
+
 MAILHOG_API = os.getenv('MAILHOG_API', 'http://localhost:8025')
-CHROMEDRIVER = os.getenv('CHROMEDRIVER', '/usr/bin/chromedriver')
-CHROMIUM = os.getenv('CHROME_BIN', '/usr/bin/chromium')
 
 
 def _mailhog_up():
@@ -45,48 +44,19 @@ def _mailhog_up():
     EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend',
     EMAIL_HOST='localhost', EMAIL_PORT='1025',
     DEFAULT_FROM_EMAIL='no-reply@example.com')
-class ComposeEmailBrowserTest(StaticLiveServerTestCase):
+class ComposeEmailBrowserTest(SeleniumTestCase):
     SUBJECT = '[SEL] Compose via browser'
 
     @classmethod
     def setUpClass(cls):
-        # Lazy requirement checks so the default suite never probes MailHog.
-        try:
-            from selenium import webdriver
-            from selenium.webdriver.chrome.options import Options
-            from selenium.webdriver.chrome.service import Service
-        except ImportError:
-            raise unittest.SkipTest('selenium not installed')
-        if not os.path.exists(CHROMEDRIVER):
-            raise unittest.SkipTest(f'chromedriver not at {CHROMEDRIVER}')
+        # Probed before super(), which is where the browser starts: the default
+        # suite must never reach MailHog and a missing receiver must not cost a
+        # driver launch.
         if not _mailhog_up():
             raise unittest.SkipTest(f'MailHog not reachable at {MAILHOG_API}')
-
         super().setUpClass()
-        opts = Options()
-        opts.add_argument('--headless=new')
-        opts.add_argument('--no-sandbox')
-        opts.add_argument('--disable-dev-shm-usage')
-        opts.add_argument('--window-size=1400,1000')
-        if os.path.exists(CHROMIUM):
-            opts.binary_location = CHROMIUM
-        cls.driver = webdriver.Chrome(
-            service=Service(CHROMEDRIVER), options=opts)
-        cls.driver.implicitly_wait(2)
 
-    @classmethod
-    def tearDownClass(cls):
-        if hasattr(cls, 'driver'):
-            cls.driver.quit()
-        super().tearDownClass()
-
-    def setUp(self):
-        User = get_user_model()
-        u = User.objects.create_user(
-            username='admin', email='admin@example.com',
-            password='admin12345')
-        u.is_superuser = u.is_staff = True
-        u.save()
+    def setup_data(self):
         self._mh_reset()
 
     # -- MailHog helpers -----------------------------------------------------
@@ -104,36 +74,26 @@ class ComposeEmailBrowserTest(StaticLiveServerTestCase):
 
     # -- test ----------------------------------------------------------------
     def test_compose_and_send_email(self):
-        from selenium.webdriver.common.by import By
-        from selenium.webdriver.support.ui import WebDriverWait
-        from selenium.webdriver.support import expected_conditions as EC
-
         d = self.driver
-        wait = WebDriverWait(d, 25)
 
-        # Login (protected page -> login form -> back to the page).
-        d.get(f'{self.live_server_url}/async_notification/email-notifications/')
-        wait.until(EC.presence_of_element_located((By.NAME, 'username')))
-        d.find_element(By.NAME, 'username').send_keys('admin')
-        d.find_element(By.NAME, 'password').send_keys('admin12345')
-        d.find_element(
-            By.CSS_SELECTOR, 'button[type=submit], input[type=submit]').click()
-
-        wait.until(EC.presence_of_element_located((By.ID, 'datatable')))
+        self.go('/async_notification/email-notifications/')
+        self.wait.until(EC.presence_of_element_located((By.ID, 'datatable')))
         self.assertFalse(d.find_elements(By.NAME, 'username'),
                          'login did not succeed')
-        wait.until(lambda drv: drv.execute_script(
+        self.wait_js(
             "return typeof tinymce!=='undefined' "
-            "&& tinymce.get('id_create-message')!=null"))
+            "&& tinymce.get('id_create-message')!=null")
 
-        # Compose through the modal, as the user would.
-        d.execute_script(
+        # Compose through the modal, as the user would. Without a
+        # triggerSave(): a modal is read by javascript rather than submitted,
+        # so flushing the editor is the form serializer's job, and doing it
+        # here would hide it going missing.
+        self.js(
             "new bootstrap.Modal('#create_modal').show();"
             "$('[name=create-subject]').val(arguments[0]);"
             "$('[name=create-recipients]').val('browser@example.com');"
             "tinymce.get('id_create-message')"
             ".setContent('<p>Enviado desde el navegador</p>');"
-            "tinymce.triggerSave();"
             "$('#id_create-enqueued').prop('checked', false)"
             ".trigger('change');",
             self.SUBJECT)

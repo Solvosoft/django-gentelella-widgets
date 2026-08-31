@@ -1,8 +1,28 @@
 include README.rst
+include CHANGELOG.rst
 include LICENSE.txt
+include AUTHORS
 include requirements.txt
-recursive-include djgentelella/templates *
-recursive-include djgentelella/static *
-recursive-include djgentelella/locale *
-recursive-include djgentelella/blog/templates *
-recursive-include djgentelella/blog/static *
+
+# Everything the package ships that is not python: the templates/, static/ and
+# locale/ trees of djgentelella itself and of every subpackage. Grafting the
+# whole package instead of listing each tree one by one means a new module
+# (blog, async_notification, voice, ...) cannot reach a release without its
+# templates. Listing them by hand had already left async_notification's 26
+# template and static files out of the build, which would have been its first
+# release and would have raised TemplateDoesNotExist on every one of its pages.
+graft djgentelella
+
+# ...but the graft also sweeps up the test suites, and with
+# include-package-data they land in the wheel whatever
+# [tool.setuptools.packages.find] excludes. They are written against the demo
+# project, so `import djgentelella.tests` on an installed copy dies with
+# ModuleNotFoundError: demoapp. build_check.py fails the build if a new module
+# adds a tests/ directory that is not pruned here.
+prune djgentelella/tests
+prune djgentelella/blog/tests
+prune djgentelella/async_notification/tests
+
+global-exclude *.py[cod]
+global-exclude *~
+prune djgentelella/**/__pycache__

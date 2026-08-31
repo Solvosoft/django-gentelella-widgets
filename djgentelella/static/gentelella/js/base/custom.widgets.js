@@ -7,9 +7,8 @@ $.fn.listcrudrest = function(){
        del_btn =  $this.find('.gencruddel'),
        def_url = del_btn.data('href'),
        list = $this.find('.gencrudlist');
-    var template = '<li> <p><div class="icheckbox_flat-green"  >'+
-       '<input type="checkbox" class="flat gencrudcheck" name="__ID__" >'+
-       '<ins class="iCheck-helper" ></ins></div> __DESCRIPTION__</p></li>';
+    var template = '<li> <p><input type="checkbox" class="gt-check gencrudcheck"'+
+       ' name="__ID__"> __DESCRIPTION__</p></li>';
 
 
     var update_list = function(result){
@@ -19,10 +18,6 @@ $.fn.listcrudrest = function(){
             '__DESCRIPTION__', result[x].name);
         }
 
-        list.find('input').iCheck({
-            checkboxClass: 'icheckbox_flat-green',
-            radioClass: 'iradio_flat-green'
-        });
         list.html(html);
     }
     $(btn).on('click', function(){

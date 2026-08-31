@@ -1558,25 +1558,6 @@ table.countries_list td {
 	border-top: 1px solid #eeeeee
 }
 
-.dataTables_paginate a {
-	padding: 6px 9px !important;
-	background: #ddd !important;
-	border-color: #ddd !important
-}
-
-.paging_full_numbers a.paginate_active {
-	background-color: rgba(38, 185, 154, 0.59) !important;
-	border-color: rgba(38, 185, 154, 0.59) !important
-}
-
-button.DTTT_button,
-div.DTTT_button,
-a.DTTT_button {
-	border: 1px solid #E7E7E7 !important;
-	background: #E7E7E7 !important;
-	box-shadow: none !important
-}
-
 table.jambo_table {
 	border: 1px solid rgba(221, 221, 221, 0.78)
 }
@@ -1601,17 +1582,13 @@ table.jambo_table tbody tr.selected td {
 	border-bottom: 1px solid rgba(38, 185, 154, 0.4)
 }
 
-.dataTables_paginate a {
-	background: #ff0000
-}
-
-.dataTables_wrapper {
+.dt-container {
 	position: relative;
 	clear: both;
 	zoom: 1
 }
 
-.dataTables_processing {
+.dt-processing {
 	position: absolute;
 	top: 50%;
 	left: 50%;
@@ -1627,87 +1604,26 @@ table.jambo_table tbody tr.selected td {
 	background-color: white
 }
 
-.dataTables_length {
-	width: 40%;
-	float: left
-}
-
-.dataTables_filter {
-	width: 50%;
-	float: right;
-	text-align: right
-}
-
-.dataTables_info {
-	width: 60%;
-	float: left
-}
-
-.dataTables_paginate {
-	float: right;
-	text-align: right
-}
-
 table.dataTable th.focus,
 table.dataTable td.focus {
 	outline: 2px solid #1ABB9C !important;
 	outline-offset: -1px
 }
 
-table.display {
-	margin: 0 auto;
-	clear: both;
-	width: 100%
-}
-
-table.display thead th {
-	padding: 8px 18px 8px 10px;
-	border-bottom: 1px solid black;
-	font-weight: bold;
-	cursor: pointer
-}
-
-table.display tfoot th {
-	padding: 3px 18px 3px 10px;
-	border-top: 1px solid black;
-	font-weight: bold
-}
-
-table.display tr.heading2 td {
-	border-bottom: 1px solid #aaa
-}
-
-table.display td {
-	padding: 3px 10px
-}
-
-table.display td.center {
-	text-align: center
-}
-
-table.display thead th:active,
-table.display thead td:active {
-	outline: none
-}
-
-.dataTables_scroll {
+.dt-scroll {
 	clear: both
 }
 
-.dataTables_scrollBody {
+.dt-scroll-body {
 	*margin-top: -1px;
 	-webkit-overflow-scrolling: touch
-}
-
-.top .dataTables_info {
-	float: none
 }
 
 .clear {
 	clear: both
 }
 
-.dataTables_empty {
+.dt-empty {
 	text-align: center
 }
 
@@ -1730,55 +1646,6 @@ td.group {
 td.details {
 	background-color: #d1cfd0;
 	border: 2px solid #A19B9E
-}
-
-.example_alt_pagination div.dataTables_info {
-	width: 40%
-}
-
-.paging_full_numbers {
-	width: 400px;
-	height: 22px;
-	line-height: 22px
-}
-
-.paging_full_numbers a:active {
-	outline: none
-}
-
-.paging_full_numbers a:hover {
-	text-decoration: none
-}
-
-.paging_full_numbers a.paginate_button,
-.paging_full_numbers a.paginate_active {
-	border: 1px solid #aaa;
-	-webkit-border-radius: 5px;
-	-moz-border-radius: 5px;
-	padding: 2px 5px;
-	margin: 0 3px;
-	cursor: pointer
-}
-
-.paging_full_numbers a.paginate_button {
-	background-color: #ddd
-}
-
-.paging_full_numbers a.paginate_button:hover {
-	background-color: #ccc;
-	text-decoration: none !important
-}
-
-.paging_full_numbers a.paginate_active {
-	background-color: #99B3FF
-}
-
-table.display tr.even.row_selected td {
-	background-color: #B0BED9
-}
-
-table.display tr.odd.row_selected td {
-	background-color: #9FAFD1
 }
 
 div.box {
@@ -4443,16 +4310,6 @@ div[data-role="editor-toolbar"] {
 	border: 1px solid #ccc
 }
 
-.switchery {
-	width: 32px;
-	height: 20px
-}
-
-.switchery>small {
-	width: 20px;
-	height: 20px
-}
-
 fieldset {
 	border: none;
 	margin: 0;
@@ -5043,21 +4900,11 @@ ul.notifications {
 }
 
 @media (max-width: 460px) {
-	.dataTables_wrapper .col-sm-6 {
+	.dt-container .col-sm-6 {
 		width: 100%;
 		margin-bottom: 5px;
 	}
-	.dataTables_wrapper .col-sm-6 .dataTables_filter {
-		float: none;
-	}
 }
-
-@media (max-width: 767px) {
-	.dataTables_length {
-		float: none;
-	}
-}
-
 
 /* CSS3 Checkbox */
 
@@ -5105,7 +4952,7 @@ ul.notifications {
 	width: 228px;
 }
 
-.dataTables_wrapper>.row {
+.dt-container>.row {
 	overflow: auto !important;
 	/*prevent datatables overflowing its container*/
 }
@@ -5147,14 +4994,19 @@ ul.notifications {
 	height: calc(2.5em + 0.75rem + 2px);
 }
 
-.l2 {
-	padding-left: 0.2em;
-	color: #1abb9c;
-}
-
-.l3 {
-	padding-left: 2em;
-}
+/* Tree select indentation, one step per depth level.
+   Set by gentelella/widgets/tree_select_option.html on each <option> and
+   copied to the select2 result by decore_select2. */
+.l0 { padding-left: 0; }
+.l1 { padding-left: 1em; }
+.l2 { padding-left: 2em; }
+.l3 { padding-left: 3em; }
+.l4 { padding-left: 4em; }
+.l5 { padding-left: 5em; }
+.l6 { padding-left: 6em; }
+.l7 { padding-left: 7em; }
+.l8 { padding-left: 8em; }
+.l9 { padding-left: 9em; }
 
 h1 {
 	color: #f58a1e;
@@ -5386,4 +5238,11 @@ div.form-group {
 
 *::-webkit-scrollbar-track {
   background: transparent;
+}
+
+/* The help panel's empty state: what to do when there is no help yet. It is
+   markup rather than javascript so it is translated with the rest of the
+   template, and it steps aside the moment a real entry is listed. */
+#helper-body:has(.helperitem) .helper-empty {
+    display: none;
 }

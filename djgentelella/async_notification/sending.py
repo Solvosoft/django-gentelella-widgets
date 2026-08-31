@@ -19,6 +19,8 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.html import strip_tags
 
+from djgentelella.async_notification.backends import get_backend
+from djgentelella.async_notification.interfaces import get_basemodel_info
 from djgentelella.async_notification.models import (
     EmailNotification, EmailTemplate, AttachedFile,
     NewsLetterTask, suppressed_emails, consented_emails,
@@ -298,8 +300,6 @@ def _reschedule_retry(notification):
     The Celery backend re-enqueues with a countdown; the sync backend is a
     no-op because the cron command picks pending notifications up again.
     """
-    from djgentelella.async_notification.backends import get_backend
-
     backend = get_backend()
     retry = getattr(backend, 'retry', None)
     if callable(retry):
@@ -440,8 +440,6 @@ def compute_newsletter_recipients(newsletter):
     Returns:
         Deduplicated list of email addresses.
     """
-    from djgentelella.async_notification.interfaces import get_basemodel_info
-
     recipients = resolve_all_recipients(newsletter.recipients)
 
     template = newsletter.template

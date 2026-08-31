@@ -6,26 +6,25 @@ from django.utils.translation import gettext_lazy as _
 from djgentelella.firmador_digital.forms import SignatureConfigForm
 from djgentelella.firmador_digital.models import UserSignatureConfig
 
+
 @login_required
 def update_signature_settings(request):
 
     config, is_created = UserSignatureConfig.objects.get_or_create(user=request.user)
 
-
-    if request.method == "POST":
-        form = SignatureConfigForm(request.POST, request.FILES, instance=config, render_type="as_grid")
+    if request.method == 'POST':
+        form = SignatureConfigForm(
+            request.POST, request.FILES, instance=config, render_type='as_grid'
+        )
         if form.is_valid():
             form.save()
-            messages.success(request, _("Updated signature settings successfully."))
-            return redirect("signature_config")
+            messages.success(request, _('Updated signature settings successfully.'))
+            return redirect('signature_config')
     else:
-        form = SignatureConfigForm(instance=config, render_type="as_grid")
-
+        form = SignatureConfigForm(instance=config, render_type='as_grid')
 
     return render(
         request,
-        "gentelella/digital_signature/update_signature_settings.html",
-        context={
-            "form": form
-        }
+        'gentelella/digital_signature/update_signature_settings.html',
+        context={'form': form},
     )

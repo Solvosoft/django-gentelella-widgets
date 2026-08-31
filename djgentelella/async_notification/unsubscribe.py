@@ -38,7 +38,9 @@ def _base_url():
     if ASYNC_NOTIFICATION_BASE_URL:
         return ASYNC_NOTIFICATION_BASE_URL.rstrip('/')
     try:
-        from django.contrib.sites.models import Site
+        # django.contrib.sites is optional; a project without it falls back
+        # to the empty base URL below.
+        from django.contrib.sites.models import Site  # noqa: PLC0415
         return f'https://{Site.objects.get_current().domain}'
     except Exception:
         return ''

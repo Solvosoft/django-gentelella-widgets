@@ -144,10 +144,22 @@ ManyToMany relationship with queryset filtering.
         )
 
 
-Tree Fields (MPTT Support)
+Tree Fields
 ----------------------------
 
-Form fields for working with tree-structured data using MPTT.
+Form fields for working with tree-structured data, built on `django-tree-queries`_.
+The model must inherit from ``tree_queries.models.TreeNode``.
+
+Each option is rendered indented by its depth in the tree: the option gets a
+``l<depth>`` CSS class, and options on a disabled level are rendered as
+``disabled``. The fields default to the ``TreeSelect`` / ``TreeSelectMultiple``
+widgets, which provide the templates doing that.
+
+.. _django-tree-queries: https://github.com/matthiask/django-tree-queries
+
+.. note:: The depth comes from ``tree_depth``, which django-tree-queries only
+   annotates on querysets that went through ``with_tree_fields()``. The fields
+   call it for you, so a plain ``Model.objects.all()`` is fine.
 
 GentelellaTreeNodeChoiceField
 """""""""""""""""""""""""""""""
@@ -158,7 +170,7 @@ A select field for choosing a single node from a tree structure.
 
     from django import forms
     from djgentelella.fields.tree import GentelellaTreeNodeChoiceField
-    from myapp.models import Category  # MPTT model
+    from myapp.models import Category  # inherits from TreeNode
 
     class ProductForm(forms.Form):
         category = GentelellaTreeNodeChoiceField(
@@ -170,7 +182,9 @@ A select field for choosing a single node from a tree structure.
 
 **Parameters:**
 
-- ``disable0``, ``disable1``, ``disable2``, etc. - Disable selection for specific tree levels
+- ``disable0``, ``disable1``, ``disable2``, ... - Disable selection for the given
+  tree level. Any depth is accepted, and only a truthy value disables the level,
+  so ``disable1=False`` leaves level 1 selectable.
 
 GentelellaTreeNodeMultipleChoiceField
 """""""""""""""""""""""""""""""""""""""

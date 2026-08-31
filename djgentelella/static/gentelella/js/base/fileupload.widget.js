@@ -1,32 +1,5 @@
 $.fn.fileuploadwidget = function(){
-    var md5 = "",
-    csrf = getCookie('csrftoken'),
-    form_data = [{"name": "csrfmiddlewaretoken", "value": csrf}];
-    function calculate_md5(file, chunk_size) {
-        var slice = File.prototype.slice || File.prototype.mozSlice || File.prototype.webkitSlice,
-          chunks = chunks = Math.ceil(file.size / chunk_size),
-          current_chunk = 0,
-          spark = new SparkMD5.ArrayBuffer();
-        function onload(e) {
-            spark.append(e.target.result);  // append chunk
-            current_chunk++;
-            if (current_chunk < chunks) {
-                read_next_chunk();
-            } else {
-                md5 = spark.end();
-            }
-        };
-        function read_next_chunk() {
-            var reader = new FileReader();
-            reader.onload = onload;
-            var start = current_chunk * chunk_size,
-            end = Math.min(start + chunk_size, file.size);
-            reader.readAsArrayBuffer(slice.call(file, start, end));
-        };
-        read_next_chunk();
-        }
-
-
+    var csrf = getCookie('csrftoken');
     $.each($(this), function(i, e){
             var $this=$(e);
             var $parentdiv=$this.closest('.fileupload');
@@ -46,7 +19,8 @@ $.fn.fileuploadwidget = function(){
                     default_value: "",
                     fileshow: $parentdiv.find('.fileshow'),
                     uploadfilecontent: $parentdiv.find('.uploadfilecontent'),
-                    removecheck: $this.closest('.fileupload').find('input[data-widget="CheckboxInput"]'),
+                    removecheck: $this.closest('.fileupload').find(
+                        'input[data-widget="CheckboxInput"]'),
                     change_fn: function(e){
                         var parent=e;
                         return function(event){
@@ -104,6 +78,13 @@ $.fn.fileuploadwidget = function(){
                             parent.show_eyes();
                         }
                     },
+                    set_progress: function(percent){
+                        // A percentage inside a 3rem chip was the only sign an
+                        // upload was running; the bar reads it from here.
+                        $parentdiv.toggleClass('gt-uploading', percent < 100);
+                        $parentdiv[0].style.setProperty(
+                            '--gt-upload-progress', percent + '%');
+                    },
                     change_icon_file_show: function(touseclass){
                         this.fileshow.find('i').removeClass();
                         this.fileshow.find('i').addClass(touseclass);
@@ -123,7 +104,7 @@ $.fn.fileuploadwidget = function(){
                        if(this.default_value !== ""){
                             this.input_field.trigger('change');
                        }
-                       this.removecheck.on('ifToggled', function(event){
+                       this.removecheck.on('change', function(event){
                            let current_data=JSON.parse(parent.input_field.val());
                            if(this.checked){
                                 current_data['actions']="delete";
@@ -132,60 +113,38 @@ $.fn.fileuploadwidget = function(){
                            }
                            parent.input_field.val(JSON.stringify(current_data));
                        });
-                       $this.fileupload({
-                                  url: parent.upload_url,
-                                  dataType: "json",
-                                  maxChunkSize: 100000, // Chunks of 100 kB
-                                  formData: form_data,
-                                  dropZone: $this,
-                                  add: function(e, data) { // Called before starting upload
-
-                                    parent.div_message.empty();
-                                    // If this is the second file you're uploading we need to remove the
-                                    // old upload_id and just keep the csrftoken (which is always first).
-                                    form_data.splice(1);
-                                    calculate_md5(data.files[0], 100000);  // Again, chunks of 100 kB
-                                    data.paramName='file';
-                                    data.submit();
-                                    parent.uploadfilecontent.hide();
-                                    parent.div_message.show();
-                                    parent.div_message.html(data.files[0].name);
-                                  },
-                                  chunkdone: function (e, data) { // Called after uploading each chunk
-                                    if (form_data.length < 2) {
-                                      form_data.push(
-                                        {"name": "upload_id", "value": data.result.upload_id}
-                                      );
-                                    }
-                                     var progress = parseInt(data.loaded / data.total * 100.0, 10);
-                                    parent.div_process.text(  progress + "%");
-                                  }
-                                }).bind('fileuploaddone', function (e, data) {
-                                        parent.input_field.val(JSON.stringify(
-                                        {'token': data.result.upload_id,
-                                        'display_name': data.files[0].name }));
-                                        parent.input_field.trigger('change');
-                                        $.ajax({
-                                              type: "POST",
-                                              url: parent.url_done,
-                                              data: {
-                                                csrfmiddlewaretoken: csrf,
-                                                upload_id: data.result.upload_id,
-                                                md5: md5
-                                              },
-                                              dataType: "json",
-                                              success: function(data) {
-                                                parent.div_process.html(' <i class="fa fa-check"></i>');
-                                              }
-                                        });
-                                   }).bind('fileuploadchunkfail', function (e, data) {
-                                   parent.resetEmpty();
-                                   Swal.fire(
-                                            gettext('Problem in the Internet?'),
-                                            data.errorThrown,
-                                            'error'
-                                            );
-                                   });
+                       $this.on('change', function () {
+                           var file = this.files && this.files[0];
+                           if (!file) { return; }
+                           parent.div_message.empty();
+                           parent.uploadfilecontent.hide();
+                           parent.div_message.show();
+                           parent.div_message.html(file.name);
+                           gt_chunked_upload({
+                               file: file,
+                               url: parent.upload_url,
+                               done_url: parent.url_done,
+                               csrf: csrf,
+                               onprogress: function (percent) {
+                                   parent.div_process.text(percent + '%');
+                                   parent.set_progress(percent);
+                               }
+                           }).then(function (upload_id) {
+                               parent.set_progress(100);
+                               parent.input_field.val(JSON.stringify(
+                                   {'token': upload_id, 'display_name': file.name}));
+                               parent.input_field.trigger('change');
+                               parent.div_process.html(' <i class="fa fa-check"></i>');
+                           }).catch(function (error) {
+                               parent.set_progress(100);
+                               parent.resetEmpty();
+                               Swal.fire(
+                                   gettext('Problem in the Internet?'),
+                                   error.message,
+                                   'error'
+                               );
+                           });
+                       });
                        },
                     resetEmpty: function(){
                         this.div_message.html("");

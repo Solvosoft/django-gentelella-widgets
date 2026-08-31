@@ -7,8 +7,15 @@ Requirements
 --------------
 
 - Python 3.11 or higher
-- Django 4.2 or higher
-- Django REST Framework
+- Django 5.2 or higher (the current LTS)
+
+These are pulled in automatically as dependencies:
+
+- ``djangorestframework>=3.15.2``
+- ``django_filter>=22.1``
+- ``django-tree-queries>=0.11.0``
+- ``Pillow``
+- ``pycryptodome>=3.23.0``
 
 Basic Installation
 --------------------
@@ -18,6 +25,45 @@ Install from PyPI:
 .. code:: bash
 
     pip install djgentelella
+
+Optional extras
+"""""""""""""""""
+
+.. code:: bash
+
+    pip install djgentelella[firmador]     # digital signature over websockets
+    pip install djgentelella[celery]       # queue-backed async_notification dispatch
+    pip install djgentelella[asr]          # voice dictation transcribed in-process
+    pip install djgentelella[asr-remote]   # voice dictation transcribed elsewhere
+    pip install djgentelella[dev]          # asset bundling and minification (pylp)
+
+The two ``asr`` extras back the voice dictation widgets, and you need at most
+one of them. The widgets themselves ship with the package; only
+``VoiceTranscribeView`` needs a speech recognition backend, and it imports it
+lazily, so a plain install neither pulls nor loads any of this.
+
+- ``asr`` is the ``local`` backend: Parakeet-v3 running in the Django process
+  through ``onnx-asr``, with ``av`` decoding the uploaded audio. It is the heavy
+  one — the first request downloads a ~670 MB model from Hugging Face.
+- ``asr-remote`` is the ``remote`` backend, which forwards the audio to an
+  external ASR API and therefore needs nothing but an HTTP client.
+
+Without the matching extra the endpoint answers ``501`` naming the one to
+install, so a missing extra is a clear error and never an import failure.
+
+The ``celery`` extra is genuinely optional: ``async_notification`` autodetects
+it. With Celery installed **and** ``CELERY_BROKER_URL`` set, notifications are
+dispatched through the queue; otherwise they fall back to ``SyncBackend`` and
+are sent in-process. Nothing to configure either way — set
+``ASYNC_NOTIFICATION_BACKEND`` only to force one explicitly.
+
+The ``firmador`` extra covers two separate concerns:
+
+- ``channels`` and ``wsproto`` — the signing websocket and its session
+  authentication. Only the digital signature module needs them.
+- ``uvicorn`` and ``uvicorn-worker`` — serving the ASGI application. Any async
+  Django deployment needs an ASGI server, not just digital signature. Replace
+  them with your own if you already deploy under a different one.
 
 Configuration
 ---------------
@@ -31,21 +77,33 @@ Add the following to your ``INSTALLED_APPS`` in ``settings.py``:
 
     INSTALLED_APPS = [
         # Django apps...
+        'django.contrib.admin',
         'django.contrib.staticfiles',
 
         # Required apps
         'djgentelella',
         'rest_framework',
-        'markitup',
 
         # Optional apps (add as needed)
         'djgentelella.blog',
-        'djgentelella.permission_management',
-        'djgentelella.notification',
-        'djgentelella.chunked_upload',
+        'djgentelella.async_notification',
 
         # Your apps...
     ]
+
+``django.contrib.admin`` is not optional: the change tracking in
+``djgentelella.history`` records through ``django.contrib.admin.models.LogEntry``,
+which ``djgentelella/models.py`` imports at module level. Without it the project
+fails at startup with ``Model class django.contrib.admin.models.LogEntry doesn't
+declare an explicit app_label and isn't in an application in INSTALLED_APPS``.
+
+Only ``djgentelella.blog`` and ``djgentelella.async_notification`` are separate
+Django apps — they are the two that ship their own models, migrations, templates
+and static. The rest of the subpackages (``notification``,
+``permission_management``, ``chunked_upload``, ``trash``, ``history``, ``voice``,
+``firmador_digital``) are plain Python modules: their models, when they have any,
+belong to the ``djgentelella`` app and migrate with it, and their views are wired
+through ``djgentelella.urls``. Adding them to ``INSTALLED_APPS`` does nothing.
 
 2. Required Settings
 """"""""""""""""""""""
@@ -54,9 +112,6 @@ Add these required settings:
 
 .. code:: python
 
-    # Markitup configuration (for WYSIWYG editor)
-    MARKITUP_FILTER = ('markdown.markdown', {'safe_mode': True})
-    MARKITUP_SET = 'markitup/sets/markdown/'
     JQUERY_URL = None
 
 3. Recommended Settings
@@ -159,7 +214,12 @@ For digital document signing with Firmador Libre:
 
 .. code:: bash
 
-    pip install channels uvicorn
+    pip install djgentelella[firmador]
+
+This pulls ``channels`` and ``wsproto`` for the signing websocket,
+``django-cors-headers``, and ``uvicorn`` + ``uvicorn-worker`` to serve the ASGI
+application. The steps below assume the uvicorn worker; if you already run
+another ASGI server, keep it and skip ``asgi_worker.py``.
 
 2. Add to ``INSTALLED_APPS``:
 
@@ -296,7 +356,6 @@ You can configure default JavaScript imports in settings:
 
     DEFAULT_JS_IMPORTS = {
         'use_readonlywidgets': True,
-        'use_flags': True
     }
 
 

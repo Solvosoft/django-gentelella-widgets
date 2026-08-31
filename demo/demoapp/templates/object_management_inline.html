@@ -1,0 +1,85 @@
+{% extends 'gentelella/base.html' %}
+{% load i18n %}
+{% load static %}
+{% load urlname_tags %}
+
+{% block pre_head %}
+{% define_urlname_action 'object_management_inline' %}
+{% endblock %}
+
+{% block content %}
+<div class="row">
+	<div class="offset-md-2 col-md-8">
+		<div class="page-header" align="center">
+			<h3 class="heading-1"><span>{% trans 'Notes of' %} {{ parent }}</span></h3>
+			<a href="{% url 'object_management_index' %}">{% trans 'Back to objects' %}</a>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<table class="table table-striped w-100" id="note_table"></table>
+</div>
+
+{% url "api-objectmanagement-note-list" parent.pk as create_note_url %}
+{% trans 'Create Note' as create_note_title %}
+{% include 'gentelella/blocks/modal_template.html' with form=create_form id="create_note_modal" title=create_note_title form_id="create_note_form" url=create_note_url %}
+
+{% url "api-objectmanagement-note-detail" parent.pk 0 as update_note_url %}
+{% trans 'Update Note' as update_note_title %}
+{% include 'gentelella/blocks/modal_template.html' with form=update_form id="update_note_modal" title=update_note_title form_id="update_note_form" url=update_note_url %}
+
+{% include 'gentelella/blocks/modal_template_detail.html' with id="detail_note_modal" %}
+
+{% trans 'Delete Note' as delete_note_title %}
+{% include 'gentelella/blocks/modal_template_delete.html' with id="delete_note_modal" title=delete_note_title form_id="delete_note_form" url=update_note_url %}
+
+{% endblock %}
+
+{% block js %}
+{{block.super}}
+<script>
+
+	// Every URL is already scoped to the parent object, so the inline CRUDAL
+	// needs no extra wiring: the viewset filters and assigns the FK itself.
+	var note_urls = {
+		list_url: "{% url 'api-objectmanagement-note-list' parent.pk %}",
+		destroy_url: "{{ update_note_url }}",
+		detail_url: "{{ update_note_url }}",
+		detail_template_url: "{% url 'api-objectmanagement-note-detail-template' parent.pk %}",
+		get_values_for_update_url: "{% url 'api-objectmanagement-note-get-values-for-update' parent.pk 0 %}",
+		create_url: "{{ create_note_url }}",
+		update_url: "{{ update_note_url }}"
+	}
+
+	datatable_inits = {
+		columns: [
+			{data: "id", name: "id", title: gettext("Id"), type: "string", visible: false},
+			{data: "title", name: "title", title: gettext("Title"), type: "string", visible: true},
+			{data: "body", name: "body", title: gettext("Body"), type: "string", visible: true},
+			{data: "created", name: "created", title: gettext("Created"), type: "date",
+			 render: DataTable.render.datetime(), "dateformat": document.datetime_format, visible: true},
+			{data: "actions", name: "actions", title: gettext("Actions"), type: "string", visible: true}
+		],
+		addfilter: true
+	}
+
+	var note_modalids = {
+		create: "#create_note_modal",
+		update: "#update_note_modal",
+		detail: "#detail_note_modal",
+		destroy: "#delete_note_modal",
+	}
+
+	let noteconfig = {
+		urls: note_urls,
+		datatable_element: "#note_table",
+		modal_ids: note_modalids,
+		datatable_inits: datatable_inits,
+		add_filter: true,
+		delete_display: data => data['title']
+	}
+
+	let notecrud = ObjectCRUD("demonotes", noteconfig)
+	notecrud.init();
+</script>
+{% endblock %}

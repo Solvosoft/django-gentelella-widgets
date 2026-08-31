@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from django.contrib.auth.models import Group
 from django.utils.module_loading import import_string
 
@@ -162,7 +164,6 @@ class ContentTypeResolverTest(AsyncNotificationTestBase):
         class FakeModel:
             objects = FakeQS()
 
-        from unittest.mock import patch
         with patch('django.contrib.contenttypes.models.'
                    'ContentType.objects.get') as get_ct:
             get_ct.return_value.model_class.return_value = FakeModel

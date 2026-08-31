@@ -1,0 +1,79 @@
+/* Styles for the Leaflet based widgets (MapPointInput, DJMap).
+
+   This lives in its own file rather than in custom.css because base.html loads
+   a swappable theme stylesheet (custom.css / modern.css / modern_black_white.css
+   / style_black_and_white.css) -- anything put in one of them only works for
+   projects using that theme. */
+
+/* A Leaflet container with no height renders as a zero pixel box and the map
+   silently never appears, so the height is set here and not inline in the
+   template (which is what makes django-location-field's 500x250 unoverridable). */
+.gt-map {
+    width: 100%;
+    height: 320px;
+    z-index: 0; /* keep tiles under bootstrap dropdowns/modals */
+}
+
+.gt-map-point .gt-map {
+    height: 280px;
+}
+
+.gt-map-point .gt-map-search-results {
+    position: absolute;
+    z-index: 1000;
+    width: 100%;
+    max-height: 12rem;
+    overflow-y: auto;
+}
+
+.gt-map-point .gt-map-search-wrapper {
+    position: relative;
+}
+
+.gt-map-search-results .list-group-item {
+    cursor: pointer;
+    font-size: 0.875rem;
+}
+
+/* Coloured pins are L.divIcon rather than per-colour PNGs, so any colour the
+   API sends works without shipping an image for it. */
+.gt-map-divicon {
+    background: transparent;
+    border: 0;
+}
+
+.gt-map-pin {
+    display: block;
+    width: 1.5rem;
+    height: 1.5rem;
+    line-height: 1.5rem;
+    text-align: center;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    border: 2px solid rgba(255, 255, 255, 0.85);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.gt-map-pin > i {
+    transform: rotate(45deg);
+    color: #fff;
+    font-size: 0.75rem;
+    line-height: 1.5rem;
+}
+
+.gt-map-attribution {
+    font-size: 0.75rem;
+}
+
+/* Shown in place of the map when Leaflet itself is missing or unusable. */
+.gt-map-error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 1rem;
+    text-align: center;
+    background: #f8d7da;
+    color: #842029;
+    font-size: 0.875rem;
+}

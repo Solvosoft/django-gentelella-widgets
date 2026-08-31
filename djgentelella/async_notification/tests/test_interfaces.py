@@ -3,11 +3,15 @@ from django.contrib.auth import get_user_model
 
 from djgentelella.async_notification.tests import AsyncNotificationTestBase
 from djgentelella.async_notification.interfaces import (
-    NewsLetterInterface, register_news_basemodel, get_basemodel_info,
-    get_basemodels_dict, clear_basemodels,
+    NewsLetterInterface,
+    register_news_basemodel,
+    get_basemodel_info,
+    get_basemodels_dict,
+    clear_basemodels,
 )
 from djgentelella.async_notification.models import (
-    NewsLetter, NewsLetterTemplate,
+    NewsLetter,
+    NewsLetterTemplate,
 )
 from djgentelella.async_notification.sending import (
     compute_newsletter_recipients,
@@ -33,7 +37,6 @@ class UserInterface(NewsLetterInterface):
 
 
 class NewsLetterInterfaceTest(AsyncNotificationTestBase):
-
     def test_get_recipients_all(self):
         emails = UserInterface().get_recipients('')
         self.assertIn('admin@example.com', emails)
@@ -47,8 +50,7 @@ class NewsLetterInterfaceTest(AsyncNotificationTestBase):
         self.assertNotIn('noperms@example.com', emails)
 
     def test_get_recipients_exclude(self):
-        emails = UserInterface().get_recipients(
-            'excludeemail=admin@example.com')
+        emails = UserInterface().get_recipients('excludeemail=admin@example.com')
         self.assertNotIn('admin@example.com', emails)
         self.assertIn('testuser@example.com', emails)
 
@@ -57,7 +59,6 @@ class NewsLetterInterfaceTest(AsyncNotificationTestBase):
 
 
 class BaseModelRegistryTest(AsyncNotificationTestBase):
-
     def tearDown(self):
         clear_basemodels()
 
@@ -68,8 +69,7 @@ class BaseModelRegistryTest(AsyncNotificationTestBase):
         self.assertIn(('users', 'Users'), get_basemodels_dict())
 
     def test_register_by_dotted_path(self):
-        path = ('djgentelella.async_notification.tests.'
-                'test_interfaces.UserInterface')
+        path = 'djgentelella.async_notification.tests.test_interfaces.UserInterface'
         register_news_basemodel('users', 'Users', path)
         self.assertEqual(get_basemodel_info('users')[2], UserInterface)
 
@@ -78,18 +78,21 @@ class BaseModelRegistryTest(AsyncNotificationTestBase):
 
 
 class ComputeNewsletterRecipientsTest(AsyncNotificationTestBase):
-
     def tearDown(self):
         clear_basemodels()
 
     def test_merges_free_text_and_interface(self):
         register_news_basemodel('users', 'Users', UserInterface)
         template = NewsLetterTemplate.objects.create(
-            title='T', slug='t', message='M', model_base='users')
+            title='T', slug='t', message='M', model_base='users'
+        )
         newsletter = NewsLetter.objects.create(
-            subject='S', message='M', template=template,
+            subject='S',
+            message='M',
+            template=template,
             recipients=['extra@x.com'],
-            filters_querystring='excludeemail=admin@example.com')
+            filters_querystring='excludeemail=admin@example.com',
+        )
         emails = compute_newsletter_recipients(newsletter)
         self.assertIn('extra@x.com', emails)
         self.assertIn('testuser@example.com', emails)
@@ -103,14 +106,21 @@ class ComputeNewsletterRecipientsTest(AsyncNotificationTestBase):
         register_news_basemodel('users', 'Users', UserInterface)
         User.objects.filter(username='noperms').update(is_active=False)
         template = NewsLetterTemplate.objects.create(
-            title='T', slug='t2', message='M', model_base='users')
+            title='T', slug='t2', message='M', model_base='users'
+        )
         newsletter = NewsLetter.objects.create(
-            subject='S', message='M', template=template,
+            subject='S',
+            message='M',
+            template=template,
             # Both typed directly, as if resolved from a group: one
             # excluded, one inactive, one an external (non-User) address.
-            recipients=['admin@example.com', 'noperms@example.com',
-                       'external@nowhere.com'],
-            filters_querystring='is_active=on&excludeemail=admin@example.com')
+            recipients=[
+                'admin@example.com',
+                'noperms@example.com',
+                'external@nowhere.com',
+            ],
+            filters_querystring='is_active=on&excludeemail=admin@example.com',
+        )
         emails = compute_newsletter_recipients(newsletter)
         self.assertNotIn('admin@example.com', emails)
         self.assertNotIn('noperms@example.com', emails)
@@ -118,10 +128,8 @@ class ComputeNewsletterRecipientsTest(AsyncNotificationTestBase):
         self.assertIn('testuser@example.com', emails)
 
     def test_no_model_base_uses_free_text_only(self):
-        template = NewsLetterTemplate.objects.create(
-            title='T', slug='t', message='M')
+        template = NewsLetterTemplate.objects.create(title='T', slug='t', message='M')
         newsletter = NewsLetter.objects.create(
-            subject='S', message='M', template=template,
-            recipients=['only@x.com'])
-        self.assertEqual(
-            compute_newsletter_recipients(newsletter), ['only@x.com'])
+            subject='S', message='M', template=template, recipients=['only@x.com']
+        )
+        self.assertEqual(compute_newsletter_recipients(newsletter), ['only@x.com'])

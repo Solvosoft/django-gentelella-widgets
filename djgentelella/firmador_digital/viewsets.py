@@ -58,11 +58,11 @@ class DigitalSignatureRenderFileAPIView(APIView):
         """
         form = self.form_class(data=request.GET)
         if not form.is_valid():
-            return Response({"detail": "File not found"},
+            return Response({'detail': 'File not found'},
                             status=status.HTTP_404_NOT_FOUND)
         token = self.get_token_from_form(form)
         if not self.check_user(cc, pk, request.user, token=token):
-            return Response({"detail": "File not found"},
+            return Response({'detail': 'File not found'},
                             status=status.HTTP_403_FORBIDDEN)
 
         file_data = self.file_document(form, cc, pk)

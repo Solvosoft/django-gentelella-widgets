@@ -1,5 +1,5 @@
-Base Templates &amp; Utilities
-============================
+Base Templates & Utilities
+==========================
 
 A *base template* is an email-hardened HTML layout that wraps an email's body
 (placed in ``{{ content }}``). Register the ones you want in
@@ -12,14 +12,25 @@ preheader, ``light dark`` color-scheme hints, and a 600px table layout with
 inline styles plus a progressive-enhancement ``<style>`` block for responsive
 and dark mode):
 
-============== ============================================ ==================================
-Key            Template                                     Use for
-============== ============================================ ==================================
-``executive``  ``async_notification/base/executive.html``   Official / corporate communications
-``product``    ``async_notification/base/product.html``     Product launches & announcements
-``transactional`` ``async_notification/base/transactional.html`` Receipts, codes, account alerts
-``newsletter`` ``async_notification/base/newsletter.html``  Periodic multi-section digests
-============== ============================================ ==================================
+.. list-table::
+   :header-rows: 1
+   :widths: 20 45 35
+
+   * - Key
+     - Template
+     - Use for
+   * - ``executive``
+     - ``async_notification/base/executive.html``
+     - Official / corporate communications
+   * - ``product``
+     - ``async_notification/base/product.html``
+     - Product launches & announcements
+   * - ``transactional``
+     - ``async_notification/base/transactional.html``
+     - Receipts, codes, account alerts
+   * - ``newsletter``
+     - ``async_notification/base/newsletter.html``
+     - Periodic multi-section digests
 
 Registering them
 ----------------

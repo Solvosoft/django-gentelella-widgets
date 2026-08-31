@@ -57,11 +57,11 @@ var object_urls = {
 var datatable_inits = {
 	columns: [
 		{data: "subject", name: "subject", title: gettext("Subject"), type: "string", visible: true},
-		{data: "template_title", name: "template_title", title: gettext("Template"), type: "string", visible: true},
-		{data: "created_by_display", name: "created_by_display", title: gettext("Created By"), type: "string", visible: true},
+		{data: "template", name: "template__title", title: gettext("Template"), render:  selectobjprint({display_name: "text"}), visible: true},
+		{data: "created_by", name: "created_by", title: gettext("Created By"), visible: true,  render:  selectobjprint({display_name: "text"})},
 		{data: "created_at", name: "created_at", title: gettext("Created"), type: "date",
 			render: DataTable.render.datetime(), dateformat: document.datetime_format, visible: true},
-		{data: "actions", name: "actions", title: gettext("Actions"), type: "string", visible: true}
+		{data: "actions", name: "actions", title: gettext("Actions"), type: "readonly", visible: true}
 	],
 	addfilter: true,
 };

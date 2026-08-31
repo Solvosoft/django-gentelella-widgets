@@ -1,0 +1,38 @@
+{% extends 'gentelella/base_site.html' %}
+{% load i18n static %}
+
+{% block pre_head %}{% block icon_defines %}{% endblock %}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <div class="card-title titles">
+            <h2>{% block icon_title %}{% trans 'Icons' %}{% endblock %}</h2>
+        </div>
+        {% block icon_help %}{% endblock %}
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="card-title titles">
+            <h2><span id="icon-count">0</span> {% trans 'available icons' %}</h2>
+        </div>
+        <div class="row mb-3">
+            <div class="{% block icon_search_cols %}col-md-12{% endblock %}">
+                <input type="text" id="icon-search" class="form-control"
+                       placeholder="{% trans 'Filter by name…' %}">
+            </div>
+            {% block icon_controls %}{% endblock %}
+        </div>
+        <div id="icon-grid" class="row"></div>
+    </div>
+</div>
+
+<script src="{% static 'demoapp/js/icons_grid.js' %}"></script>
+<script>
+$(function () {
+{% block icon_script %}{% endblock %}
+});
+</script>
+{% endblock %}

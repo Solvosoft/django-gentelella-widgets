@@ -32,25 +32,25 @@ def serve_static(request, path, show_indexes=False):
         if fullpath.is_dir():
             if show_indexes:
                 return directory_index(path, fullpath)
-            raise Http404(_("Directory indexes are not allowed here."))
+            raise Http404(_('Directory indexes are not allowed here.'))
 
         if not fullpath.exists():
-            raise Http404(_("“%(path)s” does not exist") % {"path": fullpath})
+            raise Http404(_('“%(path)s” does not exist') % {'path': fullpath})
 
         # Respect the If-Modified-Since header.
         statobj = fullpath.stat()
         if not was_modified_since(
-            request.META.get("HTTP_IF_MODIFIED_SINCE"), statobj.st_mtime
+            request.META.get('HTTP_IF_MODIFIED_SINCE'), statobj.st_mtime
         ):
             return HttpResponseNotModified()
 
         content_type, encoding = mimetypes.guess_type(str(fullpath))
-        content_type = content_type or "application/octet-stream"
+        content_type = content_type or 'application/octet-stream'
 
-        response = FileResponse(fullpath.open("rb"), content_type=content_type)
-        response.headers["Last-Modified"] = http_date(statobj.st_mtime)
+        response = FileResponse(fullpath.open('rb'), content_type=content_type)
+        response.headers['Last-Modified'] = http_date(statobj.st_mtime)
         if encoding:
-            response.headers["Content-Encoding"] = encoding
+            response.headers['Content-Encoding'] = encoding
 
         return response
     except Exception as e:
@@ -173,7 +173,7 @@ class ExampleForm(GTForm):
 
     your_age = forms.IntegerField(
         widget=knobwidget.NumberKnobInput(
-            attrs={"value": 5, "data-min": 1, "data-max": 10}))
+            attrs={'value': 5, 'data-min': 1, 'data-max': 10}))
 
 
 def home(request):
@@ -187,14 +187,14 @@ def home(request):
 
 @login_required
 def logeado(request):
-    return HttpResponse("Wiii")
+    return HttpResponse('Wiii')
 
 
 def add_view_select(request):
     if request.method == 'POST':
         return JsonResponse({'ok': True, 'id': 2, 'text': 'Data example'})
         return JsonResponse({'ok': False,
-                             'title': "Esto no dice nada",
+                             'title': 'Esto no dice nada',
                              'message': 'Esto es un errror'})
     data = {
         'ok': True,

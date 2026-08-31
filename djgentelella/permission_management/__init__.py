@@ -43,8 +43,8 @@ class AnyPermission(BasePermission):
 
 class AllPermissionByAction(BasePermission):
     def has_permission(self, request, view):
-        action = getattr(view, "action", None)
-        perms_map = getattr(view, "perms", {}) or {}
+        action = getattr(view, 'action', None)
+        perms_map = getattr(view, 'perms', {}) or {}
 
         if action is None:
             return False  # Generate error >= 403 instead of 500
@@ -58,8 +58,8 @@ class AllPermissionByAction(BasePermission):
 
 class AnyPermissionByAction(BasePermission):
     def has_permission(self, request, view):
-        action = getattr(view, "action", None)
-        perms_map = getattr(view, "perms", {}) or {}
+        action = getattr(view, 'action', None)
+        perms_map = getattr(view, 'perms', {}) or {}
 
         if action is None:
             return False

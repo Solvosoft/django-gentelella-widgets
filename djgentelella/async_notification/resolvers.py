@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 
 from djgentelella.async_notification.settings import (
@@ -82,8 +83,6 @@ class ContentTypeResolver(RecipientResolver):
         Returns:
             List with the resolved email, or empty list on any failure.
         """
-        from django.contrib.contenttypes.models import ContentType
-
         base = domain[:-len('.internal')]
         parts = base.split('.')
         if len(parts) != 2:

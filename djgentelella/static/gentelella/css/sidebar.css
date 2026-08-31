@@ -1,0 +1,480 @@
+/* Menu layout at every viewport width.
+ *
+ * Linked from gentelella/base.html AFTER the site_theme stylesheet, because it
+ * deliberately contests selectors that all four themes define. Being later in
+ * the cascade, equal specificity is enough to win -- so each block below
+ * mirrors the specificity of the rule it replaces rather than escalating, and
+ * nothing here uses !important. The theme keeps owning colour, typography and
+ * spacing; this file owns geometry.
+ *
+ * What it fixes, all of it reproduced by demoapp/tests/selenium/test_menu.py:
+ *
+ *   1. `.sidebar-footer` was `position: fixed; width: 230px` with a
+ *      `.nohidden { width: 200% }` override. On a fixed box a percentage width
+ *      resolves against the VIEWPORT, so the icon strip became twice the
+ *      window wide and each anchor -- at `width: 25%` -- took half the screen.
+ *      Past the second icon everything was off-screen: on a 546px window the
+ *      help palette simply could not be reached.
+ *   2. The same bar, being fixed at `bottom: 0`, was painted over whatever
+ *      menu entries reached the bottom of a short window.
+ *   3. `.main_menu_side { max-height: 100vh }` measured a full viewport from a
+ *      box that starts ~90px down the page, so it ended ~90px below the fold,
+ *      and `overflow-hidden` on the column clipped the remainder with no way
+ *      to scroll to it.
+ *   4. Below 992px the sidebar was `display: none` outright, leaving a 70px
+ *      icon rail as the only way in.
+ *   5. In that rail, `ul.nav.child_menu` was 70px wide at a hardcoded
+ *      `top: 80px` -- it opened over the rail rather than beside the entry it
+ *      belongs to -- and the third level was a 200px static box inside it.
+ *   6. The help palette sized itself once in javascript and never again.
+ *   7. Nested top-menu dropdowns opened on :hover only, at `left: -110%`.
+ */
+
+/* ---------------------------------------------------------------------------
+ * The sidebar is a viewport-tall flex column that scrolls its own menu.
+ *
+ * `fixed` rather than `absolute` so the column never lengthens the page. The
+ * content is unaffected: .right_col, .top_nav and footer already carry the
+ * matching margin-left in every theme.
+ * ------------------------------------------------------------------------ */
+.left_col {
+    max-height: none;
+}
+
+.nav-md .body .col-md-3.left_col,
+.nav-sm .body .col-md-3.left_col {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    max-height: none;
+    min-height: 0;
+    display: flex;
+    overflow: hidden;
+}
+
+/* Browsers that have it: the real height, minus the collapsing mobile chrome. */
+@supports (height: 100dvh) {
+    .nav-md .body .col-md-3.left_col,
+    .nav-sm .body .col-md-3.left_col {
+        height: 100dvh;
+    }
+}
+
+/* The inner wrapper from app/sidebar.html. It used to carry Bootstrap's
+ * `overflow-hidden`, which is `!important` and therefore unbeatable from CSS;
+ * it now carries `gt-sidebar` instead and does the column layout. */
+.left_col .gt-sidebar {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    width: 100%;
+    /* Without this a flex child refuses to shrink below its content, and the
+     * menu goes back to overflowing instead of scrolling. */
+    min-height: 0;
+    overflow: hidden;
+}
+
+.left_col .navbar.nav_title {
+    flex: 0 0 auto;
+}
+
+/* The actual fix for the clipped menu: a height derived from what is left in
+ * the column, not a 100vh guess. */
+#sidebar-menu.main_menu_side {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* ---------------------------------------------------------------------------
+ * The footer icon strip: a static wrapping row at the bottom of that column.
+ *
+ * Being in flow it cannot be wider than the column, and cannot be painted over
+ * a menu entry. `flex-wrap` means a fifth or ninth icon starts a new row
+ * instead of falling off the edge, which is what `width: 25%` + `float: left`
+ * could never do.
+ * ------------------------------------------------------------------------ */
+.sidebar-footer {
+    position: static;
+    flex: 0 0 auto;
+    width: auto;
+    clear: none;
+    display: flex;
+    flex-wrap: wrap;
+    padding: 0;
+    z-index: auto;
+}
+
+.sidebar-footer a {
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 34px;
+    float: none;
+}
+
+/* Both halves of the 200%-of-the-viewport bug. */
+.sidebar-footer.nohidden,
+.nav-sm .sidebar-footer.nohidden {
+    width: auto;
+    padding: 0;
+}
+
+/* ---------------------------------------------------------------------------
+ * The collapsed icon rail (>= 992px), and its flyout.
+ *
+ * Now that #sidebar-menu scrolls, an absolutely positioned flyout inside it is
+ * clipped to the 70px rail -- and `overflow-x: visible` cannot rescue it,
+ * because a box with `overflow-y: auto` computes its overflow-x to `auto` too.
+ * So the flyout is `fixed` and custom.js gives it top/left next to the entry
+ * it belongs to (positionRailFlyout).
+ * ------------------------------------------------------------------------ */
+@media (min-width: 992px) {
+    .nav-sm ul.nav.child_menu {
+        position: fixed;
+        top: auto;
+        left: auto;
+        width: 220px;
+        max-height: calc(100vh - 16px);
+        overflow-y: auto;
+        z-index: 4000;
+    }
+
+    /* The third level: an indented block inside the flyout, not a 200px box
+     * inside a 70px one. */
+    .nav-sm ul.nav.child_menu ul,
+    .nav-sm .nav.side-menu li.active-sm ul ul {
+        position: static;
+        width: auto;
+        max-height: none;
+        background: none;
+    }
+
+    .nav-sm ul.nav.child_menu li {
+        padding: 0 10px 0 18px;
+    }
+
+    .nav-sm ul.nav.child_menu li li {
+        padding-left: 34px;
+    }
+
+    .nav-sm ul.nav.child_menu li a {
+        text-align: left !important;
+        font-size: 13px;
+        padding: 8px 5px;
+    }
+
+    /* 25px icons at full width are the rail's; in the flyout they sit before
+     * a label. */
+    .nav-sm ul.nav.child_menu li a i {
+        font-size: 14px !important;
+        width: auto !important;
+        margin: 0 6px 0 0;
+    }
+}
+
+/* The third level in the expanded sidebar: 36px of padding per level put it
+ * 72px in, while the dot and the guide line stayed at 23/27px. */
+.nav-md .nav.child_menu li li {
+    padding-left: 52px;
+}
+
+.nav-md ul.nav.child_menu li li:before {
+    left: 39px;
+}
+
+.nav-md ul.nav.child_menu li li:after {
+    left: 43px;
+}
+
+/* ---------------------------------------------------------------------------
+ * Below 992px: an off-canvas drawer, not a disappearance.
+ *
+ * The body stays in nav-md here on purpose. Reinterpreting nav-sm as
+ * "drawer open" would drag in the whole 70px rail -- centred 10px labels, 25px
+ * icons, the 70px content margins -- each of which would have to be undone
+ * inside this media query. Staying in nav-md leaves exactly one rule to beat,
+ * the `display: none`, and the existing sheet already sets .right_col and
+ * .top_nav to full width here, so the content correctly does not reflow when
+ * the drawer opens over it.
+ *
+ * `visibility: hidden` rather than `display: none` for the closed state: the
+ * drawer stays measurable while being unclickable and out of the accessibility
+ * tree, which is what lets a test tell "closed" from "broken".
+ * ------------------------------------------------------------------------ */
+@media (max-width: 991.98px) {
+    .nav-md .body .col-md-3.left_col,
+    .nav-sm .body .col-md-3.left_col {
+        display: flex;
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 230px;
+        max-width: 85vw;
+        /* Above .top_nav and the page, below Bootstrap's modal backdrop (1050). */
+        z-index: 1040;
+        transform: translateX(-100%);
+        visibility: hidden;
+        transition: transform .2s ease-in-out, visibility .2s;
+    }
+
+    body.sidebar-open .body .col-md-3.left_col {
+        transform: none;
+        visibility: visible;
+    }
+
+    /* The drawer is the full menu: labels, chevrons and all three levels, at
+     * the same size they have on a desktop. Undo the rail styling in case the
+     * body is still in nav-sm from a wider window. */
+    .nav-sm .body .col-md-3.left_col .navbar.nav_title,
+    .nav-sm .body .col-md-3.left_col .nav_title {
+        width: 100%;
+    }
+
+    .nav-sm .body .col-md-3.left_col .navbar.nav_title a span {
+        display: inline;
+    }
+
+    .nav-sm .body .col-md-3.left_col .nav.side-menu li a {
+        text-align: left !important;
+        font-size: 14px;
+        padding: 13px 15px 12px;
+    }
+
+    .nav-sm .body .col-md-3.left_col .nav.side-menu li a i {
+        font-size: 16px !important;
+        width: auto !important;
+        margin: 0 8px 0 0;
+    }
+
+    .nav-sm .body .col-md-3.left_col .menu_section h3,
+    .nav-sm .body .col-md-3.left_col span.fa {
+        display: block;
+    }
+
+    .nav-sm .body .col-md-3.left_col ul.nav.child_menu {
+        position: static;
+        width: auto;
+        max-height: none;
+        background: none;
+    }
+
+    .sidebar-backdrop {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 1039;
+        background: rgba(0, 0, 0, .4);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity .2s ease-in-out, visibility .2s;
+    }
+
+    body.sidebar-open .sidebar-backdrop {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* No scrolling the page behind an open drawer. */
+    body.sidebar-open {
+        overflow: hidden;
+    }
+}
+
+@media (min-width: 992px) {
+    .sidebar-backdrop {
+        display: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .nav-md .body .col-md-3.left_col,
+    .nav-sm .body .col-md-3.left_col,
+    .sidebar-backdrop {
+        transition: none;
+    }
+}
+
+/* ---------------------------------------------------------------------------
+ * The help palette panel.
+ *
+ * Placement and size used to be written by helper_widget.js, once, in the
+ * constructor: `bottom: 35px; left: 50px; width: 50%` (90% below 502px). A
+ * value computed once cannot answer a resize, and on a short window the card
+ * ran off the top. Only the z-index stays in javascript now -- it is the
+ * invariant against Bootstrap's own layers, and test_help.py guards it.
+ *
+ * No !important anywhere here: interact.js resizes the panel by writing inline
+ * width/height, inline beats these rules, and the max-* clamps then keep the
+ * dragged result inside the window.
+ * ------------------------------------------------------------------------ */
+[id^="content_tm_"].resize-drag {
+    bottom: 35px;
+    left: 50px;
+    right: auto;
+    width: 50%;
+    max-width: calc(100vw - 70px);
+    max-height: calc(100vh - 55px);
+    overflow: hidden;
+}
+
+/* The column layout only once the panel is open. Bootstrap hides a `.collapse`
+ * with `display: none` at the same specificity as the rule above, and this
+ * file is loaded later -- so declaring `display: flex` unconditionally would
+ * win, and the *closed* panel would sit permanently over the sidebar. */
+[id^="content_tm_"].resize-drag.show,
+[id^="content_tm_"].resize-drag.collapsing {
+    display: flex;
+    flex-direction: column;
+}
+
+[id^="content_tm_"].resize-drag > .card,
+[id^="content_tm_"].resize-drag .card-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+#helper-body-container {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+}
+
+#helper-body {
+    height: auto;
+    max-height: 100%;
+    overflow-y: auto;
+}
+
+@media (max-width: 575.98px) {
+    [id^="content_tm_"].resize-drag {
+        left: 8px;
+        right: 8px;
+        bottom: 8px;
+        width: auto;
+        max-width: none;
+        max-height: calc(100vh - 16px);
+    }
+}
+
+/* ---------------------------------------------------------------------------
+ * The top navbar's nested dropdowns.
+ *
+ * Bootstrap 5 has no submenu of its own, so this project drew one with
+ * `.dropdown-submenu:hover > .dropdown-menu { display: block }` -- unreachable
+ * by click or touch -- positioned at `left: -110%`, which walks off the left
+ * edge of a narrow window. custom.js now toggles `.show` on click; these rules
+ * make that visible and keep the result on screen.
+ * ------------------------------------------------------------------------ */
+.dropdown-submenu > .dropdown-menu.show {
+    display: block;
+}
+
+/* Nested entries were `display: inline` inside 18px list items while
+ * inheriting the navbar's 32px line-height, so each anchor's box was twice as
+ * tall as its row and overlapped its neighbours: clicking the middle of one
+ * entry could land on the next. Give them a block box the size of their row. */
+#items-top-navbar .dropdown-menu > li > a {
+    display: block;
+    padding: 6px 16px;
+    line-height: 1.5;
+    white-space: nowrap;
+}
+
+/* Leftwards, not rightwards: this navbar lives at the right edge of the window
+ * (`float-end`, plus `flex-row-reverse` above 992px), so a submenu opening at
+ * `left: 100%` walks straight off the screen -- 1487px into a 1500px window in
+ * the test. `right: 100%` unfolds it back over the page, where there is room.
+ * That was the intent of the original `left: -110%`, which missed by 10% of an
+ * unrelated width and left a gap the pointer fell through. */
+@media (min-width: 992px) {
+    .dropdown-submenu > .dropdown-menu,
+    .dropdown-submenu.pull-left > .dropdown-menu {
+        top: 0;
+        left: auto;
+        right: 100%;
+        margin-left: 0;
+        margin-right: -1px;
+        max-height: calc(100vh - 70px);
+        overflow-y: auto;
+    }
+
+    /* ...but not when it holds a level of its own. `overflow-y: auto` makes a
+     * box compute its overflow-x to `auto` as well, so a submenu scrolling
+     * vertically clips the next level flying out of it sideways: from the
+     * third level down nothing was drawn at all. A menu that contains a
+     * submenu has to let it out; only a leaf menu may scroll. */
+    .dropdown-submenu > .dropdown-menu:has(.dropdown-submenu) {
+        max-height: none;
+        overflow: visible;
+    }
+}
+
+/* Narrow: the whole bar unfolds down the page at full width, and every level
+ * unfolds inside the one above it rather than flying out of it.
+ *
+ * The expanded bar used to be floated right and shrink-wrapped: 112px of a
+ * 369px window, with 211px of empty grey to its left, and the dropdown -- laid
+ * out from that right-hand edge -- ran 14px off the screen. There was no room
+ * left for a third level. Full width gives all three somewhere to go.
+ * (`float-end` and `me-4` are `!important` utilities, so the template uses
+ * their `-lg-` variants instead; these rules only have to do the layout.) */
+@media (max-width: 991.98px) {
+    #navbarNavDropdown {
+        width: 100%;
+    }
+
+    #items-top-navbar {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    /* In flow and full width, so the page can simply scroll to a long menu
+     * instead of the menu having to be clipped to fit. */
+    #items-top-navbar > li > .dropdown-menu {
+        position: static;
+        float: none;
+        width: 100%;
+        margin: 0;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+        background: transparent;
+    }
+
+    .dropdown-submenu > .dropdown-menu,
+    .dropdown-submenu.pull-left > .dropdown-menu {
+        position: static;
+        float: none;
+        top: auto;
+        left: auto;
+        margin: 0;
+        padding-left: 12px;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+        background: transparent;
+    }
+
+    /* Overrides the `.dropdown-menu.show { margin-left: -60px }` patch, which
+     * shoved the whole menu off the left edge. */
+    .dropdown-menu.show {
+        margin-left: 0;
+    }
+
+    /* Nested levels unfold inside the menu, so the menu itself is what has to
+     * scroll. custom.js sets its max-height from the room actually left below
+     * it -- a fixed vh fraction cannot know where the menu starts. */
+    #items-top-navbar .dropdown-menu .dropdown-menu {
+        max-height: none;
+    }
+}

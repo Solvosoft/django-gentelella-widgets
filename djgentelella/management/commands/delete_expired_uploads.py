@@ -1,7 +1,10 @@
 from django.core.management.base import BaseCommand
 
 from djgentelella.chunked_upload.constants import UPLOADING, COMPLETE
-from djgentelella.chunked_upload.utils import get_expired_uploads, delete_expired_uploads
+from djgentelella.chunked_upload.utils import (
+    get_expired_uploads,
+    delete_expired_uploads,
+)
 
 
 class Command(BaseCommand):
@@ -25,9 +28,7 @@ class Command(BaseCommand):
             result = delete_expired_uploads()
 
         self.stdout.write(
-            self.style.SUCCESS(
-                f"{result['complete']} complete uploads were deleted."
-            )
+            self.style.SUCCESS(f"{result['complete']} complete uploads were deleted.")
         )
         self.stdout.write(
             self.style.SUCCESS(

@@ -1,0 +1,9 @@
+# Commits that only moved whitespace around. `git blame` skips them so the
+# attribution lands on whoever wrote the code, not on the reformat.
+#
+# Enable it once per clone:
+#     git config blame.ignoreRevsFile .git-blame-ignore-revs
+# GitHub honours this file automatically.
+
+# style: reformat the files that still failed lint (ruff format)
+88fd5f2d783c50f7334458c33552598f0ae9a916

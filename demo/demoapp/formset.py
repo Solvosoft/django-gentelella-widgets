@@ -25,7 +25,7 @@ def add_model_formset(request):
         valid = fset.is_valid()
         if valid:
             r = fset.save()
-            messages.success(request, "Formset saved successfully")
+            messages.success(request, 'Formset saved successfully')
     if valid:
         fset = formset(queryset=Community.objects.all(), prefix='pff')
 

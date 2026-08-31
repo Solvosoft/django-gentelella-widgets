@@ -62,8 +62,8 @@ def create_notification(
     """
 
     if message_type not in message_type_default:
-        raise ValueError("Message type are not valid (options: %s)" % (
-            "".join(message_type_default)))
+        raise ValueError('Message type are not valid (options: %s)' % (
+            ''.join(message_type_default)))
     if category is None:
         category = uuid.uuid4()
     if link_prop is not None:

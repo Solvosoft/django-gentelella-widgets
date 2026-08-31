@@ -1,0 +1,91 @@
+{% extends 'icons/base.html' %}
+{% load i18n %}
+
+{% block icon_title %}{% trans 'Friconix' %}{% endblock %}
+
+{% block icon_help %}
+<p>
+    {% blocktrans trimmed %}
+    Friconix draws its icons as inline SVG from a single always-loaded script —
+    no font, no stylesheet. The class is <code>fi-</code> plus a
+    <strong>six letter mask</strong> plus <code>-</code> plus the icon name.
+    {% endblocktrans %}
+</p>
+<pre><code>&lt;i class="fi-cnluxl-check"&gt;&lt;/i&gt;
+&lt;i class="fi-xnsuxl-user-circle"&gt;&lt;/i&gt;
+&lt;i class="fi-cnlusx-cog"&gt;&lt;/i&gt;</code></pre>
+
+<p>{% trans 'Each position sets one property, and each value has a class that overrides it:' %}</p>
+<div class="table-responsive">
+    <table class="table table-sm table-bordered">
+        <thead>
+            <tr><th>#</th><th>{% trans 'Property' %}</th>
+                <th>{% trans 'Mask letters' %}</th><th>{% trans 'Class' %}</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>1</td><td>{% trans 'Shape' %}</td>
+                <td><code>t</code> triangle, <code>e</code> equilateral,
+                    <code>c</code> circle, <code>s</code> square,
+                    <code>h</code> hexagon, <code>o</code> octagon,
+                    <code>x</code> none</td>
+                <td><code>fi-circle</code>, <code>fi-no-shape</code>, …</td></tr>
+            <tr><td>2</td><td>{% trans 'Thickness' %}</td>
+                <td><code>t</code> thin, <code>n</code> normal, <code>x</code> wide</td>
+                <td><code>fi-thin</code>, <code>fi-normal</code>, <code>fi-wide</code></td></tr>
+            <tr><td>3</td><td>{% trans 'Style' %}</td>
+                <td><code>l</code> line, <code>s</code> solid,
+                    <code>p</code> prohibited, <code>x</code> none</td>
+                <td><code>fi-line</code>, <code>fi-solid</code>, <code>fi-prohibited</code></td></tr>
+            <tr><td>4</td><td>{% trans 'Rotation' %}</td>
+                <td><code>u</code> 0°, <code>r</code> 90°, <code>d</code> 180°,
+                    <code>l</code> 270°</td>
+                <td><code>fi-up</code>, <code>fi-right</code>, <code>fi-down</code>,
+                    <code>fi-left</code></td></tr>
+            <tr><td>5</td><td>{% trans 'Effect' %}</td>
+                <td><code>x</code> none, <code>h</code>/<code>v</code> flip,
+                    <code>s</code> spin, <code>p</code> pulse</td>
+                <td><code>fi-spin</code>, <code>fi-pulse</code></td></tr>
+            <tr><td>6</td><td>{% trans 'Size' %}</td>
+                <td><code>t</code> 0.3em, <code>s</code> 0.5em, <code>n</code> 1em,
+                    <code>l</code> 1.33em, <code>x</code> 1.66em,
+                    <code>2</code>–<code>9</code> Nem</td>
+                <td><code>fi-size-s</code>, <code>fi-2x</code>, …</td></tr>
+        </tbody>
+    </table>
+</div>
+<p class="text-muted">
+    {% blocktrans trimmed %}
+    <code>fi-flip-h</code> is broken upstream — friconix maps it to the same
+    value as <code>fi-flip-v</code>. Use the mask letter <code>h</code> in
+    position 5 for a horizontal flip.
+    {% endblocktrans %}
+</p>
+{% endblock %}
+
+{% block icon_search_cols %}col-md-8{% endblock %}
+
+{% block icon_controls %}
+<div class="col-md-4">
+    <input type="text" id="icon-mask" class="form-control" value="cnluxl"
+           maxlength="6" placeholder="{% trans 'Mask (6 letters)' %}">
+</div>
+{% endblock %}
+
+{% block icon_script %}
+    if (typeof paths === 'undefined') {
+        $('#icon-grid').html('<div class="col-12 alert alert-warning">' +
+            'friconix.js is not loaded. Run <code>manage.py loaddevstatic</code>.' +
+            '</div>');
+        return;
+    }
+    /* friconix declares `paths` as a global, so the set lists itself. */
+    gt_icons_grid({
+        names: Object.keys(paths).sort(),
+        controls: '#icon-mask',
+        markup: function (name) {
+            var mask = ($('#icon-mask').val().trim() || 'cnluxl').substr(0, 6);
+            return '<i class="fi-' + mask + '-' + name + '"></i>';
+        },
+        empty: '{% trans "No icon matches." %}'
+    });
+{% endblock %}

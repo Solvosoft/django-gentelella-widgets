@@ -10,9 +10,9 @@ from djgentelella.serializers.storyline import OptionsSerializer
 class StorylineBuilder(ReadOnlyModelViewSet):
     urlbasename = None
     options = {}
-    retryname = "storyline"
-    line_jump = "\n"
-    delimit = ","
+    retryname = 'storyline'
+    line_jump = '\n'
+    delimit = ','
     allow_errors = True
     exit_on_error = False
     validate = True
@@ -24,7 +24,7 @@ class StorylineBuilder(ReadOnlyModelViewSet):
 
     def list(self, request):
         if self.urlbasename is None:
-            raise NameError("No base name set")
+            raise NameError('No base name set')
         try:
             options = self.create_options()
             options['data']['url'] = reverse(self.urlbasename + '-detail',
@@ -33,16 +33,16 @@ class StorylineBuilder(ReadOnlyModelViewSet):
             options_serializer.is_valid(raise_exception=True)
             return JsonResponse(options_serializer.data)
         except NoReverseMatch as e:
-            resp = {"error": e.args[0]}
+            resp = {'error': e.args[0]}
             return JsonResponse(resp, status=400)
         except TypeError as e:
-            resp = {"error": e.args[0]}
+            resp = {'error': e.args[0]}
             return JsonResponse(resp, status=400)
         except Exception as e:
             return JsonResponse(e, status=400)
 
     def get_csv(self):
-        raise NotImplementedError("You must create get_csv method in your class")
+        raise NotImplementedError('You must create get_csv method in your class')
 
     def validate_row(self, row):
         ok = True
@@ -63,7 +63,7 @@ class StorylineBuilder(ReadOnlyModelViewSet):
 
     def retrieve(self, request, pk=None):
         if pk != self.retryname:
-            return HttpResponse(status=400, reason=f"Bad name {pk} != {self.retryname}")
+            return HttpResponse(status=400, reason=f'Bad name {pk} != {self.retryname}')
         errors = False
         response = HttpResponse(
             content_type='text/csv',
@@ -80,6 +80,6 @@ class StorylineBuilder(ReadOnlyModelViewSet):
             writer.writerow(row)
 
         if errors and self.exit_on_error:
-            return HttpResponse(status=400, reason="Invalid csv data")
+            return HttpResponse(status=400, reason='Invalid csv data')
 
         return response

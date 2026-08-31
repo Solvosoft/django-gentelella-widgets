@@ -3,26 +3,35 @@ Celery backend — dispatches notifications as Celery tasks.
 """
 
 from djgentelella.async_notification.backends.base import NotificationBackend
-from djgentelella.async_notification.models import NewsLetterTask
+from djgentelella.async_notification.models import (
+    EmailNotification, NewsLetterTask
+)
 
 
 class CeleryBackend(NotificationBackend):
     """Sends notifications via Celery task queue."""
 
     def send(self, notification_pk):
-        from djgentelella.async_notification.models import EmailNotification
-        from djgentelella.async_notification.tasks import send_email_task
+        # tasks only defines these names when Celery is installed, so the
+        # import stays inside the method.
+        from djgentelella.async_notification.tasks import (  # noqa: PLC0415
+            send_email_task,
+        )
         EmailNotification.objects.filter(
             pk=notification_pk, status='pending').update(status='queued')
         send_email_task.delay(notification_pk)
 
     def retry(self, notification_pk, countdown=0):
-        from djgentelella.async_notification.tasks import send_email_task
+        from djgentelella.async_notification.tasks import (  # noqa: PLC0415
+            send_email_task,
+        )
         send_email_task.apply_async(
             args=[notification_pk], countdown=countdown)
 
     def schedule(self, newsletter_task_pk):
-        from djgentelella.async_notification.tasks import send_newsletter_task
+        from djgentelella.async_notification.tasks import (  # noqa: PLC0415
+            send_newsletter_task,
+        )
         try:
             task = NewsLetterTask.objects.get(pk=newsletter_task_pk)
         except NewsLetterTask.DoesNotExist:
@@ -37,7 +46,7 @@ class CeleryBackend(NotificationBackend):
         task.save(update_fields=['celery_task_id', 'status'])
 
     def revoke(self, newsletter_task_pk):
-        from celery import current_app
+        from celery import current_app  # noqa: PLC0415
         try:
             task = NewsLetterTask.objects.get(pk=newsletter_task_pk)
         except NewsLetterTask.DoesNotExist:

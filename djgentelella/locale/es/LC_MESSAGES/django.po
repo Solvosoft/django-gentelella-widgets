@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-18 21:41+0000\n"
+"POT-Creation-Date: 2026-08-30 14:54-0600\n"
 "PO-Revision-Date: 2025-03-29 16:43-0600\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -18,81 +18,752 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.2.2\n"
 
-#, fuzzy
-#| msgid "Actions"
+#: admin.py:66 admin.py:108
 msgid "Action"
 msgstr "Acciones"
 
+#: admin.py:83 admin.py:84
 msgid "History"
 msgstr "Historial"
 
-msgid "created"
-msgstr "creado"
+#: async_notification/admin.py:32
+msgid "Send selected emails now"
+msgstr "Enviar los correos seleccionados ahora"
 
-msgid "modified"
-msgstr "modificado"
+#: async_notification/admin.py:41
+#, python-format
+msgid "%(n)d email(s) sent."
+msgstr "%(n)d correo(s) enviado(s)."
 
-msgid "Deleting "
-msgstr "Eliminando "
+#: async_notification/admin.py:78 async_notification/models.py:108
+#: async_notification/models.py:244
+#: async_notification/templates/async_notification/_newsletter_modal.html:34
+msgid "Recipients"
+msgstr "Destinatarios"
 
-msgid "Yes, Delete it"
-msgstr "Si, eliminarlo"
+#: async_notification/admin.py:84
+msgid "Send selected newsletters now"
+msgstr "Enviar los boletines seleccionados ahora"
 
-msgid "Draf"
-msgstr "Borrador"
+#: async_notification/admin.py:96
+#, python-format
+msgid "%(n)d newsletter(s) sent."
+msgstr "%(n)d boletín(es) enviado(s)."
 
-msgid "This show the last version of the entry (it\\"
-msgstr "Esto muestra la última versión de la entrada"
+#: async_notification/admin.py:121
+msgid "Send selected tasks now"
+msgstr "Enviar las tareas seleccionadas ahora"
 
-msgid "Preview image for"
-msgstr "Previsualización de"
+#: async_notification/admin.py:130
+#, python-format
+msgid "%(n)d task(s) sent."
+msgstr "%(n)d tarea(s) enviada(s)."
 
-msgid "Save"
-msgstr "Guardar"
+#: async_notification/forms.py:49 async_notification/forms.py:144
+msgid "Comma-separated emails or groups"
+msgstr "Correos o grupos separados por comas"
 
-msgid "Publish"
-msgstr "Publicar"
+#: async_notification/forms.py:52 async_notification/forms.py:86
+#: async_notification/forms.py:147
+msgid "BCC addresses"
+msgstr "Direcciones CCO"
 
-msgid "by"
-msgstr "por"
+#: async_notification/forms.py:55 async_notification/forms.py:88
+#: async_notification/forms.py:150
+msgid "CC addresses"
+msgstr "Direcciones CC"
 
-msgid "Anonymous"
-msgstr "Anónimo"
+#: async_notification/models.py:39
+msgid "Recipients must be a list."
+msgstr "Los destinatarios deben ser una lista."
 
-msgid "(More...)"
-msgstr "(Más...)"
+#: async_notification/models.py:54
+#, python-format
+msgid "Invalid recipient: %(token)s"
+msgstr "Destinatario inválido: %(token)s"
 
+#: async_notification/models.py:60
+msgid "Code"
+msgstr "Codigo"
+
+#: async_notification/models.py:61
+msgid "Unique identifier for this template"
+msgstr "Identificador único para esta plantilla"
+
+#: async_notification/models.py:63 async_notification/models.py:103
+#: async_notification/models.py:239
+#: async_notification/templates/async_notification/_preview_modal.html:13
+#: async_notification/templates/async_notification/email_template.html:135
+msgid "Subject"
+msgstr "Asunto"
+
+#: async_notification/models.py:65 async_notification/models.py:105
+#: async_notification/models.py:211 async_notification/models.py:241
+msgid "Message"
+msgstr "Mensaje"
+
+#: async_notification/models.py:66
+msgid "HTML content with Django template syntax"
+msgstr "Contenido HTML con sintaxis de plantillas de Django"
+
+#: async_notification/models.py:68 async_notification/models.py:112
+#: async_notification/models.py:248
+msgid "BCC"
+msgstr "CCO"
+
+#: async_notification/models.py:70 async_notification/models.py:115
+#: async_notification/models.py:251
+msgid "CC"
+msgstr "CC"
+
+#: async_notification/models.py:73
+msgid "Context Code"
+msgstr "Contexto de codigo"
+
+#: async_notification/models.py:74
+msgid "Registered context code for variable suggestions"
+msgstr "Código de contexto registrado para sugerencias de variables"
+
+#: async_notification/models.py:77 async_notification/models.py:121
+#: async_notification/models.py:219 async_notification/models.py:254
+msgid "Base Template"
+msgstr "Plantilla Base"
+
+#: async_notification/models.py:78
+msgid "Base template key from settings to wrap the email content"
+msgstr ""
+"Clave de plantilla base (en settings) para envolver el contenido del correo"
+
+#: async_notification/models.py:84
+msgid "Email Template"
+msgstr "Plantillas de correos"
+
+#: async_notification/models.py:85
+#: async_notification/templates/async_notification/email_template.html:9
+msgid "Email Templates"
+msgstr "Plantillas de correos"
+
+#: async_notification/models.py:94 async_notification/models.py:280
+msgid "Pending"
+msgstr "Pendiente"
+
+#: async_notification/models.py:95
+msgid "Queued"
+msgstr "En cola"
+
+#: async_notification/models.py:96 async_notification/models.py:282
+msgid "Sending"
+msgstr "Pendiente"
+
+#: async_notification/models.py:97 async_notification/models.py:283
+msgid "Sent"
+msgstr "Enviada"
+
+#: async_notification/models.py:98 async_notification/models.py:284
+msgid "Failed"
+msgstr "Fallido"
+
+#: async_notification/models.py:99
+msgid "Cancelled"
+msgstr "Cancelar"
+
+#: async_notification/models.py:109 async_notification/models.py:245
+msgid "List of email addresses or group references"
+msgstr "Lista de direcciones de correo o referencias a grupos"
+
+#: async_notification/models.py:118 async_notification/models.py:295
+msgid "Status"
+msgstr "Estado"
+
+#: async_notification/models.py:122
+msgid "Base template key from settings to wrap the email body"
+msgstr ""
+"Clave de plantilla base (en settings) para envolver el cuerpo del correo"
+
+#: async_notification/models.py:124
+msgid "Resolved Recipients"
+msgstr "Destinatarios resueltos"
+
+#: async_notification/models.py:125
+msgid "Resolved email addresses after processing"
+msgstr "Direcciones de correo resueltas después del procesamiento"
+
+#: async_notification/models.py:127 async_notification/models.py:300
+msgid "Delivered Recipients"
+msgstr "Destinatarios entregados"
+
+#: async_notification/models.py:128
+msgid ""
+"Addresses already delivered; a retry resumes from here instead of re-sending "
+"already-delivered batches"
+msgstr ""
+"Direcciones ya entregadas; un reintento continúa desde aquí en vez de "
+"reenviar los lotes ya entregados"
+
+#: async_notification/models.py:131
+msgid "Retry Count"
+msgstr "Cantidad de reintentos"
+
+#: async_notification/models.py:133
+msgid "Max Retries"
+msgstr "Máximo de reintentos"
+
+#: async_notification/models.py:134
+msgid "Maximum number of send attempts before failing"
+msgstr "Número máximo de intentos de envío antes de fallar"
+
+#: async_notification/models.py:136
+msgid "Last Attempt"
+msgstr "Último intento"
+
+#: async_notification/models.py:138 async_notification/models.py:304
+msgid "Error Message"
+msgstr "Mensaje"
+
+#: async_notification/models.py:140
+msgid "Enqueued"
+msgstr "Encolado"
+
+#: async_notification/models.py:141
+msgid ""
+"If True, processed by backend/cron. If False, sent immediately via signal."
+msgstr ""
+"Si es verdadero, se procesa por backend/cron. Si es falso, se envía de "
+"inmediato vía señal."
+
+#: async_notification/models.py:144
+msgid "Send Individually"
+msgstr "Enviar individualmente"
+
+#: async_notification/models.py:145
+msgid "Send one email per recipient instead of batching"
+msgstr "Enviar un correo por destinatario en lugar de agruparlos"
+
+#: async_notification/models.py:147
+msgid "Promotional"
+msgstr "Promocional"
+
+#: async_notification/models.py:148
+msgid ""
+"Marketing/promotional email: adds one-click unsubscribe headers, honors the "
+"suppression list, and is sent one message per recipient. Leave off for "
+"transactional mail (password resets, receipts, etc.)."
+msgstr ""
+"Correo de marketing/promocional: agrega encabezados de cancelación de "
+"suscripción con un clic, respeta la lista de supresión, y se envía un "
+"mensaje por destinatario. Déjelo desactivado para correo transaccional "
+"(restablecimiento de contraseña, recibos, etc.)."
+
+#: async_notification/models.py:154 async_notification/models.py:261
+msgid "Created By"
+msgstr "Crear"
+
+#: async_notification/models.py:160
+msgid "Email Notification"
+msgstr "Notificacion de correo"
+
+#: async_notification/models.py:161
+#: async_notification/templates/async_notification/email_notification.html:13
+msgid "Email Notifications"
+msgstr "Ver todas las notificaciones"
+
+#: async_notification/models.py:179
+msgid "Content Type"
+msgstr "Contexto de codigo"
+
+#: async_notification/models.py:181 models.py:178 models.py:225 models.py:302
+msgid "Object ID"
+msgstr "ID del objeto"
+
+#: async_notification/models.py:185
+msgid "File"
+msgstr "Archivo"
+
+#: async_notification/models.py:187
+msgid "Is Inline"
+msgstr "Es en línea"
+
+#: async_notification/models.py:188
+msgid "If True, embedded as inline image (cid:)"
+msgstr "Si es verdadero, se incrusta como imagen en línea (cid:)"
+
+#: async_notification/models.py:191
+msgid "Content ID"
+msgstr "Contexto de codigo"
+
+#: async_notification/models.py:192
+msgid "Content-ID for inline attachments"
+msgstr "Content-ID para adjuntos en línea"
+
+#: async_notification/models.py:197 async_notification/models.py:258
+msgid "Attached File"
+msgstr "Archivo adjunto"
+
+#: async_notification/models.py:198
+msgid "Attached Files"
+msgstr "Archivos adjuntos"
+
+#: async_notification/models.py:207
+#: templates/gentelella/widgets/calendar.html:49
+#: templates/gentelella/widgets/calendar.html:96
+msgid "Title"
+msgstr "Título"
+
+#: async_notification/models.py:209
+msgid "Slug"
+msgstr "Slug"
+
+#: async_notification/models.py:212
+msgid "HTML content for the newsletter template"
+msgstr "Contenido HTML para la plantilla del boletín"
+
+#: async_notification/models.py:215
+msgid "Model Base"
+msgstr "Modelo Inspector"
+
+#: async_notification/models.py:216
+msgid "Key from ASYNC_NEWS_BASE_MODELS settings"
+msgstr "Clave de la configuración ASYNC_NEWS_BASE_MODELS"
+
+#: async_notification/models.py:220 async_notification/models.py:255
+msgid "Base template key from settings to wrap the content"
+msgstr "Clave de plantilla base (en settings) para envolver el contenido"
+
+#: async_notification/models.py:226
+msgid "Newsletter Template"
+msgstr "Plantilla Base"
+
+#: async_notification/models.py:227
+#: async_notification/templates/async_notification/newsletter_template.html:13
+msgid "Newsletter Templates"
+msgstr "Plantilla Base"
+
+#: async_notification/models.py:237
+msgid "Template"
+msgstr "Plantilla"
+
+#: async_notification/models.py:263
+msgid "Filters Querystring"
+msgstr "Querystring de filtros"
+
+#: async_notification/models.py:264
+msgid "Querystring for filtering recipients"
+msgstr "Querystring para filtrar destinatarios"
+
+#: async_notification/models.py:270 async_notification/models.py:290
+msgid "Newsletter"
+msgstr "Boletín"
+
+#: async_notification/models.py:271
+#: async_notification/templates/async_notification/newsletter.html:13
+msgid "Newsletters"
+msgstr "Boletines"
+
+#: async_notification/models.py:281
+msgid "Scheduled"
+msgstr "Programada"
+
+#: async_notification/models.py:285
+msgid "Revoked"
+msgstr "Revocada"
+
+#: async_notification/models.py:292
+msgid "Send Date"
+msgstr "Fecha de Envío"
+
+#: async_notification/models.py:298
+msgid "Celery Task ID"
+msgstr "ID de tarea de Celery"
+
+#: async_notification/models.py:301
+msgid ""
+"Addresses already delivered; a re-run resumes from here instead of re-"
+"sending to already-delivered recipients"
+msgstr ""
+"Direcciones ya entregadas; una nueva ejecución continúa desde aquí en vez de "
+"reenviar a destinatarios ya entregados"
+
+#: async_notification/models.py:310
+msgid "Newsletter Task"
+msgstr "Tarea de boletín"
+
+#: async_notification/models.py:311
+#: async_notification/templates/async_notification/newsletter_task.html:13
+msgid "Newsletter Tasks"
+msgstr "Tareas de boletín"
+
+#: async_notification/models.py:325
+msgid "Unsubscribed"
+msgstr "Desuscrito"
+
+#: async_notification/models.py:326
+msgid "Spam complaint"
+msgstr "Queja de spam"
+
+#: async_notification/models.py:327
+msgid "Hard bounce"
+msgstr "Rebote permanente"
+
+#: async_notification/models.py:328
+msgid "Manual"
+msgstr "Manual"
+
+#: async_notification/models.py:331 async_notification/models.py:359
+msgid "Email"
+msgstr "Correo electrónico"
+
+#: async_notification/models.py:334 firmador_digital/forms.py:85
+msgid "Reason"
+msgstr "Razón"
+
+#: async_notification/models.py:339
+msgid "Email Suppression"
+msgstr "Supresión de correo"
+
+#: async_notification/models.py:340
+msgid "Email Suppressions"
+msgstr "Supresiones de correo"
+
+#: async_notification/models.py:361
+msgid "Granted"
+msgstr "Otorgado"
+
+#: async_notification/models.py:363
+msgid "Source"
+msgstr "Origen"
+
+#: async_notification/models.py:369
+msgid "Email Consent"
+msgstr "Consentimiento de correo"
+
+#: async_notification/models.py:370
+msgid "Email Consents"
+msgstr "Plantillas de correos"
+
+#: async_notification/templates/async_notification/_autocomplete_results.html:9
+msgid "No results found."
+msgstr "No se encontró"
+
+#: async_notification/templates/async_notification/_editor_modal.html:9
+#: async_notification/templates/async_notification/_editor_modal.html:44
+#: async_notification/templates/async_notification/_newsletter_modal.html:9
+#: async_notification/templates/async_notification/_newsletter_modal.html:48
+#: async_notification/templates/async_notification/_preview_modal.html:9
+#: async_notification/templates/async_notification/_preview_modal.html:19
+#: async_notification/templates/async_notification/email_template.html:28
+#: async_notification/templates/async_notification/email_template.html:64
+#: async_notification/templates/async_notification/email_template.html:78
+#: async_notification/templates/async_notification/email_template.html:114
+#: async_notification/templates/async_notification/email_template.html:131
+#: async_notification/templates/async_notification/email_template.html:140
+#: templates/gentelella/blocks/modal_template.html:9
+#: templates/gentelella/blocks/modal_template.html:20
+#: templates/gentelella/blocks/modal_template_detail.html:9
+#: templates/gentelella/blocks/modal_template_detail.html:14
+#: templates/gentelella/blocks/permissions_management.html:36
+#: templates/gentelella/menu/palette_modal.html:27
+#: templates/gentelella/menu/palette_modal.html:51
+#: templates/gentelella/widgets/addselect.html:22
+#: templates/gentelella/widgets/addtreeselect.html:25
+#: templates/gentelella/widgets/calendar.html:44
+#: templates/gentelella/widgets/calendar.html:90
+#: templates/gentelella/widgets/calendar.html:132
+msgid "Close"
+msgstr "Cerrar"
+
+#: async_notification/templates/async_notification/_editor_modal.html:23
+msgid "Variables"
+msgstr "Variables"
+
+#: async_notification/templates/async_notification/_editor_modal.html:25
+#: async_notification/templates/async_notification/email_template.html:45
+#: async_notification/templates/async_notification/email_template.html:95
+msgid "Select a context code to inspect available fields."
+msgstr ""
+"Seleccione un código de contexto para inspeccionar los campos disponibles."
+
+#: async_notification/templates/async_notification/_editor_modal.html:31
+#: async_notification/templates/async_notification/_newsletter_modal.html:36
+#: async_notification/templates/async_notification/_preview_modal.html:8
+#: async_notification/templates/async_notification/email_template.html:51
+#: async_notification/templates/async_notification/email_template.html:55
+#: async_notification/templates/async_notification/email_template.html:101
+#: async_notification/templates/async_notification/email_template.html:105
+#: blog/templates/gentelella/blog/entry_list.html:60
 msgid "Preview"
 msgstr "Previsualizar"
 
+#: async_notification/templates/async_notification/_editor_modal.html:33
+#: async_notification/templates/async_notification/_newsletter_modal.html:25
+msgid "Refresh"
+msgstr "Actualizar"
+
+#: async_notification/templates/async_notification/_editor_modal.html:45
+#: async_notification/templates/async_notification/_newsletter_modal.html:49
+#: async_notification/templates/async_notification/email_template.html:65
+#: async_notification/templates/async_notification/email_template.html:115
+#: templates/gentelella/blocks/modal_template.html:21
+#: templates/gentelella/menu/palette_modal.html:28
+msgid "Save changes"
+msgstr "Guardar cambios"
+
+#: async_notification/templates/async_notification/_email_footer.html:6
+msgid "Don't want these emails?"
+msgstr "¿No quiere recibir estos correos?"
+
+#: async_notification/templates/async_notification/_email_footer.html:7
+#: async_notification/templates/async_notification/unsubscribe.html:7
+#: async_notification/templates/async_notification/unsubscribe.html:27
+msgid "Unsubscribe"
+msgstr "Cancelar suscripción"
+
+#: async_notification/templates/async_notification/_filter_form.html:4
+msgid "Recipient filters"
+msgstr "Limpiar filtros"
+
+#: async_notification/templates/async_notification/_model_tree.html:17
+msgid "No fields found."
+msgstr "No se encontró"
+
+#: async_notification/templates/async_notification/_newsletter_modal.html:23
+msgid "Email preview"
+msgstr "Vista previa de imagen"
+
+#: async_notification/templates/async_notification/base/executive.html:7
+msgid "Official communication"
+msgstr "Comunicación oficial"
+
+#: async_notification/templates/async_notification/base/executive.html:18
+msgid "Company"
+msgstr "Empresa"
+
+#: async_notification/templates/async_notification/base/executive.html:34
+msgid ""
+"This message and any attachments are confidential and intended solely for "
+"the addressee."
+msgstr ""
+"Este mensaje y cualquier archivo adjunto son confidenciales y están "
+"destinados únicamente al destinatario."
+
+#: async_notification/templates/async_notification/base/newsletter.html:9
+msgid "Latest news and updates"
+msgstr "Últimas noticias y actualizaciones"
+
+#: async_notification/templates/async_notification/base/product.html:9
+msgid "What's new"
+msgstr "Nuevo"
+
+#: async_notification/templates/async_notification/base/product.html:20
+msgid "Product update"
+msgstr "Actualización de producto"
+
+#: async_notification/templates/async_notification/base/product.html:30
+msgid "Learn more"
+msgstr "Saber más"
+
+#: async_notification/templates/async_notification/base/transactional.html:7
+msgid "Account notification"
+msgstr "Activación de cuentas"
+
+#: async_notification/templates/async_notification/base/transactional.html:25
+msgid "You are receiving this message because it relates to your account."
+msgstr "Recibe este mensaje porque está relacionado con su cuenta."
+
+#: async_notification/templates/async_notification/base/transactional.html:26
+msgid "Need help?"
+msgstr "¿Necesita ayuda?"
+
+#: async_notification/templates/async_notification/email_notification.html:24
+msgid "Compose email"
+msgstr "Enviar correo"
+
+#: async_notification/templates/async_notification/email_notification.html:25
+msgid "Update email"
+msgstr "Actualizar Plantilla"
+
+#: async_notification/templates/async_notification/email_notification.html:30
+msgid "Delete Notification"
+msgstr "Lista de notificaciones"
+
+#: async_notification/templates/async_notification/email_template.html:27
+msgid "Create Template"
+msgstr "Actualizar Plantilla"
+
+#: async_notification/templates/async_notification/email_template.html:42
+#: async_notification/templates/async_notification/email_template.html:92
+msgid "Model Inspector"
+msgstr "Modelo Inspector"
+
+#: async_notification/templates/async_notification/email_template.html:77
+msgid "Update Template"
+msgstr "Actualizar Plantilla"
+
+#: async_notification/templates/async_notification/email_template.html:121
+#: async_notification/templates/async_notification/newsletter_template.html:30
+msgid "Delete Template"
+msgstr "Actualizar Plantilla"
+
+#: async_notification/templates/async_notification/email_template.html:130
+msgid "Template Preview"
+msgstr "Previsualización de plantilla"
+
+#: async_notification/templates/async_notification/newsletter.html:24
+msgid "Create Newsletter"
+msgstr "Nuevo"
+
+#: async_notification/templates/async_notification/newsletter.html:25
+msgid "Update Newsletter"
+msgstr "Actualizar Plantilla"
+
+#: async_notification/templates/async_notification/newsletter.html:30
+msgid "Delete Newsletter"
+msgstr "Eliminar este archivo"
+
+#: async_notification/templates/async_notification/newsletter_task.html:23
+msgid "Schedule Task"
+msgstr "Programada"
+
+#: async_notification/templates/async_notification/newsletter_task.html:27
+msgid "Update Task"
+msgstr "Actualizar"
+
+#: async_notification/templates/async_notification/newsletter_task.html:30
+msgid "Delete Task"
+msgstr "Eliminar"
+
+#: async_notification/templates/async_notification/newsletter_template.html:24
+msgid "Create Newsletter Template"
+msgstr "Plantilla Base"
+
+#: async_notification/templates/async_notification/newsletter_template.html:25
+msgid "Update Newsletter Template"
+msgstr "Actualizar Plantilla"
+
+#: async_notification/templates/async_notification/unsubscribe.html:23
+msgid "You have been unsubscribed"
+msgstr "Ha cancelado su suscripción"
+
+#: async_notification/templates/async_notification/unsubscribe.html:24
+#, python-format
+msgid ""
+"<span class=\"email\">%(email)s</span> will no\n"
+"\t\t\t\tlonger receive these emails."
+msgstr ""
+"<span class=\"email\">%(email)s</span> ya no\n"
+"\t\t\t\trecibirá más estos correos."
+
+#: async_notification/templates/async_notification/unsubscribe.html:28
+#, python-format
+msgid ""
+"Do you want to stop receiving these emails at\n"
+"\t\t\t\t<span class=\"email\">%(email)s</span>?"
+msgstr ""
+"¿Desea dejar de recibir estos correos en\n"
+"\t\t\t\t<span class=\"email\">%(email)s</span>?"
+
+#: async_notification/templates/async_notification/unsubscribe.html:31
+msgid "Yes, unsubscribe me"
+msgstr "Sí, cancelar mi suscripción"
+
+#: blog/models.py:26 blog/models.py:94 history/utils.py:12
+msgid "created"
+msgstr "creado"
+
+#: blog/models.py:27 blog/models.py:95
+msgid "modified"
+msgstr "modificado"
+
+#: blog/templates/gentelella/blog/entry_delete.html:12
+msgid "Deleting "
+msgstr "Eliminando "
+
+#: blog/templates/gentelella/blog/entry_delete.html:16
+msgid "Yes, Delete it"
+msgstr "Si, eliminarlo"
+
+#: blog/templates/gentelella/blog/entry_detail.html:14
+msgid "Draf"
+msgstr "Borrador"
+
+#: blog/templates/gentelella/blog/entry_detail.html:18
+#: blog/templates/gentelella/blog/entry_list.html:60
+msgid "This show the last version of the entry (it\\"
+msgstr "Esto muestra la última versión de la entrada"
+
+#: blog/templates/gentelella/blog/entry_detail.html:33
+#: blog/templates/gentelella/blog/entry_list.html:38
+msgid "Preview image for"
+msgstr "Previsualización de"
+
+#: blog/templates/gentelella/blog/entry_form.html:16
+#: templates/gentelella/blocks/permissions_management.html:37
+#: templates/gentelella/digital_signature/update_signature_settings.html:29
+#: templates/gentelella/widgets/calendar.html:78
+#: templates/gentelella/widgets/calendar.html:134
+msgid "Save"
+msgstr "Guardar"
+
+#: blog/templates/gentelella/blog/entry_form.html:17
+msgid "Publish"
+msgstr "Publicar"
+
+#: blog/templates/gentelella/blog/entry_list.html:47
+msgid "by"
+msgstr "por"
+
+#: blog/templates/gentelella/blog/entry_list.html:47
+msgid "Anonymous"
+msgstr "Anónimo"
+
+#: blog/templates/gentelella/blog/entry_list.html:53
+msgid "(More...)"
+msgstr "(Más...)"
+
+#: blog/templates/gentelella/blog/entry_list.html:65
+#: templates/gentelella/cruds/update.html:4
+#: templates/gentelella/cruds/update.html:6
+#: templates/gentelella/cruds/update.html:22
 msgid "Update"
 msgstr "Actualizar"
 
+#: blog/templates/gentelella/blog/entry_list.html:68
+#: templates/gentelella/blocks/crud_list.html:15
+#: templates/gentelella/cruds/_form.html:22
+#: templates/gentelella/cruds/list.html:117
+#: templates/gentelella/widgets/calendar.html:130
 msgid "Delete"
 msgstr "Eliminar"
 
+#: blog/templates/gentelella/blog/entry_list.html:83
 msgid "New Post"
 msgstr "Nueva Entrada"
 
+#: blog/templates/gentelella/blog/entry_list.html:89
 msgid "Categories"
 msgstr "Categorías"
 
+#: blog/views.py:145
 msgid "An error happen, please try again"
 msgstr "Un error ocurrió, por favor vuelva a intentarlo"
 
+#: blog/views.py:154
 msgid "Name of new category"
 msgstr "Nombre de la nueva categoría"
 
+#: chunked_upload/constants.py:15
 msgid "Uploading"
 msgstr "Subiendo"
 
+#: chunked_upload/constants.py:16
 msgid "Complete"
 msgstr "Completo"
 
+#: cruds/base.py:642
 #, python-format
 msgid "Can see available %s"
 msgstr "Puede ver los disponibles %s"
 
+#: fields/files.py:33
 msgid ""
 "A list of elements is expected, ej: [{name: 'name of file', value:'base64 "
 "string representation'}]"
@@ -100,6 +771,7 @@ msgstr ""
 "Se espera una lista de elementos, ej: [{name: 'nombre del archivo', "
 "value:'representación en cadena base64'}]"
 
+#: fields/files.py:48
 msgid ""
 "Invalid structure you need to provide {name: 'name of file', value:'base64 "
 "string representation'}"
@@ -107,403 +779,618 @@ msgstr ""
 "Estructura inválida, necesitas proporcionar {name: 'nombre del archivo', "
 "value:'representación en cadena base64'}"
 
+#: fields/maps.py:15
+msgid "Enter a point as 'latitude,longitude'."
+msgstr "Ingrese un punto como 'latitud,longitud'."
+
+#: fields/maps.py:16
+msgid "Latitude and longitude must be numbers."
+msgstr "La latitud y la longitud deben ser números."
+
+#: fields/maps.py:17
+msgid "Latitude must be between -90 and 90."
+msgstr "La latitud debe estar entre -90 y 90."
+
+#: fields/maps.py:18
+msgid "Longitude must be between -180 and 180."
+msgstr "La longitud debe estar entre -180 y 180."
+
+#: fields/maps.py:91
+msgid "GPS point stored as 'latitude,longitude'"
+msgstr "Punto GPS almacenado como 'latitud,longitud'"
+
+#: fields/pdf.py:29
+#, python-format
+msgid "Only PDF files are allowed. Got file with extension: %(extension)s"
+msgstr ""
+
+#: fields/pdf.py:31
+#, python-format
+msgid "Invalid file type: %(content_type)s. Only PDF files are allowed."
+msgstr ""
+
+#: fields/pdf.py:33
+msgid "File does not appear to be a valid PDF."
+msgstr ""
+
+#: firmador_digital/consumers/sign.py:68
 msgid "Invalid request."
 msgstr "Petición inválida."
 
+#: firmador_digital/consumers/sign.py:80
 msgid "An unexpected error occurred."
 msgstr "Ha ocurrido un error inesperado.."
 
+#: firmador_digital/forms.py:27
 msgid "Card"
 msgstr "Carta"
 
+#: firmador_digital/forms.py:38
 msgid "Invalid value not encoded as b64 o json parser error"
 msgstr ""
 "Valor inválido, debe ser un documento base64 o un error al parsear el json"
 
+#: firmador_digital/forms.py:46
 msgid "Contact"
 msgstr "Contacto"
 
+#: firmador_digital/forms.py:52
 msgid "Date format"
 msgstr "Formato de fecha"
 
+#: firmador_digital/forms.py:59
 msgid "Signature message"
 msgstr "Mensaje de firma"
 
+#: firmador_digital/forms.py:65
 msgid "Font alignment"
 msgstr "Alineación de fuente"
 
+#: firmador_digital/forms.py:71
 msgid "Font color"
 msgstr "Color de fuente"
 
+#: firmador_digital/forms.py:79
 msgid "Font size"
 msgstr "Tamaño de fuente"
 
+#: firmador_digital/forms.py:82
 msgid "Place"
 msgstr "Lugar"
 
-msgid "Reason"
-msgstr "Razón"
-
+#: firmador_digital/forms.py:88
 msgid "Visible signature"
 msgstr "Firma visible"
 
+#: firmador_digital/forms.py:91
 msgid "Signature image"
 msgstr "Imagen de firma"
 
+#: firmador_digital/forms.py:123
 msgid "Image preview"
 msgstr "Vista previa de imagen"
 
+#: firmador_digital/models.py:13
 msgid "None"
-msgstr ""
+msgstr "Ninguno"
 
+#: firmador_digital/models.py:14
 msgid "Right"
-msgstr ""
+msgstr "Derecha"
 
+#: firmador_digital/models.py:15
 msgid "Left"
-msgstr ""
+msgstr "Izquierda"
 
+#: firmador_digital/models.py:16
 msgid "Top"
-msgstr ""
+msgstr "Arriba"
 
+#: firmador_digital/models.py:17
 msgid "Bottom"
-msgstr ""
+msgstr "Abajo"
 
+#: firmador_digital/utils.py:65 firmador_digital/utils.py:119
 msgid "An unexpected error occurred during the signing process."
 msgstr ""
 "Un error inesperado ha ocurrido durante el proceso de firmado de documentos."
 
+#: firmador_digital/utils.py:81
 msgid "An error occurred while communicating with the signing service."
 msgstr ""
 "Ha ocurrido un error al conectar con los servicios de firmado de documentos."
 
+#: firmador_digital/utils.py:92
 msgid "Unable to connect to the signing service."
 msgstr "No se puede conectar con los servicios de firmado."
 
+#: firmador_digital/utils.py:101
 msgid "The request to the signing service timed out."
 msgstr "El tiempo de espera del servicio de firma ha expirado."
 
+#: firmador_digital/utils.py:110
 msgid "An exception ocurred el request to the signing service."
 msgstr "Un error ha ocurrido enviando la petición a los servicios de firmado."
 
+#: firmador_digital/views.py:21
 msgid "Updated signature settings successfully."
 msgstr "Configuración de firma actualizada correctamente."
 
-#, fuzzy
-#| msgid "Create"
+#: history/api.py:78
 msgid "Created"
 msgstr "Crear"
 
-#, fuzzy
-#| msgid "Update"
+#: history/api.py:111
 msgid "Updated"
 msgstr "Actualizar"
 
-#, fuzzy
-#| msgid "Delete"
+#: history/api.py:116
 msgid "Deleted"
 msgstr "Eliminar"
 
-#, fuzzy
-#| msgid "Not found"
+#: history/serializers.py:17
 msgid "No user found"
 msgstr "No se encontró"
 
+#: history/serializers.py:23 trash/api.py:96
 msgid "Hard deleted"
 msgstr "Eliminación permanente"
 
+#: history/serializers.py:25 trash/api.py:133
 msgid "Restored"
 msgstr "Restaurado"
 
-#, fuzzy
-#| msgid "Update"
+#: history/utils.py:13
 msgid "updated"
 msgstr "Actualizar"
 
+#: history/utils.py:14
 msgid "deleted"
 msgstr "eliminado"
 
+#: history/utils.py:15
 msgid "hard deleted"
 msgstr "eliminado permanentemente"
 
+#: history/utils.py:16
 msgid "restored"
 msgstr "restaurado"
 
+#: history/utils.py:121
 #, python-format
 msgid "An object of model %(model)s has been %(action)s"
 msgstr "Un objeto del modelo %(model)s ha sido %(action)s"
 
+#: history/utils.py:141
 #, python-format
 msgid "%(msg)s. Fields: %(fields)s"
 msgstr "%(msg)s. Campos: %(fields)s"
 
+#: history/utils.py:147
 #, python-format
 msgid "The record %(obj)s of model %(model)s has been %(action)s"
 msgstr "El registro %(obj)s del modelo %(model)s ha sido %(action)s"
 
-#, python-brace-format
-msgid "Do you want to delete {obj}?"
-msgstr "¿Desea eliminar {obj}?"
-
+#: models.py:65
 msgid "Help title"
 msgstr "Título de ayuda"
 
+#: models.py:66
 msgid "Help text"
 msgstr "Texto de ayuda"
 
+#: models.py:73
 msgid "Visible"
 msgstr "Visible"
 
+#: models.py:73
 msgid "Hidden"
 msgstr "Oculto"
 
+#: models.py:76
 msgid "Default"
 msgstr "Por defecto"
 
+#: models.py:77
 msgid "Information"
 msgstr "Información"
 
+#: models.py:78
 msgid "Success"
 msgstr "Éxito"
 
+#: models.py:79
 msgid "Warning"
 msgstr "Precaución"
 
+#: models.py:80
 msgid "Danger"
 msgstr "Peligro"
 
+#: models.py:83 templates/gentelella/menu/notification_list.html:42
+#: templates/gentelella/widgets/calendar.html:71
+#: templates/gentelella/widgets/calendar.html:118
 msgid "Description"
 msgstr "Descripción"
 
+#: models.py:84 templates/gentelella/menu/notification_list.html:43
 msgid "Link"
 msgstr "Enlace"
 
+#: models.py:86 templates/gentelella/blocks/permissions_management.html:16
+#: templates/gentelella/statics/javascript.html:122
 msgid "User"
 msgstr "Usuario"
 
+#: models.py:90
 msgid "Message Type"
 msgstr "Tipo de mensaje"
 
+#: models.py:93 templates/gentelella/menu/notification_list.html:47
 msgid "State"
 msgstr "Estado"
 
+#: models.py:95 models.py:108
 msgid "Category"
 msgstr "Categoría"
 
+#: models.py:107
 msgid "Name"
 msgstr "Nombre"
 
+#: models.py:109
 msgid "Url Name"
 msgstr "Nombre de la url"
 
+#: models.py:115
 msgid "Permission"
 msgstr "Permiso"
 
+#: models.py:168
+msgid "Log entry"
+msgstr "Entrada de bitácora"
+
+#: models.py:175 models.py:223 models.py:300
 msgid "Content type"
-msgstr ""
+msgstr "Tipo de contenido"
 
-msgid "Object ID"
-msgstr ""
+#: models.py:181
+msgid "Data"
+msgstr "Datos"
 
+#: models.py:205
+msgid "History relation"
+msgstr "Relación de bitácora"
+
+#: models.py:206
+msgid "History relations"
+msgstr "Relaciones de bitácora"
+
+#: models.py:213
+#, python-format
+msgid "Extra data of log entry %(pk)s"
+msgstr "Datos extra de la entrada de bitácora %(pk)s"
+
+#: models.py:228
 msgid "Object repr"
-msgstr ""
+msgstr "Representación del objeto"
 
+#: models.py:230
 msgid "Value of str(instance) at deletion time"
-msgstr ""
+msgstr "Valor de str(instance) al momento de la eliminación"
 
-#, fuzzy
-#| msgid "Delete"
+#: models.py:237
 msgid "Deleted by"
 msgstr "Eliminar"
 
+#: models.py:247 models.py:248
 msgid "Trash"
-msgstr ""
+msgstr "Papelera"
 
+#: models.py:251
 #, python-format
 msgid "%(obj)s in trash"
 msgstr "%(obj)s en papelera"
 
+#: models.py:297
+msgid "Trash entry"
+msgstr "Entrada de papelera"
+
+#: models.py:310
+msgid "Trash relation"
+msgstr "Relación de papelera"
+
+#: models.py:311
+msgid "Trash relations"
+msgstr "Relaciones de papelera"
+
+#: notification/__init__.py:95
 msgid "This is a html email, please use a visor with HTML support"
 msgstr "Este es un correo HTML, por favor use un cliente con soporte HTML"
 
+#: settings.py:13
 msgid "You have a new notification"
 msgstr "Usted tiene una nueva notificación"
 
-msgid "Cancel"
-msgstr "Cancelar"
-
-msgid "Submit"
-msgstr "Enviar"
-
-msgid "New"
-msgstr "Nuevo"
-
-msgid "Remove"
-msgstr "Eliminar"
-
-msgid "Do you really want to remove"
-msgstr "¿Está seguro de eliminar"
-
-msgid "Confirm remove"
-msgstr "Confirmar eliminación"
-
-msgid "Actions"
-msgstr "Acciones"
-
-msgid "Show"
-msgstr "Ver"
-
-msgid "Edit"
-msgstr "Editar"
-
-msgid "No items yet."
-msgstr "Sin elementos."
-
+#: templates/gentelella/app/footer.html:6
+#: templates/gentelella/registration/footer.html:7
+#: templates/gentelella/registration/password_reset_form.html:32
 msgid "All Rights Reserved."
 msgstr "Todos los derechos reservados."
 
+#: templates/gentelella/app/top_navigation.html:21
 msgid "Add Permission"
 msgstr "Agregar Permisos"
 
+#: templates/gentelella/blocks/breadcrumb.html:8
+msgid "Breadcrumb"
+msgstr ""
+
+#: templates/gentelella/blocks/listcard_template.html:13
 msgid "Search"
 msgstr "Buscar"
 
+#: templates/gentelella/blocks/listcard_template.html:17
 msgid "Clean"
 msgstr "Limpiar filtros"
 
-msgid "Close"
-msgstr "Cerrar"
-
-msgid "Save changes"
-msgstr "Guardar cambios"
-
+#: templates/gentelella/blocks/modal_template_delete.html:8
 msgid "Confirmation for delete. Are you sure?"
 msgstr "Confirmación de borrado, ¿está seguro?"
 
+#: templates/gentelella/blocks/modal_template_delete.html:9
+#: templates/gentelella/blocks/modal_template_delete.html:21
+#: templates/gentelella/widgets/calendar.html:77
+#: templates/gentelella/widgets/record_audio.html:7
+#: templates/gentelella/widgets/record_photo.html:9
+#: templates/gentelella/widgets/record_video.html:8
+#: templates/gentelella/widgets/voice_dictation.html:8
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: templates/gentelella/blocks/modal_template_delete.html:22
 msgid "Confirm"
 msgstr "Confirmar"
 
+#: templates/gentelella/blocks/permissions_management.html:7
 msgid "Permission Management"
 msgstr "Gestion de Permisos"
 
+#: templates/gentelella/blocks/permissions_management.html:14
 msgid "Permission Type"
 msgstr "Tipo de Permiso"
 
+#: templates/gentelella/blocks/permissions_management.html:17
+#: templates/gentelella/statics/javascript.html:125
 msgid "Group"
 msgstr "Grupo"
 
+#: templates/gentelella/blocks/squirrelly_pagination.html:7
 msgid "First"
 msgstr "Primero"
 
+#: templates/gentelella/blocks/squirrelly_pagination.html:14
 msgid "Last"
 msgstr "Último"
 
+#: templates/gentelella/cruds/403.html:5 templates/gentelella/cruds/403.html:6
 msgid "Error 403"
 msgstr "Error 403"
 
+#: templates/gentelella/cruds/403.html:11
 msgid "Return to Main Page"
 msgstr "Volver a inicio"
 
+#: templates/gentelella/cruds/_form.html:24
+#: templates/gentelella/registration/password_change_form.html:17
+#: templates/gentelella/registration/password_reset_confirm.html:18
+#: templates/gentelella/registration/registration_form.html:17
+#: templates/gentelella/widgets/addselect.html:23
+#: templates/gentelella/widgets/addtreeselect.html:26
+msgid "Submit"
+msgstr "Enviar"
+
+#: templates/gentelella/cruds/create.html:4
+#: templates/gentelella/cruds/create.html:6
 msgid "Create new"
 msgstr "Nuevo"
 
+#: templates/gentelella/cruds/create.html:16
+#: templates/gentelella/cruds/delete.html:13
+#: templates/gentelella/cruds/detail.html:19
+#: templates/gentelella/cruds/update.html:16
 msgid "Back to"
 msgstr "Atrás"
 
+#: templates/gentelella/cruds/create.html:21
+msgid "New"
+msgstr "Nuevo"
+
+#: templates/gentelella/cruds/delete.html:19
+#: templates/gentelella/cruds/delete.html:34
+msgid "Remove"
+msgstr "Eliminar"
+
+#: templates/gentelella/cruds/delete.html:25
+#: templates/gentelella/cruds/detail.html:30
+#: templates/gentelella/cruds/list.html:113
+msgid "Edit"
+msgstr "Editar"
+
+#: templates/gentelella/cruds/delete.html:39
+msgid "Confirm remove"
+msgstr "Confirmar eliminación"
+
+#: templates/gentelella/cruds/detail.html:5
+#: templates/gentelella/cruds/detail.html:7
+#: templates/gentelella/cruds/detail.html:25
 msgid "Detail of"
 msgstr "Detalle de"
 
+#: templates/gentelella/cruds/detail.html:41
 msgid "Label"
 msgstr "Etiqueta"
 
+#: templates/gentelella/cruds/detail.html:41
 msgid "Value"
 msgstr "Valor"
 
+#: templates/gentelella/cruds/list.html:5
+#: templates/gentelella/cruds/list.html:7
+#: templates/gentelella/cruds/list.html:17
 msgid "List of"
 msgstr "Lista de"
 
+#: templates/gentelella/cruds/list.html:24
 msgid "Create new "
 msgstr "Crear nuevo "
 
+#: templates/gentelella/cruds/list.html:41
 msgid "Search for..."
 msgstr "Búsqueda para ..."
 
+#: templates/gentelella/cruds/list.html:58
 msgid "Filters"
 msgstr "Flitros"
 
+#: templates/gentelella/cruds/list.html:72
 msgid "Filter"
 msgstr "Filtro"
 
+#: templates/gentelella/cruds/list.html:73
 msgid "Clean filter"
 msgstr "Limpiar filtros"
 
+#: templates/gentelella/cruds/list.html:93
+msgid "Actions"
+msgstr "Acciones"
+
+#: templates/gentelella/cruds/list.html:109
+#: templates/gentelella/email/notification.html:10
+msgid "Show"
+msgstr "Ver"
+
+#: templates/gentelella/cruds/list.html:127
+msgid "No items yet."
+msgstr "Sin elementos."
+
+#: templates/gentelella/cruds/pagination/prev_next.html:8
+#: templates/gentelella/widgets/digital_signature.html:181
 msgid "Previous"
 msgstr "Anterior"
 
+#: templates/gentelella/cruds/pagination/prev_next.html:12
+#: templates/gentelella/widgets/digital_signature.html:197
 msgid "Page"
 msgstr "Página"
 
+#: templates/gentelella/cruds/pagination/prev_next.html:12
 msgid "of"
 msgstr "de"
 
+#: templates/gentelella/cruds/pagination/prev_next.html:16
+#: templates/gentelella/widgets/digital_signature.html:184
 msgid "Next"
 msgstr "Siguiente"
 
-msgid "Create"
-msgstr "Crear"
-
+#: templates/gentelella/digital_signature/update_signature_settings.html:5
+#: templates/gentelella/digital_signature/update_signature_settings.html:16
 msgid "Signature settings"
 msgstr "Configuración de firma"
 
+#: templates/gentelella/menu/notificacion.html:30
 msgid "Show all notifications"
 msgstr "Ver todas las notificaciones"
 
+#: templates/gentelella/menu/notification_list.html:10
 msgid "List of notifications"
 msgstr "Lista de notificaciones"
 
+#: templates/gentelella/menu/notification_list.html:37
 msgid "Type"
 msgstr "Tipo"
 
+#: templates/gentelella/menu/notification_list.html:41
 msgid "Creation date"
 msgstr "Fecha de creación"
 
+#: templates/gentelella/menu/palette.html:8
 msgid "Help"
 msgstr "Ayuda"
 
+#: templates/gentelella/menu/palette.html:30
+msgid "There is no help written for this page yet."
+msgstr ""
+
+#: templates/gentelella/menu/palette.html:31
+msgid ""
+"Press the green plus, then the\n"
+"                        question mark that appears beside a field, and write "
+"what\n"
+"                        it is for."
+msgstr ""
+
+#: templates/gentelella/menu/palette_modal.html:7
+#, fuzzy
+#| msgid "Delete this file"
+msgid "Help for this field"
+msgstr "Eliminar este archivo"
+
+#: templates/gentelella/menu/palette_modal.html:12
+msgid ""
+"The title is what the help panel lists. The text is what\n"
+"          someone reads when they click the question mark beside this\n"
+"          field."
+msgstr ""
+
+#: templates/gentelella/menu/palette_modal.html:38
 msgid "Deleting help instance"
 msgstr "Eliminar instancia de ayuda"
 
+#: templates/gentelella/menu/palette_modal.html:46
 msgid "You are deleting the next helping item"
 msgstr "Está eliminando el siguiente elemento de ayuda"
 
+#: templates/gentelella/menu/palette_modal.html:48
 msgid "Are you sure you want to continue?"
 msgstr "¿Está seguro que desea continuar?"
 
+#: templates/gentelella/menu/palette_modal.html:52
 msgid "Yes, delete it"
 msgstr "Si eliminarlo"
 
+#: templates/gentelella/registration/activate.html:11
 msgid "Account activation failed"
 msgstr "Activación de cuentas falló"
 
+#: templates/gentelella/registration/activation_complete.html:12
 msgid "Your account is now activated."
 msgstr "Su cuenta está activada."
 
+#: templates/gentelella/registration/activation_email.txt:2
 msgid "Activate account at"
 msgstr "Cuenta activada el"
 
+#: templates/gentelella/registration/activation_email.txt:6
 #, python-format
 msgid "Link is valid for %(expiration_days)s days."
 msgstr "Enlace es válido por %(expiration_days)s días."
 
+#: templates/gentelella/registration/activation_email_subject.txt:1
 msgid "Account activation on"
 msgstr "Activación de cuentas"
 
+#: templates/gentelella/registration/login.html:15
+#: templates/gentelella/registration/logout.html:34
 msgid "Login"
 msgstr "Iniciar sesión"
 
+#: templates/gentelella/registration/login.html:18
 msgid "Your username and password didn't match. Please try again."
 msgstr ""
 "Nombre de usuario o contraseña no concuerdan. Por favor intente de nuevo."
 
+#: templates/gentelella/registration/login.html:23
 msgid ""
 "Your account doesn't have access to this page. To proceed,\n"
 "\t\t\t\t\t\t\tplease login with an account that has access."
@@ -512,62 +1399,81 @@ msgstr ""
 "                        por favor inicie sesión con otra cuenta con permisos "
 "suficientes."
 
+#: templates/gentelella/registration/login.html:26
 msgid "Please login to see this page."
 msgstr "Por favor inicie sesión para ver esta página."
 
+#: templates/gentelella/registration/login.html:32
 msgid "Username"
 msgstr "Nombre de usuario"
 
+#: templates/gentelella/registration/login.html:35
 msgid "Password"
 msgstr "Contraseña"
 
+#: templates/gentelella/registration/login.html:38
+#: templates/gentelella/registration/password_reset_complete.html:15
 msgid "Log in"
 msgstr "Ingresar"
 
+#: templates/gentelella/registration/login.html:39
 msgid "Lost your password?"
 msgstr "¿Olvidó su contraseña?"
 
+#: templates/gentelella/registration/logout.html:15
 msgid "Are you sure that you want to logout?"
 msgstr "¿Está seguro que desea cerrar sesión?"
 
+#: templates/gentelella/registration/logout.html:18
 msgid "Thank you for using our system; we hope you found it satisfactory."
 msgstr ""
 "Gracias por utilizar nuestro sistema, esperamos que haya sido de su agrado."
 
+#: templates/gentelella/registration/logout.html:19
 msgid ""
 "You are very close to logging out; to do so, please click the logout button."
 msgstr ""
 "Estás muy cerca de cerrar session, para eso debes hacer click en el botón de "
 "salida."
 
+#: templates/gentelella/registration/logout.html:21
 msgid "We look forward to seeing you again soon."
 msgstr "Esperamos verte de nuevo pronto."
 
+#: templates/gentelella/registration/logout.html:25
 msgid "Log out"
 msgstr "Salir"
 
+#: templates/gentelella/registration/logout.html:29
 msgid "Logged out"
 msgstr "Salir"
 
+#: templates/gentelella/registration/logout.html:30
 msgid "Do you want to login again?"
 msgstr "¿Desea iniciar sesión nuevamente?"
 
+#: templates/gentelella/registration/logout.html:31
 msgid "or maybe you want to"
 msgstr "o tal vez quiera"
 
+#: templates/gentelella/registration/logout.html:31
 msgid "go home"
 msgstr "ir a inicio"
 
+#: templates/gentelella/registration/new_user.html:5
 msgid "Welcome"
 msgstr "Bienvenida"
 
+#: templates/gentelella/registration/new_user.html:8
 msgid "This email was sent because someone create an user with your email in "
 msgstr ""
 "Este correo fue enviado porque alguien creó un usuario con su correo en "
 
+#: templates/gentelella/registration/new_user.html:10
 msgid "Your username is: "
 msgstr "Su usuario de ingreso es: "
 
+#: templates/gentelella/registration/new_user.html:11
 msgid ""
 "for security reason password was create randomly and it is not provided "
 "here, please use this link"
@@ -575,40 +1481,54 @@ msgstr ""
 "por razones de seguridad la contraseña fue creada aleatoriamente y no está "
 "agregada en este correo, por favor use el siguiente enlace"
 
+#: templates/gentelella/registration/new_user.html:13
 msgid "to regenerate new password and login on platform"
 msgstr "para regenerar una nueva contraseña e ingresá a la plataforma"
 
+#: templates/gentelella/registration/password_change_done.html:12
+#: templates/gentelella/registration/reset_done.html:12
 msgid "Password changed"
 msgstr "Contraseña modificada"
 
+#: templates/gentelella/registration/password_reset_complete.html:13
 msgid "Password reset successfully"
 msgstr "Contraseña modificada con éxito"
 
+#: templates/gentelella/registration/password_reset_confirm.html:14
 msgid "Password change"
 msgstr "Contraseña Modificada"
 
+#: templates/gentelella/registration/password_reset_confirm.html:23
 msgid "Password reset failed"
 msgstr "Cambio de contraseña falló"
 
+#: templates/gentelella/registration/password_reset_done.html:12
 msgid "Password reseted"
 msgstr "Contraseña reiniciada"
 
+#: templates/gentelella/registration/password_reset_done.html:13
 msgid "Email with password reset instructions has been sent."
 msgstr "Correo con el cambio de contraseña ha sido enviado."
 
+#: templates/gentelella/registration/password_reset_done.html:15
+#: templates/gentelella/registration/reset_done.html:15
 msgid "Go to home"
 msgstr "Ir a inicio"
 
+#: templates/gentelella/registration/password_reset_email.html:5
 #, python-format
 msgid "Reseting password at %(site_name)s"
 msgstr "Reiniciar contraseña en %(site_name)s"
 
+#: templates/gentelella/registration/password_reset_email.html:8
 msgid "Use the follow link to reset the password in the platform"
 msgstr "Use el siguiente enlace para reiniciar la contraseña en la plataforma"
 
+#: templates/gentelella/registration/password_reset_email.html:10
 msgid "Here"
 msgstr "Aquí"
 
+#: templates/gentelella/registration/password_reset_email.html:13
 msgid ""
 "This email was send because someone try to reset your password, if you "
 "didn't request a reset, please delete this email and do not more actions\n"
@@ -619,125 +1539,238 @@ msgstr ""
 "elimine este correo y no realice ninguna otra acción\n"
 "   "
 
+#: templates/gentelella/registration/password_reset_form.html:16
 msgid "Reset password"
 msgstr "Recuperar contraseña"
 
+#: templates/gentelella/registration/password_reset_form.html:18
 msgid "Please insert the user email registered in platform"
 msgstr "Por favor ingrese un correo válido registrado en la plataforma"
 
+#: templates/gentelella/registration/password_reset_form.html:23
 msgid "We will send you a email to verify you are were you say you are"
 msgstr "Vamos a enviarle un correo para verificar que usted es quien dice ser"
 
+#: templates/gentelella/registration/password_reset_form.html:27
 msgid "Send email"
 msgstr "Enviar correo"
 
+#: templates/gentelella/registration/password_reset_subject.txt:3
 #, python-format
 msgid "Password reset on %(site_name)s"
 msgstr "Contraseña reiniciada en %(site_name)s"
 
+#: templates/gentelella/registration/registration_closed.html:12
 msgid "Registration is currently closed."
 msgstr "Registro está cerrado."
 
+#: templates/gentelella/registration/registration_complete.html:12
 msgid "You are now registered. Activation email sent."
 msgstr ""
 "Usted fue registrado adecuadamente. Un correo de activación ha sido enviado."
 
+#: templates/gentelella/registration/reset_done.html:13
 msgid "You updated correctly your password please login again."
 msgstr ""
+"Actualizó su contraseña correctamente, por favor inicie sesión de nuevo."
 
+#: templates/gentelella/statics/javascript.html:118
 msgid "Select an User"
 msgstr "Seleccione a un Usuario"
 
+#: templates/gentelella/statics/javascript.html:119
 msgid "Select a Group"
 msgstr "Seleccione un grupo"
 
+#: templates/gentelella/statics/javascript.html:123
 msgid "There are fields with invalid options"
 msgstr "Hay campos con opciones no válidas"
 
+#: templates/gentelella/statics/javascript.html:124
 msgid "Not found"
 msgstr "No se encontró"
 
+#: templates/gentelella/statics/javascript.html:126
 msgid "This view has not permissions associated."
 msgstr "Esta vista no tiene permisos asociados."
 
+#: templates/gentelella/statics/javascript.html:127
 msgid "You have not selected a valid option."
 msgstr "No ha seleccionado una opción valida."
 
+#: templates/gentelella/statics/javascript.html:128
 msgid "Permission have been successfully saved."
 msgstr "Se han guardado exitosamente los permisos."
 
+#: templates/gentelella/statics/javascript.html:129
 msgid "An error occurred while saving."
 msgstr "Ha ocurrido un error al guardar."
 
+#: templates/gentelella/widgets/calendar.html:43
+msgid "Add event"
+msgstr "Agregar evento"
+
+#: templates/gentelella/widgets/calendar.html:53
+#: templates/gentelella/widgets/calendar.html:100
+msgctxt "calendar widget"
+msgid "Date"
+msgstr "Fecha"
+
+#: templates/gentelella/widgets/calendar.html:60
+#: templates/gentelella/widgets/calendar.html:107
+msgid "Time"
+msgstr "Hora"
+
+#: templates/gentelella/widgets/calendar.html:67
+#: templates/gentelella/widgets/calendar.html:114
+msgid "Color"
+msgstr "Color"
+
+#: templates/gentelella/widgets/calendar.html:89
+msgid "Edit event"
+msgstr "Editar evento"
+
+#: templates/gentelella/widgets/calendar.html:89
+msgid "Event"
+msgstr "Evento"
+
+#: templates/gentelella/widgets/calendar.html:124
+#: templates/gentelella/widgets/record_audio.html:5
+#: templates/gentelella/widgets/record_photo.html:7
+#: templates/gentelella/widgets/record_video.html:6
+msgid "Start"
+msgstr "Iniciar"
+
+#: templates/gentelella/widgets/calendar.html:125
+msgctxt "calendar widget"
+msgid "End"
+msgstr "Fin"
+
+#: templates/gentelella/widgets/checkyesno.html:2 widgets/core.py:576
 msgid "No"
 msgstr "No"
 
+#: templates/gentelella/widgets/checkyesno.html:4 widgets/core.py:575
 msgid "Yes"
 msgstr "Sí"
 
+#: templates/gentelella/widgets/chunkedupload.html:9
+#: templates/gentelella/widgets/file.html:10
+#, fuzzy
+#| msgid "Compose email"
+msgid "Choose a file"
+msgstr "Enviar correo"
+
+#: templates/gentelella/widgets/chunkedupload.html:10
+#: templates/gentelella/widgets/file.html:11
+#: templates/gentelella/widgets/pdfviewer.html:11
+msgid "or drop it here"
+msgstr ""
+
+#: templates/gentelella/widgets/chunkedupload.html:16
+#: templates/gentelella/widgets/file.html:17
+msgid "Show or change the file"
+msgstr ""
+
+#: templates/gentelella/widgets/chunkedupload.html:18
+#: templates/gentelella/widgets/file.html:19
+#: templates/gentelella/widgets/pdfviewer.html:19
+#, fuzzy
+#| msgid "Download app"
+msgid "Download"
+msgstr "Descargar aplicación"
+
+#: templates/gentelella/widgets/chunkedupload.html:25
+#: templates/gentelella/widgets/file.html:26
+#: templates/gentelella/widgets/pdfviewer.html:67
 msgid "Delete this file"
 msgstr "Eliminar este archivo"
 
+#: templates/gentelella/widgets/digital_signature.html:22
+#: templates/gentelella/widgets/digital_signature.html:48
+#: templates/gentelella/widgets/digital_signature.html:175
 msgid "Reload"
 msgstr "Recargar"
 
+#: templates/gentelella/widgets/digital_signature.html:27
 msgid "The signed option is not available."
 msgstr "La opción firmada no está disponible."
 
+#: templates/gentelella/widgets/digital_signature.html:31
 msgid "We did not find an electronic signature card."
 msgstr "No encontramos una tarjeta de firma electrónica."
 
+#: templates/gentelella/widgets/digital_signature.html:35
 msgid "Please make sure to comply with the notices or resolve the errors."
 msgstr "Asegúrese de cumplir con los avisos o resuelva los errores."
 
+#: templates/gentelella/widgets/digital_signature.html:43
+#: templates/gentelella/widgets/digital_signature.html:161
 msgid "Choose your signature card"
 msgstr "Selecciona tu tarjeta de firma"
 
+#: templates/gentelella/widgets/digital_signature.html:53
 msgid "Electronic signature card"
 msgstr "Tarjeta de firma electrónica"
 
+#: templates/gentelella/widgets/digital_signature.html:62
+#: templates/gentelella/widgets/digital_signature.html:171
 msgid "Sign"
 msgstr "Firmar"
 
+#: templates/gentelella/widgets/digital_signature.html:70
 msgid "Notices"
 msgstr "Avisos"
 
+#: templates/gentelella/widgets/digital_signature.html:74
 msgid "You need Firmador Libre installed in order to sign."
 msgstr "Necesitas instalar Firmador Libre para firmar."
 
+#: templates/gentelella/widgets/digital_signature.html:77
 msgid "Make sure your version is 1.9.8 or later."
 msgstr "Asegúrate de que tu versión sea 1.9.8 o posterior."
 
+#: templates/gentelella/widgets/digital_signature.html:81
 msgid "Run the application before proceeding with the signature."
 msgstr "Ejecuta la aplicación antes de proceder con la firma."
 
+#: templates/gentelella/widgets/digital_signature.html:86
 msgid "If the autolauncher doesn't work, I used this command line."
 msgstr "Si el lanzador automático no funciona, usé esta línea de comandos."
 
+#: templates/gentelella/widgets/digital_signature.html:87
 msgid "Show command"
 msgstr "Mostrar comando"
 
+#: templates/gentelella/widgets/digital_signature.html:95
 msgid "Copied to clipboard"
 msgstr "Copiado al portapapeles"
 
+#: templates/gentelella/widgets/digital_signature.html:100
 msgid "Copy to clipboard"
 msgstr "Copiar al portapapeles"
 
+#: templates/gentelella/widgets/digital_signature.html:119
 msgid "Download Firmador Libre"
 msgstr "Descargar Firmador Libre"
 
+#: templates/gentelella/widgets/digital_signature.html:121
 msgid "Download app"
 msgstr "Descargar aplicación"
 
+#: templates/gentelella/widgets/digital_signature.html:127
 msgid "Run Firmador Libre"
 msgstr "Ejecutar Firmador Libre"
 
+#: templates/gentelella/widgets/digital_signature.html:129
 msgid "Run app"
 msgstr "Ejecutar aplicación"
 
+#: templates/gentelella/widgets/digital_signature.html:193
 msgid "Expand"
 msgstr "Expandir"
 
+#: templates/gentelella/widgets/digital_signature.html:218
 msgid ""
 "Please go to the last page, in the signature space, try to place your "
 "signature vertically centered."
@@ -745,28 +1778,100 @@ msgstr ""
 "Por favor, vaya a la última página, en el espacio de firma, intente colocar "
 "su firma verticalmente centrada."
 
+#: templates/gentelella/widgets/digital_signature.html:232
+#: templates/gentelella/widgets/pdfviewer.html:55
 msgid "Loading..."
 msgstr "Cargando..."
 
+#: templates/gentelella/widgets/digital_signature.html:235
 msgid "Please wait while the document is being signed."
 msgstr "Por favor, espere mientras se firma el documento."
 
-msgid "Start"
-msgstr "Iniciar"
+#: templates/gentelella/widgets/pdfviewer.html:10
+msgid "Choose a PDF"
+msgstr ""
 
-msgid "This registry of trash does not exist."
-msgstr "Este registro de papelera no existe."
+#: templates/gentelella/widgets/pdfviewer.html:17
+msgid "Show or hide the preview"
+msgstr ""
 
+#: templates/gentelella/widgets/pdfviewer.html:27
+#, fuzzy
+#| msgid "Previous"
+msgid "Previous page"
+msgstr "Anterior"
+
+#: templates/gentelella/widgets/pdfviewer.html:33
+#, fuzzy
+#| msgid "Next"
+msgid "Next page"
+msgstr "Siguiente"
+
+#: templates/gentelella/widgets/pdfviewer.html:38
+#, fuzzy
+#| msgid "Log out"
+msgid "Zoom out"
+msgstr "Salir"
+
+#: templates/gentelella/widgets/pdfviewer.html:42
+msgid "Zoom in"
+msgstr ""
+
+#: templates/gentelella/widgets/pdfviewer.html:46
+msgid "Fit to width"
+msgstr ""
+
+#: templates/gentelella/widgets/voice_dictation.html:6
+msgid "Dictate"
+msgstr "Estado"
+
+#: trash/api.py:119
+msgid ""
+"The original object no longer exists; the entry can only be permanently "
+"removed."
+msgstr "El objeto original ya no existe; la entrada solo se puede eliminar permanentemente."
+
+#: trash/api.py:142
 msgid "The registry was successfully restored."
 msgstr "El registro fue restaurado con éxito."
 
+#: trash/api.py:152
 msgid "The registry could not be restored."
 msgstr "No se pudo restaurar el registro."
 
-#, fuzzy
-#| msgid "Delete"
+#: trash/serializer.py:25
 msgid "Deleted object"
 msgstr "Eliminar"
 
+#: widgets/core.py:574
 msgid "Unknown"
 msgstr "Desconocido"
+
+#: widgets/maps.py:85
+msgid "Search address"
+msgstr "Buscar"
+
+#: widgets/maps.py:86
+msgid "Use my location"
+msgstr "Usar mi ubicación"
+
+#: widgets/maps.py:87
+msgid "Clear"
+msgstr "Limpiar filtros"
+
+#, python-brace-format
+#~ msgid "Too many elements, max_file = {self.max_files}"
+#~ msgstr "Demasiados elementos, max_file = {self.max_files}"
+
+#~ msgid "Create"
+#~ msgstr "Crear"
+
+#~ msgid "Do you really want to remove"
+#~ msgstr "¿Está seguro de eliminar"
+
+#, python-brace-format
+#~ msgid "Do you want to delete {obj}?"
+#~ msgstr "¿Desea eliminar {obj}?"
+
+#~ msgid "This registry of trash does not exist."
+#~ msgstr "Este registro de papelera no existe."

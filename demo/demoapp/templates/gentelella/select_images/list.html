@@ -1,5 +1,5 @@
 {% extends 'gentelella/base.html' %}
-{% load urlname_tags %}
+{% load urlname_tags gtflags %}
 
 {% block pre_head %}
 {% get_or_create_permission_context 'imgselect-edit,imgselect-add,imgselect-list' 'demoapp' 'change_img,add_img,view_img' 'Edit image,Create image,List images' 'Img' %}
@@ -26,9 +26,19 @@
 		<div>
 			<ul class="to_do">
 				{% for obj in object_list %}
-				<li class="d-flex">
+				<li class="d-flex align-items-center">
 					<div class="p-2 flex-fill"> {{obj}}</div>
-					<div class="p-2 flex-fill"><img src="{{obj.select_image.url}}"></div>
+					{# was obj.select_image.url -- Img has no such field, so this #}
+					{# rendered an empty <img src=""> on every row.               #}
+					<div class="p-2 flex-fill">
+						{% if obj.related_name.img %}
+						<img src="{{ obj.related_name.img.url }}" style="height: 2em">
+						{% endif %}
+					</div>
+					<div class="p-2 flex-fill">
+						{% if obj.country.code %}{% flag obj.country.code title=obj.country.name %}{% endif %}
+						{% for c in obj.countries.all %}{% flag c.code title=c.name %} {% endfor %}
+					</div>
 					<div class="p-2 flex-fill">
 						<a class="btn btn-sm btn-outline-warning float-end" href="{% url 'imgselect-edit' obj.pk %}">
 							<i class="fa fa-edit"></i></a>

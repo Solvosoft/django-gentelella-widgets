@@ -51,8 +51,15 @@ Requirements
 --------------
 
 - Python 3.11+
-- Django 4.2+
-- Django REST Framework
+- Django 5.2+ (LTS)
+- Django REST Framework 3.15.2+
+- django-filter 22.1+
+- django-tree-queries 0.11+
+- Pillow
+- pycryptodome 3.23+
+
+All of them are installed automatically by ``pip install djgentelella``.
+See :doc:`installation` for the optional extras.
 
 Quick Example
 ---------------

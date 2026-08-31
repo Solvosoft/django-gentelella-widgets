@@ -1,0 +1,39 @@
+/* BreadcrumbNav: the hierarchical path that fills the breadcrumbs block of
+ * base.html and plain.html, which ship empty. Bootstrap already styles
+ * .breadcrumb; this only adds the two things it does not cover -- keeping the
+ * trail on one line so the collapse logic has something to measure, and touch
+ * sized targets. */
+.gt-breadcrumb .breadcrumb {
+	flex-wrap: nowrap;
+	margin-bottom: 0;
+	overflow: hidden;
+}
+
+.gt-breadcrumb-label {
+	max-width: 24ch;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	display: inline-block;
+	vertical-align: bottom;
+}
+
+.gt-breadcrumb .btn-link {
+	padding: 0 .25rem;
+	text-decoration: none;
+	border: 0;
+	vertical-align: baseline;
+}
+
+/* Collapsed: only the first and the last level stay, the rest move into the
+ * dropdown behind the ellipsis. */
+.gt-breadcrumb-collapsed .breadcrumb-item.gt-breadcrumb-hidden {
+	display: none;
+}
+
+@media (pointer: coarse) {
+	.gt-breadcrumb .btn-link,
+	.gt-breadcrumb-more > button {
+		min-height: 44px;
+	}
+}

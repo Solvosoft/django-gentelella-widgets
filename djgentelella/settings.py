@@ -16,8 +16,8 @@ NOTIFICATION_DEFAULT_TEMPLATE = getattr(settings, 'NOTIFICATION_DEFAULT_TEMPLATE
 
 DEFAULT_JS_IMPORTS = getattr(settings, 'DEFAULT_JS_IMPORTS', {})
 DATATABLES_SUPPORT_LANGUAGES = getattr(settings, 'DATATABLES_SUPPORT_LANGUAGES', {
-    'en': static("vendors/datatables/en-GB.json"),
-    'es': static("vendors/datatables/es-ES.json")
+    'en': static('vendors/datatables/en-GB.json'),
+    'es': static('vendors/datatables/es-ES.json')
 
 })
 
@@ -88,4 +88,3 @@ MAX_BYTES = getattr(settings, 'CHUNKED_UPLOAD_MAX_BYTES', DEFAULT_MAX_BYTES)
 
 ############################################
 #   END UPLOAD CHUNKED
-

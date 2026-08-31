@@ -39,7 +39,7 @@ $(document).ready(function () {
             $("#group_container").hide();
             var checkboxes = $('input[type="checkbox"][name="permission"]');
             checkboxchecked = checkboxes.filter(':checked');
-            checkboxchecked.iCheck('uncheck');
+            checkboxchecked.prop('checked', false);
             $("#select_user").empty().trigger('change')
             $("#select_group").empty().trigger('change')
             option = 1
@@ -66,7 +66,7 @@ $(document).ready(function () {
             $("#user_container").hide();
             var checkboxes = $('input[type="checkbox"][name="permission"]');
             checkboxchecked = checkboxes.filter(':checked');
-            checkboxchecked.iCheck('uncheck');
+            checkboxchecked.prop('checked', false);
             $("#select_user").empty().trigger('change')
             $("#select_group").empty().trigger('change')
             option = 2
@@ -103,13 +103,13 @@ $(document).ready(function () {
                 var checkboxes = $('input[type="checkbox"][name="permission"]');
                 if (data['result'].length > 0) {
                     checkboxchecked = checkboxes.filter(':checked');
-                    checkboxchecked.iCheck('uncheck');
+                    checkboxchecked.prop('checked', false);
                     data['result'].forEach(function (i) {
-                        $('input[type="checkbox"][value="' + i.id + '"]').iCheck('check');
+                        $('input[type="checkbox"][value="' + i.id + '"]').prop('checked', true);
                     });
                 } else {
                     checkboxchecked = checkboxes.filter(':checked');
-                    checkboxchecked.iCheck('uncheck');
+                    checkboxchecked.prop('checked', false);
                 }
             },
             error: function (xhr, ajaxOptions, thrownError) {
@@ -155,11 +155,6 @@ $(document).ready(function () {
                     result = permission_context.not_found_permissions_label;
                 }
                 $('#permissionbody').html(result);
-                $('input[type="checkbox"][name="permission"]').iCheck({
-                    checkboxClass: 'icheckbox_flat-green',
-                    radioClass: 'iradio_flat-green',
-                    increaseArea: '20%' // optional
-                });
                 update_categorieicon_collapsed();
             },
             error: function (xhr, ajaxOptions, thrownError) {
@@ -210,7 +205,7 @@ $(document).ready(function () {
                         }
                         var checkboxes = $('input[type="checkbox"][name="permission"]');
                         checkboxchecked = checkboxes.filter(':checked');
-                        checkboxchecked.iCheck('uncheck');
+                        checkboxchecked.prop('checked', false);
                         $("#select_user").empty().trigger('change')
                         $("#select_group").empty().trigger('change')
                         Toast.fire({

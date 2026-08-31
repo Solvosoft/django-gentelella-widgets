@@ -1,0 +1,169 @@
+/* PositionsGrid. Irregular rows by design: every row is its own grid but they
+ * all share one track template through --pg-cols (the longest row), so a
+ * two-cell row occupies exactly half the width of a four-cell one, cells stay
+ * left aligned and identical in width across rows, and nothing is padded out
+ * to a rectangle.
+ *
+ * Its own file, not one of the theme stylesheets: base.html loads a swappable
+ * theme (custom.css / modern.css / modern_black_white.css /
+ * style_black_and_white.css) and anything put in one only works there. Same
+ * reasoning as maps.css. Colours come from the --bs-* custom properties, so
+ * all four themes work untouched.
+ */
+.pg {
+	--pg-cols: 1;
+	--pg-cell-min: 9rem;
+	--pg-gutter: 2.75rem;
+	--pg-gap: .5rem;
+	--pg-touch: 44px;                       /* WCAG 2.2 SC 2.5.8 target size */
+	--pg-cell-bg: var(--bs-body-bg, #fff);
+	--pg-cell-border: var(--bs-border-color, #dee2e6);
+	--pg-accent: var(--bs-primary, #0d6efd);
+	--pg-muted: var(--bs-secondary-color, #6c757d);
+}
+
+.pg-toolbar {
+	display: flex;
+	gap: .5rem;
+	margin-bottom: .5rem;
+	flex-wrap: wrap;
+}
+
+/* The horizontal scroll lives here and nowhere else. overscroll-behavior stops
+ * the chain: without it, scrolling past the last column scrolls the page and,
+ * on iOS and Android, triggers the browser's back gesture. */
+.pg-scroll {
+	overflow-x: auto;
+	overflow-y: hidden;
+	overscroll-behavior-x: contain;
+	-webkit-overflow-scrolling: touch;
+	padding-bottom: .25rem;
+}
+
+/* The scroll content: never narrower than the widest row needs, so the
+ * scrollbar appears exactly when a cell would go below --pg-cell-min. */
+.pg-rows {
+	min-width: calc(var(--pg-gutter) + var(--pg-cols) * var(--pg-cell-min)
+	                + var(--pg-cols) * var(--pg-gap));
+}
+
+.pg-row {
+	display: grid;
+	grid-template-columns: var(--pg-gutter)
+	                       repeat(var(--pg-cols), minmax(var(--pg-cell-min), 1fr));
+	gap: var(--pg-gap);
+	margin-bottom: var(--pg-gap);
+	align-items: stretch;
+}
+
+.pg-head {
+	margin-bottom: .25rem;
+}
+
+.pg-head-cell {
+	display: flex;
+	justify-content: center;
+}
+
+.pg-gutter {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-start;
+	gap: .25rem;
+	color: var(--pg-muted);
+}
+
+.pg-rownum {
+	font-size: .75rem;
+	line-height: 1.6;
+}
+
+.pg-cell {
+	display: flex;
+	flex-direction: column;
+	gap: .25rem;
+	min-height: calc(var(--pg-touch) + .5rem);
+	padding: .25rem;
+	background: var(--pg-cell-bg);
+	border: 1px solid var(--pg-cell-border);
+	border-radius: var(--bs-border-radius, .375rem);
+}
+
+.pg-cell-items {
+	display: flex;
+	flex-direction: column;
+	gap: .25rem;
+	flex: 1 1 auto;
+}
+
+.pg-item {
+	min-height: var(--pg-touch);
+	cursor: pointer;
+	border-radius: var(--bs-border-radius-sm, .25rem);
+}
+
+.pg-item-default {
+	display: block;
+	padding: .5rem;
+}
+
+/* Every interactive target is at least 44x44 -- the buttons in the gutter and
+ * in the column head included, since those are the ones a thumb misses. */
+.pg [data-pg-action] {
+	min-width: var(--pg-touch);
+	min-height: var(--pg-touch);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.pg-cell:focus-visible,
+.pg-item:focus-visible,
+.pg [data-pg-action]:focus-visible {
+	outline: 2px solid var(--pg-accent);
+	outline-offset: 2px;
+}
+
+/* Move by touch: while something is picked, every cell reads as a destination. */
+.pg-selecting .pg-cell {
+	cursor: copy;
+	box-shadow: inset 0 0 0 1px var(--pg-accent);
+}
+
+.pg-item.pg-selected {
+	outline: 2px dashed var(--pg-accent);
+	outline-offset: 2px;
+}
+
+/* A mutation is in flight: the grid still shows the confirmed state, it just
+ * refuses a second one. */
+.pg-busy {
+	opacity: .6;
+	pointer-events: none;
+	cursor: progress;
+}
+
+.pg-highlight {
+	animation: pg-flash 1.2s ease-out 2;
+}
+
+@keyframes pg-flash {
+	0%, 100% { box-shadow: none; }
+	50% { box-shadow: 0 0 0 3px var(--pg-accent); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.pg-highlight {
+		animation: none;
+		box-shadow: 0 0 0 3px var(--pg-accent);
+	}
+}
+
+@media (max-width: 575.98px) {
+	.pg {
+		--pg-cell-min: 7.5rem;
+		--pg-gutter: 2.25rem;
+		--pg-gap: .375rem;
+	}
+}

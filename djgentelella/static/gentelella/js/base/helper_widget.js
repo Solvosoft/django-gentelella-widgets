@@ -8,14 +8,19 @@ class HelperBox {
         this.add_tool_active = false;
         this.add_commands_toolbar();
         this.hide_edit_button();
-        let widthx='50%';
-        if($(window).width() < 502){
-            widthx='90%';
-        }
 
+        // Only the stacking level stays in javascript: 1035 puts the panel
+        // above the page (Bootstrap's fixed layer is 1030) and below its own
+        // modals (backdrop 1050, modal 1055). It used to be 10000, which
+        // floated it over every modal on the site -- including the one it opens
+        // to write the help.
+        //
+        // Size and placement are CSS now (gentelella/css/sidebar.css). They
+        // were computed here, once, at construction: `left: 50px` whatever the
+        // width, and a 50%/90% switch read a single time, so the panel never
+        // answered a resize and hung off the top of a short window.
         $("#content_"+this.instance).css(
-        {'position': 'fixed',
-        'bottom':  '35px', 'left': '50px', 'width': widthx, 'z-index': 10000});
+        {'position': 'fixed', 'z-index': 1035});
         $(".btnsavedel").on('click', this.delete_element_save(this));
     }
     /**
@@ -133,6 +138,7 @@ class HelperBox {
         modal.find('input[name="id_view"]').val(item.data('id_view'));
         modal.find('input[name="question_name"]').val(item.data('id_question'));
         modal.find('input[name="ftype"]').val("edit");
+        modal.find('.modal-title').text(gettext('Edit this help'));
         $("#modal_"+parent.instance).modal('show');
       }
     }
@@ -213,6 +219,8 @@ class HelperBox {
                 modal.find('input[name="id_view"]').val(parent.configs.id_view);
                 modal.find('input[name="question_name"]').val(question_name);
                 modal.find('input[name="ftype"]').val("add");
+                modal.find('.modal-title').text(
+                    gettext('Write the help for this field'));
                 $("#modal_"+parent.instance).modal('show');
             }
         }

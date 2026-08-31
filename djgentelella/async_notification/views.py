@@ -11,6 +11,7 @@ from functools import wraps
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
+from django.core import signing
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.http import JsonResponse, HttpResponse
@@ -25,37 +26,66 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 
+from djgentelella.async_notification.filterset import NewsletterFilterSet, \
+    NewsletterTemplateFilterSet, EmailTemplateFilterSet, NewsLetterTaskFilterSet
 from djgentelella.objectmanagement import AuthAllPermBaseObjectManagement
 
 from djgentelella.async_notification.backends import get_backend
 from djgentelella.async_notification.forms import (
-    EmailNotificationForm, EmailTemplateForm,
-    NewsLetterTemplateForm, NewsLetterForm, NewsLetterTaskForm
+    EmailNotificationForm,
+    EmailTemplateForm,
+    NewsLetterTemplateForm,
+    NewsLetterForm,
+    NewsLetterTaskForm,
 )
 from djgentelella.async_notification.interfaces import get_basemodel_info
 from djgentelella.async_notification.introspection import get_fields_for_context
+from djgentelella.async_notification.preview import (
+    build_dummy_context,
+    render_preview,
+)
 from djgentelella.async_notification.models import (
-    EmailNotification, EmailTemplate, AttachedFile,
-    NewsLetterTemplate, NewsLetter, NewsLetterTask
+    EmailNotification,
+    EmailSuppression,
+    EmailTemplate,
+    AttachedFile,
+    NewsLetterTemplate,
+    NewsLetter,
+    NewsLetterTask,
 )
 from djgentelella.async_notification.resolvers import RecipientResolverRegistry
+# The module, not the value: the secret is read at call time so a test (or a
+# runtime reconfiguration) that patches the attribute is still honoured.
+from djgentelella.async_notification import settings as ansettings
+from djgentelella.async_notification.unsubscribe import read_token
 from djgentelella.async_notification.sending import (
-    do_send_notification, do_send_newsletter, compute_newsletter_recipients,
-    resolve_all_recipients
+    do_send_notification,
+    do_send_newsletter,
+    compute_newsletter_recipients,
+    resolve_all_recipients,
 )
 from djgentelella.async_notification.serializers import (
-    EmailNotificationSerializer, EmailNotificationTableSerializer,
-    EmailNotificationCreateSerializer, EmailNotificationDetailSerializer,
+    EmailNotificationSerializer,
+    EmailNotificationTableSerializer,
+    EmailNotificationCreateSerializer,
+    EmailNotificationDetailSerializer,
     EmailNotificationFilterSet,
-    EmailTemplateSerializer, EmailTemplateTableSerializer,
-    EmailTemplateCreateSerializer, EmailTemplateDetailSerializer,
-    NewsLetterTemplateSerializer, NewsLetterTemplateTableSerializer,
-    NewsLetterTemplateCreateSerializer, NewsLetterTemplateDetailSerializer,
-    NewsLetterSerializer, NewsLetterTableSerializer,
-    NewsLetterCreateSerializer, NewsLetterDetailSerializer,
-    NewsLetterTaskSerializer, NewsLetterTaskTableSerializer,
-    NewsLetterTaskCreateSerializer, NewsLetterTaskDetailSerializer,
-    NewsLetterTaskFilterSet,
+    EmailTemplateSerializer,
+    EmailTemplateTableSerializer,
+    EmailTemplateCreateSerializer,
+    EmailTemplateDetailSerializer,
+    NewsLetterTemplateSerializer,
+    NewsLetterTemplateTableSerializer,
+    NewsLetterTemplateCreateSerializer,
+    NewsLetterTemplateDetailSerializer,
+    NewsLetterSerializer,
+    NewsLetterTableSerializer,
+    NewsLetterCreateSerializer,
+    NewsLetterDetailSerializer,
+    NewsLetterTaskSerializer,
+    NewsLetterTaskTableSerializer,
+    NewsLetterTaskCreateSerializer,
+    NewsLetterTaskDetailSerializer,
 )
 from djgentelella.async_notification.settings import (
     ASYNC_NOTIFICATION_USER_LOOKUP_FIELDS,
@@ -101,13 +131,16 @@ def require_any_perm(*perms):
     Anonymous users are redirected to login (via ``login_required``);
     authenticated users lacking every listed permission get a 403.
     """
+
     def decorator(view):
         @wraps(view)
         def wrapper(request, *args, **kwargs):
             if not any(request.user.has_perm(p) for p in perms):
                 raise PermissionDenied
             return view(request, *args, **kwargs)
+
         return login_required(wrapper)
+
     return decorator
 
 
@@ -123,6 +156,7 @@ def _validate_upload(uploaded_file, allowed_types):
 # =============================================================================
 # API ViewSets
 # =============================================================================
+
 
 class EmailNotificationManagement(AuthAllPermBaseObjectManagement):
     serializer_class = {
@@ -165,27 +199,30 @@ class EmailNotificationManagement(AuthAllPermBaseObjectManagement):
         """Send a single email notification now."""
         notification = self.get_object()
         if notification.status == 'sent':
-            return Response({'result': False,
-                            'detail': 'Already sent'}, status=400)
+            return Response({'result': False, 'detail': 'Already sent'}, status=400)
         do_send_notification(notification.pk)
         notification.refresh_from_db()
-        return Response({
-            'result': notification.status == 'sent',
-            'detail': f'Status: {notification.status}',
-        })
+        return Response(
+            {
+                'result': notification.status == 'sent',
+                'detail': f'Status: {notification.status}',
+            }
+        )
 
     @action(detail=True, methods=['post'])
     def preview(self, request, pk=None):
         """Return a notification's stored body + base template for preview."""
         notification = self.get_object()
-        return Response({
-            'subject': notification.subject,
-            'message': notification.message,
-            'base_template': notification.base_template,
-            'status': notification.status,
-            'recipients_raw': notification.recipients_raw,
-            'error_message': notification.error_message,
-        })
+        return Response(
+            {
+                'subject': notification.subject,
+                'message': notification.message,
+                'base_template': notification.base_template,
+                'status': notification.status,
+                'recipients_raw': notification.recipients_raw,
+                'error_message': notification.error_message,
+            }
+        )
 
     @action(detail=True, methods=['post'])
     def duplicate(self, request, pk=None):
@@ -216,9 +253,9 @@ class EmailNotificationManagement(AuthAllPermBaseObjectManagement):
         """Send multiple selected notifications."""
         pks = request.data.get('pks', [])
         if not pks:
-            return Response({'result': False,
-                            'detail': 'No notifications selected'},
-                           status=400)
+            return Response(
+                {'result': False, 'detail': 'No notifications selected'}, status=400
+            )
         sent = 0
         for pk in pks:
             try:
@@ -226,10 +263,12 @@ class EmailNotificationManagement(AuthAllPermBaseObjectManagement):
                 sent += 1
             except Exception as e:
                 logger.error('Error sending notification %s: %s', pk, e)
-        return Response({
-            'result': True,
-            'detail': f'{sent} notifications processed',
-        })
+        return Response(
+            {
+                'result': True,
+                'detail': f'{sent} notifications processed',
+            }
+        )
 
 
 class EmailTemplateManagement(AuthAllPermBaseObjectManagement):
@@ -254,6 +293,7 @@ class EmailTemplateManagement(AuthAllPermBaseObjectManagement):
     queryset = EmailTemplate.objects.all()
     pagination_class = LimitOffsetPagination
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
+    filterset_class = EmailTemplateFilterSet
     search_fields = ['code', 'subject']
     ordering_fields = ['created_at', 'code', 'subject']
     ordering = ('-created_at',)
@@ -262,12 +302,14 @@ class EmailTemplateManagement(AuthAllPermBaseObjectManagement):
     def preview(self, request, pk=None):
         """Preview an email template."""
         template = self.get_object()
-        return Response({
-            'subject': template.subject,
-            'message': template.message,
-            'context_code': template.context_code,
-            'base_template': template.base_template,
-        })
+        return Response(
+            {
+                'subject': template.subject,
+                'message': template.message,
+                'context_code': template.context_code,
+                'base_template': template.base_template,
+            }
+        )
 
 
 class NewsLetterTemplateManagement(AuthAllPermBaseObjectManagement):
@@ -292,6 +334,7 @@ class NewsLetterTemplateManagement(AuthAllPermBaseObjectManagement):
     queryset = NewsLetterTemplate.objects.all()
     pagination_class = LimitOffsetPagination
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
+    filterset_class = NewsletterTemplateFilterSet
     search_fields = ['title', 'slug']
     ordering_fields = ['created_at', 'title']
     ordering = ('-created_at',)
@@ -300,11 +343,13 @@ class NewsLetterTemplateManagement(AuthAllPermBaseObjectManagement):
     def preview(self, request, pk=None):
         """Return the template body + base template for live preview."""
         template = self.get_object()
-        return Response({
-            'subject': template.title,
-            'message': template.message,
-            'base_template': template.base_template,
-        })
+        return Response(
+            {
+                'subject': template.title,
+                'message': template.message,
+                'base_template': template.base_template,
+            }
+        )
 
 
 class NewsLetterManagement(AuthAllPermBaseObjectManagement):
@@ -331,7 +376,8 @@ class NewsLetterManagement(AuthAllPermBaseObjectManagement):
     queryset = NewsLetter.objects.select_related('template', 'created_by')
     pagination_class = LimitOffsetPagination
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
-    search_fields = ['subject']
+    filterset_class = NewsletterFilterSet
+    search_fields = ['subject', 'code']
     ordering_fields = ['created_at', 'subject']
     ordering = ('-created_at',)
 
@@ -342,11 +388,13 @@ class NewsLetterManagement(AuthAllPermBaseObjectManagement):
     def preview(self, request, pk=None):
         """Return the newsletter body + base template for live preview."""
         newsletter = self.get_object()
-        return Response({
-            'subject': newsletter.subject,
-            'message': newsletter.message,
-            'base_template': newsletter.base_template,
-        })
+        return Response(
+            {
+                'subject': newsletter.subject,
+                'message': newsletter.message,
+                'base_template': newsletter.base_template,
+            }
+        )
 
     @action(detail=True, methods=['get'])
     def preview_recipients(self, request, pk=None):
@@ -357,10 +405,12 @@ class NewsLetterManagement(AuthAllPermBaseObjectManagement):
         """
         newsletter = self.get_object()
         recipients = compute_newsletter_recipients(newsletter)
-        return Response({
-            'recipients': recipients,
-            'count': len(recipients),
-        })
+        return Response(
+            {
+                'recipients': recipients,
+                'count': len(recipients),
+            }
+        )
 
 
 class NewsLetterTaskManagement(AuthAllPermBaseObjectManagement):
@@ -419,69 +469,92 @@ class NewsLetterTaskManagement(AuthAllPermBaseObjectManagement):
         task = self.get_object()
         if task.status in ('sent', 'revoked'):
             return Response(
-                {'result': False,
-                 'detail': f'Task already {task.status}'},
-                status=400)
+                {'result': False, 'detail': f'Task already {task.status}'}, status=400
+            )
         do_send_newsletter(task.pk)
         task.refresh_from_db()
-        return Response({
-            'result': task.status == 'sent',
-            'detail': f'Status: {task.status}',
-        })
+        return Response(
+            {
+                'result': task.status == 'sent',
+                'detail': f'Status: {task.status}',
+            }
+        )
 
 
 # =============================================================================
 # HTML Views
 # =============================================================================
 
+
 @login_required
 def email_notification_view(request):
     """Server-rendered page for email notification management."""
-    return render(request, 'async_notification/email_notification.html', {
-        'create_form': EmailNotificationForm(prefix='create'),
-        'update_form': EmailNotificationForm(prefix='update'),
-    })
+    return render(
+        request,
+        'async_notification/email_notification.html',
+        {
+            'create_form': EmailNotificationForm(prefix='create'),
+            'update_form': EmailNotificationForm(prefix='update'),
+        },
+    )
 
 
 @login_required
 def email_template_view(request):
     """Server-rendered page for email template management."""
-    return render(request, 'async_notification/email_template.html', {
-        'create_form': EmailTemplateForm(prefix='create'),
-        'update_form': EmailTemplateForm(prefix='update'),
-    })
+    return render(
+        request,
+        'async_notification/email_template.html',
+        {
+            'create_form': EmailTemplateForm(prefix='create'),
+            'update_form': EmailTemplateForm(prefix='update'),
+        },
+    )
 
 
 @login_required
 def newsletter_view(request):
     """Server-rendered page for newsletter management."""
-    return render(request, 'async_notification/newsletter.html', {
-        'create_form': NewsLetterForm(prefix='create'),
-        'update_form': NewsLetterForm(prefix='update'),
-    })
+    return render(
+        request,
+        'async_notification/newsletter.html',
+        {
+            'create_form': NewsLetterForm(prefix='create'),
+            'update_form': NewsLetterForm(prefix='update'),
+        },
+    )
 
 
 @login_required
 def newsletter_template_view(request):
     """Server-rendered page for newsletter template management."""
-    return render(request, 'async_notification/newsletter_template.html', {
-        'create_form': NewsLetterTemplateForm(prefix='create'),
-        'update_form': NewsLetterTemplateForm(prefix='update'),
-    })
+    return render(
+        request,
+        'async_notification/newsletter_template.html',
+        {
+            'create_form': NewsLetterTemplateForm(prefix='create'),
+            'update_form': NewsLetterTemplateForm(prefix='update'),
+        },
+    )
 
 
 @login_required
 def newsletter_task_view(request):
     """Server-rendered page for newsletter task management."""
-    return render(request, 'async_notification/newsletter_task.html', {
-        'create_form': NewsLetterTaskForm(prefix='create'),
-        'update_form': NewsLetterTaskForm(prefix='update'),
-    })
+    return render(
+        request,
+        'async_notification/newsletter_task.html',
+        {
+            'create_form': NewsLetterTaskForm(prefix='create'),
+            'update_form': NewsLetterTaskForm(prefix='update'),
+        },
+    )
 
 
 # =============================================================================
 # Auxiliary Endpoints
 # =============================================================================
+
 
 @require_any_perm(*AUTHORING_PERMS)
 def email_autocomplete_view(request):
@@ -502,14 +575,20 @@ def email_autocomplete_view(request):
         user_q |= Q(**{f'{field}__icontains': query})
     users = User.objects.filter(user_q).exclude(email='')[:20]
     for user in users:
-        results.append({
-            'value': user.email,
-            'label': f'{user.get_full_name() or user.username} <{user.email}>',
-        })
+        results.append(
+            {
+                'value': user.email,
+                'label': f'{user.get_full_name() or user.username} <{user.email}>',
+            }
+        )
 
-    return render(request, 'async_notification/_autocomplete_results.html', {
-        'results': results,
-    })
+    return render(
+        request,
+        'async_notification/_autocomplete_results.html',
+        {
+            'results': results,
+        },
+    )
 
 
 @require_any_perm(*VIEW_OR_AUTHORING_PERMS)
@@ -533,15 +612,21 @@ def model_fields_view(request):
         for prefix, field_list in fields.items():
             rendered = []
             for f in field_list:
-                rendered.append({
-                    'template_var': '{{ %s }}' % f['name'],
-                    'type': f['type'],
-                    'verbose_name': f['verbose_name'],
-                })
+                rendered.append(
+                    {
+                        'template_var': '{{ %s }}' % f['name'],
+                        'type': f['type'],
+                        'verbose_name': f['verbose_name'],
+                    }
+                )
             grouped[prefix] = rendered
-        return render(request, 'async_notification/_model_tree.html', {
-            'grouped_fields': grouped,
-        })
+        return render(
+            request,
+            'async_notification/_model_tree.html',
+            {
+                'grouped_fields': grouped,
+            },
+        )
 
     return JsonResponse(fields, safe=False)
 
@@ -619,10 +704,10 @@ def upload_video_view(request):
 def preview_file_view(request, pk):
     """Serve an attached file by its primary key."""
     attached = get_object_or_404(AttachedFile, pk=pk)
-    response = HttpResponse(attached.file.read(),
-                            content_type='application/octet-stream')
-    response['Content-Disposition'] = (
-        f'inline; filename="{attached.file.name}"')
+    response = HttpResponse(
+        attached.file.read(), content_type='application/octet-stream'
+    )
+    response['Content-Disposition'] = f'inline; filename="{attached.file.name}"'
     return response
 
 
@@ -633,7 +718,8 @@ def reassociate_files_view(request):
     POST parameters:
         upload_session: The UUID session used during uploads.
         object_id: The ID of the newly created object.
-        content_type: The app_label.model string (e.g. 'async_notification.emailnotification').
+        content_type: The app_label.model string
+            (e.g. 'async_notification.emailnotification').
     """
     if request.method != 'POST':
         return JsonResponse({'error': 'POST required'}, status=405)
@@ -645,7 +731,8 @@ def reassociate_files_view(request):
     if not all([upload_session, object_id, ct_string]):
         return JsonResponse(
             {'error': 'upload_session, object_id, and content_type required'},
-            status=400)
+            status=400,
+        )
 
     try:
         app_label, model_name = ct_string.split('.')
@@ -672,10 +759,6 @@ def preview_template_view(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'POST required'}, status=405)
 
-    from djgentelella.async_notification.preview import (
-        build_dummy_context, render_preview
-    )
-
     message = request.POST.get('message', '')
     context_code = request.POST.get('context_code', '')
     base_template_key = request.POST.get('base_template', '')
@@ -692,6 +775,7 @@ def preview_template_view(request):
 # Compliance endpoints (unsubscribe / suppression) — no auth required
 # =============================================================================
 
+
 @csrf_exempt
 def unsubscribe_view(request, token):
     """One-click unsubscribe (RFC 8058) and a human confirmation page.
@@ -701,10 +785,6 @@ def unsubscribe_view(request, token):
     way the address is added to the suppression list. No auth/cookies (the
     request identity is the signed token in the URL).
     """
-    from django.core import signing
-    from djgentelella.async_notification.models import EmailSuppression
-    from djgentelella.async_notification.unsubscribe import read_token
-
     try:
         email = read_token(token)
     except signing.BadSignature:
@@ -712,15 +792,24 @@ def unsubscribe_view(request, token):
 
     if request.method == 'POST':
         EmailSuppression.objects.get_or_create(
-            email=email.strip().lower(), defaults={'reason': 'unsubscribe'})
-        if request.META.get('HTTP_ACCEPT', '').startswith('application/json') \
-                or request.POST.get('List-Unsubscribe') == 'One-Click':
+            email=email.strip().lower(), defaults={'reason': 'unsubscribe'}
+        )
+        if (
+            request.META.get('HTTP_ACCEPT', '').startswith('application/json')
+            or request.POST.get('List-Unsubscribe') == 'One-Click'
+        ):
             return JsonResponse({'unsubscribed': email})
-        return render(request, 'async_notification/unsubscribe.html', {
-            'email': email, 'done': True})
+        return render(
+            request,
+            'async_notification/unsubscribe.html',
+            {'email': email, 'done': True},
+        )
 
-    return render(request, 'async_notification/unsubscribe.html', {
-        'email': email, 'token': token, 'done': False})
+    return render(
+        request,
+        'async_notification/unsubscribe.html',
+        {'email': email, 'token': token, 'done': False},
+    )
 
 
 @csrf_exempt
@@ -731,14 +820,9 @@ def suppression_webhook(request):
     shared secret in the ``X-Webhook-Secret`` header. The endpoint is disabled
     (404) unless ASYNC_NOTIFICATION_WEBHOOK_SECRET is set.
     """
-    from djgentelella.async_notification.models import EmailSuppression
-    from djgentelella.async_notification.settings import (
-        ASYNC_NOTIFICATION_WEBHOOK_SECRET,
-    )
-
     if request.method != 'POST':
         return JsonResponse({'error': 'POST required'}, status=405)
-    secret = ASYNC_NOTIFICATION_WEBHOOK_SECRET
+    secret = ansettings.ASYNC_NOTIFICATION_WEBHOOK_SECRET
     if not secret:
         return JsonResponse({'error': 'webhook disabled'}, status=404)
     # Header only (never the query string, which leaks into access logs and
@@ -757,8 +841,7 @@ def suppression_webhook(request):
     reason = payload.get('reason', 'complaint')
     if reason not in dict(EmailSuppression.REASON_CHOICES):
         reason = 'complaint'
-    EmailSuppression.objects.update_or_create(
-        email=email, defaults={'reason': reason})
+    EmailSuppression.objects.update_or_create(email=email, defaults={'reason': reason})
     return JsonResponse({'suppressed': email, 'reason': reason})
 
 
@@ -774,8 +857,7 @@ def newsletter_filter_form_view(request):
     if not model_base:
         template_pk = request.GET.get('template', '')
         if template_pk:
-            template = NewsLetterTemplate.objects.filter(
-                pk=template_pk).first()
+            template = NewsLetterTemplate.objects.filter(pk=template_pk).first()
             model_base = template.model_base if template else ''
 
     info = get_basemodel_info(model_base) if model_base else None
@@ -787,9 +869,13 @@ def newsletter_filter_form_view(request):
     if form is None:
         return HttpResponse('')
 
-    return render(request, 'async_notification/_filter_form.html', {
-        'form': form,
-    })
+    return render(
+        request,
+        'async_notification/_filter_form.html',
+        {
+            'form': form,
+        },
+    )
 
 
 @require_any_perm(*AUTHORING_PERMS)
@@ -807,8 +893,7 @@ def newsletter_recipients_preview_view(request):
     if not model_base:
         template_pk = request.POST.get('template', '')
         if template_pk:
-            template = NewsLetterTemplate.objects.filter(
-                pk=template_pk).first()
+            template = NewsLetterTemplate.objects.filter(pk=template_pk).first()
             model_base = template.model_base if template else ''
 
     emails = resolve_all_recipients(request.POST.get('recipients', ''))
@@ -818,7 +903,8 @@ def newsletter_recipients_preview_view(request):
     if info:
         interface = info[2]()
         for email in interface.get_recipients(
-                request.POST.get('filters_querystring', '')):
+            request.POST.get('filters_querystring', '')
+        ):
             if email and email not in seen:
                 seen.add(email)
                 emails.append(email)

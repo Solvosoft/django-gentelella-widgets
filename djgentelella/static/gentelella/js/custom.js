@@ -56,6 +56,11 @@ var CURRENT_URL = window.location.href.split('#')[0].split('?')[0],
     $NAV_MENU = $('.nav_menu'),
     $FOOTER = $('footer');
 
+// The one breakpoint the layout turns on, matching the media queries in
+// gentelella/css/sidebar.css. matchMedia rather than $(window).width() so the
+// two can never drift, and so crossing it fires an event we can react to.
+var GT_NARROW = window.matchMedia('(max-width: 991.98px)');
+
 
 // Sidebar
 function init_sidebar() {
@@ -77,10 +82,21 @@ function init_sidebar() {
 
     $SIDEBAR_MENU.find('a').on('click', function (ev) {
         var $li = $(this).parent();
+        // Its OWN submenu. `$('ul:first', $li)` searched descendants, so on a
+        // level-1 entry it could pick up a level-3 list instead.
+        var $ownMenu = $li.children('ul');
+
+        // A parent entry is a disclosure, not a link: without this it both
+        // opened the submenu and navigated away, so the levels underneath were
+        // unreachable whenever the parent had a real url_name.
+        if ($ownMenu.length) {
+            ev.preventDefault();
+        }
 
         if ($li.is('.active')) {
             $li.removeClass('active active-sm');
-            $('ul:first', $li).slideUp(function () {
+            $(this).attr('aria-expanded', 'false');
+            $ownMenu.slideUp(function () {
                 setContentHeight();
             });
         } else {
@@ -100,15 +116,133 @@ function init_sidebar() {
                 }
             }
             $li.addClass('active');
+            $(this).attr('aria-expanded', $ownMenu.length ? 'true' : null);
 
-            $('ul:first', $li).slideDown(function () {
+            $ownMenu.slideDown(function () {
                 setContentHeight();
+                positionRailFlyout($li);
             });
         }
+
+        // A leaf on a narrow window is a navigation: do not leave the drawer
+        // sitting over the page it just loaded.
+        if (!$ownMenu.length && GT_NARROW.matches) {
+            closeDrawer();
+        }
+    });
+
+    // The collapsed rail's flyout is position:fixed, because #sidebar-menu now
+    // scrolls and an absolutely positioned child of an overflow:auto box gets
+    // clipped to the 70px rail. Fixed means we own top/left: put the flyout
+    // beside the entry it belongs to, kept inside the window, instead of the
+    // hardcoded `top: 80px` that dropped it on top of the rail.
+    function positionRailFlyout($li) {
+        var $menu = $li.children('ul.nav.child_menu');
+        if (!$menu.length) {
+            return;
+        }
+        if (!$BODY.hasClass('nav-sm') || GT_NARROW.matches) {
+            $menu.css({top: '', left: ''});
+            return;
+        }
+        var box = $li[0].getBoundingClientRect();
+        var height = $menu.outerHeight();
+        // Off the edge of the RAIL, not of the <li>: the list item is inset by
+        // its own padding, so anchoring to it laid the flyout a few pixels
+        // over the icons it is supposed to sit beside.
+        var rail = $LEFT_COL.eq(0)[0].getBoundingClientRect();
+        $menu.css({
+            left: Math.max(box.right, rail.right) + 'px',
+            top: Math.max(8, Math.min(box.top,
+                window.innerHeight - height - 8)) + 'px'
+        });
+    }
+
+    function repositionOpenFlyouts() {
+        $SIDEBAR_MENU.find('> .menu_section > ul > li.active,'
+            + ' > .menu_section > ul > li.active-sm').each(function () {
+            positionRailFlyout($(this));
+        });
+    }
+
+    $SIDEBAR_MENU.on('scroll', repositionOpenFlyouts);
+
+    // -- the drawer, below the breakpoint ------------------------------------
+    function openDrawer() {
+        $BODY.addClass('sidebar-open');
+        $MENU_TOGGLE.attr('aria-expanded', 'true');
+        $SIDEBAR_MENU.find('a').first().trigger('focus');
+    }
+
+    function closeDrawer() {
+        if (!$BODY.hasClass('sidebar-open')) {
+            return;
+        }
+        $BODY.removeClass('sidebar-open');
+        $MENU_TOGGLE.attr('aria-expanded', 'false');
+        $MENU_TOGGLE.trigger('focus');
+    }
+
+    $('.sidebar-backdrop').on('click', closeDrawer);
+
+    // A sidebar-footer icon is an action: log out, settings, or a panel like
+    // the help palette. On a narrow window the drawer is the only way to reach
+    // those icons, so leaving it open buries whatever was just opened under
+    // the drawer and its backdrop -- the help panel opens at z-index 1035, the
+    // drawer sits at 1040.
+    $SIDEBAR_FOOTER.on('click', 'a', function () {
+        if (GT_NARROW.matches) {
+            closeDrawer();
+        }
+    });
+
+    $(document).on('keydown', function (ev) {
+        if (ev.key === 'Escape') {
+            closeDrawer();
+        }
+    });
+
+    // #menu_toggle is an <a> with no href, so it is not keyboard reachable on
+    // its own; the template gives it role=button and tabindex, this makes the
+    // keys work.
+    $MENU_TOGGLE.on('keydown', function (ev) {
+        if (ev.key === 'Enter' || ev.key === ' ') {
+            ev.preventDefault();
+            $(this).trigger('click');
+        }
+    });
+
+    // Crossing the breakpoint: a rail inherited from a wide window would be a
+    // 70px drawer, and a drawer left open would be an overlay nothing closes.
+    GT_NARROW.addEventListener('change', function (ev) {
+        $BODY.removeClass('sidebar-open');
+        $MENU_TOGGLE.attr('aria-expanded', 'false');
+        if (ev.matches && $BODY.hasClass('nav-sm')) {
+            $SIDEBAR_MENU.find('li.active-sm')
+                .addClass('active').removeClass('active-sm');
+            $SIDEBAR_MENU.find('li.active > ul').show();
+            $BODY.removeClass('nav-sm').addClass('nav-md');
+        }
+        repositionOpenFlyouts();
+        setContentHeight();
     });
 
     // toggle small or large menu
     $MENU_TOGGLE.on('click', function () {
+        // Below the breakpoint the sidebar is a drawer, not a rail. Stay in
+        // nav-md -- none of the 70px rail rules should apply -- and never do
+        // the active <-> active-sm swap, which would fold every open submenu
+        // shut each time the drawer is opened.
+        if (GT_NARROW.matches) {
+            if ($BODY.hasClass('sidebar-open')) {
+                closeDrawer();
+            } else {
+                openDrawer();
+            }
+            setContentHeight();
+            return;
+        }
+
         if ($BODY.hasClass('nav-md')) {
             $SIDEBAR_MENU.find('li.active ul').hide();
             $SIDEBAR_MENU.find('li.active').addClass('active-sm').removeClass('active');
@@ -119,6 +253,7 @@ function init_sidebar() {
 
         $BODY.toggleClass('nav-md nav-sm');
 
+        repositionOpenFlyouts();
         setContentHeight();
     });
 
@@ -133,6 +268,7 @@ function init_sidebar() {
 
     // recompute content when resizing
     $(window).smartresize(function () {
+        repositionOpenFlyouts();
         setContentHeight();
     });
 
@@ -189,34 +325,20 @@ $(document).ready(function () {
 });
 // /Tooltip
 
-// Progressbar
-if ($(".progress .progress-bar")[0]) {
-    $('.progress .progress-bar').progressbar();
-}
-// /Progressbar
-
-// Switchery
-$(document).ready(function () {
-    if ($(".js-switch")[0]) {
-        var elems = Array.prototype.slice.call(document.querySelectorAll('.js-switch'));
-        elems.forEach(function (html) {
-            var switchery = new Switchery(html, {
-                color: '#26B99A'
-            });
-        });
-    }
-});
-// /Switchery
+// Switches are the .gt-switch class in gentelella/css/checks.css; there is
+// nothing left to boot on ready.
 
 
 
 // Table
-$('table input').on('ifChecked', function () {
+$('table input[type=checkbox]').on('change', function () {
+    if (!this.checked) { return; }
     checkState = '';
     $(this).parent().parent().parent().addClass('selected');
     countChecked();
 });
-$('table input').on('ifUnchecked', function () {
+$('table input[type=checkbox]').on('change', function () {
+    if (this.checked) { return; }
     checkState = '';
     $(this).parent().parent().parent().removeClass('selected');
     countChecked();
@@ -224,31 +346,29 @@ $('table input').on('ifUnchecked', function () {
 
 var checkState = '';
 
-$('.bulk_action input').on('ifChecked', function () {
+$('.bulk_action input[type=checkbox]').on('change', function () {
+    if (!this.checked) { return; }
     checkState = '';
     $(this).parent().parent().parent().addClass('selected');
     countChecked();
 });
-$('.bulk_action input').on('ifUnchecked', function () {
+$('.bulk_action input[type=checkbox]').on('change', function () {
+    if (this.checked) { return; }
     checkState = '';
     $(this).parent().parent().parent().removeClass('selected');
     countChecked();
 });
-$('.bulk_action input#check-all').on('ifChecked', function () {
-    checkState = 'all';
-    countChecked();
-});
-$('.bulk_action input#check-all').on('ifUnchecked', function () {
-    checkState = 'none';
+$('.bulk_action input#check-all').on('change', function () {
+    checkState = this.checked ? 'all' : 'none';
     countChecked();
 });
 
 function countChecked() {
     if (checkState === 'all') {
-        $(".bulk_action input[name='table_records']").iCheck('check');
+        $(".bulk_action input[name='table_records']").prop('checked', true);
     }
     if (checkState === 'none') {
-        $(".bulk_action input[name='table_records']").iCheck('uncheck');
+        $(".bulk_action input[name='table_records']").prop('checked', false);
     }
 
     var checkCount = $(".bulk_action input[name='table_records']:checked").length;
@@ -510,30 +630,93 @@ $(document).ready(function () {
         .mouseleave(function () {
             $(this).parent('li').removeClass('active');
         });
+
+    // Bootstrap 5 dropped submenus, so this project draws them itself with
+    // `.dropdown-submenu:hover > .dropdown-menu`. Hover is not an interaction
+    // a touch screen has, which left every nested top-menu entry unreachable
+    // on a phone; open them on click as well.
+    // An open dropdown is absolutely positioned, so it does not lengthen the
+    // page: one opened near the bottom of a short window ran past the edge
+    // with nothing able to scroll to its last entries. Cap it to the room
+    // actually left below its own top and let it scroll inside that.
+    function fitDropdownToViewport($menu) {
+        if (!$menu || !$menu.length) {
+            return;
+        }
+        $menu.css({'max-height': '', 'overflow-y': ''});
+        // Only worth doing for a menu that is out of flow. An absolutely
+        // positioned dropdown does not lengthen the page, so one opened near
+        // the bottom of a short window has entries nothing can scroll to; a
+        // static one is in flow and the page reaches it on its own. Capping a
+        // static menu would clip it for no reason -- and above the breakpoint
+        // a nested level flies out of this menu, which a scrolling parent
+        // would clip.
+        if (!GT_NARROW.matches
+                || getComputedStyle($menu[0]).position === 'static') {
+            return;
+        }
+        var top = $menu[0].getBoundingClientRect().top;
+        $menu.css({
+            'max-height': Math.max(60, window.innerHeight - top - 8) + 'px',
+            'overflow-y': 'auto'
+        });
+    }
+
+    function fitOpenDropdowns() {
+        $('#items-top-navbar > li > .dropdown-menu.show')
+            .each(function () { fitDropdownToViewport($(this)); });
+    }
+
+    $('#items-top-navbar').on('shown.bs.dropdown', fitOpenDropdowns);
+    $(window).on('resize', fitOpenDropdowns);
+
+    // Delegated from the menu, not from document: stopPropagation only stops
+    // listeners further up, and Bootstrap's "a click closes every dropdown"
+    // handler is bound to document itself. Catching the event here keeps it
+    // from ever getting there.
+    $('#items-top-navbar').on('click', '.dropdown-submenu > a', function (ev) {
+        var $submenu = $(this).next('.dropdown-menu');
+        if (!$submenu.length) {
+            return;
+        }
+        ev.preventDefault();
+        ev.stopPropagation();
+        // Siblings only: closing every open submenu would collapse the branch
+        // the user is walking down.
+        $(this).parent().siblings().find('> .dropdown-menu').removeClass('show');
+        $submenu.toggleClass('show');
+        // The branch just grew; the menu around it may no longer fit.
+        fitOpenDropdowns();
+    });
+
+    // Leaving the parent dropdown resets its children, so the next opening
+    // does not start half-unfolded.
+    $(document).on('hide.bs.dropdown', function (ev) {
+        $(ev.target).find('.dropdown-submenu > .dropdown-menu').removeClass('show');
+    });
 });
 
 
-//detecta la resoucion para cambiar la clase de un componente
-window.addEventListener('resize', function(){
+// The top navbar reverses its item order on wide viewports only.
+//
+// This used to read `screen.width` -- the physical display, not the window --
+// so resizing the browser never re-evaluated it, and a narrow window on a big
+// monitor got the wide layout. The `>=992 / <991` pair also left a window of
+// exactly 991px matching neither branch. One matchMedia, one boundary, and it
+// follows the window like the stylesheet does.
+(function () {
+    var wide = window.matchMedia('(min-width: 992px)');
 
-    if(screen.width>=992){
-
-         $("#items-top-navbar").addClass("flex-row-reverse");
-
-    }else if(screen.width<991){
-         $("#items-top-navbar").removeClass("flex-row-reverse");
+    function applyTopNavbarOrder(matches) {
+        $("#items-top-navbar").toggleClass("flex-row-reverse", matches);
     }
-});
 
-//funcion  para detectar al iniciar la carga de pagina
-(function(){
-   if(screen.width>=992){
-
-         $("#items-top-navbar").addClass("flex-row-reverse");
-
-    }else if(screen.width<991){
-         $("#items-top-navbar").removeClass("flex-row-reverse");
-    }
+    wide.addEventListener('change', function (ev) {
+        applyTopNavbarOrder(ev.matches);
+    });
+    $(function () {
+        applyTopNavbarOrder(wide.matches);
+    });
 })()
 
 /*

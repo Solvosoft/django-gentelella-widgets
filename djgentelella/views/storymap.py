@@ -17,7 +17,7 @@ class BaseStoryMapMBView(ViewSet):
     def list(self, request, format=None):
         self.request = request
         response = {
-            "storymap": self.get_storymap()
+            'storymap': self.get_storymap()
         }
         return JsonResponse(response)
 
@@ -37,8 +37,8 @@ class BaseStoryMapGPView(ViewSet):
     def list(self, request, format=None):
         self.request = request
         response = {
-            "font_css": self.get_font_css(),
-            "storymap": self.get_storymap()
+            'font_css': self.get_font_css(),
+            'storymap': self.get_storymap()
         }
 
         return JsonResponse(response)

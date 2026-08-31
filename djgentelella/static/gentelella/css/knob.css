@@ -1,0 +1,103 @@
+/* The circular dial for NumberKnobInput, drawn as SVG around the number input.
+ *
+ * jQuery-Knob painted a <canvas> at a fixed pixel size, which is soft on any
+ * display past 1x and cannot be restyled without re-running its javascript.
+ * This is a stroked circle: sharp at any density, and every dimension and
+ * colour is a custom property a project can set on the wrapper or globally.
+ */
+
+.gt-knob {
+    --gt-knob-size: 120px;
+    --gt-knob-color: #26b99a;
+    --gt-knob-track: #e6ebec;
+    /* In viewBox units, where the dial radius is 42. */
+    --gt-knob-thickness: 8;
+    --gt-knob-readout: inherit;
+
+    position: relative;
+    display: inline-block;
+    width: var(--gt-knob-size);
+    height: var(--gt-knob-size);
+    /* Dragging round a dial is a gesture, not a text selection. */
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.gt-knob-dial {
+    display: block;
+    width: 100%;
+    height: 100%;
+    /* The svg is the drag surface; the input sits above it and keeps its own. */
+    touch-action: none;
+    cursor: grab;
+}
+
+.gt-knob-dial:active {
+    cursor: grabbing;
+}
+
+.gt-knob-track,
+.gt-knob-value {
+    fill: none;
+    stroke-width: var(--gt-knob-thickness);
+}
+
+.gt-knob-track {
+    stroke: var(--gt-knob-track);
+}
+
+.gt-knob-value {
+    stroke: var(--gt-knob-color);
+    stroke-linecap: round;
+    transition: stroke-dashoffset .12s ease-out;
+}
+
+/* The input is the value, the readout and the focusable control all at once,
+ * so it sits in the middle of the dial looking like a label. */
+.gt-knob-input.gt-knob-input {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 58%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    text-align: center;
+    font-size: calc(var(--gt-knob-size) / 4.5);
+    font-weight: 600;
+    line-height: 1.1;
+    color: var(--gt-knob-readout);
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+/* The spinner arrows would sit on top of the dial and be unclickable anyway. */
+.gt-knob-input::-webkit-outer-spin-button,
+.gt-knob-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.gt-knob-input:focus-visible {
+    outline: 0;
+    border-radius: 4px;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--gt-knob-color) 35%, transparent);
+}
+
+.gt-knob:has(.gt-knob-input:disabled),
+.gt-knob:has(.gt-knob-input[readonly]) {
+    --gt-knob-color: #b9c1c6;
+}
+
+.gt-knob:has(.gt-knob-input:disabled) .gt-knob-dial,
+.gt-knob:has(.gt-knob-input[readonly]) .gt-knob-dial {
+    cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .gt-knob-value {
+        transition: none;
+    }
+}

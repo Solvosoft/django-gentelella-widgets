@@ -1,0 +1,46 @@
+{% extends 'icons/base.html' %}
+{% load i18n %}
+
+{% block icon_defines %}{% load gtsettings %}{% define_true "use_mdi" %}{% endblock %}
+
+{% block icon_title %}{% trans 'Material Design Icons' %}{% endblock %}
+
+{% block icon_help %}
+<p>
+    {% blocktrans trimmed %}
+    Material Design Icons is <strong>opt-in</strong>: 347 KB of CSS plus a
+    403 KB webfont. Turn it on per template, the way this page does.
+    {% endblocktrans %}
+</p>
+<pre><code>{% templatetag openblock %} extends 'gentelella/base.html' {% templatetag closeblock %}
+{% templatetag openblock %} load gtsettings {% templatetag closeblock %}
+
+{% templatetag openblock %} block pre_head {% templatetag closeblock %}
+    {% templatetag openblock %} define_true "use_mdi" {% templatetag closeblock %}
+{% templatetag openblock %} endblock {% templatetag closeblock %}</code></pre>
+<p>{% trans 'Then use the two class names — the family and the icon:' %}</p>
+<pre><code>&lt;i class="mdi mdi-home"&gt;&lt;/i&gt;
+&lt;i class="mdi mdi-account-circle mdi-24px"&gt;&lt;/i&gt;
+&lt;i class="mdi mdi-loading mdi-spin"&gt;&lt;/i&gt;
+&lt;i class="mdi mdi-chevron-right mdi-rotate-90"&gt;&lt;/i&gt;</code></pre>
+<p class="text-muted">
+    {% blocktrans trimmed %}
+    Icons take the surrounding text colour and scale with <code>font-size</code>.
+    Sizes <code>mdi-18px</code>, <code>mdi-24px</code>, <code>mdi-36px</code>,
+    <code>mdi-48px</code>; effects <code>mdi-spin</code>,
+    <code>mdi-flip-h</code>, <code>mdi-flip-v</code>,
+    <code>mdi-rotate-45</code> … <code>mdi-rotate-315</code>.
+    {% endblocktrans %}
+</p>
+{% endblock %}
+
+{% block icon_script %}
+    var names = gt_icons_from_css(/^\.mdi-([a-z0-9-]+):{1,2}before$/);
+    gt_icons_grid({
+        names: names,
+        markup: function (name) {
+            return '<i class="mdi mdi-' + name + '"></i>';
+        },
+        empty: '{% trans "No icon matches." %}'
+    });
+{% endblock %}

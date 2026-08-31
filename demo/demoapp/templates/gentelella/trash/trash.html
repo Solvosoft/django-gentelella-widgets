@@ -253,12 +253,22 @@
 						window.location.reload();
 					}
 				}, error: function (xhr, status, error) {
-					console.error("Error executing the API:", error);
+					console.error("Error executing the API:", xhr.status, error);
+
+					// The API answers JSON on every error it controls, in two
+					// shapes: {result, detail} when the action itself refuses,
+					// and {detail} when DRF handles it -- a 404 for a trash
+					// entry someone else already restored, a 403 without the
+					// change_trash permission. Show that reason instead of
+					// swallowing it. responseJSON is undefined when the body is
+					// not JSON at all (a proxy error page, a 500 from a
+					// middleware), and then the generic message stands.
+					const detail = xhr.responseJSON && xhr.responseJSON.detail;
 
 					Swal.fire({
 						icon: 'error',
 						title: gettext('Error'),
-						text: gettext("Sorry, an error occurred."),
+						text: detail || gettext("Sorry, an error occurred."),
 						confirmButtonText: gettext('Accept'),
 					})
 				}

@@ -4,10 +4,15 @@
     <div class="modal-content">
       <div class="modal-header">
 
+        <h4 class="modal-title">{% trans 'Help for this field' %}</h4>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        <h4 class="modal-title">  </h4>
       </div>
       <div class="modal-body ">
+        <p class="helper-modal-hint text-muted small">
+          {% blocktrans %}The title is what the help panel lists. The text is what
+          someone reads when they click the question mark beside this
+          field.{% endblocktrans %}
+        </p>
         <div class="row">
           <form class="form" method="post" id="form_{{id}}" onsubmit="return false;">
           {{form.as_horizontal}}
@@ -30,8 +35,8 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         <h4 class="modal-title">{% trans 'Deleting help instance' %}</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <form class="formdelitem" method="post">

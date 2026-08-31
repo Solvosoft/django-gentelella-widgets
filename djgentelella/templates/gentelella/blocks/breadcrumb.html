@@ -1,0 +1,23 @@
+{% load i18n %}
+{# Renders nothing unless a view puts `breadcrumbs` in the context, so wiring #}
+{# this into the empty {% block breadcrumbs %} of base.html and plain.html    #}
+{# changes no existing page. BreadcrumbNav takes the same node over when the  #}
+{# path has to change without a request.                                     #}
+{% if breadcrumbs %}
+<nav class="gt-breadcrumb" id="{{ breadcrumbs_id|default:'gt-breadcrumb' }}"
+	 aria-label="{% trans 'Breadcrumb' %}">
+	<ol class="breadcrumb">
+		{% for level in breadcrumbs %}
+		<li class="breadcrumb-item{% if forloop.last %} active{% endif %}"
+			data-bn-index="{{ forloop.counter0 }}"
+			{% if forloop.last %}aria-current="page"{% endif %}>
+			{% if level.href and not forloop.last %}
+			<a href="{{ level.href }}" class="gt-breadcrumb-label">{{ level.label }}</a>
+			{% else %}
+			<span class="gt-breadcrumb-label">{{ level.label }}</span>
+			{% endif %}
+		</li>
+		{% endfor %}
+	</ol>
+</nav>
+{% endif %}

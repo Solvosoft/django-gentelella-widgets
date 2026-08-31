@@ -34,7 +34,7 @@ class TestAuthorDisplay(SimpleTestCase):
         """
 
         def mock_get_url():
-            return ""
+            return ''
 
         self.author.get_absolute_url = mock_get_url
 

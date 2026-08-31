@@ -4,16 +4,19 @@ from unittest.mock import patch
 from django.contrib.contenttypes.models import ContentType
 from django.core import mail
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.mail import EmailMessage
 from django.contrib.auth.models import Group
+from django.utils import timezone
 
 from djgentelella.async_notification.tests import AsyncNotificationTestBase
 from djgentelella.async_notification.models import (
-    AttachedFile, EmailNotification, EmailTemplate
+    AttachedFile, EmailNotification, EmailTemplate, NewsLetter, NewsLetterTask
 )
 from djgentelella.async_notification import settings as ansettings
 from djgentelella.async_notification.sending import (
     resolve_all_recipients, chunk_list, do_send_notification,
-    build_email_message, rewrite_inline_images, send_email_from_template,
+    do_send_newsletter, build_email_message, rewrite_inline_images,
+    send_email_from_template,
 )
 from djgentelella.async_notification.resolvers import (
     RecipientResolverRegistry, DjangoGroupResolver
@@ -354,7 +357,6 @@ class ResumeAfterBatchFailureTest(AsyncNotificationTestBase):
     """A retry after a mid-batch failure must not re-send earlier batches."""
 
     def test_no_duplicate_delivery_on_retry(self):
-        from django.core.mail import EmailMessage
         recipients = ['a@x.com', 'b@x.com', 'c@x.com', 'd@x.com', 'e@x.com']
         notification = EmailNotification.objects.create(
             subject='Resume', message='<p>hi</p>', recipients=recipients,
@@ -410,13 +412,6 @@ class NewsletterResumeTest(AsyncNotificationTestBase):
     """A re-run after a mid-list newsletter failure must not re-send."""
 
     def test_no_duplicate_delivery_on_rerun(self):
-        from django.core.mail import EmailMessage
-        from django.utils import timezone
-        from djgentelella.async_notification.models import (
-            NewsLetter, NewsLetterTask,
-        )
-        from djgentelella.async_notification.sending import do_send_newsletter
-
         recipients = ['a@x.com', 'b@x.com', 'c@x.com', 'd@x.com']
         newsletter = NewsLetter.objects.create(
             subject='NL', message='<p>hi</p>', recipients=recipients)

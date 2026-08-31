@@ -6,3 +6,5 @@ Application Widgets
 .. include:: charts.rst
 .. include:: pallete.rst
 .. include:: notifications.rst
+.. include:: positionsgrid.rst
+.. include:: breadcrumbnav.rst

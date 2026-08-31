@@ -17,7 +17,7 @@ class GTS2SerializerBase(serializers.Serializer):
             return getattr(obj, self.display_fields)
         if isinstance(self.display_fields, (list, tuple)):
             lwords = [getattr(obj, key) for key in self.display_fields]
-            return " ".join(lwords)
+            return ' '.join(lwords)
         return repr(obj)
 
     def get_selected(self, obj):

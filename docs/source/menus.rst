@@ -295,6 +295,46 @@ Create icon-only items for the sidebar footer:
     )
 
 
+Responsive behaviour
+====================
+
+The breakpoint is 992px, and it is the same one in ``gentelella/css/sidebar.css``
+and in ``custom.js`` (a single ``matchMedia``), so the stylesheet and the script
+can never disagree about which layout is in force.
+
+**At 992px and above** the sidebar is a fixed, full-height column. The menu
+itself scrolls inside it, and the sidebar-footer icons sit in a wrapping row at
+the bottom of that column -- in flow, so they can never cover a menu entry nor
+grow wider than the sidebar. ``#menu_toggle`` collapses the column to the 70px
+icon rail; a submenu then opens as a flyout beside the entry it belongs to,
+positioned by ``positionRailFlyout`` in ``custom.js`` (it has to be
+``position: fixed``, because the scrolling menu would clip an absolutely
+positioned child to 70px).
+
+**Below 992px** the sidebar becomes an off-canvas drawer. ``#menu_toggle``
+slides it over the page at its full width with a backdrop -- labels, chevrons
+and all three levels intact -- and clicking the backdrop, pressing ``Escape`` or
+following a leaf link closes it again. The body stays in ``nav-md`` throughout;
+only ``body.sidebar-open`` is toggled. The page behind does not reflow, because
+``.right_col`` and ``.top_nav`` are already full width at this size.
+
+In the top navigation bar, a nested level opens on click as well as on hover, so
+it is reachable on a touch screen. Above the breakpoint it unfolds to the left
+of its parent (the bar is right-aligned, so opening rightwards would leave the
+window); below it, nested levels unfold as an indented block inside the parent
+menu, which always fits, and ``custom.js`` caps the menu's height to the room
+left below it so a short window can still scroll to the last entry.
+
+Everything above is covered by ``demoapp/tests/selenium/test_menu.py``, which
+sweeps eight viewport sizes and asserts of every entry that it is on screen and
+is the topmost element at its own centre -- that is, genuinely clickable rather
+than merely present in the DOM.
+
+If you ship your own theme through the ``site_theme`` setting, note that
+``sidebar.css`` is linked *after* it precisely so these rules survive the
+change; ``site_extracss`` is linked after both and can still override them.
+
+
 Using Django Admin
 ==================
 

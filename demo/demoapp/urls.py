@@ -1,11 +1,11 @@
+from django.contrib.auth.decorators import login_required
 from django.urls import path, include
-from markitup.views import apply_filter
 from rest_framework.routers import DefaultRouter
 
 from demoapp.cruds import Personclass, Countryclass, MenuItemclass
 from demoapp.views import create_notification_view, bt_modal_display
 from .autocomplete import views as autocompleteviews
-from .calendar.views import calendar_view
+from .calendar.views import calendar_view, event_create, event_delete, event_update
 from .cardlist.views import cardListViewExample
 from .cardlist.viewsets import PersonCardListViewSet
 from .chartjs import chart_js_view
@@ -13,25 +13,45 @@ from .datatables.api import PersonViewSet
 from .datatables.views import datatableViewExample
 from .date_range import views as date_ranges
 from .digital_signature import views as digitalsignature
-from .digital_signature.api import DigitalSignatureFileAPIView, \
-    DigitalSignatureAPIUpdateTest
+from .digital_signature.api import (
+    DigitalSignatureFileAPIView,
+    DigitalSignatureAPIUpdateTest,
+)
 from .filechunkedupload import views as chunkedupload
 from .formset import add_formset, add_model_formset
+from demoapp.pdfviewer import views as pdfviewer_views
 from .grid_slider import views as grid
 from .input_masks import views as input_mask
 from .media_upload.views import mediaupload_view
-from .object_management.views import object_management
-from .object_management.viewset import ObjectManagerDemoModelManagement
+from .object_management.views import object_management, object_management_inline
+from .object_management.viewset import (
+    ObjectManagerDemoModelManagement,
+    ObjectManagerDemoNoteManagement,
+)
+from .positionsgrid.views import positionsGridViewExample
+from .positionsgrid.viewsets import WarehouseViewSet
 from .select_image import views as select_image
 from .storyLine.views import storyline_view
 from .storymap.views import gigapixel_view, mapbased_view
 from .tagging import views as tagging
+from .maps.views import map_dashboard_view, map_point_view
 from .timeline.views import timeline_view
-from .views import knobView, YesNoInputView
+from .views import (
+    knobView,
+    YesNoInputView,
+    friconix_icons,
+    mdi_icons,
+    fontawesome_icons,
+    flag_icons,
+)
 from .wysiwyg import views as tinymce
+from .voice import views as voice
+from djgentelella.voice.views import VoiceTranscribeView
+
 # Trash
 from demoapp.trash.view import trash_view
 from demoapp.trash.api import CustomerViewSet
+
 # history
 from demoapp.history.views import history_view
 
@@ -42,117 +62,202 @@ menuclss = MenuItemclass()
 router = DefaultRouter()
 router.register('persontableview', PersonViewSet, 'api-persontable')
 router.register('personlistcardview', PersonCardListViewSet, 'api-personcard')
-router.register('objectmanagement', ObjectManagerDemoModelManagement,
-                'api-objectmanagement')
+router.register('warehouse', WarehouseViewSet, 'api-warehouse')
+router.register(
+    'objectmanagement', ObjectManagerDemoModelManagement, 'api-objectmanagement'
+)
+router.register(
+    r'objectmanagement/(?P<parent_pk>[^/.]+)/note',
+    ObjectManagerDemoNoteManagement,
+    'api-objectmanagement-note',
+)
 
 # Trash
 router.register('api_customer', CustomerViewSet, 'api-customer')
 
-urlpatterns = [
-                  path('object_management', object_management,
-                       name='object_management_index'),
-                  path('bt_modal_display', bt_modal_display, name='bt_modal_display'),
-                  path('formset', add_formset, name='add_formset'),
-                  path('modelformset', add_model_formset, name='add_model_formset'),
-                  path('create/notification', create_notification_view,
-                       name='create_notification'),
-                  path('preview/', apply_filter, name='markitup_preview'),
-                  path('knobwidget/testform', knobView, name="knobwidgets"),
-                  path('digitalsignature/',
-                       digitalsignature.DigitalSignatureList.as_view(),
-                       name='digitalsignature-list'),
-                  path('digitalsignature/create/',
-                       digitalsignature.DigitalSignatureAdd.as_view(),
-                       name='digitalsignature-add'),
-                  path('digitalsignature/<int:pk>/',
-                       digitalsignature.DigitalSignatureChange.as_view(),
-                       name='digitalsignature-edit'),
-                  path('pgroup/', autocompleteviews.PeopleGroupList.as_view(),
-                       name='pgroup-list'),
-                  path('pgroup/create/', autocompleteviews.PeopleGroupAdd.as_view(),
-                       name='pgroup-add'),
-                  path('pgroup/<int:pk>/',
-                       autocompleteviews.PeopleGroupChange.as_view(),
-                       name='pgroup-edit'),
-                  path('abcde/', autocompleteviews.ABCDEList.as_view(),
-                       name='abcde-list'),
-                  path('abcde/create/', autocompleteviews.ABCDECreate.as_view(),
-                       name='abcde-add'),
-                  path('abcde/<int:pk>/', autocompleteviews.ABCDEChange.as_view(),
-                       name='abcde-edit'),
-                  path('inputmask/', input_mask.InsertMask.as_view(),
-                       name='input-mask-add'),
-                  path('inputmask/<int:pk>', input_mask.EditMask.as_view(),
-                       name='input-mask-edit'),
-                  path('inputmask/list', input_mask.listMask.as_view(),
-                       name='input-mask-list'),
-                  path('daterange/', date_ranges.CreateDate.as_view(),
-                       name='date-range-add'),
-                  path('daterange/<int:pk>', date_ranges.UpdateDate.as_view(),
-                       name='date-range-edit'),
-                  path('daterange/list', date_ranges.ListDate.as_view(),
-                       name='date-range-list'),
-                  path('chartjs', chart_js_view, name='chartjs_view'),  # antony
-                  path('tagging/', tagging.InsertTagging.as_view(),
-                       name='input_tagging-add'),
-                  path('tagging/<int:pk>', tagging.EditTagging.as_view(),
-                       name='input_tagging-edit'),
-                  path('tagging/list', tagging.ListTagging.as_view(),
-                       name='input_tagging-list'),
-                  path('tinymce/', tinymce.InsertTinymce.as_view(), name='tinymce-add'),
-                  path('tinymce/list', tinymce.ListTinymce.as_view(),
-                       name='tinymce-list'),
-                  path('tinymce/<int:pk>', tinymce.EditTinymce.as_view(),
-                       name='tinymce-edit'),
-                  path('tinymce_show/<int:pk>', tinymce.DetailTinymce.as_view(),
-                       name='tinymce-show'),
-                  path('yesnoinput/', YesNoInputView.as_view(),
-                       name='yes-no-input-add'),
-                  path('gridslider/', grid.AddGrid.as_view(), name='grid-slider-add'),
-                  path('gridslider/list', grid.ListGrid.as_view(),
-                       name='grid-slider-list'),
-                  path('gridslider/<int:pk>', grid.UpdateGrid.as_view(),
-                       name='grid-slider-edit'),
-                  path('chunkedupload/', chunkedupload.Addchunkedupload.as_view(),
-                       name='chunkeduploaditem-add'),
-                  path('chunkedupload/list', chunkedupload.Listchunkedupload.as_view(),
-                       name='chunkeduploaditem-list'),
-                  path('chunkedupload/<int:pk>',
-                       chunkedupload.Updatechunkedupload.as_view(),
-                       name='chunkeduploaditem-edit'),
-                  path('calendar_view', calendar_view, name="calendar_view"),
-                  path('gigapixel_view', gigapixel_view, name="gigapixel_view"),
-                  path('mapbased_view', mapbased_view, name="mapbased_view"),
-                  path('storyline_view', storyline_view, name="storyline_view"),
-                  path('timeline_view', timeline_view, name="timeline_view"),
-                  path('datatable_view', datatableViewExample, name="datatable_view"),
-                  # CardTable
-                  path('cardlist_view', cardListViewExample, name="cardlist_view"),
-                  path('mediarecord_upload', mediaupload_view, name="mediaupload_view"),
-                  path('tableapi/', include(router.urls)),
-
-                  # path('api/digital_signature_file/<int:pk>/',digital_signature_file, name='digital_signature_file'),
-                  path('api/digital_signature_file/<int:cc>/<int:pk>/',
-                       DigitalSignatureFileAPIView.as_view(),
-                       name='digital_signature_file_api'),
-                  path('api/digital_signature/test/<int:pk>',
-                       DigitalSignatureAPIUpdateTest.as_view(),
-                       name="digital_signature_api_test"
-                       ),
-                  path('formset/digital_signature/',
-                       digitalsignature.digital_signature_formset,
-                       name="digital_signature_formset"),
-
-                  path('imageselect/', select_image.ImageList.as_view(),
-                       name='imgselect-list'),
-                  path('imageselect/create/', select_image.ImageAdd.as_view(),
-                       name='imgselect-add'),
-                  path('imageselect/<int:pk>/',
-                       select_image.ImageChange.as_view(),
-                       name='imgselect-edit'),
-                  # Trash
-                  path('trash/', trash_view, name="trash"),
-                  path('api/customer/', include(router.urls)),
-                  # history
-                    path('history/', history_view, name="history"),
-              ] + pclss.get_urls() + countryclss.get_urls() + menuclss.get_urls()
+urlpatterns = (
+    [
+        path('object_management', object_management, name='object_management_index'),
+        path(
+            'object_management/<int:pk>/notes',
+            object_management_inline,
+            name='object_management_inline',
+        ),
+        path('bt_modal_display', bt_modal_display, name='bt_modal_display'),
+        path('icons/fontawesome', fontawesome_icons, name='fontawesome_icons'),
+        path('icons/friconix', friconix_icons, name='friconix_icons'),
+        path('icons/mdi', mdi_icons, name='mdi_icons'),
+        path('icons/flags', flag_icons, name='flag_icons'),
+        # PDF viewer
+        path(
+            'pdfviewer/',
+            pdfviewer_views.PDFViewerListView.as_view(),
+            name='pdfviewer-list',
+        ),
+        path(
+            'pdfviewer/create/',
+            pdfviewer_views.PDFViewerCreateView.as_view(),
+            name='pdfviewer-add',
+        ),
+        path(
+            'pdfviewer/<int:pk>/',
+            pdfviewer_views.PDFViewerUpdateView.as_view(),
+            name='pdfviewer-edit',
+        ),
+        path(
+            'pdfviewer/<int:pk>/delete/',
+            pdfviewer_views.PDFViewerDeleteView.as_view(),
+            name='pdfviewer-delete',
+        ),
+        path('formset', add_formset, name='add_formset'),
+        path('modelformset', add_model_formset, name='add_model_formset'),
+        path(
+            'create/notification', create_notification_view, name='create_notification'
+        ),
+        path('knobwidget/testform', knobView, name='knobwidgets'),
+        path(
+            'digitalsignature/',
+            digitalsignature.DigitalSignatureList.as_view(),
+            name='digitalsignature-list',
+        ),
+        path(
+            'digitalsignature/create/',
+            digitalsignature.DigitalSignatureAdd.as_view(),
+            name='digitalsignature-add',
+        ),
+        path(
+            'digitalsignature/<int:pk>/',
+            digitalsignature.DigitalSignatureChange.as_view(),
+            name='digitalsignature-edit',
+        ),
+        path(
+            'pgroup/', autocompleteviews.PeopleGroupList.as_view(), name='pgroup-list'
+        ),
+        path(
+            'pgroup/create/',
+            autocompleteviews.PeopleGroupAdd.as_view(),
+            name='pgroup-add',
+        ),
+        path(
+            'pgroup/<int:pk>/',
+            autocompleteviews.PeopleGroupChange.as_view(),
+            name='pgroup-edit',
+        ),
+        path('abcde/', autocompleteviews.ABCDEList.as_view(), name='abcde-list'),
+        path(
+            'abcde/create/', autocompleteviews.ABCDECreate.as_view(), name='abcde-add'
+        ),
+        path(
+            'abcde/<int:pk>/',
+            autocompleteviews.ABCDEChange.as_view(),
+            name='abcde-edit',
+        ),
+        path('inputmask/', input_mask.InsertMask.as_view(), name='input-mask-add'),
+        path(
+            'inputmask/<int:pk>', input_mask.EditMask.as_view(), name='input-mask-edit'
+        ),
+        path('inputmask/list', input_mask.listMask.as_view(), name='input-mask-list'),
+        path('daterange/', date_ranges.CreateDate.as_view(), name='date-range-add'),
+        path(
+            'daterange/<int:pk>',
+            date_ranges.UpdateDate.as_view(),
+            name='date-range-edit',
+        ),
+        path('daterange/list', date_ranges.ListDate.as_view(), name='date-range-list'),
+        path('chartjs', chart_js_view, name='chartjs_view'),  # antony
+        path('tagging/', tagging.InsertTagging.as_view(), name='input_tagging-add'),
+        path(
+            'tagging/<int:pk>', tagging.EditTagging.as_view(), name='input_tagging-edit'
+        ),
+        path('tagging/list', tagging.ListTagging.as_view(), name='input_tagging-list'),
+        path('tinymce/', tinymce.InsertTinymce.as_view(), name='tinymce-add'),
+        path('tinymce/list', tinymce.ListTinymce.as_view(), name='tinymce-list'),
+        path('tinymce/<int:pk>', tinymce.EditTinymce.as_view(), name='tinymce-edit'),
+        path(
+            'tinymce_show/<int:pk>',
+            tinymce.DetailTinymce.as_view(),
+            name='tinymce-show',
+        ),
+        # Transcription costs CPU (or money, on a remote ASR). The
+        # endpoint gates itself (403 json), so it is registered bare
+        # here just like in djgentelella.urls; the page does need
+        # login_required, since its widgets are useless to someone who
+        # cannot reach the endpoint.
+        path(
+            'voice/', login_required(voice.VoiceDemoView.as_view()), name='voice-demo'
+        ),
+        path(
+            'voice/transcribe', VoiceTranscribeView.as_view(), name='voice-transcribe'
+        ),
+        path('yesnoinput/', YesNoInputView.as_view(), name='yes-no-input-add'),
+        path('gridslider/', grid.AddGrid.as_view(), name='grid-slider-add'),
+        path('gridslider/list', grid.ListGrid.as_view(), name='grid-slider-list'),
+        path('gridslider/<int:pk>', grid.UpdateGrid.as_view(), name='grid-slider-edit'),
+        path(
+            'chunkedupload/',
+            chunkedupload.Addchunkedupload.as_view(),
+            name='chunkeduploaditem-add',
+        ),
+        path(
+            'chunkedupload/list',
+            chunkedupload.Listchunkedupload.as_view(),
+            name='chunkeduploaditem-list',
+        ),
+        path(
+            'chunkedupload/<int:pk>',
+            chunkedupload.Updatechunkedupload.as_view(),
+            name='chunkeduploaditem-edit',
+        ),
+        path('calendar_view', calendar_view, name='calendar_view'),
+        path('calendar_view/event', event_create, name='calendar-event-create'),
+        path('calendar_view/event/update', event_update, name='calendar-event-update'),
+        path('calendar_view/event/delete', event_delete, name='calendar-event-delete'),
+        path('gigapixel_view', gigapixel_view, name='gigapixel_view'),
+        path('mapbased_view', mapbased_view, name='mapbased_view'),
+        path('storyline_view', storyline_view, name='storyline_view'),
+        path('timeline_view', timeline_view, name='timeline_view'),
+        path('maps/', map_point_view, name='map-point'),
+        path('maps/dashboard', map_dashboard_view, name='map-dashboard'),
+        path('datatable_view', datatableViewExample, name='datatable_view'),
+        # CardTable
+        path('cardlist_view', cardListViewExample, name='cardlist_view'),
+        path('positionsgrid_view', positionsGridViewExample,
+             name='positionsgrid_view'),
+        path('mediarecord_upload', mediaupload_view, name='mediaupload_view'),
+        path('tableapi/', include(router.urls)),
+        # path('api/digital_signature_file/<int:pk>/',
+        #      digital_signature_file, name='digital_signature_file'),
+        path(
+            'api/digital_signature_file/<int:cc>/<int:pk>/',
+            DigitalSignatureFileAPIView.as_view(),
+            name='digital_signature_file_api',
+        ),
+        path(
+            'api/digital_signature/test/<int:pk>',
+            DigitalSignatureAPIUpdateTest.as_view(),
+            name='digital_signature_api_test',
+        ),
+        path(
+            'formset/digital_signature/',
+            digitalsignature.digital_signature_formset,
+            name='digital_signature_formset',
+        ),
+        path('imageselect/', select_image.ImageList.as_view(), name='imgselect-list'),
+        path(
+            'imageselect/create/', select_image.ImageAdd.as_view(), name='imgselect-add'
+        ),
+        path(
+            'imageselect/<int:pk>/',
+            select_image.ImageChange.as_view(),
+            name='imgselect-edit',
+        ),
+        # Trash
+        path('trash/', trash_view, name='trash'),
+        path('api/customer/', include(router.urls)),
+        # history
+        path('history/', history_view, name='history'),
+    ]
+    + pclss.get_urls()
+    + countryclss.get_urls()
+    + menuclss.get_urls()
+)

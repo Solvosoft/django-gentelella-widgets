@@ -25,23 +25,23 @@ class CalendarWidgetTest(TestCase):
         self.events = [
             {
                 'title': 'Event 1',
-                'start': datetime.strftime(datetime.now(), "%Y-%m-%d %H:%M:%S.%f"),
+                'start': datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S.%f'),
                 'end': datetime.strftime(datetime.now() + timedelta(minutes=30),
-                                         "%Y-%m-%d %H:%M:%S.%f")
+                                         '%Y-%m-%d %H:%M:%S.%f')
             },
             {
                 'title': 'Event 2',
                 'start': datetime.strftime(datetime.now() + timedelta(days=1),
-                                           "%Y-%m-%d %H:%M:%S.%f"),
+                                           '%Y-%m-%d %H:%M:%S.%f'),
                 'end': datetime.strftime(datetime.now() + timedelta(days=1, minutes=30),
-                                         "%Y-%m-%d %H:%M:%S.%f")
+                                         '%Y-%m-%d %H:%M:%S.%f')
             },
             {
                 'title': 'Event 3',
                 'start': datetime.strftime(datetime.now() + timedelta(days=2),
-                                           "%Y-%m-%d %H:%M:%S.%f"),
+                                           '%Y-%m-%d %H:%M:%S.%f'),
                 'end': datetime.strftime(datetime.now() + timedelta(days=2, minutes=30),
-                                         "%Y-%m-%d %H:%M:%S.%f")
+                                         '%Y-%m-%d %H:%M:%S.%f')
             },
         ]
 
@@ -76,7 +76,7 @@ class CalendarWidgetTest(TestCase):
             )
         )
         with self.assertRaisesMessage(serializers.ValidationError,
-                                      "Serializer data is not accepted."):
+                                      'Serializer data is not accepted.'):
             calendar.widget.events_to_json(calendar.widget.events)
 
     def test_past_end_date(self):
@@ -94,7 +94,7 @@ class CalendarWidgetTest(TestCase):
             )
         )
         with self.assertRaisesMessage(serializers.ValidationError,
-                                      "Event end date must occur after start date"):
+                                      'Event end date must occur after start date'):
             calendar.widget.events_to_json(calendar.widget.events)
 
     def test_empty_events(self):
@@ -106,7 +106,7 @@ class CalendarWidgetTest(TestCase):
             )
         )
         with self.assertRaisesMessage(serializers.ValidationError,
-                                      "Empty event parameter."):
+                                      'Empty event parameter.'):
             calendar.widget.events_to_json(calendar.widget.events)
 
 

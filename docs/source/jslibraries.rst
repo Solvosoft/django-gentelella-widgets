@@ -202,7 +202,8 @@ Chart.js
 
 `Chart.js <https://www.chartjs.org/>`_ is a simple yet flexible JavaScript charting library. djgentelella provides Django integration through chart widgets.
 
-Version: Included in vendor bundle (CSS and JS)
+Version: 4.5.1 (included in the vendor bundle). Chart.js 3 dropped the
+stylesheet the 2.x releases shipped, so there is no Chart.js CSS to link.
 
 For detailed usage with Django, see :doc:`appwidgets/charts`.
 
@@ -231,7 +232,7 @@ Basic Usage
 Available Chart Types
 ---------------------
 
-- ``bar`` / ``horizontalBar`` - Bar charts
+- ``bar`` - Bar charts; add ``indexAxis: 'y'`` for what 2.x called ``horizontalBar``
 - ``line`` - Line charts
 - ``pie`` / ``doughnut`` - Circular charts
 - ``scatter`` - Scatter plots

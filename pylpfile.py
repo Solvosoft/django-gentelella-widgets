@@ -10,6 +10,9 @@ from pylpconcat import concat
 ##
 ##  pip install pylp pylpconcat css-html-js-minify
 ##
+##  pylp 0.2.10 needs an asyncio.wait compat patch: run `make patch-pylp`
+##  (or `scripts/patch_pylp.py`) once per venv before invoking pylp.
+##
 
 
 class urlreplace(pylp.Transformer):
@@ -84,27 +87,17 @@ CSS_FILES = [str(BASE_PATH / path) for path in [
     'vendors/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css',
     'vendors/select2/select2.min.css',
     'vendors/select2/select2-bootstrap-5-theme.min.css',
-    'vendors/switchery/switchery.min.css',
-    'vendors/iCheck/green.css',
-    'vendors/bootstrap-progressbar/bootstrap-progressbar-3.3.4.min.css',
     'vendors/nprogress/nprogress.min.css',
     'vendors/tagify/tagify.min.css',
     'vendors/grid-slider/ion.rangeSlider.min.css',
     'vendors/sweetalert2/sweetalert2.min.css',
-    'vendors/chartjs/Chart.min.css',
     'vendors/datatables/datatables.min.css',
-    'vendors/pdfjs/pdf_viewer.min.css',
 ]]
 
 READONLY_WIDGETS_CSS = [str(BASE_PATH / path) for path in [
     'vendors/timeline/css/timeline.css',
-    'vendors/fullcalendar/main.min.css',
     'vendors/storymapjs/storymap.css',
     'vendors/storylinejs/storyline.css',
-]]
-
-FLAGS_CSS = [str(BASE_PATH / path) for path in [
-    'vendors/flag-icon-css/flag-icons.min.css',
 ]]
 
 JS_FILES_HEADER = [str(BASE_PATH / path) for path in [
@@ -116,41 +109,63 @@ JS_FILES_HEADER = [str(BASE_PATH / path) for path in [
 
 JS_FILES = [str(BASE_PATH / path) for path in [
     'vendors/squirrelly/squirrelly.min.js',
-    'vendors/moment/moment-with-locales.min.js',
-    'vendors/jquery-knob/jquery.knob.min.js',
-    'vendors/inputmask/inputmask.min.js',
+    'vendors/moment/moment.min.js',
     'vendors/inputmask/jquery.inputmask.min.js',
     'vendors/nprogress/nprogress.min.js',
-    'vendors/bootstrap-progressbar/bootstrap-progressbar.min.js',
-    'vendors/iCheck/icheck.min.js',
     'vendors/interact/interact.min.js',
     'vendors/bootstrap-daterangepicker/daterangepicker.min.js',
     'vendors/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js',
-    'vendors/switchery/switchery.min.js',
     'vendors/select2/select2.min.js',
-    'vendors/parsleyjs/parsley.min.js',
     'vendors/autosize/autosize.min.js',
     'vendors/bootstrap-maxlength/bootstrap-maxlength.min.js',
-    'vendors/fileupload/jquery.ui.widget.min.js',
     'vendors/grid-slider/ion.rangeSlider.min.js',
-    'vendors/fileupload/jquery.iframe-transport.min.js',
-    'vendors/fileupload/jquery.fileupload.min.js',
     'vendors/fileupload/spark-md5.min.js',
     'vendors/tagify/tagify.min.js',
     'vendors/sweetalert2/sweetalert2.all.min.js',
     'vendors/datatables/datatables.min.js',
-    'vendors/chartjs/Chart.min.js',
-    'vendors/pdfjs/interact.min.js',
-    'vendors/htmlx/htmx.min.js',
+    'vendors/chartjs/chart.umd.min.js',
+    'vendors/htmx/htmx.min.js',
 ]]
 
 READONLY_WIDGETS_JS = [str(BASE_PATH / path) for path in [
     'vendors/timeline/js/timeline.js',
-    'vendors/fullcalendar/main.min.js',
+    'vendors/fullcalendar/index.global.min.js',
     'vendors/storymapjs/storymap.js',
     'vendors/storylinejs/storyline.js',
-    'vendors/bootstrap-tree/bootstrap-treeview.min.js'
 ]]
+
+# Leaflet gets a bundle of its own instead of riding along in JS_FILES, because
+# storymapjs embeds Leaflet 0.7.7 and assigns it to window.L. The readonly
+# bundle therefore has to be emitted first and this one after it, or every map
+# runs against a 0.7 API. See gentelella/statics/javascript.html.
+MAPS_CSS = [str(BASE_PATH / path) for path in [
+    'vendors/leaflet/leaflet.css',
+]]
+
+MAPS_JS = [str(BASE_PATH / path) for path in [
+    'vendors/leaflet/leaflet.js',
+]]
+
+# Both plugins monkey-patch L, so they must come after leaflet.js at runtime.
+MAPS_PLUGINS_CSS = [str(BASE_PATH / path) for path in [
+    'vendors/leaflet-markercluster/MarkerCluster.css',
+    'vendors/leaflet-markercluster/MarkerCluster.Default.css',
+]]
+
+MAPS_PLUGINS_JS = [str(BASE_PATH / path) for path in [
+    'vendors/leaflet-markercluster/leaflet.markercluster.js',
+    'vendors/leaflet-heat/leaflet-heat.js',
+]]
+
+# Javascript bundles are joined with ";\n", not the plain newline pylpconcat
+# defaults to. A minified vendor file often ends in an expression with no
+# trailing semicolon (jquery.knob does), and the next one just as often starts
+# with "(" (inputmask 5 does): concatenated, the two become a single call
+# expression, the whole bundle dies at parse time with "(intermediate value)(...)
+# is not a function", and every library after that point silently disappears.
+# The separator costs one byte per file and makes the bundle order-independent.
+JS_SEP = ';\n'
+
 
 pylp.task('css', lambda:
 pylp.src(CSS_FILES)
@@ -165,28 +180,48 @@ pylp.src(READONLY_WIDGETS_CSS)
           .pipe(pylp.dest(str(BASE_PATH)))
           )
 
-pylp.task('flagcss', lambda: pylp.src(FLAGS_CSS)
-          .pipe(urlreplace())
-          .pipe(concat('djgentelella.flags.vendors.min.css'))
-          .pipe(pylp.dest(str(BASE_PATH)))
-          )
-
 pylp.task('jsheader', lambda:
 pylp.src(JS_FILES_HEADER)
-          .pipe(concat('djgentelella.vendors.header.min.js'))
+          .pipe(concat('djgentelella.vendors.header.min.js', sep=JS_SEP))
           .pipe(pylp.dest(str(BASE_PATH)))
           )
 
 pylp.task('js', lambda:
 pylp.src(JS_FILES)
-          .pipe(concat('djgentelella.vendors.min.js'))
+          .pipe(concat('djgentelella.vendors.min.js', sep=JS_SEP))
           .pipe(pylp.dest(str(BASE_PATH)))
           )
 
 pylp.task('readonlyjs', lambda:
 pylp.src(READONLY_WIDGETS_JS)
-          .pipe(concat('djgentelella.readonly.vendors.min.js'))
+          .pipe(concat('djgentelella.readonly.vendors.min.js', sep=JS_SEP))
           .pipe(pylp.dest(str(BASE_PATH)))
           )
-pylp.task('default', ['css', 'flagcss', 'readonlycss', 'jsheader', 'js', 'readonlyjs'])
-# pylp.task('default', ['flagcss'])
+pylp.task('mapscss', lambda:
+pylp.src(MAPS_CSS)
+          .pipe(urlreplace())
+          .pipe(concat('djgentelella.maps.vendors.min.css'))
+          .pipe(pylp.dest(str(BASE_PATH)))
+          )
+
+pylp.task('mapspluginscss', lambda:
+pylp.src(MAPS_PLUGINS_CSS)
+          .pipe(urlreplace())
+          .pipe(concat('djgentelella.maps.plugins.min.css'))
+          .pipe(pylp.dest(str(BASE_PATH)))
+          )
+
+pylp.task('mapsjs', lambda:
+pylp.src(MAPS_JS)
+          .pipe(concat('djgentelella.maps.vendors.min.js', sep=JS_SEP))
+          .pipe(pylp.dest(str(BASE_PATH)))
+          )
+
+pylp.task('mapspluginsjs', lambda:
+pylp.src(MAPS_PLUGINS_JS)
+          .pipe(concat('djgentelella.maps.plugins.min.js', sep=JS_SEP))
+          .pipe(pylp.dest(str(BASE_PATH)))
+          )
+
+pylp.task('default', ['css', 'readonlycss', 'jsheader', 'js', 'readonlyjs',
+                      'mapscss', 'mapspluginscss', 'mapsjs', 'mapspluginsjs'])

@@ -13,15 +13,23 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        python-version: ['3.11', '3.12'] #, 3.8, 3.9, '3.10'
-
+        # requirements.txt only sets `django>=5.2`, so an unconstrained install
+        # always resolves to the newest release and 5.2 -- the declared minimum,
+        # and the LTS most deployments are on -- would never be exercised.
+        # Both ends are pinned here on purpose.
+        python-version: ['3.11', '3.12', '3.13']
+        django-version: ['5.2', '6.0']
+        exclude:
+          # Django 6.0 dropped Python 3.11
+          - python-version: '3.11'
+            django-version: '6.0'
 
     steps:
 
     - name: Add Actions checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
 
@@ -30,12 +38,49 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install -r test_requirements.txt
-        pip install requests
+        pip install "django~=${{ matrix.django-version }}.0"
+    - name: Lint
+      run: make lint
+
+    - name: Check for uncommitted migrations
+      run: |
+        cd demo/
+        python manage.py makemigrations --check --dry-run
+
     - name: Run Tests
       run: |
         cd demo/
         python manage.py createbasejs
         python manage.py loaddevstatic
-        python manage.py test
+        python manage.py test --exclude-tag=selenium
         python manage.py test djgentelella.tests
+        # the blog lives outside the demo dir, so discovery never reaches it
+        python manage.py test djgentelella.blog.tests
+
+  package:
+    # Templates, static and locale reach the wheel only through MANIFEST.in, and
+    # a missing line there is invisible until an installed copy raises
+    # TemplateDoesNotExist. Building for real is the only way to catch it.
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r test_requirements.txt
+        pip install twine
+    - name: Build and verify the wheel
+      run: |
+        cd demo && python manage.py loaddevstatic && python manage.py createbasejs
+        cd ..
+        python -m pylp
+        cd djgentelella && django-admin compilemessages -l es
+        cd ..
+        python -m build
+        twine check dist/*
+        python build_check.py
 

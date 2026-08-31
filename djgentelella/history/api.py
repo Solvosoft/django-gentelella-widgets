@@ -1,76 +1,125 @@
-from djgentelella.objectmanagement import AuthAllPermBaseObjectManagement
-from django.utils.translation import gettext_lazy as _
-from djgentelella.history.utils import add_log
+from django.conf import settings
 from django.contrib.admin.models import LogEntry, ADDITION, CHANGE, DELETION
-from djgentelella.history.serializers import HistoryDataTableSerializer
-from djgentelella.history.filterset import HistoryFilterSet
+from django.utils.translation import gettext_lazy as _
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.pagination import LimitOffsetPagination
-from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.response import Response
-from django.conf import settings
-from django.db.models import Q
-from django.contrib.contenttypes.models import ContentType
 
+from djgentelella.history.filterset import HistoryFilterSet
+from djgentelella.history.serializers import HistoryDataTableSerializer
+from djgentelella.history.utils import add_log
+from djgentelella.models import DeletedWithTrash
+from djgentelella.objectmanagement import AuthAllPermBaseObjectManagement
+from djgentelella.utils import contenttypes_from_labels
 
 
 class BaseViewSetWithLogs(AuthAllPermBaseObjectManagement):
+    """CRUD viewset that writes an audit entry for create/update/destroy.
+
+    ``models_log`` is an optional allowlist of ``app_label.model`` labels:
+    ``None`` (the default) logs everything the viewset touches.  The hooks
+    ``get_log_related_objects()`` / ``get_log_extra()`` let a subclass attach
+    related instances and arbitrary JSON to every entry; with
+    ``log_request_metadata`` on (the default), the requesting browser and
+    address are recorded on their own.
+    """
+
+    models_log = None
+    log_request_metadata = True
+
+    def should_log(self, instance):
+        allowed = getattr(self, 'models_log', None)
+        if allowed is None:
+            return True
+        return instance._meta.label_lower in {
+            str(item).lower() for item in allowed
+        }
+
+    def get_log_related_objects(self, instance):
+        """Instances this action also touched (see add_log related_objects)."""
+        return None
+
+    def get_log_extra(self, instance):
+        """Arbitrary JSON payload for the entry; merged with request metadata."""
+        return None
+
+    def _log_extra(self, instance):
+        extra = self.get_log_extra(instance) or {}
+        if self.log_request_metadata and getattr(self, 'request', None):
+            meta = self.request.META
+            extra.setdefault('user_agent', meta.get('HTTP_USER_AGENT', ''))
+            extra.setdefault(
+                'ip',
+                (meta.get('HTTP_X_FORWARDED_FOR', '').split(',')[0].strip()
+                 or meta.get('REMOTE_ADDR', '')),
+            )
+            extra.setdefault('method', self.request.method)
+            extra.setdefault('path', self.request.path)
+        return extra or None
+
+    def _add_log(self, instance, action_flag, changed_data, change_message):
+        add_log(
+            self.request.user,
+            instance,
+            action_flag,
+            instance._meta.verbose_name.title().lower(),
+            changed_data,
+            change_message=change_message,
+            related_objects=self.get_log_related_objects(instance),
+            extra=self._log_extra(instance),
+        )
 
     def perform_create(self, serializer):
         super().perform_create(serializer)
         new_instance = serializer.instance
-
-        add_log(
-            self.request.user,
-            new_instance,
-            ADDITION,
-            new_instance._meta.verbose_name.title().lower(),
-            [],
-            change_message=_("Created"),
-        )
+        if self.should_log(new_instance):
+            self._add_log(new_instance, ADDITION, [], _('Created'))
 
     def perform_update(self, serializer):
-        # get the instance before the update
         instance = self.get_object()
+
+        # Snapshot through the serializer's own sources, so a field whose
+        # name is not a model attribute (source=, write_only, nested) is
+        # skipped instead of raising AttributeError.
+        sources = {}
+        for name, field in serializer.fields.items():
+            if name not in serializer.validated_data:
+                continue
+            source = field.source or name
+            if '.' in source or not hasattr(instance, source):
+                continue
+            sources[name] = source
         old_values = {
-            field: getattr(instance, field)
-            for field in serializer.validated_data.keys()
+            name: getattr(instance, source) for name, source in sources.items()
         }
 
         super().perform_update(serializer)
 
         new_instance = serializer.instance
-        # get changed fields
         changed_fields = []
+        for name, source in sources.items():
+            try:
+                new_value = getattr(new_instance, source)
+            except AttributeError:
+                continue
+            if old_values.get(name) != new_value:
+                changed_fields.append(source)
 
-        for field in serializer.validated_data.keys():
-            old_value = old_values.get(field)
-            new_value = getattr(new_instance, field)
-            if old_value != new_value:
-                changed_fields.append(field)
-
-        add_log(
-            self.request.user,
-            new_instance,
-            CHANGE,
-            new_instance._meta.verbose_name.title().lower(),
-            changed_data=changed_fields,
-            change_message=_("Updated"),
-        )
+        if self.should_log(new_instance):
+            self._add_log(new_instance, CHANGE, changed_fields, _('Updated'))
 
     def perform_destroy(self, instance):
         instance = self.get_object()
-        if instance._meta.verbose_name.title() in self.models_log:
-            add_log(
-                self.request.user,
-                instance,
-                DELETION,
-                instance._meta.verbose_name.title().lower(),
-                change_message=_("Deleted"),
-            )
+        if self.should_log(instance):
+            self._add_log(instance, DELETION, None, _('Deleted'))
 
-        super().perform_destroy(instance)
+        # Soft-deletable instances record who threw them away.
+        if isinstance(instance, DeletedWithTrash):
+            instance.delete(user=self.request.user)
+        else:
+            super().perform_destroy(instance)
 
 
 class HistoryViewSet(AuthAllPermBaseObjectManagement):
@@ -79,17 +128,17 @@ class HistoryViewSet(AuthAllPermBaseObjectManagement):
     queryset = LogEntry.objects.all()
     pagination_class = LimitOffsetPagination
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
-    search_fields = ["object_repr"]
+    search_fields = ['object_repr']
     filterset_class = HistoryFilterSet
-    ordering_fields = ["-action_time"]
-    ordering = ("-action_time",)
-    perms = {"list": ["admin.view_logentry"]}
+    ordering_fields = ['-action_time']
+    ordering = ('-action_time',)
+    perms = {'list': ['admin.view_logentry']}
 
     def get_queryset(self):
         queryset = self.queryset
 
         # check allowed models in settings
-        allowed = getattr(settings, "GT_HISTORY_ALLOWED_MODELS", None)
+        allowed = getattr(settings, 'GT_HISTORY_ALLOWED_MODELS', None)
 
         if allowed:
             allowed_ctypes = self.contenttypes_from_settings(allowed)
@@ -99,10 +148,10 @@ class HistoryViewSet(AuthAllPermBaseObjectManagement):
 
             queryset = queryset.filter(content_type__in=allowed_ctypes).distinct()
 
-
-        # check contenttype param in form
-        ctypes_param = self.request.GET.get("contenttype")
-        if ctypes_param and ctypes_param in allowed:
+        # check contenttype param in form. Without the setting, every model
+        # is allowed.
+        ctypes_param = self.request.GET.get('contenttype')
+        if ctypes_param and (not allowed or ctypes_param in allowed):
 
             ctypes_qs = self.contenttypes_from_settings([ctypes_param])
 
@@ -111,32 +160,52 @@ class HistoryViewSet(AuthAllPermBaseObjectManagement):
 
             queryset = queryset.filter(content_type__in=ctypes_qs).distinct()
 
-        # default values
+        queryset = self.filter_by_related(queryset)
+
+        return self.scope_queryset(queryset)
+
+    def filter_by_related(self, queryset):
+        """Entries whose HistoryRelation points at the given object.
+
+        Driven by the generic query params ``related_contenttype``
+        (``app.model``) and ``related_id`` (repeatable).
+        """
+        related_ct = self.request.GET.get('related_contenttype')
+        if not related_ct:
+            return queryset
+        ctypes = self.contenttypes_from_settings([related_ct])
+        if not ctypes.exists():
+            return queryset.none()
+        filters = {'gt_relations__content_type__in': ctypes}
+        related_ids = self.request.GET.getlist('related_id')
+        if related_ids:
+            filters['gt_relations__object_id__in'] = related_ids
+        return queryset.filter(**filters).distinct()
+
+    def scope_queryset(self, queryset):
+        """Last word on what this request may see.
+
+        The default is everything the settings allow; a multi-tenant project
+        overrides this to cut the log down to the requester's organization.
+        """
         return queryset
 
     def contenttypes_from_settings(self, entries):
-        q = Q()
-        for item in entries:
-            if isinstance(item, str) and "." in item:
-                app_label, model_name = item.split(".", 1)
-                app_label = app_label.strip()
-                model_key = model_name.strip().lower()
-                q |= Q(app_label=app_label, model=model_key)
-
-        if not q:
-            return ContentType.objects.none()
-        return ContentType.objects.filter(q)
-
+        return contenttypes_from_labels(entries)
 
     def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
+        # recordsTotal counts the scoped universe, not the whole table: a
+        # raw LogEntry.objects.count() would leak the global log volume into
+        # every tenant's DataTable footer.
+        base_queryset = self.get_queryset()
+        queryset = self.filter_queryset(base_queryset)
         page = self.paginate_queryset(queryset)
         data = page if page is not None else queryset
 
         response = {
-            "data": data,
-            "recordsTotal": LogEntry.objects.count(),
-            "recordsFiltered": queryset.count(),
-            "draw": self.request.GET.get("draw", 1),
+            'data': data,
+            'recordsTotal': base_queryset.count(),
+            'recordsFiltered': queryset.count(),
+            'draw': self.request.GET.get('draw', 1),
         }
         return Response(self.get_serializer(response).data)

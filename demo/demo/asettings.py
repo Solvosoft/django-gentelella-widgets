@@ -1,3 +1,3 @@
 from .settings import *
 
-ROOT_URLCONF = "demo.aurls"
+ROOT_URLCONF = 'demo.aurls'

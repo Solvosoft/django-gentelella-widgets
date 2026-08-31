@@ -40,10 +40,14 @@ readme = { file = "README.rst", content-type = "text/x-rst" }  # Optional
 # https://packaging.python.org/guides/distributing-packages-using-setuptools/#python-requires
 requires-python = ">=3.11"
 
-# This is either text indicating the license for the distribution, or a file
-# that contains the license
-# https://packaging.python.org/en/latest/specifications/core-metadata/#license
-license = { file = "LICENSE.txt" }
+# PEP 639: an SPDX expression, not a file. The `{ file = ... }` table it
+# replaces is deprecated from setuptools 77 (removal 2027-02-18) and inlined the
+# whole 354 line GPL text into the License: metadata field. LICENSE.txt is the
+# GPL v2 text; an old setup.py classifier claimed GPLv3+, which never matched
+# the file that shipped. v2-or-later is the resolution.
+# https://packaging.python.org/en/latest/specifications/license-expression/
+license = "GPL-2.0-or-later"
+license-files = ["LICENSE.txt", "AUTHORS"]
 
 
 # This field adds keywords for your project which will appear on the
@@ -76,13 +80,15 @@ classifiers = [# Optional
     #   3 - Alpha
     #   4 - Beta
     #   5 - Production/Stable
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     # Indicate who your project is intended for
     "Intended Audience :: Developers",
     "Topic :: Software Development :: Build Tools",
     "Environment :: Web Environment",
     "Framework :: Django",
     "Framework :: Django :: 5",
+    "Framework :: Django :: 5.2",
+    "Framework :: Django :: 6.0",
     "Operating System :: OS Independent",
     "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
     "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
@@ -95,6 +101,7 @@ classifiers = [# Optional
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3 :: Only",
 ]
 
@@ -106,13 +113,10 @@ classifiers = [# Optional
 # https://packaging.python.org/discussions/install-requires-vs-requirements/
 dependencies = [# Optional
     'django-tree-queries>=0.11.0',
-    'djangoajax>=3.3',
-    'django-markitup>=4.0.0',
-    'markdown',
     'Pillow',
-    'djangorestframework>=3.13',
-    'django>=4.2',
-    'django_filter>=22.1',
+    'djangorestframework>=3.15.2',
+    'django>=5.2',
+    'django-filter>=22.1',
     'pycryptodome>=3.23.0'
 ]
 
@@ -125,17 +129,48 @@ dependencies = [# Optional
 # Similar to `dependencies` above, these must be valid existing
 # projects.
 [project.optional-dependencies] # Optional
-test = []
 dev = [
     'pylp', 'pylpconcat', 'css-html-js-minify'
 ]
+# Lower bounds, not pins: this is a library, and an `==` here cannot be
+# overridden by the application installing it -- "requests==2.32.4" makes
+# djgentelella[firmador] unusable next to anything that needs a newer one, and
+# conflicts with the >= in asr-remote below.
 firmador = [
-    "django-cors-headers==4.6.0",
-    "uvicorn==0.32.1",
-    "uvicorn-worker==0.2.0",
-    "channels==4.2.0",
-    "wsproto==1.2.0",
-    "requests==2.32.4"
+    "django-cors-headers>=4.6.0",
+    # uvicorn serves the ASGI application; wsproto is its websocket
+    # implementation (plain uvicorn ships none, it only comes with
+    # uvicorn[standard]), so the signing websocket needs it.
+    "uvicorn>=0.51.0",
+    "uvicorn-worker>=0.4.0",
+    "channels>=4.2.0",
+    "wsproto>=1.2.0",
+    "requests>=2.32.4"
+]
+# Celery backend for async_notification. Without it the notifications are
+# dispatched synchronously by SyncBackend, no configuration needed. Redis
+# transport bundled in: it's what `scripts/run_services.sh --celery` provides.
+celery = [
+    "celery[redis]>=5.3"
+]
+# Speech recognition for the voice dictation widgets. Neither extra is needed
+# to install or import djgentelella: the widgets ship with it, only the
+# transcription endpoint needs a backend, and the imports are lazy.
+#
+# `asr` is the local backend (GENTELELLA_ASR_BACKEND = 'local'): in-process
+# Parakeet-v3, where onnx-asr runs the model on CPU and av (PyAV) decodes the
+# uploaded audio. It is heavy -- the first request downloads a ~670 MB model.
+asr = [
+    "onnx-asr[cpu,hub]>=0.11.0",
+    "av>=11.0",
+    "numpy>=1.24.0"
+]
+# `asr-remote` is the remote backend (GENTELELLA_ASR_BACKEND = 'remote'), which
+# forwards the audio to an external ASR API and so needs nothing but an HTTP
+# client. Install this one instead of `asr` when the transcription runs
+# elsewhere.
+asr-remote = [
+    "requests>=2.32.4"
 ]
 
 # List URLs that are relevant to your project
@@ -163,17 +198,89 @@ firmador = [
 # If you are using a different build backend, you will need to change this.
 [tool.setuptools.packages.find]
 include = ["djgentelella*"]
-exclude = ["docs*", "demo*"]
+# Tests are excluded from the distribution: they are written against the demo
+# project, so `djgentelella.tests` raises ModuleNotFoundError: demoapp on an
+# installed copy. Shipping 36 unimportable test modules only breaks anything
+# that walks the package (pytest --pyargs, coverage, an import scanner).
+exclude = ["docs*", "demo*", "*.tests", "*.tests.*"]
 
 
 [build-system]
 # These are the assumed default build requirements from pip:
 # https://pip.pypa.io/en/stable/reference/pip/#pep-517-and-518-support
-requires = ["setuptools>=61.0.0,<69.3.0", "wheel"]
+# No ceiling: it was added along with the setup.py -> pyproject migration with
+# no reason recorded, and building with setuptools 83 produces a byte-identical
+# file list (1108 in the wheel, 1243 in the sdist). The floor is 77 because that
+# is where the PEP 639 `license` expression above is understood.
+# `wheel` is not listed: setuptools has carried bdist_wheel itself since 70.1.
+requires = ["setuptools>=77.0.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.dynamic]
 version = { attr = "djgentelella.__version__" }
 
-[tool.black]
-target-version = ["py311"]
+# Style (line length, whitespace, ...) stays with pycodestyle in setup.cfg,
+# which is what `make lint` has always run. Ruff is here only for the checks
+# pycodestyle has no equivalent for -- today, import placement.
+[tool.ruff]
+line-length = 88
+# Mirrors the `exclude` in setup.cfg: generated migrations and the two files
+# that carry vendored URL tables.
+extend-exclude = ["migrations", "loaddevstatic.py", "gtstorymap.py"]
+
+# Single quotes are what this codebase has always used. A `ruff format` run
+# with the default (double) is what split the tree in two, so the preference is
+# recorded here rather than left to whoever runs the formatter next. It only
+# takes effect if someone runs `ruff format`; the rule that is actually
+# enforced by `make lint` is Q, configured under [tool.ruff.lint] below.
+[tool.ruff.format]
+quote-style = "single"
+
+[tool.ruff.lint]
+# PLC0415 (import-outside-top-level): imports belong at the top of the module.
+# A function-level import is allowed only where it is genuinely required --
+# an optional dependency, an AppConfig.ready() that runs before the app
+# registry is populated, or a circular import -- and each such case has to be
+# marked with `# noqa: PLC0415` plus a comment saying which of the three it is.
+#
+# Q (flake8-quotes): quote style. Enforced as a lint rule rather than by
+# running `ruff format`, because the formatter would also re-wrap lines and
+# rewrite trailing commas across the whole tree -- 11k lines of churn to fix a
+# quote character. This keeps `make lint` failing when double quotes creep back
+# in without reformatting anything else.
+select = ["PLC0415", "Q"]
+
+[tool.ruff.lint.flake8-quotes]
+inline-quotes = "single"
+# Docstrings and triple-quoted blocks stay double: that is PEP 257, and it is
+# already what the whole tree does.
+multiline-quotes = "double"
+docstring-quotes = "double"
+
+# `make coverage` / `make coverage-all`. The tests only run from demo/, so the
+# measured tree is named by package (`source_pkgs`) and not by path: a relative
+# `source` would resolve against demo/ and measure nothing.
+[tool.coverage.run]
+source_pkgs = ["djgentelella"]
+branch = true
+# The unit pass and the selenium pass are two separate processes writing to the
+# same COVERAGE_FILE; without this the second would overwrite the first.
+parallel = true
+# No `relative_files`: it would store the paths relative to demo/, which is
+# where the runs happen, and `coverage report` runs from the repository root.
+omit = [
+    "*/migrations/*",
+    # The test modules themselves: measuring them says nothing about the
+    # library and only inflates the total.
+    "*/tests/*",
+    "*/tests.py",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+exclude_also = [
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+]

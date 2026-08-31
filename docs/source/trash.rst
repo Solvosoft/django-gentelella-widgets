@@ -265,3 +265,58 @@ When inheriting from ``DeletedWithTrash``, three different managers are availabl
 - ``objects_deleted_only = DeletedObjectsManager()`` → Returns **only deleted objects**.
 
 This allows flexible querying and management of your application data.
+
+Behaviour notes
+---------------
+
+- ``restore`` goes through ``get_object()``: a subclass that scopes
+  ``get_queryset()`` (a per-tenant trash) also scopes what can be restored.
+- Restoring an entry whose original object no longer exists answers
+  ``410 Gone``; hard-deleting such an orphan removes the trash row.
+- ``perform_destroy`` needs no override when the viewset extends
+  ``BaseViewSetWithLogs``: the base logs the action and calls
+  ``instance.delete(user=request.user)`` so ``deleted_by`` is recorded.
+- A queryset-level ``delete(user=...)`` on ``DeletedWithTrash`` managers
+  creates the trash rows too, so a bulk soft-delete stays recoverable from
+  the trash screen.
+- Restoring is gated by ``djgentelella.change_trash`` everywhere (viewset and
+  serializer actions).
+
+Deletion context and multi-tenant scoping
+-----------------------------------------
+
+A deleted object rarely stands alone: it belonged to an organization, a
+project, a folder. ``delete()`` — instance and queryset level — accepts
+``related_objects`` (a model instance or an iterable of instances; bare pks
+raise ``ValueError``) and records one ``TrashRelation`` row per instance next
+to the ``Trash`` entry::
+
+    document.delete(user=request.user,
+                    related_objects=[organization, project])
+
+    Document.objects.filter(...).delete(user=request.user,
+                                        related_objects=[organization])
+
+The first deletion that provides context wins: an entry already carrying
+relations keeps them on a re-delete. Relations disappear with their entry
+(restore or hard delete) through the cascade.
+
+That context is what a multi-tenant trash screen scopes by. ``TrashViewSet``
+offers two hooks, mirroring ``HistoryViewSet``:
+
+- The generic query params ``related_contenttype`` (``app.model``) and
+  ``related_id`` (repeatable) narrow the list to entries related to the given
+  object.
+- ``scope_queryset(queryset)`` is the last word on what one request may see;
+  it also guards ``restore`` and ``destroy``, which resolve through
+  ``get_object()``. Override it per tenant::
+
+      class OrgTrashViewSet(TrashViewSet):
+          def scope_queryset(self, queryset):
+              return queryset.filter(
+                  gt_relations__content_type=self.org_ctype,
+                  gt_relations__object_id=self.kwargs['org_pk'],
+              ).distinct()
+
+``recordsTotal`` follows the scoped queryset, so the count never leaks the
+size of other tenants' trash.

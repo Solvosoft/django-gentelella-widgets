@@ -7,18 +7,25 @@ from django_filters import FilterSet
 from django_filters import DateTimeFromToRangeFilter
 from djgentelella.fields.drfdatetime import DateTimeRangeTextWidget
 from django.contrib.auth import get_user_model
+
 User = get_user_model()
+
 
 class NotificationFilterSet(FilterSet):
     creation_date = DateTimeFromToRangeFilter(
         widget=DateTimeRangeTextWidget(
-            attrs={'placeholder': formats.get_format('DATETIME_INPUT_FORMATS')[0]})
+            attrs={'placeholder': formats.get_format('DATETIME_INPUT_FORMATS')[0]}
+        )
     )
 
     class Meta:
         model = Notification
-        fields = {'message_type': ['icontains'], 'description': ['icontains'],
-                  'link': ['icontains'], 'state': ['icontains']}
+        fields = {
+            'message_type': ['icontains'],
+            'description': ['icontains'],
+            'link': ['icontains'],
+            'state': ['icontains'],
+        }
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -38,7 +45,9 @@ class NotificationPagination(LimitOffsetPagination):
 
 class NotificationSerializer(serializers.ModelSerializer):
     user = UserSerializer()
-    creation_date = serializers.DateTimeField(format=formats.get_format('DATETIME_INPUT_FORMATS')[0])
+    creation_date = serializers.DateTimeField(
+        format=formats.get_format('DATETIME_INPUT_FORMATS')[0]
+    )
 
     class Meta:
         model = Notification
@@ -49,7 +58,7 @@ class NotificationSerializer(serializers.ModelSerializer):
             'message_type',
             'state',
             'creation_date',
-            'user'
+            'user',
         )
 
 

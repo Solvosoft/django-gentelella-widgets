@@ -9,6 +9,7 @@ from django.db import transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+from djgentelella.async_notification.backends import get_backend
 from djgentelella.async_notification.models import EmailNotification
 
 
@@ -38,7 +39,6 @@ def on_notification_created(sender, instance, created, **kwargs):
     pk = instance.pk
 
     def _dispatch():
-        from djgentelella.async_notification.backends import get_backend
         get_backend().send(pk)
 
     transaction.on_commit(_dispatch)

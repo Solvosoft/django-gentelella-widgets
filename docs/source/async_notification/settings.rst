@@ -131,7 +131,7 @@ Autocomplete Configuration
     # Group lookup fields for autocomplete (default shown)
     ASYNC_NOTIFICATION_GROUP_LOOKUP_FIELDS = ['name']
 
-Retry &amp; Resolvers
+Retry & Resolvers
 ---------------------
 
 .. code:: python
@@ -171,5 +171,5 @@ Permission Classes
     # None = use default AuthAllPermBaseObjectManagement permissions
     ASYNC_NOTIFICATION_PERMISSION_CLASSES = None
 
-Deliverability &amp; compliance settings (unsubscribe, suppression, opt-in, the
+Deliverability & compliance settings (unsubscribe, suppression, opt-in, the
 webhook, rate limiting) are documented in :doc:`compliance`.

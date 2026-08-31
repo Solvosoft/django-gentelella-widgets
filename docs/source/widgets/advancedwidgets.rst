@@ -15,10 +15,12 @@ This section covers specialized widgets that provide enhanced functionality beyo
 .. include:: timeline.rst
 .. include:: autocomplete.rst
 .. include:: wysiwyg.rst
+.. include:: voice.rst
 .. include:: yesnoinput.rst
 .. include:: grid_slider.rst
 .. include:: chunkedupload.rst
 .. include:: storymap.rst
+.. include:: maps.rst
 .. include:: calendar.rst
 .. include:: storyline.rst
 .. include:: firmador_digital.rst

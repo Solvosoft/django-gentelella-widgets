@@ -27,7 +27,9 @@ def validate_recipient_list(value):
     :class:`RecipientResolverRegistry` (e.g. ``admins@group.local``).
     Empty lists are allowed.
     """
-    from djgentelella.async_notification.resolvers import (
+    # resolvers imports the Group model, so importing it from models.py at
+    # module level would run while the app registry is still loading.
+    from djgentelella.async_notification.resolvers import (  # noqa: PLC0415
         RecipientResolverRegistry,
     )
 

@@ -8,7 +8,7 @@ from djgentelella.models import Trash
 
 class TrashFilter(FilterSet):
     created_at = DateTimeFromToRangeFilter(
-        widget=DateTimeRangeTextWidget(attrs={"placeholder": "DD/MM/YYYY/"})
+        widget=DateTimeRangeTextWidget(attrs={'placeholder': 'DD/MM/YYYY/'})
     )
 
     class Meta:
@@ -17,4 +17,5 @@ class TrashFilter(FilterSet):
             'content_type__model': ['exact'],
             'object_id': ['exact'],
             'created_at': ['exact'],
+            'deleted_by': ['exact'],
         }

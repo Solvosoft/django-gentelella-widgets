@@ -208,28 +208,17 @@ function GTBaseFormModal(modal_id, datatable_element, form_config) {
                     }
                     done = true;
                 } else if (inputfield.attr('type') === "radio") {
-                    var is_icheck = inputfield.closest('.gtradio').length > 0;
                     var sel = inputfield.filter(function () {
                         return this.value === value.toString()
                     });
                     if (sel.length > 0) {
                         sel.prop("checked", true);
-                        if (is_icheck) {
-                            sel.iCheck('update');
-                            sel.iCheck('check');
-                        }
-
                     } else {
                         inputfield.prop("checked", false);
-                        if (is_icheck) {
-                            inputfield.iCheck('update');
-                            inputfield.iCheck('uncheck');
-                        }
                     }
                     done = true;
                 }
-                if (inputfield.data().widget === "EditorTinymce" || inputfield.data().widget === "TextareaWysiwyg") {
-                    tinymce.get(inputfield.attr('id')).setContent(value);
+                if (set_editor_content(inputfield, value)) {
                     done = true;
                 }
                 if (inputfield.data().widget === "TaggingInput" || inputfield.data().widget === "EmailTaggingInput") {
@@ -429,13 +418,18 @@ function ObjectCRUD(uniqueid, objconfig = {}) {
 
     const config = Object.assign({}, default_config, objconfig);
 
+    // Read the merged config, not the caller's raw object: `actions` is
+    // optional and default_config already supplies the empty lists. Reading
+    // objconfig.actions threw "Cannot use 'in' operator to search for
+    // 'table_actions' in undefined" and aborted init() for every page that did
+    // not declare actions of its own -- the inline CRUD demo among them.
     per_table_actions = []
     per_object_actions = []
-    if ("table_actions" in objconfig.actions) {
-        per_table_actions = objconfig.actions.table_actions;
+    if ("table_actions" in config.actions) {
+        per_table_actions = config.actions.table_actions;
     }
-    if ("object_actions" in objconfig.actions) {
-        per_object_actions = objconfig.actions.object_actions;
+    if ("object_actions" in config.actions) {
+        per_object_actions = config.actions.object_actions;
     }
     obj = {
         "uniqueid": uniqueid,
@@ -444,7 +438,7 @@ function ObjectCRUD(uniqueid, objconfig = {}) {
         "can_create": config.modal_ids.hasOwnProperty("create"),
         "can_destroy": config.urls.hasOwnProperty("destroy_url") && config.modal_ids.hasOwnProperty("destroy"),
         "can_list": config.urls.hasOwnProperty("list_url"),
-        "can_detail": objconfig.urls.hasOwnProperty("detail_url") && config.modal_ids.hasOwnProperty("detail")
+        "can_detail": config.urls.hasOwnProperty("detail_url") && config.modal_ids.hasOwnProperty("detail")
             && config.urls.hasOwnProperty("detail_template_url"),
         "can_update": config.modal_ids.hasOwnProperty("update"),
         "use_get_values_for_update": config.urls.hasOwnProperty("get_values_for_update_url"),
@@ -592,7 +586,12 @@ function ObjectCRUD(uniqueid, objconfig = {}) {
                                 let action = instance.object_actions[x];
                                 let display_in_column = true;
                                 do_action = true
-                                if (action.name in data) {
+                                // `data` is the row's `actions` value. A
+                                // serializer that does not send the key leaves
+                                // it undefined, and the bare `in` threw there,
+                                // taking the entire table down instead of just
+                                // falling back to "allowed".
+                                if (data && action.name in data) {
                                     do_action = data[action.name];
                                 }
                                 if (do_action) {
@@ -696,6 +695,12 @@ function ObjectCRUD(uniqueid, objconfig = {}) {
                 url = action.url;
             }
             if (url !== null) {
+                // link:true marks a navigation action (e.g. a per-row "open"
+                // pointing at a full detail page) instead of an API call.
+                if (action.link === true) {
+                    window.location.assign(url);
+                    return;
+                }
                 fetch(url, {
                         method: method,
                         body: body,

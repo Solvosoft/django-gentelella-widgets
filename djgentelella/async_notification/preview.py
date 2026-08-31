@@ -14,6 +14,7 @@ from django.template import Template, Context
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 
+from djgentelella.async_notification.introspection import get_fields_for_context
 from djgentelella.async_notification.registry import get_context_config
 from djgentelella.async_notification.settings import (
     ASYNC_NOTIFICATION_BASE_TEMPLATES,
@@ -127,8 +128,6 @@ def build_dummy_context(code):
         Dict suitable for use as a Django template Context.
         Returns empty dict if code is not registered.
     """
-    from djgentelella.async_notification.introspection import get_fields_for_context
-
     fields_data = get_fields_for_context(code)
     if fields_data is None:
         return {}

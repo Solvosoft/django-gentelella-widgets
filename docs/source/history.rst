@@ -162,3 +162,85 @@ Finally, we define the JavaScript logic to configure the datatable, filters, and
         ocrud.datatable.ajax.reload();
     })
 
+Writing entries: ``add_log``
+----------------------------
+
+``djgentelella.history.utils.add_log`` writes one audit entry into Django's
+``LogEntry`` and **returns it**:
+
+.. code:: python
+
+    from djgentelella.history.utils import add_log, ADDITION
+
+    entry = add_log(
+        request.user, instance, ADDITION,
+        change_message='Created from the import wizard',
+        related_objects=[project, (organization, {'role': 'owner'})],
+        extra={'batch': 42},
+    )
+
+- ``related_objects``: a single instance, an iterable of instances, or
+  ``(instance, data_dict)`` pairs. Each one becomes a ``HistoryRelation`` row
+  (generic FK + optional JSON annotation) — the way to say "this action also
+  touched these other objects". Bare pks are rejected: a number does not
+  identify a model.
+- ``extra``: an arbitrary dict stored as a relation row with no target. Query
+  it back through ``LogEntry.gt_relations``.
+- If ``change_message`` is empty a generic sentence is generated; a
+  caller-provided message is always kept (the field list is appended on
+  create/update).
+- Anonymous or missing users are attributed to the account named by the
+  ``GT_HISTORY_ANONYMOUS_USERNAME`` setting; without it, ``add_log`` raises
+  ``ValueError`` (``LogEntry.user`` cannot be NULL).
+
+Automatic logging: ``BaseViewSetWithLogs``
+------------------------------------------
+
+Subclass it instead of ``AuthAllPermBaseObjectManagement`` and every
+create/update/destroy writes its entry. Optional knobs:
+
+.. code:: python
+
+    class CustomerViewSet(BaseViewSetWithLogs):
+        # None (default) logs every model this viewset touches;
+        # a list restricts logging to these labels.
+        models_log = ['demoapp.customer']
+
+        # Captured by default: browser, ip, method and path of the request.
+        log_request_metadata = True
+
+        def get_log_related_objects(self, instance):
+            return [instance.organization]
+
+        def get_log_extra(self, instance):
+            return {'source': 'import'}
+
+If the instance inherits ``DeletedWithTrash``, destroy soft-deletes it passing
+``user=`` so the trash records who threw it away — no override needed.
+
+Filtering by relations and extra data
+-------------------------------------
+
+``api-history-list`` understands these extra query parameters:
+
+- ``related_contenttype=app.model`` (+ repeatable ``related_id=N``): entries
+  whose relations point at those objects.
+- ``extra={"org": 1, "area": 5}`` (JSON): entries whose relation payload
+  contains **all** the given keys (1..n fields, matched on the same row).
+
+Multi-tenant scoping
+--------------------
+
+``HistoryViewSet.scope_queryset(queryset)`` is the override point: it runs
+last in ``get_queryset`` and ``recordsTotal`` is computed from the scoped
+universe (never from the global table).
+
+.. code:: python
+
+    class OrgHistoryViewSet(HistoryViewSet):
+        def scope_queryset(self, queryset):
+            org_ct = ContentType.objects.get_for_model(Organization)
+            return queryset.filter(
+                gt_relations__content_type=org_ct,
+                gt_relations__object_id=self.kwargs['org_pk'],
+            ).distinct()

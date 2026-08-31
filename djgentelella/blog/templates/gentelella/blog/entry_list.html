@@ -50,7 +50,7 @@
                                  {{ entry.preview_content }}
                             {% else %}
                                 {# Truncate derived from: Avg reading speed (3.33 words/s) * Average attention span (8s) #}
-                                {{ entry.content|truncatewords_html:26 }} <a href="{{ entry.get_absolute_url }}">{% trans '(More...)' %}</a>
+                                {{ entry.content|truncatewords_html:26|safe }} <a href="{{ entry.get_absolute_url }}">{% trans '(More...)' %}</a>
                             {% endif %}
                         </div>
                     </div>
@@ -62,10 +62,10 @@
                                 </a>
                             {% endif %}
                             {% if perms.blog.change_entry %}
-                                <a class="btn btn-outline-warning" href="{% url 'blog:entry_update' entry.pk %}">{% trans 'Update' %}<i class=" fa fa-edit yellow"></i></a>
+                                <a class="btn btn-outline-warning" href="{% url 'blog:entry_update' entry.pk %}">{% trans 'Update' %} <i class=" fa fa-edit yellow"></i></a>
                             {% endif %}
                             {% if perms.blog.delete_entry %}
-                                <a class="btn btn-outline-danger" href="{% url 'blog:entry_delete' entry.pk %}">{% trans 'Delete' %}<i class=" fa fa-trash red"></i></a>
+                                <a class="btn btn-outline-danger" href="{% url 'blog:entry_delete' entry.pk %}">{% trans 'Delete' %} <i class=" fa fa-trash red"></i></a>
                             {% endif %}
                 </div>
                 <div class="clearfix"></div>

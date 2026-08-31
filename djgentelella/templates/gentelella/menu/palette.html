@@ -26,9 +26,15 @@
             </div>
             <div class=" dashboard-widget-content" id="helper-body-container">
                 <ul id="helper-body" class="helper_list list-unstyled timeline widget">
+                    <li class="helper-empty text-muted small">
+                        <p class="mb-1">{% trans 'There is no help written for this page yet.' %}</p>
+                        <p class="mb-0">{% blocktrans %}Press the green plus, then the
+                        question mark that appears beside a field, and write what
+                        it is for.{% endblocktrans %}</p>
+                    </li>
                 </ul>
             </div>
-            <div class="hidden " id="helper-prototype">
+            <div class="d-none" id="helper-prototype">
                 {% include 'gentelella/blocks/helper_prototype.html' %}
             </div>
         </div>

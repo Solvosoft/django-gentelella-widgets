@@ -6,10 +6,9 @@
 	<div id="category{{ key|cut:' ' }}" class="collapse" style="width:100%">
 		{% for item in value %}
 			<div class="row" style="margin-left: 12%;">
-				<p>
-					<input id="checkbox_perms_{{ item.id }}" type="checkbox" class="flat" name="permission" value="{{ item.id }}"
-														style="position: absolute; opacity: 0;">
-					<label for="checkbox_perms_{{ item.id }}">
+				<p class="d-flex align-items-center gap-2 mb-1">
+					<input id="checkbox_perms_{{ item.id }}" type="checkbox" class="gt-check" name="permission" value="{{ item.id }}">
+					<label for="checkbox_perms_{{ item.id }}" class="mb-0" style="cursor: pointer;">
 						{% trans item.name %}
 					</label>
 				</p>

@@ -6,7 +6,7 @@ from django.test import TestCase
 
 from djgentelella.widgets.timeline import UrlTimeLineInput
 
-attrs = {"data-url": 'exampletimeline-url/', "height": 568}
+attrs = {'data-url': 'exampletimeline-url/', 'height': 568}
 
 
 class FormClass(forms.Form):
@@ -54,8 +54,8 @@ class UrlTimeWidgetUnitTest(TestCase):
         reason:  required prevent form submit and disabled can change css behaviour.
         """
         form = self.render('{{form}}', {'form': self.multiitemsform})
-        self.assertNotIn("required", form)
-        self.assertNotIn("disabled", form)
+        self.assertNotIn('required', form)
+        self.assertNotIn('disabled', form)
 
     def test_check_datawidget(self):
         """
@@ -72,10 +72,10 @@ class UrlTimeWidgetUnitTest(TestCase):
         """
 
         with self.assertRaisesRegex(ImproperlyConfigured,
-                                    "You must add data-url on attrs"):
+                                    'You must add data-url on attrs'):
             class InvalidForm(forms.Form):
                 storyline = forms.CharField(widget=UrlTimeLineInput)
-                storytwo = forms.CharField(widget=UrlTimeLineInput({"height": 20}))
+                storytwo = forms.CharField(widget=UrlTimeLineInput({'height': 20}))
 
     def test_widget_formset(self):
         timeLineFormSet = formset_factory(FormClass, extra=2)
@@ -83,6 +83,6 @@ class UrlTimeWidgetUnitTest(TestCase):
         for formIndex in range(len(formset)):
             form_str = self.render('{{form}}', {'form': formset[formIndex]})
             self.assertIn(f'id_form-{formIndex}-timeline', form_str)
-            self.assertNotIn("required", form_str)
-            self.assertNotIn("disabled", form_str)
+            self.assertNotIn('required', form_str)
+            self.assertNotIn('disabled', form_str)
             self.assertIn('data-widget="UrlTimeLineInput"', form_str)

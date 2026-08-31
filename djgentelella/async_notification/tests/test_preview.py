@@ -1,3 +1,5 @@
+import datetime
+
 from django.test import TestCase
 
 from djgentelella.async_notification.registry import register_context, clear_registry
@@ -23,7 +25,6 @@ class DummyContextObjectTest(TestCase):
         self.assertIsInstance(val, bool)
 
     def test_date_type(self):
-        import datetime
         val = DummyContextObject.get_dummy_value('date')
         self.assertIsInstance(val, datetime.date)
 

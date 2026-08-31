@@ -1,0 +1,98 @@
+{% extends 'gentelella/base.html' %}
+{% load static i18n %}
+
+{% block content %}
+<div class="row">
+	<div class="col">
+		<div class="x_panel">
+			<div class="x_title">
+				<h2>{% trans 'Positions grid' %} — {{ warehouse.name }}</h2>
+				<div class="form-check form-switch float-end">
+					<input class="form-check-input" type="checkbox" id="editableSwitch" checked>
+					<label class="form-check-label" for="editableSwitch">{% trans 'Edit mode' %}</label>
+				</div>
+				<div class="clearfix"></div>
+			</div>
+			<div class="x_content">
+				<p class="text-muted">
+					{% blocktrans %}Rows are irregular on purpose: this warehouse is 2, 4, 3 and
+					4 cells wide. Pick a box and then tap a cell to move it. Removing a row or a
+					column that still holds boxes is refused by the server, and the grid keeps
+					showing exactly what the server last confirmed.{% endblocktrans %}
+				</p>
+				<div id="warehouseGrid"></div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block js %}{{ block.super }}
+<script>
+	const warehouseBase = "/tableapi/warehouse/{{ warehouse.pk }}/";
+
+	function warehousePost(action, body) {
+		return fetch(warehouseBase + action + '/', {
+			method: 'POST',
+			headers: {'X-CSRFToken': getCookie('csrftoken'),
+					  'Content-Type': 'application/json'},
+			body: JSON.stringify(body || {})
+		}).then(function (response) {
+			if (response.ok) { return response.json(); }
+			return response.json().then(function (error) {
+				return Promise.reject(new Error(error.detail || gettext('Rejected')));
+			});
+		});
+	}
+
+	const grid = new PositionsGrid('warehouseGrid', {
+		editable: true,
+		renderItem: function (item) {
+			return '<div class="card card-body p-2">' +
+				   '<strong>' + item.code + '</strong>' +
+				   '<small class="text-muted">' + item.content +
+				   ' (' + item.quantity + ')</small></div>';
+		},
+		renderEmptyCell: function () {
+			return '<span class="text-muted small">{% trans "empty" %}</span>';
+		},
+		handlers: {
+			addRow: function () { return warehousePost('add_row'); },
+			removeRow: function (i) { return warehousePost('remove_row', {row: i}); },
+			addCol: function () { return warehousePost('add_col'); },
+			removeCol: function (i) { return warehousePost('remove_col', {col: i}); },
+			createItem: function (r, c) {
+				return warehousePost('create_item', {row: r, col: c, quantity: 1});
+			},
+			moveItem: function (id, r, c) {
+				return warehousePost('move_item', {id: id, row: r, col: c});
+			},
+			removeItem: function (id) { return warehousePost('remove_item', {id: id}); }
+		}
+	});
+
+	fetch(warehouseBase + 'state/')
+		.then(function (r) { return r.json(); })
+		.then(function (state) { grid.setData(state.data, state.items); });
+
+	grid.el.addEventListener('pg:error', function (event) {
+		if (event.detail.code === 'busy') { return; }
+		Swal.fire({icon: 'error', title: gettext('Error'),
+				   text: event.detail.error.message});
+	});
+
+	document.getElementById('editableSwitch').addEventListener('change', function () {
+		grid.setEditable(this.checked);
+	});
+
+	// BreadcrumbNav on the same page: warehouse > row > cell.
+	const crumbs = new BreadcrumbNav('gt-breadcrumb', {
+		levels: [{label: '{{ warehouse.name|escapejs }}'}]
+	});
+	grid.el.addEventListener('pg:cell-click', function (event) {
+		crumbs.truncateTo(0);
+		crumbs.push({label: interpolate(gettext('Row %s'), [event.detail.row + 1])});
+		crumbs.push({label: interpolate(gettext('Cell %s'), [event.detail.col + 1])});
+	});
+</script>
+{% endblock js %}

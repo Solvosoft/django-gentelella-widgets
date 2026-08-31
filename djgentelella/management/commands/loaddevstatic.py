@@ -1,8 +1,11 @@
+import hashlib
 import os
+import re
 import shutil
 from pathlib import Path
 from threading import Thread, current_thread
 
+from django.conf import settings
 from django.contrib.staticfiles import finders
 from django.core.management import BaseCommand
 
@@ -12,28 +15,135 @@ except BaseException:
     print("Requests is required try pip install requests")
     exit(1)
 
-FLAGS = ['ac', 'ad', 'ae', 'af', 'ag', 'ai', 'al', 'am', 'ao', 'aq', 'ar', 'as', 'at',
-         'au', 'cp', 'dg', 'ea', 'es-ct', 'es-ga', 'ic', 'ta',
-         'aw', 'ax', 'az', 'ba', 'bb', 'bd', 'be', 'bf', 'bg', 'bh', 'bi', 'bj', 'bl',
-         'bm', 'bn', 'bo', 'bq', 'br', 'bs', 'bt', 'bv', 'bw', 'by', 'bz', 'ca', 'cc',
-         'cd', 'cf', 'cg', 'ch', 'ci', 'ck', 'cl', 'cm', 'cn', 'co', 'cr', 'cu', 'cv',
-         'cw', 'cx', 'cy', 'cz', 'de', 'dj', 'dk', 'dm', 'do', 'dz', 'ec', 'ee', 'eg',
-         'eh', 'er', 'es-ca', 'es', 'et', 'eu', 'fi', 'fj', 'fk', 'fm', 'fo', 'fr',
-         'ga', 'gb-eng', 'gb-nir', 'gb-sct', 'gb-wls', 'gb', 'gd', 'ge', 'gf', 'gg',
-         'gh', 'gi', 'gl', 'gm', 'gn', 'gp', 'gq', 'gr', 'gs', 'gt', 'gu', 'gw', 'gy',
-         'hk', 'hm', 'hn', 'hr', 'ht', 'hu', 'id', 'ie', 'il', 'im', 'in', 'io', 'iq',
-         'ir', 'is', 'it', 'je', 'jm', 'jo', 'jp', 'ke', 'kg', 'kh', 'ki', 'km', 'kn',
-         'kp', 'kr', 'kw', 'ky', 'kz', 'la', 'lb', 'lc', 'li', 'lk', 'lr', 'ls', 'lt',
-         'lu', 'lv', 'ly', 'ma', 'mc', 'md', 'me', 'mf', 'mg', 'mh', 'mk', 'ml', 'mm',
-         'mn', 'mo', 'mp', 'mq', 'mr', 'ms', 'mt', 'mu', 'mv', 'mw', 'mx', 'my', 'mz',
-         'na', 'nc', 'ne', 'nf', 'ng', 'ni', 'nl', 'no', 'np', 'nr', 'nu', 'nz', 'om',
-         'pa', 'pe', 'pf', 'pg', 'ph', 'pk', 'pl', 'pm', 'pn', 'pr', 'ps', 'pt', 'pw',
-         'py', 'qa', 're', 'ro', 'rs', 'ru', 'rw', 'sa', 'sb', 'sc', 'sd', 'se', 'sg',
-         'sh', 'si', 'sj', 'sk', 'sl', 'sm', 'sn', 'so', 'sr', 'ss', 'st', 'sv', 'sx',
-         'sy', 'sz', 'tc', 'td', 'tf', 'tg', 'th', 'tj', 'tk', 'tl', 'tm', 'tn', 'to',
-         'tr', 'tt', 'tv', 'tw', 'tz', 'ua', 'ug', 'um', 'un', 'us', 'uy', 'uz', 'va',
-         'vc', 've', 'vg', 'vi', 'vn', 'vu', 'wf', 'ws', 'xk', 'xx', 'ye', 'yt', 'za',
-         'zm', 'zw']
+
+def _is_html_error_page(content):
+    # Some CDNs (friconix.com's included) answer a dead path with 200 and
+    # their normal HTML homepage instead of a 404 -- status alone won't
+    # catch that, and writing it as the "library" corrupts every bundle
+    # it gets concatenated into.
+    head = content[:512].lstrip().lower()
+    return head.startswith(b'<!doctype html') or head.startswith(b'<html')
+
+
+def _mdi_woff2_only(content):
+    """Point Material Design Icons' @font-face at the woff2 alone.
+
+    Its stylesheet lists eot, woff2, woff and ttf -- 2.3 MB of the same glyphs
+    in four encodings, of which every browser this project supports picks the
+    403 KB woff2. Only that one is downloaded, so the other three URLs would be
+    dead: harmless for the rendering, a 404 in the network tab for whoever goes
+    looking.
+    """
+    woff2 = re.search(rb'url\("([^"]*\.woff2[^"]*)"\)', content)
+    if not woff2:  # upstream changed shape -- leave it alone rather than guess
+        return content
+    return re.sub(rb'src:url\([^)]*\.eot[^)]*\);src:[^;]*;',
+                  b'src:url("%s") format("woff2");' % woff2.group(1),
+                  content, count=1)
+
+
+# Sources that serve no version, so a pin is impossible and the only defence
+# against the code changing under us is to record what was last vetted.
+#
+# Knightlab publishes numbered releases, but they are not the same software:
+# `latest` is the current webpack build (storymap.js, 260 KB, KLStoryMap
+# namespace) while the newest tag, 0.7.1, is unminified 2019 code on the old VCO
+# architecture, twice the size. Pinning to it would be a four-year downgrade,
+# not a pin. friconix has no version at all -- its npm package was unpublished
+# in 2020 and there is no repository.
+#
+# A mismatch is reported, not fatal: upstream is allowed to move, but nobody
+# should find out by accident. Verify the new build, then paste the new hash.
+PINNED_CHECKSUMS = {
+    'https://cdn.knightlab.com/libs/storymapjs/latest/js/storymap.js':
+        'c9ce90e87a0b78dfad5d5cba29848302cc3804a68fc9c6bc41d4e37bcf0a8c03',
+    'https://cdn.knightlab.com/libs/storymapjs/latest/css/storymap.css':
+        '6bda7de7c58eecf3e247bebdbc2deacc5974c51f76bf2012c4fa4123fc6e2076',
+    'https://cdn.knightlab.com/libs/timeline3/latest/js/timeline.js':
+        '8d87fa72477f5ed45f1ec5e4df08a2379d6c7524790f0523d555c3af72842863',
+    'https://cdn.knightlab.com/libs/timeline3/latest/css/timeline.css':
+        'bf78018d195b3b47e934585b78da0c0b620868c3f29b923164dcf302235484f4',
+    'https://friconix.com/cdn/friconix.js':
+        'd1d8bea7160815e06bd384008dba74155c61299be7533bda60940636250564ab',
+}
+
+TINYMCE_VERSION = '8.8.2'
+TINYMCE_URL = 'https://cdn.jsdelivr.net/npm/tinymce@%s/%%s' % TINYMCE_VERSION
+
+# The plugins TinyMCE 8 publishes. Listed rather than discovered so a version
+# bump that removes one fails loudly here instead of silently shipping a
+# truncated bundle.
+TINYMCE_PLUGINS = [
+    'accordion', 'advlist', 'anchor', 'autolink', 'autoresize', 'autosave',
+    'charmap', 'code', 'codesample', 'directionality', 'emoticons',
+    'fullscreen', 'help', 'image', 'importcss', 'insertdatetime', 'link',
+    'lists', 'media', 'nonbreaking', 'pagebreak', 'preview', 'quickbars',
+    'save', 'searchreplace', 'table', 'visualblocks', 'visualchars',
+    'wordcount',
+]
+
+MOMENT_VERSION = '2.30.1'
+MOMENT_URL = 'https://cdnjs.cloudflare.com/ajax/libs/moment.js/%s/%%s' % MOMENT_VERSION
+
+# Every locale moment 2.30.1 publishes. Kept here rather than discovered over
+# the network so that a language the project declares can be matched against it
+# offline, and so a language moment has no translation for is skipped instead of
+# printing a FAILED line on every run.
+MOMENT_LOCALES = {
+    'af', 'ar', 'ar-dz', 'ar-kw', 'ar-ly', 'ar-ma', 'ar-ps', 'ar-sa', 'ar-tn',
+    'az', 'be', 'bg', 'bm', 'bn', 'bn-bd', 'bo', 'br', 'bs', 'ca', 'cs', 'cv',
+    'cy', 'da', 'de', 'de-at', 'de-ch', 'dv', 'el', 'en-au', 'en-ca', 'en-gb',
+    'en-ie', 'en-il', 'en-in', 'en-nz', 'en-sg', 'eo', 'es', 'es-do', 'es-mx',
+    'es-us', 'et', 'eu', 'fa', 'fi', 'fil', 'fo', 'fr', 'fr-ca', 'fr-ch', 'fy',
+    'ga', 'gd', 'gl', 'gom-deva', 'gom-latn', 'gu', 'he', 'hi', 'hr', 'hu',
+    'hy-am', 'id', 'is', 'it', 'it-ch', 'ja', 'jv', 'ka', 'kk', 'km', 'kn',
+    'ko', 'ku', 'ku-kmr', 'ky', 'lb', 'lo', 'lt', 'lv', 'me', 'mi', 'mk', 'ml',
+    'mn', 'mr', 'ms', 'ms-my', 'mt', 'my', 'nb', 'ne', 'nl', 'nl-be', 'nn',
+    'oc-lnc', 'pa-in', 'pl', 'pt', 'pt-br', 'ro', 'ru', 'sd', 'se', 'si', 'sk',
+    'sl', 'sq', 'sr', 'sr-cyrl', 'ss', 'sv', 'sw', 'ta', 'te', 'tet', 'tg',
+    'th', 'tk', 'tl-ph', 'tlh', 'tr', 'tzl', 'tzm', 'tzm-latn', 'ug-cn', 'uk',
+    'ur', 'uz', 'uz-latn', 'vi', 'x-pseudo', 'yo', 'zh-cn', 'zh-hk', 'zh-mo',
+    'zh-tw',
+}
+
+
+def moment_locales():
+    """The moment locale files this project can actually display.
+
+    `moment-with-locales.min.js` put all 137 languages -- 375 KB -- into the
+    bundle of every page so that one of them could be used. The core build plus
+    the one locale file the page needs is 63 KB, and `get_moment_locale` links
+    that file per request.
+
+    Which ones to download comes from `settings.LANGUAGES`, so a project that
+    narrowed it to its own two languages downloads two files, while one that
+    never set it keeps Django's full list and loses nothing. English is not
+    among them: it is built into moment's core build.
+    """
+    dev = []
+    for code, _name in settings.LANGUAGES:
+        code = code.lower()
+        # A regional code moment does not carry (Django's 'es-ar') falls back
+        # to its base language ('es') rather than to English.
+        for candidate in (code, code.split('-')[0]):
+            if candidate in ('en', 'en-us'):
+                break
+            if candidate in MOMENT_LOCALES:
+                if candidate not in dev:
+                    dev.append(candidate)
+                break
+    return dev
+
+
+# Filled by the download threads, reported once at the end of the command --
+# a warning printed among two hundred download lines is a warning nobody reads.
+CHECKSUM_MISMATCHES = []
+
+
+# Rewrites applied to a downloaded file, keyed by its name.
+POST_PROCESS = {
+    'materialdesignicons.min.css': _mdi_woff2_only,
+}
 
 
 def download(urls):
@@ -43,8 +153,22 @@ def download(urls):
         filename = url[1]
         print("%s) Downloading %s --> %s" % (thread.name, download_url, filename))
         r = requests.get(download_url)
+        if not r.ok or _is_html_error_page(r.content):
+            # Don't save the error page as the file, don't raise either --
+            # a few CDN paths are permanently gone, that shouldn't kill the thread.
+            print("%s) FAILED (%s): %s" % (thread.name, r.status_code, download_url))
+            continue
+        content = r.content
+        expected = PINNED_CHECKSUMS.get(download_url)
+        if expected is not None:
+            actual = hashlib.sha256(content).hexdigest()
+            if actual != expected:
+                CHECKSUM_MISMATCHES.append((download_url, expected, actual))
+        post_process = POST_PROCESS.get(Path(filename).name)
+        if post_process is not None:
+            content = post_process(content)
         with open(filename, 'wb') as arch:
-            arch.write(r.content)
+            arch.write(content)
 
 
 class Command(BaseCommand):
@@ -53,23 +177,18 @@ class Command(BaseCommand):
     threads_count = 10
 
     def get_urls_list(self, urls):
-        if self.threads_count == 1:
+        """Split urls into at most threads_count chunks, losing none of them.
+
+        The previous version walked `while nextt != end`, which dropped the
+        final chunk whenever len(urls) was an exact multiple of trunk_len --
+        silently, so a library simply never appeared under vendors/.
+        """
+        if self.threads_count <= 1 or self.threads_count >= len(urls):
             yield urls[:]
             return
-        if self.threads_count > len(urls):
-            yield urls[:]
-            return
-        trunk_len = len(urls) // self.threads_count
-        start = 0
-        nextt = trunk_len
-        end = len(urls)
-        while nextt != end:
-            yield urls[start:nextt]
-            start = nextt
-            nextt += trunk_len
-            if nextt > end:
-                yield urls[start:]
-                nextt = end
+        trunk_len = -(-len(urls) // self.threads_count)  # ceil
+        for start in range(0, len(urls), trunk_len):
+            yield urls[start:start + trunk_len]
 
     def download_urls(self):
         threads = []
@@ -95,6 +214,9 @@ class Command(BaseCommand):
             with open(basepath, 'wb') as arch:
                 for url in files:
                     r = requests.get(url)
+                    if not r.ok or _is_html_error_page(r.content):
+                        print("FAILED (%s): %s" % (r.status_code, url))
+                        continue
                     arch.write(r.content)
                     arch.write(b'\n')
 
@@ -123,24 +245,36 @@ class Command(BaseCommand):
 
         libs = {
             'bootstrap': [
-                'https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css',
-                'https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.min.js',
-                'https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.5/dist/umd/popper.min.js',
-                'https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js'
+                'https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css',
+                'https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js',
+                'https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js',
+                'https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js'
             ],
             'fonts': [
-                'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/fonts/glyphicons-halflings-regular.eot',
-                'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/fonts/glyphicons-halflings-regular.ttf',
-                'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/fonts/glyphicons-halflings-regular.woff2',
-                'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/fonts/glyphicons-halflings-regular.svg',
-                'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/fonts/glyphicons-halflings-regular.woff',
-                'https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/fonts/glyphicons-halflings-regular.svg',
+                # Only Font Awesome's own faces belong here: font-awesome.min.css
+                # reaches them as ../fonts/ and urlreplace inlines them at bundle
+                # time. Bootstrap 3's glyphicons used to be downloaded alongside
+                # them and no bundled stylesheet has ever referenced one.
                 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/fontawesome-webfont.svg',
                 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/FontAwesome.otf',
                 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/fontawesome-webfont.eot',
                 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/fontawesome-webfont.ttf',
                 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/fontawesome-webfont.woff',
                 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/fontawesome-webfont.woff2',
+            ],
+            # Material Design Icons: 7448 icons as a webfont, opt-in through
+            # the `use_mdi` define. Not in any pylp bundle on purpose -- urlreplace
+            # would base64 the font into the vendors stylesheet, and the whole
+            # point of a webfont is that the browser fetches one 403 KB woff2 and
+            # caches it. Keeping upstream's css/ + fonts/ layout is what makes the
+            # stylesheet's own ../fonts/ reference resolve.
+            'mdi/css': [
+                'https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/'
+                'materialdesignicons.min.css',
+            ],
+            'mdi/fonts': [
+                'https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/fonts/'
+                'materialdesignicons-webfont.woff2',
             ],
             'font-awesome': [
                 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css',
@@ -149,63 +283,32 @@ class Command(BaseCommand):
             'friconix': [
                 "https://friconix.com/cdn/friconix.js"
             ],
+            # 3.1.0 is the last release and it is only published to npm, which
+            # ships the sources unminified; jsDelivr minifies them on request, so
+            # the vendored file names stay the ones pylpfile.py and the templates
+            # already reference. The moment.min.js this package carries is not
+            # downloaded: moment comes from its own entry below and no template
+            # ever linked the copy.
             'bootstrap-daterangepicker': [
-                # 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.1/daterangepicker.min.js',
-                # 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.1/daterangepicker.min.css',
-                # 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.1/moment.min.js',
-                '',
-                '',
-                'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.0.5/daterangepicker.min.js',
-                'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.0.5/daterangepicker.min.css',
-                'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.0.5/daterangepicker.min.css.map',
-                'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.0.5/daterangepicker.min.js.map',
-                'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.0.5/moment.min.js'
+                'https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.min.js',
+                'https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.min.css',
             ],
             'bootstrap-datetimepicker': [
                 # 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/6.0.1/css/tempus-dominus.min.css',
                 # 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/6.0.1/js/tempus-dominus.min.js',
 
                 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js',
-                'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css.map',
                 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css'
             ],
             'select2': [
-                'https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/js/select2.min.js',
-                'https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/css/select2.min.css',
+                'https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0/js/select2.min.js',
+                'https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0/css/select2.min.css',
                 'https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css'
                 # 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js',
                 # 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css'
             ],
             "squirrelly": [
-                "https://unpkg.com/squirrelly@9.0.0/dist/browser/squirrelly.min.js"
-            ],
-            'switchery': [
-                'https://cdnjs.cloudflare.com/ajax/libs/switchery/0.8.2/switchery.min.js',
-                'https://cdnjs.cloudflare.com/ajax/libs/switchery/0.8.2/switchery.min.css',
-            ],
-            'iCheck': [
-                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.2/icheck.min.js',
-                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.2/skins/flat/green.css',
-                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.2/skins/flat/blue.css',
-                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.2/skins/flat/aero.css',
-                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.2/skins/flat/yellow.css',
-                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.2/skins/flat/orange.css',
-                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.2/skins/flat/green.png',
-                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.2/skins/flat/blue.png',
-                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.2/skins/flat/aero.png',
-                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.2/skins/flat/yellow.png',
-                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.2/skins/flat/orange.png',
-                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.2/skins/flat/green@2x.png',
-                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.2/skins/flat/blue@2x.png',
-                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.2/skins/flat/aero@2x.png',
-                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.2/skins/flat/yellow@2x.png',
-                'https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.2/skins/flat/orange@2x.png',
-            ],
-            'bootstrap-progressbar': [
-
-                'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-progressbar/0.9.0/bootstrap-progressbar.min.js',
-                'https://cdn.jsdelivr.net/npm/bootstrap-progressbar@0.9.0/css/bootstrap-progressbar-3.3.4.min.css',
-                # 'https://cdn.jsdelivr.net/npm/bootstrap-progressbar@0.9.0/css/bootstrap-progressbar-3.3.4.min.css',
+                "https://unpkg.com/squirrelly@9.1.1/dist/browser/squirrelly.min.js"
             ],
             'nprogress': [
                 'https://cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js',
@@ -214,68 +317,71 @@ class Command(BaseCommand):
                 # 'https://cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css',
             ],
             'jquery': [
-                'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js',
-                'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.map',
+                'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js',
+                'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.map',
                 # 'https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js',
                 # 'https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.map'
             ],
-            'jquery-ui': [
-                'https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/themes/smoothness/jquery-ui.min.css',
-                # 'https://code.jquery.com/ui/1.11.3/themes/smoothness/jquery-ui.css'
-            ],
-            'jquery-knob': [
-                'https://cdnjs.cloudflare.com/ajax/libs/jQuery-Knob/1.2.13/jquery.knob.min.js',
-            ],
+            # The jQuery build is a superset of inputmask.min.js -- both dist
+            # files carry the whole library -- and every call site here goes
+            # through $(el).inputmask(), so only this one is downloaded.
             'inputmask': [
-                # 'https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.7/inputmask.min.js',
-                # 'https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.7/jquery.inputmask.min.js',
-                'https://cdnjs.cloudflare.com/ajax/libs/inputmask/3.3.11/inputmask/inputmask.min.js',
-                'https://cdnjs.cloudflare.com/ajax/libs/inputmask/3.3.11/inputmask/jquery.inputmask.min.js',
+                'https://cdn.jsdelivr.net/npm/inputmask@5.0.10/dist/'
+                'jquery.inputmask.min.js',
             ],
             'moment': [
-                'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment-with-locales.min.js'
+                MOMENT_URL % 'moment.min.js',
             ],
-            'parsleyjs': [
-                'https://cdnjs.cloudflare.com/ajax/libs/parsley.js/2.3.13/parsley.min.js'
+            'moment/locale': [
+                MOMENT_URL % ('locale/%s.js' % code)
+                for code in moment_locales()
             ],
             'autosize': [
-                'https://cdnjs.cloudflare.com/ajax/libs/autosize.js/3.0.15/autosize.min.js'
+                'https://cdnjs.cloudflare.com/ajax/libs/autosize.js/6.0.1/autosize.min.js'
             ],
             'bootstrap-maxlength': [
-                'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-maxlength/1.10.0/bootstrap-maxlength.min.js',
-                # 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-maxlength/1.9.0/bootstrap-maxlength.min.js'
+                'https://cdn.jsdelivr.net/npm/bootstrap-maxlength@2.0.0/dist/'
+                'bootstrap-maxlength.min.js',
             ],
-            'flag-icon-css': [
-                'https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css',
-                # 'https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.4.6/css/flag-icon.min.css',
-            ],
-            'flags/1x1': [
-                'https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.4.6/flags/1x1/%s.svg' % flag
-                for flag in FLAGS],
-            'flags/4x3': [
-                'https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.4.6/flags/4x3/%s.svg' % flag
-                for flag in FLAGS],
+            # A combined build with the three extensions this project uses:
+            # Buttons (as the toolbar for the actions, never for exporting),
+            # ColReorder and Responsive. The 1.12 build also carried AutoFill,
+            # DateTime, FixedColumns, FixedHeader, KeyTable, RowGroup,
+            # RowReorder, Scroller, SearchBuilder, SearchPanes, Select,
+            # StateRestore, jszip and the colvis/html5/print buttons -- 500 KB
+            # with not one reference anywhere in the project. Row selection is
+            # hand rolled with .gtcheckable checkboxes, not the Select
+            # extension. Rebuild the URL at https://datatables.net/download.
             'datatables': [
-                'https://cdn.datatables.net/v/bs5/jszip-2.5.0/dt-1.12.1/af-2.4.0/b-2.2.3/b-colvis-2.2.3/b-html5-2.2.3/b-print-2.2.3/cr-1.5.6/date-1.1.2/fc-4.1.0/fh-3.2.4/kt-2.7.0/r-2.3.0/rg-1.2.0/rr-1.2.8/sc-2.0.7/sb-1.3.4/sp-2.0.2/sl-1.4.0/sr-1.1.1/datatables.min.js',
-                'https://cdn.datatables.net/v/bs5/jszip-2.5.0/dt-1.12.1/af-2.4.0/b-2.2.3/b-colvis-2.2.3/b-html5-2.2.3/b-print-2.2.3/cr-1.5.6/date-1.1.2/fc-4.1.0/fh-3.2.4/kt-2.7.0/r-2.3.0/rg-1.2.0/rr-1.2.8/sc-2.0.7/sb-1.3.4/sp-2.0.2/sl-1.4.0/sr-1.1.1/datatables.min.css',
-                "https://cdn.datatables.net/plug-ins/1.12.1/i18n/en-GB.json",
-                "http://cdn.datatables.net/plug-ins/1.12.1/i18n/es-ES.json"
-
+                'https://cdn.datatables.net/v/bs5/dt-2.3.7/b-3.2.6/cr-2.1.2/'
+                'r-3.0.7/datatables.min.js',
+                'https://cdn.datatables.net/v/bs5/dt-2.3.7/b-3.2.6/cr-2.1.2/'
+                'r-3.0.7/datatables.min.css',
+                'https://cdn.datatables.net/plug-ins/2.3.7/i18n/en-GB.json',
+                'https://cdn.datatables.net/plug-ins/2.3.7/i18n/es-ES.json',
             ],
+            # What is left of the upload group. blueimp jQuery-File-Upload went
+            # with the rewrite in js/base/chunkedupload.js, and with it the
+            # jQuery UI widget factory it was built on and an iframe transport
+            # for browsers with no XHR file upload -- that is, IE9. spark-md5
+            # stays because it does the one thing the platform cannot: hash a
+            # file incrementally, so a large upload is never held in memory.
             'fileupload': [
-                'https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.32.0/js/jquery.fileupload.min.js',
-                'https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.32.0/js/jquery.iframe-transport.min.js',
-                'https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.32.0/js/vendor/jquery.ui.widget.min.js',
-                'https://cdnjs.cloudflare.com/ajax/libs/spark-md5/3.0.0/spark-md5.min.js',
+                'https://cdnjs.cloudflare.com/ajax/libs/spark-md5/3.0.2/'
+                'spark-md5.min.js',
             ],
+            # FullCalendar 6 ships one global build with the standard plugins
+            # already in it, and no stylesheet at all: it injects its own CSS
+            # from javascript, so there is nothing left to link or to bundle.
+            # (locales-all.js is not downloaded any more either -- it moved to
+            # another package in 6, and no template ever loaded it.)
             'fullcalendar': [
-                'https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js',
-                'https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales-all.js',
-                'https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css',
+                'https://cdn.jsdelivr.net/npm/fullcalendar@6.1.20/'
+                'index.global.min.js',
             ],
             'interact': [
                 # 'https://cdnjs.cloudflare.com/ajax/libs/interact.js/1.0.2/interact.min.js'
-                'https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js'
+                'https://cdn.jsdelivr.net/npm/interactjs@1.10.28/dist/interact.min.js'
             ],
             'timeline/': [],
             'timeline/css': [
@@ -302,157 +408,130 @@ class Command(BaseCommand):
                 'https://cdn.knightlab.com/libs/storymapjs/latest/css/icons/layers.png',
                 'https://cdn.knightlab.com/libs/storymapjs/latest/css/icons/layers-2x.png',
             ],
+            # Chart.js 3 dropped the stylesheet -- everything the old Chart.min.css
+            # styled is drawn on the canvas now -- and renamed the browser build
+            # to chart.umd.js.
             'chartjs': [
-                'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js',
-                'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.css'
+                'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.1/'
+                'chart.umd.min.js',
             ],
             "img/": [],
-            'bootstrap-tree': [
-                'https://github.com/patternfly/patternfly-bootstrap-treeview/raw/master/dist/bootstrap-treeview.min.js',
-                'https://raw.githubusercontent.com/patternfly/patternfly-bootstrap-treeview/master/dist/bootstrap-treeview.min.css'
-            ],
             'tagify': [
-                'https://cdn.jsdelivr.net/npm/@yaireo/tagify@4.33.2/dist/tagify.min.js',
-                'https://cdn.jsdelivr.net/npm/@yaireo/tagify@4.33.2/dist/tagify.min.css'
+                'https://cdn.jsdelivr.net/npm/@yaireo/tagify@4.38.0/dist/tagify.min.js',
+                'https://cdn.jsdelivr.net/npm/@yaireo/tagify@4.38.0/dist/tagify.min.css'
             ],
             'grid-slider': [
-                'https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/js/ion.rangeSlider.min.js',
-                'https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/css/ion.rangeSlider.min.css'
+                'https://cdn.jsdelivr.net/npm/ion-rangeslider@2.3.2/js/ion.rangeSlider.min.js',
+                'https://cdn.jsdelivr.net/npm/ion-rangeslider@2.3.2/css/ion.rangeSlider.min.css'
             ],
             'sweetalert2': [
-                'https://cdn.jsdelivr.net/npm/sweetalert2@10.10.0/dist/sweetalert2.all.min.js',
-                'https://cdn.jsdelivr.net/npm/sweetalert2@10.10.0/dist/sweetalert2.min.css'
+                'https://cdn.jsdelivr.net/npm/sweetalert2@11.26.25/dist/sweetalert2.all.min.js',
+                'https://cdn.jsdelivr.net/npm/sweetalert2@11.26.25/dist/sweetalert2.min.css'
             ],
-            'summernote': [
-                'https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js',
-                'https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css'
-            ],
+            # TinyMCE 8. Two things moved since the 5.6.1 this replaced:
+            # jquery.tinymce.min.js is no longer part of the package (the jQuery
+            # integration became a separate project, and the call sites use
+            # tinymce.init() instead), and models/dom/model.min.js is new and
+            # mandatory -- without it the editor does not start.
             'tinymce': [
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/tinymce.min.js',
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/jquery.tinymce.min.js',
+                TINYMCE_URL % 'tinymce.min.js',
             ],
             'tinymce/themes/silver': [
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/themes/silver/theme.min.js'
+                TINYMCE_URL % 'themes/silver/theme.min.js',
             ],
-            'tinymce/themes/mobile/': [
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/themes/mobile/theme.min.js'
+            'tinymce/models/dom': [
+                TINYMCE_URL % 'models/dom/model.min.js',
             ],
             'tinymce/skins/content/dark/': [
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/content/dark/content.min.css',
+                TINYMCE_URL % 'skins/content/dark/content.min.css',
             ],
             'tinymce/skins/content/default/': [
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/content/default/content.min.css',
+                TINYMCE_URL % 'skins/content/default/content.min.css',
             ],
             'tinymce/skins/content/document': [
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/content/document/content.min.css',
+                TINYMCE_URL % 'skins/content/document/content.min.css',
             ],
             'tinymce/skins/content/writer': [
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/content/writer/content.min.css',
+                TINYMCE_URL % 'skins/content/writer/content.min.css',
             ],
+            # The *.mobile.min.css of the 5.x skins are gone: so is the mobile
+            # theme they styled.
             'tinymce/skins/ui/oxide-dark/': [
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide-dark/content.inline.min.css',
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide-dark/content.min.css',
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide-dark/content.mobile.min.css',
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide-dark/skin.min.css',
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide-dark/skin.mobile.min.css',
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide-dark/skin.shadowdom.min.css',
+                TINYMCE_URL % 'skins/ui/oxide-dark/content.inline.min.css',
+                TINYMCE_URL % 'skins/ui/oxide-dark/content.min.css',
+                TINYMCE_URL % 'skins/ui/oxide-dark/skin.min.css',
+                TINYMCE_URL % 'skins/ui/oxide-dark/skin.shadowdom.min.css',
             ],
             'tinymce/skins/ui/oxide/': [
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide/content.inline.min.css',
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide/content.min.css',
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide/content.mobile.min.css',
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide/skin.min.css',
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide/skin.mobile.min.css',
-                'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide/skin.shadowdom.min.css',
+                TINYMCE_URL % 'skins/ui/oxide/content.inline.min.css',
+                TINYMCE_URL % 'skins/ui/oxide/content.min.css',
+                TINYMCE_URL % 'skins/ui/oxide/skin.min.css',
+                TINYMCE_URL % 'skins/ui/oxide/skin.shadowdom.min.css',
             ],
             'storylinejs': [
                 'https://cdn.knightlab.com/libs/storyline/1.1.0/css/storyline.css',
                 'https://cdn.knightlab.com/libs/storyline/1.1.0/js/storyline.js',
             ],
             'pdfjs': [
-                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/pdf_viewer.min.css',
-                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/pdf.min.mjs',
-                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/pdf.worker.min.mjs',
-                'https://cdnjs.cloudflare.com/ajax/libs/interact.js/1.10.27/interact.min.js',
+                # pdf_viewer.css is not downloaded: it styles the text,
+                # annotation and XFA layers, and nothing here renders one --
+                # both the signature widget and the shelved viewer draw straight
+                # to a canvas through getDocument/getViewport/render. It took
+                # the whole images/ directory with it, which existed only to
+                # feed its url()s.
+                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/6.2.108/pdf.min.mjs',
+                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/6.2.108/pdf.worker.min.mjs',
             ],
 
-            'htmlx': [
-                'https://unpkg.com/htmx.org@2.0.4/dist/htmx.min.js'
+            'htmx': [
+                'https://unpkg.com/htmx.org@2.0.10/dist/htmx.min.js'
             ],
-            'pdfjs/images/': [
-                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/messageBar_warning.svg",
-                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/messageBar_closingButton.svg",
-                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/cursor-editorInk.svg",
-                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/cursor-editorTextHighlight.svg",
-                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/cursor-editorFreeHighlight.svg",
-                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/altText_warning.svg",
-                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/cursor-editorFreeText.svg",
-                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/editor-toolbar-delete.svg",
-                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/toolbarButton-editorHighlight.svg",
-                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/altText_add.svg",
-                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/altText_done.svg",
-                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/altText_disclaimer.svg",
-                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/altText_spinner.svg",
-                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/toolbarButton-menuArrow.svg",
-                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.6.82/images/loading-icon.gif"
+            'leaflet': [
+                'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
+                'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+            ],
+            # leaflet.css points at images/*.png relative to itself, so these have
+            # to land in the sibling folder or urlreplace cannot inline them and
+            # every default marker 404s in the bundled build.
+            'leaflet/images/': [
+                'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+                'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+                'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+                'https://unpkg.com/leaflet@1.9.4/dist/images/layers.png',
+                'https://unpkg.com/leaflet@1.9.4/dist/images/layers-2x.png',
+            ],
+            'leaflet-markercluster': [
+                'https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css',
+                'https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css',
+                'https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js',
+            ],
+            'leaflet-heat': [
+                'https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js',
             ]
         }
+        # Every plugin the build ships, concatenated into one file loaded
+        # after tinymce.min.js: each of them only registers itself with the
+        # PluginManager, so a project enables what it wants through `plugins`
+        # without a second round trip. The 5.x list had 46 entries; 15 of those
+        # plugins no longer exist -- paste, print, hr, colorpicker, contextmenu,
+        # textcolor, noneditable and tabfocus were absorbed into the core,
+        # bbcode, legacyoutput, spellchecker and textpattern were dropped, and
+        # fullpage, imagetools, template and toc became premium.
         compressed = {
             'tinymce': {
                 'tinymce-all.js': [
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/icons/default/icons.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/advlist/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/anchor/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/autolink/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/autoresize/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/autosave/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/bbcode/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/charmap/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/code/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/codesample/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/colorpicker/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/contextmenu/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/directionality/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/emoticons/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/fullpage/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/fullscreen/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/help/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/hr/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/image/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/imagetools/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/importcss/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/insertdatetime/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/legacyoutput/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/link/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/lists/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/media/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/nonbreaking/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/noneditable/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/pagebreak/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/paste/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/preview/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/print/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/quickbars/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/save/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/searchreplace/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/spellchecker/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/tabfocus/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/table/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/template/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/textcolor/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/textpattern/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/toc/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/visualblocks/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/visualchars/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/wordcount/plugin.min.js',
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/plugins/emoticons/js/emojis.min.js',
+                    TINYMCE_URL % 'icons/default/icons.min.js',
+                ] + [
+                    TINYMCE_URL % ('plugins/%s/plugin.min.js' % plugin)
+                    for plugin in TINYMCE_PLUGINS
+                ] + [
+                    # The emoji database the emoticons plugin looks up.
+                    TINYMCE_URL % 'plugins/emoticons/js/emojis.min.js',
                 ],
                 'skin.min.css': [
-                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.6.1/skins/ui/oxide/skin.min.css',
+                    TINYMCE_URL % 'skins/ui/oxide/skin.min.css',
                 ]}}
 
-        if not os.path.exists(basepath / 'flags'):
-            (basepath / 'flags').mkdir(parents=True)
         for lib in libs:
             currentbasepath = basepath / lib
             if not os.path.exists(currentbasepath):
@@ -467,3 +546,16 @@ class Command(BaseCommand):
                 self.get_static_list_file(compressed[files][name],
                                           currentbasepath)
         self.download_urls()
+        self.report_checksum_mismatches()
+
+    def report_checksum_mismatches(self):
+        if not CHECKSUM_MISMATCHES:
+            return
+        self.stdout.write(self.style.WARNING(
+            '\n%s\n%d unversioned source(s) changed since they were last '
+            'vetted.\nCheck what moved, then update PINNED_CHECKSUMS in %s:\n'
+            % ('=' * 78, len(CHECKSUM_MISMATCHES), Path(__file__).name)))
+        for url, expected, actual in CHECKSUM_MISMATCHES:
+            self.stdout.write(self.style.WARNING(
+                '  %s\n    recorded %s\n    now      %s'
+                % (url, expected, actual)))

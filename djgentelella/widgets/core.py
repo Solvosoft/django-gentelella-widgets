@@ -14,7 +14,8 @@ from django.forms import (
     CheckboxSelectMultiple as DJCheckboxSelectMultiple,
     SelectMultiple as DJSelectMultiple,
     SelectDateWidget as DJSelectDateWidget,
-    SplitDateTimeWidget as DJSplitDateTimeWidget)
+    SplitDateTimeWidget as DJSplitDateTimeWidget,
+)
 from django.forms.widgets import Input as DJInput
 from django.urls import reverse_lazy
 from django.utils import formats
@@ -41,6 +42,7 @@ class Input(DJInput):
     """
     Base class for all <input> widgets.
     """
+
     template_name = 'gentelella/widgets/input.html'
 
     def __init__(self, attrs=None, extraskwargs=True):
@@ -131,8 +133,8 @@ class FloatInput(Input):
         if extraskwargs:
             attrs = update_kwargs(attrs, self.__class__.__name__)
         if 'step' not in attrs:
-            attrs['step'] = "0.1"
-        attrs['inputmode'] = "decimal"
+            attrs['step'] = '0.1'
+        attrs['inputmode'] = 'decimal'
         super().__init__(attrs, extraskwargs=extraskwargs)
 
 
@@ -180,7 +182,8 @@ class FileInput(DJFileInput):
             attrs = update_kwargs(
                 attrs,
                 self.__class__.__name__,
-                base_class='djgentelella-file-input form-control')
+                base_class='djgentelella-file-input form-control',
+            )
         if 'data-href' not in attrs:
             attrs.update({'data-href': reverse_lazy('upload_file_view')})
         if 'data-done' not in attrs:
@@ -196,7 +199,9 @@ class FileInput(DJFileInput):
         token = data.get(name)
         if token:
             load_token = json.loads(token)
-            tmpupload = ChunkedUpload.objects.filter(upload_id=load_token['token']).first()
+            tmpupload = ChunkedUpload.objects.filter(
+                upload_id=load_token['token']
+            ).first()
             if tmpupload:
                 dev = tmpupload.get_uploaded_file()
                 tmpupload.delete()
@@ -210,15 +215,13 @@ class ImageRecordInput(DJFileInput):
     """
     You can set the preview size using data-width and data-height.
     """
+
     needs_multipart_form = True
     template_name = 'gentelella/widgets/record_photo.html'
 
     def __init__(self, attrs=None, extraskwargs=True):
         if extraskwargs:
-            attrs = update_kwargs(
-                attrs,
-                self.__class__.__name__,
-                base_class='d-none')
+            attrs = update_kwargs(attrs, self.__class__.__name__, base_class='d-none')
         super().__init__(attrs)
 
 
@@ -228,15 +231,13 @@ class VideoRecordInput(DJFileInput):
 
     .. note:: Size of video depends on camera default configuration.
     """
+
     needs_multipart_form = True
     template_name = 'gentelella/widgets/record_video.html'
 
     def __init__(self, attrs=None, extraskwargs=True):
         if extraskwargs:
-            attrs = update_kwargs(
-                attrs,
-                self.__class__.__name__,
-                base_class='d-none')
+            attrs = update_kwargs(attrs, self.__class__.__name__, base_class='d-none')
         super().__init__(attrs)
 
 
@@ -246,10 +247,60 @@ class AudioRecordInput(DJFileInput):
 
     def __init__(self, attrs=None, extraskwargs=True):
         if extraskwargs:
-            attrs = update_kwargs(
-                attrs,
-                self.__class__.__name__,
-                base_class='d-none')
+            attrs = update_kwargs(attrs, self.__class__.__name__, base_class='d-none')
+        super().__init__(attrs)
+
+
+class VoiceDictation(DJTextarea):
+    """
+    Textarea with a continuous dictation button: captures audio in the browser
+    (Web Audio + VAD) and, as the user speaks, posts each speech segment to a
+    transcription endpoint that returns ``{"text": "..."}``; segments are
+    inserted live. ``data-mode`` selects the strategy: ``segments`` (default,
+    live), ``single`` (one request on stop) or ``hybrid`` (live segments then a
+    whole-file rewrite on stop).
+
+    Two kwargs, the rest through ``attrs``: ``url`` is the transcription
+    endpoint (``voice_transcribe`` or a proxy) and ``language`` sets
+    ``data-language``. Everything else is configured with plain ``data-``
+    attributes, which is deliberate -- the javascript reads them straight off
+    the element, so a project can add its own without the widget growing a
+    kwarg for each one, and a template can override one per field::
+
+        VoiceDictation(url=reverse_lazy('voice_transcribe'),
+                       language='es',
+                       attrs={'data-mode': 'single'})
+
+    The ones the shipped engine understands:
+
+    :``data-mode``: dictation strategy -- ``segments`` (default, transcribes
+        each speech segment live), ``single`` (one request when the user stops)
+        or ``hybrid`` (live segments, then a whole-file rewrite on stop). An
+        unknown value falls back to ``segments``.
+    :``data-hotwords``: comma separated words to bias the recogniser towards.
+    :``data-initial-prompt``: free text giving the recogniser context.
+
+    Capture tuning, all numeric and all optional -- the defaults live in the
+    engine, and these are the seven keys ``voiceVadConfig`` reads
+    (``gentelella/js/base/voiceprogressive.js``):
+    ``data-vad-silence-ms``, ``data-vad-min-speech-ms``,
+    ``data-vad-max-segment-ms``, ``data-rms-threshold``, ``data-pool-size``,
+    ``data-max-session-ms`` and ``data-request-timeout-ms``.
+
+    ``hotwords`` and ``initial_prompt`` only reach a remote backend that was
+    configured to accept them; the bundled Parakeet backend ignores both.
+    """
+
+    template_name = 'gentelella/widgets/voice_dictation.html'
+
+    def __init__(self, attrs=None, extraskwargs=True, url=None, language=None):
+        if extraskwargs:
+            attrs = update_kwargs(attrs, self.__class__.__name__)
+        attrs = attrs or {}
+        if url is not None:
+            attrs['data-url'] = url
+        if language is not None:
+            attrs['data-language'] = language
         super().__init__(attrs)
 
 
@@ -267,8 +318,14 @@ class Textarea(DJTextarea):
 
     def __init__(self, attrs=None, extraskwargs=True):
         if extraskwargs:
-            attrs = update_kwargs(attrs, self.__class__.__name__,
-                                  base_class='resizable_textarea form-control')
+            attrs = update_kwargs(
+                attrs,
+                self.__class__.__name__,
+                base_class='resizable_textarea form-control',
+            )
+        # update_kwargs is what normally turns None into a dict, so without
+        # this `Textarea(extraskwargs=False)` died on the next line.
+        attrs = attrs or {}
         attrs['rows'] = '3'
         super().__init__(attrs)
 
@@ -320,7 +377,7 @@ class DateFormatConverter:
         '%z': 'ZZ',
         # UTC offset in the form +HHMM or -HHMM: ((empty), +0000, -0400, +1030)
         # Empty string if the the object is naive.
-        '%%': '%'  # A literal '%' character: (%)
+        '%%': '%',  # A literal '%' character: (%)
     }
 
     def convert_python_to_js(self, value):
@@ -345,6 +402,7 @@ class DateInput(DJDateInput, DateFormatConverter):
 
         By limitation on js datetime widget format conversion
     """
+
     format_key = 'DATE_INPUT_FORMATS'
     template_name = 'gentelella/widgets/date.html'
 
@@ -393,8 +451,7 @@ class CheckboxInput(DJCheckboxInput):
     template_name = 'gentelella/widgets/checkbox.html'
 
     def __init__(self, attrs=None):
-        attrs = update_kwargs(
-            attrs, self.__class__.__name__, base_class='flat ')
+        attrs = update_kwargs(attrs, self.__class__.__name__, base_class='gt-check ')
         super().__init__(attrs)
         self.format = format or None
 
@@ -404,8 +461,7 @@ class YesNoInput(DJCheckboxInput):
     template_name = 'gentelella/widgets/checkyesno.html'
 
     def __init__(self, attrs=None, shparent='.form-group'):
-        attrs = update_kwargs(
-            attrs, self.__class__.__name__, base_class='')
+        attrs = update_kwargs(attrs, self.__class__.__name__, base_class='gt-switch ')
 
         if 'rel' in attrs:
             rel = attrs.pop('rel')
@@ -429,8 +485,10 @@ class Select(DJSelect):
     def __init__(self, attrs=None, choices=(), extraskwargs=True):
         if extraskwargs:
             attrs = update_kwargs(
-                attrs, self.__class__.__name__,
-                base_class='select2_single form-control ')
+                attrs,
+                self.__class__.__name__,
+                base_class='select2_single form-control ',
+            )
         super().__init__(attrs, choices=choices)
 
 
@@ -440,8 +498,9 @@ class SelectWithAdd(Select):
 
     def __init__(self, attrs=None, choices=(), extraskwargs=True):
         if extraskwargs:
-            attrs = update_kwargs(attrs, self.__class__.__name__,
-                                  base_class='form-control ')
+            attrs = update_kwargs(
+                attrs, self.__class__.__name__, base_class='form-control '
+            )
         if 'add_url' not in attrs:
             raise ValueError('SelectWithAdd requires add_url in attrs')
         super().__init__(attrs, choices=choices, extraskwargs=False)
@@ -452,8 +511,11 @@ class SelectMultiple(DJSelectMultiple):
 
     def __init__(self, attrs=None, choices=(), extraskwargs=True):
         if extraskwargs:
-            attrs = update_kwargs(attrs, self.__class__.__name__,
-                                  base_class='select2_multiple form-control ')
+            attrs = update_kwargs(
+                attrs,
+                self.__class__.__name__,
+                base_class='select2_multiple form-control ',
+            )
         super(SelectMultiple, self).__init__(attrs, choices=choices)
 
 
@@ -464,10 +526,14 @@ class SelectMultipleAdd(SelectMultiple):
 
     def __init__(self, attrs=None, choices=(), extraskwargs=True):
         if extraskwargs:
-            attrs = update_kwargs(attrs, self.__class__.__name__,
-                                  base_class='select2_multiple form-control ')
+            attrs = update_kwargs(
+                attrs,
+                self.__class__.__name__,
+                base_class='select2_multiple form-control ',
+            )
         super(SelectMultipleAdd, self).__init__(
-            attrs, choices=choices, extraskwargs=False)
+            attrs, choices=choices, extraskwargs=False
+        )
 
 
 class RadioHorizontalSelect(Select):
@@ -492,12 +558,7 @@ class RadioVerticalSelect(Select):
         super().__init__(attrs, choices=choices, extraskwargs=False)
 
     def get_context(self, name, value, attrs):
-        context = super(
-            RadioVerticalSelect,
-            self).get_context(
-            name,
-            value,
-            attrs)
+        context = super(RadioVerticalSelect, self).get_context(name, value, attrs)
         context['widget']['br'] = True
         return context
 
@@ -506,22 +567,28 @@ RadioSelect = RadioHorizontalSelect
 
 
 class NullBooleanSelect(RadioSelect):
-
-    def __init__(self, attrs=None, choices=(
-        ('unknown', _('Unknown')),
-        ('true', _('Yes')),
-        ('false', _('No')),
-    )):
+    def __init__(
+        self,
+        attrs=None,
+        choices=(
+            ('unknown', _('Unknown')),
+            ('true', _('Yes')),
+            ('false', _('No')),
+        ),
+    ):
         attrs = update_kwargs(attrs, self.__class__.__name__)
         super().__init__(attrs, choices=choices, extraskwargs=False)
 
     def format_value(self, value):
         try:
             return {
-                True: 'true', False: 'false',
-                'true': 'true', 'false': 'false',
+                True: 'true',
+                False: 'false',
+                'true': 'true',
+                'false': 'false',
                 # For backwards compatibility with Django < 2.2.
-                '2': 'true', '3': 'false',
+                '2': 'true',
+                '3': 'false',
             }[value]
         except KeyError:
             return 'unknown'
@@ -547,8 +614,7 @@ class CheckboxSelectMultiple(DJCheckboxSelectMultiple):
     option_template_name = 'gentelella/widgets/checkbox_option.html'
 
     def __init__(self, attrs=None, check_test=None):
-        attrs = update_kwargs(attrs, self.__class__.__name__,
-                              base_class='flat ')
+        attrs = update_kwargs(attrs, self.__class__.__name__, base_class='gt-check ')
         super().__init__(attrs)
 
 
