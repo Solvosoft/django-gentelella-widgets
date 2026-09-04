@@ -54,6 +54,7 @@
 	{% if moment_locale %}
 		<script src="{{ moment_locale }}?v={% get_version %}"></script>
 	{% endif %}
+	<script src="{% static 'vendors/inputmask/inputmask.min.js' %}?v={% get_version %}"></script>
 	<script src="{% static 'vendors/inputmask/jquery.inputmask.min.js' %}?v={% get_version %}"></script>
 	<script src="{% static 'vendors/nprogress/nprogress.min.js' %}?v={% get_version %}"></script>
 	<script src="{% static 'vendors/interact/interact.min.js' %}?v={% get_version %}"></script>
