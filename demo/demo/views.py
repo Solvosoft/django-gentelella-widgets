@@ -107,7 +107,8 @@ class ExampleForm(GTForm):
     your_radio = forms.ChoiceField(choices=(
         ('enero', 'Enero'),
         ('febrero', 'Febrero'),
-        ('marzo,abril', 'Marzo,Abril')
+        ('marzo', 'Marzo'),
+        ('abril', 'Abril')
     ), widget=genwidgets.RadioHorizontalSelect)
     your_radio_vertical = forms.ChoiceField(choices=(
         ('enero', 'Enero'), ('febrero', 'Febrero'),
