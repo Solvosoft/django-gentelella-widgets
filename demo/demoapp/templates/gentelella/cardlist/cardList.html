@@ -12,19 +12,139 @@
 		</div>
 	</div>
 </div>
+
+{% url 'api-personcard-list' as create_person_url %}
+{% trans 'Add person' as create_person_title %}
+{% include 'gentelella/blocks/modal_template.html' with form=create_form id="create_person_modal" title=create_person_title form_id="create_person_form" url=create_person_url %}
+
+{% url 'api-personcard-detail' 0 as update_person_url %}
+{% trans 'Edit person' as update_person_title %}
+{% include 'gentelella/blocks/modal_template.html' with form=update_form id="update_person_modal" title=update_person_title form_id="update_person_form" url=update_person_url %}
+
+{% trans 'Delete person' as delete_person_title %}
+{% include 'gentelella/blocks/modal_template_delete.html' with id="delete_person_modal" title=delete_person_title form_id="delete_person_form" url=update_person_url %}
 {% endblock %}
 
 {% block js %}
 {{block.super}}
 <script>
+	// The detail url carries pk=0 as a placeholder -- personDetailUrl() picks
+	// the real one back out for each request, same convention as
+	// object_management.html's object_urls.
+	//
+	// Reversed fresh here instead of reusing update_person_url from the
+	// content block above: a Django block tag pushes its own context layer,
+	// so a template variable assigned inside one block is gone by the time a
+	// sibling block -- this one -- renders. object_management.html has the
+	// same shape and the same bug (its object_urls.create_url/update_url are
+	// empty for exactly this reason); its list_url dodges it by reversing the
+	// url tag directly instead of reusing a variable, same as here.
+	const personDetailUrlTemplate = "{% url 'api-personcard-detail' 0 %}";
+	function personDetailUrl(pk) {
+		return personDetailUrlTemplate.replace('/0/', '/' + pk + '/');
+	}
+
+	function fillCountrySelect2(selectId, country) {
+		const select = $('#' + selectId);
+		select.empty();
+		if (country) {
+			select.append(new Option(country.name, country.id, true, true));
+		}
+		select.trigger('change');
+	}
+
+	function fillPersonForm(prefix, data) {
+		document.getElementById('id_' + prefix + 'name').value = data.name || '';
+		document.getElementById('id_' + prefix + 'num_children').value = data.num_children;
+		document.getElementById('id_' + prefix + 'born_date').value = data.born_date || '';
+		document.getElementById('id_' + prefix + 'last_time').value = data.last_time || '';
+		fillCountrySelect2('id_' + prefix + 'country', data.country);
+	}
+
+	function showFormErrors(formSelector, prefix, errors) {
+		const form = $(formSelector);
+		form.find('ul.form_errors').remove();
+		form_field_errors(form, errors, prefix, '.gtformfield');
+	}
+
+	function submitPersonForm(url, method, formSelector, prefix, modalEl) {
+		convertToStringJson($(formSelector), prefix).then(function (body) {
+			fetch(url, {
+				method: method,
+				body: body,
+				headers: {
+					'X-CSRFToken': getCookie('csrftoken'),
+					'Content-Type': 'application/json'
+				}
+			}).then(function (response) {
+				if (response.ok) {
+					bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+					cardList.fetchData();
+				} else {
+					response.json().then(function (errors) {
+						showFormErrors(formSelector, prefix, errors);
+					});
+				}
+			});
+		});
+	}
+
+	// Which row the edit/delete modal is currently open for -- the API url
+	// needs the pk and the row click is the only place that has it.
+	let editingPk = null;
+	let deletingPk = null;
+
 	const cardList = new CardList("cardListContainer", "{% url 'api-personcard-list' %}",
 	{
-	'example': function(pk, data, target){
-			console.log(data);
+		'add': function () {
+			const modalEl = document.getElementById('create_person_modal');
+			clear_action_form($('#create_person_form'));
+			bootstrap.Modal.getOrCreateInstance(modalEl).show();
 		},
-	 'generalexample': function(){
-	 				console.log("general example");
-	 }
-	 });
+		'edit': function (pk, data) {
+			editingPk = pk;
+			const modalEl = document.getElementById('update_person_modal');
+			fetch(personDetailUrl(pk))
+				.then(response => response.json())
+				.then(function (values) {
+					fillPersonForm('update-', values);
+					bootstrap.Modal.getOrCreateInstance(modalEl).show();
+				});
+		},
+		'delete': function (pk, data) {
+			deletingPk = pk;
+			const modalEl = document.getElementById('delete_person_modal');
+			modalEl.querySelector('.objtext').textContent = data.name;
+			bootstrap.Modal.getOrCreateInstance(modalEl).show();
+		}
+	});
+
+	document.getElementById('create_person_modal').querySelector('.formadd')
+		.addEventListener('click', function () {
+			submitPersonForm(
+				"{% url 'api-personcard-list' %}", 'POST', '#create_person_form', 'create-',
+				document.getElementById('create_person_modal'));
+		});
+
+	document.getElementById('update_person_modal').querySelector('.formadd')
+		.addEventListener('click', function () {
+			submitPersonForm(
+				personDetailUrl(editingPk), 'PUT', '#update_person_form', 'update-',
+				document.getElementById('update_person_modal'));
+		});
+
+	document.getElementById('delete_person_modal').querySelector('.delbtn')
+		.addEventListener('click', function () {
+			const modalEl = document.getElementById('delete_person_modal');
+			fetch(personDetailUrl(deletingPk), {
+				method: 'DELETE',
+				headers: {'X-CSRFToken': getCookie('csrftoken')}
+			}).then(function (response) {
+				if (response.ok) {
+					bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+					cardList.fetchData();
+				}
+			});
+		});
 </script>
 {% endblock js %}
