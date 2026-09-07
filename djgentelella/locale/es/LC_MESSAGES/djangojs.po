@@ -371,3 +371,33 @@ msgstr "CC Direcciones"
 msgid "BCC addresses"
 msgstr "BCC direcciones"
 
+msgid "Positions"
+msgstr "Posiciones"
+
+msgid "Add row"
+msgstr "Agregar fila"
+
+msgid "Remove row %(n)s"
+msgstr "Eliminar fila %(n)s"
+
+msgid "Add column"
+msgstr "Agregar columna"
+
+msgid "Remove column %(n)s"
+msgstr "Eliminar columna %(n)s"
+
+msgid "Add item here"
+msgstr "Agregar elemento aquí"
+
+msgid "Remove item"
+msgstr "Eliminar elemento"
+
+msgid "Row %(row)s, column %(col)s, %(count)s items"
+msgstr "Fila %(row)s, columna %(col)s, %(count)s elementos"
+
+msgid "Item selected. Choose a destination cell."
+msgstr "Elemento seleccionado. Elija una celda de destino."
+
+msgid "Move cancelled."
+msgstr "Movimiento cancelado."
+

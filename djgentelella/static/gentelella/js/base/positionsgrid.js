@@ -34,6 +34,13 @@ var PG_DEFAULTS = {
     drag: null,              // null = auto: only where there is a fine pointer
     handlers: {},            // addRow removeRow addCol removeCol
                              // createItem moveItem removeItem
+    // removeItem (Delete/Backspace on a selected item, see _handleKeydown)
+    // works off the handler alone and needs no opt-in. The button is a
+    // second, separate way to reach the same action and defaults to off:
+    // a permanent little "x" on every item is a bigger visual and layout
+    // commitment than a handler being wired, so a host opts into showing it
+    // on purpose instead of getting it for free.
+    itemRemoveButton: false,
     labels: {}
 };
 
@@ -187,9 +194,9 @@ class PositionsGrid {
         for (var c = 0; c < cols; c++) {
             cells += '<div class="pg-head-cell">' +
                 (this._colIsEmpty(c)
-                    ? this._btn('remove-col', {col: c}, 'fa fa-remove',
+                    ? this._btn('remove-col', {col: c}, 'fa fa-minus',
                                 pg_format(this.cfg.labels.removeCol, {n: c + 1}),
-                                'btn btn-sm btn-outline-danger')
+                                'pg-icon-remove')
                     : '') +
                 '</div>';
         }
@@ -203,9 +210,9 @@ class PositionsGrid {
         return '<div class="pg-row" role="row" aria-rowindex="' + (r + 2) + '">' +
             '<div class="pg-gutter" role="rowheader">' +
                 '<span class="pg-rownum">' + (r + 1) + '</span>' +
-                (canRemove ? this._btn('remove-row', {row: r}, 'fa fa-remove',
+                (canRemove ? this._btn('remove-row', {row: r}, 'fa fa-minus',
                      pg_format(this.cfg.labels.removeRow, {n: r + 1}),
-                     'btn btn-sm btn-outline-danger') : '') +
+                     'pg-icon-remove') : '') +
             '</div>' +
             cells.map(function (ids, c) {
                 return this._renderCell(r, c, ids);
@@ -221,7 +228,7 @@ class PositionsGrid {
             : (this.cfg.renderEmptyCell ? this.cfg.renderEmptyCell(r, c) : '');
         var add = (this.editable && this.handlers.createItem)
             ? this._btn('create-item', {row: r, col: c}, 'fa fa-plus',
-                        this.cfg.labels.createItem, 'btn btn-sm btn-success pg-cell-add')
+                        this.cfg.labels.createItem, 'btn btn-sm btn-secondary pg-cell-add')
             : '';
         return '<div class="pg-cell" role="gridcell" tabindex="-1"' +
                ' data-pg-row="' + r + '" data-pg-col="' + c + '"' +
@@ -248,7 +255,7 @@ class PositionsGrid {
         // on top of. Delete/Backspace already removes the selected item (see
         // _handleKeydown); this is the same action made visible and clickable
         // instead of only reachable once you know the shortcut exists.
-        var remove = (this.editable && this.handlers.removeItem)
+        var remove = (this.editable && this.handlers.removeItem && this.cfg.itemRemoveButton)
             ? this._btn('remove-item', {item: id}, 'fa fa-remove',
                         this.cfg.labels.removeItem, 'pg-item-remove')
             : '';

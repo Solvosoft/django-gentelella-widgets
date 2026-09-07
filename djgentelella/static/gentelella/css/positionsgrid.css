@@ -24,17 +24,17 @@
 
 .pg-toolbar {
 	display: flex;
-	gap: .5rem;
+	gap: 1.5rem;
 	margin-bottom: .5rem;
 	flex-wrap: wrap;
-	justify-content: space-between;
-	align-items: center;
+	align-items: flex-start;
 }
 
 .pg-toolbar-group {
 	display: flex;
+	flex-direction: column;
 	align-items: center;
-	gap: .5rem;
+	gap: .25rem;
 }
 
 .pg-toolbar-title {
@@ -141,21 +141,8 @@
 	flex: 1 1 auto;
 }
 
-/* create-item stretches full width by default -- .pg-cell is a column flex
- * container and stretch is its own default align-items. Centred and a size
- * down from the 44px touch target reads as "add one more" rather than
- * competing with the items above it for the whole cell.
- *
- * `.pg .pg-cell-add`, not the plain class: `.pg [data-pg-action]` below is
- * two compound selectors (0,2,0) and a bare class (0,1,0) loses to it on
- * specificity no matter which rule comes later in the file -- see the same
- * note on .pg-item-remove. */
-.pg .pg-cell-add {
-	align-self: center;
-	min-width: 32px;
-	min-height: 32px;
-	font-size: .8rem;
-}
+/* create-item is full width on purpose -- no override needed: .pg-cell is a
+ * column flex container and stretch is its own default align-items. */
 
 .pg-item {
 	position: relative;
@@ -192,6 +179,16 @@
 	font-size: .75rem;
 }
 
+/* Just the icon: no btn-outline-danger border/background, which read as
+ * heavier chrome than this secondary action calls for next to the plain row
+ * number/column head it sits beside. */
+.pg-icon-remove {
+	background: none;
+	border: none;
+	padding: 0;
+	color: var(--bs-danger, #dc3545);
+}
+
 /* Sits in the corner of the item it removes, so it never touches renderItem's
  * own layout underneath. Smaller than a touch target on purpose -- see the
  * comment on the gutter/head remove buttons above, same trade-off.
@@ -204,8 +201,16 @@
  * what makes the override actually take. */
 .pg .pg-item-remove {
 	position: absolute;
-	top: 2px;
-	right: 2px;
+	/* The theme's global `button { margin-right: 5px; margin-bottom: 5px }`
+	 * (custom.css) applies to every plain <button>, this one included, and
+	 * this rule never reset it -- an absolutely positioned box's margin still
+	 * counts on the side across from the offset it did not set (`left` was
+	 * auto here), so `right: 2px` rendered as 2px + that 5px margin, 7px in
+	 * total, while `top` -- set directly, with `bottom` auto -- was never
+	 * affected. That mismatch, not the 2px/2px values, was the uneven gap. */
+	margin: 0;
+	top: 4px;
+	right: 4px;
 	min-width: 16px;
 	min-height: 16px;
 	padding: 0;
