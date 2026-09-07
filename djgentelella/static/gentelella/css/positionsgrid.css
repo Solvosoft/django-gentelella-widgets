@@ -27,6 +27,19 @@
 	gap: .5rem;
 	margin-bottom: .5rem;
 	flex-wrap: wrap;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.pg-toolbar-group {
+	display: flex;
+	align-items: center;
+	gap: .5rem;
+}
+
+.pg-toolbar-title {
+	margin: 0;
+	font-size: 1rem;
 }
 
 /* The horizontal scroll lives here and nowhere else. overscroll-behavior stops
@@ -38,6 +51,34 @@
 	overscroll-behavior-x: contain;
 	-webkit-overflow-scrolling: touch;
 	padding-bottom: .25rem;
+
+	/* Without snapping, a wheel or trackpad scroll can stop with a column
+	 * half off the edge -- its remove button half-cut and unclickable,
+	 * looking like the grid overflowed rather than like there is one more
+	 * column to reach. Snapping always settles on a whole column. */
+	scroll-snap-type: x mandatory;
+
+	/* A thin auto-hiding scrollbar at the bottom of the whole grid gives no
+	 * hint that off-screen columns exist while looking at row 1 -- there is
+	 * nothing to see or hover near the top. Always-on and coloured, it reads
+	 * as "there is more, drag me" instead of looking like the far columns
+	 * were simply cut off. */
+	scrollbar-width: thin;
+	scrollbar-color: var(--pg-accent) var(--pg-cell-border);
+}
+
+.pg-scroll::-webkit-scrollbar {
+	height: 10px;
+}
+
+.pg-scroll::-webkit-scrollbar-track {
+	background: var(--pg-cell-border);
+	border-radius: 6px;
+}
+
+.pg-scroll::-webkit-scrollbar-thumb {
+	background: var(--pg-accent);
+	border-radius: 6px;
 }
 
 /* The scroll content: never narrower than the widest row needs, so the
@@ -63,6 +104,7 @@
 .pg-head-cell {
 	display: flex;
 	justify-content: center;
+	scroll-snap-align: start;
 }
 
 .pg-gutter {
@@ -72,6 +114,7 @@
 	justify-content: flex-start;
 	gap: .25rem;
 	color: var(--pg-muted);
+	scroll-snap-align: start;
 }
 
 .pg-rownum {
@@ -88,6 +131,7 @@
 	background: var(--pg-cell-bg);
 	border: 1px solid var(--pg-cell-border);
 	border-radius: var(--bs-border-radius, .375rem);
+	scroll-snap-align: start;
 }
 
 .pg-cell-items {
@@ -97,7 +141,24 @@
 	flex: 1 1 auto;
 }
 
+/* create-item stretches full width by default -- .pg-cell is a column flex
+ * container and stretch is its own default align-items. Centred and a size
+ * down from the 44px touch target reads as "add one more" rather than
+ * competing with the items above it for the whole cell.
+ *
+ * `.pg .pg-cell-add`, not the plain class: `.pg [data-pg-action]` below is
+ * two compound selectors (0,2,0) and a bare class (0,1,0) loses to it on
+ * specificity no matter which rule comes later in the file -- see the same
+ * note on .pg-item-remove. */
+.pg .pg-cell-add {
+	align-self: center;
+	min-width: 32px;
+	min-height: 32px;
+	font-size: .8rem;
+}
+
 .pg-item {
+	position: relative;
 	min-height: var(--pg-touch);
 	cursor: pointer;
 	border-radius: var(--bs-border-radius-sm, .25rem);
@@ -116,6 +177,44 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
+}
+
+/* Remove row/column stand right next to the row numbers and column heads,
+ * both small chrome of their own -- at 44x44 they read as the loudest thing
+ * in the gutter/head row instead of a secondary action. Still a real click
+ * target, just not a WCAG-sized touch one: a deliberate exception, same
+ * trade-off as remove-item below. create-item is the one that stays full
+ * size -- it is the primary action of an empty cell, not a secondary one. */
+.pg-gutter [data-pg-action],
+.pg-head-cell [data-pg-action] {
+	min-width: 28px;
+	min-height: 28px;
+	font-size: .75rem;
+}
+
+/* Sits in the corner of the item it removes, so it never touches renderItem's
+ * own layout underneath. Smaller than a touch target on purpose -- see the
+ * comment on the gutter/head remove buttons above, same trade-off.
+ *
+ * Selector is `.pg .pg-item-remove`, not the plain class: `.pg [data-pg-action]`
+ * above is two compound selectors (0,2,0) and a bare `.pg-item-remove` (0,1,0)
+ * loses to it on specificity regardless of which rule comes later in the
+ * file -- the 44px touch-target min-width/height wins and the button renders
+ * full size no matter what this rule says. Matching that specificity here is
+ * what makes the override actually take. */
+.pg .pg-item-remove {
+	position: absolute;
+	top: 2px;
+	right: 2px;
+	min-width: 16px;
+	min-height: 16px;
+	padding: 0;
+	font-size: .6rem;
+	line-height: 1;
+	background: var(--pg-cell-bg);
+	border: 1px solid var(--pg-cell-border);
+	border-radius: var(--bs-border-radius-sm, .25rem);
+	color: var(--bs-danger, #dc3545);
 }
 
 .pg-cell:focus-visible,
