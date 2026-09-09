@@ -479,8 +479,14 @@ class Command(BaseCommand):
                 # to a canvas through getDocument/getViewport/render. It took
                 # the whole images/ directory with it, which existed only to
                 # feed its url()s.
-                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/6.2.108/pdf.min.mjs',
-                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/6.2.108/pdf.worker.min.mjs',
+                # 5.5.207+ (and all of 6.x) call Map.prototype.getOrInsertComputed
+                # natively with no polyfill/fallback -- that's a very recent JS
+                # engine method (TC39 Upsert proposal) most browsers don't ship
+                # yet, and it throws "getOrInsertComputed is not a function" deep
+                # inside rendering. Pinned to the last 5.4.x release that doesn't
+                # use it.
+                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/5.4.624/pdf.min.mjs',
+                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/5.4.624/pdf.worker.min.mjs',
             ],
 
             'htmx': [

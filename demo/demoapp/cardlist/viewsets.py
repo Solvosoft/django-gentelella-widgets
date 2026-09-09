@@ -1,11 +1,21 @@
+from django.utils.translation import gettext_lazy as _
+from rest_framework import mixins
+
 from djgentelella.views.listAreaViewset import ListAreaViewset
 from .filterset import PersonCardListFilterSet
 from .forms import CardListPerson
-from .serializer import PersonCardSerializer
+from .serializer import (
+    PersonCardSerializer,
+    PersonCardUpdateValuesSerializer,
+    PersonCreateSerializer,
+    PersonUpdateSerializer,
+)
 from ..models import Person
 
 
-class PersonCardListViewSet(ListAreaViewset):
+class PersonCardListViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
+                            mixins.UpdateModelMixin, mixins.DestroyModelMixin,
+                            ListAreaViewset):
     serializer_class = PersonCardSerializer
     queryset = Person.objects.all()
     search_fields = ['name', 'num_children']
@@ -22,10 +32,19 @@ class PersonCardListViewSet(ListAreaViewset):
         queryset = super().filter_queryset(queryset)
         return queryset
 
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return PersonCreateSerializer
+        if self.action == 'retrieve':
+            return PersonCardUpdateValuesSerializer
+        if self.action in ('update', 'partial_update'):
+            return PersonUpdateSerializer
+        return super().get_serializer_class()
+
     def get_actions(self):
         return [{
-            'name': 'generalexample',
+            'name': 'add',
             'icon': 'fa fa-plus',
-            'title': 'general of action',
+            'title': _('Add person'),
             'class': 'btn-outline-success'
         }]

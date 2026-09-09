@@ -24,9 +24,22 @@
 
 .pg-toolbar {
 	display: flex;
-	gap: .5rem;
+	gap: 1.5rem;
 	margin-bottom: .5rem;
 	flex-wrap: wrap;
+	align-items: flex-start;
+}
+
+.pg-toolbar-group {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: .25rem;
+}
+
+.pg-toolbar-title {
+	margin: 0;
+	font-size: 1rem;
 }
 
 /* The horizontal scroll lives here and nowhere else. overscroll-behavior stops
@@ -38,6 +51,34 @@
 	overscroll-behavior-x: contain;
 	-webkit-overflow-scrolling: touch;
 	padding-bottom: .25rem;
+
+	/* Without snapping, a wheel or trackpad scroll can stop with a column
+	 * half off the edge -- its remove button half-cut and unclickable,
+	 * looking like the grid overflowed rather than like there is one more
+	 * column to reach. Snapping always settles on a whole column. */
+	scroll-snap-type: x mandatory;
+
+	/* A thin auto-hiding scrollbar at the bottom of the whole grid gives no
+	 * hint that off-screen columns exist while looking at row 1 -- there is
+	 * nothing to see or hover near the top. Always-on and coloured, it reads
+	 * as "there is more, drag me" instead of looking like the far columns
+	 * were simply cut off. */
+	scrollbar-width: thin;
+	scrollbar-color: var(--pg-accent) var(--pg-cell-border);
+}
+
+.pg-scroll::-webkit-scrollbar {
+	height: 10px;
+}
+
+.pg-scroll::-webkit-scrollbar-track {
+	background: var(--pg-cell-border);
+	border-radius: 6px;
+}
+
+.pg-scroll::-webkit-scrollbar-thumb {
+	background: var(--pg-accent);
+	border-radius: 6px;
 }
 
 /* The scroll content: never narrower than the widest row needs, so the
@@ -63,6 +104,7 @@
 .pg-head-cell {
 	display: flex;
 	justify-content: center;
+	scroll-snap-align: start;
 }
 
 .pg-gutter {
@@ -72,6 +114,7 @@
 	justify-content: flex-start;
 	gap: .25rem;
 	color: var(--pg-muted);
+	scroll-snap-align: start;
 }
 
 .pg-rownum {
@@ -88,6 +131,7 @@
 	background: var(--pg-cell-bg);
 	border: 1px solid var(--pg-cell-border);
 	border-radius: var(--bs-border-radius, .375rem);
+	scroll-snap-align: start;
 }
 
 .pg-cell-items {
@@ -97,7 +141,11 @@
 	flex: 1 1 auto;
 }
 
+/* create-item is full width on purpose -- no override needed: .pg-cell is a
+ * column flex container and stretch is its own default align-items. */
+
 .pg-item {
+	position: relative;
 	min-height: var(--pg-touch);
 	cursor: pointer;
 	border-radius: var(--bs-border-radius-sm, .25rem);
@@ -116,6 +164,62 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
+}
+
+/* Remove row/column stand right next to the row numbers and column heads,
+ * both small chrome of their own -- at 44x44 they read as the loudest thing
+ * in the gutter/head row instead of a secondary action. Still a real click
+ * target, just not a WCAG-sized touch one: a deliberate exception, same
+ * trade-off as remove-item below. create-item is the one that stays full
+ * size -- it is the primary action of an empty cell, not a secondary one. */
+.pg-gutter [data-pg-action],
+.pg-head-cell [data-pg-action] {
+	min-width: 28px;
+	min-height: 28px;
+	font-size: .75rem;
+}
+
+/* Just the icon: no btn-outline-danger border/background, which read as
+ * heavier chrome than this secondary action calls for next to the plain row
+ * number/column head it sits beside. */
+.pg-icon-remove {
+	background: none;
+	border: none;
+	padding: 0;
+	color: var(--bs-danger, #dc3545);
+}
+
+/* Sits in the corner of the item it removes, so it never touches renderItem's
+ * own layout underneath. Smaller than a touch target on purpose -- see the
+ * comment on the gutter/head remove buttons above, same trade-off.
+ *
+ * Selector is `.pg .pg-item-remove`, not the plain class: `.pg [data-pg-action]`
+ * above is two compound selectors (0,2,0) and a bare `.pg-item-remove` (0,1,0)
+ * loses to it on specificity regardless of which rule comes later in the
+ * file -- the 44px touch-target min-width/height wins and the button renders
+ * full size no matter what this rule says. Matching that specificity here is
+ * what makes the override actually take. */
+.pg .pg-item-remove {
+	position: absolute;
+	/* The theme's global `button { margin-right: 5px; margin-bottom: 5px }`
+	 * (custom.css) applies to every plain <button>, this one included, and
+	 * this rule never reset it -- an absolutely positioned box's margin still
+	 * counts on the side across from the offset it did not set (`left` was
+	 * auto here), so `right: 2px` rendered as 2px + that 5px margin, 7px in
+	 * total, while `top` -- set directly, with `bottom` auto -- was never
+	 * affected. That mismatch, not the 2px/2px values, was the uneven gap. */
+	margin: 0;
+	top: 4px;
+	right: 4px;
+	min-width: 16px;
+	min-height: 16px;
+	padding: 0;
+	font-size: .6rem;
+	line-height: 1;
+	background: var(--pg-cell-bg);
+	border: 1px solid var(--pg-cell-border);
+	border-radius: var(--bs-border-radius-sm, .25rem);
+	color: var(--bs-danger, #dc3545);
 }
 
 .pg-cell:focus-visible,

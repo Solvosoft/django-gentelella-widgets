@@ -34,6 +34,13 @@ var PG_DEFAULTS = {
     drag: null,              // null = auto: only where there is a fine pointer
     handlers: {},            // addRow removeRow addCol removeCol
                              // createItem moveItem removeItem
+    // removeItem (Delete/Backspace on a selected item, see _handleKeydown)
+    // works off the handler alone and needs no opt-in. The button is a
+    // second, separate way to reach the same action and defaults to off:
+    // a permanent little "x" on every item is a bigger visual and layout
+    // commitment than a handler being wired, so a host opts into showing it
+    // on purpose instead of getting it for free.
+    itemRemoveButton: false,
     labels: {}
 };
 
@@ -66,6 +73,7 @@ class PositionsGrid {
             addCol: pg_gettext('Add column'),
             removeCol: pg_gettext('Remove column %(n)s'),
             createItem: pg_gettext('Add item here'),
+            removeItem: pg_gettext('Remove item'),
             cell: pg_gettext('Row %(row)s, column %(col)s, %(count)s items'),
             picked: pg_gettext('Item selected. Choose a destination cell.'),
             cancelled: pg_gettext('Move cancelled.')
@@ -150,29 +158,46 @@ class PositionsGrid {
     }
 
     _renderToolbar() {
-        var out = '';
+        var start = '';
+        var end = '';
         if (this.editable && this.handlers.addRow) {
-            out += this._btn('add-row', {}, 'fa fa-plus', this.cfg.labels.addRow,
-                             'btn btn-sm btn-outline-primary');
+            start = '<div class="pg-toolbar-group pg-toolbar-start">' +
+                '<h5 class="pg-toolbar-title">' + pg_escape(this.cfg.labels.addRow) + '</h5>' +
+                this._btn('add-row', {}, 'fa fa-plus', this.cfg.labels.addRow,
+                          'btn btn-sm btn-outline-primary') +
+                '</div>';
         }
         if (this.editable && this.handlers.addCol) {
-            out += this._btn('add-col', {}, 'fa fa-plus', this.cfg.labels.addCol,
-                             'btn btn-sm btn-outline-primary');
+            end = '<div class="pg-toolbar-group pg-toolbar-end">' +
+                '<h5 class="pg-toolbar-title">' + pg_escape(this.cfg.labels.addCol) + '</h5>' +
+                this._btn('add-col', {}, 'fa fa-plus', this.cfg.labels.addCol,
+                          'btn btn-sm btn-outline-primary') +
+                '</div>';
         }
-        return out;
+        return start + end;
     }
 
     // The header row exists only to hold the per-column remove buttons, so it
     // is not rendered at all when the host gave no removeCol handler. Same rule
     // everywhere: a missing handler means the control does not exist, which is
     // how partial permissions compose without a flag per action.
+    // A column/row the server would refuse anyway (it still has boxes) gets
+    // no remove button at all, rather than one that is always a dead end.
+    _colIsEmpty(c) {
+        var rows = (this.data && this.data.cells) || [];
+        return rows.every(function (row) { return !row[c] || !row[c].length; });
+    }
+
     _renderHead(cols) {
         if (!this.editable || !this.handlers.removeCol || !cols) { return ''; }
         var cells = '';
         for (var c = 0; c < cols; c++) {
             cells += '<div class="pg-head-cell">' +
-                this._btn('remove-col', {col: c}, 'fa fa-minus',
-                          pg_format(this.cfg.labels.removeCol, {n: c + 1})) +
+                (this._colIsEmpty(c)
+                    ? this._btn('remove-col', {col: c}, 'fa fa-minus',
+                                pg_format(this.cfg.labels.removeCol, {n: c + 1}),
+                                'pg-icon-remove')
+                    : '') +
                 '</div>';
         }
         return '<div class="pg-row pg-head" role="row" aria-hidden="true">' +
@@ -180,12 +205,14 @@ class PositionsGrid {
     }
 
     _renderRow(cells, r) {
-        var canRemove = this.editable && this.handlers.removeRow;
+        var canRemove = this.editable && this.handlers.removeRow &&
+            cells.every(function (ids) { return !ids.length; });
         return '<div class="pg-row" role="row" aria-rowindex="' + (r + 2) + '">' +
             '<div class="pg-gutter" role="rowheader">' +
                 '<span class="pg-rownum">' + (r + 1) + '</span>' +
                 (canRemove ? this._btn('remove-row', {row: r}, 'fa fa-minus',
-                     pg_format(this.cfg.labels.removeRow, {n: r + 1})) : '') +
+                     pg_format(this.cfg.labels.removeRow, {n: r + 1}),
+                     'pg-icon-remove') : '') +
             '</div>' +
             cells.map(function (ids, c) {
                 return this._renderCell(r, c, ids);
@@ -201,7 +228,7 @@ class PositionsGrid {
             : (this.cfg.renderEmptyCell ? this.cfg.renderEmptyCell(r, c) : '');
         var add = (this.editable && this.handlers.createItem)
             ? this._btn('create-item', {row: r, col: c}, 'fa fa-plus',
-                        this.cfg.labels.createItem, 'pg-cell-add')
+                        this.cfg.labels.createItem, 'btn btn-sm btn-secondary pg-cell-add')
             : '';
         return '<div class="pg-cell" role="gridcell" tabindex="-1"' +
                ' data-pg-row="' + r + '" data-pg-col="' + c + '"' +
@@ -223,9 +250,18 @@ class PositionsGrid {
             ? this.cfg.renderItem(item, id)
             : '<span class="pg-item-default">' +
               pg_escape(item.label !== undefined ? item.label : id) + '</span>';
+        // [data-pg-action] is matched before .pg-item in _handleClick, so this
+        // button's click never falls through to select/move the item it sits
+        // on top of. Delete/Backspace already removes the selected item (see
+        // _handleKeydown); this is the same action made visible and clickable
+        // instead of only reachable once you know the shortcut exists.
+        var remove = (this.editable && this.handlers.removeItem && this.cfg.itemRemoveButton)
+            ? this._btn('remove-item', {item: id}, 'fa fa-remove',
+                        this.cfg.labels.removeItem, 'pg-item-remove')
+            : '';
         return '<div class="pg-item" role="button" tabindex="-1" aria-pressed="false"' +
                (draggable ? ' draggable="true"' : '') +
-               ' data-pg-item="' + pg_escape(id) + '">' + body + '</div>';
+               ' data-pg-item="' + pg_escape(id) + '">' + body + remove + '</div>';
     }
 
     _btn(action, args, icon, label, cls) {
@@ -409,6 +445,12 @@ class PositionsGrid {
         if (action === 'create-item') {
             return this.createItem(parseInt(btn.dataset.pgRow, 10),
                                    parseInt(btn.dataset.pgCol, 10));
+        }
+        if (action === 'remove-item') {
+            // Ids are opaque and may not be numbers -- this._ids maps the
+            // stringified data attribute back to what the server sent,
+            // same as the Delete/Backspace path in _handleKeydown.
+            return this.removeItem(this._ids[btn.dataset.pgItem]);
         }
     }
 

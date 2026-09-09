@@ -8,6 +8,7 @@ from django.core.files.base import ContentFile
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 from requests import HTTPError, Timeout, RequestException
+from requests.exceptions import JSONDecodeError
 
 from djgentelella.firmador_digital.models import UserSignatureConfig
 from djgentelella.models import ChunkedUpload
@@ -44,10 +45,48 @@ class RemoteSignerClient:
             'certToken': self.load_certificate(usertoken),
         }
 
-        response = requests.post(
-            settings.FIRMADOR_SIGN_URL, json=files
-        )
-        return response.json()
+        try:
+            response = requests.post(settings.FIRMADOR_SIGN_URL, json=files)
+            return response.json()
+        except JSONDecodeError as errj:
+            try:
+                data = response.json(strict=False)
+            except JSONDecodeError:
+                logger.error(
+                    'Invalid JSON from signing service: %s -- body: %.500s',
+                    str(errj), response.text, exc_info=errj
+                )
+                return self.get_error_response(
+                    _('The signing service returned an invalid response.'),
+                    response.text[:500], 502, 2
+                )
+            logger.warning(
+                'Signing service answered with a stray control character '
+                '(likely an unescaped stacktrace); recovered its message: %s',
+                data.get('error') or data.get('detail')
+            )
+            message = data.get('error') or data.get('detail') or str(errj)
+            return self.get_error_response(message, message, response.status_code, 0)
+        except ConnectionError as errc:
+            logger.error(
+                'ConnectionError sending document to sign: %s', str(errc), exc_info=errc
+            )
+            error_msg = _('Unable to connect to the signing service.')
+            return self.get_error_response(error_msg, str(errc), 503, 2)
+        except Timeout as errt:
+            logger.error(
+                'Timeout sending document to sign: %s', str(errt), exc_info=errt
+            )
+            error_msg = _('The request to the signing service timed out.')
+            return self.get_error_response(error_msg, str(errt), 408, 12)
+        except RequestException as errr:
+            logger.error(
+                'RequestException sending document to sign: %s', str(errr), exc_info=errr
+            )
+            error_msg = _(
+                'An exception occurred in the request to the signing service.'
+            )
+            return self.get_error_response(error_msg, str(errr), 500, 999)
 
     def validate_document(self, instance):
         b64doc = self.get_b64document(instance['value'])
@@ -124,7 +163,7 @@ class RemoteSignerClient:
     def get_error_response(self, error_msg, details, status, code):
         return {
             'result': False,
-            'error': error_msg,
+            'error': str(error_msg),
             'details': details,
             'status': status,
             'code': code,
