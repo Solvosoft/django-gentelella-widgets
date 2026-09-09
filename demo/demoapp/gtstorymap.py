@@ -93,7 +93,7 @@ class GigaPixelStoryMapExample(BaseStoryMapGPView):
                     "media": {
                         "caption": "Seurat made several studies for the large painting including a smaller version. Study for La Grand Jatte, 1884. ",
                         "credit": "Georges Seurat",
-                        "url": "https://upload.wikimedia.org/wikipedia/commons/3/3a/Study_for_La_Grande_Jatte%2C_Georges_Seurat%2C_1884.jpg"
+                        "url": "//upload.wikimedia.org/wikipedia/commons/3/3a/Study_for_La_Grande_Jatte%2C_Georges_Seurat%2C_1884.jpg"
                     },
                     "text": {
                         "headline": "Dots as Solid Forms from a Distance",
@@ -169,7 +169,7 @@ class GigaPixelStoryMapExample(BaseStoryMapGPView):
                     "media": {
                         "caption": "Cattle led to sacrifice, South XLV, 137–140, British Museum.",
                         "credit": "Wikipedia",
-                        "url": "https://upload.wikimedia.org/wikipedia/commons/7/79/Sacrifice_south_frieze_Parthenon_BM.jpg"
+                        "url": "//upload.wikimedia.org/wikipedia/commons/7/79/Sacrifice_south_frieze_Parthenon_BM.jpg"
                     },
                     "text": {
                         "headline": "Procession",
