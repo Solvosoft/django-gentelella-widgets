@@ -163,13 +163,6 @@ class RemoteSignerClient:
     def get_error_response(self, error_msg, details, status, code):
         return {
             'result': False,
-            # str(), not the gettext_lazy proxy _() returns at every call
-            # site: channels' encode_json calls the stdlib json.dumps
-            # directly (no DjangoJSONEncoder), which cannot serialize it --
-            # TypeError: Object of type __proxy__ is not JSON serializable,
-            # thrown from inside send_json, after the real error was already
-            # handled. str() resolves the translation now, in whatever
-            # language is active for this request.
             'error': str(error_msg),
             'details': details,
             'status': status,
