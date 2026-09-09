@@ -80,15 +80,6 @@ class PersonCreateSerializer(serializers.ModelSerializer):
 
 
 class PersonUpdateSerializer(serializers.ModelSerializer):
-    """Write side of the edit modal: PUT/PATCH.
-
-    ``country`` is left to the default DRF behaviour -- a plain writable
-    ``PrimaryKeyRelatedField`` -- on purpose. A nested ``CountrySerializer()``
-    here would make it read-only for writes (DRF does not resolve nested
-    objects back into a related instance without a custom ``update()``), and
-    the whole point of this serializer is accepting the id the edit form
-    submits.
-    """
     born_date = GTDateField()
     last_time = GTDateTimeField()
 
@@ -98,12 +89,6 @@ class PersonUpdateSerializer(serializers.ModelSerializer):
 
 
 class PersonCardUpdateValuesSerializer(serializers.ModelSerializer):
-    """Read side of the edit modal: what pre-fills the form when it opens.
-
-    Unlike ``PersonUpdateSerializer``, ``country`` is nested here -- the edit
-    form's select2 box needs the country's name to display, not just its id.
-    Never used to accept a write, so the nested field being read-only is fine.
-    """
     born_date = GTDateField()
     last_time = GTDateTimeField()
     country = CountrySerializer()
