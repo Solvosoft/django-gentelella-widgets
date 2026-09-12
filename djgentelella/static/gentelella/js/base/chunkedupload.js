@@ -92,8 +92,11 @@ function gt_chunked_upload(options) {
         var form = new FormData();
         form.append('csrfmiddlewaretoken', options.csrf);
         // The filename has to travel with the slice: the view takes the name
-        // of the upload from the first chunk it receives.
-        form.append('file', file.slice(start, end), file.name);
+        // of the upload from the first chunk it receives. Blob.slice() drops
+        // the original type unless it is passed back in explicitly -- without
+        // it every chunk's Content-Type becomes application/octet-stream, and
+        // the server-side type check rejects the file no matter what it is.
+        form.append('file', file.slice(start, end, file.type), file.name);
         if (upload_id) {
             form.append('upload_id', upload_id);
         }

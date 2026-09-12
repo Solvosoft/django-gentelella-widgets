@@ -47,6 +47,7 @@
 
 	const grid = new PositionsGrid('warehouseGrid', {
 		editable: true,
+		itemRemoveButton: true,
 		renderItem: function (item) {
 			return '<div class="card card-body p-2">' +
 				   '<strong>' + item.code + '</strong>' +
@@ -54,7 +55,7 @@
 				   ' (' + item.quantity + ')</small></div>';
 		},
 		renderEmptyCell: function () {
-			return '<span class="text-muted small">{% trans "empty" %}</span>';
+			return '<span class="text-muted small d-block text-center fw-bold p-1">{% trans "empty" %}</span>';
 		},
 		handlers: {
 			addRow: function () { return warehousePost('add_row'); },

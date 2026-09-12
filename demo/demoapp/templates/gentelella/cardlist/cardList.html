@@ -12,19 +12,76 @@
 		</div>
 	</div>
 </div>
+
+{% url 'api-personcard-list' as create_person_url %}
+{% trans 'Add person' as create_person_title %}
+{% include 'gentelella/blocks/modal_template.html' with form=create_form id="create_person_modal" title=create_person_title form_id="create_person_form" url=create_person_url %}
+
+{% url 'api-personcard-detail' 0 as update_person_url %}
+{% trans 'Edit person' as update_person_title %}
+{% include 'gentelella/blocks/modal_template.html' with form=update_form id="update_person_modal" title=update_person_title form_id="update_person_form" url=update_person_url %}
+
+{% trans 'Delete person' as delete_person_title %}
+{% include 'gentelella/blocks/modal_template_delete.html' with id="delete_person_modal" title=delete_person_title form_id="delete_person_form" url=update_person_url %}
 {% endblock %}
 
 {% block js %}
 {{block.super}}
 <script>
+	const personDetailUrlTemplate = "{% url 'api-personcard-detail' 0 %}";
+	function personDetailUrl(pk) {
+		return personDetailUrlTemplate.replace('/0/', '/' + pk + '/');
+	}
+
+	function refreshEvents() {
+		return {
+			form_submit: function () { return {}; },
+			error_form: function () {},
+			success_form: function () { cardList.fetchData(); }
+		};
+	}
+
+	const createForm = GTBaseFormModal('#create_person_modal', null, {
+		reload_table: false,
+		events: refreshEvents()
+	});
+	createForm.init();
+
+	const updateForm = GTBaseFormModal('#update_person_modal', null, {
+		type: 'PUT',
+		reload_table: false,
+		relation_render: {country: 'name'},
+		events: refreshEvents()
+	});
+	updateForm.init();
+
+	const deleteForm = GTBaseFormModal('#delete_person_modal', null, {
+		type: 'DELETE',
+		btn_class: '.delbtn',
+		reload_table: false,
+		events: refreshEvents()
+	});
+	deleteForm.init();
+
 	const cardList = new CardList("cardListContainer", "{% url 'api-personcard-list' %}",
 	{
-	'example': function(pk, data, target){
-			console.log(data);
+		'add': function () {
+			createForm.show_modal();
 		},
-	 'generalexample': function(){
-	 				console.log("general example");
-	 }
-	 });
+		'edit': function (pk) {
+			fetch(personDetailUrl(pk))
+				.then(response => response.json())
+				.then(function (values) {
+					updateForm.fill_form(values);
+					updateForm.url = personDetailUrl(pk);
+					updateForm.show_modal();
+				});
+		},
+		'delete': function (pk, data) {
+			deleteForm.url = personDetailUrl(pk);
+			deleteForm.instance.find('.objtext').text(data.name);
+			deleteForm.show_modal();
+		}
+	});
 </script>
 {% endblock js %}
