@@ -67,6 +67,7 @@ Widget Categories
 - ``NullBooleanSelect`` - Yes/No/Unknown
 - ``CheckboxInput`` - Single checkbox
 - ``CheckboxSelectMultiple`` - Multiple checkboxes
+- ``FilteredSelectMultiple`` (``djgentelella.widgets.selectmultiple``) - Two panel available/chosen picker, the ``filter_horizontal`` layout
 
 **Date/Time Widgets** (``djgentelella.widgets.core``)
 

@@ -9,7 +9,8 @@ function build_select2_init(instance){
         let obj = {
             'id': "#"+ins.attr('id'),
             'url':  ins.data('url'),
-            'start_empty': ins.data('start_empty')
+            'start_empty': ins.data('start_empty'),
+            'auto_reset_children': ins.data('autoresetchildren')
         };
         let isrelated = ins.data('related');
         if (isrelated != undefined){

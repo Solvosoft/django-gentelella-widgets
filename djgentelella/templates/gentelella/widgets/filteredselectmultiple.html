@@ -1,0 +1,52 @@
+{% load i18n %}
+<div class="gt-filtered-select{% if is_stacked %} gt-fsm-stacked{% endif %}" id="{{ widget.attrs.id }}_container">
+  <div class="gt-fsm-panel">
+    <div class="gt-fsm-title" id="{{ widget.attrs.id }}_available_title">{{ available_label }}</div>
+    <input type="search" class="form-control gt-fsm-filter" id="{{ widget.attrs.id }}_filter"
+           placeholder="{% translate 'Filter' %}" autocomplete="off"
+           aria-label="{% blocktranslate %}Filter {{ available_label }}{% endblocktranslate %}">
+    <select multiple class="form-control gt-fsm-list gt-fsm-available" size="10"
+            id="{{ widget.attrs.id }}_available" aria-labelledby="{{ widget.attrs.id }}_available_title"></select>
+    <div class="gt-fsm-footer">
+      <button type="button" class="btn btn-sm btn-link gt-fsm-addall" id="{{ widget.attrs.id }}_addall">
+        {% translate "Choose all" %} <i class="fa fa-angle-double-right" aria-hidden="true"></i>
+      </button>
+      <span class="gt-fsm-count" id="{{ widget.attrs.id }}_available_count"></span>
+    </div>
+  </div>
+  <div class="gt-fsm-controls">
+    <button type="button" class="btn btn-secondary btn-sm gt-fsm-add" id="{{ widget.attrs.id }}_add"
+            title="{% translate 'Choose' %}" aria-label="{% translate 'Choose' %}">
+      <i class="fa fa-angle-right" aria-hidden="true"></i>
+    </button>
+    <button type="button" class="btn btn-secondary btn-sm gt-fsm-remove" id="{{ widget.attrs.id }}_remove"
+            title="{% translate 'Remove' %}" aria-label="{% translate 'Remove' %}">
+      <i class="fa fa-angle-left" aria-hidden="true"></i>
+    </button>
+    {% if add_url %}
+    <button type="button" class="btn btn-info btn-sm gt-fsm-create" id="{{ widget.attrs.id }}_create"
+            data-addurl="{{ add_url }}" title="{% translate 'Add' %}" aria-label="{% translate 'Add' %}">
+      <i class="fa fa-plus" aria-hidden="true"></i>
+    </button>
+    {% endif %}
+  </div>
+  <div class="gt-fsm-panel">
+    <div class="gt-fsm-title" id="{{ widget.attrs.id }}_chosen_title">{{ chosen_label }}</div>
+    <select name="{{ widget.name }}" size="10"{% if url %} data-url="{{ url }}"{% endif %}
+            aria-labelledby="{{ widget.attrs.id }}_chosen_title"
+            {% include "gentelella/widgets/attrs.html" %}>{% for group_name, group_choices, group_index in widget.optgroups %}{% if group_name %}
+      <optgroup label="{{ group_name }}">{% endif %}{% for option in group_choices %}
+      {% include option.template_name with widget=option %}{% endfor %}{% if group_name %}
+      </optgroup>{% endif %}{% endfor %}
+    </select>
+    <div class="gt-fsm-footer">
+      <button type="button" class="btn btn-sm btn-link gt-fsm-removeall" id="{{ widget.attrs.id }}_removeall">
+        <i class="fa fa-angle-double-left" aria-hidden="true"></i> {% translate "Remove all" %}
+      </button>
+      <span class="gt-fsm-count" id="{{ widget.attrs.id }}_chosen_count"></span>
+    </div>
+  </div>
+  {% if add_url %}
+  <div class="modal fade gt-fsm-modal" id="{{ widget.attrs.id }}_modal" tabindex="-1" aria-hidden="true"></div>
+  {% endif %}
+</div>

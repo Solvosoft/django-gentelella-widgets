@@ -21,6 +21,12 @@ class PeopleGroupForm(GTForm, forms.ModelForm):
 
 
 class ABCDEGroupForm(GTForm, forms.ModelForm):
+    """Chained selects with data-autoresetchildren on every level.
+
+    Changing `a` empties `b` through `e` instead of leaving a canton that
+    no longer belongs to the province the user just picked.
+    """
+
     class Meta:
         model = models.ABCDE
         fields = '__all__'
@@ -31,6 +37,7 @@ class ABCDEGroupForm(GTForm, forms.ModelForm):
                     'data-related': 'true',
                     'data-pos': 0,
                     'data-groupname': 'myabcde',
+                    'data-autoresetchildren': 'true',
                 },
             ),
             'b': AutocompleteSelect(
@@ -39,6 +46,7 @@ class ABCDEGroupForm(GTForm, forms.ModelForm):
                     'data-related': 'true',
                     'data-pos': 1,
                     'data-groupname': 'myabcde',
+                    'data-autoresetchildren': 'true',
                 },
             ),
             'c': AutocompleteSelectMultiple(
@@ -47,6 +55,7 @@ class ABCDEGroupForm(GTForm, forms.ModelForm):
                     'data-related': 'true',
                     'data-pos': 2,
                     'data-groupname': 'myabcde',
+                    'data-autoresetchildren': 'true',
                 },
             ),
             'd': AutocompleteSelect(
@@ -55,6 +64,7 @@ class ABCDEGroupForm(GTForm, forms.ModelForm):
                     'data-related': 'true',
                     'data-pos': 3,
                     'data-groupname': 'myabcde',
+                    'data-autoresetchildren': 'true',
                 },
             ),
             'e': AutocompleteSelectMultiple(
@@ -63,6 +73,7 @@ class ABCDEGroupForm(GTForm, forms.ModelForm):
                     'data-related': 'true',
                     'data-pos': 4,
                     'data-groupname': 'myabcde',
+                    'data-autoresetchildren': 'true',
                 },
             ),
         }

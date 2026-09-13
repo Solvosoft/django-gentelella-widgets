@@ -152,9 +152,18 @@ function GTBaseFormModal(modal_id, datatable_element, form_config) {
                 if (datainstance[e]) {
                     if (Array.isArray(datainstance[e])) {
                         for (var x = 0; x < datainstance[e].length; x++) {
-                            $('#id_' + instance.prefix + e + ' option[value="' + datainstance[e][x]['id'] + '"]').remove();
-                            var newOption = new Option(datainstance[e][x][display_name_key], datainstance[e][x]['id'], true, true);
-                            $('#id_' + instance.prefix + e).append(newOption);
+                            // Same branch as the single object below: reuse the
+                            // <option> when the select already has it. Removing
+                            // and re-appending moved a static choice to the
+                            // bottom of the list and, on a re-render, left the
+                            // widget with two nodes for the same value.
+                            var existing = $('#id_' + instance.prefix + e + ' option[value="' + datainstance[e][x]['id'] + '"]');
+                            if (existing.length > 0) {
+                                existing.prop('selected', true);
+                            } else {
+                                var newOption = new Option(datainstance[e][x][display_name_key], datainstance[e][x]['id'], true, true);
+                                $('#id_' + instance.prefix + e).append(newOption);
+                            }
                         }
                     } else if (typeof datainstance[e] === 'object') {
                         if ($('#id_' + instance.prefix + e + ' option[value="' + datainstance[e]['id'] + '"]').length > 0) {

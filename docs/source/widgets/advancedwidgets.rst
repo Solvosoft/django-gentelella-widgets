@@ -5,6 +5,7 @@ This section covers specialized widgets that provide enhanced functionality beyo
 
 .. include:: core_inputs.rst
 .. include:: select_widgets.rst
+.. include:: filteredselectmultiple.rst
 .. include:: datetime_widgets.rst
 .. include:: file_widgets.rst
 .. include:: masked_inputs.rst

@@ -81,7 +81,9 @@ class RemoteSignerClient:
             return self.get_error_response(error_msg, str(errt), 408, 12)
         except RequestException as errr:
             logger.error(
-                'RequestException sending document to sign: %s', str(errr), exc_info=errr
+                'RequestException sending document to sign: %s',
+                str(errr),
+                exc_info=errr,
             )
             error_msg = _(
                 'An exception occurred in the request to the signing service.'

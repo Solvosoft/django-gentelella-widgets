@@ -93,6 +93,12 @@ class BaseSelect2View(generics.ListAPIView, viewsets.GenericViewSet):
     text_separator = ' '
     text_wrapper = ''
     order_by = 'pk'
+    # Opt-in: drop the rows the widget says it already has selected instead of
+    # returning them flagged. The javascript hides them anyway, but it can only
+    # hide what is inside the page it received -- with the default page size a
+    # page whose five rows are all selected reaches the browser and leaves the
+    # dropdown looking empty. Excluding them here keeps every page full.
+    exclude_selected = False
 
     def get_filter_suffix(self, fieldname):
         if hasattr(self, f'get_filter_suffix_{fieldname}'):
@@ -136,6 +142,8 @@ class BaseSelect2View(generics.ListAPIView, viewsets.GenericViewSet):
 
         if q and self.fields:
             queryset = self.filter_data(queryset, q)
+        if self.exclude_selected and self.selected:
+            queryset = queryset.exclude(**{f'{self.id_field}__in': self.selected})
         return queryset
 
     def get_queryset(self):

@@ -18,6 +18,7 @@ from .digital_signature.api import (
     DigitalSignatureAPIUpdateTest,
 )
 from .filechunkedupload import views as chunkedupload
+from .filteredselect.views import filtered_select_view
 from .formset import add_formset, add_model_formset
 from demoapp.pdfviewer import views as pdfviewer_views
 from .grid_slider import views as grid
@@ -217,6 +218,9 @@ urlpatterns = (
         path('storyline_view', storyline_view, name='storyline_view'),
         path('timeline_view', timeline_view, name='timeline_view'),
         path('maps/', map_point_view, name='map-point'),
+        path(
+            'filteredselect/', filtered_select_view, name='filteredselect'
+        ),
         path('maps/dashboard', map_dashboard_view, name='map-dashboard'),
         path('datatable_view', datatableViewExample, name='datatable_view'),
         # CardTable
