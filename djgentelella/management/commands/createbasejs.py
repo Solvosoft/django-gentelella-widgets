@@ -40,6 +40,7 @@ class Command(BaseCommand):
             # widget that consumes it -- same rule as voiceprogressive.js.
             'maplib.js',
             'mappoint.js',
+            'filteredselectmultiple.js',
             # Classes, so they go here and never in jquery_plugins: that block
             # is wrapped in (function($){...})(jQuery) and a class declared
             # inside it would not be reachable. A class declaration is also not

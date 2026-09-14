@@ -110,6 +110,7 @@ JS_FILES_HEADER = [str(BASE_PATH / path) for path in [
 JS_FILES = [str(BASE_PATH / path) for path in [
     'vendors/squirrelly/squirrelly.min.js',
     'vendors/moment/moment.min.js',
+    'vendors/inputmask/inputmask.min.js',
     'vendors/inputmask/jquery.inputmask.min.js',
     'vendors/nprogress/nprogress.min.js',
     'vendors/interact/interact.min.js',

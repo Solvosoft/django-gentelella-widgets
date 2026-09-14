@@ -303,6 +303,19 @@ class Command(BaseCommand):
             only_icon=False,
         )
 
+        MenuItem.objects.create(
+            parent=extrawidget,
+            title='Filtered Select Multiple',
+            url_name='filteredselect',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-exchange',
+            only_icon=False,
+        )
+
         # The two Leaflet widgets get a group of their own rather than going
         # under ReadOnly Widgets with the storymaps: MapPointInput is a form
         # field that submits a value, so it does not belong there.

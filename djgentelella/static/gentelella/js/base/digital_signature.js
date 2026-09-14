@@ -754,7 +754,8 @@ function FirmadorLibreWS(docmanager, url, signatureManager) {
                     if (data.details.includes("Connection refused")) {
                         signatureManager.addError(3);
                     } else {
-                        alertSimple(errorInterpreter(999), gettext("Error"), "error");
+                        // is only a fallback for when there is no message.
+                        alertSimple(data.error || errorInterpreter(999), gettext("Error"), "error");
                     }
 
                 } else if (data.code) {

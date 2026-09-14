@@ -36,6 +36,11 @@
 {# canvas has no size and the controls no layout -- and a project that has to #}
 {# remember to link a widget's own stylesheet will forget. #}
 <link href="{% static 'gentelella/css/pdfviewer_widget.css' %}?v={% get_version %}" rel="stylesheet">
+{# Two things in one file: the layout of FilteredSelectMultiple (without it the #}
+{# two panels collapse and the arrows fall under them) and the rule that hides  #}
+{# already chosen entries in a multiple select2 dropdown, which select2 4.1 no  #}
+{# longer does on its own. Same reasoning as maps.css: not behind a define.     #}
+<link href="{% static 'gentelella/css/filteredselectmultiple.css' %}?v={% get_version %}" rel="stylesheet">
 {% if use_compress == 'true' %}
 	<link href="{% static 'gentelella/css/pdfviewer.css' %}?v={% get_version %}" rel="stylesheet">
 	<link href="{% static 'djgentelella.vendors.min.css' %}?v={% get_version %}" rel="stylesheet">

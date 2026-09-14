@@ -610,7 +610,14 @@ function init_validator() {
 };
 
 function init_input_text() {
-    $('input[maxlength]').maxlength();
+    // MapPointInput writes its value from a map click and dispatches a
+    // synthetic 'input' event without ever focusing the field (mappoint.js's
+    // notify()). bootstrap-maxlength only builds its counter badge on focus,
+    // so its own 'input' handler throws reading .outerWidth() on that badge
+    // when it has never been created -- same plugin, same "never focused"
+    // cause the comment on MapPointInput's own input handler already
+    // documents, just reached through this blanket selector instead.
+    $('input[maxlength]').not('[data-widget="MapPointInput"]').maxlength();
 };
 
 

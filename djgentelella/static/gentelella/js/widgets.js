@@ -290,6 +290,9 @@ document.gtwidgets = {
     PDFViewerWidget: function (instance) {
         instance.pdfviewerwidget();
     },
+    FilteredSelectMultiple: function (instance) {
+        build_filtered_select_multiple(instance);
+    },
 
 }
 

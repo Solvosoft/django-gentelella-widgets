@@ -1,0 +1,69 @@
+{% extends 'gentelella/base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>{% trans 'People group' %} <small>{% trans 'fed by a gtselects API' %}</small></h2>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form.as_plain }}
+                    <button type="submit" class="btn btn-success">{% trans 'Save' %}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>{% trans 'Languages' %} <small>{% trans 'static choices with optgroups, no API' %}</small></h2>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                {{ static_form.as_plain }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>{% trans 'Saved groups' %}</h2>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>{% trans 'Name' %}</th>
+                            <th>{% trans 'People' %}</th>
+                            <th>{% trans 'Communities' %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for group in groups %}
+                            <tr>
+                                <td>{{ group.name }}</td>
+                                <td>{{ group.people.all|join:", " }}</td>
+                                <td>{{ group.communities.all|join:", " }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="3">{% trans 'No groups yet' %}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

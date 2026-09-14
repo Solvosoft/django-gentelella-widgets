@@ -32,12 +32,20 @@ class PersonCardSerializer(serializers.ModelSerializer):
     actions = serializers.SerializerMethodField()
 
     def get_actions(self, obj):
-        return [{
-            'id': obj.pk,
-            'name': 'example',
-            'icon': 'fa fa-edit',
-            'title': 'example of action'
-        }]
+        return [
+            {
+                'id': obj.pk,
+                'name': 'edit',
+                'icon': 'fa fa-edit',
+                'title': _('Edit'),
+            },
+            {
+                'id': obj.pk,
+                'name': 'delete',
+                'icon': 'fa fa-trash',
+                'title': _('Delete'),
+            },
+        ]
 
     class Meta:
         model = Person
@@ -71,17 +79,20 @@ class PersonCreateSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class CountrySerializer(serializers.ModelSerializer):
+class PersonUpdateSerializer(serializers.ModelSerializer):
+    born_date = GTDateField()
+    last_time = GTDateTimeField()
+
     class Meta:
-        model = Country
+        model = Person
         fields = '__all__'
 
 
-class PersonUpdateSerializer(serializers.ModelSerializer):
+class PersonCardUpdateValuesSerializer(serializers.ModelSerializer):
     born_date = GTDateField()
     last_time = GTDateTimeField()
     country = CountrySerializer()
 
     class Meta:
         model = Person
-        fields = '__all__'
+        fields = ['id', 'name', 'num_children', 'country', 'born_date', 'last_time']

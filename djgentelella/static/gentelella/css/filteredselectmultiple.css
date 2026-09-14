@@ -1,0 +1,97 @@
+/* Chosen entries must not keep showing in the dropdown of a multiple select.
+   select2 4.1 dropped the `hideSelected` option 3.x had and now only tags the
+   result with `--selected`, so the class is put on the dropdown by
+   extract_select2_context() and the rule below does what hideSelected did.
+   Ajax-backed selects are filtered in filter_selected_results() instead,
+   because there the results come from the payload, not from the DOM. */
+.gt-hide-selected .select2-results__option--selected {
+    display: none;
+}
+
+/* FilteredSelectMultiple: two native <select multiple> side by side. Nothing
+   here is optional chrome -- without it both panels collapse to the browser's
+   default four-row select and the arrows land under them instead of between,
+   which is why it is linked unconditionally like maps.css. */
+.gt-filtered-select {
+    display: flex;
+    align-items: stretch;
+    gap: .5rem;
+    flex-wrap: wrap;
+}
+
+.gt-filtered-select .gt-fsm-panel {
+    flex: 1 1 0;
+    min-width: 14rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.gt-filtered-select .gt-fsm-title {
+    font-weight: 600;
+    padding: .35rem .6rem;
+    border: 1px solid var(--bs-border-color, #dee2e6);
+    border-bottom: 0;
+    border-radius: .25rem .25rem 0 0;
+    background: var(--bs-tertiary-bg, #f8f9fa);
+}
+
+.gt-filtered-select .gt-fsm-filter {
+    border-radius: 0;
+    border-bottom: 0;
+}
+
+.gt-filtered-select select.gt-fsm-list {
+    flex: 1 1 auto;
+    min-height: 12rem;
+    border-radius: 0 0 .25rem .25rem;
+    overflow-y: auto;
+}
+
+/* The arrows sit in their own column, vertically centred between the panels. */
+.gt-filtered-select .gt-fsm-controls {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: .25rem;
+}
+
+.gt-filtered-select .gt-fsm-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: .5rem;
+    padding-top: .25rem;
+}
+
+.gt-filtered-select .gt-fsm-count {
+    font-size: .8rem;
+    color: var(--bs-secondary-color, #6c757d);
+}
+
+.gt-filtered-select .gt-fsm-loading {
+    font-size: .8rem;
+    color: var(--bs-secondary-color, #6c757d);
+    padding: .25rem .6rem;
+}
+
+/* Stacked layout (is_stacked=True) and the narrow-screen fallback: the panels
+   go one under the other and the arrows turn horizontal. */
+.gt-filtered-select.gt-fsm-stacked {
+    flex-direction: column;
+}
+
+.gt-filtered-select.gt-fsm-stacked .gt-fsm-controls {
+    flex-direction: row;
+    justify-content: center;
+}
+
+@media (max-width: 575.98px) {
+    .gt-filtered-select {
+        flex-direction: column;
+    }
+
+    .gt-filtered-select .gt-fsm-controls {
+        flex-direction: row;
+        justify-content: center;
+    }
+}
