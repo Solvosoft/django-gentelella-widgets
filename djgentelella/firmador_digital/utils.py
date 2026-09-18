@@ -1,9 +1,11 @@
 import base64
 import io
 import logging
+import re
 
 import requests
 from django.conf import settings
+from django.core.cache import cache
 from django.core.files.base import ContentFile
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
@@ -14,6 +16,66 @@ from djgentelella.firmador_digital.models import UserSignatureConfig
 from djgentelella.models import ChunkedUpload
 
 logger = logging.getLogger(__name__)
+
+
+def firmador_headers():
+    """
+    Headers for every request to the signing service.
+
+    firmador_api protects its endpoints with a Bearer token (API_TOKEN) and
+    answers 401 without it. The token is optional here so projects that talk
+    to an unprotected signer keep working unchanged: when FIRMADOR_TOKEN is
+    unset or empty, no Authorization header is sent at all.
+    """
+    token = getattr(settings, 'FIRMADOR_TOKEN', None)
+    if not token:
+        return {}
+    return {'Authorization': 'Bearer %s' % token}
+
+
+# -- instance affinity ---------------------------------------------------------
+# firmador_api keeps each document IN MEMORY between `firme` and `completa`.
+# With several replicas behind one service name, `completa` has to reach the
+# very instance that answered `firme`, or it finds nothing to complete. In
+# distributed mode (IS_DISTRIBUTED=true) `firme` answers with that instance's
+# own base URL in `hostname`; it is kept here, server side, keyed by the
+# document id. It never travels through the browser: a URL the client could
+# rewrite would make the server post the signature -- and the Bearer token --
+# wherever it was told to.
+AFFINITY_CACHE_PREFIX = 'djgentelella:firmador:instance:'
+_INSTANCE_URL = re.compile(r'^https?://[A-Za-z0-9._-]+(:[0-9]{1,5})?$')
+
+
+def _affinity_key(documentid):
+    return '%s%s' % (AFFINITY_CACHE_PREFIX, documentid)
+
+
+def remember_signer_instance(signed_request):
+    """Store the instance URL returned by `firme`, if the signer sent one."""
+    if not getattr(settings, 'FIRMADOR_AFFINITY', True):
+        return
+    if not isinstance(signed_request, dict):
+        return
+    documentid = signed_request.get('documentid')
+    hostname = signed_request.get('hostname') or ''
+    if not documentid or not _INSTANCE_URL.match(hostname):
+        # Not distributed ("localhost" or nothing): the service URL is fine.
+        return
+    cache.set(_affinity_key(documentid), hostname,
+              getattr(settings, 'FIRMADOR_AFFINITY_TTL', 3600))
+
+
+def signer_complete_url(documentid):
+    """URL to complete `documentid`: its instance's, or the service one."""
+    instance = cache.get(_affinity_key(documentid)) if documentid else None
+    if instance and _INSTANCE_URL.match(instance):
+        return instance.rstrip('/') + '/firma/completa'
+    return settings.FIRMADOR_SIGN_COMPLETE
+
+
+def forget_signer_instance(documentid):
+    if documentid:
+        cache.delete(_affinity_key(documentid))
 
 
 class RemoteSignerClient:
@@ -46,8 +108,12 @@ class RemoteSignerClient:
         }
 
         try:
-            response = requests.post(settings.FIRMADOR_SIGN_URL, json=files)
-            return response.json()
+            response = requests.post(
+                settings.FIRMADOR_SIGN_URL, json=files, headers=firmador_headers()
+            )
+            data = response.json()
+            remember_signer_instance(data)
+            return data
         except JSONDecodeError as errj:
             try:
                 data = response.json(strict=False)
@@ -97,7 +163,7 @@ class RemoteSignerClient:
             'DocumentExtension': '.pdf',
         }
         response = requests.post(
-            settings.FIRMADOR_VALIDA_URL, json=files
+            settings.FIRMADOR_VALIDA_URL, json=files, headers=firmador_headers()
         )
         return response.json()
 
@@ -107,8 +173,13 @@ class RemoteSignerClient:
 
         try:
             logger.info('Sending request to signing service')
-            response = requests.post(settings.FIRMADOR_SIGN_COMPLETE, json=data_to_sign)
+            response = requests.post(
+                signer_complete_url(data_to_sign.get('documentid')),
+                json=data_to_sign,
+                headers=firmador_headers(),
+            )
             response.raise_for_status()
+            forget_signer_instance(data_to_sign.get('documentid'))
             logger.info('Successfully finalized signature for the task.')
             result = response.json()
         except HTTPError as errh:

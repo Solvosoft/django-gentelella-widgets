@@ -73,6 +73,8 @@ Djgentelella already implements the required libraries for the following configu
         FIRMADOR_SIGN_URL = FIRMADOR_DOMAIN + "/firma/firme"
         FIRMADOR_SIGN_COMPLETE = FIRMADOR_DOMAIN + "/firma/completa"
         FIRMADOR_DELETE_FILE_URL = FIRMADOR_DOMAIN + "/firma/delete"
+        # Optional: Bearer token for firmador_api (its API_TOKEN). Unset = no header.
+        FIRMADOR_TOKEN = os.getenv("FIRMADOR_TOKEN")
 
 
 2. Add files for asgi configuration

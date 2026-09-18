@@ -227,6 +227,8 @@ FIRMADOR_VALIDA_URL = FIRMADOR_DOMAIN + '/valida/'
 FIRMADOR_SIGN_URL = FIRMADOR_DOMAIN + '/firma/firme'
 FIRMADOR_SIGN_COMPLETE = FIRMADOR_DOMAIN + '/firma/completa'
 FIRMADOR_DELETE_FILE_URL = FIRMADOR_DOMAIN + '/firma/delete'
+# Bearer token for firmador_api (its API_TOKEN). Unset or empty: no header sent.
+FIRMADOR_TOKEN = os.getenv('FIRMADOR_TOKEN')
 
 # history
 GT_HISTORY_ALLOWED_MODELS = [

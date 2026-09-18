@@ -7,6 +7,24 @@ Unreleased
 New features
 """"""""""""""""""
 
+**Signing service token.** ``RemoteSignerClient`` now sends
+``Authorization: Bearer <FIRMADOR_TOKEN>`` on every call to the signing
+service (sign, validate and complete), so it can talk to a firmador_api
+deployed with ``API_TOKEN``. The setting is optional: when it is unset or
+empty no header is sent and behaviour is unchanged.
+
+**Signing service replica affinity.** firmador_api keeps each document in
+memory between ``firme`` and ``completa``, so with several replicas the second
+call must reach the instance that served the first. When the signer runs with
+``IS_DISTRIBUTED=true`` its ``firme`` answer carries that instance's URL in
+``hostname``; the client now keeps it server side in the Django cache (keyed by
+document id, ``FIRMADOR_AFFINITY_TTL`` seconds, default 3600) and sends
+``completa`` there. Only a bare ``http(s)://host[:port]`` is accepted, and it
+never goes through the browser. Without it -- a single signer, or
+``FIRMADOR_AFFINITY = False`` -- ``FIRMADOR_SIGN_COMPLETE`` is used as before.
+Use a cache shared by all workers (database, Redis) if signing can hop between
+processes.
+
 **Leaflet map widgets.** Two widgets sharing one JavaScript engine
 (``gentelella/js/base/maplib.js``):
 
