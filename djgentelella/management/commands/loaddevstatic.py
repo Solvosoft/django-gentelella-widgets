@@ -7,10 +7,12 @@ from threading import Thread, current_thread
 
 from django.conf import settings
 from django.contrib.staticfiles import finders
-from django.core.management import BaseCommand
+from django.core.management import BaseCommand, CommandError
 
 try:
     import requests
+    from requests.adapters import HTTPAdapter
+    from urllib3.util.retry import Retry
 except BaseException:
     print("Requests is required try pip install requests")
     exit(1)
@@ -138,6 +140,44 @@ def moment_locales():
 # Filled by the download threads, reported once at the end of the command --
 # a warning printed among two hundred download lines is a warning nobody reads.
 CHECKSUM_MISMATCHES = []
+#: (url, error) of the downloads the network refused even after the retries.
+NETWORK_FAILURES = []
+
+#: A CDN drops a TLS handshake or answers 5xx now and then (it happens in CI):
+#: retried with backoff (0, 2, 4, 8, 16 s) before it counts as a failure.
+RETRIES = Retry(total=5, backoff_factor=1,
+                status_forcelist=(429, 500, 502, 503, 504),
+                allowed_methods=frozenset(['GET']), raise_on_status=False)
+TIMEOUT = 60
+
+
+def make_session():
+    """A session that retries; one per thread, requests' are not shared."""
+    session = requests.Session()
+    adapter = HTTPAdapter(max_retries=RETRIES)
+    session.mount('https://', adapter)
+    session.mount('http://', adapter)
+    return session
+
+
+def fetch(session, url, label=''):
+    """The body of ``url``, or ``None``.
+
+    An HTTP error or an HTML error page is printed and skipped, as before: a
+    few CDN paths are permanently gone. A network error that survived the
+    retries is also recorded in ``NETWORK_FAILURES``, so the command fails at
+    the end instead of shipping without the file.
+    """
+    try:
+        r = session.get(url, timeout=TIMEOUT)
+    except requests.RequestException as error:
+        NETWORK_FAILURES.append((url, str(error)))
+        print("%sFAILED (network): %s" % (label, url))
+        return None
+    if not r.ok or _is_html_error_page(r.content):
+        print("%sFAILED (%s): %s" % (label, r.status_code, url))
+        return None
+    return r.content
 
 
 # Rewrites applied to a downloaded file, keyed by its name.
@@ -148,17 +188,16 @@ POST_PROCESS = {
 
 def download(urls):
     thread = current_thread()
+    session = make_session()
     for url in urls:
         download_url = url[0]
         filename = url[1]
         print("%s) Downloading %s --> %s" % (thread.name, download_url, filename))
-        r = requests.get(download_url)
-        if not r.ok or _is_html_error_page(r.content):
-            # Don't save the error page as the file, don't raise either --
-            # a few CDN paths are permanently gone, that shouldn't kill the thread.
-            print("%s) FAILED (%s): %s" % (thread.name, r.status_code, download_url))
+        # Never raises: an exception here would kill the thread and silently
+        # skip the rest of its chunk.
+        content = fetch(session, download_url, '%s) ' % thread.name)
+        if content is None:
             continue
-        content = r.content
         expected = PINNED_CHECKSUMS.get(download_url)
         if expected is not None:
             actual = hashlib.sha256(content).hexdigest()
@@ -209,16 +248,23 @@ class Command(BaseCommand):
             )
 
     def get_static_list_file(self, files, basepath):
-        if not os.path.exists(basepath):
-            print("Downloading %s " % (basepath,))
-            with open(basepath, 'wb') as arch:
-                for url in files:
-                    r = requests.get(url)
-                    if not r.ok or _is_html_error_page(r.content):
-                        print("FAILED (%s): %s" % (r.status_code, url))
-                        continue
-                    arch.write(r.content)
-                    arch.write(b'\n')
+        if os.path.exists(basepath):
+            return
+        print("Downloading %s " % (basepath,))
+        session = make_session()
+        failures = len(NETWORK_FAILURES)
+        parts = []
+        for url in files:
+            content = fetch(session, url)
+            if content is not None:
+                parts.extend((content, b'\n'))
+        if len(NETWORK_FAILURES) > failures:
+            # Written only whole: a partial file would exist, and every later
+            # run would skip it.
+            print("NOT WRITTEN (a part failed): %s" % (basepath,))
+            return
+        with open(basepath, 'wb') as arch:
+            arch.write(b''.join(parts))
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -553,6 +599,16 @@ class Command(BaseCommand):
                                           currentbasepath)
         self.download_urls()
         self.report_checksum_mismatches()
+        self.report_network_failures()
+
+    def report_network_failures(self):
+        if not NETWORK_FAILURES:
+            return
+        lines = ['%d download(s) failed on the network, even after retrying:'
+                 % len(NETWORK_FAILURES)]
+        lines += ['  %s\n    %s' % failure for failure in NETWORK_FAILURES]
+        lines.append('Run loaddevstatic again: what is already there is kept.')
+        raise CommandError('\n'.join(lines))
 
     def report_checksum_mismatches(self):
         if not CHECKSUM_MISMATCHES:

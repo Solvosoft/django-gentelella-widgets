@@ -47,3 +47,4 @@ from .IntegrationTaskFormAllowlist_Test import *
 from .DataTableSerializer_Test import *
 from .AddPermissionWidgets_Test import *
 from .Alerts_Test import *
+from .LoadDevStatic_Test import *

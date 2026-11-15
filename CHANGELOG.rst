@@ -16,6 +16,14 @@ it, so loading any fixture with ``djgentelella.GentelellaSettings`` raised
 inside a savepoint (the surrounding transaction stays usable on PostgreSQL):
 without the table there is nothing cached to forget.
 
+**loaddevstatic survives a flaky CDN.** Downloads retry with backoff (5
+attempts) and a timeout; a network error no longer kills its thread, which
+silently left the rest of that thread's files undownloaded. A file assembled
+from several parts (``tinymce-all.js``) is written only whole: a partial one
+used to stay, and later runs skipped it because it existed. Downloads the
+network still refuses are listed at the end and the command fails, instead of
+going on to build a package without them.
+
 0.7.0 (2026-11-15)
 --------------------
 
