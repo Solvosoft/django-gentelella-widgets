@@ -6,9 +6,8 @@ With the permission the button opens its modal and loads the form of
 """
 
 from django.test import override_settings, tag
-from selenium.webdriver.common.by import By
 
-from .base import SeleniumTestCase
+from .base import By, SeleniumTestCase
 
 URLCONF = 'demoapp.tests.selenium.addselect_urls'
 
