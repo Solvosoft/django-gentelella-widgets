@@ -1,0 +1,16 @@
+{% extends 'gentelella/base.html' %}
+{% load i18n %}
+{% block title %}{{ flow }}{% endblock %}
+{% block content %}
+<div class="x_panel">
+  <div class="x_title">
+    <h2>{{ flow }} <small>{% trans 'Diagram' %}</small></h2>
+    <div class="clearfix"></div>
+  </div>
+  <div class="x_content">
+    <div class="gt-flow-diagram-wrapper" style="overflow-x:auto">{{ diagram }}</div>
+    <p class="text-muted small">{% trans 'Dashed: automatic. Red: on a deadline.' %}</p>
+    <a href="{% url 'flow_inbox' flow.name %}">{% trans 'Back to the inbox' %}</a>
+  </div>
+</div>
+{% endblock %}

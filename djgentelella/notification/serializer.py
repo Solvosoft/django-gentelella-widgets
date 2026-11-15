@@ -2,6 +2,7 @@ from rest_framework import serializers
 from rest_framework.pagination import LimitOffsetPagination
 
 from djgentelella.models import Notification
+from djgentelella.serializers import DataTableSerializer
 from django.utils import formats
 from django_filters import FilterSet
 from django_filters import DateTimeFromToRangeFilter
@@ -68,8 +69,5 @@ class NotificationSerializerUpdate(serializers.ModelSerializer):
         fields = ('state',)
 
 
-class NotificationDataTableSerializer(serializers.Serializer):
+class NotificationDataTableSerializer(DataTableSerializer):
     data = serializers.ListField(child=NotificationSerializer(), required=True)
-    draw = serializers.IntegerField(required=True)
-    recordsFiltered = serializers.IntegerField(required=True)
-    recordsTotal = serializers.IntegerField(required=True)

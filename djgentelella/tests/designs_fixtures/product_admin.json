@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "app": "demoapp",
+  "slug": "product_admin",
+  "kind": "page",
+  "meta": {
+    "title": "Products",
+    "url": "products/",
+    "url_name": "product_admin",
+    "permissions": {
+      "view": [
+        "demoapp.view_person"
+      ]
+    },
+    "menu": {
+      "category": "sidebar",
+      "parents": [
+        "Catalogue"
+      ],
+      "title": "Products",
+      "icon": "fa fa-cubes",
+      "position": 1
+    }
+  },
+  "root": {
+    "type": "page",
+    "id": "page",
+    "children": [
+      {
+        "type": "row",
+        "id": "main",
+        "children": [
+          {
+            "type": "col",
+            "id": "intro",
+            "props": {
+              "width": 12
+            },
+            "children": [
+              {
+                "type": "html",
+                "id": "help",
+                "props": {
+                  "html": "<p class=\"lead\">The catalogue, with its categories and tags.</p>"
+                }
+              }
+            ]
+          },
+          {
+            "type": "col",
+            "id": "table",
+            "props": {
+              "width": 12
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

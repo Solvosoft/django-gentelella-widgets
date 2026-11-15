@@ -26,6 +26,7 @@ REQUIRED_TREES = [
     'blog/static',
     'async_notification/templates',
     'async_notification/static',
+    'designs/templates',
     # Downloaded by loaddevstatic rather than kept in the tree, and reached only
     # through the `use_mdi` define -- so nothing would fail at import time if it
     # went missing from the wheel, the icons would just silently be squares.

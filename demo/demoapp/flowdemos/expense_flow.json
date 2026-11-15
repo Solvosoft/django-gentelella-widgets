@@ -1,0 +1,60 @@
+{
+  "schema_version": 2,
+  "name": "demoapp.expenses_json",
+  "title": "Expense approval (JSON)",
+  "model": "demoapp.ExpenseReport",
+  "initial": "draft",
+  "final_states": ["closed", "rejected"],
+  "states": [
+    {"id": "draft", "type": "state", "label": "Draft"},
+    {"id": "route", "type": "switch", "label": "Small or large?",
+     "cases": [{"condition": "demoapp.expense_is_large", "target": "review"}],
+     "default": "manager"},
+    {"id": "manager", "type": "human_task", "label": "Manager approval",
+     "title": "Approve the expense: {{ object }}",
+     "owners": ["field:manager"], "priority": 3, "due": "P3D",
+     "on_expire": {"escalate": {"groups": ["Finance"], "priority": 1},
+                   "notify": "{{ object }} is waiting for approval."},
+     "outcomes": {"approve": "approved", "reject": "rejected"}},
+    {"id": "review", "type": "parallel", "label": "Manager and finance",
+     "branches": ["manager_review", "finance_review"]},
+    {"id": "manager_review", "type": "human_task", "label": "Manager approval",
+     "title": "Approve the expense: {{ object }}",
+     "owners": ["field:manager"], "priority": 2,
+     "outcomes": {"approve": "reviewed", "reject": "reviewed"}},
+    {"id": "finance_review", "type": "human_task", "label": "Finance approval",
+     "title": "Finance: approve {{ object }}", "groups": ["Finance"],
+     "priority": 2, "due": "P5D", "on_expire": {"outcome": "reject"},
+     "outcomes": {"approve": "reviewed", "reject": "reviewed"}},
+    {"id": "reviewed", "type": "join", "label": "Both answered",
+     "wait_for": "all", "next": "decide"},
+    {"id": "decide", "type": "switch", "label": "Both approved?",
+     "cases": [{"condition": {"function": "demoapp.expense_both_approved"},
+                "target": "approved"}],
+     "default": "rejected"},
+    {"id": "approved", "type": "action", "label": "Approved", "next": "payment",
+     "actions": [
+       {"action": "set_variable",
+        "props": {"name": "approved_amount", "value": "{{ object.amount|stringformat:'s' }}"}},
+       {"action": "notify",
+        "props": {"message": "{{ object }} is approved.", "to": "field:requester",
+                  "message_type": "success"}}
+     ]},
+    {"id": "payment", "type": "wait", "label": "Waiting for the payment",
+     "signal": "paid", "next": "paid"},
+    {"id": "paid", "type": "action", "label": "Paid", "next": "closed",
+     "actions": [{"action": "set_field", "props": {"field": "paid", "value": true}}]},
+    {"id": "closed", "type": "state", "label": "Closed"},
+    {"id": "rejected", "type": "state", "label": "Rejected"}
+  ],
+  "on_enter": {
+    "rejected": [{"action": "notify",
+                  "props": {"message": "{{ object }} was rejected.",
+                            "to": "field:requester", "message_type": "danger"}}]
+  },
+  "transitions": [
+    {"name": "submit", "source": "draft", "target": "route", "label": "Submit",
+     "perms": ["demoapp.change_expensereport"], "icon": "fa fa-paper-plane",
+     "condition": "demoapp.expense_by_requester"}
+  ]
+}

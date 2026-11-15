@@ -91,4 +91,8 @@ You can configurate some settings on database using django admin views `/admin/d
 - **site_logo:** Change logo display on footer.
 - **site_title:** Change the default title of pages.
 
+Each of them can also be set for one ``Site`` only, which then wins over the
+global value on that site: ``set_settings(key, value, site=site)`` or the
+*Site* field in the admin. See :doc:`sites`.
+
 

@@ -1,0 +1,9 @@
+{% load i18n %}
+{% if flow %}
+<div class="gt-flow-status" data-flow="{{ flow.name }}">
+  <span class="badge {% if final %}bg-secondary{% else %}bg-info{% endif %}">{{ state_label }}</span>
+  {% if instance and instance.status != 'running' and instance.status != 'completed' %}<span class="badge {% if instance.status == 'error' %}bg-danger{% else %}bg-warning text-dark{% endif %}" title="{{ instance.error }}">{{ instance.get_status_display }}</span>{% endif %}
+  {% include 'gentelella/flows/_buttons.html' with size='btn-sm' %}
+  {% if detail_url %}<a class="btn btn-sm btn-link" href="{{ detail_url }}">{% trans 'History' %}</a>{% endif %}
+</div>
+{% endif %}

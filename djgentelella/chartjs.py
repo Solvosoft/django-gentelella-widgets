@@ -99,11 +99,43 @@ def elements_to_v4(elements):
     return elements
 
 
-class DataSetSerializer(serializers.Serializer):
+class PassThroughSerializer(serializers.Serializer):
+    """Declared fields typed, every other key of the instance kept as is.
+
+    A dataset is the one place where Chart.js takes dozens of options
+    (``borderDash``, ``pointRadius``, ``pointStyle``, ``tension``,
+    ``spanGaps``, ``yAxisID``, ``order``, ``hidden``...), many of them either
+    a scalar or a per-point list. Declaring each one would mean touching this
+    module for every new chart; dropping the undeclared ones -- what a plain
+    Serializer does -- made them silently vanish on the way to the browser.
+    Same rule as :class:`PluginsSerializer`.
+    """
+
+    def to_representation(self, instance):
+        dev = super().to_representation(instance)
+        for name, value in instance.items():
+            dev.setdefault(name, value)
+        return dev
+
+
+class DataSetSerializer(PassThroughSerializer):
+    """One series of a bar or line chart.
+
+    ``data`` admits ``None``: Chart.js draws a gap there, or joins over it with
+    ``spanGaps: True``. Any key beyond the declared ones reaches Chart.js
+    unchanged, e.g. a dashed control limit::
+
+        {'label': 'UCL', 'data': [...], 'borderDash': [6, 4], 'pointRadius': 0}
+
+    or points coloured one by one::
+
+        {'label': 'Mean', 'data': [...],
+         'pointBackgroundColor': ['#1f77b4', '#d62728', '#1f77b4']}
+    """
     label = serializers.CharField()
     backgroundColor = serializers.CharField(required=False)
     borderColor = serializers.CharField(required=False)
-    data = serializers.ListField(child=serializers.FloatField())
+    data = serializers.ListField(child=serializers.FloatField(allow_null=True))
     fill = serializers.BooleanField(default=False, required=False)
     borderWidth = serializers.IntegerField(default=0, required=False)
     stack = serializers.CharField(required=False)
@@ -111,7 +143,7 @@ class DataSetSerializer(serializers.Serializer):
     type = serializers.CharField(required=False)
 
 
-class DataPieSetSerializer(serializers.Serializer):
+class DataPieSetSerializer(PassThroughSerializer):
     label = serializers.CharField()
     backgroundColor = serializers.ListField(child=serializers.CharField(required=False))
     data = serializers.ListField(child=serializers.IntegerField())
@@ -123,7 +155,7 @@ class ScatterItemSerializer(serializers.Serializer):
     y = serializers.IntegerField()
 
 
-class DataScatterSetSerializer(serializers.Serializer):
+class DataScatterSetSerializer(PassThroughSerializer):
     label = serializers.CharField()
     backgroundColor = serializers.CharField(required=False)
     borderColor = serializers.CharField(required=False)
@@ -158,22 +190,16 @@ class TooltipSerializer(serializers.Serializer):
     callbacks = serializers.DictField(child=serializers.CharField(), required=False)
 
 
-class PluginsSerializer(serializers.Serializer):
+class PluginsSerializer(PassThroughSerializer):
+    """Keeps the plugins it does not know about.
+
+    ``options.plugins`` is also where third-party plugins are configured
+    (datalabels, annotation, zoom); the field used to be a bare DictField,
+    so dropping anything unlisted here would silently break those charts.
+    """
     title = TitleSerializer(required=False)
     legend = LegendSerializer(required=False)
     tooltip = TooltipSerializer(required=False)
-
-    def to_representation(self, instance):
-        """Keep the plugins this serializer does not know about.
-
-        ``options.plugins`` is also where third-party plugins are configured
-        (datalabels, annotation, zoom); the field used to be a bare DictField,
-        so dropping anything unlisted here would silently break those charts.
-        """
-        dev = super().to_representation(instance)
-        for name, value in instance.items():
-            dev.setdefault(name, value)
-        return dev
 
 
 class HoverSerializer(serializers.Serializer):

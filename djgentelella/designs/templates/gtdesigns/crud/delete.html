@@ -1,0 +1,15 @@
+{% extends template_father %}
+{% load i18n %}
+{% block title %}{% trans 'Remove' %} {{ object }}{% endblock %}
+{% block content %}
+<div class="card gencrud">
+  <div class="card-body">
+    {% include 'gtdesigns/crud/_back.html' %}
+    <h2>{% trans 'Remove' %} {{ object }}?</h2>
+    <form action="{{ url_delete }}" method="POST">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger"><i class="fa fa-trash"></i> {% trans 'Confirm remove' %}</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

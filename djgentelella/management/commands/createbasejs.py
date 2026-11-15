@@ -47,7 +47,10 @@ class Command(BaseCommand):
             # hoisted like a function, so nothing else in base.js may touch
             # them at load time -- pages instantiate them on ready.
             'positionsgrid.js',
-            'breadcrumbnav.js'
+            'breadcrumbnav.js',
+            'gt_facets.js',
+            'lovselect.js',
+            'dynamic_actions.js',
         ]
         jquery_plugins = [
             'notifications.js',

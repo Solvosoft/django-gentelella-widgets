@@ -1,0 +1,64 @@
+{% load i18n %}<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>{{ title }}</title>
+<style>
+  @page {
+    size: a4 landscape;
+    margin: 1.5cm 1.2cm 1.8cm 1.2cm;
+    @frame footer {
+      -pdf-frame-content: gt-export-footer;
+      bottom: 0.6cm;
+      left: 1.2cm;
+      right: 1.2cm;
+      height: 0.8cm;
+    }
+  }
+  body { font-family: Helvetica, sans-serif; font-size: 8pt; color: #2a3f54; }
+  h1 { font-size: 14pt; margin: 0 0 4pt 0; }
+  .gt-meta { color: #73879c; font-size: 7pt; margin-bottom: 8pt; }
+  table.gt-export { width: 100%; }
+  table.gt-export .num { text-align: right; }
+  table.gt-export th {
+    background-color: #2a3f54; color: #ffffff; text-align: left;
+    padding: 3pt 4pt; font-weight: bold;
+  }
+  table.gt-export td { padding: 2pt 4pt; border-bottom: 0.5pt solid #d9dee4; }
+  table.gt-export tfoot td {
+    font-weight: bold; border-top: 1pt solid #2a3f54; background-color: #f2f4f6;
+  }
+  #gt-export-footer { color: #73879c; font-size: 7pt; text-align: right; }
+</style>
+</head>
+<body>
+  <h1>{{ title }}</h1>
+  <div class="gt-meta">
+    {% blocktranslate with date=generated_at|date:"SHORT_DATETIME_FORMAT" count count=rows|length %}{{ count }} row · generated {{ date }}{% plural %}{{ count }} rows · generated {{ date }}{% endblocktranslate %}
+    {% if truncated %} · {% blocktranslate %}only the first {{ limit }} rows{% endblocktranslate %}{% endif %}
+  </div>
+
+  {# The thead rows repeat at the top of every page. #}
+  <table class="gt-export" repeat="1">
+    <thead>
+      <tr>{% for column in columns %}<th{% if column.kind == 'integer' or column.kind == 'decimal' %} class="num"{% endif %}>{{ column.label }}</th>{% endfor %}</tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+      <tr>{% for cell in row.cells %}<td{% if cell.numeric %} class="num"{% endif %}{% if row.color %} style="background-color: #{{ row.color }}"{% endif %}>{{ cell.text }}</td>{% endfor %}</tr>
+      {% empty %}
+      <tr><td colspan="{{ columns|length }}">{% translate "No data" %}</td></tr>
+      {% endfor %}
+    </tbody>
+    {% if footer %}
+    <tfoot>
+      <tr>{% for cell in footer %}<td{% if cell.numeric %} class="num"{% endif %}>{{ cell.text }}</td>{% endfor %}</tr>
+    </tfoot>
+    {% endif %}
+  </table>
+
+  <div id="gt-export-footer">
+    {{ title }} · {% translate "Page" %} <pdf:pagenumber> {% translate "of" %} <pdf:pagecount>
+  </div>
+</body>
+</html>

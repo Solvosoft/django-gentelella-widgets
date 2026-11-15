@@ -5,12 +5,14 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.fields import GenericRelation
 
 from djgentelella.fields.catalog import (
     GTForeignKey,
     GTManyToManyField,
     GTOneToOneField,
 )
+from djgentelella.alerts.models import AbstractAlertEvent, AbstractAlertRule
 from djgentelella.fields.maps import GTPointField
 from djgentelella.models import DeletedWithTrash
 
@@ -448,3 +450,225 @@ class WarehouseBox(models.Model):
 
     def __str__(self):
         return self.code
+
+
+class UUIDThing(models.Model):
+    """A model keyed by a UUID: the flow tests use it for non-integer pks."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+
+# -- the flow demos (demoapp/gtflows.py) ---------------------------------------
+class PurchaseRequest(models.Model):
+    title = models.CharField(_('What'), max_length=150)
+    amount = models.DecimalField(_('Amount'), max_digits=12, decimal_places=2)
+    justification = models.TextField(_('Justification'), blank=True, default='')
+    supplier = models.CharField(_('Supplier'), max_length=150, blank=True, default='')
+    requester = models.ForeignKey(User, on_delete=models.CASCADE,
+                                  related_name='demo_purchases',
+                                  verbose_name=_('Requester'))
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+
+class SupportTicket(models.Model):
+    PRIORITIES = [('low', _('Low')), ('normal', _('Normal')), ('high', _('High'))]
+
+    subject = models.CharField(_('Subject'), max_length=150)
+    description = models.TextField(_('Description'))
+    priority = models.CharField(_('Priority'), max_length=10, choices=PRIORITIES,
+                                default='normal')
+    resolution = models.TextField(_('Resolution'), blank=True, default='')
+    reporter = models.ForeignKey(User, on_delete=models.CASCADE,
+                                 related_name='demo_tickets',
+                                 verbose_name=_('Reporter'))
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.subject
+
+
+class EditorialDocument(models.Model):
+    title = models.CharField(_('Title'), max_length=150)
+    body = models.TextField(_('Text'))
+    reviewer_notes = models.TextField(_('Reviewer notes'), blank=True, default='')
+    published_at = models.DateTimeField(_('Published'), null=True, blank=True)
+    author = models.ForeignKey(User, on_delete=models.CASCADE,
+                               related_name='demo_documents',
+                               verbose_name=_('Author'))
+
+    class Meta:
+        permissions = [('review_editorialdocument', 'Can review documents')]
+
+    def __str__(self):
+        return self.title
+
+
+class LeaveRequest(models.Model):
+    employee = models.ForeignKey(User, on_delete=models.CASCADE,
+                                 related_name='demo_leaves',
+                                 verbose_name=_('Employee'))
+    approver = models.ForeignKey(User, on_delete=models.CASCADE,
+                                 related_name='demo_leaves_to_approve',
+                                 verbose_name=_('Approver'))
+    start = models.DateField(_('From'))
+    end = models.DateField(_('To'))
+    reason = models.CharField(_('Reason'), max_length=200, blank=True, default='')
+
+    def __str__(self):
+        return '%s: %s - %s' % (self.employee, self.start, self.end)
+
+
+class ExpenseReport(models.Model):
+    """The expense approval demo: the same flow declared in Python
+    (``demoapp.ExpenseFlow``) and in JSON (``demoapp.expenses_json``)."""
+
+    FLOWS = [('demoapp.ExpenseFlow', _('Python')),
+             ('demoapp.expenses_json', _('JSON'))]
+
+    title = models.CharField(_('What'), max_length=150)
+    amount = models.DecimalField(_('Amount'), max_digits=12, decimal_places=2)
+    requester = models.ForeignKey(User, on_delete=models.CASCADE,
+                                  related_name='demo_expenses',
+                                  verbose_name=_('Requester'))
+    manager = models.ForeignKey(User, on_delete=models.CASCADE,
+                                related_name='demo_expenses_to_approve',
+                                verbose_name=_('Manager'))
+    #: Which of the two equivalent flows it goes through.
+    flow_name = models.CharField(max_length=50, choices=FLOWS,
+                                 default='demoapp.ExpenseFlow')
+    paid = models.BooleanField(_('Paid'), default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return '%s (%s)' % (self.title, self.amount)
+
+
+class DynamicContact(models.Model):
+    """Dynamic actions and cascading LOVs demo (/dynamic_actions/).
+
+    country, province and canton hold codes of the LOVs in demoapp/gtlovs.py.
+    """
+
+    KINDS = (('person', _('Person')), ('company', _('Company')))
+
+    kind = models.CharField(_('Kind'), max_length=10, choices=KINDS,
+                            default='person')
+    name = models.CharField(_('Name'), max_length=150)
+    company_name = models.CharField(_('Company name'), max_length=150, blank=True,
+                                    default='')
+    company_id = models.CharField(_('Company id'), max_length=30, blank=True,
+                                  default='')
+    country = models.CharField(_('Country'), max_length=10)
+    province = models.CharField(_('Province'), max_length=10, blank=True,
+                                default='')
+    canton = models.CharField(_('Canton'), max_length=10, blank=True, default='')
+    quantity = models.PositiveIntegerField(_('Quantity'), default=1)
+    price = models.DecimalField(_('Price'), max_digits=12, decimal_places=2,
+                                default=0)
+    discount = models.DecimalField(_('Discount %'), max_digits=5, decimal_places=2,
+                                   default=0)
+    total = models.DecimalField(_('Total'), max_digits=14, decimal_places=2,
+                                default=0)
+
+    def __str__(self):
+        return self.name
+
+
+# -- the catalogue of the design demos (demoapp/gtdesign/, djgentelella.designs) --
+class ProductCategory(models.Model):
+    name = models.CharField(_('Name'), max_length=100)
+    description = models.CharField(_('Description'), max_length=250, blank=True,
+                                   default='')
+
+    class Meta:
+        verbose_name = _('category')
+        verbose_name_plural = _('categories')
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+
+class ProductTag(models.Model):
+    name = models.CharField(_('Name'), max_length=50)
+
+    class Meta:
+        verbose_name = _('tag')
+        verbose_name_plural = _('tags')
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+
+class Product(models.Model):
+    STATUS = (('draft', _('Draft')), ('active', _('Active')),
+              ('retired', _('Retired')))
+
+    name = models.CharField(_('Name'), max_length=150)
+    description = models.TextField(_('Description'), blank=True, default='')
+    price = models.DecimalField(_('Price'), max_digits=10, decimal_places=2)
+    available_since = models.DateField(_('Available since'), null=True, blank=True)
+    status = models.CharField(_('Status'), max_length=20, choices=STATUS,
+                              default='draft')
+    category = models.ForeignKey(ProductCategory, on_delete=models.SET_NULL,
+                                 null=True, blank=True, related_name='products',
+                                 verbose_name=_('Category'))
+    tags = models.ManyToManyField(ProductTag, blank=True, related_name='products',
+                                  verbose_name=_('Tags'))
+    owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,
+                              blank=True, related_name='demo_products',
+                              verbose_name=_('Owner'))
+
+    class Meta:
+        verbose_name = _('product')
+        verbose_name_plural = _('products')
+
+    def __str__(self):
+        return self.name
+
+
+class AlertRule(AbstractAlertRule):
+    """The demo's alert rules: who to notify is a list of users."""
+
+    notify_users = models.ManyToManyField(User, blank=True, related_name='+',
+                                          verbose_name=_('Notify'))
+
+    def get_recipients(self, obj=None, context=None):
+        return list(self.notify_users.all()) + super().get_recipients(obj, context)
+
+
+class AlertEvent(AbstractAlertEvent):
+    rule = models.ForeignKey(AlertRule, on_delete=models.CASCADE,
+                             related_name='events', verbose_name=_('Alert rule'))
+
+    class Meta(AbstractAlertEvent.Meta):
+        pass
+
+
+class Equipment(models.Model):
+    """A piece of lab equipment with a calibration that comes due."""
+
+    name = models.CharField(max_length=150, verbose_name=_('Name'))
+    next_calibration = models.DateField(null=True, blank=True,
+                                        verbose_name=_('Next calibration'))
+    alerts = GenericRelation(AlertEvent, related_query_name='equipment')
+
+    def __str__(self):
+        return self.name
+
+
+class Calibration(models.Model):
+    equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE,
+                                  related_name='calibrations')
+    done = models.DateField(verbose_name=_('Done'))
+
+    def __str__(self):
+        return '%s %s' % (self.equipment, self.done)

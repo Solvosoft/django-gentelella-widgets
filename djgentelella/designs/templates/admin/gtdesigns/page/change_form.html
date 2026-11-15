@@ -1,0 +1,9 @@
+{% extends "admin/change_form.html" %}
+{% load i18n %}
+{% block object-tools-items %}
+{% if original.pk %}
+<li><a href="{% url 'admin:gtdesigns_page_validate' original.pk %}">{% trans "Validate" %}</a></li>
+{% if original.is_published %}<li><a href="{% url 'gt-design-page' original.path %}" target="_blank" rel="noopener">{% trans "View page" %}</a></li>{% endif %}
+{% endif %}
+{{ block.super }}
+{% endblock %}

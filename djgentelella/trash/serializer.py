@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.utils.translation import gettext_lazy as _
 from djgentelella.models import Trash
-from djgentelella.serializers import GTDateTimeField
+from djgentelella.serializers import DataTableSerializer, GTDateTimeField
 
 
 class TrashSerializer(serializers.ModelSerializer):
@@ -39,8 +39,5 @@ class TrashSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class TrashDataTableSerializer(serializers.Serializer):
+class TrashDataTableSerializer(DataTableSerializer):
     data = serializers.ListField(child=TrashSerializer(), required=True)
-    draw = serializers.IntegerField(required=True)
-    recordsFiltered = serializers.IntegerField(required=True)
-    recordsTotal = serializers.IntegerField(required=True)

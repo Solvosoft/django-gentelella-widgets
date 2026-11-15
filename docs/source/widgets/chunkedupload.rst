@@ -41,3 +41,66 @@ As a Form field:
             fields = '__all__'
 
 Make sure your model has the `fileexample` or the name of the field do you using to save file in your model.
+
+**Whose upload is taken.** The browser uploads the file in chunks first and posts only a token, the
+``upload_id`` of a ``ChunkedUpload``. ``FileChunkedUpload`` (and ``FileInput``)
+turn that token into the file **whoever uploaded it, in whatever state**, and
+delete the upload. That is on purpose: who attaches or deletes a document does
+not have to be who uploaded it. The posted ``{"actions": "delete"}`` clears the
+field, as before.
+
+When the token must be the user's own, use ``UserFileChunkedUpload`` (or
+``UserFileInput``): it takes the upload only if it belongs to its user and
+finished (``status`` ``COMPLETE``). Any other token -- another user's, an
+unfinished upload, or no user at all -- gives ``None`` and deletes nothing. It
+uses the template and the javascript of ``FileChunkedUpload``
+(``data-widget="FileChunkedUpload"``).
+
+A widget does not see the request, so the form gives it the user with
+``UserBoundWidgetsMixin`` (called ``UserScopedUploadsMixin`` before 0.7.0; the
+old name still works):
+
+.. code:: python
+
+    from djgentelella.forms.forms import GTForm, UserBoundWidgetsMixin
+    from djgentelella.widgets.files import UserFileChunkedUpload
+
+    class InvoiceForm(UserBoundWidgetsMixin, GTForm, forms.ModelForm):
+        class Meta:
+            model = Invoice
+            fields = ['number', 'scan']
+            widgets = {'scan': UserFileChunkedUpload}
+
+    form = InvoiceForm(request.POST, user=request.user)   # or request=request
+
+A form that already takes ``user`` for its own ends passes it on
+(``super().__init__(*args, user=user, **kwargs)``) or keeps it as
+``self.user``: when the mixin got no user, it takes ``self.user`` (or
+``self.request.user``) before the form is cleaned. ``self.bind_upload_user(user)``
+binds one explicitly, and reaches the subwidgets of a ``MultiWidget`` too.
+Each form instance has its own copy of the widgets, so the user never leaks
+between requests. The widget also takes it directly:
+``UserFileChunkedUpload(user=request.user)``.
+
+A form that keeps the upload for a later step (a data load that reads the file
+after the user maps its columns) asks for the ``ChunkedUpload`` itself, which
+is then not deleted:
+
+.. code:: python
+
+    file = forms.Field(widget=UserFileChunkedUpload(keep_upload=True))
+    # cleaned_data['file'] is the ChunkedUpload of the user, or None
+
+Two hooks make other policies a subclass away: ``get_upload(token)`` finds the
+``ChunkedUpload`` (by token only in the generic widgets) and
+``upload_value(upload)`` turns it into the field's value (its file, deleting
+the upload). A wizard that keeps the upload for a later step overrides
+``upload_value`` to return the upload itself.
+
+The stored file is rendered as ``{"name", "display_name", "url"}`` JSON built
+with ``json.dumps`` and escaped by the template, so a file name with quotes or
+``</script>`` reaches the javascript intact. The javascript of
+``FileChunkedUpload``, ``FileInput`` and ``PDFViewerWidget`` writes the name
+with ``.text()``, so a name such as ``<img src=x onerror=...>`` (assigned by
+code, or kept by a storage that does not clean names) is shown as text and
+never becomes markup.

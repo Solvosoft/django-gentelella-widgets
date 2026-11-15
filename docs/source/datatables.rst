@@ -153,12 +153,12 @@ You need two serializers: one for individual records and one for the DataTables 
             fields = ['id', 'name', 'email', 'num_children', 'country',
                       'born_date', 'last_time', 'actions']
 
-    class PersonDataTableSerializer(serializers.Serializer):
-        """Wrapper serializer matching DataTables protocol"""
+    from djgentelella.serializers import DataTableSerializer
+
+    class PersonDataTableSerializer(DataTableSerializer):
+        """The DataTables envelope (draw, recordsTotal, recordsFiltered)
+        around the rows."""
         data = serializers.ListField(child=PersonSerializer(), required=True)
-        draw = serializers.IntegerField(required=True)
-        recordsFiltered = serializers.IntegerField(required=True)
-        recordsTotal = serializers.IntegerField(required=True)
 
 FilterSet
 """"""""""""""""
@@ -648,11 +648,8 @@ Serializers
             fields = ['id', 'name', 'email', 'num_children', 'country',
                       'born_date', 'last_time', 'is_active']
 
-    class PersonDataTableSerializer(serializers.Serializer):
+    class PersonDataTableSerializer(DataTableSerializer):
         data = serializers.ListField(child=PersonSerializer())
-        draw = serializers.IntegerField()
-        recordsTotal = serializers.IntegerField()
-        recordsFiltered = serializers.IntegerField()
 
 FilterSet
 """"""""""""

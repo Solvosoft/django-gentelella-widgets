@@ -1,0 +1,655 @@
+Designs
+=======
+
+``djgentelella.designs`` loads a **design document** -- the JSON
+djgentelella-editor writes -- validates it and serves it as a page, live: no
+code is generated and the editor does not need to be installed. A design goes
+to production with one command::
+
+    python manage.py gtdesigns_publish ventas/gtdesign/clientes.json
+
+and is served at ``/designs/<path>`` inside the gentelella layout.
+
+This module is the engine; the editor designs, previews and, when asked,
+generates code on top of the same components. Components with data (tables,
+charts, stats) come in their own modules; the ones here are structural.
+
+Installation
+------------
+
+.. code:: bash
+
+    pip install djgentelella[designs]
+
+.. code:: python
+
+    INSTALLED_APPS = [
+        ...
+        'django.contrib.sites',     # Page has an optional Site
+        'djgentelella',
+        'djgentelella.designs',     # app label: gtdesigns
+    ]
+
+then ``python manage.py migrate``. ``djgentelella.urls`` adds the pages and
+the endpoints only when the app is installed.
+
+The current Site is the one of :doc:`sites`
+(``djgentelella.sites.get_current_site``): ``request.site`` when a middleware
+such as ``CurrentSiteMiddleware`` set it, else the Site whose domain is the
+request's host, else none -- and then only global pages are served.
+``SITE_ID`` is not a fallback: a host without a Site of its own gets the
+global pages. Keep ``SITE_ID = 1`` anyway, for Django's own views
+(``LoginView``), which fail on a host that has no Site without it; add
+``CurrentSiteMiddleware`` if ``SITE_ID`` should decide the Site.
+
+The document
+------------
+
+The format is the editor's (``schema_version`` 1). ``djgentelella.designs.format``
+owns it now: ``schema_v1.json`` is the envelope, :func:`upgrade` takes an older
+document to the current version, :func:`validate_envelope` checks the shape.
+
+.. code:: json
+
+    {
+      "schema_version": 1,
+      "app": "ventas", "slug": "clientes", "kind": "page",
+      "meta": {"title": "Clientes", "url": "clientes/", "url_name": "clientes",
+               "permissions": {"view": ["ventas.view_cliente"]}},
+      "assets": {"css": ".lead { color: #333 }", "js": ""},
+      "forms": {"cliente": {"model": "ventas.Cliente", "fields": ["nombre", "pais"]}},
+      "root": {"type": "page", "id": "page", "children": [
+        {"type": "row", "id": "main", "children": [
+          {"type": "col", "id": "body", "props": {"width": 12}, "children": [
+            {"type": "html", "id": "intro", "props": {"html": "<p class=\"lead\">Hola</p>"}}
+          ]}
+        ]}
+      ]}
+    }
+
+- ``meta.permissions`` -- ``{"view": [...]}``, or a plain list meaning the same
+  -- are the permissions a user needs to see the page.
+- ``assets.css`` is inlined in the page, cleaned; ``assets.js`` only when the
+  publisher is trusted with it (see Security).
+- Every form in ``forms`` is checked, used or not.
+- Node ids are unique in the document; they appear in the markup as
+  ``data-gtdesign="<id>"`` and in the endpoint URLs.
+
+When the format changes, ``format.CURRENT`` goes up and a function is added to
+``format.UPGRADES``: ``{old_version: function(document) -> document}``. Every
+entry point -- the engine, ``gtdesigns_publish`` -- upgrades first.
+
+Errors are ``(path, message)`` tuples (``djgentelella.designs.jsonschema.Error``),
+with JSON paths such as ``$.root.children[0].props.width``.
+
+Components
+----------
+
+A node's ``type`` is a :class:`~djgentelella.designs.components.RuntimeComponent`:
+
+==========  ==============  ==================================================
+type        goes in         renders
+==========  ==============  ==================================================
+``page``    root only       ``<div class="gtdesign-page">``
+``row``     page, col       ``<div class="row">``
+``col``     row             ``<div class="col-md-<width>">`` (``col`` without)
+``html``    col             its markup, cleaned (see Security)
+==========  ==============  ==================================================
+
+Writing one
+"""""""""""
+
+.. code:: python
+
+    # ventas/gtdesigns.py
+    from dataclasses import dataclass
+
+    from django.utils.html import format_html
+
+    from djgentelella.designs.components import NodeBuild, RuntimeComponent
+    from djgentelella.designs.registry import register
+
+
+    @dataclass
+    class BannerBuild(NodeBuild):
+        text: str = ''
+
+
+    @register
+    class Banner(RuntimeComponent):
+        type = 'banner'
+        label = 'Banner'
+        icon = 'fa fa-bullhorn'
+        parent_types = ('col',)
+        props_schema = {'type': 'object', 'required': ['text'],
+                        'additionalProperties': False,
+                        'properties': {'text': {'type': 'string', 'minLength': 1}}}
+
+        def resolve(self, node, rctx, path):
+            return BannerBuild(node['id'], node['type'], node['props'],
+                               text=node['props']['text'])
+
+        def render(self, build, rctx, children):
+            return format_html('<div class="alert alert-info">{}</div>', build.text)
+
+        def media(self, build, rctx):
+            return {'css': ['ventas/banner.css'], 'js': [], 'inline_js': ''}
+
+- ``check_props`` validates ``node["props"]`` against ``props_schema`` (the
+  ``x-widget`` hints there are for the editor).
+- ``resolve(node, rctx, path)`` checks the node against the project and returns
+  its **build**: a dataclass of data (model classes, field names), never code.
+  Report problems with ``rctx.error(path, message)``.
+- ``render(build, rctx, children)`` returns safe HTML; ``children`` is the
+  rendered markup of the node's children.
+- ``media()`` -- relative URLs go through ``static()``; duplicates are loaded
+  once.
+- ``endpoints(build)`` returns ``Endpoint(suffix, viewset, basename)``: see
+  Endpoints.
+
+``ResolveContext`` gives a component ``design``, ``request`` (``None`` while
+validating offline), ``site``, ``user``, ``preview`` (querysets go empty, for
+the editor), and ``model(label, path)``, ``form(key, path)`` and
+``datasource(name, path)`` -- the last one needs ``djgentelella.datasources``.
+Its hooks (``exposure``, ``check_permissions``, ``lookups``) are in "Extending
+the engine".
+
+Registering
+"""""""""""
+
+The registry is filled with the built-ins, then the ``gtdesigns.py`` module of
+each installed app (imported from ``AppConfig.ready()``), then the dotted paths
+of ``GT_DESIGN_COMPONENTS``. A repeated ``type`` replaces the previous one, so
+a project can replace a built-in:
+
+.. code:: python
+
+    GT_DESIGN_COMPONENTS = ['miapp.components.MyHtml']
+
+Exposing models
+---------------
+
+A design cannot use a model nobody exposed. Nothing is exposed by default:
+
+.. code:: python
+
+    # ventas/gtdesigns.py
+    from djgentelella.designs.exposure import expose
+    from ventas.models import Cliente, Pais
+
+    expose(Cliente, exclude=('notas_internas',))
+    expose(Pais, fields=['nombre'], perms={'view': ['ventas.view_pais']})
+
+``fields``/``exclude`` limit the fields a design can name; ``perms`` sets the
+permissions per action (``view``, ``add``, ``change``, ``delete``), by default
+the model's own. A plain list applies to every action. ``exposed_models()``
+lists them.
+
+``rctx.model()`` refuses a model that is not exposed, and so does a form: its
+model, the fields it names and the targets of its relations must all be
+exposed, since a relation's choices list rows of the target.
+
+Forms
+-----
+
+``forms[key]`` becomes a GTForm ModelForm (``rctx.form(key, path)`` returns its
+``FormBuild``; ``build.form_class`` is the class, ``build.get_form()`` an
+instance). The rules are the editor's: ``fields`` defaults to every editable
+field the exposure allows; ``render`` is ``as_horizontal``, ``as_plain``,
+``as_inline`` or ``as_grid`` with a ``grid`` placing every field once;
+``widgets`` picks among ``djgentelella.forms.widgetmap.widget_choices`` --
+autocompletes need a select2 lookup of the target in a ``gtselects.py``, tree
+selects a ``TreeNode`` target. Without a choice, a relation with a lookup gets
+the autocomplete. ``help`` texts become the fields' ``help_text``.
+
+Pages
+-----
+
+``Page`` (``djgentelella.designs.models``) holds the published document:
+``site`` (optional), ``path``, ``title``, ``document``, ``schema_version``,
+``hash`` (sha256 of the normalized document), ``is_published``,
+``permissions``, ``created_at``/``updated_at``/``updated_by``.
+
+``designs/<path:path>`` (URL name ``gt-design-page``) finds the page of the
+current Site at that path, or else the global one (``site`` empty). A page
+about one object (``meta.parent``) is at ``designs/<path>/<pk of the
+object>``. Then:
+
+- an unpublished page is a 404, except for users with
+  ``gtdesigns.change_page``, who see it with a "preview" notice;
+- the page's ``permissions`` and the document's ``meta.permissions`` are all
+  required (403 otherwise);
+- a signed-in user is required even without permissions, unless
+  ``GT_DESIGNS_LOGIN_REQUIRED = False``.
+
+The page extends ``gentelella/base.html``: the nodes go in ``content``, the
+title in ``title``, CSS in ``extra_css`` and scripts in ``js``, each after
+``block.super``. The resolution of a page is kept per process, keyed by its
+``hash`` (``GT_DESIGNS_CACHE_SIZE``, 128 by default), so serving it does not
+validate it again; a page whose document no longer resolves (a model withdrawn,
+a component gone) is a 404, and editors see its errors.
+
+From Python: ``engine.resolve(document) -> (ResolvedPage, errors)``,
+``engine.render(resolved, request)`` and ``engine.resolve_page(page)``;
+``publishing.publish(document, site=None, path=None, user=None)``.
+
+Endpoints
+---------
+
+A node can serve DRF viewsets at
+``gtapis/designs/<page_id>/<node_id>/<suffix>`` (URL name
+``gt-design-endpoint``). The router builds the routes from
+``component.endpoints(build)`` with the build of the cached resolution, once
+per resolution, and applies the page's own rules first (published, Site,
+permissions). The Site rule holds for the pk too: the page of another Site is
+not found, and neither is a global page when the current Site has a page of
+its own at the same path -- the one ``designs/<path>`` would serve. The viewset finds what it serves on the request:
+``request.gtdesign_page``, ``request.gtdesign_node`` and
+``request.gtdesign_build``.
+
+.. code:: python
+
+    def endpoints(self, build):
+        return [Endpoint('', RowsViewSet, 'rows-%s' % build.id),
+                Endpoint('chart', ChartViewSet, 'chart-%s' % build.id)]
+
+Conditions
+----------
+
+Any node -- of any component -- may carry a condition of
+:doc:`authorization`, in ``props.condition`` or in ``meta.condition`` (one of
+the two):
+
+.. code:: json
+
+    {"type": "row", "id": "finanzas",
+     "meta": {"condition": {"any": [{"group": "Finanzas"},
+                                    {"flag": "tablero_abierto"}]}},
+     "children": []}
+
+The engine handles it, so components do not have to:
+
+* :func:`resolve` validates it (an unknown authorization is a publishing
+  error, with its path, ``$.root.children[0].meta.condition.any[0]...``) and
+  removes ``props.condition`` from the node the component checks and
+  resolves, so a ``props_schema`` with ``additionalProperties: false`` needs
+  no room for it. The resolution stays the same for every request; each
+  ``ResolvedNode`` keeps its ``condition`` and its ``conditions`` (its own and
+  its ancestors', root first).
+* :func:`render` leaves out, per request, a node whose condition does not
+  hold, with its children and their media.
+* The endpoints of such a node -- or of a node under one -- answer 404:
+  ``engine.node_endpoints(resolved, node_id, request)`` is ``None`` for them.
+* A component that works on other nodes of the page names them with
+  ``depends_on(build)`` (a list of node ids); the node then gets their
+  conditions too, in ``ResolvedNode.requires``. The ``facets`` panel depends on
+  its ``target``: hiding the table hides the panel and its counts.
+
+This covers the components with data below: a hidden table, chart, stat,
+classic CRUD or facets panel is not rendered -- a stat is not even computed --
+and every route of its endpoint answers 404, on the page of one object as
+well.
+
+Data components
+---------------
+
+*(Componentes de datos.)* The components with data are built in
+(``djgentelella.designs.data_components``). They port djgentelella-editor's
+table, inline table, chart, stat and classic CRUD -- with the same validation
+-- and add a facets panel, but they **serve** the node instead of generating
+code: the serializers, filters and viewsets are made while serving from the
+node's build (``djgentelella.designs.factories``).
+
+==============================  ===============================================
+type                            what it is
+==============================  ===============================================
+``object_management``           a DataTable with create, update, detail and
+                                delete modals (``ObjectCRUD`` over an
+                                ``AuthAllPermBaseObjectManagement``)
+``inline_object_management``    the same over the children of the page's
+                                parent object (``BaseInlineObjectManagement``)
+``chart``                       Chart.js (``DJGraph``): one aggregate grouped by
+                                a field or a date period
+``stat``                        one number, optionally against the previous
+                                period
+``crud_classic``                djgentelella's ``CRUDView``: its list in the
+                                page, its pages under the node's endpoint
+``facets``                      a facets panel (``GTFacets``) filtering a table
+==============================  ===============================================
+
+.. code:: json
+
+    {"type": "object_management", "id": "products",
+     "props": {"model": "ventas.Producto", "form": "producto",
+               "list_fields": ["nombre", "precio", "estado", "categoria"],
+               "search_fields": ["nombre"],
+               "perms": {"destroy": ["ventas.delete_producto",
+                                     "ventas.supervisor"]},
+               "row_links": [{"url_name": "categoria_productos",
+                              "title": "Productos"}]}}
+
+``object_management``
+    ``model`` and ``form`` (a key of ``forms``, of the same model) are
+    required. ``list_fields`` defaults to the first six fields of the form
+    that are not long text or files; ``search_fields`` to its text columns
+    (only text fields may be searched); ``ordering`` to ``["-pk"]``. ``perms``
+    sets the permissions per action -- ``list``, ``retrieve``,
+    ``detail_template``, ``get_values_for_update``, ``create``, ``update``,
+    ``partial_update``, ``destroy`` -- over the exposure's (``view``, ``add``,
+    ``change``, ``delete``); an empty list is refused, since
+    ``AllPermissionByAction`` would deny everybody. The endpoint is
+    ``gtapis/designs/<page>/<node>/`` with the routes of
+    ``BaseObjectManagement`` (``<pk>/``, ``<pk>/get_values_for_update/``,
+    ``detail_template/``). Columns filter like the editor's generated
+    FilterSet (``icontains`` on text, ``exact`` on numbers, relations, booleans
+    and choices, a range on dates, a CSV of pks on many-to-many); ``gtfilters``
+    takes a JSON list of filters (``djgentelella.datasources``), which is
+    how the facets reach the table. The page renders only the modals the user
+    may use, and each row says which icons it gets.
+
+``row_links``
+    Per row links to a page about one object: a URL name of the project that
+    takes the pk (``args`` or ``pk``), a design page with ``meta.parent`` of
+    the table's model -- by its ``meta.url_name`` or as ``page:<path>`` -- or
+    a flow of :doc:`flows` over the table's model: ``flow:<name>`` opens its
+    ``flow_detail`` and ``flow:<name>:<transition>`` the page that runs that
+    transition (not an automatic one). A name without a dot is a flow of the
+    design's ``app`` (``flow:review`` is ``ventas.review``), the way
+    djgentelella-editor names the flows it designs. A design page must be
+    published before the page that links to it; a flow must exist for the
+    Site. Each link may carry a ``condition``: it only shows where it holds.
+
+``column_conditions`` and ``action_conditions``
+    Conditions inside a table (``object_management``,
+    ``inline_object_management``) or a classic CRUD:
+
+    .. code:: json
+
+        "column_conditions": {"price": {"perm": "ventas.change_producto"}},
+        "action_conditions": {"destroy": {"group": "Supervisores"}}
+
+    A column whose condition does not hold is not shown, and the API leaves
+    it out: not in the rows, the detail or its template, and the search, the
+    filters, ``gtfilters``, the ordering -- the one the request asks and the
+    default one (``ordering``, the model's ``Meta.ordering``; ``-pk`` when
+    nothing else is left) -- and the facets of the table cannot use it. An
+    update neither shows nor writes it: it leaves the update form and
+    ``get_values_for_update``, and ``update``/``partial_update`` keep the
+    row's value whatever the request sends. Creating a row still takes it --
+    a new row reveals nothing; condition ``create`` to refuse it. An action whose condition
+    does not hold has no button or row icon, and its routes answer 403. A
+    table's actions are ``create``, ``update`` (with ``partial_update`` and
+    ``get_values_for_update``), ``destroy`` and ``retrieve`` (with
+    ``detail_template``); a classic CRUD's are its pages ``create``,
+    ``detail``, ``update`` and ``delete``. The columns are those the component
+    shows (a table's ``list_fields``, a CRUD's list and detail fields). The
+    whole node -- ``list`` included -- goes with the node's own condition.
+    Conditions are evaluated for the request and, on a page about one object,
+    with that object when the component's API carries it (an inline table);
+    not per row. See "Conditions with the object" below.
+
+``notify``
+    Notifications when a row is created, updated or deleted through the table:
+    ``{"on": "create|update|delete", "kind": "email|notice", "to": [...],
+    "code", "subject", "message", "message_type"}``. Recipients are
+    ``actor``, ``field:<path>`` (an allowed field of the row, through foreign
+    keys) and, for emails, addresses or async_notification identifiers
+    (``ventas@group.local``). An email goes through the async_notification
+    ``EmailTemplate`` named ``code``, created from the design's texts the first
+    time; a notice is a ``djgentelella.notification`` linking to the page.
+    They are sent after the transaction commits, and a failure is logged, not
+    raised. The texts see plain data only -- ``object`` (the allowed fields of
+    the row, relations as text) and ``user`` (``username``, ``first_name``,
+    ``last_name``, ``email``, ``full_name``) -- and may use template tags only
+    when the publisher is trusted with templates.
+
+``inline_object_management``
+    Needs ``meta.parent`` (``{"model": "ventas.Categoria"}``) and
+    ``parent_field``, a foreign key of ``model`` to that model, which the form
+    must not include. The page is then served at ``designs/<path>/<parent pk>``
+    (``designs/<path>`` alone is a 404), and needs the view permissions of the
+    parent model; so does every request to the table, whose rows are only the
+    parent's and whose new rows join it.
+
+``chart``
+    ``model`` (exposed) *or* ``datasource`` (a registered data source),
+    ``group_by``, ``chart`` (``bar``, ``horizontal_bar``, ``line``, ``pie``,
+    ``doughnut``), ``aggregate`` (``count``, ``sum``, ``avg``, ``min``,
+    ``max``) of ``value_field`` (numeric), ``limit`` (10 groups). Grouping by
+    a date takes a ``period`` (``day``, ``week``, ``month`` -- the default --,
+    ``quarter``, ``year``) and leaves out the rows without a date. The build
+    keeps ``group_by`` and ``period``, never an ORM expression; the rows come
+    from ``djgentelella.datasources.query.aggregate``. ``perms`` defaults to
+    the model's view permission, or for a data source its own permissions or
+    the page's; the endpoint also asks the data source's ``has_permission``.
+
+``stat``
+    The same measure without grouping, computed while the page renders (and
+    at its endpoint). ``compare: {"field": <date>, "period": "month"}`` shows
+    the current period's value and the change in percent from the previous one.
+
+``crud_classic``
+    ``model``, optional ``form`` (by default every field the exposure allows),
+    ``list_fields``, ``search_fields``, ``views`` (``list``, ``create``,
+    ``detail``, ``update``, ``delete``), ``perms`` per view and ``mode``:
+    ``embed`` (the default) renders the ``CRUDView`` list inside the page,
+    with its search (``?q=``) and pagination (``?page=``) on the page's own
+    query string; ``link`` shows a tile opening it. Its pages are served at
+    the node's endpoint: ``''``, ``create/``, ``<pk>/``, ``<pk>/update/``,
+    ``<pk>/delete/``.
+
+``facets``
+    ``target`` (the id of a table node of the page) and ``columns`` (fields
+    of the table's model with a facet). The panel is djgentelella.datasources'
+    ``GTFacets`` over the node's endpoint (``''`` describes the columns,
+    ``facets/`` counts them): each count applies the other facets and the
+    table's search, and each change reloads the table.
+
+    The target may also be a node of another component that says it can be
+    filtered (see "Facets over other components" below): the panel then reads
+    that node's data source through the data source API.
+
+**Preview.** ``engine.resolve(document, preview=True)`` -- the editor's
+preview -- renders sample rows, sample charts and a sample stat, and every
+viewset of a preview build has an empty queryset: nothing is read.
+
+**Caching.** The classes are cached by ``(page hash, node id)`` and reused only
+while the build is equal to the one they were made from, so a page published
+again with another document, or a model exposed with other fields, gets new
+ones.
+
+**Security.** Every endpoint authenticates with the session and checks
+``AllPermissionByAction`` with the build's permissions; only exposed models
+and their allowed fields are accepted -- columns, searches, groups, facets,
+the targets of relations shown, notification paths -- and a body that is not
+a JSON object or a bad filter is a 400. The configuration reaches the browser
+as JSON (``<script type="application/json">``), never as code, and the
+renderers of ``gentelella/js/designs/data_components.js`` escape every value.
+
+Extending the engine
+--------------------
+
+Whoever resolves designs another way -- djgentelella-editor, an application
+builder -- does it through these hooks instead of the engine's private
+functions.
+
+**The context.** Every component asks the :class:`ResolveContext` what the
+design may use; a subclass that answers otherwise changes them all:
+
+``exposure(label, path=None)``
+    the ``Exposure`` of a model, or ``None`` after reporting why it
+    cannot be used. ``path=None`` only asks, reporting nothing. Forms, tables,
+    charts, facets and the notifications (their model and their ``field:``
+    paths) all go through it.
+``check_permissions(path, perms)``
+    reports the ``app.codename`` permissions that do not exist, and an empty
+    list. By default they are read from ``auth_permission``; djgentelella-editor
+    reads them from the models' ``Meta``, before ``migrate``. The engine asks
+    it for ``meta.permissions`` (when there are some) and every component for
+    its ``perms``.
+``lookups(model)``
+    the select2 lookups (basenames) a design may use for a model, the first one
+    preferred: the autocomplete widgets of its forms and the filters of a
+    table's relation columns. By default those registered in ``gtselects.py``.
+``component(type)``
+    the component of a type the design is resolved with.
+
+``rctx.components`` is the component registry the design is resolved with and
+``rctx.resolved`` the ``ResolvedPage`` being rendered (``None`` while
+resolving).
+
+**resolve with a context and components.**
+
+.. code:: python
+
+    rctx = EditorContext(document, request, preview=True)
+    resolved, errors = engine.resolve(document, context=rctx,
+                                      components=my_components)
+    rctx.unexposed  # whatever the context collected
+
+``context`` is a ``ResolveContext`` subclass (instantiated by the engine) or an
+instance, which gets the upgraded document as its ``design`` and keeps its
+errors; ``components`` is a ``{type: component instance}`` dict instead of the
+registry. The ``ResolvedPage`` remembers the context class
+(``context_class``) and, when it was given one, the instance (``context``).
+``engine.render(resolved, request, context=None)`` renders with
+``context.copy_for(request)`` -- a copy with the request, its site and user,
+and no errors, forms or resolved page; whatever a subclass's ``__init__``
+took stays -- or, after a class, with a new one of that class. A subclass
+with other per-request state resets it in ``copy_for``; ``render(...,
+context=...)`` still takes a context of its own. The positional signature,
+``resolve(document, request=None, preview=False, *, allow_templates=False,
+allow_js=False)``, is unchanged.
+
+**Facets over other components.** A component whose nodes a ``facets`` panel
+may filter sets ``facets_target = True`` and answers ``facets_source(node,
+rctx, path)`` with the name of the data source (:doc:`datasources`) its rows
+come from -- or ``None`` after ``rctx.error()``. The panel validates its
+``columns`` against that source (filterable, not JSON), renders a ``GTFacets``
+over ``gtdatasource`` with the group ``gtdesign:<target id>``, and serves no
+endpoint of its own: the data source API applies the source's permissions.
+The target's widget joins the same ``GTDataSourceState`` group to be
+filtered.
+
+.. code:: python
+
+    @register
+    class Report(RuntimeComponent):
+        type = 'report'
+        facets_target = True
+
+        def facets_source(self, node, rctx, path):
+            return node['props']['datasource']
+
+**The page's context, theme and breadcrumbs.** ``GT_DESIGNS_PAGE_CONTEXT`` is
+a callable ``(request, page) -> dict`` (or its dotted path); what it returns is
+added to the context of every design page served at ``designs/<path>``. It can
+give the page the theme of whatever mounts it, ``breadcrumbs``
+(``[{"label", "href"}]``, which ``gentelella/base.html`` renders in its
+``breadcrumbs`` block) or a ``base_template`` of its own; it cannot replace
+what the page is (``content``, ``media``, ``page``, ``parent``...: those keys
+are ignored and logged). ``gtdesigns/page.html`` extends ``base_template``,
+``GT_DESIGNS_BASE_TEMPLATE`` by default (``gentelella/base.html``), and has
+three blocks for a template extending it: ``gtdesign_before``,
+``gtdesign_content`` (``{{ content }}``) and ``gtdesign_after``.
+
+.. code:: python
+
+    # djodo: the pages of an App get its layout, theme and breadcrumbs
+    def design_page_context(request, page):
+        return {'base_template': 'djodo/base.html'}
+
+    GT_DESIGNS_PAGE_CONTEXT = 'miapp.designs.design_page_context'
+
+**Conditions with the object.** On a page about one object the page and the
+API of each node must decide the same, so a node's conditions get the object
+only where its endpoints carry it (``ResolvedPage.takes_parent(node_id)``:
+every endpoint has a ``parent_pk`` in its URL, as an inline table and the
+facets of one do; a node without endpoints, such as ``html`` or a layout
+node, takes it too). For those, the conditions of the node, its ancestors,
+columns, actions and row links are evaluated with the object
+(``evaluate_condition(cond, request, obj)``) when rendering, and once the URL
+is matched when serving (``engine.ObjectConditionResolver``). A node whose
+endpoints do not carry it -- a table of every row, a chart, a stat, a classic
+CRUD -- is evaluated without the object on the page as in its API, its
+ancestors' conditions included: a condition about the object hides it there
+(``{"auth": ...}`` that needs an object does not hold). Put such a node
+under no condition about the object, or use an inline component.
+``ResolvedPage.condition_object(node_id, obj)`` says which object a node
+gets; ``ResolvedPage.node_visible(node_id, request, obj=None)`` applies it,
+and the nodes a node depends on get their own.
+``ResolvedNode.visible(request, obj=None)`` evaluates with the ``obj`` it is
+given.
+
+Commands
+--------
+
+``gtdesigns_publish <file.json> [--site <domain>] [--path <path>] [--user <username>] [--draft]``
+    Validates the design and saves it as the page at ``(site, path)``,
+    replacing the one there. ``--path`` defaults to ``meta.url``. Nothing is
+    saved when the design has errors: the command fails listing them.
+``gtdesigns_export [<path>] [--site <domain>] [--output <file or directory>]``
+    Writes one page's document to stdout or a file, or every page of the site
+    to a directory (``a/b`` becomes ``a__b.json``). What it writes publishes
+    again unchanged, and the editor reads it.
+
+The admin lists the pages and shows the document read only, with a
+**Validate** button; adding a page there validates its document first.
+
+Security
+--------
+
+A design is data, written by whoever may publish one, so by default it cannot
+run code:
+
+- **html is cleaned, not templated.** ``html`` nodes go through nh3 with an
+  allow list (``djgentelella.designs.sanitize``): layout and text tags,
+  ``class``/``id``/``aria-*``, the ``data-*`` Bootstrap reads to toggle,
+  collapse, dismiss and slide (``data-bs-toggle``, ``data-bs-target``... and
+  their older names; ``djgentelella.designs.sanitize.DATA_ATTRIBUTES``) and no
+  other ``data-*`` -- a ``data-widget`` or ``data-url`` would configure a
+  widget of the page --, ``style`` limited to layout and text
+  properties, ``http``/``https``/``mailto``/``tel`` URLs. ``<script>``,
+  ``<style>``, ``<iframe>``, forms and every ``on*`` handler are removed.
+  ``{% ... %}`` and ``{{ ... }}`` stay as text.
+- **Template mode** is opt-in twice: ``GT_DESIGNS_ALLOW_TEMPLATES = True`` *and*
+  a page whose publisher (``updated_by``) holds ``gtdesigns.publish_template``.
+  The template gets ``request`` and ``user``, and its output is cleaned all the
+  same.
+- **assets.js** works the same way: ``GT_DESIGNS_ALLOW_JS = True`` and a
+  publisher with ``gtdesigns.publish_js``.
+- **assets.css is cleaned**, not gated, so plain styling works on every page
+  (``djgentelella.designs.css.clean_css``). Comments go first (they could
+  split a keyword) and CSS escapes of letters and digits are decoded
+  (``@\69mport``); then ``@import`` rules are removed and ``expression(``,
+  ``-moz-binding``, ``behavior:`` and the ``javascript:``, ``vbscript:`` and
+  ``livescript:`` schemes are renamed to ``blocked``, which makes their
+  declaration invalid. The steps repeat until a pass changes nothing, so
+  removing a rule cannot join the text around it into a new one
+  (``@im@import x;port``). The result cannot close its ``<style>`` either. A page
+  that may serve ``assets.js`` gets its CSS as written: its publisher can
+  already run any script on it.
+- The trust is checked on every resolution: revoking the permission or
+  deactivating the publisher turns it off. A page published from the command
+  line without ``--user`` is never trusted.
+- Only exposed models, and only their allowed fields, reach a design.
+- Publishing from the admin or the command records the publisher; whoever can
+  change ``Page`` can publish, so grant ``gtdesigns.change_page`` as you would
+  grant editing the site.
+
+Settings
+--------
+
+==============================  =========  ================================
+Setting                         Default    Meaning
+==============================  =========  ================================
+``GT_DESIGN_COMPONENTS``        ``[]``     extra components, dotted paths
+``GT_DESIGNS_ALLOW_TEMPLATES``  ``False``  html nodes may be templates
+``GT_DESIGNS_ALLOW_JS``         ``False``  ``assets.js`` may reach the page
+``GT_DESIGNS_LOGIN_REQUIRED``   ``True``   pages need a signed-in user
+``GT_DESIGNS_CACHE_SIZE``       ``128``    resolved pages kept per process
+``GT_DESIGNS_BASE_TEMPLATE``    see text   what ``gtdesigns/page.html``
+                                           extends
+``GT_DESIGNS_PAGE_CONTEXT``     ``None``   ``(request, page) -> dict`` added
+                                           to the context of each page
+==============================  =========  ================================

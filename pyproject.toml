@@ -172,6 +172,19 @@ asr = [
 asr-remote = [
     "requests>=2.32.4"
 ]
+# djgentelella.designs, the engine that serves design documents as pages,
+# cleans the markup of their html nodes with nh3. Nothing else needs it.
+designs = [
+    "nh3>=0.2.15"
+]
+# Exports of djgentelella.datasources. Without them the csv and json formats
+# still work; xlsx needs openpyxl and pdf needs xhtml2pdf.
+export = [
+    "openpyxl>=3.1"
+]
+pdf = [
+    "xhtml2pdf>=0.2.28"
+]
 
 # List URLs that are relevant to your project
 #

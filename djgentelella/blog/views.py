@@ -93,6 +93,10 @@ class EntryCreate(PermissionRequiredMixin, CreateView):
     success_url = reverse_lazy('blog:entrylist')
     form_class = EntryForm
 
+    def get_form_kwargs(self):
+        # EntryForm hides the "add category" button from who cannot add one.
+        return {**super().get_form_kwargs(), 'user': self.request.user}
+
     def form_valid(self, form):
         response = super().form_valid(form)
         publishbtn = self.request.POST.get('publishbtn', '') == 'publish'
@@ -112,6 +116,10 @@ class EntryUpdate(PermissionRequiredMixin, UpdateView):
     template_name = 'gentelella/blog/entry_form.html'
     success_url = reverse_lazy('blog:entrylist')
     form_class = EntryForm
+
+    def get_form_kwargs(self):
+        # EntryForm hides the "add category" button from who cannot add one.
+        return {**super().get_form_kwargs(), 'user': self.request.user}
 
     def form_valid(self, form):
         response = super().form_valid(form)

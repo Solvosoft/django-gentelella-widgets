@@ -1,4 +1,5 @@
 from django.utils import formats
+from rest_framework import serializers
 from rest_framework.fields import DateField, DateTimeField
 
 
@@ -45,3 +46,19 @@ class DateTimeFieldFieldWithEmptyString(DateTimeField):
         if not value:
             return None
         return super(DateTimeFieldFieldWithEmptyString, self).to_internal_value(value)
+
+
+class DataTableSerializer(serializers.Serializer):
+    """The envelope DataTables expects from a server-side source.
+
+    Subclass it and declare ``data`` with the row serializer::
+
+        class BookDataTableSerializer(DataTableSerializer):
+            data = serializers.ListField(child=BookSerializer(), required=True)
+
+    Left undeclared, ``data`` passes the rows through as they are.
+    """
+    data = serializers.ListField(required=True)
+    draw = serializers.IntegerField(required=True)
+    recordsFiltered = serializers.IntegerField(required=True)
+    recordsTotal = serializers.IntegerField(required=True)

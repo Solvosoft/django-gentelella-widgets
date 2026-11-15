@@ -21,7 +21,112 @@ from django.urls import reverse_lazy
 from django.utils import formats
 from django.utils.translation import gettext as _
 
+from djgentelella.chunked_upload.constants import COMPLETE
 from djgentelella.models import ChunkedUpload
+
+
+def js_widget_name(widget):
+    """The ``data-widget`` of ``widget`` (an instance or a class): the name
+    its javascript initializes it by.
+
+    A subclass keeps the name of its base, so a widget subclassed in a
+    project goes on working: the name is ``js_widget`` of the nearest class
+    of the MRO that sets it, or else the name of the nearest class defined
+    in djgentelella. A subclass that brings javascript of its own sets
+    ``js_widget = 'MyWidget'``.
+
+    The result is a :class:`JSWidgetName`: when the name is not the class's
+    own, :func:`update_kwargs` also renders the class name as
+    ``data-widget-class``, and the javascript initializes the widget by it if
+    something registered that name in ``document.gtwidgets`` (a project
+    subclass that ships its own javascript under its class name).
+    """
+    cls = widget if isinstance(widget, type) else type(widget)
+    name = cls.__name__
+    for klass in cls.__mro__:
+        if 'js_widget' in vars(klass):
+            name = klass.js_widget
+            break
+        if klass.__module__.partition('.')[0] == 'djgentelella':
+            name = klass.__name__
+            break
+    return JSWidgetName(name, own=cls.__name__)
+
+
+class JSWidgetName(str):
+    """A ``data-widget`` value that remembers the class it was computed for."""
+
+    def __new__(cls, name, own=None):
+        value = super().__new__(cls, name)
+        value.own = own or name
+        return value
+
+
+def upload_token(value):
+    """The ``{"token": ...}`` dict an upload widget posts, or None."""
+    try:
+        token = json.loads(value)
+    except (TypeError, ValueError):
+        return None
+    return token if isinstance(token, dict) else None
+
+
+class UserUploadMixin:
+    """For an upload widget: take only the uploads of ``user``, finished.
+
+    The generic widgets resolve a token whoever uploaded the file, because
+    who attaches or deletes a document does not have to be who uploaded it.
+    With this mixin the token of another user, or of an upload that did not
+    finish, gives no file and deletes nothing.
+
+    The widget does not see the request: ``user`` is given to the widget
+    (``UserFileChunkedUpload(user=...)``, :meth:`bind_user`) or, more often,
+    by a form with :class:`~djgentelella.forms.forms.UserScopedUploadsMixin`.
+    Without a user, no upload is taken.
+
+    With ``keep_upload=True`` (or the class attribute) the field gets the
+    ``ChunkedUpload`` itself and the upload is not deleted: for a form that
+    keeps it for a later step, such as a data load that reads the file after
+    the user maps its columns.
+    """
+
+    user = None
+    #: Give the ``ChunkedUpload`` to the form, without deleting it.
+    keep_upload = False
+
+    def __init__(self, *args, user=None, keep_upload=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = user
+        if keep_upload is not None:
+            self.keep_upload = keep_upload
+
+    def bind_user(self, user):
+        self.user = user
+
+    def upload_value(self, upload):
+        if self.keep_upload:
+            return upload
+        return super().upload_value(upload)
+
+    def get_upload(self, token):
+        user = self.user
+        if user is None or not user.is_authenticated:
+            return None
+        return ChunkedUpload.objects.filter(upload_id=token, user=user,
+                                            status=COMPLETE).first()
+
+
+def set_js_widget(attrs, name):
+    """Put ``name`` (from :func:`js_widget_name`) in ``attrs`` as
+    ``data-widget``, plus ``data-widget-class`` when the class has another
+    name. ``attrs`` is changed and returned."""
+    attrs['data-widget'] = str(name)
+    own = getattr(name, 'own', None)
+    if own and own != name:
+        attrs['data-widget-class'] = own
+    else:
+        attrs.pop('data-widget-class', None)
+    return attrs
 
 
 def update_kwargs(attrs, widget, base_class='form-control '):
@@ -34,8 +139,7 @@ def update_kwargs(attrs, widget, base_class='form-control '):
         attrs.update({'class': base_class + attrs['class']})
     else:
         attrs.update({'class': base_class})
-    attrs['data-widget'] = widget
-    return attrs
+    return set_js_widget(attrs, widget)
 
 
 class Input(DJInput):
@@ -47,7 +151,7 @@ class Input(DJInput):
 
     def __init__(self, attrs=None, extraskwargs=True):
         if extraskwargs:
-            attrs = update_kwargs(attrs, self.__class__.__name__)
+            attrs = update_kwargs(attrs, js_widget_name(self))
         super().__init__(attrs)
 
 
@@ -73,7 +177,7 @@ def GridSlider(attrs={}):
         extra_attrs = attrs.copy()
 
         def __init__(self, attrs=None, extraskwargs=True):
-            attrs = update_kwargs(attrs, self.__class__.__name__)
+            attrs = update_kwargs(attrs, js_widget_name(self))
             if self.extra_attrs:
                 attrs.update(self.extra_attrs)
             super().__init__(attrs)
@@ -88,7 +192,7 @@ def DateGridSlider(attrs={}):
         extra_attrs = attrs.copy()
 
         def __init__(self, attrs=None, extraskwargs=True):
-            attrs = update_kwargs(attrs, self.__class__.__name__)
+            attrs = update_kwargs(attrs, js_widget_name(self))
             if self.extra_attrs:
                 attrs.update(self.extra_attrs)
             super().__init__(attrs)
@@ -103,7 +207,7 @@ def SingleGridSlider(attrs={}):
         extra_attrs = attrs.copy()
 
         def __init__(self, attrs=None, extraskwargs=True):
-            attrs = update_kwargs(attrs, self.__class__.__name__)
+            attrs = update_kwargs(attrs, js_widget_name(self))
             if self.extra_attrs:
                 attrs.update(self.extra_attrs)
             super().__init__(attrs)
@@ -119,7 +223,7 @@ class NumberInput(Input):
 
     def __init__(self, attrs=None, extraskwargs=True):
         if extraskwargs:
-            attrs = update_kwargs(attrs, self.__class__.__name__)
+            attrs = update_kwargs(attrs, js_widget_name(self))
         super().__init__(attrs, extraskwargs=extraskwargs)
 
 
@@ -131,7 +235,7 @@ class FloatInput(Input):
 
     def __init__(self, attrs=None, extraskwargs=True):
         if extraskwargs:
-            attrs = update_kwargs(attrs, self.__class__.__name__)
+            attrs = update_kwargs(attrs, js_widget_name(self))
         if 'step' not in attrs:
             attrs['step'] = '0.1'
         attrs['inputmode'] = 'decimal'
@@ -144,7 +248,7 @@ class EmailInput(Input):
 
     def __init__(self, attrs=None, extraskwargs=True):
         if extraskwargs:
-            attrs = update_kwargs(attrs, self.__class__.__name__)
+            attrs = update_kwargs(attrs, js_widget_name(self))
         super().__init__(attrs, extraskwargs=extraskwargs)
 
 
@@ -154,7 +258,7 @@ class URLInput(Input):
 
     def __init__(self, attrs=None, extraskwargs=True):
         if extraskwargs:
-            attrs = update_kwargs(attrs, self.__class__.__name__)
+            attrs = update_kwargs(attrs, js_widget_name(self))
         attrs['placeholder'] = 'https://'
         super().__init__(attrs, extraskwargs=extraskwargs)
 
@@ -165,7 +269,7 @@ class PasswordInput(DJPasswordInput):
 
     def __init__(self, attrs=None, extraskwargs=True):
         if extraskwargs:
-            attrs = update_kwargs(attrs, self.__class__.__name__)
+            attrs = update_kwargs(attrs, js_widget_name(self))
         super().__init__(attrs)
 
 
@@ -181,7 +285,7 @@ class FileInput(DJFileInput):
         if extraskwargs:
             attrs = update_kwargs(
                 attrs,
-                self.__class__.__name__,
+                js_widget_name(self),
                 base_class='djgentelella-file-input form-control',
             )
         if 'data-href' not in attrs:
@@ -194,21 +298,37 @@ class FileInput(DJFileInput):
         """File input never renders a value."""
         return
 
-    def value_from_datadict(self, data, files, name):
-        dev = None
-        token = data.get(name)
-        if token:
-            load_token = json.loads(token)
-            tmpupload = ChunkedUpload.objects.filter(
-                upload_id=load_token['token']
-            ).first()
-            if tmpupload:
-                dev = tmpupload.get_uploaded_file()
-                tmpupload.delete()
+    def get_upload(self, token):
+        """The ``ChunkedUpload`` of ``token``, **whoever uploaded it**.
+
+        On purpose: who attaches the file does not have to be who uploaded
+        it. :class:`UserFileInput` takes only the user's finished uploads.
+        """
+        return ChunkedUpload.objects.filter(upload_id=token).first()
+
+    def upload_value(self, upload):
+        """The value of the field for ``upload``: its file. The upload is
+        deleted, so a token is used once."""
+        dev = upload.get_uploaded_file()
+        upload.delete()
         return dev
+
+    def value_from_datadict(self, data, files, name):
+        token = upload_token(data.get(name))
+        if token is None or not isinstance(token.get('token'), str):
+            return None
+        upload = self.get_upload(token['token'])
+        return self.upload_value(upload) if upload is not None else None
 
     def value_omitted_from_data(self, data, files, name):
         return name not in data
+
+
+class UserFileInput(UserUploadMixin, FileInput):
+    """:class:`FileInput` that takes only the uploads of its ``user``, and
+    only once they finished (see :class:`UserUploadMixin`)."""
+
+    js_widget = 'FileInput'
 
 
 class ImageRecordInput(DJFileInput):
@@ -221,7 +341,7 @@ class ImageRecordInput(DJFileInput):
 
     def __init__(self, attrs=None, extraskwargs=True):
         if extraskwargs:
-            attrs = update_kwargs(attrs, self.__class__.__name__, base_class='d-none')
+            attrs = update_kwargs(attrs, js_widget_name(self), base_class='d-none')
         super().__init__(attrs)
 
 
@@ -237,7 +357,7 @@ class VideoRecordInput(DJFileInput):
 
     def __init__(self, attrs=None, extraskwargs=True):
         if extraskwargs:
-            attrs = update_kwargs(attrs, self.__class__.__name__, base_class='d-none')
+            attrs = update_kwargs(attrs, js_widget_name(self), base_class='d-none')
         super().__init__(attrs)
 
 
@@ -247,7 +367,7 @@ class AudioRecordInput(DJFileInput):
 
     def __init__(self, attrs=None, extraskwargs=True):
         if extraskwargs:
-            attrs = update_kwargs(attrs, self.__class__.__name__, base_class='d-none')
+            attrs = update_kwargs(attrs, js_widget_name(self), base_class='d-none')
         super().__init__(attrs)
 
 
@@ -295,7 +415,7 @@ class VoiceDictation(DJTextarea):
 
     def __init__(self, attrs=None, extraskwargs=True, url=None, language=None):
         if extraskwargs:
-            attrs = update_kwargs(attrs, self.__class__.__name__)
+            attrs = update_kwargs(attrs, js_widget_name(self))
         attrs = attrs or {}
         if url is not None:
             attrs['data-url'] = url
@@ -309,7 +429,7 @@ class ClearableFileInput(DJClearableFileInput):
 
     def __init__(self, attrs=None, extraskwargs=True):
         if extraskwargs:
-            attrs = update_kwargs(attrs, self.__class__.__name__)
+            attrs = update_kwargs(attrs, js_widget_name(self))
         super().__init__(attrs)
 
 
@@ -320,7 +440,7 @@ class Textarea(DJTextarea):
         if extraskwargs:
             attrs = update_kwargs(
                 attrs,
-                self.__class__.__name__,
+                js_widget_name(self),
                 base_class='resizable_textarea form-control',
             )
         # update_kwargs is what normally turns None into a dict, so without
@@ -407,7 +527,7 @@ class DateInput(DJDateInput, DateFormatConverter):
     template_name = 'gentelella/widgets/date.html'
 
     def __init__(self, attrs=None, format=None):
-        attrs = update_kwargs(attrs, self.__class__.__name__)
+        attrs = update_kwargs(attrs, js_widget_name(self))
         format_js = self.get_format_js()
         attrs['data-format'] = format_js
         super().__init__(attrs, format=format or self.format)
@@ -429,7 +549,7 @@ class DateTimeInput(DJDateTimeInput, DateFormatConverter):
     template_name = 'gentelella/widgets/datetime.html'
 
     def __init__(self, attrs=None, format=None):
-        attrs = update_kwargs(attrs, self.__class__.__name__)
+        attrs = update_kwargs(attrs, js_widget_name(self))
         format_js = self.get_format_js()
         attrs['data-format'] = format_js
         super().__init__(attrs, format or self.format)
@@ -440,7 +560,7 @@ class TimeInput(DJTimeInput, DateFormatConverter):
     template_name = 'gentelella/widgets/time.html'
 
     def __init__(self, attrs=None, format=None):
-        attrs = update_kwargs(attrs, self.__class__.__name__)
+        attrs = update_kwargs(attrs, js_widget_name(self))
         format_js = self.get_format_js()
         attrs['data-format'] = format_js
         super().__init__(attrs, format or self.format)
@@ -451,7 +571,7 @@ class CheckboxInput(DJCheckboxInput):
     template_name = 'gentelella/widgets/checkbox.html'
 
     def __init__(self, attrs=None):
-        attrs = update_kwargs(attrs, self.__class__.__name__, base_class='gt-check ')
+        attrs = update_kwargs(attrs, js_widget_name(self), base_class='gt-check ')
         super().__init__(attrs)
         self.format = format or None
 
@@ -461,7 +581,7 @@ class YesNoInput(DJCheckboxInput):
     template_name = 'gentelella/widgets/checkyesno.html'
 
     def __init__(self, attrs=None, shparent='.form-group'):
-        attrs = update_kwargs(attrs, self.__class__.__name__, base_class='gt-switch ')
+        attrs = update_kwargs(attrs, js_widget_name(self), base_class='gt-switch ')
 
         if 'rel' in attrs:
             rel = attrs.pop('rel')
@@ -486,23 +606,74 @@ class Select(DJSelect):
         if extraskwargs:
             attrs = update_kwargs(
                 attrs,
-                self.__class__.__name__,
+                js_widget_name(self),
                 base_class='select2_single form-control ',
             )
         super().__init__(attrs, choices=choices)
 
 
-class SelectWithAdd(Select):
+class AddPermissionMixin:
+    """Shows the "add" button of a widget only to who may create the option.
+
+    The ``*WithAdd`` widgets open a modal over ``add_url`` to create a catalog
+    entry in place. ``add_perms`` (a permission or a list of them, given to the
+    constructor or as ``attrs['add_perms']``) limits that button to the users
+    holding all of them. A widget does not see the request, so the user comes
+    from the form -- :class:`~djgentelella.forms.forms.UserBoundWidgetsMixin`
+    calls :meth:`bind_user` -- and without one the button is not shown.
+
+    ``can_add`` set to ``True`` or ``False`` overrides the permissions, for a
+    form that decides it on its own.
+
+    Hiding the button is only the interface: the view behind ``add_url`` has to
+    require the same permissions.
+    """
+
+    #: ``None`` decides by ``add_perms``; ``True``/``False`` forces it.
+    can_add = None
+    add_perms = ()
+    user = None
+
+    def set_add_perms(self, attrs, add_perms=None):
+        """Take ``add_perms`` from the argument or ``attrs``, out of the html."""
+        attrs = dict(attrs or {})
+        from_attrs = attrs.pop('add_perms', None)
+        perms = add_perms if add_perms is not None else from_attrs
+        if isinstance(perms, str):
+            perms = (perms,)
+        self.add_perms = tuple(perms or ())
+        return attrs
+
+    def bind_user(self, user):
+        self.user = user
+
+    def user_can_add(self):
+        if self.can_add is not None:
+            return bool(self.can_add)
+        if not self.add_perms:
+            return True
+        user = self.user
+        return bool(user is not None and user.is_authenticated
+                    and user.has_perms(self.add_perms))
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        context['can_add'] = self.user_can_add()
+        return context
+
+
+class SelectWithAdd(AddPermissionMixin, Select):
     template_name = 'gentelella/widgets/addselect.html'
     option_template_name = 'gentelella/widgets/select_option.html'
 
-    def __init__(self, attrs=None, choices=(), extraskwargs=True):
+    def __init__(self, attrs=None, choices=(), extraskwargs=True, add_perms=None):
         if extraskwargs:
             attrs = update_kwargs(
-                attrs, self.__class__.__name__, base_class='form-control '
+                attrs, js_widget_name(self), base_class='form-control '
             )
         if 'add_url' not in attrs:
             raise ValueError('SelectWithAdd requires add_url in attrs')
+        attrs = self.set_add_perms(attrs, add_perms)
         super().__init__(attrs, choices=choices, extraskwargs=False)
 
 
@@ -513,24 +684,25 @@ class SelectMultiple(DJSelectMultiple):
         if extraskwargs:
             attrs = update_kwargs(
                 attrs,
-                self.__class__.__name__,
+                js_widget_name(self),
                 base_class='select2_multiple form-control ',
             )
         super(SelectMultiple, self).__init__(attrs, choices=choices)
 
 
-class SelectMultipleAdd(SelectMultiple):
+class SelectMultipleAdd(AddPermissionMixin, SelectMultiple):
     allow_multiple_selected = True
     template_name = 'gentelella/widgets/addselect.html'
     option_template_name = 'gentelella/widgets/select_option.html'
 
-    def __init__(self, attrs=None, choices=(), extraskwargs=True):
+    def __init__(self, attrs=None, choices=(), extraskwargs=True, add_perms=None):
         if extraskwargs:
             attrs = update_kwargs(
                 attrs,
-                self.__class__.__name__,
+                js_widget_name(self),
                 base_class='select2_multiple form-control ',
             )
+        attrs = self.set_add_perms(attrs, add_perms)
         super(SelectMultipleAdd, self).__init__(
             attrs, choices=choices, extraskwargs=False
         )
@@ -543,7 +715,7 @@ class RadioHorizontalSelect(Select):
 
     def __init__(self, attrs=None, choices=(), extraskwargs=True):
         if extraskwargs:
-            attrs = update_kwargs(attrs, self.__class__.__name__, 'gtradio')
+            attrs = update_kwargs(attrs, js_widget_name(self), 'gtradio')
         super().__init__(attrs, choices=choices, extraskwargs=False)
 
 
@@ -554,7 +726,7 @@ class RadioVerticalSelect(Select):
 
     def __init__(self, attrs=None, choices=(), extraskwargs=True):
         if extraskwargs:
-            attrs = update_kwargs(attrs, self.__class__.__name__, 'gtradio')
+            attrs = update_kwargs(attrs, js_widget_name(self), 'gtradio')
         super().__init__(attrs, choices=choices, extraskwargs=False)
 
     def get_context(self, name, value, attrs):
@@ -576,7 +748,7 @@ class NullBooleanSelect(RadioSelect):
             ('false', _('No')),
         ),
     ):
-        attrs = update_kwargs(attrs, self.__class__.__name__)
+        attrs = update_kwargs(attrs, js_widget_name(self))
         super().__init__(attrs, choices=choices, extraskwargs=False)
 
     def format_value(self, value):
@@ -614,7 +786,7 @@ class CheckboxSelectMultiple(DJCheckboxSelectMultiple):
     option_template_name = 'gentelella/widgets/checkbox_option.html'
 
     def __init__(self, attrs=None, check_test=None):
-        attrs = update_kwargs(attrs, self.__class__.__name__, base_class='gt-check ')
+        attrs = update_kwargs(attrs, js_widget_name(self), base_class='gt-check ')
         super().__init__(attrs)
 
 
@@ -622,7 +794,7 @@ class SplitDateTimeWidget(DJSplitDateTimeWidget):
     template_name = 'gentelella/widgets/splitdatetime.html'
 
     def __init__(self, attrs=None):
-        attrs = update_kwargs(attrs, self.__class__.__name__)
+        attrs = update_kwargs(attrs, js_widget_name(self))
         super().__init__(attrs)
 
 
@@ -630,7 +802,7 @@ class SplitHiddenDateTimeWidget(DJSplitHiddenDateTimeWidget):
     template_name = 'gentelella/widgets/splithiddendatetime.html'
 
     def __init__(self, attrs=None):
-        attrs = update_kwargs(attrs, self.__class__.__name__)
+        attrs = update_kwargs(attrs, js_widget_name(self))
         super().__init__(attrs)
 
 
@@ -638,7 +810,7 @@ class SelectDateWidget(DJSelectDateWidget):
     template_name = 'gentelella/widgets/select_date.html'
 
     def __init__(self, attrs=None):
-        attrs = update_kwargs(attrs, self.__class__.__name__)
+        attrs = update_kwargs(attrs, js_widget_name(self))
         super().__init__(attrs)
 
 
@@ -647,7 +819,7 @@ class DateMaskInput(DJDateInput):
     template_name = 'gentelella/widgets/date_input_mask.html'
 
     def __init__(self, attrs=None):
-        attrs = update_kwargs(attrs, self.__class__.__name__)
+        attrs = update_kwargs(attrs, js_widget_name(self))
         super().__init__(attrs)
 
 
@@ -656,7 +828,7 @@ class DateTimeMaskInput(DJDateTimeInput):
     template_name = 'gentelella/widgets/datetime_input_mask.html'
 
     def __init__(self, attrs=None):
-        attrs = update_kwargs(attrs, self.__class__.__name__)
+        attrs = update_kwargs(attrs, js_widget_name(self))
         super().__init__(attrs)
 
 
@@ -664,7 +836,7 @@ class EmailMaskInput(TextInput):
     template_name = 'gentelella/widgets/email_input_mask.html'
 
     def __init__(self, attrs=None):
-        attrs = update_kwargs(attrs, self.__class__.__name__)
+        attrs = update_kwargs(attrs, js_widget_name(self))
 
         super().__init__(attrs)
 
@@ -674,7 +846,7 @@ class DateRangeTimeInput(DJDateTimeInput):
     template_name = 'gentelella/widgets/daterangetime.html'
 
     def __init__(self, attrs=None, format=None):
-        attrs = update_kwargs(attrs, self.__class__.__name__)
+        attrs = update_kwargs(attrs, js_widget_name(self))
         super().__init__(attrs, format=format)
 
 
@@ -683,7 +855,7 @@ class DateRangeInput(DJDateInput):
     template_name = 'gentelella/widgets/daterange.html'
 
     def __init__(self, attrs=None, format=None):
-        attrs = update_kwargs(attrs, self.__class__.__name__)
+        attrs = update_kwargs(attrs, js_widget_name(self))
         attrs['autocomplete'] = 'off'
         attrs['data-format'] = 'DD/MM/YYYY'
         super().__init__(attrs, format=format)
@@ -694,7 +866,7 @@ class DateRangeInputCustom(DJDateInput):
     template_name = 'gentelella/widgets/daterange.html'
 
     def __init__(self, attrs=None, format=None):
-        attrs = update_kwargs(attrs, self.__class__.__name__)
+        attrs = update_kwargs(attrs, js_widget_name(self))
         attrs['autocomplete'] = 'off'
         super().__init__(attrs, format=format)
 
@@ -704,7 +876,7 @@ class SerialNumberMaskInput(TextInput):
     template_name = 'gentelella/widgets/input_mask.html'
 
     def __init__(self, attrs=None, format=None):
-        attrs = update_kwargs(attrs, self.__class__.__name__)
+        attrs = update_kwargs(attrs, js_widget_name(self))
         super().__init__(attrs)
 
 
@@ -713,7 +885,7 @@ class TaxIDMaskInput(TextInput):
     template_name = 'gentelella/widgets/input_mask.html'
 
     def __init__(self, attrs=None, format=None):
-        attrs = update_kwargs(attrs, self.__class__.__name__)
+        attrs = update_kwargs(attrs, js_widget_name(self))
         super().__init__(attrs)
 
 
@@ -722,7 +894,7 @@ class CreditCardMaskInput(TextInput):
     template_name = 'gentelella/widgets/input_mask.html'
 
     def __init__(self, attrs=None, format=None):
-        attrs = update_kwargs(attrs, self.__class__.__name__)
+        attrs = update_kwargs(attrs, js_widget_name(self))
         super().__init__(attrs)
 
 
@@ -731,7 +903,7 @@ class PhoneNumberTwoDigitMaskInput(TextInput):
     template_name = 'gentelella/widgets/phone_number_input_mask.html'
 
     def __init__(self, attrs=None):
-        attrs = update_kwargs(attrs, self.__class__.__name__)
+        attrs = update_kwargs(attrs, js_widget_name(self))
 
         super().__init__(attrs)
 
@@ -741,7 +913,7 @@ class PhoneNumberMaskInput(TextInput):
     template_name = 'gentelella/widgets/phone_number_input_mask.html'
 
     def __init__(self, attrs=None):
-        attrs = update_kwargs(attrs, self.__class__.__name__)
+        attrs = update_kwargs(attrs, js_widget_name(self))
 
         super().__init__(attrs)
 
@@ -751,6 +923,6 @@ class PhoneNumberMaskInput(TextInput):
     template_name = 'gentelella/widgets/phone_number_input_mask.html'
 
     def __init__(self, attrs=None):
-        attrs = update_kwargs(attrs, self.__class__.__name__)
+        attrs = update_kwargs(attrs, js_widget_name(self))
 
         super().__init__(attrs)

@@ -3,7 +3,7 @@ from django.forms import Textarea
 from django.urls import reverse_lazy
 from django.utils.translation import get_language
 
-from djgentelella.widgets.core import update_kwargs
+from djgentelella.widgets.core import js_widget_name, update_kwargs
 
 
 class EditorTinymce(Textarea):
@@ -14,7 +14,7 @@ class EditorTinymce(Textarea):
         attrs.setdefault('data-option-spellcheck', 'true')
         attrs.setdefault('data-option-lang', get_language() or settings.LANGUAGE_CODE)
         if extraskwargs:
-            attrs = update_kwargs(attrs, self.__class__.__name__,
+            attrs = update_kwargs(attrs, js_widget_name(self),
                                   base_class='wysiwyg form-control')
         # update_kwargs is what normally turns None into a dict, so without
         # this `EditorTinymce(extraskwargs=False)` died on the next line.

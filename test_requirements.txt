@@ -15,3 +15,12 @@ ruff
 # the model anyway.
 av>=12.0.0
 numpy>=1.24
+
+# The [designs] extra: djgentelella.designs cleans html nodes with it, and its
+# tests check that cleaning.
+nh3>=0.2.15
+
+# The xlsx and pdf exports of djgentelella.datasources (the [export] and [pdf]
+# extras). Without them their tests skip themselves.
+openpyxl>=3.1
+xhtml2pdf>=0.2.28

@@ -1,0 +1,57 @@
+{% extends 'gentelella/base.html' %}
+{% load i18n %}
+{% block content %}
+<h3>{% trans 'Dynamic actions in ObjectCRUD modals' %}</h3>
+<div class="row">
+	<table class="table table-striped w-100" id="dynamic_contact_table"></table>
+</div>
+
+{% url "api-dynamiccontact-list" as create_url %}
+{% trans 'Create contact' as create_title %}
+{% include 'gentelella/blocks/modal_template.html' with form=create_form id="create_contact_modal" title=create_title form_id="create_contact_form" url=create_url modal_class="modal-lg" %}
+
+{% url "api-dynamiccontact-detail" 0 as update_url %}
+{% trans 'Update contact' as update_title %}
+{% include 'gentelella/blocks/modal_template.html' with form=update_form id="update_contact_modal" title=update_title form_id="update_contact_form" url=update_url modal_class="modal-lg" %}
+
+{% url "api-dynamiccontact-detail" as delete_url %}
+{% trans 'Delete contact' as delete_title %}
+{% include 'gentelella/blocks/modal_template_delete.html' with id="delete_contact_modal" title=delete_title form_id="delete_contact_form" url=delete_url %}
+{% endblock %}
+
+{% block js %}
+{{ block.super }}
+<script>
+	let dynamicContactCrud = ObjectCRUD("dynamiccontact", {
+		urls: {
+			list_url: "{% url 'api-dynamiccontact-list' %}",
+			destroy_url: "{% url 'api-dynamiccontact-detail' 0 %}",
+			get_values_for_update_url: "{% url 'api-dynamiccontact-get-values-for-update' 0 %}",
+			create_url: "{{ create_url }}",
+			update_url: "{{ update_url }}"
+		},
+		datatable_element: "#dynamic_contact_table",
+		modal_ids: {
+			create: "#create_contact_modal",
+			update: "#update_contact_modal",
+			destroy: "#delete_contact_modal"
+		},
+		actions: {table_actions: [], object_actions: [], title: gettext('Actions'),
+		          className: "no-export-col"},
+		datatable_inits: {
+			columns: [
+				{data: "id", name: "id", title: gettext("Id"), type: "string", visible: false},
+				{data: "name", name: "name", title: gettext("Name"), type: "string", visible: true},
+				{data: "kind", name: "kind", title: gettext("Kind"), type: "string", visible: true},
+				{data: "country", name: "country", title: gettext("Country"), type: "string", visible: true},
+				{data: "total", name: "total", title: gettext("Total"), type: "string", visible: true},
+				{data: "actions", name: "actions", title: gettext("Actions"), type: "string", visible: true}
+			],
+			addfilter: false
+		},
+		add_filter: false,
+		delete_display: data => data['name']
+	});
+	dynamicContactCrud.init();
+</script>
+{% endblock %}

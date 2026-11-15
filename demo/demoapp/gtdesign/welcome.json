@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "app": "demoapp",
+  "slug": "welcome",
+  "kind": "page",
+  "meta": {
+    "title": "Designs",
+    "url": "welcome/",
+    "url_name": "designs_welcome"
+  },
+  "assets": {
+    "css": ".gtdesign-page .lead { margin-top: 1em; }"
+  },
+  "root": {
+    "type": "page",
+    "id": "page",
+    "children": [
+      {
+        "type": "row",
+        "id": "intro",
+        "children": [
+          {
+            "type": "col",
+            "id": "text",
+            "props": {"width": 8},
+            "children": [
+              {
+                "type": "html",
+                "id": "about",
+                "props": {
+                  "html": "<div class=\"x_panel\"><div class=\"x_title\"><h2>A page from a design document</h2><div class=\"clearfix\"></div></div><div class=\"x_content\"><p class=\"lead\">This page is a JSON document published with <code>gtdesigns_publish</code> and rendered by <code>djgentelella.designs</code>, with no code generated.</p></div></div>"
+                }
+              }
+            ]
+          },
+          {
+            "type": "col",
+            "id": "side",
+            "props": {"width": 4},
+            "children": [
+              {
+                "type": "html",
+                "id": "safety",
+                "props": {
+                  "html": "<div class=\"alert alert-info\" role=\"note\"><i class=\"fa fa-shield\"></i> Its HTML is cleaned: no scripts, no event handlers, no template tags.</div>"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,150 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Solvosoft/django-gentelella-widgets/djgentelella/flows/schema_v2.json",
+  "title": "djgentelella.flows definition, version 2",
+  "description": "A flow loaded at runtime into a FlowDefinition: the same Flow a class in gtflows.py declares. Conditions, forms and functions are named, never written: a condition is the name of a function registered with register_condition (or a dotted path), {\"function\": name}, or a djgentelella.authorization condition.",
+  "type": "object",
+  "required": ["schema_version", "name", "model", "initial", "states"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"const": 2},
+    "name": {"type": "string", "minLength": 1},
+    "version": {"type": "integer", "minimum": 1},
+    "title": {"type": "string"},
+    "model": {"type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_]*\\.[A-Za-z_][A-Za-z0-9_]*$"},
+    "initial": {"$ref": "#/$defs/identifier"},
+    "final_states": {"type": "array", "items": {"$ref": "#/$defs/identifier"}},
+    "variables": {"type": "object"},
+    "max_auto_steps": {"type": "integer", "minimum": 1},
+    "reassign_perms": {"type": "array", "items": {"type": "string"}},
+    "control_perms": {"type": "array", "items": {"type": "string"}},
+    "states": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/activity"}},
+    "transitions": {"type": "array", "items": {"$ref": "#/$defs/transition"}},
+    "on_enter": {"type": "object", "additionalProperties": {"$ref": "#/$defs/actions"}},
+    "on_exit": {"type": "object", "additionalProperties": {"$ref": "#/$defs/actions"}},
+    "deadlines": {"type": "object", "additionalProperties": {"$ref": "#/$defs/deadline"}}
+  },
+  "$defs": {
+    "identifier": {"type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"},
+    "duration": {
+      "description": "Seconds, or ISO 8601 (\"P2D\", \"PT4H\").",
+      "type": ["integer", "string"]
+    },
+    "condition": {"type": ["string", "object"]},
+    "recipients": {"type": ["string", "array"], "items": {"type": "string"}},
+    "action": {
+      "type": "object",
+      "required": ["action"],
+      "additionalProperties": false,
+      "properties": {
+        "action": {"type": "string", "minLength": 1},
+        "props": {"type": "object"}
+      }
+    },
+    "actions": {"type": "array", "items": {"$ref": "#/$defs/action"}},
+    "deadline": {
+      "type": "object",
+      "required": ["after"],
+      "additionalProperties": false,
+      "properties": {
+        "after": {"$ref": "#/$defs/duration"},
+        "transition": {"$ref": "#/$defs/identifier"},
+        "actions": {"$ref": "#/$defs/actions"}
+      }
+    },
+    "activity": {
+      "description": "Which properties apply depends on the type; the loader checks them.",
+      "type": "object",
+      "required": ["id"],
+      "allOf": [
+        {"if": {"properties": {"type": {"const": "wait"}}, "required": ["type"]},
+         "then": {"required": ["next"]}}
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"$ref": "#/$defs/identifier"},
+        "type": {"enum": ["state", "switch", "action", "wait", "parallel", "join",
+                          "subflow", "human_task"]},
+        "label": {"type": "string"},
+        "help_text": {"type": "string"},
+        "on_enter": {"$ref": "#/$defs/actions"},
+        "on_exit": {"$ref": "#/$defs/actions"},
+        "deadline": {"$ref": "#/$defs/deadline"},
+        "cases": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["condition", "target"],
+            "additionalProperties": false,
+            "properties": {
+              "condition": {"$ref": "#/$defs/condition"},
+              "target": {"$ref": "#/$defs/identifier"}
+            }
+          }
+        },
+        "default": {"$ref": "#/$defs/identifier"},
+        "actions": {"$ref": "#/$defs/actions"},
+        "next": {"$ref": "#/$defs/identifier"},
+        "after": {"$ref": "#/$defs/duration"},
+        "until": {"type": "string", "description": "A variable holding an ISO date and time."},
+        "signal": {"type": "string", "minLength": 1},
+        "branches": {"type": "array", "minItems": 2, "items": {"$ref": "#/$defs/identifier"}},
+        "wait_for": {"type": ["string", "integer"]},
+        "flow": {"type": "string", "minLength": 1},
+        "obj": {"type": "string"},
+        "variables": {"type": "object"},
+        "outcomes": {"type": "object", "additionalProperties": {"$ref": "#/$defs/identifier"}},
+        "title": {"type": "string"},
+        "description": {"type": "string"},
+        "owners": {"$ref": "#/$defs/recipients"},
+        "groups": {"type": "array", "items": {"type": "string"}},
+        "priority": {"type": "integer", "minimum": 1, "maximum": 5},
+        "due": {"$ref": "#/$defs/duration"},
+        "on_expire": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "outcome": {"type": "string"},
+            "notify": {"type": "string"},
+            "escalate": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "owners": {"$ref": "#/$defs/recipients"},
+                "groups": {"type": "array", "items": {"type": "string"}},
+                "priority": {"type": "integer", "minimum": 1, "maximum": 5},
+                "due": {"$ref": "#/$defs/duration"}
+              }
+            }
+          }
+        },
+        "each": {"type": "boolean"},
+        "min": {"type": ["string", "integer"]},
+        "form": {"type": "string", "minLength": 1, "description": "Name of a form registered with register_task_form, shown to complete the task."}
+      }
+    },
+    "transition": {
+      "type": "object",
+      "required": ["name", "source", "target"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {"$ref": "#/$defs/identifier"},
+        "label": {"type": "string"},
+        "source": {"type": ["string", "array"], "items": {"type": "string"}},
+        "target": {"$ref": "#/$defs/identifier"},
+        "perms": {"type": "array", "items": {"type": "string"}},
+        "condition": {"$ref": "#/$defs/condition"},
+        "form": {"type": "string", "description": "Dotted path to a form class."},
+        "actions": {"$ref": "#/$defs/actions"},
+        "icon": {"type": "string"},
+        "css_class": {"type": "string"},
+        "help_text": {"type": "string"},
+        "keep_assignment": {"type": "boolean"},
+        "log_exclude": {"type": "array", "items": {"type": "string"}},
+        "auto": {"type": "boolean"},
+        "bulk": {"type": "boolean"},
+        "variables": {"type": ["boolean", "array"], "items": {"type": "string"}}
+      }
+    }
+  }
+}

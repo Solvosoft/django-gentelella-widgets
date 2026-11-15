@@ -2,7 +2,7 @@ import json
 
 from django.core.exceptions import ImproperlyConfigured
 
-from .core import TextInput, update_kwargs
+from .core import TextInput, js_widget_name, update_kwargs
 
 
 class MapBasedStoryMapInput(TextInput):
@@ -11,7 +11,7 @@ class MapBasedStoryMapInput(TextInput):
     def __init__(self, attrs=None):
         if attrs is None or 'data-url' not in attrs:
             raise ImproperlyConfigured('You must add data-url on attrs')
-        attrs = update_kwargs(attrs, self.__class__.__name__,
+        attrs = update_kwargs(attrs, js_widget_name(self),
                               base_class='form-control')
         super(MapBasedStoryMapInput, self).__init__(attrs=attrs, extraskwargs=False)
 
@@ -41,7 +41,7 @@ class GigaPixelStoryMapInput(TextInput):
         if attrs is None or 'data-url' not in attrs:
             raise ImproperlyConfigured('You must add data-url on attrs')
         self.storymap_options = attrs.pop('storymap_options', None)
-        attrs = update_kwargs(attrs, self.__class__.__name__,
+        attrs = update_kwargs(attrs, js_widget_name(self),
                               base_class='form-control')
         super(GigaPixelStoryMapInput, self).__init__(attrs=attrs, extraskwargs=False)
 

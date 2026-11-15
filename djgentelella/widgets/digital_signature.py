@@ -9,7 +9,7 @@ from django.templatetags.static import static
 from django.urls import reverse
 
 from djgentelella.firmador_digital.signvalue_utils import ValueDSParser
-from djgentelella.widgets.core import update_kwargs
+from djgentelella.widgets.core import js_widget_name, update_kwargs
 
 logger = logging.getLogger('djgentelella')
 
@@ -56,7 +56,7 @@ class DigitalSignatureInput(HiddenInput, ValueDSParser):
         if extraskwargs:
             attrs = update_kwargs(
                 attrs,
-                self.__class__.__name__,
+                js_widget_name(self),
             )
         super().__init__(attrs)
 

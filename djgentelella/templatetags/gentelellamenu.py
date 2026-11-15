@@ -2,8 +2,64 @@ from django import template
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
+from djgentelella.authorization import evaluate_condition
 from djgentelella.models import MenuItem
+from djgentelella.sites import get_current_site, site_q
 from djgentelella.templatetags._utils import get_title, get_link, get_menu_widget
+
+
+# url_names that do not name a page: items that only open a dropdown, or
+# point nowhere yet, share them. They are no identity on their own.
+PLACEHOLDER_URL_NAMES = frozenset(('', '/', '#'))
+
+
+def override_identity(item):
+    """What a Site item must share with a global one to replace it.
+
+    ``(url_name, category)``; when ``url_name`` is a placeholder (``''``,
+    ``'/'``, ``'#'``) the ``title`` too, or one Site item with ``url_name='/'``
+    would hide every global placeholder item of its level.
+    """
+    url_name = (item.url_name or '').strip()
+    if url_name in PLACEHOLDER_URL_NAMES:
+        return (url_name, item.category, item.title)
+    return (url_name, item.category)
+
+
+def scope_menu_items(queryset, site):
+    """The items of ``queryset`` visible on ``site``, in their order.
+
+    Global items (``site=NULL``) and the Site's own ones. ``queryset`` is one
+    level of the tree -- the roots of a category or the children of an item --
+    and on that level an item of the Site replaces the global one with the same
+    :func:`override_identity`, children included.
+    """
+    items = list(queryset.filter(site_q(site)))
+    if site is None:
+        return items
+    overridden = {override_identity(i) for i in items if i.site_id is not None}
+    return [i for i in items
+            if i.site_id is not None or override_identity(i) not in overridden]
+
+
+def get_children(item, env):
+    return scope_menu_items(item.children.all(), env.get('site'))
+
+
+def get_roots(category, environment):
+    return scope_menu_items(
+        MenuItem.objects.filter(parent_id=None, category=category).order_by(
+            'position'),
+        environment['site'])
+
+
+def menu_environment(context, args, kwargs):
+    return {
+        'context': context,
+        'args': args,
+        'kwargs': kwargs,
+        'site': get_current_site(context.get('request')),
+    }
 
 
 def update_widget_list(context, widget_list):
@@ -15,13 +71,20 @@ def update_widget_list(context, widget_list):
 
 
 def validate_menu_item(item, context):
-    user = context['context']['request'].user
-    if not item.permission.exists():
-        return item
-    perms = ['%s.%s' % (i.content_type.app_label, i.codename) for i in
-             item.permission.all()]
-    if user.has_perms(perms):
-        return item
+    """``item`` if the user may see it, else ``None``: it needs all of its
+    permissions *and* its condition (:mod:`djgentelella.authorization`),
+    when it has them."""
+    request = context['context']['request']
+    user = request.user
+    if item.permission.exists():
+        perms = ['%s.%s' % (i.content_type.app_label, i.codename) for i in
+                 item.permission.all()]
+        if not user.has_perms(perms):
+            return None
+    if item.condition is not None and not evaluate_condition(item.condition,
+                                                             request):
+        return None
+    return item
 
 
 def render_item(item, env={}, widget_list=[], level=0, ariabylabel=''):
@@ -29,7 +92,8 @@ def render_item(item, env={}, widget_list=[], level=0, ariabylabel=''):
     if not item:
         return ''
 
-    children = item.children.exists()
+    child_items = get_children(item, env)
+    children = bool(child_items)
     dropdown = 'nav-item dropdown'
     a_class = ''
     icon = ''
@@ -67,12 +131,11 @@ def render_item(item, env={}, widget_list=[], level=0, ariabylabel=''):
             'tm_' + str(item.id), get_link(item, env), get_title(item), icon,
             get_title(item))
     ariabylabel = 'tm_' + str(item.id)
-    children = item.children.exists()
 
     if children:
         dev += '<ul class="dropdown-menu" id="m_%d" aria-labelledby="%s" role="menu">' \
                % (item.pk, ariabylabel)
-    for node in item.children.all():
+    for node in child_items:
         dev += render_item(node, env=env, level=level + 1, widget_list=widget_list)
     if children:
         dev += '</ul>'
@@ -86,14 +149,9 @@ register = template.Library()
 
 @register.simple_tag(takes_context=True)
 def top_menu(context, *args, **kwargs):
-    menues = MenuItem.objects.filter(parent_id=None, category='main').order_by(
-        'position')
+    environment = menu_environment(context, args, kwargs)
+    menues = get_roots('main', environment)
     dev = ''
-    environment = {
-        'context': context,
-        'args': args,
-        'kwargs': kwargs
-    }
     widget_list = []
     for item in menues:
         dev += render_item(item, env=environment, widget_list=widget_list)
@@ -106,27 +164,29 @@ def render_sidebar_item(item, father_pos=0, level=0, env={}, widget_list=[]):
     if not item:
         return ''
 
-    children, icon = item.children.exists(), ''
+    child_items = get_children(item, env)
+    children, icon = bool(child_items), ''
     if item.icon:
-        icon = '<i class="%s"></i>' % item.icon
-    # level 1
+        icon = format_html('<i class="{}"></i>', item.icon)
+    # level 1. The title, link and icon come from the database: escaped.
     if not level:
-        dev = '<div id="%s" class ="menu_section" ><h3>%s %s</h3>' % (
-            'sb' + str(item.id), icon, get_title(item))
+        dev = format_html('<div id="{}" class ="menu_section" ><h3>{} {}</h3>',
+                          'sb' + str(item.id), icon, get_title(item))
     else:
         dev = '<li %s>' % ('class="sub_menu"' if level == 2 else '')
         # An entry with children is a disclosure control, so it has to say so:
         # custom.js flips aria-expanded alongside the `active` class.
-        dev += """<a id="%s" href="%s" %s>%s %s %s</a> """ % (
+        dev += format_html(
+            """<a id="{}" href="{}" {}>{} {} {}</a> """,
             'sb' + str(item.id), get_link(item, env),
-            'aria-expanded="false"' if children else '',
+            mark_safe('aria-expanded="false"') if children else '',
             icon, get_title(item),
-            '<span class="fa fa-chevron-down"></span>' if children else '')
+            mark_safe('<span class="fa fa-chevron-down"></span>') if children else '')
 
     if children:
         dev += '<ul class="%s">' % (
             'nav side-menu' if not level and not father_pos else 'nav child_menu')
-        for i, node in enumerate(item.children.all()):
+        for i, node in enumerate(child_items):
             dev += render_sidebar_item(node, i, env=env, level=level + 1,
                                        widget_list=widget_list)
         dev += '</ul>'
@@ -139,15 +199,9 @@ def render_sidebar_item(item, father_pos=0, level=0, env={}, widget_list=[]):
 
 @register.simple_tag(takes_context=True)
 def sidebar_menu(context, *args, **kwargs):
-    menues = MenuItem.objects.filter(
-        parent_id=None,
-        category='sidebar').order_by('position')
+    environment = menu_environment(context, args, kwargs)
+    menues = get_roots('sidebar', environment)
     dev = ''
-    environment = {
-        'context': context,
-        'args': args,
-        'kwargs': kwargs
-    }
     widget_list = []
     for item in menues:
         dev += render_sidebar_item(item,
@@ -189,24 +243,18 @@ def render_footer_sidebar_item(item, env={}, widget_list=[]):
             'icon': item.icon
         })
 
-    return """
-    <a id="%(id)s" title="%(title)s" href="%(link)s">
-      <span class="%(icon)s" aria-hidden="true"></span>
+    return format_html("""
+    <a id="{id}" title="{title}" href="{link}">
+      <span class="{icon}" aria-hidden="true"></span>
     </a>
-    """ % context
+    """, **context)
 
 
 @register.simple_tag(takes_context=True)
 def footer_sidebar_menu(context, *args, **kwargs):
-    menues = MenuItem.objects.filter(
-        parent_id=None,
-        category='sidebarfooter').order_by('position')
+    environment = menu_environment(context, args, kwargs)
+    menues = get_roots('sidebarfooter', environment)
     dev = ''
-    environment = {
-        'context': context,
-        'args': args,
-        'kwargs': kwargs
-    }
     widget_list = []
     for item in menues:
         dev += render_footer_sidebar_item(item, env=environment,

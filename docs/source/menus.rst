@@ -56,6 +56,14 @@ Fields
    * - ``permission``
      - ManyToManyField
      - Permissions required to view this menu item
+   * - ``site``
+     - ForeignKey
+     - The ``Site`` the item belongs to; empty (the default) shows it on every
+       site. See :doc:`sites`
+   * - ``condition``
+     - JSONField
+     - A condition of :doc:`authorization` that must hold, besides the
+       permissions, for the item to be shown; empty (the default) means none
 
 
 Menu Categories
@@ -355,7 +363,8 @@ The demo application includes commands for creating sample menus:
     Creates a full demo menu structure with all widget examples, blog, dashboard, and various form widgets.
 
 ``python manage.py demomenu``
-    Creates a simple menu structure for basic testing.
+    Creates a simple menu structure for basic testing. With ``--with-site`` it
+    also creates a second Site with menu items of its own (see :doc:`sites`).
 
 These commands can serve as reference for creating your own menu structures programmatically.
 

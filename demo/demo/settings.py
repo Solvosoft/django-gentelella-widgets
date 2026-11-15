@@ -41,7 +41,18 @@ INSTALLED_APPS = [
     'corsheaders',
     'channels',
     'djgentelella.async_notification',
+    'django.contrib.sites',
+    'djgentelella.designs',
+    'djgentelella.datasources',
+    'djgentelella.flows',
 ]
+# django.contrib.sites: djgentelella's menus and settings may belong to a Site
+# (docs/source/sites.rst), and so may design pages and flow definitions.
+# djgentelella does not read SITE_ID: its current Site comes from request.site
+# or the host (djgentelella.sites.get_current_site), and a host with no Site is
+# global. SITE_ID is only for Django's own views (LoginView), which otherwise
+# look the Site up by host and fail with Site.DoesNotExist on unknown hosts.
+SITE_ID = 1
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -247,6 +258,9 @@ DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'no-reply@example.com')
 # Unset by default: async_notification then dispatches in-process
 # (SyncBackend). Set it (with the [celery] extra and a worker running) to
 # switch to queued dispatch -- see QUICKSTART.md's Celery section.
+# djgentelella.alerts: where the rules live.
+GT_ALERTS_RULE_MODEL = 'demoapp.AlertRule'
+
 CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL') or None
 
 # Base HTML layouts an EmailTemplate can wrap its content in.

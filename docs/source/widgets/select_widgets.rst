@@ -101,6 +101,41 @@ A multi-select with "Add New" functionality.
                 }),
             }
 
+Who may add
+"""""""""""""
+
+``add_perms`` (a permission or a list) shows the add button only to the users
+holding all of them. It works on ``SelectWithAdd``, ``SelectMultipleAdd``,
+``TreeSelectWithAdd``, ``TreeSelectMultipleWithAdd`` and
+``FilteredSelectMultiple(add_url=...)``, as an argument or in ``attrs``. The
+widget does not see the request: ``UserBoundWidgetsMixin`` gives it the user,
+and without a user the button is not shown.
+
+.. code:: python
+
+    from djgentelella.forms.forms import GTForm, UserBoundWidgetsMixin
+
+    class ArticleForm(UserBoundWidgetsMixin, GTForm, forms.ModelForm):
+        class Meta:
+            model = Article
+            fields = ['title', 'tags']
+            widgets = {
+                'tags': genwidgets.SelectMultipleAdd(
+                    attrs={'add_url': reverse_lazy('tag_add')},
+                    add_perms='myapp.add_tag'),
+            }
+
+    # in the view (get_form_kwargs of a CreateView/UpdateView)
+    form = ArticleForm(request.POST or None, user=request.user)
+
+Without the permission the field is the plain select, with no button and no
+modal. ``widget.can_add = True`` or ``False`` decides it by hand, for a form
+that knows better.
+
+.. warning:: Hiding the button is only the interface. The view behind
+   ``add_url`` has to require the same permission, e.g.
+   ``@permission_required('myapp.add_tag')``.
+
 ---------------------
 RadioHorizontalSelect
 ---------------------

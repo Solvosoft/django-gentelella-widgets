@@ -1,0 +1,24 @@
+{% extends 'gentelella/base.html' %}
+{% load i18n %}
+{% block content %}
+<div class="row">
+	<div class="col-md-10 offset-md-1">
+		<h3>{% trans 'Dynamic actions and cascading LOVs' %}</h3>
+		<p class="text-muted">
+			{% blocktrans %}Country, province and canton cascade; the company fields
+			only show for a company; the total is computed on the server and a
+			discount above 50% asks for confirmation. None of it is JavaScript
+			written for this page.{% endblocktrans %}
+		</p>
+		<form method="post" id="dynamic_form">
+			{% csrf_token %}
+			{{ form.as_horizontal }}
+			<button type="submit" class="btn btn-primary">{% trans 'Save' %}</button>
+		</form>
+		<p class="mt-3">
+			<a href="{% url 'dynamic_actions_formset' %}">{% trans 'The same form in a formset' %}</a> ·
+			<a href="{% url 'dynamic_actions_crud' %}">{% trans 'The same form in ObjectCRUD modals' %}</a>
+		</p>
+	</div>
+</div>
+{% endblock %}

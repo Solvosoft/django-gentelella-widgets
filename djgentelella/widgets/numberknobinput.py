@@ -1,5 +1,7 @@
 from django.forms.widgets import Input
 
+from djgentelella.widgets.core import js_widget_name, set_js_widget
+
 
 class NumberKnobInput(Input):
     """A number field drawn as a circular dial.
@@ -21,7 +23,7 @@ class NumberKnobInput(Input):
 
     def __init__(self, attrs=None):
         self.attrs = {} if attrs is None else attrs.copy()
-        self.attrs['data-widget'] = self.__class__.__name__
+        set_js_widget(self.attrs, js_widget_name(self))
         self.attrs['data-displayprevious'] = 'true'
         for option, native in self.NATIVE_BOUNDS.items():
             if option in self.attrs and native not in self.attrs:

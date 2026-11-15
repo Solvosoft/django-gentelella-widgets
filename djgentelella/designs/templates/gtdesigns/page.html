@@ -1,0 +1,33 @@
+{% extends base_template|default:'gentelella/base.html' %}
+{% load i18n %}
+{% comment %}
+A design page (djgentelella.designs.engine.render). It extends base_template:
+GT_DESIGNS_BASE_TEMPLATE, or what GT_DESIGNS_PAGE_CONTEXT returns for the page,
+so an application can give its pages its own layout, theme and breadcrumbs
+(the `breadcrumbs` variable feeds gentelella's breadcrumbs block).
+
+Blocks a template extending this one can fill or replace:
+  gtdesign_before   before the page's nodes (after the preview notice)
+  gtdesign_content  the nodes themselves ({{ content }})
+  gtdesign_after    after them
+{% endcomment %}
+{% block title %}{{ title }}{% endblock %}
+{% block extra_css %}{{ block.super }}
+{% for url in media.css %}<link rel="stylesheet" href="{{ url }}">
+{% endfor %}{% if assets_css %}<style>{{ assets_css }}</style>{% endif %}
+{% endblock %}
+{% block content %}
+{% if is_preview %}
+<div class="alert alert-warning" role="status">
+  <i class="fa fa-eye"></i> {% trans "Preview: this page is not published, only editors of designs can see it." %}
+</div>
+{% endif %}
+{% block gtdesign_before %}{% endblock %}
+{% block gtdesign_content %}{{ content }}{% endblock %}
+{% block gtdesign_after %}{% endblock %}
+{% endblock %}
+{% block js %}{{ block.super }}
+{% for url in media.js %}<script src="{{ url }}"></script>
+{% endfor %}{% if inline_js %}<script>{{ inline_js }}</script>{% endif %}
+{% if assets_js %}<script>{{ assets_js }}</script>{% endif %}
+{% endblock %}

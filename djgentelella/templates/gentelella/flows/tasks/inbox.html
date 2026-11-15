@@ -1,0 +1,70 @@
+{% extends 'gentelella/base.html' %}
+{% load i18n %}
+{% block title %}{% trans 'Task inbox' %}{% endblock %}
+{% block content %}
+<div class="x_panel">
+  <div class="x_title">
+    <h2>{% trans 'Task inbox' %} <small>{% trans 'yours and your groups' %}</small></h2>
+    <div class="clearfix"></div>
+  </div>
+  <div class="x_content">
+    <form method="get" class="row g-2 align-items-end mb-3 gt-task-filters">
+      <div class="col-auto">
+        <label class="form-label" for="task-filter-flow">{% trans 'Flow' %}</label>
+        <select id="task-filter-flow" name="flow" class="form-select form-select-sm">
+          <option value="">{% trans 'Any' %}</option>
+          {% for name in flows %}<option value="{{ name }}"{% if filters.flow == name %} selected{% endif %}>{{ name }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-auto">
+        <label class="form-label" for="task-filter-priority">{% trans 'Priority' %}</label>
+        <select id="task-filter-priority" name="priority" class="form-select form-select-sm">
+          <option value="">{% trans 'Any' %}</option>
+          {% for value, label in priorities %}<option value="{{ value }}"{% if filters.priority == value|stringformat:'s' %} selected{% endif %}>{{ value }} &middot; {{ label }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-auto">
+        <label class="form-label" for="task-filter-state">{% trans 'State' %}</label>
+        <select id="task-filter-state" name="state" class="form-select form-select-sm">
+          {% for value, label in states %}<option value="{{ value }}"{% if filters.state == value or not filters.state and value == 'open' %} selected{% endif %}>{{ label }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-auto">
+        <label class="form-label" for="task-filter-due">{% trans 'Due' %}</label>
+        <select id="task-filter-due" name="due" class="form-select form-select-sm">
+          <option value="">{% trans 'Any' %}</option>
+          {% for value, label in dues %}<option value="{{ value }}"{% if filters.due == value %} selected{% endif %}>{{ label }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-auto"><button type="submit" class="btn btn-sm btn-primary">{% trans 'Filter' %}</button></div>
+    </form>
+    {% if tasks %}
+    <table class="table table-striped gt-task-inbox">
+      <thead><tr><th>{% trans 'Priority' %}</th><th>{% trans 'Task' %}</th><th>{% trans 'Flow' %}</th><th>{% trans 'State' %}</th><th>{% trans 'Owner' %}</th><th>{% trans 'Due' %}</th><th></th></tr></thead>
+      <tbody>
+        {% for task in tasks %}
+        <tr data-task="{{ task.pk }}">
+          <td><span class="badge {% if task.priority <= 2 %}bg-danger{% elif task.priority == 3 %}bg-primary{% else %}bg-secondary{% endif %}" title="{{ task.get_priority_display }}">{{ task.priority }}</span></td>
+          <td>{{ task.title }}</td>
+          <td>{% if task.instance %}{{ task.instance.flow }}{% else %}<span class="text-muted">-</span>{% endif %}</td>
+          <td>{{ task.get_state_display }}</td>
+          <td>{{ task.actual_owner|default:'' }}</td>
+          <td>{% if task.due %}<span class="badge {% if task.overdue %}bg-danger{% else %}bg-secondary{% endif %}">{{ task.due }}</span>{% endif %}</td>
+          <td><a class="btn btn-sm btn-primary" href="{% url 'task_detail' task.pk %}">{% trans 'Open' %}</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% if page.has_other_pages %}
+    <nav><ul class="pagination">
+      {% if page.has_previous %}<li class="page-item"><a class="page-link" href="?{{ query }}&amp;page={{ page.previous_page_number }}">&laquo;</a></li>{% endif %}
+      <li class="page-item active"><span class="page-link">{{ page.number }} / {{ page.paginator.num_pages }}</span></li>
+      {% if page.has_next %}<li class="page-item"><a class="page-link" href="?{{ query }}&amp;page={{ page.next_page_number }}">&raquo;</a></li>{% endif %}
+    </ul></nav>
+    {% endif %}
+    {% else %}
+    <p class="text-muted">{% trans 'No task is waiting for you.' %}</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

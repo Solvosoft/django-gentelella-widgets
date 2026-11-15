@@ -1,10 +1,15 @@
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 
-from djgentelella.widgets.core import SelectMultiple, update_kwargs
+from djgentelella.widgets.core import (
+    AddPermissionMixin,
+    SelectMultiple,
+    js_widget_name,
+    update_kwargs,
+)
 
 
-class FilteredSelectMultiple(SelectMultiple):
+class FilteredSelectMultiple(AddPermissionMixin, SelectMultiple):
     """Two side by side lists, the django admin ``filter_horizontal`` layout.
 
     Options live either in the widget's own ``choices`` or behind a
@@ -14,6 +19,9 @@ class FilteredSelectMultiple(SelectMultiple):
     when javascript is off. With ``url`` only the chosen options are rendered
     and the available panel is filled page by page over the same select2 API
     the autocomplete widgets use.
+
+    ``add_url`` shows a create button; ``add_perms`` limits it to the users
+    holding those permissions (see :class:`AddPermissionMixin`).
     """
 
     template_name = 'gentelella/widgets/filteredselectmultiple.html'
@@ -22,14 +30,15 @@ class FilteredSelectMultiple(SelectMultiple):
 
     def __init__(self, attrs=None, choices=(), verbose_name=None, url=None,
                  url_suffix='-list', url_args=None, url_kwargs=None,
-                 add_url=None, is_stacked=False, extraskwargs=True):
+                 add_url=None, is_stacked=False, extraskwargs=True,
+                 add_perms=None):
         if extraskwargs:
             attrs = update_kwargs(
                 attrs,
-                self.__class__.__name__,
+                js_widget_name(self),
                 base_class='gt-fsm-list gt-fsm-chosen form-control ',
             )
-        attrs = attrs or {}
+        attrs = self.set_add_perms(attrs, add_perms)
         self.verbose_name = verbose_name
         self.baseurl = url + url_suffix if url else None
         self.extra_url_args = url_args or []
@@ -60,7 +69,7 @@ class FilteredSelectMultiple(SelectMultiple):
             context['url'] = reverse_lazy(
                 self.baseurl, args=self.extra_url_args, kwargs=self.extra_url_kwargs
             )
-        context['add_url'] = self.add_url
+        context['add_url'] = self.add_url if context['can_add'] else None
         context['is_stacked'] = self.is_stacked
         context['verbose_name'] = verbose_name
         context['available_label'] = _('Available %(name)s') % {'name': verbose_name}

@@ -58,6 +58,29 @@ Available Charts
 
 .. note:: Pie and Doughnut have different way to build datasets, see chartjs documentation for more.
 
+Dataset options
+-------------------
+
+A dataset reaches Chart.js with every key ``get_datasets`` gave it, not only
+``label``, ``data`` and the colours: ``borderDash``, ``pointRadius``,
+``pointBackgroundColor``, ``pointStyle``, ``tension``, ``spanGaps``,
+``yAxisID``, ``order``, ``hidden``... A point option takes a value or a list
+with one per point. ``None`` in ``data`` is a gap. A control chart, for
+instance:
+
+.. code:: python
+
+    class MeansChart(BaseChart, LineChart):
+        def get_datasets(self):
+            limit = {'borderDash': [6, 4], 'pointRadius': 0, 'borderWidth': 1}
+            return [
+                {'label': 'Mean', 'data': [5.0, None, 5.4, 4.9], 'spanGaps': True,
+                 'pointBackgroundColor': ['#1f77b4', '#1f77b4', '#d62728', '#1f77b4']},
+                {'label': 'UCL', 'data': [5.3] * 4, **limit},
+                {'label': 'CL', 'data': [5.0] * 4, 'pointRadius': 0},
+                {'label': 'LCL', 'data': [4.7] * 4, **limit},
+            ]
+
 Chart Options
 -------------------
 

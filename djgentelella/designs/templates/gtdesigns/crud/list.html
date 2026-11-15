@@ -1,0 +1,43 @@
+{% extends template_father %}
+{% load i18n gtdesigns_tags %}
+{% block title %}{{ model_verbose_name_plural|capfirst }}{% endblock %}
+{% block content %}
+<div class="card gencrud gtdesign-crud-list">
+  <div class="card-body">
+    <div class="clearfix mb-2">
+      <h2 class="float-start">{{ model_verbose_name_plural|capfirst }}</h2>
+      {% if url_create and crud_perms.create %}
+      <a class="btn btn-sm btn-outline-success float-end" href="{{ url_create }}" title="{% trans 'Create' %}"><i class="fa fa-plus"></i> {% trans 'Create' %}</a>
+      {% endif %}
+    </div>
+    {% if search %}
+    <form action="" method="get" class="mb-2">
+      <div class="input-group">
+        <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="{% trans 'Search for...' %}">
+        <button class="btn btn-outline-secondary" type="submit"><i class="fa fa-search"></i></button>
+      </div>
+    </form>
+    {% endif %}
+    <div class="table-responsive">
+      <table class="table table-bordered table-hover">
+        <thead><tr>{% for name, title in gtdesign_columns %}<th>{{ title }}</th>{% endfor %}<th>{% trans 'Actions' %}</th></tr></thead>
+        <tbody>
+        {% for object in object_list %}
+        <tr>
+          {% for name, title in gtdesign_columns %}<td>{{ object|design_value:name }}</td>{% endfor %}
+          <td>
+            {% if 'detail' in views_available and crud_perms.detail %}<a href="{{ crud_base }}{{ object.pk }}/" title="{% trans 'Show' %}"><i class="fa fa-eye"></i></a>{% endif %}
+            {% if 'update' in views_available and crud_perms.update %}<a href="{{ crud_base }}{{ object.pk }}/update/" title="{% trans 'Edit' %}"><i class="fa fa-edit"></i></a>{% endif %}
+            {% if 'delete' in views_available and crud_perms.delete %}<a href="{{ crud_base }}{{ object.pk }}/delete/" title="{% trans 'Delete' %}"><i class="fa fa-trash"></i></a>{% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="{{ gtdesign_columns|length|add:1 }}">{% trans 'No items yet.' %}</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% include paginate_template %}
+  </div>
+</div>
+{% endblock %}

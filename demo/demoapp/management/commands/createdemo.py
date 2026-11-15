@@ -10,6 +10,8 @@ from django.urls import reverse
 from django.utils.timezone import now
 
 from demoapp import models
+from demoapp.flowdemos.seed import seed as seed_flow_demos
+from demoapp.flowdemos.views import DEMOS as FLOW_DEMOS
 from demoapp.models import SelectImage
 from djgentelella.models import MenuItem
 from djgentelella.utils import set_settings
@@ -166,6 +168,16 @@ class Command(BaseCommand):
             icon='fa fa-table',
             only_icon=False,
         )
+        MenuItem.objects.create(
+            parent=extrawidget,
+            title='Data sources',
+            url_name='datasource_view',
+            category='sidebar',
+            is_reversed=True,
+            is_widget=False,
+            icon='fa fa-filter',
+            only_icon=False,
+        )
         cwidget = MenuItem.objects.create(
             parent=extrawidget,
             title='Object Management',
@@ -176,6 +188,18 @@ class Command(BaseCommand):
             reversed_args=None,
             is_widget=False,
             icon='fa fa-stop',
+            only_icon=False,
+        )
+        cwidget = MenuItem.objects.create(
+            parent=extrawidget,
+            title='Dynamic actions',
+            url_name='dynamic_actions_form',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-bolt',
             only_icon=False,
         )
 
@@ -757,7 +781,9 @@ class Command(BaseCommand):
                 name='Person ' + str(x),
                 num_children=randint(1, 10),
                 country=models.Country.objects.all().order_by('?').first(),
-                born_date=now(),
+                # Spread over ten years, so the data source demo's date facet
+                # has more than one bucket.
+                born_date=now() - timedelta(days=randint(0, 3650)),
                 last_time=now(),
             )
 
@@ -921,6 +947,58 @@ class Command(BaseCommand):
             only_icon=False,
         )
 
+    def create_flow_demos(self):
+        parent = MenuItem.objects.create(
+            parent=None,
+            title='Flows',
+            url_name='/',
+            category='sidebar',
+            is_reversed=False,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-random',
+            only_icon=False,
+        )
+        MenuItem.objects.create(
+            parent=parent,
+            title='All the flow demos',
+            url_name='flow_demo_index',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-sitemap',
+            only_icon=False,
+        )
+        MenuItem.objects.create(
+            parent=parent,
+            title='Task inbox',
+            url_name='task_inbox',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-inbox',
+            only_icon=False,
+        )
+        for demo in FLOW_DEMOS:
+            MenuItem.objects.create(
+                parent=parent,
+                title=str(demo.title),
+                url_name='flow_demo_list',
+                category='sidebar',
+                is_reversed=True,
+                reversed_kwargs=None,
+                reversed_args=demo.slug,
+                is_widget=False,
+                icon='fa fa-share-alt',
+                only_icon=False,
+            )
+        seed_flow_demos()
+
     def create_images_demo(self):
         workdir = Path(settings.BASE_DIR) / '../djgentelella/static/gentelella/images/'
         workdir = workdir.glob('*.png')
@@ -956,6 +1034,46 @@ class Command(BaseCommand):
             f'<img src="{static("images/logo.png")}" alt="logo" height="40">',
         )
 
+    def create_design_demos(self):
+        """The catalogue the design demos show, and the designs, published.
+
+        ``category_products`` goes first: ``dashboard`` links its rows to it.
+        """
+        food, _created = models.ProductCategory.objects.get_or_create(
+            name='Food', defaults={'description': 'Things to eat'})
+        tools, _created = models.ProductCategory.objects.get_or_create(
+            name='Tools', defaults={'description': 'Things to make things'})
+        red, _created = models.ProductTag.objects.get_or_create(name='red')
+        blue, _created = models.ProductTag.objects.get_or_create(name='blue')
+        today = now().date()
+        catalogue = [
+            ('Apple', '2.00', 'active', food), ('Bread', '4.50', 'active', food),
+            ('Cheese', '9.00', 'draft', food), ('Hammer', '30.00', 'active', tools),
+            ('Saw', '25.00', 'retired', tools), ('Drill', '80.00', 'active', tools)]
+        for index, (name, price, status, category) in enumerate(catalogue):
+            product, created = models.Product.objects.get_or_create(
+                name=name, defaults={'price': price, 'status': status,
+                                     'category': category,
+                                     'available_since': today - timedelta(
+                                         days=index * 40)})
+            if created:
+                product.tags.add(red if index % 2 else blue)
+        designs = Path(models.__file__).resolve().parent / 'gtdesign'
+        for name in ('welcome', 'category_products', 'product_admin',
+                     'sales_dashboard'):
+            call_command('gtdesigns_publish', str(designs / ('%s.json' % name)))
+        parent = MenuItem.objects.create(
+            parent=None, title='Designs', url_name='/', category='sidebar',
+            is_reversed=False, is_widget=False, icon='fa fa-paint-brush',
+            only_icon=False)
+        for title, path, icon in (('Products', 'products', 'fa fa-cubes'),
+                                  ('Catalogue dashboard', 'dashboard',
+                                   'fa fa-dashboard')):
+            MenuItem.objects.create(
+                parent=parent, title=title, url_name='gt-design-page',
+                category='sidebar', is_reversed=True, reversed_args=path,
+                is_widget=False, icon=icon, only_icon=False)
+
     def handle(self, *args, **options):
 
         MenuItem.objects.all().delete()
@@ -973,5 +1091,7 @@ class Command(BaseCommand):
         self.abcde()
         self.create_async_notification_menu()
         self.create_avanced()
+        self.create_flow_demos()
         self.create_images_demo()
+        self.create_design_demos()
         call_command('create_notification_demo', '--clear')

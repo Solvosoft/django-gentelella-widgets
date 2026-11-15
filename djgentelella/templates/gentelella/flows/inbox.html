@@ -1,0 +1,57 @@
+{% extends 'gentelella/base.html' %}
+{% load i18n %}
+{% block title %}{{ flow }}{% endblock %}
+{% block content %}
+<div class="x_panel">
+  <div class="x_title">
+    <h2>{{ flow }} <small>{% trans 'waiting for you' %}</small></h2>
+    <ul class="nav navbar-right panel_toolbox">
+      <li>{% if overdue %}<a href="?">{% trans 'All' %}</a>{% else %}<a href="?overdue=1">{% trans 'Overdue only' %}</a>{% endif %}</li>
+      <li><a href="{% url 'flow_diagram' flow.name %}">{% trans 'Diagram' %}</a></li>
+    </ul>
+    <div class="clearfix"></div>
+  </div>
+  <div class="x_content">
+    {% if rows %}
+    <form method="post" action="{% url 'flow_bulk' flow.name %}">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.get_full_path }}">
+      <table class="table table-striped">
+        <thead><tr>{% if bulk_transitions %}<th></th>{% endif %}<th>{% trans 'Object' %}</th><th>{% trans 'State' %}</th><th>{% trans 'Due' %}</th><th></th></tr></thead>
+        <tbody>
+          {% for row in rows %}
+          <tr>
+            {% if bulk_transitions %}<td><input type="checkbox" class="form-check-input" name="objects" value="{{ row.object.pk }}" aria-label="{{ row.object }}"></td>{% endif %}
+            <td>{{ row.object }}</td>
+            <td><span class="badge bg-info">{{ row.state }}</span></td>
+            <td>{% if row.due_at %}<span class="badge {% if row.overdue %}bg-danger{% else %}bg-secondary{% endif %}">{{ row.due_at }}</span>{% endif %}</td>
+            <td><a class="btn btn-sm btn-primary" href="{{ row.url }}">{% trans 'Open' %}</a></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% if bulk_transitions %}
+      <div class="row g-2 align-items-center mb-3">
+        <div class="col-auto">
+          <select name="transition" class="form-select form-select-sm" aria-label="{% trans 'Transition' %}">
+            {% for transition in bulk_transitions %}<option value="{{ transition.name }}">{{ transition.label }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="col-auto"><input type="text" name="comment" class="form-control form-control-sm" placeholder="{% trans 'Comment' %}"></div>
+        <div class="col-auto"><button type="submit" class="btn btn-sm btn-primary">{% trans 'Run on the selected' %}</button></div>
+      </div>
+      {% endif %}
+    </form>
+    {% if page.has_other_pages %}
+    <nav><ul class="pagination">
+      {% if page.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page.previous_page_number }}{% if overdue %}&amp;overdue=1{% endif %}">&laquo;</a></li>{% endif %}
+      <li class="page-item active"><span class="page-link">{{ page.number }} / {{ page.paginator.num_pages }}</span></li>
+      {% if page.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page.next_page_number }}{% if overdue %}&amp;overdue=1{% endif %}">&raquo;</a></li>{% endif %}
+    </ul></nav>
+    {% endif %}
+    {% else %}
+    <p class="text-muted">{% trans 'Nothing is waiting for you.' %}</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,5 +1,6 @@
 import logging
 
+from django.apps import apps
 from django.conf import settings
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
@@ -25,6 +26,8 @@ from djgentelella.widgets.helper import HelperWidgetView
 from djgentelella.wysiwyg import views as wysiwyg
 from djgentelella.voice.views import VoiceTranscribeView
 from djgentelella.firmador_digital import views as firmador_digital
+from djgentelella.datasources.urls import urlpatterns as datasources_urls
+from djgentelella.views.dynamic import dynamic_action_view, lov_view
 from .groute import routes
 from .templatetags.gtsettings import get_version
 from .views import auth
@@ -122,6 +125,7 @@ for app in settings.INSTALLED_APPS:
     import_module_app_gt(app, 'gtstorymap')
     import_module_app_gt(app, 'gtstoryline')
     import_module_app_gt(app, 'gtmaps')
+    import_module_app_gt(app, 'gtlovs')
 
 router = DefaultRouter()
 router.register('notificationtableview', NotificationViewSet, 'api-notificationtable')
@@ -180,6 +184,8 @@ base_urlpatterns = [
     ),
     path('api/trash/', include(router_trash.urls)),
     path('api/history/', include(history_router.urls)),
+    path('gtapis/dynamic/', dynamic_action_view, name='gt-dynamic-action'),
+    path('gtapis/lov/<str:name>/', lov_view, name='gt-lov'),
 ]
 
 permission_management_urls = [
@@ -206,7 +212,15 @@ urlpatterns = (
     + wysiwyg_urls
     + voice_urls
     + permission_management_urls
+    + datasources_urls
 )
+
+# djgentelella.flows is an app of its own: its views import its models, which
+# exist only when it is installed.
+if apps.is_installed('djgentelella.flows'):
+    from djgentelella.flows.urls import urlpatterns as flows_urls
+
+    urlpatterns += flows_urls
 
 if settings.DEBUG:
     urlpatterns += [
@@ -222,3 +236,10 @@ else:
             name='djgentelella-js-catalog',
         ),
     ]
+
+# djgentelella.designs is an app of its own: its pages and endpoints exist only
+# when it is installed (it brings a model, so importing it otherwise fails).
+if apps.is_installed('djgentelella.designs'):
+    from djgentelella.designs.urls import urlpatterns as designs_urls
+
+    urlpatterns += designs_urls

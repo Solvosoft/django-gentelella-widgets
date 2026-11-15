@@ -1,0 +1,5 @@
+{% for button in transitions %}{% if button.disabled %}
+<span class="d-inline-block" tabindex="0" title="{{ button.reason }}"><button type="button" class="btn {{ size }} {{ button.css_class }}" disabled>{% if button.icon %}<i class="{{ button.icon }}"></i> {% endif %}{{ button.label }}</button></span>
+{% else %}
+<a class="btn {{ size }} {{ button.css_class }}" title="{{ button.help_text }}" href="{% url 'flow_transition' flow.name button.name object.pk %}{% if next %}?next={{ next|urlencode }}{% endif %}">{% if button.icon %}<i class="{{ button.icon }}"></i> {% endif %}{{ button.label }}</a>
+{% endif %}{% endfor %}

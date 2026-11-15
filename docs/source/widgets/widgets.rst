@@ -170,6 +170,35 @@ Common attributes:
 - ``disabled`` - Disable the input
 - ``readonly`` - Make read-only
 
+----------------------
+Subclassing a widget
+----------------------
+
+The javascript initializes each widget by its ``data-widget`` attribute. A
+subclass keeps the one of its base, so it goes on working with the same
+javascript:
+
+.. code:: python
+
+    class InvoiceUpload(FileChunkedUpload):      # data-widget="FileChunkedUpload"
+        template_name = 'invoices/upload.html'
+
+The name is ``js_widget_name(widget)`` (``djgentelella.widgets.core``): the
+``js_widget`` of the nearest class of the MRO that sets it, or else the name of
+the nearest class defined in djgentelella. A subclass that comes with
+javascript of its own names it:
+
+.. code:: python
+
+    class SignaturePad(genwidgets.TextInput):
+        js_widget = 'SignaturePad'               # data-widget="SignaturePad"
+
+A subclass whose name is not its ``data-widget`` also renders that name as
+``data-widget-class`` (``set_js_widget(attrs, name)`` writes both). When
+something registered that name in ``document.gtwidgets``, as projects did
+before ``js_widget`` existed, ``gt_find_initialize`` initializes the widget by
+it instead of its base, so that javascript keeps working.
+
 -----------------
 API Reference
 -----------------

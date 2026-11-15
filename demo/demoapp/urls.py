@@ -56,6 +56,15 @@ from demoapp.trash.api import CustomerViewSet
 # history
 from demoapp.history.views import history_view
 
+# flows
+from demoapp.flowdemos import views as flowdemos
+
+# datasources
+from demoapp.datasources.views import datasource_view
+# dynamic actions
+from demoapp.dynamic_actions import views as dynamic_actions
+from demoapp.dynamic_actions.viewset import DynamicContactManagement
+
 pclss = Personclass()
 countryclss = Countryclass()
 menuclss = MenuItemclass()
@@ -75,6 +84,7 @@ router.register(
 
 # Trash
 router.register('api_customer', CustomerViewSet, 'api-customer')
+router.register('dynamiccontact', DynamicContactManagement, 'api-dynamiccontact')
 
 urlpatterns = (
     [
@@ -85,6 +95,11 @@ urlpatterns = (
             name='object_management_inline',
         ),
         path('bt_modal_display', bt_modal_display, name='bt_modal_display'),
+        path('flowdemos/', flowdemos.flow_demo_index, name='flow_demo_index'),
+        path('flowdemos/expire/', flowdemos.flow_demo_expire, name='flow_demo_expire'),
+        path('flowdemos/<slug:slug>/', flowdemos.flow_demo_list, name='flow_demo_list'),
+        path('flowdemos/<slug:slug>/pay/<int:pk>/', flowdemos.flow_demo_pay,
+             name='flow_demo_pay'),
         path('icons/fontawesome', fontawesome_icons, name='fontawesome_icons'),
         path('icons/friconix', friconix_icons, name='friconix_icons'),
         path('icons/mdi', mdi_icons, name='mdi_icons'),
@@ -260,6 +275,15 @@ urlpatterns = (
         path('api/customer/', include(router.urls)),
         # history
         path('history/', history_view, name='history'),
+        # datasources
+        path('datasources/', datasource_view, name='datasource_view'),
+        # dynamic actions
+        path('dynamic_actions/', dynamic_actions.dynamic_actions_form,
+             name='dynamic_actions_form'),
+        path('dynamic_actions/formset/', dynamic_actions.dynamic_actions_formset,
+             name='dynamic_actions_formset'),
+        path('dynamic_actions/crud/', dynamic_actions.dynamic_actions_crud,
+             name='dynamic_actions_crud'),
     ]
     + pclss.get_urls()
     + countryclss.get_urls()

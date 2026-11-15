@@ -1,0 +1,31 @@
+{% extends 'gentelella/base.html' %}
+{% load i18n %}
+{% block content %}
+<h3>{% trans 'Dynamic actions in a formset' %}</h3>
+<form method="post" id="dynamic_formset"> {% csrf_token %}
+	<div class="row formset">
+		<div class="col-sm-12 col-md-12 formlist">
+			{% for form in formset %}
+			{% include 'formset_form.html' %}
+			{% endfor %}
+		</div>
+		<div class="hidden formsetcontrol"
+				 data-delete="{% if formset.can_delete %}1{% else %}0{% endif %}"
+				 data-order="{% if formset.can_order %}1{% else %}0{% endif %}"
+				 data-validate-min="{% if formset.validate_min %}1{% else %}0{% endif %}"
+				 data-validate-max="{% if formset.validate_max %}1{% else %}0{% endif %}"
+				 data-extra="{{formset.extra}}" data-prefix="{{formset.prefix}}">
+			{{ formset.management_form }}
+			{% spaceless %}
+			<div class="hidden formsettemplate">
+				<!-- {% include 'formset_form.html' with form=formset.empty_form %} -->
+			</div>
+			{% endspaceless %}
+		</div>
+		<div class="mt-3">
+			<button type="button" class="btn btn-success formsetadd">{% trans 'Add' %}</button>
+			<button type="submit" class="btn btn-primary">{% trans 'Save' %}</button>
+		</div>
+	</div>
+</form>
+{% endblock %}

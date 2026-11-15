@@ -43,6 +43,44 @@ GTForm can be combined with ModelForm:
                 'country': genwidgets.Select,
             }
 
+-------------------------------
+Widgets picked from the model
+-------------------------------
+
+Instead of listing every widget in ``Meta.widgets``, let djgentelella pick
+one per model field with ``gt_formfield_callback``:
+
+.. code:: python
+
+    from djgentelella.forms.forms import GTForm
+    from djgentelella.forms.widgetmap import gt_formfield_callback
+
+    class PersonForm(GTForm, forms.ModelForm):
+        class Meta:
+            model = Person
+            fields = ['name', 'email', 'birth_date', 'country', 'notes']
+            widgets = {'notes': genwidgets.TextInput}  # still wins
+            formfield_callback = gt_formfield_callback
+
+Each field gets the first widget of its kind in
+``djgentelella.forms.widgetmap.WIDGETS_BY_KIND``: ``DateInput`` for a
+``DateField``, ``Textarea`` for a ``TextField``, ``YesNoInput`` for a
+``BooleanField`` (``NullBooleanSelect`` when it is ``null=True``),
+``ClearableFileInput`` for a ``FileField``, ``Select`` for a foreign key, a
+``FilePathField`` or a field with ``choices``,
+``MapPointInput`` for a ``GTPointField``. A foreign key or many-to-many to a
+``tree_queries`` ``TreeNode`` model gets ``TreeSelect`` /
+``TreeSelectMultiple`` together with the tree form field, which the option
+template needs to indent the levels.
+
+Autocompletes are never picked: ``AutocompleteSelect`` needs the basename of a
+lookup from ``gtselects.py``, so name it in ``Meta.widgets``. A form field
+class given in ``Meta.field_classes`` is kept as well.
+
+``widget_choices(kind)`` lists every widget that fits a kind (the editor,
+djgentelella-editor, offers exactly that list) and ``field_kind(model_field)``
+gives the kind.
+
 -----------------
 Render Methods
 -----------------

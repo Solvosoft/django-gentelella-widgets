@@ -2,7 +2,7 @@ from pathlib import Path
 
 from django.urls import reverse_lazy
 
-from djgentelella.widgets.core import update_kwargs
+from djgentelella.widgets.core import js_widget_name, update_kwargs
 from djgentelella.widgets.files import FileChunkedUpload
 
 
@@ -29,7 +29,7 @@ class PDFViewerWidget(FileChunkedUpload):
 
     def __init__(self, attrs=None, extraskwargs=True):
         if extraskwargs:
-            attrs = update_kwargs(attrs, self.__class__.__name__,
+            attrs = update_kwargs(attrs, js_widget_name(self),
                                   base_class='djgentelella-pdfviewer form-control')
         if attrs is None:
             attrs = {}

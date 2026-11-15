@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-29 16:37-0600\n"
-"PO-Revision-Date: 2025-03-29 16:45-0600\n"
+"POT-Creation-Date: 2026-10-29 19:57-0600\n"
+"PO-Revision-Date: 2026-10-29 12:00-0600\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: es\n"
@@ -18,71 +18,112 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.2.2\n"
 
-msgid "Problem in the Internet?"
-msgstr "¿Problemas de conexión ?"
+#: static/gentelella/js/base/breadcrumbnav.js:27
+msgid "Breadcrumb"
+msgstr "Ruta de navegación"
 
-msgid "Select an element"
-msgstr "Seleccione un elemento"
+#: static/gentelella/js/base/breadcrumbnav.js:29
+msgid "Show hidden levels"
+msgstr "Mostrar los niveles ocultos"
 
-msgid "Sorry, there is a problem"
-msgstr "Lo lamentamos hay un problema"
+#: static/gentelella/js/base/chunkedupload.js:40
+msgid "The file could not be read"
+msgstr "No se pudo leer el archivo"
 
-msgid "Media device is not available"
-msgstr "Dispositivo de multimedia no está disponible"
-
-msgid "Start"
-msgstr "Iniciar"
-
-msgid "Capture"
-msgstr "Capturar"
-
-msgid "Save"
-msgstr "Guardar"
-
-msgid "Record"
-msgstr "Grabar"
-
-msgid "Recording..."
-msgstr "Grabando..."
-
+#: static/gentelella/js/base/digital_signature.js:380
 msgid "Error when applying setting to signature: "
 msgstr "Error aplicando las propiedades de firma digital "
 
+#: static/gentelella/js/base/digital_signature.js:393
 msgid "Error loading content: "
 msgstr "Error cargando contenido: "
 
+#: static/gentelella/js/base/digital_signature.js:424
 msgid "Error loading image"
 msgstr "Error cargando imagen"
 
+#: static/gentelella/js/base/digital_signature.js:484
+#: static/gentelella/js/base/digital_signature.js:592
+#: static/gentelella/js/base/digital_signature.js:758
+#: static/gentelella/js/base/digital_signature.js:765
+#: static/gentelella/js/base/digital_signature.js:769
+#: static/gentelella/js/base/digital_signature.js:773
+#: static/gentelella/js/base/digital_signature.js:777
+#: static/gentelella/js/base/digital_signature.js:781
+#: static/gentelella/js/base/digital_signature.js:785
+#: static/gentelella/js/base/digital_signature.js:789
+#: static/gentelella/js/base/digital_signature.js:793
+#: static/gentelella/js/base/digital_signature.js:796
+#: static/gentelella/js/base/digital_signature.js:827
+#: static/gentelella/js/base/digital_signature.js:839
+#: static/gentelella/js/base/digital_signature.js:851
+#: static/gentelella/js/base/digital_signature.js:935
+#: static/gentelella/js/base/digital_signature.js:939
+#: static/gentelella/js/obj_api_management.js:108
+#: static/gentelella/js/obj_api_management.js:113
+#: static/gentelella/js/obj_api_management.js:119
+#: static/gentelella/js/obj_api_management.js:375
+#: static/gentelella/js/obj_api_management.js:378
+#: static/gentelella/js/obj_api_management.js:733
+#: static/gentelella/js/obj_api_management.js:737
 msgid "Error"
 msgstr "Error"
 
+#: static/gentelella/js/base/digital_signature.js:512
 msgid "Errors"
 msgstr "Errores"
 
+#: static/gentelella/js/base/digital_signature.js:719
+#: static/gentelella/js/base/digital_signature.js:984
+#: static/gentelella/js/base/digital_signature.js:994
+#: static/gentelella/js/base/digital_signature.js:1030
 msgid "Warning"
 msgstr "Advertencia"
 
+#: static/gentelella/js/base/digital_signature.js:963
 msgid "The signing was successfully completed."
 msgstr "La firma se ha completado correctamente."
 
+#: static/gentelella/js/base/digital_signature.js:964
+#: static/gentelella/js/base/digital_signature.js:1015
+#: static/gentelella/js/obj_api_management.js:99
+#: static/gentelella/js/obj_api_management.js:504
 msgid "Success"
 msgstr "Éxito"
 
+#: static/gentelella/js/base/digital_signature.js:983
+msgid "Please, sign the document before saving"
+msgstr "Por favor, firme el documento antes de guardar"
+
+#: static/gentelella/js/base/digital_signature.js:993
+#: static/gentelella/js/base/digital_signature.js:1029
+msgid ""
+"The document is not digitally signed. Please sign the document before saving."
+msgstr ""
+"El documento no está firmado digitalmente. Por favor, firme el documento "
+"antes de guardar."
+
+#: static/gentelella/js/base/digital_signature.js:1014
+msgid "The document was saved"
+msgstr "El documento se ha guardado"
+
+#: static/gentelella/js/base/digital_signature.js:1057
 msgid ""
 "An error has occurred in the internal server of the uncontrolled 'Firmador "
 "Libre'."
 msgstr ""
-"Ha ocurrido un error en el servidor interno del no controlado 'Firmador "
+"Ha ocurrido un error no controlado en el servidor interno de 'Firmador "
 "Libre'."
 
+#: static/gentelella/js/base/digital_signature.js:1061
 msgid ""
 "Make sure to start the 'Firmador Libre' application. If it is already "
 "running, please press the reload button."
 msgstr ""
-"Asegúrate de iniciar la aplicación 'Firmador Libre'. Si ya está en "
-"ejecución, presiona el botón de recarga."
+"Asegúrate de iniciar la aplicación 'Firmador Libre'. Si ya está en ejecución,"
+" presiona el botón de recarga."
 
+#: static/gentelella/js/base/digital_signature.js:1065
 msgid ""
 "There is no card connected to the device. Please press the reload button and "
 "connect your card."
@@ -90,10 +131,12 @@ msgstr ""
 "No hay tarjeta conectada al dispositivo. Presiona el botón de recarga y "
 "conecta tu tarjeta."
 
+#: static/gentelella/js/base/digital_signature.js:1069
 msgid ""
 "The internal signature service does not work. Please contact the support."
 msgstr "El servicio de firma interna no funciona. Contacta con el soporte."
 
+#: static/gentelella/js/base/digital_signature.js:1073
 msgid ""
 "Authentication failed because the PIN entry window was detected closed, "
 "please try again."
@@ -101,28 +144,35 @@ msgstr ""
 "La autenticación falló porque la ventana de entrada PIN fue detectada "
 "cerrada, intenta de nuevo."
 
+#: static/gentelella/js/base/digital_signature.js:1078
 msgid ""
 "The device was disconnected, possibly the window was closed for signature. "
 "Please close the window for the authentication PIN."
 msgstr ""
-"El dispositivo se desconectó, posiblemente la ventana para la firma se "
-"cerró. Cierra la ventana para la autenticación PIN."
+"El dispositivo se desconectó, posiblemente la ventana para la firma se cerró."
+" Cierra la ventana para la autenticación PIN."
 
+#: static/gentelella/js/base/digital_signature.js:1082
 msgid "The new signature field position overlaps with an existing signature."
 msgstr "El nuevo campo de firma se superpone con una firma existente."
 
+#: static/gentelella/js/base/digital_signature.js:1086
 msgid "The new signature field position is outside the page dimensions."
 msgstr "El nuevo campo de firma está fuera de los límites de la página."
 
+#: static/gentelella/js/base/digital_signature.js:1090
 msgid "The version of one or more libraries is incompatible."
 msgstr "La versión de una o más bibliotecas es incompatible."
 
+#: static/gentelella/js/base/digital_signature.js:1094
 msgid "The cryptographic provider is not available."
 msgstr "El proveedor de criptografía no está disponible."
 
+#: static/gentelella/js/base/digital_signature.js:1098
 msgid "The signing algorithm is not available."
 msgstr "El algoritmo de firma no está disponible."
 
+#: static/gentelella/js/base/digital_signature.js:1102
 msgid ""
 "Errors have been encountered in the data to be sent to the 'Free Signer'. "
 "Please press the reload button and try again."
@@ -130,13 +180,15 @@ msgstr ""
 "Se han encontrado errores en los datos que se enviarán al 'Firmador Libre'. "
 "Presiona el botón de recarga y intenta de nuevo."
 
+#: static/gentelella/js/base/digital_signature.js:1106
 msgid ""
-"The request to the signing service timed out. Please, press the reload "
-"button and try again."
+"The request to the signing service timed out. Please, press the reload button"
+" and try again."
 msgstr ""
 "El tiempo de espera del servicio de firma ha expirado. Presiona el botón de "
 "recarga y intenta de nuevo."
 
+#: static/gentelella/js/base/digital_signature.js:1110
 msgid ""
 "We're sorry, an unexpected error occurred. Please, press the reload button "
 "and try again."
@@ -144,66 +196,258 @@ msgstr ""
 "Lo sentimos, ha ocurrido un error inesperado. Presiona el botón de recarga y "
 "intenta de nuevo."
 
+#: static/gentelella/js/base/digital_signature.js:1125
+#: static/gentelella/js/base/digital_signature.js:1136
 msgid "Accept"
 msgstr "Aceptar"
 
+#: static/gentelella/js/base/digital_signature.js:1138
+#: static/gentelella/js/base/dynamic_actions.js:93
 msgid "Cancel"
 msgstr "Cancelar"
 
-msgid " Records Selected"
-msgstr " Grabar seleccionado"
+#: static/gentelella/js/base/dynamic_actions.js:92
+#: static/gentelella/js/datatables.js:166
+msgid "Yes"
+msgstr "Sí"
 
-msgid "Unsupported format "
-msgstr "Formato no soportado "
+#: static/gentelella/js/base/fileupload.widget.js:142
+msgid "Problem in the Internet?"
+msgstr "¿Problemas de conexión?"
 
-msgid "error uploading file"
-msgstr "error subiendo archivo"
+#: static/gentelella/js/base/gt_facets.js:174
+msgid "From"
+msgstr "Desde"
 
-msgid "not a real date"
-msgstr "no es una fecha real"
+#: static/gentelella/js/base/gt_facets.js:176
+msgid "To"
+msgstr "Hasta"
 
-msgid "Select date"
-msgstr "Seleccione una fecha"
+#: static/gentelella/js/base/gt_facets.js:179
+msgid "Apply"
+msgstr "Aplicar"
 
+#: static/gentelella/js/base/gt_facets.js:208
+msgid "The filters could not be loaded."
+msgstr "No se pudieron cargar los filtros."
+
+#: static/gentelella/js/base/gt_facets.js:218
+msgid "Clear all"
+msgstr "Limpiar todo"
+
+#: static/gentelella/js/base/gt_facets.js:231
+#: static/gentelella/js/datatables.js:81
 msgid "Clear"
 msgstr "Limpiar"
 
+#: static/gentelella/js/base/gt_facets.js:251
+#: static/gentelella/js/base/gt_facets.js:331
+msgid "No data"
+msgstr "Sin datos"
+
+#: static/gentelella/js/base/gt_facets.js:290
+msgid "Empty"
+msgstr "Vacío"
+
+#: static/gentelella/js/base/gt_facets.js:306
+msgid "Remove"
+msgstr "Quitar"
+
+#: static/gentelella/js/base/gt_facets.js:368
+#: static/gentelella/js/base/gt_facets.js:390
+msgid "Export"
+msgstr "Exportar"
+
+#: static/gentelella/js/base/gt_facets.js:483
+#: static/gentelella/js/datatables.js:245
+#: static/gentelella/js/obj_api_management.js:540
+msgid "Clear Filters"
+msgstr "Limpiar filtros"
+
+#: static/gentelella/js/base/helper_widget.js:141
+msgid "Edit this help"
+msgstr "Editar esta ayuda"
+
+#: static/gentelella/js/base/helper_widget.js:223
+msgid "Write the help for this field"
+msgstr "Escriba la ayuda de este campo"
+
+#: static/gentelella/js/base/lovselect.js:43
+#: static/gentelella/js/base/select2related.js:149
+#: static/gentelella/js/base/select2related.js:175
+#: static/gentelella/js/base/select2related.js:203
+msgid "Select an element"
+msgstr "Seleccione un elemento"
+
+#: static/gentelella/js/base/mappoint.js:82
+#: static/gentelella/js/base/mappoint.js:110
+msgid "Not a valid \"latitude,longitude\" value"
+msgstr "No es un valor \"latitud,longitud\" válido"
+
+#: static/gentelella/js/base/mappoint.js:133
+msgid "Locating..."
+msgstr "Ubicando..."
+
+#: static/gentelella/js/base/mappoint.js:143
+msgid "Could not get your location"
+msgstr "No se pudo obtener su ubicación"
+
+#: static/gentelella/js/base/mappoint.js:187
+msgid "Address search failed"
+msgstr "La búsqueda de la dirección falló"
+
+#: static/gentelella/js/base/mediarecord.js:5
+#: static/gentelella/js/base/voiceprogressive.js:26
+#: static/gentelella/js/base/voiceprogressive.js:40
+msgid "Sorry, there is a problem"
+msgstr "Lo lamentamos, hay un problema"
+
+#: static/gentelella/js/base/mediarecord.js:6
+msgid "Media device is not available"
+msgstr "El dispositivo multimedia no está disponible"
+
+#: static/gentelella/js/base/mediarecord.js:69
+#: static/gentelella/js/base/mediarecord.js:176
+#: static/gentelella/js/base/mediarecord.js:280
+msgid "Start"
+msgstr "Iniciar"
+
+#: static/gentelella/js/base/mediarecord.js:75
+msgid "Capture"
+msgstr "Capturar"
+
+#: static/gentelella/js/base/mediarecord.js:79
+msgid "Save"
+msgstr "Guardar"
+
+#: static/gentelella/js/base/mediarecord.js:183
+#: static/gentelella/js/base/mediarecord.js:287
+msgid "Record"
+msgstr "Grabar"
+
+#: static/gentelella/js/base/mediarecord.js:188
+#: static/gentelella/js/base/mediarecord.js:291
+msgid "Recording..."
+msgstr "Grabando..."
+
+#: static/gentelella/js/base/pdfviewer.widget.js:180
+msgid "Failed to load PDF file."
+msgstr "No se pudo cargar el archivo PDF."
+
+#: static/gentelella/js/base/pdfviewer.widget.js:339
+msgid "Invalid file"
+msgstr "Archivo inválido"
+
+#: static/gentelella/js/base/pdfviewer.widget.js:340
+msgid "Only PDF files are allowed."
+msgstr "Solo se permiten archivos PDF."
+
+#: static/gentelella/js/base/pdfviewer.widget.js:368
+msgid "Upload failed"
+msgstr "La subida falló"
+
+#: static/gentelella/js/base/voicedictation.js:78
+#: static/gentelella/js/base/voiceeditortinymce.js:114
+msgid "Dictate"
+msgstr "Dictar"
+
+#: static/gentelella/js/base/voicedictation.js:85
+msgid "Stop and transcribe"
+msgstr "Detener y transcribir"
+
+#: static/gentelella/js/base/voicedictation.js:86
+#: static/gentelella/js/base/voiceeditortinymce.js:98
+msgid "Listening..."
+msgstr "Escuchando..."
+
+#: static/gentelella/js/base/voicedictation.js:91
+msgid "Transcribing..."
+msgstr "Transcribiendo..."
+
+#: static/gentelella/js/base/voiceprogressive.js:27
+msgid ""
+"Voice dictation needs the page to be served over https (or localhost) to "
+"reach the microphone."
+msgstr ""
+"El dictado por voz necesita que la página se sirva por https (o localhost) "
+"para acceder al micrófono."
+
+#: static/gentelella/js/base/voiceprogressive.js:41
+msgid ""
+"Part of the dictation could not be transcribed. Check your connection and try"
+" again."
+msgstr ""
+"Parte del dictado no se pudo transcribir. Revise su conexión e inténtelo de "
+"nuevo."
+
+#: static/gentelella/js/custom.js:379
+msgid " Records Selected"
+msgstr " registros seleccionados"
+
+#: static/gentelella/js/custom.js:552
+msgid "Unsupported format "
+msgstr "Formato no soportado "
+
+#: static/gentelella/js/custom.js:554
+msgid "error uploading file"
+msgstr "error subiendo archivo"
+
+#: static/gentelella/js/custom.js:583
+msgid "not a real date"
+msgstr "no es una fecha real"
+
+#: static/gentelella/js/datatables.js:78
+msgid "Select date"
+msgstr "Seleccione una fecha"
+
+#: static/gentelella/js/datatables.js:88 static/gentelella/js/datatables.js:121
 msgid "Search "
 msgstr "Buscar "
 
-msgid "Yes"
-msgstr "Si"
-
+#: static/gentelella/js/datatables.js:166
 msgid "No"
 msgstr "No"
 
+#: static/gentelella/js/datatables.js:203
 msgid "More"
 msgstr "Más"
 
+#: static/gentelella/js/datatables.js:204
+#: static/gentelella/js/designs/data_components.js:84
 msgid "Download"
 msgstr "Descargar"
 
-msgid "Clear Filters"
-msgstr "Limpiar Filtros"
+#: static/gentelella/js/designs/data_components.js:91
+msgid "Id"
+msgstr "Id"
 
+#: static/gentelella/js/designs/data_components.js:104
+#: static/gentelella/js/designs/data_components.js:158
+#: static/gentelella/js/obj_api_management.js:398
 msgid "Actions"
 msgstr "Acciones"
 
+#: static/gentelella/js/obj_api_management.js:417
 msgid "This Object"
 msgstr "Este objeto"
 
+#: static/gentelella/js/obj_api_management.js:530
 msgid "Create"
 msgstr "Crear"
 
+#: static/gentelella/js/obj_api_management.js:552
 msgid "Detail"
 msgstr "Detalles"
 
+#: static/gentelella/js/obj_api_management.js:563
 msgid "Update"
 msgstr "Actualizar"
 
+#: static/gentelella/js/obj_api_management.js:574
 msgid "Delete"
-msgstr "Borrar"
+msgstr "Eliminar"
 
+#: static/gentelella/js/obj_api_management.js:743
 msgid ""
 "There was a problem performing your request. Please try again later or "
 "contact the administrator."
@@ -214,18 +458,9 @@ msgstr ""
 msgid "loading"
 msgstr "Cargando"
 
-msgid "Please, sign the document before saving"
-msgstr "Por favor, firme el documento antes de guardar"
-
-msgid "The document is not digitally signed. Please sign the document before saving."
-msgstr "El documento no está firmado digitalmente. Por favor, firme el documento antes de guardar."
-
-msgid "The document was saved"
-msgstr "El documento se ha guardado"
-
 # history
 msgid "Restoration"
-msgstr "Restaurado"
+msgstr "Restauración"
 
 msgid "deleted"
 msgstr "eliminado"
@@ -260,30 +495,6 @@ msgstr "Un objeto del modelo %(model)s ha sido %(action)s"
 msgid "%(obj)s in trash"
 msgstr "%(obj)s en papelera"
 
-#: static/gentelella/js/base/voicedictation.js
-#: static/gentelella/js/base/voiceeditortinymce.js
-msgid "Dictate"
-msgstr "Dictar"
-
-#: static/gentelella/js/base/voicedictation.js
-msgid "Stop and transcribe"
-msgstr "Detener y transcribir"
-
-#: static/gentelella/js/base/voicedictation.js
-#: static/gentelella/js/base/voiceeditortinymce.js
-msgid "Listening..."
-msgstr "Escuchando..."
-
-#: static/gentelella/js/base/voicedictation.js
-#: static/gentelella/js/base/voiceeditortinymce.js
-msgid "Transcribing..."
-msgstr "Transcribiendo..."
-
-#: static/gentelella/js/base/voicedictation.js
-#: static/gentelella/js/base/voiceeditortinymce.js
-msgid "The transcription service is not available"
-msgstr "El servicio de transcripción no está disponible"
-
 msgid "Template"
 msgstr "Plantilla"
 
@@ -291,7 +502,7 @@ msgid "Created By"
 msgstr "Creado por"
 
 msgid "Title"
-msgstr "Titulo"
+msgstr "Título"
 
 msgid "Audience"
 msgstr "Audiencia"
@@ -306,16 +517,16 @@ msgid "Status"
 msgstr "Estado"
 
 msgid "Newsletter"
-msgstr "Hoja informativa"
+msgstr "Boletín"
 
 msgid "Code"
-msgstr "Codigo"
+msgstr "Código"
 
 msgid "Preview"
 msgstr "Previsualizar"
 
 msgid "Send Now"
-msgstr "Enviarlo ya!"
+msgstr "Enviar ahora"
 
 msgid "Pending"
 msgstr "Pendiente"
@@ -336,16 +547,16 @@ msgid "Sending"
 msgstr "Enviando"
 
 msgid "Cancelled"
-msgstr "Cancelado"
+msgstr "Cancelada"
 
 msgid "Queued"
 msgstr "En cola"
 
 msgid "Send Selected"
-msgstr "Enviar Seleccionado"
+msgstr "Enviar seleccionados"
 
 msgid "Retries"
-msgstr "Repetir"
+msgstr "Reintentos"
 
 msgid "User"
 msgstr "Usuario"
@@ -357,19 +568,19 @@ msgid "No context selected."
 msgstr "Contexto no seleccionado."
 
 msgid "Subject"
-msgstr "Motivo"
+msgstr "Asunto"
 
 msgid "Preview Recipients"
-msgstr "Previsualizar Destinatarios"
+msgstr "Previsualizar destinatarios"
 
 msgid "Recipients"
 msgstr "Destinatarios"
 
 msgid "CC addresses"
-msgstr "CC Direcciones"
+msgstr "Direcciones CC"
 
 msgid "BCC addresses"
-msgstr "BCC direcciones"
+msgstr "Direcciones CCO"
 
 msgid "Positions"
 msgstr "Posiciones"
@@ -400,4 +611,3 @@ msgstr "Elemento seleccionado. Elija una celda de destino."
 
 msgid "Move cancelled."
 msgstr "Movimiento cancelado."
-

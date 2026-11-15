@@ -1,0 +1,101 @@
+{% extends 'gentelella/base.html' %}
+{% load i18n gtflows %}
+{% block title %}{{ flow }}: {{ object }}{% endblock %}
+{% block content %}
+<div class="x_panel">
+  <div class="x_title">
+    <h2>{{ object }} <small>{{ flow }}{% if instance %} &middot; v{{ instance.version }}{% endif %}</small></h2>
+    <div class="clearfix"></div>
+  </div>
+  <div class="x_content">
+    <p>{% trans 'State' %}: <span class="badge bg-info">{{ state_label }}</span>
+      {% if instance %}<span class="badge gt-flow-instance-status {% if instance.status == 'error' %}bg-danger{% elif instance.status == 'suspended' %}bg-warning text-dark{% elif instance.status == 'running' %}bg-primary{% else %}bg-secondary{% endif %}">{{ instance.get_status_display }}</span>{% endif %}
+      {% if instance.due_at %}<span class="badge {% if overdue %}bg-danger{% else %}bg-secondary{% endif %}" title="{% trans 'Due' %}"><i class="fa fa-clock-o"></i> {{ instance.due_at }}</span>{% endif %}
+    </p>
+    {% if instance.error %}<div class="alert alert-danger">{{ instance.error }}</div>{% endif %}
+    {% if transitions %}
+    <p>{% include 'gentelella/flows/_buttons.html' %}</p>
+    {% endif %}
+    {% if control %}
+    <p class="gt-flow-control">
+      {% for action, label in control %}
+      <form method="post" action="{% url 'flow_control' flow.name action object.pk %}" class="d-inline">{% csrf_token %}<button class="btn btn-sm btn-outline-{% if action == 'terminate' %}danger{% elif action == 'retry' %}warning{% else %}secondary{% endif %}" name="control" value="{{ action }}">{{ label }}</button></form>
+      {% endfor %}
+    </p>
+    {% endif %}
+
+    {% if tokens|length > 1 %}
+    <h5>{% trans 'Under way' %}</h5>
+    <ul>
+      {% for token in tokens %}<li>{{ token.label }} <span class="badge bg-light text-dark">{{ token.status }}</span>{% if token.error %} <span class="text-danger">{{ token.error }}</span>{% endif %}</li>{% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if tasks %}
+    <h5>{% trans 'Tasks' %}</h5>
+    <table class="table table-sm">
+      <thead><tr><th>{% trans 'Task' %}</th><th>{% trans 'For' %}</th><th>{% trans 'State' %}</th><th>{% trans 'Outcome' %}</th></tr></thead>
+      <tbody>
+        {% for task in tasks %}
+        <tr>
+          <td><a href="{% url 'task_detail' task.pk %}">{{ task.title }}</a></td>
+          <td>{% if task.actual_owner %}{{ task.actual_owner }}{% else %}{% for user in task.potential_owners.all %}{{ user }}{% if not forloop.last %}, {% endif %}{% endfor %}{% for group in task.groups.all %} <span class="badge bg-secondary">{{ group }}</span>{% endfor %}{% endif %}</td>
+          <td>{{ task.get_state_display }}</td>
+          <td>{{ task.outcome|outcome_label }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+
+    <h5>{% trans 'Assigned to' %}</h5>
+    <p>
+      {% if instance.assigned_to %}{{ instance.assigned_to }}{% endif %}
+      {% if instance.assigned_group %}<span class="badge bg-secondary">{{ instance.assigned_group }}</span>{% endif %}
+      {% if not instance.assigned_to and not instance.assigned_group %}<span class="text-muted">{% trans 'Nobody' %}</span>{% endif %}
+      {% if assignment.claim %}
+      <form method="post" action="{% url 'flow_assign' flow.name 'claim' object.pk %}" class="d-inline">{% csrf_token %}<button class="btn btn-sm btn-outline-primary">{% trans 'Claim' %}</button></form>
+      {% endif %}
+      {% if assignment.release %}
+      <form method="post" action="{% url 'flow_assign' flow.name 'release' object.pk %}" class="d-inline">{% csrf_token %}<button class="btn btn-sm btn-outline-secondary">{% trans 'Release' %}</button></form>
+      {% endif %}
+      {% if assignment.reassign %}
+      <a class="btn btn-sm btn-outline-secondary" href="{% url 'flow_assign' flow.name 'reassign' object.pk %}">{% trans 'Reassign' %}</a>
+      {% endif %}
+    </p>
+
+    {% if instance.variables %}
+    <details class="mb-3">
+      <summary>{% trans 'Variables' %}</summary>
+      <table class="table table-sm">{% for key, value in instance.variables.items %}<tr><th>{{ key }}</th><td><code>{{ value }}</code></td></tr>{% endfor %}</table>
+    </details>
+    {% endif %}
+
+    <details class="mb-3" open>
+      <summary>{% trans 'Diagram' %}</summary>
+      <div class="gt-flow-diagram-wrapper" style="overflow-x:auto">{{ diagram }}</div>
+    </details>
+
+    <h5>{% trans 'History' %}</h5>
+    {% if history %}
+    <table class="table table-sm">
+      <thead><tr><th>{% trans 'When' %}</th><th>{% trans 'Who' %}</th><th>{% trans 'What' %}</th><th>{% trans 'Comment' %}</th></tr></thead>
+      <tbody>
+        {% for entry in history %}
+        <tr>
+          <td>{{ entry.created_at }}</td>
+          <td>{{ entry.user|default:_('System') }}</td>
+          <td>{% if entry.source != entry.target %}{{ entry.transition }}: {{ entry.source }} &rarr; {{ entry.target }}{% if entry.kind != 'transition' %} <span class="badge bg-light text-dark">{{ entry.get_kind_display }}</span>{% endif %}{% else %}<span class="badge bg-light text-dark">{{ entry.get_kind_display }}</span> {{ entry.transition }}{% if entry.data.error %} <span class="text-danger">{{ entry.data.error }}</span>{% endif %}{% endif %}</td>
+          <td>{{ entry.comment }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="text-muted">{% trans 'Nothing has happened yet.' %}</p>
+    {% endif %}
+    <a href="{% url 'flow_inbox' flow.name %}">{% trans 'Back to the inbox' %}</a> &middot;
+    <a href="{% url 'task_inbox' %}">{% trans 'Task inbox' %}</a>
+  </div>
+</div>
+{% endblock %}

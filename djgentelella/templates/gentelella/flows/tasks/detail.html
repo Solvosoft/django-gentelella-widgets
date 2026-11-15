@@ -1,0 +1,84 @@
+{% extends 'gentelella/base.html' %}
+{% load i18n gtflows %}
+{% block title %}{{ task.title }}{% endblock %}
+{% block content %}
+<div class="x_panel">
+  <div class="x_title">
+    <h2>{{ task.title }} <small>{{ task.get_state_display }}</small></h2>
+    <div class="clearfix"></div>
+  </div>
+  <div class="x_content">
+    <dl class="row">
+      {% if object %}<dt class="col-sm-3">{% trans 'About' %}</dt><dd class="col-sm-9">{% if flow %}<a href="{% url 'flow_detail' flow.name object.pk %}">{{ object }}</a> <small class="text-muted">{{ flow }}</small>{% else %}{{ object }}{% endif %}</dd>{% endif %}
+      {% if task.description %}<dt class="col-sm-3">{% trans 'Description' %}</dt><dd class="col-sm-9">{{ task.description|linebreaksbr }}</dd>{% endif %}
+      <dt class="col-sm-3">{% trans 'Priority' %}</dt><dd class="col-sm-9">{{ task.priority }} &middot; {{ task.get_priority_display }}</dd>
+      <dt class="col-sm-3">{% trans 'Owner' %}</dt><dd class="col-sm-9">{{ task.actual_owner|default:_('Nobody yet') }}</dd>
+      <dt class="col-sm-3">{% trans 'For' %}</dt><dd class="col-sm-9">{% for user in task.potential_owners.all %}{{ user }}{% if not forloop.last %}, {% endif %}{% endfor %}{% for group in task.groups.all %} <span class="badge bg-secondary">{{ group }}</span>{% endfor %}</dd>
+      {% if task.info_from %}<dt class="col-sm-3">{% trans 'Waiting for information from' %}</dt><dd class="col-sm-9">{{ task.info_from }}</dd>{% endif %}
+      {% if task.due %}<dt class="col-sm-3">{% trans 'Due' %}</dt><dd class="col-sm-9"><span class="badge {% if task.overdue %}bg-danger{% else %}bg-secondary{% endif %}">{{ task.due }}</span></dd>{% endif %}
+      {% if task.outcome %}<dt class="col-sm-3">{% trans 'Outcome' %}</dt><dd class="col-sm-9">{{ task.outcome|outcome_label }}</dd>{% endif %}
+    </dl>
+
+    <div class="gt-task-actions mb-3">
+      {% if 'claim' in allowed %}
+      <form method="post" action="{% url 'task_action' task.pk 'claim' %}" class="d-inline">{% csrf_token %}<button class="btn btn-primary" name="task-claim">{% trans 'Claim' %}</button></form>
+      {% endif %}
+      {% if 'release' in allowed %}
+      <form method="post" action="{% url 'task_action' task.pk 'release' %}" class="d-inline">{% csrf_token %}<button class="btn btn-outline-secondary" name="task-release">{% trans 'Release' %}</button></form>
+      {% endif %}
+    </div>
+
+    {% if forms.complete %}
+    <form method="post" action="{% url 'task_action' task.pk 'complete' %}" class="mb-3 gt-task-complete">
+      {% csrf_token %}
+      {% if task_form %}<div class="gt-task-form mb-2">{{ task_form }}</div>{% endif %}
+      {{ forms.complete }}
+      {% for outcome in task.outcome_choices %}
+      <button type="submit" name="outcome" value="{{ outcome }}" class="btn {% if outcome == 'reject' %}btn-danger{% elif outcome == 'approve' %}btn-success{% else %}btn-primary{% endif %}">{{ outcome|outcome_label }}</button>
+      {% endfor %}
+    </form>
+    {% endif %}
+
+    {% if forms.submit_info %}
+    <form method="post" action="{% url 'task_action' task.pk 'submit_info' %}" class="mb-3">
+      {% csrf_token %}{{ forms.submit_info }}
+      <button type="submit" class="btn btn-primary">{% trans 'Send the information' %}</button>
+    </form>
+    {% endif %}
+
+    {% if forms.delegate or forms.request_info %}
+    <div class="row">
+      {% if forms.delegate %}
+      <details class="col-md-6 mb-3"><summary>{% trans 'Delegate' %}</summary>
+        <form method="post" action="{% url 'task_action' task.pk 'delegate' %}">{% csrf_token %}{{ forms.delegate }}<button type="submit" class="btn btn-secondary">{% trans 'Delegate' %}</button></form>
+      </details>
+      {% endif %}
+      {% if forms.request_info %}
+      <details class="col-md-6 mb-3"><summary>{% trans 'Request information' %}</summary>
+        <form method="post" action="{% url 'task_action' task.pk 'request_info' %}">{% csrf_token %}{{ forms.request_info }}<button type="submit" class="btn btn-secondary">{% trans 'Ask' %}</button></form>
+      </details>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <h5>{% trans 'Comments' %}</h5>
+    {% for comment in comments %}
+    <div class="border-start ps-2 mb-2"><strong>{{ comment.user|default:_('System') }}</strong> <small class="text-muted">{{ comment.created_at }}</small><br>{{ comment.text|linebreaksbr }}</div>
+    {% empty %}<p class="text-muted">{% trans 'No comments.' %}</p>{% endfor %}
+    {% if forms.comment %}
+    <form method="post" action="{% url 'task_action' task.pk 'comment' %}" class="mb-3">{% csrf_token %}{{ forms.comment }}<button type="submit" class="btn btn-sm btn-outline-primary">{% trans 'Comment' %}</button></form>
+    {% endif %}
+
+    <h5>{% trans 'History' %}</h5>
+    <table class="table table-sm">
+      <thead><tr><th>{% trans 'When' %}</th><th>{% trans 'Who' %}</th><th>{% trans 'What' %}</th><th>{% trans 'Comment' %}</th></tr></thead>
+      <tbody>
+        {% for entry in history %}
+        <tr><td>{{ entry.created_at }}</td><td>{{ entry.user|default:_('System') }}</td><td>{{ entry.get_action_display }}{% if entry.to_user %} &rarr; {{ entry.to_user }}{% endif %}{% if entry.data.outcome %}: {{ entry.data.outcome|outcome_label }}{% endif %}</td><td>{{ entry.comment }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <a href="{% url 'task_inbox' %}">{% trans 'Back to the task inbox' %}</a>
+  </div>
+</div>
+{% endblock %}

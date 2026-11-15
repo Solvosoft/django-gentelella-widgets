@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "app": "demoapp",
+  "slug": "category_products",
+  "kind": "page",
+  "meta": {
+    "title": "Products of the category",
+    "url": "category-products/",
+    "url_name": "category_products",
+    "permissions": {
+      "view": [
+        "demoapp.view_person"
+      ]
+    }
+  },
+  "assets": {
+    "css": ".category-products .x_title h2 { font-weight: 600; }",
+    "js": "document.documentElement.dataset.categoryProducts = 'ready';"
+  },
+  "root": {
+    "type": "page",
+    "id": "page",
+    "children": [
+      {
+        "type": "row",
+        "id": "main",
+        "children": [
+          {
+            "type": "col",
+            "id": "body",
+            "props": {
+              "width": 12
+            },
+            "children": [
+              {
+                "type": "html",
+                "id": "back",
+                "props": {
+                  "html": "<p class=\"category-products\"><a href=\"{% url 'sales_dashboard' %}\">Back to the dashboard</a></p>"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

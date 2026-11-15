@@ -26,6 +26,8 @@ WIDGET = '#id_fileexample'
 #: chunked -- three requests plus the completion -- and not one POST that
 #: happens to look like it works.
 PAYLOAD = (b'djgentelella chunked upload test payload\n' * 6000)
+#: A stored file name that would run script if written with ``.html()``.
+MARKUP_NAME = '<img src=x onerror=window.gtxss=1>.txt'
 
 
 @tag('selenium')
@@ -172,6 +174,23 @@ class ChunkedUploadFileFieldTest(SeleniumTestCase):
             "const a = document.querySelector('[id^=download_] a');"
             "return a !== null && a.getAttribute('href') !== '';"),
             'no download link for the stored file')
+
+    def test_a_stored_name_with_markup_is_shown_as_text(self):
+        # A name assigned by code or kept by a storage that does not clean it:
+        # the widget parses the JSON value and must write the name as text.
+        item = ChunkedUploadItem.objects.create(name='Marcado')
+        ChunkedUploadItem.objects.filter(pk=item.pk).update(
+            fileexample=MARKUP_NAME)
+
+        self.go(f'/chunkedupload/{item.pk}')
+        self.assert_widget_ready(WIDGET)
+
+        self.assertEqual(self.js(
+            "return document.querySelector('.fileexample_messages')"
+            ".textContent.trim();"), MARKUP_NAME)
+        self.assertFalse(self.js(
+            "return document.querySelector('.fileexample_messages img') !== null"
+            " || window.gtxss === 1;"), 'the file name was injected as HTML')
 
     def test_saving_without_touching_it_keeps_the_file(self):
         item = ChunkedUploadItem(name='Intacto')

@@ -1,0 +1,37 @@
+{% extends 'gentelella/base.html' %}
+{% load i18n gtflows %}
+{% block title %}{% trans 'Flow demos' %}{% endblock %}
+{% block content %}
+<div class="x_panel">
+  <div class="x_title">
+    <h2>{% trans 'Flow demos' %} <small>djgentelella.flows</small></h2>
+    {% if request.user.is_superuser %}
+    <form method="post" action="{% url 'flow_demo_expire' %}" class="float-end">
+      {% csrf_token %}
+      <button class="btn btn-sm btn-outline-danger" title="{% trans 'Instead of waiting for process_flow_timers' %}"><i class="fa fa-clock-o"></i> {% trans 'Expire every deadline now' %}</button>
+    </form>
+    {% endif %}
+    <div class="clearfix"></div>
+  </div>
+  <div class="x_content">
+    <p>{% blocktrans %}Each flow is declared in <code>demo/demoapp/gtflows.py</code>. <code>manage.py createdemo</code> creates the users <b>ana</b>, <b>beto</b> and <b>carla</b> (password <code>demo</code>) and objects in several states: sign in as each of them to see the inbox, the votes and the disabled buttons change.{% endblocktrans %}</p>
+    {% for demo in demos %}
+    <div class="card mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">{{ demo.title }}</h5>
+        <span>
+          <a class="btn btn-sm btn-primary" href="{% url 'flow_demo_list' demo.slug %}">{% trans 'Try it' %}</a>
+          <a class="btn btn-sm btn-outline-secondary" href="{% url 'flow_inbox' demo.flow_name %}">{% trans 'Inbox' %}</a>
+          <a class="btn btn-sm btn-outline-secondary" href="{% url 'task_inbox' %}?flow={{ demo.flow_name|urlencode }}">{% trans 'Tasks' %}</a>
+        </span>
+      </div>
+      <div class="card-body">
+        <p>{{ demo.description }}</p>
+        <p>{% for feature in demo.features %}<span class="badge bg-secondary me-1">{{ feature }}</span>{% endfor %}</p>
+        <div style="overflow-x:auto">{% flow_diagram demo.flow_name %}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

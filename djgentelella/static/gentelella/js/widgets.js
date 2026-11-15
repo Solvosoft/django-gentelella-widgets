@@ -64,15 +64,14 @@ document.gtwidgets = {
         });
     },
     // CheckboxInput, NullBooleanSelect, RadioVerticalSelect and
-    // RadioHorizontalSelect have no initialiser any more: what they used to do
-    // here was hand the input to iCheck, and the .gt-check class their widgets
-    // stamp is drawn by gentelella/css/checks.css instead.
+    // RadioHorizontalSelect have no initialiser: the .gt-check class their
+    // widgets stamp is drawn by gentelella/css/checks.css alone.
     //
-    // They are still widgets, and their `data-widget` attribute still has to be
-    // on the element: it is how a widget is identified, how this registry
+    // They are widgets all the same, and their `data-widget` attribute has to
+    // be on the element: it is how a widget is identified, how this registry
     // dispatches, and what the code that reacts to a widget's events -- showing
     // and hiding related sections, the delete checkbox of the upload widgets --
-    // looks for. Only the drawing changed.
+    // looks for.
     YesNoInput: function (instance) {
         instance.each(function (index, element) {
             showHideRelatedFormFields($(element));
@@ -293,20 +292,55 @@ document.gtwidgets = {
     FilteredSelectMultiple: function (instance) {
         build_filtered_select_multiple(instance);
     },
+    // djgentelella.datasources (base/gt_facets.js)
+    GTFacets: function (instance) {
+        instance.each(function (i, e) { e.gtwidget = new GTFacets(e); });
+    },
+    GTFacetChips: function (instance) {
+        instance.each(function (i, e) { e.gtwidget = new GTFacetChips(e); });
+    },
+    GTDataSourceExport: function (instance) {
+        instance.each(function (i, e) { e.gtwidget = new GTDataSourceExport(e); });
+    },
+    // djgentelella.lov (base/lovselect.js)
+    LOVSelect: function (instance) {
+        gt_lov_select(instance);
+    },
+    LOVSelectMultiple: function (instance) {
+        gt_lov_select(instance);
+    },
 
+}
+
+/* The initializer a widget of a project subclass registered under its own
+   class name: data-widget is the name of its djgentelella base (the javascript
+   it inherits), data-widget-class its class name. A project that registered
+   that class name in document.gtwidgets gets its own javascript; null when
+   nothing did. */
+function gt_own_widget(element) {
+    var own = element.getAttribute('data-widget-class');
+    if (own && own !== element.getAttribute('data-widget')
+            && Object.prototype.hasOwnProperty.call(document.gtwidgets, own)) {
+        return own;
+    }
+    return null;
 }
 
 function gt_find_initialize(instance) {
     var widgets = Object.keys(document.gtwidgets);
     widgets.forEach((widgetname) => {
-        var elems = instance.find('[data-widget="' + widgetname + '"]');
+        var elems = instance.find('[data-widget="' + widgetname + '"]')
+            .filter(function () { return gt_own_widget(this) === null; })
+            .add(instance.find('[data-widget-class="' + widgetname + '"]')
+                .filter(function () { return gt_own_widget(this) === widgetname; }));
         if (elems.length > 0) {
             document.gtwidgets[widgetname](elems);
         }
     });
     let textautocomplete = '[data-widget="AutocompleteSelectMultiple"],[data-widget="AutocompleteSelect"]';
     textautocomplete += ',[data-widget="AutocompleteSelectMultipleImage"],[data-widget="AutocompleteSelectImage"]';
-    var autocomplete = instance.find(textautocomplete);
+    var autocomplete = instance.find(textautocomplete)
+        .filter(function () { return gt_own_widget(this) === null; });
     if (autocomplete.length > 0) {
         document.gtwidgets['GTAutocompleteSelect'](autocomplete);
     }
@@ -314,6 +348,10 @@ function gt_find_initialize(instance) {
     // subtree included -- keeps its icons as empty <i> without a rescan.
     if (typeof gt_friconix_refresh === 'function') {
         gt_friconix_refresh();
+    }
+    // Dynamic actions go last: their rules read the widgets booted above.
+    if (typeof gt_dynamic_initialize === 'function') {
+        gt_dynamic_initialize(instance);
     }
 }
 function gt_find_initialize_from_dom(instance) {

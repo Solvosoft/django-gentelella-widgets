@@ -1,0 +1,9 @@
+{% load i18n %}
+<form action="{{ action }}" method="POST" enctype="multipart/form-data">
+  {% csrf_token %}
+  {{ form }}
+  <div class="text-end mt-2">
+    <button type="submit" class="btn btn-success"><i class="fa fa-check"></i> {% trans 'Submit' %}</button>
+  </div>
+</form>
+{{ form.media }}

@@ -2,7 +2,7 @@ import json
 
 from django.forms import Widget
 
-from djgentelella.widgets.core import Input
+from djgentelella.widgets.core import Input, js_widget_name, set_js_widget
 
 
 class TaggingInput(Input):
@@ -11,7 +11,7 @@ class TaggingInput(Input):
 
     def __init__(self, attrs=None, extraskwargs=True):
         attrs = attrs or {}
-        attrs['data-widget'] = self.__class__.__name__
+        set_js_widget(attrs, js_widget_name(self))
         super().__init__(attrs, extraskwargs=False)
 
     def value_from_datadict(self, data, files, name):
@@ -28,7 +28,7 @@ class EmailTaggingInput(Input):
 
     def __init__(self, attrs=None, extraskwargs=True):
         attrs = attrs or {}
-        attrs['data-widget'] = self.__class__.__name__
+        set_js_widget(attrs, js_widget_name(self))
         super().__init__(attrs, extraskwargs=False)
 
     def value_from_datadict(self, data, files, name):
@@ -46,7 +46,7 @@ class RemoteAutocompleteEmailTagifyWidget(Widget):
         """Build an attribute dictionary."""
         dev = {**base_attrs, **(extra_attrs or {})}
         dev['data-url'] = self.base_url
-        dev['data-widget'] = self.__class__.__name__
+        set_js_widget(dev, js_widget_name(self))
         return dev
 
     @classmethod

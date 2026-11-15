@@ -11,7 +11,7 @@ from rest_framework import serializers
 
 from djgentelella.fields.drfdatetime import DateTimeRangeTextWidget
 from djgentelella.fields.files import GTBase64FileField
-from djgentelella.serializers import GTDateTimeField
+from djgentelella.serializers import DataTableSerializer, GTDateTimeField
 from djgentelella.serializers.selects import (
     GTS2SerializerBase, ChoicesGTS2Serializer,
 )
@@ -114,13 +114,10 @@ class EmailNotificationSerializer(serializers.ModelSerializer):
                 'preview': True}
 
 
-class EmailNotificationTableSerializer(serializers.Serializer):
+class EmailNotificationTableSerializer(DataTableSerializer):
     """DataTable wrapper serializer."""
     data = serializers.ListField(
         child=EmailNotificationSerializer(), required=True)
-    draw = serializers.IntegerField(required=True)
-    recordsFiltered = serializers.IntegerField(required=True)
-    recordsTotal = serializers.IntegerField(required=True)
 
 
 class EmailNotificationCreateSerializer(InlineAttachmentSerializerMixin,
@@ -191,13 +188,10 @@ class EmailTemplateSerializer(serializers.ModelSerializer):
         return {'update': True, 'destroy': True, 'preview': True}
 
 
-class EmailTemplateTableSerializer(serializers.Serializer):
+class EmailTemplateTableSerializer(DataTableSerializer):
     """DataTable wrapper serializer."""
     data = serializers.ListField(
         child=EmailTemplateSerializer(), required=True)
-    draw = serializers.IntegerField(required=True)
-    recordsFiltered = serializers.IntegerField(required=True)
-    recordsTotal = serializers.IntegerField(required=True)
 
 
 class EmailTemplateCreateSerializer(serializers.ModelSerializer):
@@ -239,13 +233,10 @@ class NewsLetterTemplateSerializer(serializers.ModelSerializer):
         return {'update': True, 'destroy': True, 'preview': True}
 
 
-class NewsLetterTemplateTableSerializer(serializers.Serializer):
+class NewsLetterTemplateTableSerializer(DataTableSerializer):
     """DataTable wrapper serializer."""
     data = serializers.ListField(
         child=NewsLetterTemplateSerializer(), required=True)
-    draw = serializers.IntegerField(required=True)
-    recordsFiltered = serializers.IntegerField(required=True)
-    recordsTotal = serializers.IntegerField(required=True)
 
 
 class NewsLetterTemplateCreateSerializer(serializers.ModelSerializer):
@@ -297,13 +288,10 @@ class NewsLetterSerializer(serializers.ModelSerializer):
         return {'update': True, 'destroy': True, 'preview_recipients': True}
 
 
-class NewsLetterTableSerializer(serializers.Serializer):
+class NewsLetterTableSerializer(DataTableSerializer):
     """DataTable wrapper serializer."""
     data = serializers.ListField(
         child=NewsLetterSerializer(), required=True)
-    draw = serializers.IntegerField(required=True)
-    recordsFiltered = serializers.IntegerField(required=True)
-    recordsTotal = serializers.IntegerField(required=True)
 
 
 class NewsLetterCreateSerializer(InlineAttachmentSerializerMixin,
@@ -366,13 +354,10 @@ class NewsLetterTaskSerializer(serializers.ModelSerializer):
         return {'update': True, 'destroy': True, 'send_now': True}
 
 
-class NewsLetterTaskTableSerializer(serializers.Serializer):
+class NewsLetterTaskTableSerializer(DataTableSerializer):
     """DataTable wrapper serializer."""
     data = serializers.ListField(
         child=NewsLetterTaskSerializer(), required=True)
-    draw = serializers.IntegerField(required=True)
-    recordsFiltered = serializers.IntegerField(required=True)
-    recordsTotal = serializers.IntegerField(required=True)
 
 
 class NewsLetterTaskCreateSerializer(serializers.ModelSerializer):

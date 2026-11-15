@@ -1,0 +1,14 @@
+{% extends 'gentelella/base.html' %}
+{% load i18n %}
+{% block title %}{{ page.title }}{% endblock %}
+{% block content %}
+<div class="x_panel">
+  <div class="x_title"><h2>{{ page.title }} <small>{{ page.path }}</small></h2><div class="clearfix"></div></div>
+  <div class="x_content">
+    <div class="alert alert-danger">
+      <strong>{% trans "This design does not resolve, so the page is not served." %}</strong>
+      <ul class="mb-0">{% for error in errors %}<li><code>{{ error.path }}</code>: {{ error.message }}</li>{% endfor %}</ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,187 @@
+{
+  "schema_version": 1,
+  "app": "demoapp",
+  "slug": "product_admin",
+  "kind": "page",
+  "meta": {
+    "title": "Products",
+    "url": "products/",
+    "url_name": "product_admin",
+    "permissions": {
+      "view": [
+        "demoapp.view_product"
+      ]
+    },
+    "menu": {
+      "category": "sidebar",
+      "parents": [
+        "Catalogue"
+      ],
+      "title": "Products",
+      "icon": "fa fa-cubes",
+      "position": 1
+    }
+  },
+  "forms": {
+    "product_form": {
+      "model": "demoapp.Product",
+      "fields": [
+        "name",
+        "price",
+        "status",
+        "available_since",
+        "category",
+        "tags",
+        "description"
+      ],
+      "render": "as_grid",
+      "grid": [
+        [
+          [
+            "name"
+          ],
+          [
+            "price"
+          ]
+        ],
+        [
+          [
+            "status"
+          ],
+          [
+            "available_since"
+          ]
+        ],
+        [
+          [
+            "category"
+          ],
+          [
+            "tags"
+          ]
+        ],
+        [
+          [
+            "description"
+          ]
+        ]
+      ],
+      "widgets": {
+        "description": "EditorTinymce",
+        "status": "RadioHorizontalSelect"
+      },
+      "help": {
+        "name": {
+          "title": "Product name",
+          "text": "The name shown in the catalogue."
+        },
+        "price": {
+          "title": "Price",
+          "text": "Unit price, taxes included."
+        }
+      }
+    }
+  },
+  "root": {
+    "type": "page",
+    "id": "page",
+    "children": [
+      {
+        "type": "row",
+        "id": "main",
+        "children": [
+          {
+            "type": "col",
+            "id": "intro",
+            "props": {
+              "width": 12
+            },
+            "children": [
+              {
+                "type": "html",
+                "id": "help",
+                "props": {
+                  "html": "<p class=\"lead\">The catalogue, with its categories and tags.</p>"
+                }
+              }
+            ]
+          },
+          {
+            "type": "col",
+            "id": "filters",
+            "props": {
+              "width": 3
+            },
+            "children": [
+              {
+                "type": "facets",
+                "id": "product_facets",
+                "props": {
+                  "target": "products",
+                  "columns": [
+                    "status",
+                    "category",
+                    "tags",
+                    "price"
+                  ],
+                  "title": "Filters"
+                }
+              }
+            ]
+          },
+          {
+            "type": "col",
+            "id": "table",
+            "props": {
+              "width": 9
+            },
+            "children": [
+              {
+                "type": "object_management",
+                "id": "products",
+                "props": {
+                  "model": "demoapp.Product",
+                  "form": "product_form",
+                  "list_fields": [
+                    "name",
+                    "price",
+                    "status",
+                    "available_since",
+                    "category",
+                    "tags"
+                  ],
+                  "search_fields": [
+                    "name",
+                    "description"
+                  ],
+                  "notify": [
+                    {
+                      "on": "create",
+                      "kind": "email",
+                      "code": "product_created",
+                      "subject": "New product: {{ object.name }}",
+                      "message": "<p>{{ user.username }} added <strong>{{ object.name }}</strong> at {{ object.price }}.</p>",
+                      "to": [
+                        "actor",
+                        "sales@group.local"
+                      ]
+                    },
+                    {
+                      "on": "update",
+                      "kind": "notice",
+                      "message": "{{ object.name }} was updated.",
+                      "message_type": "success",
+                      "to": [
+                        "actor"
+                      ]
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

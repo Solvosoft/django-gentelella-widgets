@@ -2,7 +2,11 @@ from django.contrib.admin.models import LogEntry
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
-from djgentelella.serializers import GTDateField, GTDateTimeField
+from djgentelella.serializers import (
+    DataTableSerializer,
+    GTDateField,
+    GTDateTimeField,
+)
 
 
 class HistorySerializer(serializers.ModelSerializer):
@@ -69,8 +73,5 @@ class HistoryRelationsMixin(serializers.Serializer):
         return row.data if row else None
 
 
-class HistoryDataTableSerializer(serializers.Serializer):
+class HistoryDataTableSerializer(DataTableSerializer):
     data = serializers.ListField(child=HistorySerializer(), required=True)
-    draw = serializers.IntegerField(required=True)
-    recordsFiltered = serializers.IntegerField(required=True)
-    recordsTotal = serializers.IntegerField(required=True)

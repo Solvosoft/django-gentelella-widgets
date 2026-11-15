@@ -13,6 +13,7 @@ from djgentelella.chartjs import (
     DoughnutChart,
     HorizontalBarChart,
     LineChart,
+    ScatterChart,
     StackedBarChart,
     VerticalBarChart,
     elements_to_v4,
@@ -241,3 +242,84 @@ class LabelsBeforeDatasetsTest(TestCase):
         data = Ordered().get_data()
         self.assertEqual(calls, ['labels', 'datasets'])
         self.assertEqual(data['datasets'][0]['data'], [1, 2])
+
+
+class ControlChart(LineChart):
+    """An X-bar chart: the mean, its centre line and two dashed limits."""
+
+    def get_labels(self):
+        return ['d1', 'd2', 'd3', 'd4']
+
+    def get_datasets(self):
+        dashed = {'borderDash': [6, 4], 'pointRadius': 0, 'borderWidth': 1}
+        return [
+            {'label': 'Mean', 'data': [5.0, None, 5.4, 4.9], 'spanGaps': True,
+             'tension': 0, 'order': 1,
+             'pointBackgroundColor': ['#1f77b4', '#1f77b4', '#d62728', '#1f77b4'],
+             'pointStyle': 'rectRot', 'pointRadius': [3, 3, 6, 3]},
+            {'label': 'UCL', 'data': [5.3] * 4, **dashed},
+            {'label': 'CL', 'data': [5.0] * 4, 'pointRadius': 0},
+            {'label': 'LCL', 'data': [4.7] * 4, 'hidden': False,
+             'yAxisID': 'y', **dashed},
+        ]
+
+
+class DatasetOptionsTest(TestCase):
+    """A dataset carries every Chart.js option it was given, not only the
+    declared ones."""
+
+    def serialize(self, chart):
+        return chart.serializer_class(chart.get_graph_data()).data
+
+    def test_control_chart_options_survive_the_serializer(self):
+        mean, ucl, cl, lcl = self.serialize(ControlChart())['data']['datasets']
+
+        self.assertEqual(mean['data'], [5.0, None, 5.4, 4.9])
+        self.assertIs(mean['spanGaps'], True)
+        self.assertEqual(mean['tension'], 0)
+        self.assertEqual(mean['order'], 1)
+        self.assertEqual(mean['pointBackgroundColor'][2], '#d62728')
+        self.assertEqual(mean['pointRadius'], [3, 3, 6, 3])
+        self.assertEqual(mean['pointStyle'], 'rectRot')
+        self.assertEqual(ucl['borderDash'], [6, 4])
+        self.assertEqual(ucl['pointRadius'], 0)
+        self.assertEqual(ucl['borderWidth'], 1)
+        self.assertNotIn('borderDash', cl)
+        self.assertEqual(lcl['yAxisID'], 'y')
+        self.assertIs(lcl['hidden'], False)
+
+    def test_a_dataset_with_declared_keys_only_is_unchanged(self):
+        """The charts written before keep their exact payload."""
+        dataset = self.serialize(VerticalBar())['data']['datasets'][0]
+
+        self.assertEqual(dataset, {'label': 'series', 'data': [1.0, 2.0],
+                                   'fill': False, 'borderWidth': 0})
+
+    def test_a_declared_key_keeps_its_type(self):
+        class Typed(VerticalBar):
+            def get_datasets(self):
+                return [{'label': 'series', 'data': ['1', 2], 'borderWidth': '2'}]
+
+        dataset = self.serialize(Typed())['data']['datasets'][0]
+
+        self.assertEqual(dataset['data'], [1.0, 2.0])
+        self.assertEqual(dataset['borderWidth'], 2)
+
+    def test_pie_and_scatter_datasets_keep_their_options_too(self):
+        class Pie(Doughnut):
+            def get_datasets(self):
+                return [{'label': 's', 'data': [1, 2], 'hoverOffset': 4,
+                         'backgroundColor': ['#111', '#222']}]
+
+        dataset = self.serialize(Pie())['data']['datasets'][0]
+
+        self.assertEqual(dataset['hoverOffset'], 4)
+
+        class Scatter(DemoData, ScatterChart):
+            def get_datasets(self):
+                return [{'label': 's', 'data': [{'x': 1, 'y': 2}],
+                         'pointRadius': 5}]
+
+        dataset = self.serialize(Scatter())['data']['datasets'][0]
+
+        self.assertEqual(dataset['pointRadius'], 5)

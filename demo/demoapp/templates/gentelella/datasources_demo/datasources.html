@@ -1,0 +1,38 @@
+{% extends 'gentelella/base.html' %}
+{% load gtdatasources %}
+
+{% block content %}
+<div class="card">
+  <div class="card-body">
+    <div class="card-title titles">
+      <h2>Data source: people</h2>
+    </div>
+    <p class="text-muted small">
+      The table, the facets on the left, the chips and the export menu read the
+      <code>demoapp.person</code> data source (<code>demoapp/gtdatasources.py</code>)
+      through <code>/gtapis/datasources/demoapp.person/</code>. Each facet counts
+      with every filter but its own.
+    </p>
+    <div class="row">
+      <div class="col-md-3">
+        {% gt_facets 'demoapp.person' 'country,num_children,born_date' %}
+      </div>
+      <div class="col-md-9">
+        <div class="d-flex flex-wrap justify-content-between align-items-start mb-2 gap-2">
+          {% gt_facet_chips 'demoapp.person' 'country,num_children' %}
+          {% gt_datasource_export 'demoapp.person' %}
+        </div>
+        <table id="datasourcetable" class="table table-striped w-100"></table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+  gtCreateDataSourceTable('#datasourcetable', '{% gt_datasource_url "demoapp.person" %}', {
+    columns: ['name', 'num_children', 'country', 'born_date', 'last_time']
+  });
+</script>
+{% endblock js %}

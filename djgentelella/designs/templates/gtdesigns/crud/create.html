@@ -1,0 +1,12 @@
+{% extends template_father %}
+{% load i18n %}
+{% block title %}{% trans 'New' %} {{ model_verbose_name|lower }}{% endblock %}
+{% block content %}
+<div class="card gencrud">
+  <div class="card-body">
+    {% include 'gtdesigns/crud/_back.html' %}
+    <h2>{% trans 'New' %} {{ model_verbose_name|lower }}</h2>
+    {% include 'gtdesigns/crud/_form.html' with action=url_create %}
+  </div>
+</div>
+{% endblock %}

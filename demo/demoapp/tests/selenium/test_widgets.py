@@ -568,3 +568,37 @@ class VoiceEditorTinymceTest(SeleniumTestCase):
                         'the dictate button never came back out')
         self.assertEqual(self.tinymce_type_errors(), [],
                          'a TinyMCE api call does not exist in this version')
+
+
+@tag('selenium')
+class ProjectSubclassJavascriptTest(SeleniumTestCase):
+    """A project subclass carries ``data-widget`` (its djgentelella base) and
+    ``data-widget-class`` (its own name, the old ``data-widget``).
+
+    ``gt_find_initialize`` uses the class name only when something registered
+    it in ``document.gtwidgets``, so javascript written for the old name keeps
+    running and a subclass without javascript gets the one of its base.
+    """
+
+    SETUP = """
+        window.gtcalls = [];
+        document.gtwidgets.GTTestBase = function (elems) {
+            elems.each(function () { window.gtcalls.push('base:' + this.id); });
+        };
+        document.gtwidgets.GTTestOwn = function (elems) {
+            elems.each(function () { window.gtcalls.push('own:' + this.id); });
+        };
+        var box = $('<div id="gt-subclass-box">'
+            + '<input id="own" data-widget="GTTestBase" data-widget-class="GTTestOwn">'
+            + '<input id="inherits" data-widget="GTTestBase"'
+            + ' data-widget-class="GTTestUnregistered">'
+            + '<input id="plain" data-widget="GTTestBase">'
+            + '</div>').appendTo('body');
+        gt_find_initialize(box);
+        return window.gtcalls.slice().sort();
+    """
+
+    def test_a_registered_class_name_wins_over_the_base(self):
+        self.go('/yesnoinput/')
+        self.assertEqual(self.js(self.SETUP),
+                         ['base:inherits', 'base:plain', 'own:own'])

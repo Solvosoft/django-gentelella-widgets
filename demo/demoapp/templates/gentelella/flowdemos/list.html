@@ -1,0 +1,46 @@
+{% extends 'gentelella/base.html' %}
+{% load i18n gtflows %}
+{% block title %}{{ flow }}{% endblock %}
+{% block content %}
+<div class="x_panel">
+  <div class="x_title">
+    <h2>{{ flow }}</h2>
+    <ul class="nav navbar-right panel_toolbox">
+      <li><a href="{% url 'flow_inbox' flow.name %}">{% trans 'Inbox' %}</a></li>
+      <li><a href="{% url 'task_inbox' %}?flow={{ flow.name|urlencode }}">{% trans 'Task inbox' %}</a></li>
+      <li><a href="{% url 'flow_diagram' flow.name %}">{% trans 'Diagram' %}</a></li>
+      <li><a href="{% url 'flow_demo_index' %}">{% trans 'All the demos' %}</a></li>
+    </ul>
+    <div class="clearfix"></div>
+  </div>
+  <div class="x_content">
+    <p>{{ demo.description }}</p>
+    {% if form %}
+    <details class="mb-3" {% if form.errors %}open{% endif %}>
+      <summary class="btn btn-sm btn-success">{% trans 'New' %}</summary>
+      <form method="post" class="mt-3">
+        {% csrf_token %}
+        {{ form }}
+        <button type="submit" class="btn btn-primary">{% trans 'Create' %}</button>
+      </form>
+    </details>
+    {% endif %}
+    {% if objects %}
+    <table class="table table-striped">
+      <thead><tr><th>{% trans 'Object' %}</th><th>{% trans 'State and transitions' %}</th></tr></thead>
+      <tbody>
+        {% for object in objects %}
+        <tr>
+          <td><a href="{% url 'flow_detail' flow.name object.pk %}">{{ object }}</a></td>
+          <td>{% flow_status object flow.name %}{% if can_pay and object.flow_state == 'payment' %}
+            <form method="post" action="{% url 'flow_demo_pay' demo.slug object.pk %}" class="d-inline">{% csrf_token %}<button class="btn btn-sm btn-outline-success gt-demo-pay"><i class="fa fa-money"></i> {% trans 'Mark as paid' %}</button></form>{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="text-muted">{% trans 'Nothing you can reach yet.' %}</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

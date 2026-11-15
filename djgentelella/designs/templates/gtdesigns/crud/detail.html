@@ -1,0 +1,17 @@
+{% extends template_father %}
+{% load i18n gtdesigns_tags %}
+{% block title %}{{ object }}{% endblock %}
+{% block content %}
+<div class="card gencrud">
+  <div class="card-body">
+    {% include 'gtdesigns/crud/_back.html' %}
+    {% if url_update and crud_perms.update %}<a href="{{ url_update }}" class="btn btn-sm btn-link float-end"><i class="fa fa-edit"></i> {% trans 'Edit' %}</a>{% endif %}
+    <h2>{{ object }}</h2>
+    <table class="table">
+      <tbody>
+      {% for name, title in gtdesign_columns %}<tr><th>{{ title }}</th><td>{{ object|design_value:name }}</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

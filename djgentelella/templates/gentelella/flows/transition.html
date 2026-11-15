@@ -1,0 +1,23 @@
+{% extends 'gentelella/base.html' %}
+{% load i18n %}
+{% block title %}{{ transition.label }}: {{ object }}{% endblock %}
+{% block content %}
+<div class="x_panel">
+  <div class="x_title">
+    <h2>{{ transition.label }} <small>{{ object }}</small></h2>
+    <div class="clearfix"></div>
+  </div>
+  <div class="x_content">
+    <p>{{ state_label }} &rarr; <strong>{{ target_label }}</strong></p>
+    {% if transition.help_text %}<p class="text-muted">{{ transition.help_text }}</p>{% endif %}
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {% if form %}{{ form }}{% endif %}
+      {{ comment_form }}
+      {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+      <button type="submit" class="btn {{ transition.css_class }}">{{ transition.label }}</button>
+      <a class="btn btn-secondary" href="{{ detail_url }}">{% trans 'Cancel' %}</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

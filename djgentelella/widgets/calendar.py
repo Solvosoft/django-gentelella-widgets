@@ -1,6 +1,6 @@
 import json
 
-from .core import TextInput, update_kwargs
+from .core import TextInput, js_widget_name, update_kwargs
 from ..serializers.calendar import EventSerializer
 
 
@@ -53,7 +53,7 @@ class CalendarInput(TextInput):
         self.add_url = add_url
         self.update_url = update_url
         self.delete_url = delete_url
-        attrs = update_kwargs(attrs, self.__class__.__name__, '')
+        attrs = update_kwargs(attrs, js_widget_name(self), '')
         # `is not None`, not truthiness: these are commonly reverse_lazy()
         # proxies, and forcing one here -- widgets are instantiated in Meta at
         # class-body/import time -- resolves it before urls.py has finished

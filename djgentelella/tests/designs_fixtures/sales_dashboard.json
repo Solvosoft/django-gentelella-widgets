@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "app": "demoapp",
+  "slug": "sales_dashboard",
+  "kind": "page",
+  "meta": {
+    "title": "Catalogue dashboard",
+    "url": "dashboard/",
+    "url_name": "sales_dashboard",
+    "permissions": {
+      "view": [
+        "demoapp.view_person"
+      ]
+    },
+    "menu": {
+      "category": "sidebar",
+      "parents": [
+        "Catalogue"
+      ],
+      "title": "Dashboard",
+      "icon": "fa fa-dashboard",
+      "position": 0
+    }
+  },
+  "root": {
+    "type": "page",
+    "id": "page",
+    "children": [
+      {
+        "type": "row",
+        "id": "tiles",
+        "children": [
+          {
+            "type": "col",
+            "id": "tile_count",
+            "props": {
+              "width": 4
+            }
+          },
+          {
+            "type": "col",
+            "id": "tile_price",
+            "props": {
+              "width": 4
+            }
+          },
+          {
+            "type": "col",
+            "id": "tile_categories",
+            "props": {
+              "width": 4
+            }
+          }
+        ]
+      },
+      {
+        "type": "row",
+        "id": "charts",
+        "children": [
+          {
+            "type": "col",
+            "id": "chart_left",
+            "props": {
+              "width": 6
+            }
+          },
+          {
+            "type": "col",
+            "id": "chart_right",
+            "props": {
+              "width": 6
+            }
+          },
+          {
+            "type": "col",
+            "id": "chart_bottom",
+            "props": {
+              "width": 12
+            }
+          }
+        ]
+      },
+      {
+        "type": "row",
+        "id": "tables",
+        "children": [
+          {
+            "type": "col",
+            "id": "categories_col",
+            "props": {
+              "width": 8
+            }
+          },
+          {
+            "type": "col",
+            "id": "tags_col",
+            "props": {
+              "width": 4
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

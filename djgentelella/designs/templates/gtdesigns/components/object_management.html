@@ -1,0 +1,35 @@
+{% load i18n %}
+<div class="x_panel gtdesign-table" data-gtdesign="{{ b.id }}"{% if not preview %} data-gtconfig="{{ b.id }}_gtconfig"{% endif %}>
+  <div class="x_title">
+    <h2>{{ b.title }}</h2>
+    <div class="clearfix"></div>
+  </div>
+  <div class="x_content">
+    {% if preview %}
+    <table class="table table-striped w-100" id="{{ b.id }}_table">
+      <thead><tr>{% for title in columns %}<th>{{ title }}</th>{% endfor %}<th>{% trans 'Actions' %}</th></tr></thead>
+      <tbody>{% for row in rows %}<tr>{% for value in row %}<td>{{ value }}</td>{% endfor %}<td><i class="fa fa-eye"></i> <i class="fa fa-edit"></i> <i class="fa fa-trash"></i></td></tr>{% endfor %}</tbody>
+    </table>
+    {% else %}
+    <table class="table table-striped w-100" id="{{ b.id }}_table"></table>
+    {% endif %}
+  </div>
+</div>
+{% if not preview %}
+{% if forms.create %}
+{% trans 'Create' as create_title %}
+{% include 'gentelella/blocks/modal_template.html' with form=forms.create id=b.id|add:'_create_modal' title=create_title form_id=b.id|add:'_create_form' url=base %}
+{% endif %}
+{% if forms.update %}
+{% trans 'Update' as update_title %}
+{% include 'gentelella/blocks/modal_template.html' with form=forms.update id=b.id|add:'_update_modal' title=update_title form_id=b.id|add:'_update_form' url=base|add:'0/' %}
+{% endif %}
+{% if allowed.retrieve %}
+{% include 'gentelella/blocks/modal_template_detail.html' with id=b.id|add:'_detail_modal' %}
+{% endif %}
+{% if allowed.destroy %}
+{% trans 'Delete' as delete_title %}
+{% include 'gentelella/blocks/modal_template_delete.html' with id=b.id|add:'_delete_modal' title=delete_title form_id=b.id|add:'_delete_form' url=base|add:'0/' %}
+{% endif %}
+{{ config }}
+{% endif %}

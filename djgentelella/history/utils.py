@@ -157,7 +157,8 @@ def add_log(
     log_entry = LogEntry(
         user_id=user.id,
         content_type_id=content_type.id,
-        object_id=object.pk,
+        # LogEntry.object_id is text, as in Django's own log_action().
+        object_id=str(object.pk),
         object_repr=object_repr[:200],
         action_flag=action_flag,
         change_message=change_message,

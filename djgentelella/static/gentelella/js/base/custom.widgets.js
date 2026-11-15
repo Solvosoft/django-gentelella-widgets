@@ -75,6 +75,9 @@ $.fn.listcrudrest = function(){
 $.fn.addselectwidget = function(){
     //var e=this;
     $.each(this, function(i,e){
+    // No data-modalname: the user may not create options (add_perms), so the
+    // template rendered the bare select and there is no modal to wire.
+    if(!$(e).data('modalname') || !$($(e).data('modalname')).length) return;
     $(document.body).append( $($(e).data('modalname')).detach() );
     var $modalui = $($(e).data('modalname'));
     $modalui.on('show.bs.modal', function (event) {

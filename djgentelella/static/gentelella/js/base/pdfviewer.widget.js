@@ -267,7 +267,7 @@ $.fn.pdfviewerwidget = function(){
                     parent.div_download.hide();
                     parent.div_remove.hide();
                     parent.div_message.show();
-                    parent.div_message.html(data.display_name);
+                    parent.div_message.text(data.display_name);
                     parent.div_preview.addClass('d-none');
                     parent.show_upload();
                 }else if("url" in data){
@@ -276,7 +276,7 @@ $.fn.pdfviewerwidget = function(){
                     parent.div_message.show();
                     parent.uploadfilecontent.hide();
                     parent.div_download.find('a')[0].href = data.url;
-                    parent.div_message.html(data.display_name);
+                    parent.div_message.text(data.display_name);
                     parent.show_upload();
 
                     // Load PDF preview
@@ -345,7 +345,7 @@ $.fn.pdfviewerwidget = function(){
                     parent.div_message.empty();
                     parent.uploadfilecontent.hide();
                     parent.div_message.show();
-                    parent.div_message.html(file.name);
+                    parent.div_message.text(file.name);
                     gt_chunked_upload({
                         file: file,
                         url: parent.upload_url,

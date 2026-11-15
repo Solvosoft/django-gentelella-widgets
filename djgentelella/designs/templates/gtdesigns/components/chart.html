@@ -1,0 +1,17 @@
+<div class="x_panel gtdesign-chart" data-gtdesign="{{ b.id }}">
+  <div class="x_title">
+    <h2>{{ b.title }}</h2>
+    <div class="clearfix"></div>
+  </div>
+  <div class="x_content">
+    {% if preview %}
+    <div class="gtdesign-chart-sample" data-gtsample="{{ b.id }}_gtsample"{% if b.circular %} style="position: relative; height: 300px"{% endif %}><canvas></canvas></div>
+    {{ sample }}
+    {% elif b.circular %}
+    {# A pie keeps the height of a bar chart: square, it would fill a wide column. #}
+    {% include 'gentelella/widgets/chartjs.html' with graph_url=url dataparams='style="position: relative; height: 300px"' %}
+    {% else %}
+    {% include 'gentelella/widgets/chartjs.html' with graph_url=url %}
+    {% endif %}
+  </div>
+</div>

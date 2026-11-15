@@ -80,3 +80,28 @@ class PDFViewerWidgetTest(SeleniumTestCase):
         self.go('/pdfviewer/')
         self.assertIn(
             'Demo', self.driver.find_element(By.TAG_NAME, 'body').text)
+
+
+@tag('selenium')
+class PDFViewerFileNameTest(SeleniumTestCase):
+    """The stored name reaches the page as JSON the widget parses; it is text."""
+
+    MARKUP_NAME = '<img src=x onerror=window.gtxss=1>.pdf'
+
+    def test_a_stored_name_with_markup_is_shown_as_text(self):
+        document = PDFDocument.objects.create(name='Marcado')
+        PDFDocument.objects.filter(pk=document.pk).update(pdf_file=self.MARKUP_NAME)
+
+        self.go('/pdfviewer/%d/' % document.pk)
+        self.wait_js(
+            "return document.querySelector('.pdf_file_messages') !== null"
+            " && document.querySelector('.pdf_file_messages')"
+            ".textContent.trim() !== '';",
+            message='the widget never showed the file name')
+
+        self.assertEqual(self.js(
+            "return document.querySelector('.pdf_file_messages')"
+            ".textContent.trim();"), self.MARKUP_NAME)
+        self.assertFalse(self.js(
+            "return document.querySelector('.pdf_file_messages img') !== null"
+            " || window.gtxss === 1;"), 'the file name was injected as HTML')

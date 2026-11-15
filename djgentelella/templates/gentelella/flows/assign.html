@@ -1,0 +1,19 @@
+{% extends 'gentelella/base.html' %}
+{% load i18n %}
+{% block title %}{% trans 'Reassign' %}: {{ object }}{% endblock %}
+{% block content %}
+<div class="x_panel">
+  <div class="x_title">
+    <h2>{% trans 'Reassign' %} <small>{{ object }}</small></h2>
+    <div class="clearfix"></div>
+  </div>
+  <div class="x_content">
+    <form method="post">
+      {% csrf_token %}
+      {{ form }}
+      <button type="submit" class="btn btn-primary">{% trans 'Reassign' %}</button>
+      <a class="btn btn-secondary" href="{{ detail_url }}">{% trans 'Cancel' %}</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

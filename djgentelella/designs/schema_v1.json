@@ -1,0 +1,265 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Solvosoft/django-gentelella-widgets/djgentelella/designs/schema_v1.json",
+  "title": "djgentelella design document, version 1",
+  "description": "The envelope of a design, shared by djgentelella.designs (runtime) and djgentelella-editor (code generation). The props of each node are validated by its component's props_schema.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "app",
+    "slug",
+    "kind",
+    "meta",
+    "root"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "app": {
+      "type": "string",
+      "pattern": "^[a-z_][a-z0-9_]*$"
+    },
+    "slug": {
+      "$ref": "#/$defs/identifier"
+    },
+    "kind": {
+      "enum": [
+        "page"
+      ]
+    },
+    "meta": {
+      "type": "object",
+      "required": [
+        "title",
+        "url",
+        "url_name"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "url": {
+          "description": "Path of the page inside the app's URLconf, Django path() syntax, ending in '/'.",
+          "type": "string",
+          "pattern": "^([A-Za-z0-9_\\-]+/)+$"
+        },
+        "url_name": {
+          "type": "string",
+          "pattern": "^[A-Za-z_][A-Za-z0-9_\\-]*$"
+        },
+        "permissions": {
+          "description": "Permissions needed to see the page. A plain list means {\"view\": [...]}.",
+          "type": [
+            "object",
+            "array"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "view": {
+              "$ref": "#/$defs/permission_list"
+            }
+          },
+          "items": {
+            "$ref": "#/$defs/permission"
+          }
+        },
+        "menu": {
+          "description": "A menu entry for the page, created by a data migration. The parent groups, given as a path of titles, are created when missing.",
+          "type": "object",
+          "required": [
+            "category"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "category": {
+              "enum": [
+                "main",
+                "sidebar"
+              ]
+            },
+            "parents": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "title": {
+              "type": "string"
+            },
+            "icon": {
+              "type": "string"
+            },
+            "position": {
+              "type": "integer"
+            }
+          }
+        },
+        "parent": {
+          "description": "Makes this a page about one object of the model: its URL gets <int:parent_pk>/ appended, and inline CRUD tables list that object's children.",
+          "type": "object",
+          "required": [
+            "model"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "model": {
+              "$ref": "#/$defs/model_label"
+            }
+          }
+        }
+      }
+    },
+    "assets": {
+      "description": "Custom CSS and JavaScript of the page. The editor writes them to static/<app>/gtgen/<slug>.css|.js; djgentelella.designs inlines the CSS and the JavaScript only when the publisher is trusted with it.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "css": {
+          "type": "string"
+        },
+        "js": {
+          "type": "string"
+        }
+      }
+    },
+    "forms": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/form"
+      }
+    },
+    "root": {
+      "$ref": "#/$defs/node"
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$"
+    },
+    "model_label": {
+      "type": "string",
+      "pattern": "^[a-z_][a-z0-9_]*\\.[A-Za-z_][A-Za-z0-9_]*$"
+    },
+    "permission_list": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/permission"
+      }
+    },
+    "form": {
+      "type": "object",
+      "required": [
+        "model"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "model": {
+          "$ref": "#/$defs/model_label"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "render": {
+          "enum": [
+            "as_horizontal",
+            "as_plain",
+            "as_inline",
+            "as_grid"
+          ]
+        },
+        "grid": {
+          "description": "GTForm.grid_representation: rows of columns of field names. Required by as_grid.",
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "widgets": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "help": {
+          "description": "Contextual help per field, seeded into djgentelella's Help (the ? next to each label).",
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": [
+              "title",
+              "text"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "title": {
+                "type": "string",
+                "minLength": 1
+              },
+              "text": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "node": {
+      "type": "object",
+      "required": [
+        "type",
+        "id"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "props": {
+          "type": "object"
+        },
+        "meta": {
+          "description": "What the engine reads about a node besides its props. condition: a djgentelella.authorization condition; the node, its children and its endpoints exist only for the requests where it holds. props.condition means the same.",
+          "type": "object",
+          "properties": {
+            "condition": {
+              "type": [
+                "object",
+                "null"
+              ]
+            }
+          }
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/node"
+          }
+        }
+      }
+    },
+    "permission": {
+      "type": "string",
+      "pattern": "^[a-z_][a-z0-9_]*\\.[a-z_][a-z0-9_]*$"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{% load i18n l10n %}
+<div class="tile-stats gtdesign-stat" data-gtdesign="{{ b.id }}"{% if url %} data-url="{{ url }}"{% endif %}>
+  <div class="icon"><i class="{{ b.icon }}"></i></div>
+  <div class="count">{% if stat.value is None %}&mdash;{% elif b.aggregate == 'avg' %}{{ stat.value|floatformat:2 }}{% else %}{{ stat.value|floatformat:"-2" }}{% endif %}</div>
+  <h3>{{ b.title }}</h3>
+  {% if b.subtitle %}<p>{{ b.subtitle }}</p>{% endif %}
+  {% if b.compare_field %}
+  <p class="gtdesign-stat-compare">
+    {% if stat.change is None %}<span class="text-muted">{% trans 'No previous period to compare with' %}</span>
+    {% elif stat.change >= 0 %}<span class="green"><i class="fa fa-sort-asc"></i> {{ stat.change|unlocalize }}%</span> {% trans 'from the previous period' %}
+    {% else %}<span class="red"><i class="fa fa-sort-desc"></i> {{ stat.change|unlocalize }}%</span> {% trans 'from the previous period' %}{% endif %}
+  </p>
+  {% endif %}
+</div>

@@ -35,6 +35,7 @@ Optional extras
     pip install djgentelella[celery]       # queue-backed async_notification dispatch
     pip install djgentelella[asr]          # voice dictation transcribed in-process
     pip install djgentelella[asr-remote]   # voice dictation transcribed elsewhere
+    pip install djgentelella[designs]      # design documents served as pages (nh3)
     pip install djgentelella[dev]          # asset bundling and minification (pylp)
 
 The two ``asr`` extras back the voice dictation widgets, and you need at most
@@ -56,6 +57,9 @@ it. With Celery installed **and** ``CELERY_BROKER_URL`` set, notifications are
 dispatched through the queue; otherwise they fall back to ``SyncBackend`` and
 are sent in-process. Nothing to configure either way — set
 ``ASYNC_NOTIFICATION_BACKEND`` only to force one explicitly.
+
+The ``designs`` extra is ``nh3``, which ``djgentelella.designs`` uses to clean
+the markup of the ``html`` nodes of a design. See :doc:`designs`.
 
 The ``firmador`` extra covers two separate concerns:
 
@@ -87,6 +91,11 @@ Add the following to your ``INSTALLED_APPS`` in ``settings.py``:
         # Optional apps (add as needed)
         'djgentelella.blog',
         'djgentelella.async_notification',
+        'django.contrib.sites',     # needed by djgentelella.flows (and SITE_ID)
+        'djgentelella.flows',       # flows and the task inbox: docs/flows
+
+        # Required by the Site of menus and settings: docs/sites
+        'django.contrib.sites',
 
         # Your apps...
     ]
@@ -97,13 +106,21 @@ which ``djgentelella/models.py`` imports at module level. Without it the project
 fails at startup with ``Model class django.contrib.admin.models.LogEntry doesn't
 declare an explicit app_label and isn't in an application in INSTALLED_APPS``.
 
-Only ``djgentelella.blog`` and ``djgentelella.async_notification`` are separate
-Django apps — they are the two that ship their own models, migrations, templates
-and static. The rest of the subpackages (``notification``,
+Only ``djgentelella.blog``, ``djgentelella.async_notification`` and
+``djgentelella.flows`` are separate Django apps — they are the ones that ship
+their own models and migrations. The rest of the subpackages (``notification``,
 ``permission_management``, ``chunked_upload``, ``trash``, ``history``, ``voice``,
 ``firmador_digital``) are plain Python modules: their models, when they have any,
 belong to the ``djgentelella`` app and migrate with it, and their views are wired
 through ``djgentelella.urls``. Adding them to ``INSTALLED_APPS`` does nothing.
+
+``django.contrib.sites`` is required too: a menu item and a database setting
+may belong to a ``Site`` (empty means global, for every site), so their models
+have a foreign key to it. Set ``SITE_ID = 1`` as well, which Django's own
+views (``LoginView``) need for hosts without a Site. A project with a single
+application creates no other Site and everything stays global. Without it,
+``manage.py check`` (and ``migrate``) stops with ``djgentelella.E001``. See
+:doc:`sites`.
 
 2. Required Settings
 """"""""""""""""""""""

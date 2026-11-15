@@ -9,9 +9,8 @@ That makes ``blocks/breadcrumb.html`` a contract in two directions: it renders
 the semantic markup Bootstrap expects, and it carries the ``data-bn-index``
 hooks the widget takes the node over by. Its most important promise, though, is
 the one about everything else: **with no ``breadcrumbs`` in the context it
-renders nothing at all**, which is what let it be wired into the previously
-empty block of ``base.html`` and ``plain.html`` without changing a single
-existing page.
+renders nothing at all**, which is what lets it live in the breadcrumb block
+of ``base.html`` and ``plain.html`` without changing a page that has none.
 """
 
 from django.template.loader import get_template, render_to_string

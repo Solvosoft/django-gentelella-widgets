@@ -22,6 +22,8 @@ Django Gentelella Widgets (``djgentelella``) is a reusable Django application th
    forms
    widgets/widgets
    widgets/advancedwidgets
+   dynamic_actions
+   lov
 
 .. toctree::
    :maxdepth: 2
@@ -30,6 +32,7 @@ Django Gentelella Widgets (``djgentelella``) is a reusable Django application th
    crud
    datatables
    model_fields
+   datasources
 
 .. toctree::
    :maxdepth: 2
@@ -48,12 +51,17 @@ Django Gentelella Widgets (``djgentelella``) is a reusable Django application th
    :caption: Advanced Features
 
    object_management
+   flows
+   designs
    permissionmanagement
    notifications
+   alerts
    async_notification/async_notification
    history
    trash
    drf_serializers
+   sites
+   authorization
 
 .. toctree::
    :maxdepth: 1

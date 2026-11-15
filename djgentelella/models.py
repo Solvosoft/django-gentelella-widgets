@@ -1,6 +1,9 @@
 from django.conf import settings
 from django.contrib.auth.models import Permission
+from django.core.cache import cache
 from django.db import models
+from django.db.models.signals import post_delete, post_save, pre_save
+from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
 from tree_queries.models import TreeNode
 
@@ -10,6 +13,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from .models_manager import ObjectManager, AllObjectsManager, DeletedObjectsManager
 from djgentelella.settings import USER_MODEL_BASE
 from djgentelella.history.utils import add_log, ADDITION
+from djgentelella.sites import site_pk
 
 
 class GentelellaSettings(models.Model):
@@ -20,9 +24,72 @@ class GentelellaSettings(models.Model):
 
     key = models.CharField(max_length=100)
     value = models.CharField(max_length=500)
+    # NULL is the global value; a Site overrides it for that Site.
+    site = models.ForeignKey(
+        'sites.Site',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='gentelella_settings',
+        verbose_name=_('Site'),
+        help_text=_('Empty: the value is global, for every site.'),
+    )
+
+    class Meta:
+        unique_together = (('key', 'site'),)
+        constraints = [
+            # unique_together does not cover the global rows: NULLs never
+            # collide in a unique index, so (key, NULL) needs its own.
+            models.UniqueConstraint(
+                fields=['key'],
+                condition=models.Q(site__isnull=True),
+                name='djgentelella_settings_unique_global_key',
+            ),
+        ]
 
     def __str__(self):
+        if self.site_id:
+            return '%s (%s)' % (self.key, self.site)
         return self.key
+
+
+def settings_cache_key(key, site=None):
+    """Cache key of the setting ``key`` in one scope: ``(key, site_id)``.
+
+    The global scope keeps the bare ``key`` it always had, so whatever already
+    clears it by name (``clean_cache([key])``) still works.
+    """
+    site_id = site_pk(site)
+    if site_id is None:
+        return key
+    return 'gtsettings:%s:%s' % (site_id, key)
+
+
+# Where a row was cached before a save that moves it: a save can change the
+# key or the Site of a row, and its old scope must be forgotten as well.
+_PREVIOUS_SCOPE_ATTR = '_gt_previous_cache_key'
+
+
+@receiver(pre_save, sender=GentelellaSettings)
+def _remember_cached_setting(sender, instance, **kwargs):
+    previous = None
+    if instance.pk is not None:
+        previous = sender._default_manager.filter(pk=instance.pk).values_list(
+            'key', 'site_id').first()
+    setattr(instance, _PREVIOUS_SCOPE_ATTR,
+            settings_cache_key(*previous) if previous else None)
+
+
+@receiver([post_save, post_delete], sender=GentelellaSettings)
+def _forget_cached_setting(sender, instance, **kwargs):
+    # The admin and any other ORM write change a value in place: the next read
+    # must see it, not what get_settings cached before -- in the scope the row
+    # has now and in the one it had before the save (another key or Site).
+    keys = {settings_cache_key(instance.key, instance.site_id)}
+    previous = instance.__dict__.pop(_PREVIOUS_SCOPE_ATTR, None)
+    if previous is not None:
+        keys.add(previous)
+    cache.delete_many(list(keys))
 
 
 class MenuItem(TreeNode):
@@ -52,6 +119,25 @@ class MenuItem(TreeNode):
     only_icon = models.BooleanField(default=False)
 
     position = models.IntegerField(default=0)
+    # NULL is a global item, shown on every site.
+    site = models.ForeignKey(
+        'sites.Site',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='gentelella_menu_items',
+        verbose_name=_('Site'),
+        help_text=_('Empty: the item is global, shown on every site.'),
+    )
+    # A condition of djgentelella.authorization: the item shows only when it
+    # holds, besides the permissions.
+    condition = models.JSONField(
+        null=True,
+        blank=True,
+        verbose_name=_('Condition'),
+        help_text=_('Empty: no condition. A djgentelella.authorization condition, '
+                    'e.g. {"perm": "app.view_model"} or {"flag": "beta"}.'),
+    )
 
     def __str__(self):
         return self.title

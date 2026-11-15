@@ -1,0 +1,215 @@
+{
+  "schema_version": 1,
+  "app": "demoapp",
+  "slug": "sales_dashboard",
+  "kind": "page",
+  "meta": {
+    "title": "Catalogue dashboard",
+    "url": "dashboard/",
+    "url_name": "sales_dashboard",
+    "permissions": {
+      "view": [
+        "demoapp.view_product"
+      ]
+    },
+    "menu": {
+      "category": "sidebar",
+      "parents": [
+        "Catalogue"
+      ],
+      "title": "Dashboard",
+      "icon": "fa fa-dashboard",
+      "position": 0
+    }
+  },
+  "forms": {
+    "category_form": {
+      "model": "demoapp.ProductCategory"
+    }
+  },
+  "root": {
+    "type": "page",
+    "id": "page",
+    "children": [
+      {
+        "type": "row",
+        "id": "tiles",
+        "children": [
+          {
+            "type": "col",
+            "id": "tile_count",
+            "props": {
+              "width": 4
+            },
+            "children": [
+              {
+                "type": "stat",
+                "id": "products",
+                "props": {
+                  "model": "demoapp.Product",
+                  "title": "Products",
+                  "icon": "fa fa-cubes",
+                  "compare": {
+                    "field": "available_since",
+                    "period": "month"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "type": "col",
+            "id": "tile_price",
+            "props": {
+              "width": 4
+            },
+            "children": [
+              {
+                "type": "stat",
+                "id": "average_price",
+                "props": {
+                  "model": "demoapp.Product",
+                  "title": "Average price",
+                  "aggregate": "avg",
+                  "value_field": "price",
+                  "icon": "fa fa-money"
+                }
+              }
+            ]
+          },
+          {
+            "type": "col",
+            "id": "tile_categories",
+            "props": {
+              "width": 4
+            },
+            "children": [
+              {
+                "type": "stat",
+                "id": "categories",
+                "props": {
+                  "model": "demoapp.ProductCategory",
+                  "title": "Categories",
+                  "icon": "fa fa-folder"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "row",
+        "id": "charts",
+        "children": [
+          {
+            "type": "col",
+            "id": "chart_left",
+            "props": {
+              "width": 6
+            },
+            "children": [
+              {
+                "type": "chart",
+                "id": "by_category",
+                "props": {
+                  "model": "demoapp.Product",
+                  "chart": "bar",
+                  "group_by": "category",
+                  "aggregate": "count"
+                }
+              }
+            ]
+          },
+          {
+            "type": "col",
+            "id": "chart_right",
+            "props": {
+              "width": 6
+            },
+            "children": [
+              {
+                "type": "chart",
+                "id": "by_status",
+                "props": {
+                  "model": "demoapp.Product",
+                  "chart": "pie",
+                  "group_by": "status",
+                  "aggregate": "count"
+                }
+              }
+            ]
+          },
+          {
+            "type": "col",
+            "id": "chart_bottom",
+            "props": {
+              "width": 12
+            },
+            "children": [
+              {
+                "type": "chart",
+                "id": "price_by_month",
+                "props": {
+                  "model": "demoapp.Product",
+                  "title": "Average price by month",
+                  "chart": "line",
+                  "group_by": "available_since",
+                  "period": "month",
+                  "aggregate": "avg",
+                  "value_field": "price"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "row",
+        "id": "tables",
+        "children": [
+          {
+            "type": "col",
+            "id": "categories_col",
+            "props": {
+              "width": 8
+            },
+            "children": [
+              {
+                "type": "object_management",
+                "id": "categories_table",
+                "props": {
+                  "model": "demoapp.ProductCategory",
+                  "form": "category_form",
+                  "row_links": [
+                    {
+                      "url_name": "category_products",
+                      "title": "Products",
+                      "icon": "fa fa-cubes"
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "type": "col",
+            "id": "tags_col",
+            "props": {
+              "width": 4
+            },
+            "children": [
+              {
+                "type": "crud_classic",
+                "id": "tags",
+                "props": {
+                  "model": "demoapp.ProductTag",
+                  "title": "Tags"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

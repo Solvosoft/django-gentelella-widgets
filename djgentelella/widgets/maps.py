@@ -2,7 +2,7 @@ import json
 
 from django.utils.translation import gettext_lazy as _
 
-from .core import TextInput, update_kwargs
+from .core import TextInput, js_widget_name, update_kwargs
 
 
 class MapPointInput(TextInput):
@@ -46,7 +46,7 @@ class MapPointInput(TextInput):
                  based_overwrite=False, tile_url=None, tile_attribution=None,
                  geocoder_url=None):
         if extraskwargs:
-            attrs = update_kwargs(attrs, self.__class__.__name__)
+            attrs = update_kwargs(attrs, js_widget_name(self))
         attrs = attrs or {}
         if zoom is not None:
             attrs['data-zoom'] = zoom

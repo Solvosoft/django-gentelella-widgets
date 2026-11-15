@@ -1,0 +1,18 @@
+{% load i18n %}
+<div class="x_panel gtdesign-facets-panel" data-gtdesign="{{ b.id }}">
+  <div class="x_title">
+    <h2>{{ b.title }}</h2>
+    <div class="clearfix"></div>
+  </div>
+  <div class="x_content">
+    {% if preview %}
+    {% for title, values in facets %}
+    <div class="gt-facet mb-3"><strong class="small">{{ title }}</strong>
+      {% for value in values %}<div class="form-check"><input class="form-check-input" type="checkbox" disabled> <label class="form-check-label small">{{ value }} ({{ forloop.counter }})</label></div>{% endfor %}
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="gtdesign-facets" data-url="{{ url }}" data-group="{{ group }}" data-columns="{{ columns }}" data-target="{{ b.target }}"></div>
+    {% endif %}
+  </div>
+</div>

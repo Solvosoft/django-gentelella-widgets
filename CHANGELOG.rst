@@ -1,11 +1,43 @@
 Changelog
 ===========
 
-Unreleased
-------------
+0.7.0 (2026-11-15)
+--------------------
 
 New features
 """"""""""""""""""
+
+**A flow engine, djgentelella.flows.** A ``Flow`` lists the states of a model
+and the ``Transition`` between them, each with its permissions, a condition,
+an optional form and actions: ``SetField``, ``Assign`` (a user or a group),
+``Notify``, ``SendEmail`` (async_notification) and ``CallFunction``. Flows
+live in ``<app>/gtflows.py``, registered from ``AppConfig.ready()`` so Celery
+and management commands see them too. djgentelella serves an inbox per flow,
+a page per object with its state, transitions and history, and the transition
+pages; ``{% flow_status %}`` and ``{% flow_states %}`` put them in any page.
+State lives in ``FlowInstance`` (any primary key type: integers, UUIDs, text
+up to 255 characters), every run in ``FlowTransitionLog``. Running a
+transition locks the object and checks it again, so two users cannot both
+win a race; actions marked ``on_commit`` run only after the transaction
+commits. Who reaches what is restrictive by default: everything with the
+model's view permission, otherwise only what the user can act on or is
+assigned to. Beyond that: ``on_enter``/``on_exit`` hooks per state and the
+``pre_transition``/``post_transition`` signals; conditions that say why
+(``TransitionBlocked``, shown on a disabled button); automatic transitions
+(``auto=True``) as gateways; deadlines (``Deadline``) run by
+``manage.py process_flow_timers`` or a Celery beat task; approvals by quorum
+(``Approval(min=2)``); claim, release and reassign; bulk runs from the inbox;
+and a server-side SVG diagram (``{% flow_diagram %}``). The demo shows five
+flows at ``/flowdemos/`` (purchases, help desk, editorial review, leave
+requests, countries), seeded by ``createdemo``. See ``docs/source/flows.rst``.
+
+**Widgets picked from the model field.** ``djgentelella.forms.widgetmap``
+holds the table of which djgentelella widget edits which model field, and
+``gt_formfield_callback`` applies it to a ModelForm through
+``Meta.formfield_callback``: dates get ``DateInput``, booleans ``YesNoInput``,
+relations to a ``TreeNode`` ``TreeSelect`` with the tree form field, and so on;
+``Meta.widgets`` still wins. djgentelella-editor reads the same table. See
+``docs/source/forms.rst``.
 
 **Signing service token.** ``RemoteSignerClient`` now sends
 ``Authorization: Bearer <FIRMADOR_TOKEN>`` on every call to the signing
@@ -132,8 +164,360 @@ strings become ContentTypes, shared by history and trash.
 
 See ``docs/source/history.rst`` and ``docs/source/trash.rst``.
 
+**Menus and settings per Site.** One installation can serve several
+applications, each one a ``django.contrib.sites`` Site with its own menus and
+settings. ``MenuItem.site`` and ``GentelellaSettings.site`` are optional
+foreign keys: empty is global, and the value of the current Site wins over the
+global one. ``djgentelella.sites`` gives ``get_current_site(request)``
+(``request.site`` when a middleware set it, else the Site of the host, else
+``None``) and ``site_q(site)``. The menu tags hide the items of other Sites at
+every level, even under a global parent, and an item of the Site with the same
+``url_name`` and ``category`` as a global one replaces it (with a
+placeholder ``url_name`` -- ``''``, ``'/'``, ``'#'`` -- the ``title`` must
+match too).
+``get_settings(key, site=None)`` and ``set_settings(key, value, site=None)``
+fall back to the global value, the cache is kept per ``(key, site)``, and
+``{% get_settings %}`` takes the Site of the request. Any ORM save or delete of
+a setting, the admin included, now clears its cached value, also in the
+key and Site it had before the save. The admin shows
+the Site and filters by it, and ``demomenu --with-site`` builds a second Site.
+See ``docs/source/sites.rst``.
+
+**Design documents served as pages, djgentelella.designs.** A new app (label
+``gtdesigns``, extra ``[designs]`` for nh3) loads the JSON designs
+djgentelella-editor writes, validates them and renders them live inside
+``gentelella/base.html``, without generating code or installing the editor.
+``python manage.py gtdesigns_publish design.json [--site] [--path] [--user]``
+validates and saves a ``Page`` (optional Site, path, document, hash), served
+at ``designs/<path>`` by the current Site with the global page as fallback,
+honouring ``is_published`` and the page's permissions; ``gtdesigns_export``
+writes it back. Node types are ``RuntimeComponent`` subclasses registered from
+each app's ``gtdesigns.py`` or ``GT_DESIGN_COMPONENTS``; ``page``, ``row``,
+``col`` and ``html`` ship built in, and a node may serve DRF viewsets under
+``gtapis/designs/<page>/<node>/``. A design can only use the models an app
+exposed with ``expose()``; its ``html`` is cleaned to an allow list and is not
+a Django template unless ``GT_DESIGNS_ALLOW_TEMPLATES`` is on and the
+publisher holds ``gtdesigns.publish_template`` (likewise ``assets.js`` with
+``GT_DESIGNS_ALLOW_JS`` and ``gtdesigns.publish_js``). The format, its
+validator and the form builder moved here from the editor. See
+``docs/source/designs.rst``.
+
+**Data sources, djgentelella.datasources.** A ``DataSource`` names the rows,
+the columns and the permissions of a report, in Python where Oracle APEX
+writes a ``SELECT``: ``ModelDataSource`` derives the columns from a model
+(with ``fields``, ``exclude``, ``perms`` and an optional ``site_field``),
+``FunctionDataSource`` wraps a function that returns a queryset. They live in
+``<app>/gtdatasources.py``. A JSON parameter document -- the one a saved
+report will store -- drives the query engine: filters checked against each
+column's kind (``eq`` to ``date_period``), search (full-text on PostgreSQL,
+``icontains`` elsewhere), ordering, ``group_by`` with aggregates, a pivot
+built with ``Case/When``, facets that count with every filter but their own,
+and highlights. The results export to CSV (streamed), JSON, XLSX (openpyxl,
+the new ``export`` extra, with totals and conditional formatting) and PDF
+(xhtml2pdf, the new ``pdf`` extra, with a repeated header and page numbers);
+``EXPORTERS`` takes more formats. Everything is served under
+``gtapis/datasources/<name>/`` and consumed by new widgets: a facets panel, a
+chips version, an export menu and ``gtCreateDataSourceTable``. The demo shows
+them at ``/datasources/``. Add ``'djgentelella.datasources'`` to
+``INSTALLED_APPS`` to use it. See ``docs/source/datasources.rst``.
+A source without ``perms`` needs an authenticated user (``perms=[]`` makes it
+public); JSON and XLSX exports stop at ``GT_DATASOURCE_EXPORT_MAX_ROWS``
+(50000) and CSV/XLSX cells never run as formulas. ``gtCreateDataSourceTable``
+escapes every cell and column title (``fk``/``m2m`` names included), XLSX drops
+the control characters XML does not allow, a POST body that is not a JSON
+object is a 400, and ``FunctionDataSource`` checks the permission before
+calling its function (``model=`` gives it an empty queryset to return).
+
+**Flows v2: activities, variables, versions and a task inbox.** Besides
+states and transitions, a flow now has the activities ``Switch`` (a branch by
+condition), ``Wait`` (a delay, a date in the variables or a signal sent with
+``flow.signal(obj, name, data)``), ``Parallel``/``Join`` (all branches or the
+first N), ``Subflow``, ``HumanTask`` and ``ActionActivity``. Instances keep
+``variables`` (JSON) that conditions read and actions, transition forms,
+signals and tasks write, and can be suspended, resumed, terminated and
+retried: an automatic activity that fails leaves the instance in error, and
+``retry`` enters it again. Flows can be written in JSON
+(``djgentelella/flows/schema_v2.json``) and loaded at runtime into a
+``FlowDefinition`` (``manage.py gtflows_publish``), by Site; each publication
+is a version, and an instance stays with the version it started with.
+Actions are registered by name with a JSON Schema of their props
+(``action_from_json``), with the new ``set_variable``, ``create_task`` and
+``start_flow``. Human tasks (``Task``, ``TaskComment``, ``TaskHistory``)
+are claimed, released, delegated, asked and answered for information and
+completed with an outcome, with priority, due date and expiry that escalates
+or decides; ``flows/inbox/`` is one inbox for the tasks of the user and their
+groups, filtered by flow, priority, state and due date. The diagram of an
+instance marks its activities under way, done and failed, and
+``process_flow_timers`` (or ``timers.process_due()``) runs deadlines, waits
+and task expiries. New signals ``task_created``, ``task_completed`` and
+``flow_state_changed``. The demo adds an expense approval written both in
+Python and in JSON. See ``docs/source/flows.rst``.
+
+**Dynamic actions and cascading lists of values.** A form declares
+``dynamic_actions = [When('tipo').equals('empresa').show('razon_social'), ...]``
+(``djgentelella.forms.dynamic``) and a small runtime in ``base.js`` runs them:
+triggers ``changes``, ``on_load``, ``equals``, ``not_equals``, ``in_``, ``gt``,
+``lt``, ``is_empty`` and ``is_checked``; actions ``show``/``hide``,
+``enable``/``disable``, ``require``, ``set_value`` (a constant, another field or
+a form method run on the server), ``refresh``, ``confirm``,
+``add_class``/``remove_class`` and ``call`` (a function registered with
+``document.gtdynamic.register``). Conditions are re-evaluated on every change
+and undo their reversible actions when they stop holding. GTForm emits the
+rules in every render; a form without them renders the same html as before.
+They work in formsets and in ObjectCRUD modals. ``set_value(server=...)`` goes
+through ``gtapis/dynamic/`` with a reference signed by ``django.core.signing``,
+and only methods declared in the class rules can be called; the token expires
+after ``GT_DYNAMIC_ACTIONS_MAX_AGE`` seconds (12 hours), is bound to the user
+of ``form.request`` when the form has one, and
+``Form.dynamic_actions_has_permission(request, method)`` (authentication plus
+``dynamic_actions_permissions`` by default) decides who may run it. Lists of values
+are registered with ``@register_lov(name, depends_on=[...], perms=[...])`` in
+``<app>/gtlovs.py``, served at ``gtapis/lov/<name>/`` (login required by
+default), edited with ``LOVSelect``/``LOVSelectMultiple`` and validated with
+``LOVChoiceField``/``LOVMultipleChoiceField`` against the parent values the form
+received; a malformed parent value (``?pais=abc``) makes the LOV empty
+instead of a 500. The demo shows country -> province -> canton, a total computed on the
+server and a confirmation at ``/dynamic_actions/``. Run ``createbasejs`` to
+rebuild ``base.js``. See ``docs/source/dynamic_actions.rst`` and
+``docs/source/lov.rst``.
+
+**Wave 1 integrated.** The stages share one Site rule: designs, data sources
+and flows resolve the current Site with ``djgentelella.sites`` (``request.site``,
+else the Site of the host, never ``SITE_ID``), so the local fallbacks of
+``djgentelella.designs`` (``designs/sites.py``, removed) and
+``djgentelella.datasources`` are gone, and ``ActionContext`` takes its Site
+from the request the same way. With ``djgentelella.datasources`` installed the
+task inbox is the data source ``flows.tasks``, with facets and exports. The flow
+definitions are validated by ``djgentelella.designs.jsonschema``, no longer a
+copy of it.
+
+**Authorization schemes, conditions and feature flags,
+djgentelella.authorization.** Access rules are Python functions with a name,
+``@authorization('es_supervisor')`` in ``<app>/gtauth.py`` (autodiscovered),
+checked with ``check_authorization(name, request, obj=None)`` and cached on the
+request (``cache=False`` opts out). A condition is JSON --
+``perm``, ``auth``, ``group``, ``setting`` (``equals``/``in``), ``flag``,
+``user_attr`` (only ``is_staff``, ``is_superuser``, ``is_authenticated``),
+``all``, ``any`` and ``not`` -- evaluated by ``evaluate_condition`` (``None``
+holds; an invalid one or an unknown authorization is false, and logged) and
+checked by ``validate_condition``, which returns ``(path, message)`` errors.
+It works in DRF (``ConditionPermission`` with ``condition`` or
+``conditions_by_action``, restrictive by default), in views
+(``ConditionRequiredMixin``, ``condition_required``), in templates
+(``{% if_condition %}``, ``{% if_flag %}``, ``request|authorized:"name"``,
+library ``gtauthorization``), in menus (the new ``MenuItem.condition``, migration
+``0023_menuitem_condition``; items without one behave as before), in design
+nodes (``props.condition`` or ``meta.condition``: the engine leaves out the
+node, its children and its endpoints) and in flows (the authorization conditions are no
+longer behind an ``ImportError``; outside a request they are evaluated for the
+run's user and Site through ``ConditionRequest``). Feature flags are settings
+with the ``flag.`` prefix and the Site rule: ``flag_enabled(name, request)``,
+``set_flag(name, value, site=None)``, and a *Feature flags* page in the
+settings admin with a toggle per Site. ``GT_SITE_GROUPS_RESOLVER`` decides
+which groups of a user count on a Site (all of them by default). See
+``docs/source/authorization.rst``.
+
+**Data components of djgentelella.designs.** Designs get the editor's
+components with data, served with no generated code: ``object_management``
+(a DataTable with create, update, detail and delete modals over an
+``AuthAllPermBaseObjectManagement``), ``inline_object_management`` (the
+children of the page's parent object, at ``designs/<path>/<parent pk>``),
+``chart`` (Chart.js, an aggregate of a model or a data source grouped by a
+field or a date period), ``stat`` (one number, optionally against the previous
+period), ``crud_classic`` (``CRUDView``, its list in the page and its pages
+under the node's endpoint) and the new ``facets`` (``GTFacets`` filtering a
+table of the page). Their builds hold data only; serializers, filtersets and
+viewsets are made at runtime (``djgentelella.designs.factories``) and cached
+by page hash and node. Tables can notify by email or in-app notice on create,
+update and delete. Every endpoint checks ``AllPermissionByAction``, only
+exposed models and fields are accepted, and ``preview=True`` renders sample
+rows with empty querysets. The demo gets the catalogue models and three
+designs adapted from the editor's (``demoapp/gtdesign/``). See "Data
+components" in ``docs/source/designs.rst``.
+
+**Conditions on the data components of the designs.** A condition of
+``djgentelella.authorization`` on a table, inline table, chart, stat, classic
+CRUD or facets node -- or on one of its ancestors -- leaves it out of the page
+and answers 404 at every one of its endpoints, the page of one object
+(``designs/<path>/<pk>``) included. A component may name the nodes it works on
+(``depends_on(build)``): it then exists only where they do, so a facets panel
+goes with the table it filters. ``GTDataSourceState.query`` adds the slash after
+the endpoint (``.../facets/?...``), which the data source API takes either way
+and the design router requires; the design facets no longer patch it.
+
+**Uploads per user, cleaned design CSS and a complete Spanish catalog.**
+``UserFileChunkedUpload`` and ``UserFileInput`` take a chunked upload only when
+it belongs to their user and finished (``COMPLETE``); any other token gives
+``None`` and deletes nothing. A form gets the user to them with
+``UserScopedUploadsMixin`` (``Form(data, user=...)`` or ``request=...``). The
+generic ``FileChunkedUpload`` and ``FileInput`` stay as they were, on purpose:
+who attaches or deletes a document need not be who uploaded it; both gained the
+``get_upload``/``upload_value`` hooks and give ``None`` on a malformed token
+instead of a 500. A stored file whose name holds quotes or ``</script>`` no
+longer breaks the widget's JSON. The ``assets.css`` of a design is cleaned
+(``@import``, ``expression()``, ``-moz-binding``, ``behavior`` and
+``javascript:`` URLs, also behind comments and escapes) unless the page may
+serve ``assets.js``; ``djgentelella.designs.css.clean_css`` does it. The node
+endpoints of a design apply the Site rule to the page pk too: a page of
+another Site, or a global page that the current Site overrides at the same
+path, is a 404. The ``es`` catalogs (django and djangojs) translate every
+string of djgentelella, including facets, the task inbox, flows, designs,
+data sources and flags (``Flitros`` is ``Filtros`` at last), and the task
+outcomes are shown through the ``outcome_label`` filter of ``gtflows``.
+In its review round: ``clean_css`` repeats until a pass changes nothing, so
+removing a rule no longer joins ``@im@import x;port`` into an ``@import``; the
+upload widgets (``FileChunkedUpload``, ``FileInput``, ``PDFViewerWidget``) write
+the file name as text, never as HTML; ``UserFileChunkedUpload(keep_upload=True)``
+gives the form the ``ChunkedUpload`` itself without deleting it;
+``UserScopedUploadsMixin`` takes ``self.user`` (or ``self.request.user``) of a
+form that keeps its own and binds the subwidgets of a ``MultiWidget``. Dotted
+paths read from settings (``GT_DESIGN_COMPONENTS``, ``GT_SITE_GROUPS_RESOLVER``)
+stay outside the flow allowlist, which only restricts paths that come from
+data.
+
+**Public hooks of the data sources.** ``query.validate_params(source,
+request, params, strict=False)`` checks a parameter document without running
+it and returns ``(clean, errors)`` with every problem and its JSON path
+(``$.aggregates[1]: ...``); ``group_expr`` and ``aggregate_expr`` are the
+public names of the checks of one entry (``_group_expr`` and
+``_aggregate_expr`` still work). ``coerce_value`` refuses ``NaN``, the
+infinities and decimals past the size of their column (``Column.max_digits``
+and ``decimal_places``, taken from the model) with a ``ValidationError``, so
+the API answers 400 instead of failing in the database; a list as a period or
+an aggregate function is a 400 too. ``EXPORTER_RESOLVERS``
+(``register_exporter_resolver``) add formats per request, ``(request) ->
+{fmt: exporter}``: ``available_formats(request)`` is what the API accepts, the
+source endpoint lists and the export menu and ``gtCreateDataSourceTable``
+offer by default. ``GT_DATASOURCE_EXPORT_HANDLER`` ``(request, source, params,
+fmt) -> HttpResponse | None`` takes over the export endpoint when it answers
+(a background job for a large export) and lets it run when it returns
+``None``. See ``docs/source/datasources.rst``.
+
+**Public hooks of the flows.** A ``human_task`` takes a ``form``: a form
+registered with ``@register_task_form`` (in JSON, its name; only registered
+forms are found), shown on the task page, validated (400 with the errors) and
+written to the variables. ``registered_actions()``,
+``registered_conditions()``, ``registered_task_forms()``,
+``registered_flows(published=False)``, ``activity_arguments()``,
+``catalogue()``, ``COMMON`` and ``ARGUMENTS`` describe the registries as
+JSON, for a designer. ``GT_FLOWS_ACTION_POLICY`` and ``ActionContext(...,
+policy=...)`` are asked before each action runs; a refusal is logged, sends
+``action_blocked`` and raises ``ActionNotAllowed``. ``ActionContext(...,
+render_context=fn)`` (``context.render_context()``) is the context the texts
+of the actions render with. ``ConditionRequest(user, site)`` is documented as
+the way to evaluate conditions on behalf of a user outside a request; it now
+takes a Site id and carries empty ``GET``/``POST``/``META``. See
+``docs/source/flows.rst`` and ``docs/source/authorization.rst``.
+
+**Deleting the object of a JSON flow no longer leaves its tasks open.** The
+cleanup of an object's flow instances was only connected in a process that had
+built the flow, so a shell, a command or a fresh worker deleting the object
+left its tasks in the inbox, and completing one was a 500 (``DoesNotExist``).
+Now every model a ``FlowDefinition`` runs on is watched from the first database
+connection of a process, the open tasks are cancelled (with their history) and
+kept as tasks of no flow, and a task whose object is gone anyway is cancelled
+with a message when someone completes it, or when it falls due. "Gone" is
+checked with the model's ``_base_manager``, so an object a default manager
+hides (soft delete, archived, by Site) never loses its instance or its log.
+The export endpoint checks the parameters with ``validate_params`` before
+``GT_DATASOURCE_EXPORT_HANDLER`` gets them; an action policy that raises gives
+the user a generic reason (``ActionNotAllowed('...')`` keeps its own);
+``ConditionRequest(site=<id of no Site>)`` raises ``ValueError`` instead of
+taking the global scope; ``gtCreateDataSourceTable`` lists ``csv``, ``xlsx``,
+``json``, ``pdf`` first.
+
+**Public hooks of the design engine.** ``ResolveContext`` gets
+``check_permissions(path, perms)`` and ``lookups(model)``, and
+``exposure(label)`` without a path only asks; the components with data and
+the table notifications go through them, so a context of its own changes what
+a design may use. ``engine.resolve()`` takes a ``context`` (a ``ResolveContext``
+subclass or instance) and ``components`` (instead of the registry), with its
+old signature unchanged. Row links reach a flow (``flow:<name>``, or
+``flow:<name>:<transition>``) and take a condition; tables and classic CRUDs
+take ``column_conditions`` (a hidden column leaves the page and the API: rows,
+detail, search, filters, ordering, facets) and ``action_conditions`` (a
+refused action is a 403). A hidden column is not read nor written by an
+update, and the default ordering does not follow it. The conditions of a page
+about one object are evaluated with that object where the node's endpoints
+carry it (an inline table and its facets); the other nodes are evaluated
+without it on the page as in their API. ``engine.render()`` renders with a
+copy (``ResolveContext.copy_for()``) of the context instance the page was
+resolved with. A component with ``facets_target`` and
+``facets_source()`` can be the target of a ``facets`` panel.
+``GT_DESIGNS_PAGE_CONTEXT`` and ``GT_DESIGNS_BASE_TEMPLATE`` give the design
+pages the theme, breadcrumbs or layout of whatever mounts them. See
+"Extending the engine" in ``docs/source/designs.rst``.
+
+**The form of a human task goes through the flow allowlist.** In a JSON
+flow, ``human_task.form`` is a name registered with ``register_task_form`` or
+the dotted path of a form class that
+``GT_FLOWS_ALLOWED_CALLABLES`` (or ``register_callable``) allows;
+``get_task_form`` is still the one place a name becomes a class.
+``publish_definition`` refuses any other name (``$.states[i].form``,
+``taskforms.validate_task_forms``); a stored document still loads, and its
+``human_task`` refuses to create the task, logged and with the activity in
+error, until the name is allowed.
+
+**Configurable alerts, djgentelella.alerts.** An app registers a process
+(``register_alert_process``: its evaluator, the triggers it accepts, who
+manages its rules) and the project makes ``AbstractAlertRule`` and
+``AbstractAlertEvent`` concrete (``GT_ALERTS_RULE_MODEL``). ``fire_alert``
+records the event -- once per ``dedupe_key`` while it is open, optionally
+repeated with ``renotify_after`` -- and notifies through pluggable channels:
+email from an async_notification template (with a ``sender`` hook), the
+notification bell, or any ``AlertChannel`` a project registers.
+``resolve_alert`` closes it with the evidence (a generic foreign key) and
+tells the channels. Triggers are registered in code with their threshold
+fields (``absolute``, ``percent``, ``missing``, ``due``), and
+``fire_due_alert`` covers the "calibration coming due" case: ahead of the date,
+on it, and repeatedly while overdue. ``run_alert_rules`` evaluates a process
+from cron or the Celery task. Abstract models only: no app, no migration. See
+``docs/source/alerts.rst``.
+
+**Who may add to a catalog (#116).** ``SelectWithAdd``,
+``SelectMultipleAdd``, ``TreeSelectWithAdd``, ``TreeSelectMultipleWithAdd``
+and ``FilteredSelectMultiple`` take ``add_perms``: without those permissions
+the user gets the plain select, with no add button and no modal. The user
+comes from the form through ``UserBoundWidgetsMixin`` -- the former
+``UserScopedUploadsMixin``, a name that still works -- and with ``add_perms``
+and no user the button is hidden. Without ``add_perms`` nothing changes. The
+blog's entry form uses it for its categories. The add button of the tree
+widgets, still on Bootstrap 4's ``data-toggle``, opens its modal again. See
+``docs/source/widgets/select_widgets.rst``.
+
+**Chart datasets carry every Chart.js option.** A dataset of
+``get_datasets`` keeps the keys ``DataSetSerializer`` does not declare
+(``borderDash``, ``pointRadius``, ``pointBackgroundColor``, ``pointStyle``,
+``tension``, ``spanGaps``, ``yAxisID``, ``order``, ``hidden``...) instead of
+dropping them silently, and ``data`` takes ``None`` for a gap: dashed limits
+and points coloured one by one, as a control chart needs. The same goes for
+pie and scatter datasets. A dataset with the declared keys alone serializes as
+before. See "Dataset options" in ``docs/source/appwidgets/charts.rst``.
+
+**djgentelella.serializers.DataTableSerializer.** The envelope DataTables
+expects (``draw``, ``recordsTotal``, ``recordsFiltered``, ``data``); subclass
+it and declare ``data`` with the row serializer. The history, trash,
+notification and async_notification tables use it.
+
 Backwards incompatible
 """"""""""""""""""""""""
+
+**djgentelella.flows is an app of its own, and needs django.contrib.sites.**
+Add ``'django.contrib.sites'`` and ``'djgentelella.flows'`` to
+``INSTALLED_APPS`` (and ``SITE_ID``) and migrate. Its models live in
+``djgentelella.flows.models`` (app label ``gtflows``) with their own
+migrations. Because the engine was never released, its history was rewritten
+instead of migrated: ``djgentelella/migrations/0021_flows.py`` no longer
+creates ``FlowInstance``, ``FlowTransitionLog`` and ``FlowVote`` -- it is kept,
+empty, so the migrations after it hold -- and a database that applied the old
+one keeps three orphan ``djgentelella_flow*`` tables to drop by hand.
+Conditions now get the run's context (``condition(context)``, with
+``context.obj``, ``context.user``, ``context.variables``) instead of
+``(obj, user)``. ``Approval`` and ``FlowVote`` are gone: a quorum is a
+``HumanTask(each=True, min=2)``, one task per approver. The ``{% load gtflows
+%}`` tags and the ``process_flow_timers`` command moved into the app, the
+Celery task is ``djgentelella.flows.tasks.process_flow_timers_task`` still,
+and ``reassign_perms`` defaults to ``gtflows.change_flowinstance``.
 
 **The help palette showed its own template placeholders.** The panel builds
 each entry by cloning a hidden prototype block and swapping ``$title`` and
@@ -518,6 +902,50 @@ silently picking up flag-icons' ``background-size``, ``display`` and ``width``.
 
 Projects that never used flags need to change nothing.
 
+**django.contrib.sites is required.** The Site of menus and settings is a
+foreign key to ``sites.Site``: add ``'django.contrib.sites'`` to
+``INSTALLED_APPS``, set ``SITE_ID`` (Django's ``LoginView`` needs it) and run
+``migrate``. Existing menus and settings stay global, so nothing else changes.
+The key of a setting is now unique per Site (and globally among the global
+rows); migration ``0022_site_scoping`` refuses to run while two global rows
+share a key -- ``set_settings`` already failed on those keys -- and lists the
+``pk`` and value of each, deleting nothing: keep one row per key and migrate
+again. Without ``django.contrib.sites`` the system check ``djgentelella.E001``
+says so.
+
+**Hardening.** Four changes may need a look when upgrading:
+
+- *The data-widget of a subclass is the one of its base.* The javascript
+  initializes a widget by ``data-widget``, which used to be the class name, so
+  a widget subclassed in a project lost its javascript. It is now
+  ``js_widget_name(widget)``: the ``js_widget`` of the nearest class that sets
+  it, or else the name of the nearest class of djgentelella. A project
+  subclass with javascript of its own sets ``js_widget = 'MyWidget'``; one
+  that already registered javascript under its class name
+  (``document.gtwidgets.MyWidget``) keeps working without changes: the class
+  name is rendered as ``data-widget-class`` and ``gt_find_initialize`` prefers
+  it when something registered it.
+- *FileChunkedUpload.format_value* returns plain JSON built with
+  ``json.dumps`` (``<``, ``>`` and ``&`` escaped as ``\u00XX``) and no longer
+  marked safe; the template escapes it into the attribute. Code that put
+  ``widget.value`` in a template with ``|safe`` gets the same text.
+- *A JSON flow names only allowed callables.* ``publish_definition`` refuses a
+  ``FlowDefinition`` whose conditions, ``call`` actions or transition forms
+  name a dotted path that is not registered (``register_callable``,
+  ``register_condition``) nor listed in ``GT_FLOWS_ALLOWED_CALLABLES``
+  (empty by default); a stored one still loads, and the callable is refused
+  and logged when it runs. Flow classes in Python are not affected.
+- *0022_site_scoping fails on duplicated global settings* instead of deleting
+  them (above).
+
+**The tasks of a deleted object are kept, cancelled.** Deleting the object of
+a flow instance used to delete its tasks with the instance; now the open ones
+are cancelled first and all of them stay, as tasks of no flow (``instance``
+empty), with their history. ``{% gt_datasource_export %}`` without
+``formats`` offers the formats of the request (``available_formats``) instead
+of always ``csv,xlsx,json,pdf``, and ``gtCreateDataSourceTable`` without
+``formats`` the ones the source endpoint lists.
+
 New features
 """"""""""""""""""
 
@@ -554,6 +982,13 @@ See ``docs/source/icons.rst``.
 
 Fixes
 """"""""""""""""""
+
+**Seven test modules never ran.** ``djgentelella/tests`` modules are found
+only through the star imports of its ``__init__.py``, and BreadcrumbNav,
+FilteredSelectMultiple, FirmadorToken, Flows, History, PositionsGrid and
+Select2Autocomplete were missing from it -- CI passed without them. They run
+now, and History's exposed ``add_log`` storing an integer ``object_id`` on
+``LogEntry``, fixed.
 
 ``loaddevstatic`` dropped the last chunk of its download queue whenever the
 number of files was an exact multiple of the thread count, so a library could
@@ -613,6 +1048,18 @@ Awesome and MDI declare, the ``<symbol>`` elements of the flags sprite -- so no
 list can drift from the version ``loaddevstatic`` downloaded. The flags page
 also previews the ``square``, ``circle`` and ``rounded`` shapes, and the
 friconix page lets you try a mask against every icon at once.
+
+**The sidebar menu escapes what it reads from the database.** The titles,
+links and icons of ``sidebar_menu`` and ``footer_sidebar_menu`` were put in the
+page as they were, so a ``MenuItem.title`` of ``<img src=x onerror=...>`` ran
+in every page. They are escaped now, as ``top_menu`` already did; a title with
+HTML in it shows the HTML as text.
+
+**A GTForm no longer changes the template of every other form.** Its
+``render_type`` was stored on ``self.renderer`` -- the renderer every form of
+the process shares -- so after one ``as_grid`` GTForm (the modals of a design
+table, for instance) a plain Django form rendered as an empty grid. The
+template is now chosen per instance (``GTForm.template_name``).
 
 Dependencies
 """"""""""""""""""
@@ -718,6 +1165,76 @@ combining the unit and the browser suites into a single report. Configuration
 lives in ``pyproject.toml``; ``coverage`` is not a declared dependency, install
 it yourself. The unused ``[tool.black]`` section was dropped -- the formatter
 this project actually uses is ``ruff format``.
+
+Review fixes
+""""""""""""""""""
+
+**A ``Wait`` needs ``next``.** Its signal and its timeout both move the token
+there; without it ``flow.signal()`` raised ``KeyError`` (a 500) and the timer
+retried on every ``process_flow_timers`` forever. ``Wait(...)`` without
+``next`` is now ``ImproperlyConfigured``, and so is building or publishing a
+JSON flow whose ``wait`` lacks it -- check stored definitions before upgrading.
+
+**Long chains of automatic activities.** The engine used to nest a few Python
+frames per move, so a chain of some 200 automatic activities hit
+``RecursionError`` long before ``Run.MAX_STEPS`` (500). Moves now run from a
+depth-first queue in a loop: any chain under the limit completes, and a loop
+of automatic activities ends with the ``ImproperlyConfigured`` that names it.
+The ``on_enter`` actions of the branches of a ``Parallel`` all run when it
+forks, before the first branch does its work.
+
+**Subflows nest at most ``GT_FLOWS_MAX_SUBFLOW_DEPTH`` deep** (10 by default).
+Flows that start each other on new objects used to recurse without limit
+inside one transaction; the ``Subflow`` past the limit is now left in error.
+
+**``action_from_json`` guards a ``call`` by itself.** The ``function`` of a
+``call`` built from JSON goes through the allowlist of JSON flows
+(``GT_FLOWS_ALLOWED_CALLABLES``, ``register_callable``) when it runs, even if
+the caller does not wrap it with ``guard_action``. ``action_from_json`` takes
+an optional ``where`` for the log, and ``guard_action`` on an action already
+guarded only updates that place. ``CallFunction('pkg.fn')`` written in Python
+is unchanged.
+
+**One autodiscovery, safe between threads.** ``djgentelella.utils.
+autodiscover_once(module_name)`` imports ``<app>.<module_name>`` of every app
+once, under a lock, and counts it as done only after the imports worked. The
+authorizations (``gtauth``), the LOVs (``gtlovs``) and the data sources
+(``gtdatasources``) use it; the authorization registry used to mark itself
+discovered before importing, so a request on another thread at startup could
+find it empty and deny. The registry of design components loads under a lock
+too.
+
+**LOVs of ``values_list()`` validate the value they offer.** ``LOV.find``
+(and so ``LOVChoiceField``) filtered every queryset by ``pk``, while the
+options of a ``values_list('code', 'name')`` carry ``code``: a valid option was
+rejected, or a row whose pk matched by chance was accepted. Querysets of models
+are still looked up by pk; the others by their first column. The options of a
+``values()`` queryset are now its first two columns instead of the whole dict.
+
+**Aggregates and pivots have a cap: ``GT_DATASOURCE_MAX_GROUPS``** (1000 by
+default). More groups, or more pivot rows or columns, than that is a
+``ValidationError`` -- a 400 from the data source API -- instead of loading
+every group in memory; results under the cap are unchanged. ``aggregate()``
+takes ``order_by_value`` and ``limit``, and the charts of designs use them to
+read only their top groups, ordered in the database. The pivot composed in
+Python keeps its row and column values in dicts instead of lists.
+
+**The HTML of designs keeps only Bootstrap's ``data-*`` attributes.** The
+sanitizer kept every ``data-*``, so a publisher without ``publish_js`` could
+write ``data-widget``, ``data-url`` or ``data-gt-dynamic`` and have a widget of
+the page initialised with values of their choosing. Now only ``aria-*`` and
+the ``data-*`` Bootstrap reads to toggle, collapse, dismiss and slide are kept
+(``djgentelella.designs.sanitize.DATA_ATTRIBUTES``); ``data-bs-html``,
+``data-bs-sanitize`` and ``data-bs-template`` are dropped too. Designs whose
+``html`` nodes rely on other ``data-*`` lose them.
+
+**Cycles of dynamic actions stop.** The ``MAX_DEPTH`` guard of
+``dynamic_actions.js`` counted only the synchronous part of a change, and the
+actions run in promises, so two rules feeding each other values that never
+converge (or a ``set_value(server=...)`` that answers a new value every time)
+looped forever. The depth now travels with the change that a ``set_value``,
+a ``refresh`` or a ``call``'s ``setValue`` fires, and a cascade stops after ten
+changes.
 
 0.6.0
 -------

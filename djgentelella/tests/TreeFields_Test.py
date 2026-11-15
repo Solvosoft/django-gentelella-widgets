@@ -2,6 +2,7 @@ from pathlib import Path
 
 from django import forms
 from django.test import TestCase
+from django.utils.html import escape
 
 import djgentelella
 from djgentelella.fields.tree import GentelellaTreeNodeChoiceField, \
@@ -81,8 +82,15 @@ class TreeNodeFieldsTestCase(TestCase):
     def test_empty_label_is_renderable_by_the_option_template(self):
         field = GentelellaTreeNodeChoiceField(queryset=MenuItem.objects.all())
         empty = dict(field.choices)['']
-        self.assertEqual(empty['text'], '---------')
+        # Django's own blank label: '---------' up to 6.0, '- Select an
+        # option -' since 6.1 (or the dashes again with USE_BLANK_CHOICE_DASH).
+        blank = forms.ModelChoiceField(queryset=MenuItem.objects.all()).empty_label
+        self.assertEqual(empty['text'], blank)
         self.assertFalse(empty['disable'])
+        self.assertEqual(empty['level'], 0)
+        html = str(field.widget.render('item', None))
+        self.assertRegex(html, r'<option\s+value="" class="l0"')
+        self.assertIn('>%s</option>' % escape(blank), html)
 
     def test_default_widgets(self):
         single = GentelellaTreeNodeChoiceField(queryset=MenuItem.objects.all())

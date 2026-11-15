@@ -1,0 +1,19 @@
+{% load i18n %}
+<div class="x_panel gtdesign-crud" data-gtdesign="{{ b.id }}">
+  <div class="x_title">
+    <h2>{{ b.title }}</h2>
+    <div class="clearfix"></div>
+  </div>
+  <div class="x_content">
+    {% if preview %}
+    <table class="table table-bordered table-hover">
+      <thead><tr>{% for title in columns %}<th>{{ title }}</th>{% endfor %}<th>{% trans 'Actions' %}</th></tr></thead>
+      <tbody>{% for row in rows %}<tr>{% for value in row %}<td>{{ value }}</td>{% endfor %}<td><i class="fa fa-eye"></i> <i class="fa fa-edit"></i> <i class="fa fa-trash"></i></td></tr>{% endfor %}</tbody>
+    </table>
+    {% elif embedded %}
+    {{ embedded }}
+    {% else %}
+    <a class="btn btn-primary" href="{{ url }}"><i class="fa fa-list"></i> {% trans 'Open' %}</a>
+    {% endif %}
+  </div>
+</div>
