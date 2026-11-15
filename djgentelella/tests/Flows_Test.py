@@ -190,6 +190,9 @@ class FlowEngineTests(TestCase):
         self.assertEqual(list(self.flow.inbox(self.nobody)), [])
 
 
+# English labels are asserted: the demo runs in Spanish once its .mo, which is
+# not versioned, is compiled, and a local run would disagree with CI.
+@override_settings(LANGUAGE_CODE='en')
 class FlowViewTests(TestCase):
     @classmethod
     def setUpTestData(cls):

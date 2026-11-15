@@ -457,6 +457,9 @@ class DynamicEndpointTest(TestCase):
         self.assertEqual(response.json(), {'a': 'dyn:ABC'})
 
 
+# English labels are asserted: the demo runs in Spanish once its .mo, which is
+# not versioned, is compiled, and a local run would disagree with CI.
+@override_settings(LANGUAGE_CODE='en')
 class DynamicTokenTest(TestCase):
     """The set_value(server=...) token expires, binds to the user of the form
     when it has one, and the form class decides who may run its methods."""

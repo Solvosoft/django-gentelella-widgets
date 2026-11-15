@@ -166,6 +166,9 @@ class PublishAndViewTests(DesignClient):
         self.assertContains(response, 'unknown component type', status_code=503)
 
 
+# English labels are asserted: the demo runs in Spanish once its .mo, which is
+# not versioned, is compiled, and a local run would disagree with CI.
+@override_settings(LANGUAGE_CODE='en')
 class SecurityTests(DesignClient):
     def render_html(self, html):
         self.publish(design(node('html', 'x', {'html': html})))
@@ -380,6 +383,9 @@ class EndpointRouterTests(DesignClient):
         self.assertEqual(self.api('hello', page=page).status_code, 404)
 
 
+# English labels are asserted: the demo runs in Spanish once its .mo, which is
+# not versioned, is compiled, and a local run would disagree with CI.
+@override_settings(LANGUAGE_CODE='en')
 class AdminTests(DesignClient):
     def setUp(self):
         super().setUp()

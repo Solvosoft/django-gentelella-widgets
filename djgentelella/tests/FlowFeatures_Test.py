@@ -11,7 +11,7 @@ from django.contrib.auth.models import Group, Permission
 from django.core.exceptions import ImproperlyConfigured
 from django.core.management import call_command
 from django.template import Context, Template
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
@@ -411,6 +411,9 @@ class DeskFlow(Flow):
     ]
 
 
+# English labels are asserted: the demo runs in Spanish once its .mo, which is
+# not versioned, is compiled, and a local run would disagree with CI.
+@override_settings(LANGUAGE_CODE='en')
 class AssignmentTests(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -468,6 +471,9 @@ class AssignmentTests(TestCase):
 
 
 # -- bulk ---------------------------------------------------------------------------
+# English labels are asserted: the demo runs in Spanish once its .mo, which is
+# not versioned, is compiled, and a local run would disagree with CI.
+@override_settings(LANGUAGE_CODE='en')
 class BulkTests(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -502,6 +508,9 @@ class BulkTests(TestCase):
 
 
 # -- diagram -------------------------------------------------------------------------
+# English labels are asserted: the demo runs in Spanish once its .mo, which is
+# not versioned, is compiled, and a local run would disagree with CI.
+@override_settings(LANGUAGE_CODE='en')
 class DiagramTests(TestCase):
     def test_the_graph_expands_any_state(self):
         graph = get_flow('tests.things').as_graph()

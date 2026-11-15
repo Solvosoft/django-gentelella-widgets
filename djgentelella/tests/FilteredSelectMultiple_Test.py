@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import formset_factory
 from django.template import Context, Template
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse_lazy
 
 from djgentelella.widgets.selectmultiple import FilteredSelectMultiple
@@ -32,6 +32,9 @@ class ApiFormClass(forms.Form):
     )
 
 
+# English labels are asserted: the demo runs in Spanish once its .mo, which is
+# not versioned, is compiled, and a local run would disagree with CI.
+@override_settings(LANGUAGE_CODE='en')
 class FilteredSelectMultipleUnitTest(TestCase):
     def render(self, msg, context={}):
         return Template(msg).render(Context(context))

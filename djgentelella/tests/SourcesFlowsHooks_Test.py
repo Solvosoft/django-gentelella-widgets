@@ -87,6 +87,9 @@ class SourceCase(TestCase):
         return reverse(name, args=['tests.sources.expenses'])
 
 
+# English labels are asserted: the demo runs in Spanish once its .mo, which is
+# not versioned, is compiled, and a local run would disagree with CI.
+@override_settings(LANGUAGE_CODE='en')
 class ValidateParamsTests(SourceCase):
     def test_a_valid_document_comes_back_normalized(self):
         clean, errors = query.validate_params(self.source, self.request, {
@@ -534,6 +537,9 @@ class PolicyFlow(Flow):
 register_flow(PolicyFlow)
 
 
+# English labels are asserted: the demo runs in Spanish once its .mo, which is
+# not versioned, is compiled, and a local run would disagree with CI.
+@override_settings(LANGUAGE_CODE='en')
 class ActionPolicyTests(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -620,6 +626,9 @@ class ActionPolicyTests(TestCase):
 
 
 # -- flows: tasks whose object went away -------------------------------------------
+# English labels are asserted: the demo runs in Spanish once its .mo, which is
+# not versioned, is compiled, and a local run would disagree with CI.
+@override_settings(LANGUAGE_CODE='en')
 class OrphanTaskTests(FlowCase):
     def forget_the_flow(self):
         """What a fresh process knows: no JSON flow built, no receiver."""

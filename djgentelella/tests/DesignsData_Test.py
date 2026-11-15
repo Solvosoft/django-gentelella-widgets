@@ -216,6 +216,9 @@ class ResolveTests(DataDesignTestCase):
         self.assertEqual(self.errors(document, allow_templates=True), [])
 
 
+# English labels are asserted: the demo runs in Spanish once its .mo, which is
+# not versioned, is compiled, and a local run would disagree with CI.
+@override_settings(LANGUAGE_CODE='en')
 class ObjectManagementTests(DataDesignTestCase):
     def setUp(self):
         super().setUp()
@@ -476,6 +479,9 @@ class InlineTests(DataDesignTestCase):
         self.assertEqual(link['i_class'], 'fa fa-cubes')
 
 
+# English labels are asserted: the demo runs in Spanish once its .mo, which is
+# not versioned, is compiled, and a local run would disagree with CI.
+@override_settings(LANGUAGE_CODE='en')
 class ChartAndStatTests(DataDesignTestCase):
     def setUp(self):
         super().setUp()
@@ -625,6 +631,9 @@ class CrudClassicTests(DataDesignTestCase):
         self.assertNotIn('gtdesign-crud-list', content)
 
 
+# English labels are asserted: the demo runs in Spanish once its .mo, which is
+# not versioned, is compiled, and a local run would disagree with CI.
+@override_settings(LANGUAGE_CODE='en')
 class FacetsTests(DataDesignTestCase):
     def setUp(self):
         super().setUp()

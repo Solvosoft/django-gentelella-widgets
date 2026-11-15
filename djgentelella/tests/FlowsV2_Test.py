@@ -15,7 +15,7 @@ from django.contrib.auth.models import Group, Permission
 from django.core.exceptions import ImproperlyConfigured
 from django.core.management import call_command
 from django.db import connection
-from django.test import TestCase, TransactionTestCase
+from django.test import TestCase, TransactionTestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
@@ -389,6 +389,9 @@ class SubflowTests(TestCase):
 
 
 # -- control ------------------------------------------------------------------------
+# English labels are asserted: the demo runs in Spanish once its .mo, which is
+# not versioned, is compiled, and a local run would disagree with CI.
+@override_settings(LANGUAGE_CODE='en')
 class ControlTests(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -804,6 +807,9 @@ class HumanTaskFlowTests(TestCase):
         self.assertEqual(task.state, Task.UNASSIGNED)  # undone with the flow
 
 
+# English labels are asserted: the demo runs in Spanish once its .mo, which is
+# not versioned, is compiled, and a local run would disagree with CI.
+@override_settings(LANGUAGE_CODE='en')
 class TaskInboxViewTests(TestCase):
     @classmethod
     def setUpTestData(cls):

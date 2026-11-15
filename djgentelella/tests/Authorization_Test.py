@@ -488,6 +488,9 @@ class FlagTests(ConditionCase):
                     set_flag(name, True)
 
 
+# English labels are asserted: the demo runs in Spanish once its .mo, which is
+# not versioned, is compiled, and a local run would disagree with CI.
+@override_settings(LANGUAGE_CODE='en')
 class FlagAdminTests(ConditionCase):
     url = '/admin/djgentelella/gentelellasettings/flags/'
 
