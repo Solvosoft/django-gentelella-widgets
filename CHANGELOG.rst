@@ -1,6 +1,21 @@
 Changelog
 ===========
 
+0.7.1 (unreleased)
+--------------------
+
+Fixes
+""""""""
+
+**Saving a setting with a DatabaseCache and no cache table.** 0.7.0 forgets a
+setting's cached value when the row is saved or deleted; with a
+``DatabaseCache`` whose table was never created -- a test database, where
+nobody runs ``createcachetable`` -- that query failed and took the save with
+it, so loading any fixture with ``djgentelella.GentelellaSettings`` raised
+``relation ... does not exist``. The failure is now logged as a warning
+inside a savepoint (the surrounding transaction stays usable on PostgreSQL):
+without the table there is nothing cached to forget.
+
 0.7.0 (2026-11-15)
 --------------------
 

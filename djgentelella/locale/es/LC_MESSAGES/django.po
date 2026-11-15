@@ -2203,7 +2203,7 @@ msgid "Dictate"
 msgstr "Dictar"
 
 msgid "Discount above 50%?"
-msgstr ""
+msgstr "¿Descuento mayor al 50%?"
 
 msgid ""
 "The original object no longer exists; the entry can only be permanently "

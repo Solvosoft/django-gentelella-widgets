@@ -1,7 +1,9 @@
 """Menus and settings scoped by Site."""
 
+import os
 from importlib import import_module
 from io import StringIO
+from tempfile import TemporaryDirectory
 from unittest import mock
 
 from django.contrib.auth import get_user_model
@@ -294,6 +296,36 @@ class SiteMenuTest(TestCase):
         template = Template('{% load gentelellamenu %}{% top_menu %}')
         request = make_request('testserver', site=self.site_a)
         self.assertIn('Only on A', template.render(Context({'request': request})))
+
+
+@override_settings(CACHES={'default': {
+    'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+    'LOCATION': 'gt_cache_table_never_created'}})
+class SettingsWithoutCacheTableTest(TestCase):
+    """A DatabaseCache whose table was not created -- a test database, where
+    nobody runs createcachetable -- must not break saving a setting (a fixture
+    load), nor leave the surrounding transaction unusable."""
+
+    def test_save_and_delete_survive_a_missing_cache_table(self):
+        with self.assertLogs('djgentelella.models', 'WARNING'):
+            with transaction.atomic():
+                row = GentelellaSettings.objects.create(key='no_table', value='1')
+                row.value = '2'
+                row.save()
+                # Still usable after the failed cache query.
+                self.assertEqual(GentelellaSettings.objects.get(pk=row.pk).value, '2')
+                row.delete()
+        self.assertFalse(GentelellaSettings.objects.filter(key='no_table').exists())
+
+    def test_loaddata_with_settings(self):
+        fixture = ('[{"model": "djgentelella.gentelellasettings", "pk": 9001, '
+                   '"fields": {"key": "from_fixture", "value": "x"}}]')
+        path = os.path.join(self.enterContext(TemporaryDirectory()), 'settings.json')
+        with open(path, 'w') as handle:
+            handle.write(fixture)
+        with self.assertLogs('djgentelella.models', 'WARNING'):
+            call_command('loaddata', path, verbosity=0)
+        self.assertEqual(GentelellaSettings.objects.get(pk=9001).value, 'x')
 
 
 @override_settings(ALLOWED_HOSTS=HOSTS)

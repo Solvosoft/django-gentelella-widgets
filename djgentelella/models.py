@@ -1,7 +1,10 @@
+import logging
+
 from django.conf import settings
 from django.contrib.auth.models import Permission
-from django.core.cache import cache
-from django.db import models
+from django.core.cache import DEFAULT_CACHE_ALIAS, cache, caches
+from django.core.cache.backends.db import DatabaseCache
+from django.db import DatabaseError, models, router, transaction
 from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
@@ -14,6 +17,8 @@ from .models_manager import ObjectManager, AllObjectsManager, DeletedObjectsMana
 from djgentelella.settings import USER_MODEL_BASE
 from djgentelella.history.utils import add_log, ADDITION
 from djgentelella.sites import site_pk
+
+logger = logging.getLogger(__name__)
 
 
 class GentelellaSettings(models.Model):
@@ -89,7 +94,20 @@ def _forget_cached_setting(sender, instance, **kwargs):
     previous = instance.__dict__.pop(_PREVIOUS_SCOPE_ATTR, None)
     if previous is not None:
         keys.add(previous)
-    cache.delete_many(list(keys))
+    backend = caches[DEFAULT_CACHE_ALIAS]  # `cache` is a proxy: no isinstance
+    if not isinstance(backend, DatabaseCache):
+        cache.delete_many(list(keys))
+        return
+    # A DatabaseCache whose table was never created (a test database: nobody
+    # runs createcachetable) holds nothing to forget, and must not break the
+    # save -- a fixture load, typically. The savepoint keeps the failed query
+    # from aborting the surrounding transaction on PostgreSQL.
+    try:
+        with transaction.atomic(using=router.db_for_write(backend.cache_model_class)):
+            cache.delete_many(list(keys))
+    except DatabaseError:
+        logger.warning('Could not forget the cached settings %s: the cache '
+                       'table is not there (run createcachetable).', sorted(keys))
 
 
 class MenuItem(TreeNode):
