@@ -11,6 +11,7 @@ from unittest import mock
 
 from django.test import SimpleTestCase
 
+import djgentelella
 from djgentelella import autodiscover
 from djgentelella.designs import registry
 
@@ -66,6 +67,13 @@ class ImportBeforeAppsReadyTests(SimpleTestCase):
                 'import djgentelella.datasources.export, djgentelella.lov')
         env = dict(os.environ)
         env.setdefault('DJANGO_SETTINGS_MODULE', 'demo.settings')
+        # The child does not inherit the sys.path demo/manage.py builds: give
+        # it the checkout root (djgentelella) and demo/ (demo.settings), or it
+        # only works where djgentelella happens to be installed.
+        root = os.path.dirname(os.path.dirname(os.path.abspath(djgentelella.__file__)))
+        env['PYTHONPATH'] = os.pathsep.join(
+            [root, os.path.join(root, 'demo')]
+            + [path for path in [env.get('PYTHONPATH')] if path])
         result = subprocess.run([sys.executable, '-c', code], env=env,
                                 capture_output=True, text=True)
         self.assertEqual(result.returncode, 0, result.stderr)
