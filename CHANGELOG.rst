@@ -24,6 +24,12 @@ used to stay, and later runs skipped it because it existed. Downloads the
 network still refuses are listed at the end and the command fails, instead of
 going on to build a package without them.
 
+**CRUD lists of a model without Meta.ordering are ordered.** They were
+paginated unordered (Django's ``UnorderedObjectListWarning``), so a page could
+repeat or skip rows. A classic CRUD now orders them by ``pk``; a design CRUD by
+``-pk``, the default it already used when a condition hid a column -- now
+showing or hiding a column no longer reorders the rows.
+
 0.7.0 (2026-11-15)
 --------------------
 

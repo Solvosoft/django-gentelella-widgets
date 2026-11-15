@@ -964,13 +964,17 @@ class DesignCRUDMixin(CRUDMixin):
         if self.gtdesign_preview:
             return queryset.none()
         hidden, _refused = self.gtdesign_conditions()
+        ordering = list(queryset.query.order_by or queryset.model._meta.ordering)
         if hidden:
             # The order of the rows would tell the hidden values apart.
-            ordering = list(queryset.query.order_by
-                            or queryset.model._meta.ordering)
             shown = without_hidden(ordering, hidden)
             if shown != ordering or not ordering:
                 queryset = queryset.order_by(*(shown or ['-pk']))
+        elif not ordering:
+            # The same default as with hidden columns: a condition that hides
+            # or shows a column must not reorder the rows, and a paginated
+            # list needs an order.
+            queryset = queryset.order_by('-pk')
         return queryset
 
     def get_success_url(self):

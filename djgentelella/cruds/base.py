@@ -528,6 +528,10 @@ class CRUDView(object):
                 queryset = super(OListView, self).get_queryset()
                 queryset = self.search_queryset(queryset)
                 queryset = self.get_listfilter_queryset(queryset)
+                if not queryset.ordered:
+                    # A model without Meta.ordering: paginating it unordered
+                    # can repeat or skip rows between pages.
+                    queryset = queryset.order_by('pk')
                 return queryset
 
         return OListView

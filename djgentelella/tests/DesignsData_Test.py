@@ -361,7 +361,10 @@ class ObjectManagementTests(DataDesignTestCase):
     def test_an_unexposed_model_stops_the_endpoints(self):
         self.grant(*ALL_PRODUCT_PERMS)
         exposure.unexpose(Product)
-        self.assertEqual(self.client.get(self.url).status_code, 404)
+        # The page stops resolving, and the engine says so in the log.
+        with self.assertLogs('djgentelella.designs.engine', 'WARNING') as logs:
+            self.assertEqual(self.client.get(self.url).status_code, 404)
+        self.assertIn('is not exposed to designs', logs.output[0])
 
     def test_only_the_form_fields_are_written(self):
         self.grant(*ALL_PRODUCT_PERMS)

@@ -48,3 +48,4 @@ from .DataTableSerializer_Test import *
 from .AddPermissionWidgets_Test import *
 from .Alerts_Test import *
 from .LoadDevStatic_Test import *
+from .CrudOrdering_Test import *

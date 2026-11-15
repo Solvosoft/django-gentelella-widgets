@@ -5,11 +5,13 @@ conditions per column, action and row link."""
 
 import json
 import re
+import warnings
 
 from django.apps import apps
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured
+from django.core.paginator import UnorderedObjectListWarning
 from django.test import RequestFactory, override_settings
 from django.urls import reverse
 
@@ -674,6 +676,26 @@ class CrudConditionTests(HooksTestCase):
         content = self.client.get(url, {'q': 'Apple'}).content.decode()
         self.assertEqual(content.count('/update/'), 1)
         self.assertIn('Apple', content)
+
+    def test_the_rows_keep_their_order_when_a_column_shows(self):
+        self.publish(design(node('crud_classic', 'products', {
+            'model': 'demoapp.Product', 'form': 'product_form',
+            'list_fields': ['name', 'status'],
+            'column_conditions': {'name': CONDITION}}), forms=product_form()),
+            path='ordered-crud')
+        url = reverse('gt-design-page', args=['ordered-crud'])
+
+        def rows():
+            # Product has no Meta.ordering: unordered, paginating would warn.
+            with warnings.catch_warnings():
+                warnings.simplefilter('error', UnorderedObjectListWarning)
+                content = self.client.get(url).content.decode()
+            return re.findall(r'/(\d+)/update/', content)
+
+        hidden = rows()
+        set_flag(FLAG, True)
+        self.assertEqual(rows(), hidden)
+        self.assertEqual(hidden, sorted(hidden, key=int, reverse=True))
 
     def test_shown_when_the_conditions_hold(self):
         set_flag(FLAG, True)
