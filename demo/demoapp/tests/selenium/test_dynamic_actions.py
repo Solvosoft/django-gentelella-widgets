@@ -223,7 +223,6 @@ class DynamicActionsPageTest(DynamicActionsBase):
 
 
 @tag('selenium')
-@tag('selenium')
 class DynamicActionsCycleTest(SeleniumTestCase):
     """Two rules that feed each other values that never converge: the
     cascade stops after MAX_DEPTH (10) changes, also when a change comes
@@ -266,6 +265,7 @@ class DynamicActionsCycleTest(SeleniumTestCase):
                          str(counts[-1] + 1))
 
 
+@tag('selenium')
 class DynamicActionsFormsetTest(DynamicActionsBase):
     prefix = 'contacts-0'
 

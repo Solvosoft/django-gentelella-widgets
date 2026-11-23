@@ -37,6 +37,7 @@ from django.utils.html import escape, json_script
 from django.utils.safestring import mark_safe
 from django.utils.text import capfirst
 from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy
 from rest_framework.exceptions import APIException
 
 from djgentelella.authorization import evaluate_condition, validate_condition
@@ -51,7 +52,7 @@ from djgentelella.designs.components import Endpoint, RuntimeComponent
 from djgentelella.designs.conditions import (
     check_conditions, conditions_schema, denied, hidden_columns,
 )
-from djgentelella.designs.forms import build_form
+from djgentelella.designs.forms import build_form, no_field
 from djgentelella.designs.introspection import (
     NUMBER_KINDS, TEXT_KINDS, column_type, describe_field,
 )
@@ -61,8 +62,9 @@ from djgentelella.forms import widgetmap
 from djgentelella.permission_management import all_permission
 
 __all__ = ['ChartComponent', 'CrudClassicComponent', 'DATA_COMPONENTS',
-           'FacetsComponent', 'InlineObjectManagementComponent',
-           'ObjectManagementComponent', 'StatComponent']
+           'FLOW_PREFIX', 'FacetsComponent', 'InlineObjectManagementComponent',
+           'ObjectManagementComponent', 'PAGE_PREFIX', 'PK_PLACEHOLDERS',
+           'StatComponent', 'parse_flow_link', 'resolve_row_link']
 
 SCRIPT = 'gentelella/js/designs/data_components.js'
 PERMISSION = {'type': 'string', 'pattern': r'^[a-z_][a-z0-9_]*\.[a-z_][a-z0-9_]*$'}
@@ -118,6 +120,13 @@ def check_relation(rctx, path, model_field):
 
 def allowed_fields(found):
     return {model_field.name: model_field for model_field in found.model_fields()}
+
+
+def form_mismatch(props, form):
+    """The error of a ``props.form`` whose model is not ``props.model``."""
+    return _('form %(form)r is for %(model)s, not %(expected)s') % {
+        'form': props['form'], 'model': form.model._meta.label,
+        'expected': props['model']}
 
 
 def columns_of(found):
@@ -176,21 +185,45 @@ def reverse_with_placeholder(url_name):
     return None
 
 
+#: A row link to a design page by its path: ``page:<path>``.
+PAGE_PREFIX = 'page:'
+#: A row link to a flow: ``flow:<name>[:<transition>]``.
+FLOW_PREFIX = 'flow:'
+
+
 def design_page_for(name):
     """The path of a design page a row link names, or None.
 
     ``page:<path>`` names it by path; a bare name is the ``meta.url_name``
     of a published page.
     """
-    if name.startswith('page:'):
-        path = normalize_path(name[len('page:'):])
+    if name.startswith(PAGE_PREFIX):
+        path = normalize_path(name[len(PAGE_PREFIX):])
         page = Page.objects.filter(path=path).first()
     else:
         page = Page.objects.filter(document__meta__url_name=name).first()
     return page
 
 
-FLOW_PREFIX = 'flow:'
+def parse_flow_link(text, known=None):
+    """``(flow name, transition)`` of a ``flow:<name>[:<transition>]`` row
+    link, or ``None`` when ``text`` is not one; ``transition`` is ``''`` for
+    a link to the flow itself.
+
+    It only reads the text. A flow name may hold ``:`` too, so ``known``,
+    when given, is asked ``known(name) -> bool`` whether the whole text after
+    the prefix is a flow before it is split at its last ``:``. Without it,
+    the last ``:`` always starts the transition.
+    """
+    if not isinstance(text, str) or not text.startswith(FLOW_PREFIX):
+        return None
+    spec = text[len(FLOW_PREFIX):]
+    if not spec:
+        return None
+    if ':' not in spec or (known is not None and known(spec)):
+        return spec, ''
+    name, _colon, transition = spec.rpartition(':')
+    return (name, transition) if name else None
 
 
 def flows_installed():
@@ -213,64 +246,92 @@ def resolve_flow_link(rctx, where, model, name):
     """``(flow name, transition)`` of a ``flow:<name>[:<transition>]`` row
     link, or ``None`` after reporting why it cannot be one."""
     if not flows_installed():
-        rctx.error(where, '%r needs djgentelella.flows in INSTALLED_APPS' % name)
+        rctx.error(where, _('%r needs djgentelella.flows in INSTALLED_APPS') % (name,))
         return None
-    spec = name[len(FLOW_PREFIX):]
-    flow, transition = (find_flow(rctx, spec) if spec else None), ''
-    if flow is None and ':' in spec:
-        flow_name, _colon, transition = spec.rpartition(':')
-        flow = find_flow(rctx, flow_name) if flow_name else None
+    flows = {}
+
+    def known(flow_name):
+        flows[flow_name] = find_flow(rctx, flow_name)
+        return flows[flow_name] is not None
+
+    parsed = parse_flow_link(name, known)
+    flow, transition = None, ''
+    if parsed is not None:
+        flow_name, transition = parsed
+        if flow_name not in flows:
+            flows[flow_name] = find_flow(rctx, flow_name)
+        flow = flows[flow_name]
     if flow is None:
-        rctx.error(where, '%r: no flow %r (djgentelella.flows)' % (name, spec))
+        rctx.error(where, _('%(link)r: no flow %(flow)r (djgentelella.flows)') % {
+            'link': name, 'flow': name[len(FLOW_PREFIX):]})
         return None
     if flow.model is not model:
-        rctx.error(where, 'flow %r is about %s, not %s' % (
-            flow.name, flow.model._meta.label, model._meta.label))
+        rctx.error(where, _('flow %(flow)r is about %(model)s, not %(page)s') % {
+            'flow': flow.name, 'model': flow.model._meta.label,
+            'page': model._meta.label})
         return None
     if transition:
         step = flow.get_transition(transition)
         if step is None or step.auto:
-            rctx.error(where, 'flow %r has no transition %r a user can run'
-                       % (flow.name, transition))
+            rctx.error(where, _('flow %(flow)r has no transition %(transition)r '
+                                'a user can run') % {'flow': flow.name,
+                                                     'transition': transition})
             return None
     return flow.name, transition
 
 
+def resolve_row_link(rctx, link, model, path):
+    """The :class:`~djgentelella.designs.builds.RowLink` of one row link of
+    a table over ``model``, or ``None`` after reporting (at ``path``) why it
+    cannot be one.
+
+    What :meth:`ResolveContext.row_link
+    <djgentelella.designs.components.ResolveContext.row_link>` does by
+    default: a URL name of the project that takes one pk, a published design
+    page (``page:<path>`` or its ``meta.url_name``) about one ``model``, or a
+    flow of djgentelella.flows (``flow:<name>[:<transition>]``).
+    """
+    name = link['url_name']
+    condition = link.get('condition')
+    icon = link.get('icon') or 'fa fa-external-link'
+    if name.startswith(FLOW_PREFIX):
+        found = resolve_flow_link(rctx, path, model, name)
+        if found is None:
+            return None
+        return RowLink(link['title'], icon, flow=found[0], transition=found[1],
+                       condition=condition)
+    if not name.startswith(PAGE_PREFIX) and reverse_with_placeholder(name):
+        return RowLink(link['title'], icon, url_name=name, condition=condition)
+    page = design_page_for(name)
+    if page is None:
+        rctx.error(path, _('%r is neither a URL name of the project that takes '
+                           'one pk, a design page ("page:<path>" or its '
+                           'meta.url_name) nor a flow ("flow:<name>")') % (name,))
+        return None
+    parent = ((page.document.get('meta') or {}).get('parent') or {}).get('model')
+    if not isinstance(parent, str) or parent.lower() != model._meta.label_lower:
+        rctx.error(path, _('design page %(page)r is not a page of one '
+                           '%(model)s (its meta.parent)') % {
+            'page': page.path, 'model': model._meta.label})
+        return None
+    return RowLink(link['title'], icon, page=page.path, condition=condition)
+
+
 def resolve_row_links(rctx, path, model, links):
+    """The row links of the table at ``path``: each one's condition is
+    checked here, and the link itself is asked to ``rctx.row_link()``."""
     result = []
     for index, link in enumerate(links):
         where = '%s.props.row_links[%d]' % (path, index)
-        name = link['url_name']
         condition = link.get('condition')
         if condition is not None:
             errors = validate_condition(condition, where + '.condition')
             if errors:
                 rctx.errors.extend(errors)
                 continue
-        icon = link.get('icon') or 'fa fa-external-link'
-        if name.startswith(FLOW_PREFIX):
-            found = resolve_flow_link(rctx, where, model, name)
-            if found is not None:
-                result.append(RowLink(link['title'], icon, flow=found[0],
-                                      transition=found[1], condition=condition))
-            continue
-        if not name.startswith('page:') and reverse_with_placeholder(name):
-            result.append(RowLink(link['title'], icon, url_name=name,
-                                  condition=condition))
-            continue
-        page = design_page_for(name)
-        if page is None:
-            rctx.error(where, '%r is neither a URL name of the project that takes '
-                              'one pk, a design page ("page:<path>" or its '
-                              'meta.url_name) nor a flow ("flow:<name>")' % name)
-            continue
-        parent = ((page.document.get('meta') or {}).get('parent') or {}).get('model')
-        if not isinstance(parent, str) or parent.lower() != model._meta.label_lower:
-            rctx.error(where, 'design page %r is not a page of one %s '
-                              '(its meta.parent)' % (page.path, model._meta.label))
-            continue
-        result.append(RowLink(link['title'], icon, page=page.path,
-                              condition=condition))
+        found = rctx.row_link(link, model, where)
+        if found is not None:
+            result.append(found)
     return result
 
 
@@ -372,7 +433,7 @@ class ObjectManagementComponent(RuntimeComponent):
     """
 
     type = 'object_management'
-    label = 'Object management (CRUD table)'
+    label = gettext_lazy('Object management (CRUD table)')
     icon = 'fa fa-table'
     props_schema = {
         'type': 'object',
@@ -441,8 +502,7 @@ class ObjectManagementComponent(RuntimeComponent):
             return build
         model = found.model
         if form.model is not model:
-            rctx.error(path + '.props.form', 'form %r is for %s, not %s' % (
-                props['form'], form.model._meta.label, props['model']))
+            rctx.error(path + '.props.form', form_mismatch(props, form))
             return build
         by_name = allowed_fields(found)
 
@@ -453,11 +513,10 @@ class ObjectManagementComponent(RuntimeComponent):
         for name in list_names:
             if name not in by_name:
                 rctx.error(path + '.props.list_fields',
-                           '%s has no field %r a design may use'
-                           % (props['model'], name))
+                           no_field(props['model'], name))
             elif kind_of(by_name[name]) in NOT_LISTABLE:
                 rctx.error(path + '.props.list_fields',
-                           '%r cannot be a table column' % name)
+                           _('%r cannot be a table column') % (name,))
             else:
                 check_relation(rctx, path + '.props.list_fields', by_name[name])
         search = props.get('search_fields')
@@ -467,13 +526,14 @@ class ObjectManagementComponent(RuntimeComponent):
         for name in search:
             if name not in by_name or kind_of(by_name[name]) not in TEXT_KINDS:
                 rctx.error(path + '.props.search_fields',
-                           '%r is not a text field of %s' % (name, props['model']))
+                           _('%(field)r is not a text field of %(model)s') % {
+                               'field': name, 'model': props['model']})
         ordering = props.get('ordering', ['-pk'])
         for name in ordering:
             if name.lstrip('-') not in set(by_name) | {'pk'} or \
                     (name.lstrip('-') in by_name
                      and kind_of(by_name[name.lstrip('-')]) == 'm2m'):
-                rctx.error(path + '.props.ordering', 'unknown field %r' % name)
+                rctx.error(path + '.props.ordering', _('unknown field %r') % (name,))
 
         perms = {action: found.permissions(permission)
                  for action, permission in ACTION_PERMISSIONS.items()}
@@ -481,16 +541,16 @@ class ObjectManagementComponent(RuntimeComponent):
         for action, needed in perms.items():
             check_permissions(rctx, path + '.props.perms.' + action, needed)
         if model._meta.pk.name != 'id' and 'id' in by_name:
-            rctx.error(path + '.props.model', '%s has a field "id" that is not its '
-                       'primary key: the table needs "id" for the row'
-                       % props['model'])
+            rctx.error(path + '.props.model', _('%s has a field "id" that is not '
+                                                'its primary key: the table needs '
+                                                '"id" for the row') % props['model'])
         row_links = resolve_row_links(rctx, path, model, props.get('row_links', []))
         column_conditions = check_conditions(
             rctx, path + '.props.column_conditions', props.get('column_conditions'),
-            list(list_names), 'column')
+            list(list_names), _('column'))
         action_conditions = check_conditions(
             rctx, path + '.props.action_conditions', props.get('action_conditions'),
-            list(TABLE_ACTIONS), 'action')
+            list(TABLE_ACTIONS), _('action'))
         notify = None
         if props.get('notify'):
             notify = resolve_notify(rctx, path, model, props['notify'])
@@ -607,7 +667,7 @@ class InlineObjectManagementComponent(ObjectManagementComponent):
     """
 
     type = 'inline_object_management'
-    label = 'Inline CRUD table (children of the page parent)'
+    label = gettext_lazy('Inline CRUD table (children of the page parent)')
     icon = 'fa fa-sitemap'
     props_schema = {
         **ObjectManagementComponent.props_schema,
@@ -624,8 +684,8 @@ class InlineObjectManagementComponent(ObjectManagementComponent):
         props = node.get('props') or {}
         parent = (rctx.design.get('meta') or {}).get('parent')
         if not parent:
-            rctx.error(path, 'an inline table needs a page with a parent '
-                             '(meta.parent)')
+            rctx.error(path, _('an inline table needs a page with a parent '
+                               '(meta.parent)'))
             return data_build(ObjectManagementBuild, node, rctx)
         parent_found = rctx.exposure(parent.get('model'), path)
         found = rctx.exposure(props['model'], path + '.props.model')
@@ -636,14 +696,16 @@ class InlineObjectManagementComponent(ObjectManagementComponent):
         if model_field is None or kind_of(model_field) not in SINGLE_RELATIONS \
                 or model_field.related_model is not parent_found.model:
             rctx.error(path + '.props.parent_field',
-                       '%r is not a foreign key of %s to %s' % (
-                           parent_field, props['model'], parent_found.label))
+                       _('%(field)r is not a foreign key of %(model)s to '
+                         '%(parent)s') % {'field': parent_field,
+                                          'model': props['model'],
+                                          'parent': parent_found.label})
             return data_build(ObjectManagementBuild, node, rctx)
         form = rctx.form(props['form'], path + '.props.form')
         if form is not None and parent_field in form.field_names:
             rctx.error(path + '.props.form',
-                       'remove %r from the form: the parent comes from the URL'
-                       % parent_field)
+                       _('remove %r from the form: the parent comes from the URL')
+                       % (parent_field,))
             return data_build(ObjectManagementBuild, node, rctx)
         return self.resolve_management(node, rctx, path, parent_field=parent_field,
                                        parent_model=parent_found.model,
@@ -664,8 +726,9 @@ def source_columns(source, rctx, path):
 def view_perms(rctx, props, path, default):
     perms = props.get('perms') or default
     if not perms:
-        rctx.error(path + '.props.perms', 'say which permissions can see it: '
-                   'neither the data source nor the page has any')
+        rctx.error(path + '.props.perms', _('say which permissions can see it: '
+                                            'neither the data source nor the page '
+                                            'has any'))
         return []
     check_permissions(rctx, path + '.props.perms', perms)
     return list(perms)
@@ -681,7 +744,7 @@ def resolve_measure(build, rctx, props, path):
     """
     has_model, has_source = bool(props.get('model')), bool(props.get('datasource'))
     if has_model == has_source:
-        rctx.error(path + '.props', 'give a "model" or a "datasource", not both')
+        rctx.error(path + '.props', _('give a "model" or a "datasource", not both'))
         return None, None
     aggregate = props.get('aggregate', 'count')
     value_field = props.get('value_field')
@@ -718,12 +781,13 @@ def resolve_measure(build, rctx, props, path):
         title = plural(found.model)
     if aggregate != 'count' or value_field:
         if not value_field:
-            rctx.error(path + '.props.value_field', '%s needs a value_field'
+            rctx.error(path + '.props.value_field', _('%s needs a value_field')
                        % aggregate)
         elif aggregatable is not None and value_field not in aggregatable:
             rctx.error(path + '.props.value_field',
-                       '%s needs a numeric value_field; %r is not one'
-                       % (aggregate, value_field))
+                       _('%(aggregate)s needs a numeric value_field; %(field)r '
+                         'is not one') % {'aggregate': aggregate,
+                                          'field': value_field})
     build.aggregate = aggregate
     build.value_field = value_field
     build.title = props.get('title') or title
@@ -739,7 +803,7 @@ class ChartComponent(RuntimeComponent):
     """
 
     type = 'chart'
-    label = 'Chart'
+    label = gettext_lazy('Chart')
     icon = 'fa fa-bar-chart'
     default_props = {'chart': 'bar', 'aggregate': 'count'}
     props_schema = {
@@ -778,7 +842,8 @@ class ChartComponent(RuntimeComponent):
         kind = kinds.get(group) if kinds is not None else None
         if kinds is not None and (kind is None or kind in (
                 'm2m', 'auto', 'file', 'image', 'json', 'binary', 'text')):
-            rctx.error(path + '.props.group_by', '%r cannot be grouped by' % group)
+            rctx.error(path + '.props.group_by',
+                       _('%r cannot be grouped by') % (group,))
             return build
         if kind == 'relation':
             check_relation(rctx, path + '.props.group_by', fields[group])
@@ -786,7 +851,7 @@ class ChartComponent(RuntimeComponent):
         if kind in DATE_KINDS:
             period = period or 'month'
         elif period and kinds is not None:
-            rctx.error(path + '.props.period', 'a period needs a date group_by')
+            rctx.error(path + '.props.period', _('a period needs a date group_by'))
         build.group_by = group
         build.period = period
         if not props.get('title') and build.model is not None and kind is not None:
@@ -829,7 +894,7 @@ class StatComponent(RuntimeComponent):
     """
 
     type = 'stat'
-    label = 'Stat tile'
+    label = gettext_lazy('Stat tile')
     icon = 'fa fa-tachometer'
     default_props = {'aggregate': 'count', 'icon': 'fa fa-cubes'}
     props_schema = {
@@ -870,7 +935,7 @@ class StatComponent(RuntimeComponent):
         if fields is not None and compare:
             if kinds and kinds.get(compare['field']) not in DATE_KINDS:
                 rctx.error(path + '.props.compare.field',
-                           '%r is not a date' % compare['field'])
+                           _('%r is not a date') % (compare['field'],))
             build.compare_field = compare['field']
             build.period = compare.get('period', 'month')
         return build
@@ -909,7 +974,7 @@ class CrudClassicComponent(RuntimeComponent):
     """
 
     type = 'crud_classic'
-    label = 'Classic CRUD (separate pages)'
+    label = gettext_lazy('Classic CRUD (separate pages)')
     icon = 'fa fa-list-alt'
     props_schema = {
         'type': 'object',
@@ -956,16 +1021,16 @@ class CrudClassicComponent(RuntimeComponent):
         if props.get('form'):
             form = rctx.form(props['form'], path + '.props.form')
             if form is not None and form.model is not model:
-                rctx.error(path + '.props.form', 'form %r is for %s, not %s' % (
-                    props['form'], form.model._meta.label, props['model']))
+                rctx.error(path + '.props.form', form_mismatch(props, form))
                 return build
         else:
             errors_before = len(rctx.errors)
             form = build_form('%s_crud' % node['id'], {'model': props['model']}, rctx,
                               path + '.props.model')
             if len(rctx.errors) > errors_before:
-                rctx.error(path + '.props.form', 'the default form (every field '
-                           'the model exposes) does not work: give a "form"')
+                rctx.error(path + '.props.form', _('the default form (every field '
+                                                   'the model exposes) does not '
+                                                   'work: give a "form"'))
         if form is None:
             return build
         by_name = allowed_fields(found)
@@ -976,8 +1041,7 @@ class CrudClassicComponent(RuntimeComponent):
         for name in list_fields:
             if name not in by_name:
                 rctx.error(path + '.props.list_fields',
-                           '%s has no field %r a design may use'
-                           % (props['model'], name))
+                           no_field(props['model'], name))
             else:
                 check_relation(rctx, path + '.props.list_fields', by_name[name])
         search = props.get('search_fields')
@@ -987,7 +1051,8 @@ class CrudClassicComponent(RuntimeComponent):
         for name in search:
             if name not in by_name or kind_of(by_name[name]) not in TEXT_KINDS:
                 rctx.error(path + '.props.search_fields',
-                           '%r is not a text field of %s' % (name, props['model']))
+                           _('%(field)r is not a text field of %(model)s') % {
+                               'field': name, 'model': props['model']})
         perms = {view: found.permissions(permission)
                  for view, permission in CRUD_PERMISSIONS.items()}
         perms.update(props.get('perms', {}))
@@ -996,10 +1061,10 @@ class CrudClassicComponent(RuntimeComponent):
         detail_fields = list(dict.fromkeys(list(list_fields) + form.field_names))
         column_conditions = check_conditions(
             rctx, path + '.props.column_conditions', props.get('column_conditions'),
-            detail_fields, 'column')
+            detail_fields, _('column'))
         action_conditions = check_conditions(
             rctx, path + '.props.action_conditions', props.get('action_conditions'),
-            [view for view in CRUD_VIEWS if view != 'list'], 'page')
+            [view for view in CRUD_VIEWS if view != 'list'], _('page'))
         if rctx.has_errors_under(path):
             return build
         build.title = props.get('title') or plural(model)
@@ -1077,7 +1142,7 @@ class FacetsComponent(RuntimeComponent):
     """
 
     type = 'facets'
-    label = 'Facets'
+    label = gettext_lazy('Facets')
     icon = 'fa fa-filter'
     props_schema = {
         'type': 'object',
@@ -1118,8 +1183,9 @@ class FacetsComponent(RuntimeComponent):
                 return self.resolve_source(node, rctx, path, build, component, target)
         if target is None or target.get('type') not in TABLE_TYPES:
             rctx.error(path + '.props.target',
-                       '%r is not the id of a table (%s) of this page' % (
-                           props['target'], ', '.join(self.target_types(rctx))))
+                       _('%(target)r is not the id of a table (%(types)s) of this '
+                         'page') % {'target': props['target'],
+                                    'types': ', '.join(self.target_types(rctx))})
             return build
         found = rctx.exposure((target.get('props') or {}).get('model'),
                               path + '.props.target')
@@ -1130,7 +1196,8 @@ class FacetsComponent(RuntimeComponent):
             model_field = by_name.get(name)
             if model_field is None or model_field.primary_key or kind_of(
                     model_field) in ('json', 'file', 'image', 'binary', 'point'):
-                rctx.error(path + '.props.columns', '%r cannot have a facet' % name)
+                rctx.error(path + '.props.columns',
+                           _('%r cannot have a facet') % (name,))
             else:
                 check_relation(rctx, path + '.props.columns', model_field)
         build.perms = view_perms(rctx, props, path, found.permissions('view'))
@@ -1149,8 +1216,8 @@ class FacetsComponent(RuntimeComponent):
         name = component.facets_source(target, rctx, path + '.props.target')
         if not name:
             if not rctx.has_errors_under(path):
-                rctx.error(path + '.props.target', 'node %r has no data source to '
-                           'filter' % (props['target'],))
+                rctx.error(path + '.props.target', _('node %r has no data source to '
+                                                     'filter') % (props['target'],))
             return build
         source = rctx.datasource(name, path + '.props.target')
         if source is None:
@@ -1161,7 +1228,7 @@ class FacetsComponent(RuntimeComponent):
                 column = columns.get(column_name)
                 if column is None or not column.filterable or column.kind == 'json':
                     rctx.error(path + '.props.columns',
-                               '%r cannot have a facet' % (column_name,))
+                               _('%r cannot have a facet') % (column_name,))
         if props.get('perms'):
             build.perms = view_perms(rctx, props, path, [])
         if rctx.has_errors_under(path):

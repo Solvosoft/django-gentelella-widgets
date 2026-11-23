@@ -51,8 +51,11 @@ class DesignDataComponentsTest(SeleniumTestCase):
                             self.rows_of('#categories_table_table')))
         self.wait.until(lambda d: self.chart_labels('by_category') == ['Food', 'Tools'],
                         'the bar chart never drew the real data')
+        # The labels of the choices, in the language the page is served in.
+        statuses = dict(Product.STATUS)
+        expected = sorted(str(statuses[value]) for value in ('active', 'draft'))
         self.wait.until(lambda d: sorted(self.chart_labels('by_status') or [])
-                        == ['Active', 'Draft'], 'the pie chart never drew')
+                        == expected, 'the pie chart never drew')
         tile = self.driver.find_element(
             By.CSS_SELECTOR, '[data-gtdesign="categories"] .count')
         self.assertEqual(tile.text, '2')

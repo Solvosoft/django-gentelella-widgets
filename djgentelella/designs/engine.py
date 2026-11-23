@@ -17,6 +17,7 @@ included, and :func:`node_endpoints` does not serve their endpoints.
 
 import logging
 import threading
+import time
 from collections import OrderedDict
 from dataclasses import dataclass, field
 
@@ -27,6 +28,8 @@ from django.templatetags.static import static
 from django.urls import Resolver404, URLResolver
 from django.urls.resolvers import RegexPattern
 from django.utils.safestring import mark_safe
+from django.utils.translation import get_language
+from django.utils.translation import gettext as _
 from rest_framework.routers import SimpleRouter
 
 from djgentelella.authorization import evaluate_condition, validate_condition
@@ -42,7 +45,8 @@ PAGE_TEMPLATE = 'gtdesigns/page.html'
 #: What the URL of an endpoint that carries the object of the page has.
 PARENT_GROUP = '(?P<parent_pk>'
 
-__all__ = ['ObjectConditionResolver', 'ResolvedNode', 'ResolvedPage', 'clear_cache',
+__all__ = ['ObjectConditionResolver', 'ResolvedNode', 'ResolvedPage',
+           'cached_page_trust', 'clear_cache',
            'make_context', 'node_condition', 'node_endpoints', 'page_context',
            'page_trust',
            'render', 'render_errors', 'resolve', 'resolve_page']
@@ -256,7 +260,7 @@ def _check_condition(node, rctx, path):
     props, meta = node.get('props'), node.get('meta')
     if (isinstance(props, dict) and props.get('condition') is not None
             and isinstance(meta, dict) and meta.get('condition') is not None):
-        rctx.error(path, 'a node has props.condition or meta.condition, not both')
+        rctx.error(path, _('a node has props.condition or meta.condition, not both'))
         return
     condition, suffix = node_condition(node)
     if condition is not None:
@@ -269,27 +273,30 @@ def _check_tree(root, components, rctx):
     for node, parent, path in format.walk(root):
         node_id = node.get('id')
         if node_id in seen:
-            rctx.error(path + '.id', 'duplicate id %r, also at %s' % (
-                node_id, seen[node_id]))
+            rctx.error(path + '.id', _('duplicate id %(id)r, also at %(path)s') % {
+                'id': node_id, 'path': seen[node_id]})
         else:
             seen[node_id] = path
         component = components.get(node.get('type'))
         if component is None:
-            rctx.error(path + '.type', 'unknown component type %r' % node.get('type'))
+            rctx.error(path + '.type',
+                       _('unknown component type %r') % (node.get('type'),))
             continue
         if parent is None:
             if component.parent_types != ():
-                rctx.error(path + '.type', 'the root must be a page, not a %r'
-                           % component.type)
+                rctx.error(path + '.type', _('the root must be a page, not a %r')
+                           % (component.type,))
         elif component.parent_types == ():
-            rctx.error(path + '.type', 'a %r can only be the root' % component.type)
+            rctx.error(path + '.type',
+                       _('a %r can only be the root') % (component.type,))
         elif parent.get('type') not in component.parent_types:
-            rctx.error(path + '.type', 'a %r cannot go in a %r (only in %s)' % (
-                component.type, parent.get('type'),
-                ', '.join(component.parent_types)))
+            rctx.error(path + '.type', _('a %(type)r cannot go in a %(parent)r '
+                                         '(only in %(allowed)s)') % {
+                'type': component.type, 'parent': parent.get('type'),
+                'allowed': ', '.join(component.parent_types)})
         if node.get('children') and not component.container:
-            rctx.error(path + '.children', 'a %r cannot have children'
-                       % component.type)
+            rctx.error(path + '.children', _('a %r cannot have children')
+                       % (component.type,))
         _check_condition(node, rctx, path)
         for error in component.check_props(_component_node(node), path):
             rctx.errors.append(error)
@@ -391,7 +398,7 @@ def resolve(document, request=None, preview=False, *, allow_templates=False,
     if errors:
         return None, errors
     if document.get('kind', 'page') != 'page':
-        return None, [Error('$.kind', 'only "page" designs can be served')]
+        return None, [Error('$.kind', _('only "page" designs can be served'))]
 
     components = dict(registry.get_components() if components is None
                       else components)
@@ -430,11 +437,15 @@ def resolve(document, request=None, preview=False, *, allow_templates=False,
 
 _cache = OrderedDict()
 _cache_lock = threading.Lock()
+# (page pk, publisher id, updated_at, settings) -> (expires at, trust)
+_trust_cache = OrderedDict()
 
 
 def clear_cache():
+    """Forget the resolved pages and the trust of their publishers."""
     with _cache_lock:
         _cache.clear()
+        _trust_cache.clear()
 
 
 def page_trust(page):
@@ -455,17 +466,48 @@ def page_trust(page):
             wants_js and user.has_perm('gtdesigns.publish_js'))
 
 
+def cached_page_trust(page):
+    """:func:`page_trust`, kept in the process for ``GT_DESIGNS_TRUST_TTL``
+    seconds by ``(page.pk, page.updated_by_id, page.updated_at)``.
+
+    Saving the page or changing its publisher is a new key, so it takes
+    effect at once; taking a permission away from the publisher, or
+    deactivating them, takes effect within the TTL. ``0`` turns the cache off.
+    A page that is not saved is never cached.
+    """
+    wants = (conf.allow_templates(), conf.allow_js())
+    ttl = conf.trust_ttl()
+    if not any(wants) or page.updated_by_id is None or page.pk is None or ttl <= 0:
+        return page_trust(page)
+    key = (page.pk, page.updated_by_id, page.updated_at, wants)
+    now = time.monotonic()
+    with _cache_lock:
+        entry = _trust_cache.get(key)
+        if entry is not None and entry[0] > now:
+            return entry[1]
+    trust = page_trust(page)
+    with _cache_lock:
+        _trust_cache[key] = (now + ttl, trust)
+        _trust_cache.move_to_end(key)
+        while len(_trust_cache) > max(conf.cache_size(), 1):
+            _trust_cache.popitem(last=False)
+    return trust
+
+
 def resolve_page(page):
     """:func:`resolve` for a Page, cached in the process by ``page.hash``.
 
     The key also holds what the resolution depends on outside the document:
-    the publisher's trust and the generations of the component registry and
-    of the exposed models.
+    the publisher's trust (:func:`cached_page_trust`), the generations of
+    the component registry and of the exposed models, and the active
+    language, which the errors and the labels of the builds are written in.
+    ``page.document`` is read only when the cache misses, so the page may come
+    with it deferred.
     """
     registry.get_components()  # loading the registry changes its generation
-    allow_templates, allow_js = page_trust(page)
+    allow_templates, allow_js = cached_page_trust(page)
     key = (page.hash, allow_templates, allow_js, registry.generation(),
-           exposure.generation())
+           exposure.generation(), get_language())
     with _cache_lock:
         if key in _cache:
             _cache.move_to_end(key)

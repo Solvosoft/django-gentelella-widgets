@@ -1,6 +1,6 @@
 """What the engine knows, as plain JSON: the flows declared in Python, the
-registered conditions, actions and task forms, and the keys each activity
-type takes.
+registered conditions, actions and task forms, the keys each activity
+type takes and the types of flow variables.
 
 It is the public face of the registries for tools built on top of the
 engine -- a flow designer builds its catalogue from :func:`catalogue` -- so
@@ -10,7 +10,7 @@ as they are), sorted by name. Only :func:`registered_flows` with
 ``published=True`` reads the database.
 """
 
-from djgentelella.flows import base, conditions, taskforms
+from djgentelella.flows import base, conditions, taskforms, variables
 from djgentelella.flows.actions import get_actions
 from djgentelella.flows.definitions import ARGUMENTS, COMMON
 from djgentelella.flows.models import FlowDefinition
@@ -18,7 +18,7 @@ from djgentelella.flows.schema import CURRENT
 
 __all__ = ['ARGUMENTS', 'COMMON', 'activity_arguments', 'catalogue',
            'registered_actions', 'registered_conditions', 'registered_flows',
-           'registered_task_forms']
+           'registered_task_forms', 'variable_types']
 
 
 def summary(obj):
@@ -52,13 +52,18 @@ def _flow_entry(flow, source, versions):
             'states': [{'id': key, 'label': str(activity.label),
                         'type': activity.type}
                        for key, activity in flow.activities.items()],
-            'transitions': [transition.name for transition in flow.transitions]}
+            'transitions': [transition.name for transition in flow.transitions],
+            'auto': {transition.name: bool(transition.auto)
+                     for transition in flow.transitions}}
 
 
 def registered_flows(published=False, site=None):
     """``[{"name", "title", "model", "source", "versions", "initial",
-    "states", "transitions"}]`` of the flows declared in Python
+    "states", "transitions", "auto"}]`` of the flows declared in Python
     (``source="python"``), each described by its newest version.
+    ``transitions`` are the names of its transitions and ``auto`` says,
+    by name, which of them run by themselves (``auto=True``): no user can
+    run those.
 
     With ``published``, also the active ``FlowDefinition``\\ s of ``site`` (or
     global) as ``source="definition"`` -- this reads the database; a name
@@ -104,10 +109,17 @@ def activity_arguments():
             'types': {kind: list(keys) for kind, keys in sorted(ARGUMENTS.items())}}
 
 
+def variable_types():
+    """``[{"name", "label", "json_types"}]``: the types a flow variable can
+    be declared with (:mod:`djgentelella.flows.variables`)."""
+    return [found.describe()
+            for _name, found in sorted(variables.get_variable_types().items())]
+
+
 def catalogue(published=False, site=None):
-    """Everything above in one document: ``schema_version``, ``activities``
-    (:func:`activity_arguments`), ``actions``, ``conditions``,
-    ``task_forms`` and ``flows``."""
+    """The registries above in one document: ``schema_version``,
+    ``activities`` (:func:`activity_arguments`), ``actions``, ``conditions``,
+    ``task_forms`` and ``flows``. :func:`variable_types` is asked apart."""
     return {'schema_version': CURRENT, 'activities': activity_arguments(),
             'actions': registered_actions(),
             'conditions': registered_conditions(),

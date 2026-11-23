@@ -95,6 +95,9 @@ def make_request(user=None, host='testserver', path='/'):
     return request
 
 
+# These tests compare messages in English: the same text whether or not
+# the Spanish catalog is compiled (the demo runs in 'es').
+@override_settings(LANGUAGE_CODE='en')
 class ConditionCase(TestCase):
     @classmethod
     def setUpTestData(cls):

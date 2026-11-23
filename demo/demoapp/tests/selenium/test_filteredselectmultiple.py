@@ -17,7 +17,7 @@ from django.utils import timezone
 
 from demoapp.models import Community, Country, PeopleGroup, Person
 
-from .base import By, SeleniumTestCase
+from .base import EC, By, SeleniumTestCase
 
 COMMUNITIES = ['Alajuela', 'Cartago', 'Heredia', 'Limon', 'Puntarenas']
 PEOPLE = ['Ana', 'Bruno', 'Carla']
@@ -230,9 +230,12 @@ class ApiModeTest(FilteredSelectBase):
         self.click(COMMUNITIES_ID, '_add')
         self.pick('id_people_available', 'Ana')
         self.click('id_people', '_add')
-        self.driver.find_element(
-            By.CSS_SELECTOR, 'form button[type=submit]'
-        ).click()
+        self.wait.until(lambda driver: 'Cartago' in self.chosen(COMMUNITIES_ID))
+        submit = self.driver.find_element(By.CSS_SELECTOR, 'form button[type=submit]')
+        submit.click()
+        # readyState is still "complete" on the old page right after the click:
+        # wait until it is gone, so the response to the POST has arrived.
+        self.wait.until(EC.staleness_of(submit))
         self.wait_js('return document.readyState === "complete"')
 
         group = PeopleGroup.objects.get(name='Zona Central')

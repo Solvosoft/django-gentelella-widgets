@@ -18,6 +18,7 @@ from django.apps import apps
 from django.contrib.auth.models import Permission
 from django.db.models import Q
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext as _
 
 from djgentelella.designs import exposure
 from djgentelella.designs.forms import build_form, registered_lookups
@@ -175,7 +176,7 @@ class ResolveContext:
                 return None
             return exposure.get_exposure(label)
         if not isinstance(label, str) or '.' not in label:
-            self.error(path, '%r is not an "app.Model" label' % (label,))
+            self.error(path, _('%r is not an "app.Model" label') % (label,))
             return None
         found = exposure.get_exposure(label)
         if found is not None:
@@ -183,11 +184,11 @@ class ResolveContext:
         try:
             apps.get_model(label)
         except (LookupError, ValueError):
-            self.error(path, 'unknown model %r' % label)
+            self.error(path, _('unknown model %r') % (label,))
         else:
-            self.error(path, 'model %r is not exposed to designs: call '
-                             'djgentelella.designs.exposure.expose() on it from '
-                             'a gtdesigns.py' % label)
+            self.error(path, _('model %r is not exposed to designs: call '
+                               'djgentelella.designs.exposure.expose() on it from '
+                               'a gtdesigns.py') % (label,))
         return None
 
     def model(self, label, path):
@@ -208,8 +209,8 @@ class ResolveContext:
         ``migrate``).
         """
         if not perms:
-            self.error(path, 'cannot be empty: AllPermissionByAction refuses an '
-                             'action without permissions')
+            self.error(path, _('cannot be empty: AllPermissionByAction refuses an '
+                               'action without permissions'))
             return
         query = Q(pk__in=[])
         for perm in perms:
@@ -219,7 +220,7 @@ class ResolveContext:
                  .values_list('content_type__app_label', 'codename')}
         for perm in perms:
             if perm not in found:
-                self.error(path, 'unknown permission %r' % (perm,))
+                self.error(path, _('unknown permission %r') % (perm,))
 
     def lookups(self, model):
         """Basenames of the select2 lookups a design may use for ``model``,
@@ -241,11 +242,30 @@ class ResolveContext:
             return registry.get_component(node_type)
         return self.components.get(node_type)
 
+    def row_link(self, link, model, path):
+        """The :class:`~djgentelella.designs.builds.RowLink` of ``link`` --
+        one item of a table's ``row_links``, its ``condition`` already
+        checked -- for rows of ``model``, or ``None`` after reporting why
+        it cannot be one (``self.error(path, ...)``).
+
+        The hook of every row link a design names. By default it is
+        :func:`~djgentelella.designs.data_components.resolve_row_link`: a
+        URL name of the project, a published design page or a flow. A
+        subclass can resolve them otherwise -- djgentelella-editor links
+        pages and flows it generates next to the design -- and call
+        ``super()`` for the rest.
+        """
+        # The components with data import this module.
+        from djgentelella.designs.data_components import (  # noqa: PLC0415 (circular)
+            resolve_row_link,
+        )
+        return resolve_row_link(self, link, model, path)
+
     def form(self, key, path):
         """The :class:`~djgentelella.designs.forms.FormBuild` of ``forms[key]``."""
         forms = self.design.get('forms') or {}
         if key not in forms:
-            self.error(path, 'no form %r in "forms"' % (key,))
+            self.error(path, _('no form %r in "forms"') % (key,))
             return None
         if key not in self._forms:
             self._forms[key] = build_form(key, forms[key], self, '$.forms.' + key)
@@ -255,8 +275,8 @@ class ResolveContext:
         """The DataSource ``name`` (:mod:`djgentelella.datasources`), or
         ``None`` after an error."""
         if not apps.is_installed('djgentelella.datasources'):
-            self.error(path, 'data source %r needs djgentelella.datasources in '
-                             'INSTALLED_APPS' % (name,))
+            self.error(path, _('data source %r needs djgentelella.datasources in '
+                               'INSTALLED_APPS') % (name,))
             return None
         # Optional app: only importable when it is installed (checked above).
         from djgentelella.datasources.base import get_datasource  # noqa: PLC0415
@@ -265,8 +285,8 @@ class ResolveContext:
         except (KeyError, LookupError):
             source = None
         if source is None:
-            self.error(path, 'unknown data source %r' % (name,))
+            self.error(path, _('unknown data source %r') % (name,))
         elif self.request is not None and not source.has_permission(self.request):
-            self.error(path, 'no permission for data source %r' % (name,))
+            self.error(path, _('no permission for data source %r') % (name,))
             return None
         return source

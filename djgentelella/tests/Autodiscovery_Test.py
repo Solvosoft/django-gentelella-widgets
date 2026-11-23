@@ -61,15 +61,14 @@ class AutodiscoverOnceTests(SimpleTestCase):
 
 
 class ImportBeforeAppsReadyTests(SimpleTestCase):
-    def test_registries_import_before_the_app_registry_is_ready(self):
-        # An AppConfig module of another app may import them at module level.
-        code = ('import django.conf; django.conf.settings.INSTALLED_APPS; '
-                'import djgentelella.datasources.export, djgentelella.lov')
+    def assert_runs(self, code):
+        """Run ``code`` in a fresh interpreter and expect it to succeed."""
         env = dict(os.environ)
         env.setdefault('DJANGO_SETTINGS_MODULE', 'demo.settings')
         # The child does not inherit the sys.path demo/manage.py builds: give
         # it the checkout root (djgentelella) and demo/ (demo.settings), or it
-        # only works where djgentelella happens to be installed.
+        # only works where djgentelella happens to be installed -- or imports
+        # another checkout's.
         root = os.path.dirname(os.path.dirname(os.path.abspath(djgentelella.__file__)))
         env['PYTHONPATH'] = os.pathsep.join(
             [root, os.path.join(root, 'demo')]
@@ -77,6 +76,26 @@ class ImportBeforeAppsReadyTests(SimpleTestCase):
         result = subprocess.run([sys.executable, '-c', code], env=env,
                                 capture_output=True, text=True)
         self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_registries_import_before_the_app_registry_is_ready(self):
+        # An AppConfig module of another app may import them at module level.
+        code = ('import django.conf; django.conf.settings.INSTALLED_APPS; '
+                'import djgentelella.datasources.export, djgentelella.lov')
+        self.assert_runs(code)
+
+    def test_authorization_imports_before_the_app_registry_is_ready(self):
+        # A settings module or an AppConfig may import it to register rules;
+        # the models and auth.mixins wait until they are used.
+        code = ('import sys, django.conf; django.conf.settings.INSTALLED_APPS; '
+                'import djgentelella.authorization as a; '
+                'assert "django.contrib.auth.mixins" not in sys.modules; '
+                'assert "djgentelella.models" not in sys.modules; '
+                'import django; django.setup(); '
+                'from djgentelella.authorization import ConditionRequiredMixin; '
+                'from djgentelella.views.conditions import ConditionRequiredMixin '
+                'as M; '
+                'assert ConditionRequiredMixin is M')
+        self.assert_runs(code)
 
 
 class DesignRegistryLoadTests(SimpleTestCase):

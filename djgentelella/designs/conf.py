@@ -14,6 +14,11 @@
     Whether a page without permissions still needs a signed-in user.
 ``GT_DESIGNS_CACHE_SIZE`` (``128``)
     How many resolved pages each process keeps, by ``Page.hash``.
+``GT_DESIGNS_TRUST_TTL`` (``60``)
+    Seconds each process keeps the trust of a page's publisher (whether they
+    still hold ``gtdesigns.publish_template`` / ``publish_js``): a permission
+    taken away from them reaches the pages already served within this time.
+    ``0`` checks it on every request.
 ``GT_DESIGNS_BASE_TEMPLATE`` (``'gentelella/base.html'``)
     The template ``gtdesigns/page.html`` extends.
 ``GT_DESIGNS_PAGE_CONTEXT`` (``None``)
@@ -45,6 +50,10 @@ def login_required():
 
 def cache_size():
     return int(getattr(settings, 'GT_DESIGNS_CACHE_SIZE', 128))
+
+
+def trust_ttl():
+    return float(getattr(settings, 'GT_DESIGNS_TRUST_TTL', 60))
 
 
 def base_template():

@@ -38,6 +38,7 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import FieldDoesNotExist
 from django.db import transaction
 from django.template import Context, Template, TemplateSyntaxError
+from django.utils.translation import gettext as _
 
 from djgentelella.designs import exposure
 from djgentelella.designs.builds import NotifyAction, NotifyBuild
@@ -118,14 +119,14 @@ def is_user_field(model_field):
 
 def check_template(rctx, path, text):
     if '{%' in text and not rctx.allow_templates:
-        rctx.error(path, 'template tags ({%% %%}) need a publisher trusted with '
-                         'templates (GT_DESIGNS_ALLOW_TEMPLATES); use only '
-                         '{{ variables }}')
+        rctx.error(path, _('template tags ({% %}) need a publisher trusted with '
+                           'templates (GT_DESIGNS_ALLOW_TEMPLATES); use only '
+                           '{{ variables }}'))
         return
     try:
         Template(text)
     except TemplateSyntaxError as error:
-        rctx.error(path, 'template error: %s' % error)
+        rctx.error(path, _('template error: %s') % error)
 
 
 def resolve_notify(rctx, path, model, items):
@@ -149,30 +150,32 @@ def resolve_notify(rctx, path, model, items):
             if target.startswith('field:'):
                 model_field = resolve_path(model, target[len('field:'):], rctx)
                 if model_field is None:
-                    rctx.error(where + '.to', '%s has no field %r a design may use'
-                               % (model._meta.label, target[len('field:'):]))
+                    rctx.error(where + '.to',
+                               _('%(model)s has no field %(field)r a design may use')
+                               % {'model': model._meta.label,
+                                  'field': target[len('field:'):]})
                 elif item['kind'] == 'notice' and not is_user_field(model_field):
-                    rctx.error(where + '.to', '%r is not a user' % target)
+                    rctx.error(where + '.to', _('%r is not a user') % (target,))
             elif item['kind'] == 'notice':
-                rctx.error(where + '.to', 'a notice goes to "actor" or a '
-                                          '"field:" pointing at a user')
+                rctx.error(where + '.to', _('a notice goes to "actor" or a '
+                                            '"field:" pointing at a user'))
         if item['kind'] == 'email':
             if not async_notification_installed():
-                rctx.error(where, 'email needs djgentelella.async_notification '
-                                  'in INSTALLED_APPS')
+                rctx.error(where, _('email needs djgentelella.async_notification '
+                                    'in INSTALLED_APPS'))
                 continue
             missing = [key for key in ('code', 'subject', 'message')
                        if not item.get(key)]
             if missing:
-                rctx.error(where, 'an email needs %s' % ', '.join(missing))
+                rctx.error(where, _('an email needs %s') % ', '.join(missing))
                 continue
             if item['code'] in codes:
-                rctx.error(where + '.code', 'email code %r is used twice'
-                           % item['code'])
+                rctx.error(where + '.code', _('email code %r is used twice')
+                           % (item['code'],))
             codes.add(item['code'])
             check_template(rctx, where + '.subject', item['subject'])
         elif not item.get('message'):
-            rctx.error(where, 'a notice needs a message')
+            rctx.error(where, _('a notice needs a message'))
             continue
         check_template(rctx, where + '.message', item['message'])
         if len(rctx.errors) > errors_before:

@@ -29,6 +29,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.db import transaction
 from django.db.models import Max
 from django.utils.module_loading import import_string
+from django.utils.translation import gettext as _
 
 from djgentelella.flows.actions import action_from_json
 from djgentelella.flows.activities import TYPES
@@ -89,8 +90,9 @@ def activity(spec):
     kind = spec.get('type', 'state')
     extra = sorted(set(spec) - set(COMMON) - set(ARGUMENTS[kind]))
     if extra:
-        raise ImproperlyConfigured('Activity %r (%s) does not take %s' % (
-            spec['id'], kind, ', '.join(extra)))
+        raise ImproperlyConfigured(
+            _('Activity %(id)r (%(kind)s) does not take %(keys)s') % {
+                'id': spec['id'], 'kind': kind, 'keys': ', '.join(extra)})
     kwargs = {key: spec[key] for key in ARGUMENTS[kind] if key in spec}
     if kind == 'state' and 'deadline' in kwargs:
         kwargs['deadline'] = deadline(kwargs['deadline'])
@@ -129,16 +131,23 @@ def transition_form(spec, kwargs):
     return import_string(path)
 
 
+def invalid_definition(errors):
+    """The ImproperlyConfigured of a flow document, with every problem."""
+    return ImproperlyConfigured(_('Invalid flow definition: %s') % '; '.join(
+        str(error) for error in errors))
+
+
 def build_flow(document, definition=None):
     """The :class:`Flow` of a JSON ``document``; ImproperlyConfigured, with
     every problem found, when it is not valid."""
     errors = validate_document(document)
     if errors:
-        raise ImproperlyConfigured('Invalid flow definition: ' + '; '.join(errors))
+        raise invalid_definition(errors)
     try:
         model = apps.get_model(document['model'])
     except (LookupError, ValueError):
-        raise ImproperlyConfigured('Unknown model %r' % document['model']) from None
+        raise ImproperlyConfigured(_('Unknown model %r') % (document['model'],)) \
+            from None
     attributes = {
         'name': document['name'], 'title': document.get('title', ''),
         'model': model, 'initial': document['initial'],
@@ -199,7 +208,7 @@ def publish_definition(document, site=None, activate=True, version=None):
     errors = (validate_conditions(document) + validate_callables(document)
               + validate_task_forms(document))
     if errors:
-        raise ImproperlyConfigured('Invalid flow definition: ' + '; '.join(errors))
+        raise invalid_definition(errors)
     name = document['name']
     with transaction.atomic():
         same = FlowDefinition.objects.filter(name=name, site=site)

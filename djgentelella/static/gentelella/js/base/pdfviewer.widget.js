@@ -32,7 +32,9 @@ $.fn.pdfviewerwidget = function(){
             pageRendering: false,
             pageNumPending: null,
             zoomIndex: 2,
-            scale: PDF_ZOOM_LEVELS[2]
+            scale: PDF_ZOOM_LEVELS[2],
+            url: null,
+            loading: null
         };
 
         function showLoading() {
@@ -162,26 +164,45 @@ $.fn.pdfviewerwidget = function(){
         return {
             loadPDF: function(url) {
                 if (!url || !canvas) return Promise.reject(new Error('No URL or canvas'));
+                // The widget asks for its document twice as it starts (from
+                // its value and from data-pdf-url): a load in progress is
+                // shared, since two renders on one canvas would clear each
+                // other's pixels. Once it settles, the same URL loads again,
+                // so a file replaced under it is fetched anew.
+                if (state.loading && state.url === url) return state.loading;
+                state.url = url;
                 showLoading();
                 hideError();
 
                 // pdf.js 6 dropped the bare-string shorthand: a string, an
                 // absolute string and even a URL object are all rejected with
                 // "expected either `data`, `range`, or `url` parameter".
-                return pdfjsLib.getDocument({url: url}).promise.then(function(pdfDoc) {
+                var loading = pdfjsLib.getDocument({url: url}).promise.then(function(pdfDoc) {
+                    if (state.loading === loading) state.loading = null;
                     state.pdfDoc = pdfDoc;
                     state.pageNum = 1;
                     if (pageCountEl) pageCountEl.textContent = pdfDoc.numPages;
                     hideLoading();
+                    if (state.pageRendering) {
+                        // Another document is still painting: this one
+                        // follows it instead of sharing the canvas.
+                        state.pageNumPending = 1;
+                        return;
+                    }
                     return renderPage(1);
                 }).catch(function(error) {
+                    if (state.loading === loading) state.loading = null;
                     hideLoading();
                     console.error('Error loading PDF:', error);
                     showError(gettext('Failed to load PDF file.'));
                     throw error;
                 });
+                state.loading = loading;
+                return loading;
             },
             destroy: function() {
+                state.url = null;
+                state.loading = null;
                 if (state.pdfDoc) {
                     state.pdfDoc.destroy();
                     state.pdfDoc = null;
@@ -199,6 +220,9 @@ $.fn.pdfviewerwidget = function(){
         // Initialize PDF viewer if preview section exists
         var previewSection = $parentdiv.find('.pdfviewer-preview')[0];
         var pdfViewer = previewSection ? createPDFViewer(previewSection) : null;
+        // Reachable from the page, e.g. to show a document replaced on the
+        // server: $('.pdfviewer-widget').data('pdfviewer').loadPDF(url).
+        $parentdiv.data('pdfviewer', pdfViewer);
 
         var obj = {
             parentdiv: $this.closest('.input-group'),

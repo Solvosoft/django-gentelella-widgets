@@ -37,14 +37,23 @@ _EXPORTS = {
         'task_completed', 'task_created',
     ],
     'djgentelella.flows.tasks': ['create_task'],
-    'djgentelella.flows.callables': ['register_callable'],
+    'djgentelella.flows.callables': [
+        'DocumentError', 'register_callable', 'validate_actions',
+        'validate_callables',
+    ],
     'djgentelella.flows.registry': [
         'ARGUMENTS', 'COMMON', 'activity_arguments', 'catalogue',
         'registered_actions', 'registered_conditions', 'registered_flows',
-        'registered_task_forms',
+        'registered_task_forms', 'variable_types',
     ],
-    'djgentelella.flows.taskforms': ['get_task_form', 'register_task_form'],
+    'djgentelella.flows.taskforms': [
+        'get_task_form', 'is_task_form_allowed', 'register_task_form',
+        'validate_task_forms',
+    ],
     'djgentelella.flows.models': ['forget_object'],
+    'djgentelella.flows.variables': [
+        'check_variable', 'get_variable_type', 'register_variable_type',
+    ],
 }
 _WHERE = {name: module for module, names in _EXPORTS.items() for name in names}
 

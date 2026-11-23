@@ -238,6 +238,23 @@ task stores its outcome in ``variables['<activity>_outcome']`` and the data it
 was completed with, a signal its data. ``flow.update_variables(obj, {...})``
 changes them from outside, logged.
 
+**Types of variable.** Tools that let people declare variables (a flow
+designer) share one list of types, in ``djgentelella.flows.variables``:
+``string``, ``integer``, ``decimal``, ``boolean``, ``date``, ``datetime``,
+``user``, ``list`` and ``object``, each with a translatable label. Each says
+which JSON values it takes
+(``check_variable('integer', 3)``; ``True`` is only a ``boolean``), and a
+project adds its own:
+
+.. code:: python
+
+    from djgentelella.flows import register_variable_type
+
+    register_variable_type('money', (int, float, str),
+                           json_types=('number', 'string'), label='Money')
+
+``variable_types()`` lists them as JSON (see "What the engine registered").
+
 Controlling an instance
 -----------------------
 
@@ -542,8 +559,18 @@ the ``function`` of a ``call`` action, the ``form`` of a transition or of a
         ...
 
 ``publish_definition`` (and ``gtflows_publish``) refuses a document that names
-any other path, with the JSON path of each one; ``validate_callables(document)``
-in ``djgentelella.flows.callables`` returns those errors. A document stored
+any other path, with the JSON path of each one: ``validate_callables(document)``
+and ``validate_task_forms(document)`` return those errors, and
+``validate_actions(specs, where='')`` those of a list of actions on its own
+(an automation's, say), all three exported by ``djgentelella.flows``. Each
+error is a ``(path, message)`` tuple, the ``Error`` of the design documents
+(``DocumentError``, whose ``str()`` is ``'path: message'``). Read
+``error.path`` and ``error.message``: for code written when these validators
+returned text, a ``DocumentError`` also answers the ``str`` methods a tuple
+lacks (``partition``, ``startswith``...), ``in`` and ``==`` with a ``str`` on
+that text, but ``index``, ``count``, ``len()``, indexing and the hash are the
+tuple's. That text side is transitional and will be removed;
+``is_task_form_allowed(name)`` says whether a ``human_task`` may name a form. A document stored
 some other way still loads, and the path is refused when it runs, logged on
 ``djgentelella.flows``: a condition or a form not allowed blocks its
 transition (``TransitionBlocked``, shown as the reason), and a ``call`` raises
@@ -564,7 +591,7 @@ whoever deploys the project writes, so they need no allowlist. Automations
 that build actions from JSON with ``action_from_json`` directly do not go
 through ``build_flow``; they opt in with
 ``djgentelella.flows.callables.guard_action(action, where)`` or
-``validate_callables(document)``.
+``validate_actions(specs)``.
 
 Inboxes and pages
 -----------------
@@ -676,9 +703,13 @@ booleans), sorted by name:
     ``[{"name", "class", "fields": [{"name", "label", "required", "type"}]}]``.
 ``registered_flows(published=False, site=None)``
     ``[{"name", "title", "model", "source", "versions", "initial", "states",
-    "transitions"}]``: the flows declared in Python, without touching the
-    database; with ``published``, the active definitions too
-    (``source="definition"``).
+    "transitions", "auto"}]``: the flows declared in Python, without touching
+    the database; with ``published``, the active definitions too
+    (``source="definition"``). ``transitions`` are names, and ``auto`` is
+    ``{transition: bool}``: an automatic transition is one no user runs (a
+    row link of :doc:`designs` cannot name it).
+``variable_types()``
+    ``[{"name", "label", "json_types"}]``: the types of flow variables.
 ``activity_arguments()``
     ``{"common": COMMON, "types": ARGUMENTS}``.
 ``catalogue(published=False, site=None)``

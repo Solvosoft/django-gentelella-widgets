@@ -208,6 +208,44 @@ Access template context values like ``request.user.pk``:
     )
 
 
+A Design Page
+-------------
+
+A ``url_name`` of ``page:<path>`` (not reversed) links the page of
+:doc:`designs` published at that path:
+
+.. code:: python
+
+    MenuItem.objects.create(
+        title='Clients',
+        url_name='page:sales/clients',  # -> /designs/sales/clients
+        category='sidebar',
+    )
+
+Without ``djgentelella.designs`` installed there is no such route, and the
+item links its ``url_name`` as it is instead of breaking the menu.
+
+
+The Link of an Item in Python
+-----------------------------
+
+``djgentelella.menu.item_url(item, context=None, *, fail_silently=False)``
+returns the ``href`` the menu tags draw for ``item``: ``url_name`` as it is,
+reversed (``reversed_args`` and ``reversed_kwargs`` read from ``context``,
+the template context or a dict such as ``{'request': request}``), the design
+page of ``page:<path>``, or ``''`` for a widget. A view that walks the menu
+tree -- breadcrumbs, a site map -- links items the same way with it:
+
+.. code:: python
+
+    from djgentelella.menu import item_url
+
+    href = item_url(item, {'request': request}, fail_silently=True)
+
+A reverse that fails raises ``NoReverseMatch``; with ``fail_silently=True``
+it returns ``''``.
+
+
 Hierarchical Menus
 ------------------
 

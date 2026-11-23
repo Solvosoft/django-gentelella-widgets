@@ -2,6 +2,7 @@
 
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied, ValidationError
+from django.db.models import Q
 from django.http import Http404, JsonResponse
 from django.urls import Resolver404
 from django.utils.translation import gettext as _
@@ -46,6 +47,13 @@ def check_access(request, page, resolved=None):
         raise Refused(403)
 
 
+def served_pages():
+    """Pages as a request serves them: with their publisher, whose trust
+    :func:`~djgentelella.designs.engine.resolve_page` checks, and without the
+    document, which it reads only when its cache misses."""
+    return Page.objects.select_related('updated_by').defer('document')
+
+
 def find_page(path, site):
     """``(page, parent_pk)`` of a page URL.
 
@@ -53,12 +61,13 @@ def find_page(path, site):
     -- the page at ``path`` without its last segment, which is then the pk
     of the parent object.
     """
-    page = Page.objects.find(path, site)
+    page = served_pages().find(path, site)
     if page is not None:
         return page, None
     head, _slash, tail = normalize_path(path).rpartition('/')
     if head and tail:
-        page = Page.objects.find(head, site)
+        # Its document says whether it takes a parent: loaded with the page.
+        page = Page.objects.select_related('updated_by').find(head, site)
         if page is not None and isinstance(page.document, dict) and \
                 (page.document.get('meta') or {}).get('parent'):
             return page, tail
@@ -123,10 +132,11 @@ def design_endpoint(request, page_id, node_id, rest=''):
     current Site overrides at the same path.
     """
     site = get_current_site(request)
-    page = Page.objects.filter(site_q(site), pk=page_id).first()
-    if page is not None and page.site_id is None and site is not None and \
-            Page.objects.filter(site=site, path=page.path).exists():
-        page = None
+    pages = served_pages().filter(site_q(site), pk=page_id)
+    if site is not None:
+        shadowed = Page.objects.filter(site=site).values('path')
+        pages = pages.exclude(Q(site__isnull=True) & Q(path__in=shadowed))
+    page = pages.first()
     if page is None:
         return JsonResponse({'detail': 'Not found.'}, status=404)
     resolved, errors = engine.resolve_page(page)

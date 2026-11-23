@@ -104,3 +104,10 @@ with ``json.dumps`` and escaped by the template, so a file name with quotes or
 with ``.text()``, so a name such as ``<img src=x onerror=...>`` (assigned by
 code, or kept by a storage that does not clean names) is shown as text and
 never becomes markup.
+
+``PDFViewerWidget`` shows its document with PDF.js. Its viewer is kept as
+``$('.pdfviewer-widget').data('pdfviewer')``; ``loadPDF(url)`` returns a
+promise. Two calls for the same URL while it loads share that load (the
+widget asks for its document twice as it starts, and two renders on one canvas
+would clear each other); once it has settled, the same URL is fetched again,
+so a file replaced on the server is shown anew.

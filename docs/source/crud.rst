@@ -77,6 +77,52 @@ You also can defined extra perms in two ways as django perm string or like a fun
 If check_perms = True we will add default django model perms
 (<applabel>.[add|change|delete|view]_<model>) ej. mytestapp.add_mymodel
 
+Conditions
+------------
+
+Besides the permissions, conditions of :doc:`authorization` can hide columns
+and refuse pages, the way the classic CRUD of :doc:`designs` does:
+
+.. code:: python
+
+    class Myclass(CRUDView):
+        model = Customer
+        list_fields = ['name', 'credit_limit']
+        column_conditions = {'credit_limit': {'group': 'Finance'}}
+        action_conditions = {'delete': {'perm': 'myapp.close_customer'}}
+
+A column whose condition does not hold leaves the list, the detail, the
+search (``search_fields`` over it), the ordering and the update form -- an
+update neither shows nor writes it; create still takes it. A page
+(``create``, ``detail``, ``update``, ``delete``) whose condition does not
+hold loses its links (``crud_perms``) and answers 403.
+
+The views decide them through three hooks of ``CRUDMixin``, so a ``mixin`` of
+your own can change how:
+
+``get_condition_object()``
+    the object the conditions are evaluated with (``evaluate_condition(cond,
+    request, obj)``); ``None`` by default. It is called at most once per
+    request (``condition_object()`` keeps it), so a query in it runs once.
+``get_hidden_columns()``
+    the set of hidden columns; by default those of ``column_conditions``
+    that do not hold, evaluated once per request.
+``get_denied_actions()``
+    the set of refused pages; by default those of ``action_conditions``
+    that do not hold.
+
+.. code:: python
+
+    class ByObject(CRUDMixin):
+        def get_condition_object(self):
+            pk = self.kwargs.get('pk')
+            return Customer.objects.filter(pk=pk).first() if pk else None
+
+    class Myclass(CRUDView):
+        model = Customer
+        mixin = ByObject
+        action_conditions = {'update': {'auth': 'is_account_manager'}}
+
 Searching
 ------------
 

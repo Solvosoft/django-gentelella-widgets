@@ -31,6 +31,12 @@ each problem; :func:`evaluate_condition` says whether it holds. ``None`` is
 whose key starts with ``flag.``, with the Site rule of
 :mod:`djgentelella.sites`: the value of the current Site wins over the global
 one.
+
+The module can be imported before the app registry is ready (from a settings
+module or another app's ``AppConfig``): models, ``auth.mixins`` and
+``djgentelella.utils`` are looked up when they are used, and
+``ConditionRequiredMixin`` lives in :mod:`djgentelella.views.conditions`,
+imported on first access.
 """
 
 import json
@@ -41,20 +47,16 @@ from functools import wraps
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
-from django.contrib.auth.mixins import AccessMixin
-from django.contrib.auth.models import AnonymousUser, Group
-from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.db.models import Model
 from django.http import QueryDict
 from django.utils.module_loading import import_string
+from django.utils.translation import gettext as _
 from rest_framework.permissions import BasePermission
 
-from djgentelella.designs.jsonschema import Error
-from djgentelella.models import GentelellaSettings
-from djgentelella.sites import get_current_site, site_pk
 from djgentelella.autodiscover import autodiscover_once
-from djgentelella.utils import get_settings, set_settings
+from djgentelella.designs.jsonschema import Error
+from djgentelella.sites import get_current_site, site_pk
 
 logger = logging.getLogger(__name__)
 
@@ -90,6 +92,37 @@ _AUTH_CACHE_ATTR = '_gt_authorization_cache'
 _GROUPS_CACHE_ATTR = '_gt_site_groups_cache'
 
 _registry = {}
+
+
+# -- what needs the app registry ----------------------------------------------------
+# Imported or looked up on use, so the module itself loads before the registry is
+# ready: django.contrib.auth.models and djgentelella.utils import models.
+
+def _anonymous_user():
+    from django.contrib.auth.models import AnonymousUser  # noqa: PLC0415 -- early import
+
+    return AnonymousUser()
+
+
+def _settings_model():
+    return apps.get_model('djgentelella', 'GentelellaSettings')
+
+
+def _get_settings(key, site):
+    from djgentelella.utils import get_settings  # noqa: PLC0415 -- early import
+
+    return get_settings(key, site=site, none_asdefault=True)
+
+
+def __getattr__(name):
+    # ConditionRequiredMixin subclasses AccessMixin, whose module imports the
+    # auth models: it is imported the first time someone asks for it.
+    if name == 'ConditionRequiredMixin':
+        from djgentelella.views.conditions import (  # noqa: PLC0415 -- early import
+            ConditionRequiredMixin,
+        )
+        return ConditionRequiredMixin
+    raise AttributeError('module %r has no attribute %r' % (__name__, name))
 
 
 # -- authorizations -------------------------------------------------------------
@@ -133,7 +166,7 @@ def _obj_key(obj):
 
 def _user_of(request):
     user = getattr(request, 'user', None)
-    return user if user is not None else AnonymousUser()
+    return user if user is not None else _anonymous_user()
 
 
 def _request_cache(request, attr):
@@ -217,7 +250,7 @@ class ConditionRequest:
     path_info = ''
 
     def __init__(self, user=None, site=None):
-        self.user = user if user is not None else AnonymousUser()
+        self.user = user if user is not None else _anonymous_user()
         # get_current_site() takes request.site as it is, so a Site id is
         # turned into the Site here.
         self.site = self._site(site)
@@ -249,7 +282,7 @@ class ConditionRequest:
 def default_site_groups(user, site):
     """Every group of ``user``, whatever the Site (the default resolver)."""
     if user is None or not user.is_authenticated:
-        return Group.objects.none()
+        return apps.get_model('auth', 'Group').objects.none()
     return user.groups.all()
 
 
@@ -299,7 +332,7 @@ def _truthy(value):
 def flag_value(name, site=None):
     """``True``/``False`` as stored for ``site`` (or global), or ``None`` when
     nothing is stored there: the raw state, without the fallback."""
-    row = GentelellaSettings.objects.filter(
+    row = _settings_model().objects.filter(
         key=_flag_key(name), site_id=site_pk(site)).values_list(
         'value', flat=True).first()
     return None if row is None else _truthy(row)
@@ -313,7 +346,7 @@ def flag_enabled(name, request=None, *, site=None):
     """
     if site is None:
         site = get_current_site(request)
-    return _truthy(get_settings(_flag_key(name), site=site, none_asdefault=True))
+    return _truthy(_get_settings(_flag_key(name), site))
 
 
 def set_flag(name, value, site=None):
@@ -325,15 +358,18 @@ def set_flag(name, value, site=None):
     key = _flag_key(name)
     if value is None:
         # A delete through the ORM: the post_delete signal forgets the cache.
-        for row in GentelellaSettings.objects.filter(key=key, site_id=site_pk(site)):
+        for row in _settings_model().objects.filter(key=key,
+                                                    site_id=site_pk(site)):
             row.delete()
         return
+    from djgentelella.utils import set_settings  # noqa: PLC0415 -- early import
+
     set_settings(key, 'true' if value else 'false', site=site)
 
 
 def flag_names():
     """The names of every flag stored, in any scope, sorted."""
-    keys = GentelellaSettings.objects.filter(
+    keys = _settings_model().objects.filter(
         key__startswith=FLAG_PREFIX).values_list('key', flat=True).distinct()
     # A row written by hand with a key no flag can have is not one.
     return sorted({key[len(FLAG_PREFIX):] for key in keys
@@ -386,29 +422,31 @@ def validate_condition(cond, path='$', *, check_names=True):
 
 def _validate(cond, path, depth, errors, check_names):
     if depth > MAX_DEPTH:
-        errors.append(Error(path, 'conditions nest at most %d levels' % MAX_DEPTH))
+        errors.append(Error(path, _('conditions nest at most %d levels') % MAX_DEPTH))
         return
     if not isinstance(cond, dict):
-        errors.append(Error(path, 'a condition must be an object, not %s'
+        errors.append(Error(path, _('a condition must be an object, not %s')
                             % type(cond).__name__))
         return
     kind = _node_type(cond)
     if kind is None:
         if not cond:
-            errors.append(Error(path, 'empty condition'))
+            errors.append(Error(path, _('empty condition')))
         else:
-            errors.append(Error(path, 'a condition has exactly one of %s; got %s' % (
-                ', '.join(NODES), ', '.join(sorted(map(str, cond))))))
+            errors.append(Error(path, _('a condition has exactly one of %(nodes)s; '
+                                        'got %(keys)s') % {
+                'nodes': ', '.join(NODES), 'keys': ', '.join(sorted(map(str, cond)))}))
         return
     extra = sorted(set(cond) - {kind} - set(NODES[kind]))
     if extra:
-        errors.append(Error(path, 'unexpected key(s) in a %r condition: %s'
-                            % (kind, ', '.join(map(str, extra)))))
+        errors.append(Error(path, _('unexpected key(s) in a %(kind)r condition: '
+                                    '%(keys)s') % {
+            'kind': kind, 'keys': ', '.join(map(str, extra))}))
     value = cond[kind]
     here = '%s.%s' % (path, kind)
     if kind in ('all', 'any'):
         if not isinstance(value, list):
-            errors.append(Error(here, 'must be a list of conditions'))
+            errors.append(Error(here, _('must be a list of conditions')))
             return
         for index, item in enumerate(value):
             _validate(item, '%s[%d]' % (here, index), depth + 1, errors, check_names)
@@ -417,43 +455,44 @@ def _validate(cond, path, depth, errors, check_names):
     elif kind == 'perm':
         perms = _string_list(value)
         if perms is None:
-            errors.append(Error(here, 'must be "app.codename" or a non-empty list '
-                                'of them'))
+            errors.append(Error(here, _('must be "app.codename" or a non-empty '
+                                        'list of them')))
         else:
             for perm in perms:
                 if not PERMISSION.match(perm):
-                    errors.append(Error(here, '%r is not an "app.codename" '
-                                        'permission' % perm))
+                    errors.append(Error(here, _('%r is not an "app.codename" '
+                                                'permission') % (perm,)))
     elif kind == 'group':
         if _string_list(value) is None:
-            errors.append(Error(here, 'must be a group name or a non-empty list '
-                                'of them'))
+            errors.append(Error(here, _('must be a group name or a non-empty '
+                                        'list of them')))
     elif kind == 'auth':
         if not isinstance(value, str) or not value:
-            errors.append(Error(here, 'must be the name of an authorization'))
+            errors.append(Error(here, _('must be the name of an authorization')))
         elif check_names and value not in get_authorizations():
-            errors.append(Error(here, 'unknown authorization %r' % value))
+            errors.append(Error(here, _('unknown authorization %r') % (value,)))
     elif kind == 'flag':
         if not isinstance(value, str) or not FLAG_NAME.match(value):
-            errors.append(Error(here, 'must be a flag name'))
+            errors.append(Error(here, _('must be a flag name')))
     elif kind == 'user_attr':
         if value not in SAFE_USER_ATTRS:
-            errors.append(Error(here, 'must be one of %s' % ', '.join(SAFE_USER_ATTRS)))
+            errors.append(Error(here, _('must be one of %s')
+                                % ', '.join(SAFE_USER_ATTRS)))
     elif kind == 'setting':
         if not isinstance(value, str) or not value or len(value) > 100:
-            errors.append(Error(here, 'must be the key of a setting'))
+            errors.append(Error(here, _('must be the key of a setting')))
         operators = [op for op in ('equals', 'in') if op in cond]
         if len(operators) != 1:
-            errors.append(Error(path, 'a "setting" condition takes "equals" or '
-                                '"in" (one of them)'))
+            errors.append(Error(path, _('a "setting" condition takes "equals" or '
+                                        '"in" (one of them)')))
         elif operators == ['equals'] and not _scalar(cond['equals']):
-            errors.append(Error(path + '.equals', 'must be a string, a number or '
-                                'a boolean'))
+            errors.append(Error(path + '.equals', _('must be a string, a number '
+                                                    'or a boolean')))
         elif operators == ['in'] and not (
                 isinstance(cond['in'], list)
                 and all(_scalar(item) for item in cond['in'])):
-            errors.append(Error(path + '.in', 'must be a list of strings, numbers '
-                                'or booleans'))
+            errors.append(Error(path + '.in', _('must be a list of strings, '
+                                                'numbers or booleans')))
 
 
 def _scalar(value):
@@ -565,7 +604,7 @@ def _evaluate(cond, request, obj, user, site):
     if kind == 'user_attr':
         return bool(getattr(user, value, False))
     if kind == 'setting':
-        stored = get_settings(value, site=site, none_asdefault=True)
+        stored = _get_settings(value, site)
         if stored is None:
             return False
         if 'equals' in cond:
@@ -609,36 +648,6 @@ class ConditionPermission(BasePermission):
         return declared and evaluate_condition(cond, request, obj)
 
 
-class ConditionRequiredMixin(AccessMixin):
-    """A class-based view that needs ``condition`` to hold.
-
-    Anonymous users who fail are sent to the login page; signed-in ones get
-    a 403 (``AccessMixin.handle_no_permission``).
-    """
-
-    condition = None
-
-    def get_condition(self):
-        if self.condition is None:
-            raise ImproperlyConfigured(
-                '%s needs a condition: set condition or override get_condition().'
-                % self.__class__.__name__)
-        return self.condition
-
-    def get_condition_object(self):
-        """The object the condition is checked against; none by default."""
-        return None
-
-    def has_condition(self):
-        return evaluate_condition(self.get_condition(), self.request,
-                                  self.get_condition_object())
-
-    def dispatch(self, request, *args, **kwargs):
-        if not self.has_condition():
-            return self.handle_no_permission()
-        return super().dispatch(request, *args, **kwargs)
-
-
 def condition_required(cond, login_url=None, redirect_field_name=REDIRECT_FIELD_NAME,
                        raise_exception=False):
     """Decorator of a function view that needs ``cond`` to hold.
@@ -657,6 +666,10 @@ def condition_required(cond, login_url=None, redirect_field_name=REDIRECT_FIELD_
                 return view(request, *args, **kwargs)
             if raise_exception or _user_of(request).is_authenticated:
                 raise PermissionDenied
+            # auth.views imports the auth models: see the top of the module.
+            from django.contrib.auth.views import (  # noqa: PLC0415 -- early import
+                redirect_to_login,
+            )
             return redirect_to_login(request.get_full_path(), login_url,
                                      redirect_field_name)
         return wrapped

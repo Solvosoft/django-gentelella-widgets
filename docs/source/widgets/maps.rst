@@ -13,8 +13,9 @@ Tiles come from OpenStreetMap and no API key is involved. The point is stored
 as the plain string ``"latitude,longitude"``, so **GeoDjango, GDAL and PostGIS
 are not needed** and everything works on SQLite.
 
+--------------------------------
 Loading the static files
-""""""""""""""""""""""""""""""""
+--------------------------------
 
 Leaflet itself is always loaded. Marker clustering and the heatmap are extra
 libraries, enabled with the ``use_maps`` define::
@@ -33,8 +34,9 @@ groups and the heatmap is skipped, each with a console warning.
    ``python manage.py createbasejs`` after installing or upgrading, or the
    widgets silently never start.
 
+--------------------------------
 Asking for a GPS point
-""""""""""""""""""""""""""""""""
+--------------------------------
 
 ``MapPointInput`` renders a normal text input plus a map. The point can be set
 by clicking the map, dragging the marker, typing the value, pressing the "use
@@ -151,8 +153,9 @@ Or, with validation and a model field included:
    beyond a low-traffic site, run your own instance and point ``geocoder_url``
    at it.
 
+--------------------------------
 Showing points from an API
-""""""""""""""""""""""""""""""""
+--------------------------------
 
 Subclass :class:`~djgentelella.views.maps.BaseMapView` in ``<app>/gtmaps.py``
 (auto-imported, like ``gtcharts.py``) and register it:

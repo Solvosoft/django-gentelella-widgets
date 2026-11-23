@@ -63,6 +63,7 @@ def make_user(name, *codenames, groups=(), **extra):
 
 
 # -- datasources -------------------------------------------------------------------
+@override_settings(LANGUAGE_CODE='en')
 class SourceCase(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -362,6 +363,7 @@ REVIEW_FLOW = {
 }
 
 
+@override_settings(LANGUAGE_CODE='en')
 class FlowCase(TestCase):
     @classmethod
     def setUpTestData(cls):

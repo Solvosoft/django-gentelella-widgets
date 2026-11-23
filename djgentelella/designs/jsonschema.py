@@ -15,6 +15,8 @@ Problems are reported as :class:`Error`, a ``(path, message)`` tuple.
 import re
 from collections import namedtuple
 
+from django.utils.translation import gettext as _
+
 
 class Error(namedtuple('Error', 'path message')):
     """One problem of a document: where (``$.root.children[0].props``) and what."""
@@ -56,31 +58,32 @@ def validate(value, schema, path='$', root=None):
     if expected is not None:
         names = expected if isinstance(expected, list) else [expected]
         if not any(TYPES[name](value) for name in names):
-            return [Error(path, 'expected %s, got %s' % (
-                ' or '.join(names), type(value).__name__))]
+            return [Error(path, _('expected %(expected)s, got %(got)s') % {
+                'expected': _(' or ').join(names), 'got': type(value).__name__})]
 
     if 'const' in schema and value != schema['const']:
-        errors.append(Error(path, 'must be %r' % (schema['const'],)))
+        errors.append(Error(path, _('must be %r') % (schema['const'],)))
     if 'enum' in schema and value not in schema['enum']:
-        errors.append(Error(path, '%r is not one of %s' % (
-            value, ', '.join(repr(item) for item in schema['enum']))))
+        errors.append(Error(path, _('%(value)r is not one of %(choices)s') % {
+            'value': value,
+            'choices': ', '.join(repr(item) for item in schema['enum'])}))
 
     if isinstance(value, str):
         if 'minLength' in schema and len(value) < schema['minLength']:
-            errors.append(Error(path, 'shorter than %d' % schema['minLength']))
+            errors.append(Error(path, _('shorter than %d') % schema['minLength']))
         if 'pattern' in schema and not re.search(schema['pattern'], value):
-            errors.append(Error(path, '%r does not match %s' % (
-                value, schema['pattern'])))
+            errors.append(Error(path, _('%(value)r does not match %(pattern)s') % {
+                'value': value, 'pattern': schema['pattern']}))
 
     if TYPES['number'](value):
         if 'minimum' in schema and value < schema['minimum']:
-            errors.append(Error(path, 'less than %s' % schema['minimum']))
+            errors.append(Error(path, _('less than %s') % schema['minimum']))
         if 'maximum' in schema and value > schema['maximum']:
-            errors.append(Error(path, 'greater than %s' % schema['maximum']))
+            errors.append(Error(path, _('greater than %s') % schema['maximum']))
 
     if isinstance(value, list):
         if 'minItems' in schema and len(value) < schema['minItems']:
-            errors.append(Error(path, 'fewer than %d items' % schema['minItems']))
+            errors.append(Error(path, _('fewer than %d items') % schema['minItems']))
         if 'items' in schema:
             for index, item in enumerate(value):
                 errors += validate(item, schema['items'],
@@ -89,7 +92,7 @@ def validate(value, schema, path='$', root=None):
     if isinstance(value, dict):
         for name in schema.get('required', []):
             if name not in value:
-                errors.append(Error(path, 'missing required %r' % name))
+                errors.append(Error(path, _('missing required %r') % (name,)))
         properties = schema.get('properties', {})
         additional = schema.get('additionalProperties', True)
         for name, item in value.items():
@@ -97,7 +100,7 @@ def validate(value, schema, path='$', root=None):
             if name in properties:
                 errors += validate(item, properties[name], child, root)
             elif additional is False:
-                errors.append(Error(child, 'unexpected property'))
+                errors.append(Error(child, _('unexpected property')))
             elif isinstance(additional, dict):
                 errors += validate(item, additional, child, root)
     return errors

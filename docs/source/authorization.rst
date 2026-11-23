@@ -15,7 +15,15 @@ the "authorization schemes", conditions and "build options" of Oracle APEX:
 
 It is a plain module of ``djgentelella``: there is nothing to add to
 ``INSTALLED_APPS`` and no migration of its own (``MenuItem.condition`` comes
-with ``djgentelella``'s ``0023_menuitem_condition``).
+with ``djgentelella``'s ``0023_menuitem_condition``). It can be imported
+before the app registry is ready -- from a settings module or the
+``AppConfig`` module of another app -- because it loads no model when it is
+imported; ``ConditionRequiredMixin`` lives in
+``djgentelella.views.conditions`` and is imported from there the first time
+it is asked for.
+
+The messages of ``validate_condition`` are translated, in the language
+active when it runs.
 
 
 Authorizations

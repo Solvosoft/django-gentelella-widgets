@@ -75,9 +75,13 @@ class ChartWidgetTest(SeleniumTestCase):
         """The server sends title/legend/tooltip under ``options.plugins``."""
         self.open_charts()
 
-        options = self.js(
-            "return jQuery(document.querySelector('.gentelella_graph'))"
-            "  .data('chartInstance').options;")
+        # The canvases exist before each chart's configuration arrives over
+        # ajax: wait for the instance, not for the markup.
+        options = self.wait_js(
+            "const chart = jQuery(document.querySelector('.gentelella_graph'))"
+            "  .data('chartInstance');"
+            "return chart ? chart.options : false;",
+            message='the first chart was never constructed')
         self.assertIn('plugins', options)
         self.assertTrue(options['plugins']['title']['display'])
 

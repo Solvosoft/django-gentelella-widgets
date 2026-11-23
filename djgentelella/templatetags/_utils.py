@@ -1,5 +1,6 @@
-from django.urls import reverse
 from django.utils.module_loading import import_string
+
+from djgentelella.menu import item_url
 
 
 def extract_element(item, context):
@@ -57,14 +58,9 @@ def extract_kwargs(item, context):
 
 
 def get_link(item, context):
-    context = context['context']
-    if not item.is_reversed and not item.is_widget:
-        return item.url_name
-    if item.is_reversed:
-        return reverse(item.url_name,
-                       kwargs=extract_kwargs(item, context),
-                       args=extract_args(item, context))
-    return ''
+    """The link of ``item`` in a menu environment (``{'context': ...}``):
+    :func:`djgentelella.menu.item_url` with its template context."""
+    return item_url(item, context['context'])
 
 
 def get_menu_widget(item, context):

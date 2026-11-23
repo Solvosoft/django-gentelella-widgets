@@ -22,7 +22,7 @@ with ``renderItem`` and what each gesture does with ``handlers``.
    });
 
 The state contract
-""""""""""""""""""
+------------------
 
 This is the part that matters. **The widget keeps no state of its own.** ``data``
 and ``items`` are always the last payload a handler resolved with. Every
@@ -39,7 +39,7 @@ Only one mutation is in flight at a time; a second call while the first is
 pending fires ``pg:error`` with ``code: 'busy'`` and does nothing.
 
 Irregular rows
-""""""""""""""
+--------------
 
 Rows may have different lengths, and that is the point: the shape is the host's
 data, not a grid the widget imposes. A warehouse of ``[2, 4, 3, 4]`` renders as
@@ -58,7 +58,7 @@ template driven by ``--pg-cols`` (the longest row), which is what keeps the
 columns lined up without inventing filler cells.
 
 Options
-"""""""
+-------
 
 ============================ ==================================================
 ``data``                     ``{cells: [[[id, ...], ...], ...]}``
@@ -73,7 +73,7 @@ Options
 ============================ ==================================================
 
 Handlers
-""""""""
+--------
 
 Every handler resolves with the **whole** new state, so from the widget's point
 of view they are interchangeable. A missing handler means the control does not
@@ -90,14 +90,14 @@ exist: that is how partial permissions compose without a flag per action.
 ============================= =================================================
 
 Methods
-"""""""
+-------
 
 ``setData(data, items)``, ``setEditable(editable)``, ``highlight(id)``,
 ``scrollToItem(id)``, ``select(id)``, ``clearSelection()``, ``destroy()``, plus
 the seven mutators, which are the public form of the handlers.
 
 Events
-""""""
+------
 
 All bubble, none are cancelable — cancelling would mean local state divergence,
 which is the thing this widget refuses to have.
@@ -112,7 +112,7 @@ which is the thing this widget refuses to have.
 ============================ ==================================================
 
 Keyboard and touch
-""""""""""""""""""
+------------------
 
 Moving an item is **two taps**: tap the item to pick it, tap a cell to place it.
 No drag API is involved, so it works identically on a phone and from the

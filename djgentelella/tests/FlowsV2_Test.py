@@ -471,6 +471,7 @@ def versioned_document(target):
             'transitions': [{'name': 'go', 'source': 'a', 'target': target}]}
 
 
+@override_settings(LANGUAGE_CODE='en')
 class VersionTests(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -598,6 +599,9 @@ class ExpenseEquivalenceTests(TestCase):
 
 
 # -- actions ------------------------------------------------------------------------
+# These tests compare messages in English: the same text whether or not
+# the Spanish catalog is compiled (the demo runs in 'es').
+@override_settings(LANGUAGE_CODE='en')
 class ActionRegistryTests(TestCase):
     def test_from_json(self):
         action = action_from_json({'action': 'notify', 'props': {

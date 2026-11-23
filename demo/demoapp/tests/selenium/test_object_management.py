@@ -23,7 +23,7 @@ import tempfile
 from pathlib import Path
 
 from django.core.files.base import ContentFile
-from django.test import tag
+from django.test import override_settings, tag
 from django.utils import timezone
 
 from demoapp.models import (
@@ -111,6 +111,19 @@ class ObjectManagementWriteTest(SeleniumTestCase):
     """Create, update and delete through the row actions and their modals."""
 
     def setup_data(self):
+        self.upload_dir = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.upload_dir, ignore_errors=True)
+        # A media root of its own, holding the files the demo object names:
+        # the chunked field only offers the page a file that exists in the
+        # storage, and an edit keeps it by sending that value back.
+        media = override_settings(MEDIA_ROOT=str(self.upload_dir / 'media'))
+        media.enable()
+        self.addCleanup(media.disable)
+        for name in ('files/demo.txt', 'chunked_files/demo.txt'):
+            stored = self.upload_dir / 'media' / name
+            stored.parent.mkdir(parents=True, exist_ok=True)
+            stored.write_text('demo')
+
         self.country = Country.objects.create(name='Costa Rica')
         self.community = Community.objects.create(name='Guanacaste')
         self.letter = A.objects.create(display='letra a')
@@ -126,8 +139,6 @@ class ObjectManagementWriteTest(SeleniumTestCase):
 
         # A real file on disk for the plain file input: selenium types the path
         # into it and the form javascript reads it back as base64.
-        self.upload_dir = Path(tempfile.mkdtemp())
-        self.addCleanup(shutil.rmtree, self.upload_dir, ignore_errors=True)
         self.simple_file = self.upload_dir / 'adjunto.txt'
         self.simple_file.write_text('contenido del adjunto')
 

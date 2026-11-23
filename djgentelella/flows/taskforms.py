@@ -31,8 +31,11 @@ published (:func:`validate_task_forms`); a stored one still loads, and its
 from django import forms
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.module_loading import import_string
+from django.utils.translation import gettext as _
 
-from djgentelella.flows.callables import CallableNotAllowed, _refuse, is_allowed
+from djgentelella.flows.callables import (
+    CallableNotAllowed, DocumentError, _refuse, is_allowed,
+)
 
 _registry = {}
 
@@ -84,13 +87,14 @@ def get_task_form(name):
         try:
             form_class = import_string(name)
         except ImportError as error:
-            raise ImproperlyConfigured('Task form %r: %s' % (name, error)) from None
+            raise ImproperlyConfigured(_('Task form %(name)r: %(error)s') % {
+                'name': name, 'error': error}) from None
         if isinstance(form_class, type) and issubclass(form_class, forms.BaseForm):
             return form_class
-        raise ImproperlyConfigured('%r is not a form class' % (name,))
-    raise ImproperlyConfigured('No task form named %r: register it with '
-                               'register_task_form() or allow its path in '
-                               'GT_FLOWS_ALLOWED_CALLABLES' % (name,))
+        raise ImproperlyConfigured(_('%r is not a form class') % (name,))
+    raise ImproperlyConfigured(_('No task form named %r: register it with '
+                                 'register_task_form() or allow its path in '
+                                 'GT_FLOWS_ALLOWED_CALLABLES') % (name,))
 
 
 class BlockedTaskForm:
@@ -115,8 +119,9 @@ class BlockedTaskForm:
 
 
 def validate_task_forms(document):
-    """``"<path>: <problem>"`` for each ``human_task`` of a JSON ``document``
-    whose ``form`` is not allowed, or is not a form class."""
+    """:class:`~djgentelella.designs.jsonschema.Error` ``(path, message)``
+    for each ``human_task`` of a JSON ``document`` whose ``form`` is not
+    allowed, or is not a form class."""
     errors = []
     states = document.get('states') if isinstance(document, dict) else None
     for index, state in enumerate(states if isinstance(states, list) else ()):
@@ -126,14 +131,15 @@ def validate_task_forms(document):
         where = '$.states[%d].form' % index
         name = state['form']
         if not is_task_form_allowed(name):
-            errors.append('%s: %s is not an allowed task form (register it with '
-                          'register_task_form or list it in '
-                          'GT_FLOWS_ALLOWED_CALLABLES)' % (where, name))
+            errors.append(DocumentError(where, _(
+                '%(name)s is not an allowed task form (register it with '
+                'register_task_form or list it in GT_FLOWS_ALLOWED_CALLABLES)')
+                % {'name': name}))
             continue
         try:
             get_task_form(name)
         except ImproperlyConfigured as error:
-            errors.append('%s: %s' % (where, error))
+            errors.append(DocumentError(where, str(error)))
     return errors
 
 

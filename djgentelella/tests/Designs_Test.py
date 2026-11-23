@@ -78,6 +78,7 @@ class DesignState:
         super().tearDown()
 
 
+@override_settings(LANGUAGE_CODE='en')
 class JsonSchemaTests(SimpleTestCase):
     def test_errors_are_path_message_tuples(self):
         errors = validate({'a': 'x'}, {'type': 'object', 'required': ['b'],
@@ -100,6 +101,7 @@ class JsonSchemaTests(SimpleTestCase):
         self.assertEqual(len(validate(True, {'type': 'integer'})), 1)
 
 
+@override_settings(LANGUAGE_CODE='en')
 class FormatTests(SimpleTestCase):
     def test_envelope_of_the_editor_fixtures(self):
         for name in ('product_admin', 'sales_dashboard', 'category_products'):
@@ -210,6 +212,7 @@ class RegistryTests(DesignState, SimpleTestCase):
             registry.register(RuntimeComponent)
 
 
+@override_settings(LANGUAGE_CODE='en')
 class ExposureTests(DesignState, SimpleTestCase):
     def test_nothing_is_exposed_by_default(self):
         self.assertIsNone(get_exposure('auth.User'))
@@ -263,6 +266,9 @@ class ExposureTests(DesignState, SimpleTestCase):
         self.assertIn("unknown data source 'ventas.pedidos'", rctx.errors[0].message)
 
 
+# These tests compare messages in English: the same text whether or not
+# the Spanish catalog is compiled (the demo runs in 'es').
+@override_settings(LANGUAGE_CODE='en')
 class EngineTests(DesignState, TestCase):
     def test_editor_fixtures_resolve(self):
         for name in ('product_admin', 'sales_dashboard', 'category_products'):
@@ -363,6 +369,7 @@ class EngineTests(DesignState, TestCase):
         self.assertEqual(len(engine._cache), 2)
 
 
+@override_settings(LANGUAGE_CODE='en')
 class FormsTests(DesignState, TestCase):
     def setUp(self):
         super().setUp()

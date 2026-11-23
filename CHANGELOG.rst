@@ -1,6 +1,93 @@
 Changelog
 ===========
 
+Unreleased
+--------------------
+
+New features
+""""""""""""""""""
+
+**Public API for the tools built on djgentelella.** What they had to copy or
+parse is now public, with tests:
+
+* ``djgentelella.menu.item_url(item, context)`` is the link of a
+  ``MenuItem``, the one the menu tags draw (``fail_silently=True`` returns
+  ``''`` for a broken reverse). A ``url_name`` of ``page:<path>`` links the
+  design page published at that path.
+* ``djgentelella.flows`` exports ``validate_actions(specs, where='')`` -- the
+  allowlist check of a list of actions outside a flow document --,
+  ``validate_callables``, ``is_task_form_allowed``, ``validate_task_forms``
+  and ``variable_types()``. The validators return ``(path, message)`` errors
+  (``DocumentError``, a ``designs.jsonschema.Error`` that still answers as its
+  ``'path: message'`` text). Each entry of ``registered_flows()`` has
+  ``auto``, ``{transition: bool}``. ``djgentelella.flows.variables`` is the
+  registry of the types a flow variable can be declared with
+  (``register_variable_type``, ``check_variable``).
+* ``designs.data_components.parse_flow_link(text)`` reads
+  ``flow:<name>[:<transition>]`` without a context, and ``PK_PLACEHOLDERS``,
+  ``FLOW_PREFIX`` and ``PAGE_PREFIX`` are public.
+  ``ResolveContext.row_link(link, model, path)`` is the hook every row link
+  goes through.
+* ``CRUDView`` takes ``column_conditions`` and ``action_conditions``, applied
+  by its views through ``get_condition_object()``, ``get_hidden_columns()``
+  and ``get_denied_actions()``; the classic CRUD of the designs is built on
+  them.
+* A table's ``update``, ``destroy`` or ``retrieve`` condition that names an
+  authorization (``{"auth": ...}``) is evaluated with each row: the API says
+  per row which actions it offers and refuses the others with a 403. An
+  inline table keeps evaluating them with the object of the page.
+
+See ``docs/source/menus.rst``, ``flows.rst``, ``designs.rst`` and
+``crud.rst``.
+
+**Translated document messages and tooling.** The errors of design documents
+(``engine.resolve``, the JSON Schema validator, ``format``) and of flow
+documents (``validate_callables``, ``validate_task_forms``,
+``publish_definition``, ``build_flow``), the errors of a table's ``notify``
+prop, the messages of ``validate_condition`` and the
+palette labels of the design components are translated, and the ``es``
+catalog has them. ``resolve_page`` keeps one resolution per language.
+``make messages`` uses the new ``gtmakemessages``, which for ``djangojs``
+also reads ``pg_gettext()`` and the inline ``<script>`` blocks of templates
+instead of deleting their translations; ``make test`` runs every label, as
+the CI, which compiles the ``.mo`` files first (they stay out of git); and
+``sphinx-build -W`` passes. A published design page takes two queries once
+cached (plus the Site lookup by host when no middleware set
+``request.site``), and the trust of its publisher is cached for
+``GT_DESIGNS_TRUST_TTL`` seconds (60). ``djgentelella.authorization`` can be
+imported before the app registry is ready. The PDF viewer shares a load in
+progress of the same URL: it used to start two renders on the same canvas, and
+the second could leave it blank. A finished load is not reused, so the same
+URL fetches a replaced file again; the viewer is reachable as
+``$('.pdfviewer-widget').data('pdfviewer')``. The error about template tags in
+a ``notify`` text shows ``{% %}`` instead of ``{%% %%}``. The labels of the flow
+variable types (``variable_types()``) and the ``DocumentError`` messages of
+``validate_actions`` are in the ``es`` catalog too.
+
+Backwards incompatible
+""""""""""""""""""""""""
+
+**Conditions of a table's row actions about the object get the row.** In a
+table that is not inline, an ``update``, ``destroy`` or ``retrieve`` condition
+that names an authorization (``{"auth": ...}``) used to be called with
+``obj=None`` and now gets each row: an authorization that allowed ``None``
+may now refuse some rows (403 and no button), and one that refused ``None``
+may now allow some. An inline table is unchanged: its conditions still get
+the object of the page. ``validate_callables`` and ``validate_task_forms``
+return ``DocumentError`` tuples instead of ``'path: message'`` strings; they
+still compare equal to that text and answer its ``str`` methods, a
+transitional bridge until code reads ``error.path`` and ``error.message``.
+
+**Translated validation messages and cached trust.** The errors of design and
+flow documents and of ``validate_condition`` follow the active language:
+code that compares them with English text runs under
+``translation.override('en')``. Revoking ``gtdesigns.publish_template`` or
+``publish_js`` from a page's publisher, or deactivating them, reaches the
+pages already served within ``GT_DESIGNS_TRUST_TTL`` seconds (``0`` restores
+the check on every request). ``ConditionRequiredMixin`` is defined in
+``djgentelella.views.conditions``; importing it from
+``djgentelella.authorization`` still works.
+
 0.7.1 (2026-11-15)
 --------------------
 
@@ -832,9 +919,9 @@ DataTables 2. Seven browser tests now cover the wrapper, which had none.
 ``djgentelella.chartjs`` and handed to ``new Chart()`` untouched, so the option
 vocabulary in the serializers is now Chart.js 4's:
 
-===============================  ==========================================
+================================ ==========================================
 Chart.js 2                       Chart.js 4
-===============================  ==========================================
+================================ ==========================================
 ``options.title``                ``options.plugins.title``
 ``options.legend``               ``options.plugins.legend``
 ``options.tooltips``             ``options.plugins.tooltip``
@@ -844,7 +931,7 @@ Chart.js 2                       Chart.js 4
 ``elements.rectangle``           ``elements.bar``
 ``dataset.steppedLine``          ``dataset.stepped``
 ``type: 'horizontalBar'``        ``type: 'bar'`` + ``indexAxis: 'y'``
-===============================  ==========================================
+================================ ==========================================
 
 The ``get_<option>()`` hooks kept their names -- ``get_title``, ``get_legend``
 and ``get_tooltips`` name a chart concept, not a configuration path -- and the

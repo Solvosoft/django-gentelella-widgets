@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-29 19:57-0600\n"
+"POT-Creation-Date: 2026-10-31 08:29-0600\n"
 "PO-Revision-Date: 2026-10-29 12:00-0600\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -18,30 +18,139 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.2.2\n"
 
-#: static/gentelella/js/base/breadcrumbnav.js:27
-msgid "Breadcrumb"
-msgstr "Ruta de navegación"
+#: async_notification/templates/async_notification/email_notification.html:56
+#: static/gentelella/js/base/dynamic_actions.js:92
+#: static/gentelella/js/datatables.js:166
+msgid "Yes"
+msgstr "Sí"
 
-#: static/gentelella/js/base/breadcrumbnav.js:29
-msgid "Show hidden levels"
-msgstr "Mostrar los niveles ocultos"
+#: async_notification/templates/async_notification/email_notification.html:57
+#: static/gentelella/js/datatables.js:166
+msgid "No"
+msgstr "No"
 
-#: static/gentelella/js/base/chunkedupload.js:40
-msgid "The file could not be read"
-msgstr "No se pudo leer el archivo"
+#: async_notification/templates/async_notification/email_notification.html:61
+#: async_notification/templates/async_notification/newsletter_task.html:48
+msgid "Pending"
+msgstr "Pendiente"
 
-#: static/gentelella/js/base/digital_signature.js:380
-msgid "Error when applying setting to signature: "
-msgstr "Error aplicando las propiedades de firma digital "
+#: async_notification/templates/async_notification/email_notification.html:62
+#: async_notification/templates/async_notification/email_notification.html:75
+msgid "Queued"
+msgstr "En cola"
 
-#: static/gentelella/js/base/digital_signature.js:393
-msgid "Error loading content: "
-msgstr "Error cargando contenido: "
+#: async_notification/templates/async_notification/email_notification.html:63
+#: async_notification/templates/async_notification/newsletter_task.html:50
+msgid "Sending"
+msgstr "Enviando"
 
-#: static/gentelella/js/base/digital_signature.js:424
-msgid "Error loading image"
-msgstr "Error cargando imagen"
+#: async_notification/templates/async_notification/email_notification.html:64
+#: async_notification/templates/async_notification/newsletter_task.html:51
+msgid "Sent"
+msgstr "Enviada"
 
+#: async_notification/templates/async_notification/email_notification.html:65
+#: async_notification/templates/async_notification/newsletter_task.html:52
+msgid "Failed"
+msgstr "Fallido"
+
+#: async_notification/templates/async_notification/email_notification.html:66
+msgid "Cancelled"
+msgstr "Cancelada"
+
+#: async_notification/templates/async_notification/email_notification.html:70
+#: async_notification/templates/async_notification/email_template.html:163
+#: async_notification/templates/async_notification/newsletter.html:59
+msgid "Subject"
+msgstr "Asunto"
+
+#: async_notification/templates/async_notification/email_notification.html:71
+#: async_notification/templates/async_notification/email_notification.html:191
+#: async_notification/templates/async_notification/newsletter_task.html:61
+msgid "Status"
+msgstr "Estado"
+
+#: async_notification/templates/async_notification/email_notification.html:77
+msgid "Retries"
+msgstr "Reintentos"
+
+#: async_notification/templates/async_notification/email_notification.html:78
+#: async_notification/templates/async_notification/email_template.html:164
+#: async_notification/templates/async_notification/newsletter.html:62
+#: async_notification/templates/async_notification/newsletter_task.html:65
+#: async_notification/templates/async_notification/newsletter_template.html:59
+msgid "Created"
+msgstr "Creado"
+
+#: async_notification/templates/async_notification/email_notification.html:80
+msgid "User"
+msgstr "Usuario"
+
+#: async_notification/templates/async_notification/email_notification.html:82
+#: async_notification/templates/async_notification/email_notification.html:129
+#: async_notification/templates/async_notification/email_template.html:166
+#: async_notification/templates/async_notification/email_template.html:188
+#: async_notification/templates/async_notification/newsletter.html:64
+#: async_notification/templates/async_notification/newsletter.html:77
+#: async_notification/templates/async_notification/newsletter_task.html:67
+#: async_notification/templates/async_notification/newsletter_task.html:84
+#: async_notification/templates/async_notification/newsletter_template.html:61
+#: async_notification/templates/async_notification/newsletter_template.html:78
+#: static/gentelella/js/designs/data_components.js:104
+#: static/gentelella/js/designs/data_components.js:158
+#: static/gentelella/js/obj_api_management.js:398
+msgid "Actions"
+msgstr "Acciones"
+
+#: async_notification/templates/async_notification/email_notification.html:95
+#: async_notification/templates/async_notification/email_notification.html:152
+#: async_notification/templates/async_notification/email_notification.html:158
+#: async_notification/templates/async_notification/newsletter_task.html:113
+#: static/gentelella/js/base/digital_signature.js:719
+#: static/gentelella/js/base/digital_signature.js:984
+#: static/gentelella/js/base/digital_signature.js:994
+#: static/gentelella/js/base/digital_signature.js:1030
+msgid "Warning"
+msgstr "Advertencia"
+
+#: async_notification/templates/async_notification/email_notification.html:96
+msgid "No notifications selected"
+msgstr "No hay notificaciones seleccionadas"
+
+#: async_notification/templates/async_notification/email_notification.html:105
+#: async_notification/templates/async_notification/email_notification.html:152
+#: async_notification/templates/async_notification/email_notification.html:170
+#: async_notification/templates/async_notification/newsletter_task.html:113
+#: static/gentelella/js/base/digital_signature.js:964
+#: static/gentelella/js/base/digital_signature.js:1015
+#: static/gentelella/js/obj_api_management.js:99
+#: static/gentelella/js/obj_api_management.js:504
+msgid "Success"
+msgstr "Éxito"
+
+#: async_notification/templates/async_notification/email_notification.html:106
+#: async_notification/templates/async_notification/email_notification.html:112
+#: async_notification/templates/async_notification/email_notification.html:153
+#: async_notification/templates/async_notification/email_notification.html:160
+#: async_notification/templates/async_notification/email_notification.html:172
+#: async_notification/templates/async_notification/email_notification.html:179
+#: async_notification/templates/async_notification/email_notification.html:203
+#: async_notification/templates/async_notification/email_template.html:235
+#: async_notification/templates/async_notification/newsletter_task.html:114
+#: async_notification/templates/async_notification/newsletter_task.html:120
+#: async_notification/templates/async_notification/newsletter_template.html:109
+#: static/gentelella/js/base/digital_signature.js:1125
+#: static/gentelella/js/base/digital_signature.js:1136
+msgid "Accept"
+msgstr "Aceptar"
+
+#: async_notification/templates/async_notification/email_notification.html:110
+#: async_notification/templates/async_notification/email_notification.html:177
+#: async_notification/templates/async_notification/email_notification.html:193
+#: async_notification/templates/async_notification/email_notification.html:201
+#: async_notification/templates/async_notification/email_template.html:233
+#: async_notification/templates/async_notification/newsletter_task.html:118
+#: async_notification/templates/async_notification/newsletter_template.html:107
 #: static/gentelella/js/base/digital_signature.js:484
 #: static/gentelella/js/base/digital_signature.js:592
 #: static/gentelella/js/base/digital_signature.js:758
@@ -69,27 +178,177 @@ msgstr "Error cargando imagen"
 msgid "Error"
 msgstr "Error"
 
+#: async_notification/templates/async_notification/email_notification.html:111
+#: async_notification/templates/async_notification/email_notification.html:159
+#: async_notification/templates/async_notification/email_notification.html:178
+#: async_notification/templates/async_notification/email_notification.html:202
+#: async_notification/templates/async_notification/email_template.html:234
+#: async_notification/templates/async_notification/newsletter_task.html:119
+#: async_notification/templates/async_notification/newsletter_template.html:108
+msgid "Sorry, an error occurred."
+msgstr "Lo sentimos, ocurrió un error."
+
+#: async_notification/templates/async_notification/email_notification.html:116
+msgid "Send Selected"
+msgstr "Enviar seleccionados"
+
+#: async_notification/templates/async_notification/email_notification.html:117
+msgid "Send selected notifications"
+msgstr "Enviar las notificaciones seleccionadas"
+
+#: async_notification/templates/async_notification/email_notification.html:123
+msgid "View"
+msgstr "Ver"
+
+#: async_notification/templates/async_notification/email_notification.html:125
+#: async_notification/templates/async_notification/newsletter_task.html:82
+msgid "Send Now"
+msgstr "Enviar ahora"
+
+#: async_notification/templates/async_notification/email_notification.html:127
+msgid "Duplicate as pending"
+msgstr "Duplicado como pendiente"
+
+#: async_notification/templates/async_notification/email_notification.html:171
+msgid "Duplicated as a pending draft."
+msgstr "Duplicada como borrador pendiente."
+
+#: async_notification/templates/async_notification/email_notification.html:192
+#: static/gentelella/js/base/gt_facets.js:176
+msgid "To"
+msgstr "Hasta"
+
+#: async_notification/templates/async_notification/email_template.html:162
+msgid "Code"
+msgstr "Código"
+
+#: async_notification/templates/async_notification/email_template.html:185
+#: async_notification/templates/async_notification/newsletter_template.html:76
+msgid "Preview"
+msgstr "Previsualizar"
+
+#: async_notification/templates/async_notification/email_template.html:248
+msgid "No context selected."
+msgstr "Contexto no seleccionado."
+
+#: async_notification/templates/async_notification/newsletter.html:60
+msgid "Template"
+msgstr "Plantilla"
+
+#: async_notification/templates/async_notification/newsletter.html:61
+msgid "Created By"
+msgstr "Creado por"
+
+#: async_notification/templates/async_notification/newsletter.html:75
+msgid "Preview Recipients"
+msgstr "Previsualizar destinatarios"
+
+#: async_notification/templates/async_notification/newsletter.html:109
+#: async_notification/templates/async_notification/newsletter.html:209
+msgid "Total"
+msgstr "Total"
+
+#: async_notification/templates/async_notification/newsletter.html:114
+msgid "Recipients"
+msgstr "Destinatarios"
+
+#: async_notification/templates/async_notification/newsletter.html:173
+msgid "Replace content?"
+msgstr "¿Reemplazar el contenido?"
+
+#: async_notification/templates/async_notification/newsletter.html:174
+msgid "Load this template body over the current message?"
+msgstr "¿Cargar el cuerpo de esta plantilla sobre el mensaje actual?"
+
+#: async_notification/templates/async_notification/newsletter.html:176
+msgid "Replace"
+msgstr "Reemplazar"
+
+#: async_notification/templates/async_notification/newsletter.html:176
+msgid "Keep"
+msgstr "Conservar"
+
+#: async_notification/templates/async_notification/newsletter.html:214
+msgid "Exclude"
+msgstr "Excluir"
+
+#: async_notification/templates/async_notification/newsletter_task.html:49
+msgid "Scheduled"
+msgstr "Programada"
+
+#: async_notification/templates/async_notification/newsletter_task.html:53
+msgid "Revoked"
+msgstr "Revocada"
+
+#: async_notification/templates/async_notification/newsletter_task.html:57
+msgid "Newsletter"
+msgstr "Boletín"
+
+#: async_notification/templates/async_notification/newsletter_task.html:59
+msgid "Send Date"
+msgstr "Fecha de envío"
+
+#: async_notification/templates/async_notification/newsletter_task.html:103
+msgid "Send now?"
+msgstr "¿Enviar ahora?"
+
+#: async_notification/templates/async_notification/newsletter_task.html:104
+msgid "This newsletter task will be sent immediately."
+msgstr "Esta tarea de boletín se enviará de inmediato."
+
+#: async_notification/templates/async_notification/newsletter_task.html:106
+msgid "Send"
+msgstr "Enviar"
+
+#: async_notification/templates/async_notification/newsletter_task.html:106
+#: static/gentelella/js/base/digital_signature.js:1138
+#: static/gentelella/js/base/dynamic_actions.js:93
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: async_notification/templates/async_notification/newsletter_template.html:56
+msgid "Title"
+msgstr "Título"
+
+#: async_notification/templates/async_notification/newsletter_template.html:57
+msgid "Slug"
+msgstr "Slug"
+
+#: async_notification/templates/async_notification/newsletter_template.html:58
+msgid "Audience"
+msgstr "Audiencia"
+
+#: static/gentelella/js/base/breadcrumbnav.js:27
+msgid "Breadcrumb"
+msgstr "Ruta de navegación"
+
+#: static/gentelella/js/base/breadcrumbnav.js:29
+msgid "Show hidden levels"
+msgstr "Mostrar los niveles ocultos"
+
+#: static/gentelella/js/base/chunkedupload.js:40
+msgid "The file could not be read"
+msgstr "No se pudo leer el archivo"
+
+#: static/gentelella/js/base/digital_signature.js:380
+msgid "Error when applying setting to signature: "
+msgstr "Error aplicando las propiedades de firma digital "
+
+#: static/gentelella/js/base/digital_signature.js:393
+msgid "Error loading content: "
+msgstr "Error cargando contenido: "
+
+#: static/gentelella/js/base/digital_signature.js:424
+msgid "Error loading image"
+msgstr "Error cargando imagen"
+
 #: static/gentelella/js/base/digital_signature.js:512
 msgid "Errors"
 msgstr "Errores"
 
-#: static/gentelella/js/base/digital_signature.js:719
-#: static/gentelella/js/base/digital_signature.js:984
-#: static/gentelella/js/base/digital_signature.js:994
-#: static/gentelella/js/base/digital_signature.js:1030
-msgid "Warning"
-msgstr "Advertencia"
-
 #: static/gentelella/js/base/digital_signature.js:963
 msgid "The signing was successfully completed."
 msgstr "La firma se ha completado correctamente."
-
-#: static/gentelella/js/base/digital_signature.js:964
-#: static/gentelella/js/base/digital_signature.js:1015
-#: static/gentelella/js/obj_api_management.js:99
-#: static/gentelella/js/obj_api_management.js:504
-msgid "Success"
-msgstr "Éxito"
 
 #: static/gentelella/js/base/digital_signature.js:983
 msgid "Please, sign the document before saving"
@@ -120,8 +379,8 @@ msgid ""
 "Make sure to start the 'Firmador Libre' application. If it is already "
 "running, please press the reload button."
 msgstr ""
-"Asegúrate de iniciar la aplicación 'Firmador Libre'. Si ya está en ejecución,"
-" presiona el botón de recarga."
+"Asegúrate de iniciar la aplicación 'Firmador Libre'. Si ya está en "
+"ejecución, presiona el botón de recarga."
 
 #: static/gentelella/js/base/digital_signature.js:1065
 msgid ""
@@ -149,8 +408,8 @@ msgid ""
 "The device was disconnected, possibly the window was closed for signature. "
 "Please close the window for the authentication PIN."
 msgstr ""
-"El dispositivo se desconectó, posiblemente la ventana para la firma se cerró."
-" Cierra la ventana para la autenticación PIN."
+"El dispositivo se desconectó, posiblemente la ventana para la firma se "
+"cerró. Cierra la ventana para la autenticación PIN."
 
 #: static/gentelella/js/base/digital_signature.js:1082
 msgid "The new signature field position overlaps with an existing signature."
@@ -182,8 +441,8 @@ msgstr ""
 
 #: static/gentelella/js/base/digital_signature.js:1106
 msgid ""
-"The request to the signing service timed out. Please, press the reload button"
-" and try again."
+"The request to the signing service timed out. Please, press the reload "
+"button and try again."
 msgstr ""
 "El tiempo de espera del servicio de firma ha expirado. Presiona el botón de "
 "recarga y intenta de nuevo."
@@ -196,21 +455,6 @@ msgstr ""
 "Lo sentimos, ha ocurrido un error inesperado. Presiona el botón de recarga y "
 "intenta de nuevo."
 
-#: static/gentelella/js/base/digital_signature.js:1125
-#: static/gentelella/js/base/digital_signature.js:1136
-msgid "Accept"
-msgstr "Aceptar"
-
-#: static/gentelella/js/base/digital_signature.js:1138
-#: static/gentelella/js/base/dynamic_actions.js:93
-msgid "Cancel"
-msgstr "Cancelar"
-
-#: static/gentelella/js/base/dynamic_actions.js:92
-#: static/gentelella/js/datatables.js:166
-msgid "Yes"
-msgstr "Sí"
-
 #: static/gentelella/js/base/fileupload.widget.js:142
 msgid "Problem in the Internet?"
 msgstr "¿Problemas de conexión?"
@@ -218,10 +462,6 @@ msgstr "¿Problemas de conexión?"
 #: static/gentelella/js/base/gt_facets.js:174
 msgid "From"
 msgstr "Desde"
-
-#: static/gentelella/js/base/gt_facets.js:176
-msgid "To"
-msgstr "Hasta"
 
 #: static/gentelella/js/base/gt_facets.js:179
 msgid "Apply"
@@ -330,21 +570,61 @@ msgstr "Grabar"
 msgid "Recording..."
 msgstr "Grabando..."
 
-#: static/gentelella/js/base/pdfviewer.widget.js:180
+#: static/gentelella/js/base/pdfviewer.widget.js:197
 msgid "Failed to load PDF file."
 msgstr "No se pudo cargar el archivo PDF."
 
-#: static/gentelella/js/base/pdfviewer.widget.js:339
+#: static/gentelella/js/base/pdfviewer.widget.js:363
 msgid "Invalid file"
 msgstr "Archivo inválido"
 
-#: static/gentelella/js/base/pdfviewer.widget.js:340
+#: static/gentelella/js/base/pdfviewer.widget.js:364
 msgid "Only PDF files are allowed."
 msgstr "Solo se permiten archivos PDF."
 
-#: static/gentelella/js/base/pdfviewer.widget.js:368
+#: static/gentelella/js/base/pdfviewer.widget.js:392
 msgid "Upload failed"
 msgstr "La subida falló"
+
+#: static/gentelella/js/base/positionsgrid.js:70
+msgid "Positions"
+msgstr "Posiciones"
+
+#: static/gentelella/js/base/positionsgrid.js:71
+msgid "Add row"
+msgstr "Agregar fila"
+
+#: static/gentelella/js/base/positionsgrid.js:72
+msgid "Remove row %(n)s"
+msgstr "Eliminar fila %(n)s"
+
+#: static/gentelella/js/base/positionsgrid.js:73
+msgid "Add column"
+msgstr "Agregar columna"
+
+#: static/gentelella/js/base/positionsgrid.js:74
+msgid "Remove column %(n)s"
+msgstr "Eliminar columna %(n)s"
+
+#: static/gentelella/js/base/positionsgrid.js:75
+msgid "Add item here"
+msgstr "Agregar elemento aquí"
+
+#: static/gentelella/js/base/positionsgrid.js:76
+msgid "Remove item"
+msgstr "Eliminar elemento"
+
+#: static/gentelella/js/base/positionsgrid.js:77
+msgid "Row %(row)s, column %(col)s, %(count)s items"
+msgstr "Fila %(row)s, columna %(col)s, %(count)s elementos"
+
+#: static/gentelella/js/base/positionsgrid.js:78
+msgid "Item selected. Choose a destination cell."
+msgstr "Elemento seleccionado. Elija una celda de destino."
+
+#: static/gentelella/js/base/positionsgrid.js:79
+msgid "Move cancelled."
+msgstr "Movimiento cancelado."
 
 #: static/gentelella/js/base/voicedictation.js:78
 #: static/gentelella/js/base/voiceeditortinymce.js:114
@@ -374,8 +654,8 @@ msgstr ""
 
 #: static/gentelella/js/base/voiceprogressive.js:41
 msgid ""
-"Part of the dictation could not be transcribed. Check your connection and try"
-" again."
+"Part of the dictation could not be transcribed. Check your connection and "
+"try again."
 msgstr ""
 "Parte del dictado no se pudo transcribir. Revise su conexión e inténtelo de "
 "nuevo."
@@ -404,10 +684,6 @@ msgstr "Seleccione una fecha"
 msgid "Search "
 msgstr "Buscar "
 
-#: static/gentelella/js/datatables.js:166
-msgid "No"
-msgstr "No"
-
 #: static/gentelella/js/datatables.js:203
 msgid "More"
 msgstr "Más"
@@ -420,12 +696,6 @@ msgstr "Descargar"
 #: static/gentelella/js/designs/data_components.js:91
 msgid "Id"
 msgstr "Id"
-
-#: static/gentelella/js/designs/data_components.js:104
-#: static/gentelella/js/designs/data_components.js:158
-#: static/gentelella/js/obj_api_management.js:398
-msgid "Actions"
-msgstr "Acciones"
 
 #: static/gentelella/js/obj_api_management.js:417
 msgid "This Object"
@@ -454,160 +724,3 @@ msgid ""
 msgstr ""
 "Hubo un problema al realizar tu solicitud. Por favor, intenta nuevamente más "
 "tarde o contacta al administrador."
-
-msgid "loading"
-msgstr "Cargando"
-
-# history
-msgid "Restoration"
-msgstr "Restauración"
-
-msgid "deleted"
-msgstr "eliminado"
-
-msgid "Hard deleted"
-msgstr "Eliminación permanente"
-
-msgid "History"
-msgstr "Historial"
-
-msgid "General"
-msgstr "General"
-
-msgid "restored"
-msgstr "restaurado"
-
-msgid "Restored"
-msgstr "Restaurado"
-
-msgid "hard deleted"
-msgstr "eliminado permanentemente"
-
-msgid "%(msg)s. Fields: %(fields)s"
-msgstr "%(msg)s. Campos: %(fields)s"
-
-msgid "The record %(obj)s of model %(model)s has been %(action)s"
-msgstr "El registro %(obj)s del modelo %(model)s ha sido %(action)s"
-
-msgid "An object of model %(model)s has been %(action)s"
-msgstr "Un objeto del modelo %(model)s ha sido %(action)s"
-
-msgid "%(obj)s in trash"
-msgstr "%(obj)s en papelera"
-
-msgid "Template"
-msgstr "Plantilla"
-
-msgid "Created By"
-msgstr "Creado por"
-
-msgid "Title"
-msgstr "Título"
-
-msgid "Audience"
-msgstr "Audiencia"
-
-msgid "Created"
-msgstr "Creado"
-
-msgid "Send Date"
-msgstr "Fecha de envío"
-
-msgid "Status"
-msgstr "Estado"
-
-msgid "Newsletter"
-msgstr "Boletín"
-
-msgid "Code"
-msgstr "Código"
-
-msgid "Preview"
-msgstr "Previsualizar"
-
-msgid "Send Now"
-msgstr "Enviar ahora"
-
-msgid "Pending"
-msgstr "Pendiente"
-
-msgid "Sent"
-msgstr "Enviada"
-
-msgid "Failed"
-msgstr "Fallido"
-
-msgid "Scheduled"
-msgstr "Programada"
-
-msgid "Revoked"
-msgstr "Revocada"
-
-msgid "Sending"
-msgstr "Enviando"
-
-msgid "Cancelled"
-msgstr "Cancelada"
-
-msgid "Queued"
-msgstr "En cola"
-
-msgid "Send Selected"
-msgstr "Enviar seleccionados"
-
-msgid "Retries"
-msgstr "Reintentos"
-
-msgid "User"
-msgstr "Usuario"
-
-msgid "Duplicate as pending"
-msgstr "Duplicado como pendiente"
-
-msgid "No context selected."
-msgstr "Contexto no seleccionado."
-
-msgid "Subject"
-msgstr "Asunto"
-
-msgid "Preview Recipients"
-msgstr "Previsualizar destinatarios"
-
-msgid "Recipients"
-msgstr "Destinatarios"
-
-msgid "CC addresses"
-msgstr "Direcciones CC"
-
-msgid "BCC addresses"
-msgstr "Direcciones CCO"
-
-msgid "Positions"
-msgstr "Posiciones"
-
-msgid "Add row"
-msgstr "Agregar fila"
-
-msgid "Remove row %(n)s"
-msgstr "Eliminar fila %(n)s"
-
-msgid "Add column"
-msgstr "Agregar columna"
-
-msgid "Remove column %(n)s"
-msgstr "Eliminar columna %(n)s"
-
-msgid "Add item here"
-msgstr "Agregar elemento aquí"
-
-msgid "Remove item"
-msgstr "Eliminar elemento"
-
-msgid "Row %(row)s, column %(col)s, %(count)s items"
-msgstr "Fila %(row)s, columna %(col)s, %(count)s elementos"
-
-msgid "Item selected. Choose a destination cell."
-msgstr "Elemento seleccionado. Elija una celda de destino."
-
-msgid "Move cancelled."
-msgstr "Movimiento cancelado."

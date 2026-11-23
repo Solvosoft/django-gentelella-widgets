@@ -18,6 +18,7 @@ from dataclasses import dataclass, field
 from functools import cached_property
 
 from django import forms
+from django.utils.translation import gettext as _
 
 from djgentelella.forms import widgetmap
 from djgentelella.forms.forms import GTForm
@@ -129,18 +130,28 @@ def _widget_for(build_path, form_field, model_field, widgets, rctx):
             key = usable[0] if usable else widgetmap.FALLBACK_WIDGETS[0]
         return key, lookup
     if key not in widgetmap.widget_choices(kind):
-        rctx.error(path, '%r cannot be used for a %s field; choose one of %s' % (
-            key, kind, ', '.join(widgetmap.widget_choices(kind))))
+        rctx.error(path, _('%(widget)r cannot be used for a %(kind)s field; choose '
+                           'one of %(choices)s') % {
+            'widget': key, 'kind': kind,
+            'choices': ', '.join(widgetmap.widget_choices(kind))})
         return None
     if key in widgetmap.TREE_WIDGETS and not is_tree:
-        rctx.error(path, '%s is for relations to a tree (TreeNode) model; %s is '
-                         'not one' % (key, model_field.related_model._meta.label))
+        rctx.error(path, _('%(widget)s is for relations to a tree (TreeNode) '
+                           'model; %(model)s is not one') % {
+            'widget': key, 'model': model_field.related_model._meta.label})
         return None
     if key in widgetmap.LOOKUP_WIDGETS and lookup is None:
-        rctx.error(path, '%s needs a select2 lookup of %s registered in a '
-                         'gtselects.py' % (key, model_field.related_model._meta.label))
+        rctx.error(path, _('%(widget)s needs a select2 lookup of %(model)s '
+                           'registered in a gtselects.py') % {
+            'widget': key, 'model': model_field.related_model._meta.label})
         return None
     return key, lookup
+
+
+def no_field(model_label, name):
+    """The error of a field name that ``model_label`` does not let a design use."""
+    return _('%(model)s has no field %(field)r a design may use') % {
+        'model': model_label, 'field': name}
 
 
 def build_form(key, data, rctx, path):
@@ -149,7 +160,7 @@ def build_form(key, data, rctx, path):
     ``rctx`` is the :class:`~djgentelella.designs.components.ResolveContext`.
     """
     if not isinstance(data, dict):
-        rctx.error(path, 'a form must be an object')
+        rctx.error(path, _('a form must be an object'))
         return None
     exposure = rctx.exposure(data.get('model'), path + '.model')
     if exposure is None:
@@ -165,39 +176,38 @@ def build_form(key, data, rctx, path):
                  if is_form_field(model_field)]
     for name in names:
         if name not in by_name:
-            rctx.error(path + '.fields', '%s has no field %r a design may use' % (
-                exposure.label, name))
+            rctx.error(path + '.fields', no_field(exposure.label, name))
         elif not is_form_field(by_name[name]):
-            rctx.error(path + '.fields', '%r is not editable' % name)
+            rctx.error(path + '.fields', _('%r is not editable') % (name,))
         elif by_name[name].is_relation:
             # Its choices list rows of the target: that model must be exposed.
             rctx.exposure(by_name[name].related_model._meta.label, path + '.fields')
     if len(set(names)) != len(names):
-        rctx.error(path + '.fields', 'a field is listed twice')
+        rctx.error(path + '.fields', _('a field is listed twice'))
 
     grid = data.get('grid')
     render = data.get('render', 'as_grid' if grid else 'as_horizontal')
     if render not in RENDERS:
-        rctx.error(path + '.render', '%r is not one of %s' % (
-            render, ', '.join(RENDERS)))
+        rctx.error(path + '.render', _('%(value)r is not one of %(choices)s') % {
+            'value': render, 'choices': ', '.join(RENDERS)})
     if render == 'as_grid' and not grid:
-        rctx.error(path, 'render "as_grid" needs a "grid"')
+        rctx.error(path, _('render "as_grid" needs a "grid"'))
     if grid and render != 'as_grid':
-        rctx.error(path + '.grid', 'a grid is only used with render "as_grid"')
+        rctx.error(path + '.grid', _('a grid is only used with render "as_grid"'))
     if grid:
         placed = [name for row in grid for column in row for name in column]
         if sorted(placed) != sorted(names):
             rctx.error(path + '.grid',
-                       'the grid must place every form field exactly once '
-                       '(GTForm does not render the fields it leaves out)')
+                       _('the grid must place every form field exactly once '
+                         '(GTForm does not render the fields it leaves out)'))
 
     widgets = data.get('widgets', {})
     for name in widgets:
         if name not in names:
-            rctx.error(path + '.widgets', '%r is not a field of this form' % name)
+            rctx.error(path + '.widgets', _('%r is not a field of this form') % (name,))
     for name in data.get('help', {}):
         if name not in names:
-            rctx.error(path + '.help', '%r is not a field of this form' % name)
+            rctx.error(path + '.help', _('%r is not a field of this form') % (name,))
     if len(rctx.errors) > errors_before:
         return None
 

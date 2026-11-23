@@ -56,7 +56,8 @@ from djgentelella.datasources.base import ModelDataSource, get_datasource
 from djgentelella.designs import notifications
 from djgentelella.designs.builds import TABLE_ACTIONS
 from djgentelella.designs.conditions import (
-    condition_object, denied, hidden_columns, without_hidden,
+    condition_object, denied, hidden_columns, row_conditions, row_denied,
+    without_hidden,
 )
 from djgentelella.designs.introspection import NUMBER_KINDS, TEXT_KINDS
 from djgentelella.fields.drfdatetime import DateRangeTextWidget, DateTimeRangeTextWidget
@@ -247,12 +248,17 @@ ROW_ICONS = {'destroy': 'destroy', 'update': 'update', 'detail': 'retrieve'}
 def _actions_method(build):
     action_perms = {'destroy': build.perms['destroy'], 'update': build.perms['update'],
                     'detail': build.perms['retrieve']}
+    per_row = bool(row_conditions(build))
 
     def get_actions(self, obj):
         # Which row icons (detail, update, delete) the user gets: the
-        # permissions, and the conditions of the actions (gtdesign_denied).
-        actions = get_actions_by_perms(self.context['request'].user, action_perms)
-        refused = self.context.get('gtdesign_denied') or ()
+        # permissions, the conditions of the actions (gtdesign_denied) and
+        # those evaluated with this row.
+        request = self.context['request']
+        actions = get_actions_by_perms(request.user, action_perms)
+        refused = set(self.context.get('gtdesign_denied') or ())
+        if per_row:
+            refused |= row_denied(build, request, obj)
         return {icon: allowed and ROW_ICONS[icon] not in refused
                 for icon, allowed in actions.items()}
     return get_actions
@@ -450,7 +456,8 @@ class ManagementMixin:
     """What a design's management viewset adds to djgentelella's.
 
     The conditions of the build (:mod:`djgentelella.designs.conditions`):
-    an action refused by its condition is a 403, and a hidden column leaves
+    an action refused by its condition is a 403 -- one evaluated per row,
+    when the row is read (:meth:`get_object`) --, and a hidden column leaves
     the rows, the detail, the values of the update form, the search, the
     filters and the ordering -- the one the request asks and the default
     one. An update leaves it as it is: it is not read from the request.
@@ -489,6 +496,16 @@ class ManagementMixin:
             self.ordering = without_hidden(
                 self.ordering or build.model._meta.ordering, hidden) or ['-pk']
             self.filterset_class = without_columns(self.filterset_class, hidden)
+
+    def get_object(self):
+        obj = super().get_object()
+        build = self.gtdesign_build
+        if row_conditions(build):
+            refused = row_denied(build, self.request, obj)
+            for name, actions in TABLE_ACTIONS.items():
+                if self.action in actions and name in refused:
+                    raise PermissionDenied()
+        return obj
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -885,9 +902,11 @@ def facets_viewset_for(build):
 class DesignCRUDMixin(CRUDMixin):
     """CRUDMixin with the URLs of the design router instead of named ones.
 
-    The conditions of the build (:mod:`djgentelella.designs.conditions`)
-    hide columns from the list, the detail, the search and the update form; a page
-    refused by its condition loses its links (the viewset answers 403).
+    The conditions of the build (:mod:`djgentelella.designs.conditions`) are
+    the view's ``column_conditions`` and ``action_conditions``
+    (:class:`~djgentelella.cruds.base.CRUDMixin`): they hide columns from the
+    list, the detail, the search and the update form, and a page refused by
+    its condition loses its links (the viewset answers 403).
     """
 
     gtdesign_build = None
@@ -895,43 +914,15 @@ class DesignCRUDMixin(CRUDMixin):
     def gtdesign_base(self):
         return self.request.gtdesign_crud_base
 
+    def get_condition_object(self):
+        """The object of the page about one object, when the build's
+        endpoints carry it (:func:`~djgentelella.designs.conditions.
+        condition_object`)."""
+        return condition_object(self.gtdesign_build, self.request)
+
     def gtdesign_conditions(self):
         """``(hidden columns, refused pages)`` for the request."""
-        if not hasattr(self, '_gtdesign_conditions'):
-            build = self.gtdesign_build
-            obj = condition_object(build, self.request)
-            if build is None or not (build.column_conditions
-                                     or build.action_conditions):
-                self._gtdesign_conditions = (set(), set())
-            else:
-                self._gtdesign_conditions = (
-                    hidden_columns(build, self.request, obj),
-                    denied(build, self.request, obj))
-        return self._gtdesign_conditions
-
-    def setup(self, request, *args, **kwargs):
-        super().setup(request, *args, **kwargs)
-        hidden, _refused = self.gtdesign_conditions()
-        if hidden and getattr(self, 'search_fields', None):
-            self.search_fields = [name for name in self.search_fields
-                                  if name.split('__')[0] not in hidden]
-
-    def get_check_perms(self, context):
-        super().get_check_perms(context)
-        _hidden, refused = self.gtdesign_conditions()
-        for view in refused:
-            if view in context['crud_perms']:
-                context['crud_perms'][view] = False
-
-    def get_form(self, *args, **kwargs):
-        form = super().get_form(*args, **kwargs)
-        if self.view_type == 'update':
-            # An update neither shows nor writes a hidden column; create
-            # still takes it, the object needs its value.
-            hidden, _refused = self.gtdesign_conditions()
-            for name in hidden:
-                form.fields.pop(name, None)
-        return form
+        return self.get_hidden_columns(), self.get_denied_actions()
 
     def get_urls_and_fields(self, context):
         super().get_urls_and_fields(context)
@@ -951,7 +942,7 @@ class DesignCRUDMixin(CRUDMixin):
         context = super().get_context_data(**kwargs)
         names = self.list_fields if self.view_type == 'list' else \
             getattr(self, 'display_fields', None) or []
-        hidden, _refused = self.gtdesign_conditions()
+        hidden = self.get_hidden_columns()
         context['gtdesign_columns'] = [
             (name, capfirst(str(self.model._meta.get_field(name).verbose_name)))
             for name in names if name not in hidden]
@@ -963,17 +954,11 @@ class DesignCRUDMixin(CRUDMixin):
         queryset = super().get_queryset()
         if self.gtdesign_preview:
             return queryset.none()
-        hidden, _refused = self.gtdesign_conditions()
-        ordering = list(queryset.query.order_by or queryset.model._meta.ordering)
-        if hidden:
-            # The order of the rows would tell the hidden values apart.
-            shown = without_hidden(ordering, hidden)
-            if shown != ordering or not ordering:
-                queryset = queryset.order_by(*(shown or ['-pk']))
-        elif not ordering:
-            # The same default as with hidden columns: a condition that hides
-            # or shows a column must not reorder the rows, and a paginated
-            # list needs an order.
+        if not queryset.ordered:
+            # CRUDMixin already reorders when a column is hidden. Without
+            # Meta.ordering a paginated list still needs an order, and -pk is
+            # the one hiding a column uses, so a condition that shows or hides
+            # a column does not reorder the rows.
             queryset = queryset.order_by('-pk')
         return queryset
 
@@ -998,6 +983,8 @@ class DesignCRUDView(CRUDView):
         self.paginate_by = build.paginate_by
         if build.form is not None:
             self.add_form = self.update_form = build.form.form_class
+        self.column_conditions = dict(build.column_conditions or {})
+        self.action_conditions = dict(build.action_conditions or {})
         self.mixin = type('BoundDesignCRUDMixin', (DesignCRUDMixin,),
                           {'gtdesign_preview': build.preview,
                            'gtdesign_build': build})

@@ -55,6 +55,9 @@ ALL_PRODUCT_PERMS = ['demoapp.%s_product' % action
                      for action in ('view', 'add', 'change', 'delete')]
 
 
+# These tests compare messages in English: the same text whether or not
+# the Spanish catalog is compiled (the demo runs in 'es').
+@override_settings(LANGUAGE_CODE='en')
 class DataDesignTestCase(DesignState, TestCase):
     """Some catalogue rows, a signed-in user and helpers to publish."""
 
@@ -205,8 +208,11 @@ class ResolveTests(DataDesignTestCase):
         self.assertTrue(any("'field:name' is not a user" in e for e in errors))
         self.assertTrue(any('an email needs code, subject, message' in e
                             for e in errors))
-        self.assertTrue(any('template tags' in e for e in errors))
         self.assertTrue(any("has no field 'nothing'" in e for e in errors))
+        # The message shows the tag syntax as the publisher writes it.
+        tags = [e for e in errors if 'template tags' in e]
+        self.assertEqual(len(tags), 1)
+        self.assertIn('template tags ({% %}) need a publisher', tags[0])
 
     def test_template_tags_with_a_trusted_publisher(self):
         document = design(table(notify=[

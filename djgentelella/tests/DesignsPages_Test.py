@@ -31,6 +31,9 @@ def grant(user, *codenames):
     return User.objects.get(pk=user.pk)
 
 
+# These tests compare messages in English: the same text whether or not
+# the Spanish catalog is compiled (the demo runs in 'es').
+@override_settings(LANGUAGE_CODE='en')
 class DesignClient(DesignState, TestCase):
     def setUp(self):
         super().setUp()

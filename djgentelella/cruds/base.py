@@ -24,12 +24,93 @@ from django.views import View
 from django.views.generic import (ListView, CreateView, DeleteView,
                                   UpdateView, DetailView)
 
+from djgentelella.authorization import evaluate_condition
+from djgentelella.designs.conditions import without_hidden
+
 from . import utils
 from .filter import get_filters
 from ..forms.decorators import decore_form_instance
 
 
 class CRUDMixin(object):
+    """What every view of a :class:`CRUDView` shares.
+
+    **Conditions** (:mod:`djgentelella.authorization`): ``column_conditions``
+    (``{field: condition}``) and ``action_conditions`` (``{view: condition}``,
+    views ``create``, ``detail``, ``update`` and ``delete``) say which
+    columns and pages exist for the request. A hidden column leaves the
+    list, the detail, the search, the ordering and the update form; a refused
+    page loses its links and answers 403. The three hooks below are where a
+    view decides them; by default they evaluate those conditions without an
+    object, once per request.
+    """
+
+    column_conditions = None
+    action_conditions = None
+
+    def get_condition_object(self):
+        """The object the column and action conditions are evaluated with:
+        none by default. A view about a parent object can return it; it is
+        called at most once per request (:meth:`condition_object`)."""
+        return None
+
+    def condition_object(self):
+        """:meth:`get_condition_object`, computed once per request: the
+        columns and the actions share it, so a hook that queries the
+        database runs its query once."""
+        if '_gt_condition_object' not in self.__dict__:
+            self._gt_condition_object = self.get_condition_object()
+        return self._gt_condition_object
+
+    def get_hidden_columns(self):
+        """The columns of ``column_conditions`` whose condition does not
+        hold for the request, as a set."""
+        if '_gt_hidden_columns' not in self.__dict__:
+            conditions = self.column_conditions or {}
+            obj = self.condition_object() if conditions else None
+            self._gt_hidden_columns = {
+                name for name, cond in conditions.items()
+                if not evaluate_condition(cond, self.request, obj)}
+        return self._gt_hidden_columns
+
+    def get_denied_actions(self):
+        """The views of ``action_conditions`` whose condition does not hold
+        for the request, as a set."""
+        if '_gt_denied_actions' not in self.__dict__:
+            conditions = self.action_conditions or {}
+            obj = self.condition_object() if conditions else None
+            self._gt_denied_actions = {
+                name for name, cond in conditions.items()
+                if not evaluate_condition(cond, self.request, obj)}
+        return self._gt_denied_actions
+
+    def setup(self, request, *args, **kwargs):
+        super().setup(request, *args, **kwargs)
+        hidden = self.get_hidden_columns()
+        if hidden and getattr(self, 'search_fields', None):
+            self.search_fields = [name for name in self.search_fields
+                                  if name.split('__')[0] not in hidden]
+
+    def get_form(self, *args, **kwargs):
+        form = super().get_form(*args, **kwargs)
+        if self.view_type == 'update':
+            # An update neither shows nor writes a hidden column; create
+            # still takes it, the object needs its value.
+            for name in self.get_hidden_columns():
+                form.fields.pop(name, None)
+        return form
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        hidden = self.get_hidden_columns()
+        if hidden:
+            # The order of the rows would tell the hidden values apart.
+            ordering = list(queryset.query.order_by
+                            or queryset.model._meta.ordering)
+            shown = without_hidden(ordering, hidden)
+            if shown != ordering or not ordering:
+                queryset = queryset.order_by(*(shown or ['-pk']))
+        return queryset
 
     def get_template_names(self):
         dev = []
@@ -83,6 +164,9 @@ class CRUDMixin(object):
                     available_perms[perm] = False
             else:
                 available_perms[perm] = True
+        for view in self.get_denied_actions():
+            if view in available_perms:
+                available_perms[view] = False
         context['crud_perms'] = available_perms
 
     def get_urls_and_fields(self, context):
@@ -94,6 +178,8 @@ class CRUDMixin(object):
             include = getattr(self, 'list_fields')
 
         context['fields'] = utils.get_fields(self.model, include=include)
+        for name in self.get_hidden_columns():
+            context['fields'].pop(name, None)
         if hasattr(self, 'object') and self.object:
             for action in utils.INSTANCE_ACTIONS:
                 try:
@@ -171,6 +257,9 @@ class CRUDMixin(object):
                 return HttpResponseForbidden(render_to_string(
                     'gentelella/cruds/403.html', request=request
                 ))
+        if self.view_type in self.get_denied_actions():
+            return HttpResponseForbidden(render_to_string(
+                'gentelella/cruds/403.html', request=request))
         return View.dispatch(self, request, *args, **kwargs)
 
 
@@ -310,6 +399,10 @@ class CRUDView(object):
     list_filter = None
     mixin = CRUDMixin
     form_widget_exclude = []
+    #: ``{field: condition}`` and ``{view: condition}`` of
+    #: :mod:`djgentelella.authorization`: see :class:`CRUDMixin`.
+    column_conditions = None
+    action_conditions = None
 
     """
     It's obligatory this structure
@@ -357,6 +450,8 @@ class CRUDView(object):
             namespace = self.namespace
             perms = self.perms['create']
             all_perms = self.perms
+            column_conditions = self.column_conditions
+            action_conditions = self.action_conditions
             form_class = self.add_form
             view_type = 'create'
             views_available = self.views_available[:]
@@ -400,6 +495,8 @@ class CRUDView(object):
             namespace = self.namespace
             perms = self.perms['detail']
             all_perms = self.perms
+            column_conditions = self.column_conditions
+            action_conditions = self.action_conditions
             view_type = 'detail'
             display_fields = self.display_fields
             views_available = self.views_available[:]
@@ -428,6 +525,8 @@ class CRUDView(object):
             perms = self.perms['update']
             form_class = self.update_form
             all_perms = self.perms
+            column_conditions = self.column_conditions
+            action_conditions = self.action_conditions
             view_type = 'update'
             views_available = self.views_available[:]
             check_perms = self.check_perms
@@ -470,6 +569,8 @@ class CRUDView(object):
             namespace = self.namespace
             perms = self.perms['list']
             all_perms = self.perms
+            column_conditions = self.column_conditions
+            action_conditions = self.action_conditions
             list_fields = self.list_fields
             view_type = 'list'
             paginate_by = self.paginate_by
@@ -546,6 +647,8 @@ class CRUDView(object):
             namespace = self.namespace
             perms = self.perms['delete']
             all_perms = self.perms
+            column_conditions = self.column_conditions
+            action_conditions = self.action_conditions
             view_type = 'delete'
             views_available = self.views_available[:]
             check_perms = self.check_perms

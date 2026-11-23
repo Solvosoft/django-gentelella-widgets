@@ -10,8 +10,9 @@ each backed by a small AJAX endpoint you write.
 
 .. image:: ../_static/calendar.png
 
+--------------------------------
 Loading the static files
-""""""""""""""""""""""""""""""""
+--------------------------------
 
 FullCalendar ships in the *readonly* bundle, enabled with the
 ``use_readonlywidgets`` define::
@@ -27,8 +28,9 @@ FullCalendar ships in the *readonly* bundle, enabled with the
    ``python manage.py createbasejs`` after installing or upgrading, or the
    calendar silently never renders.
 
+--------------------------------
 Read-only display
-""""""""""""""""""""""""""""""""
+--------------------------------
 
 .. code:: python
 
@@ -69,8 +71,9 @@ instead:
 All the calendar settings and the event object shape are documented at
 https://fullcalendar.io/docs.
 
+------------------------------------------------
 Creating, editing and deleting events
-""""""""""""""""""""""""""""""""""""""""""""""""
+------------------------------------------------
 
 .. code:: python
 

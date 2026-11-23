@@ -49,3 +49,7 @@ from .AddPermissionWidgets_Test import *
 from .Alerts_Test import *
 from .LoadDevStatic_Test import *
 from .CrudOrdering_Test import *
+from .MenuItemUrl_Test import *
+from .FlowsPublicApi_Test import *
+from .DesignsPublicApi_Test import *
+from .DesignsQueries_Test import *

@@ -12,7 +12,8 @@ action, the ``form`` of a transition -- has to be allowed:
   (``'myapp.flows'`` allows ``myapp.flows.anything``). Empty by default.
 
 A path that is not allowed is an error when the document is published
-(:func:`validate_callables`) and, should a stored document hold one anyway,
+(:func:`validate_callables`; :func:`validate_actions` checks a list of
+actions on its own) and, should a stored document hold one anyway,
 an audited failure when it runs: it is logged on ``djgentelella.flows``,
 a condition or form blocks its transition (``TransitionBlocked``) and a
 ``call`` refuses to run (:class:`CallableNotAllowed`), which leaves an
@@ -27,6 +28,7 @@ from django.conf import settings
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext as _
 
+from djgentelella.designs.jsonschema import Error
 from djgentelella.flows import conditions
 from djgentelella.flows.exceptions import TransitionBlocked, TransitionNotAllowed
 
@@ -41,6 +43,45 @@ _registry = set()
 
 class CallableNotAllowed(TransitionNotAllowed):
     """A JSON flow names a callable that is not allowed."""
+
+
+class DocumentError(Error):
+    """A problem of a flow document: the
+    :class:`~djgentelella.designs.jsonschema.Error` ``(path, message)`` of the
+    design documents, whose ``str()`` is ``'path: message'``.
+
+    Transitional compatibility with code that reads these errors as their
+    text: the methods of ``str`` that a tuple does not have (``partition``,
+    ``startswith``...) answer on the text, ``in`` looks into it and ``==``
+    with a ``str`` compares the text. Everything else is the tuple's:
+    ``index``, ``count``, ``len()``, indexing, iteration, ``+`` and the hash
+    (so an error and its text are not the same set member or dict key). New
+    code reads ``error.path`` and ``error.message``; the text side will be
+    removed once the consumers do.
+    """
+
+    __slots__ = ()
+
+    def __eq__(self, other):
+        if isinstance(other, str):
+            return str(self) == other
+        return super().__eq__(other)
+
+    def __ne__(self, other):
+        result = self.__eq__(other)
+        return result if result is NotImplemented else not result
+
+    __hash__ = Error.__hash__
+
+    def __contains__(self, item):
+        if isinstance(item, str) and item in str(self):
+            return True
+        return super().__contains__(item)
+
+    def __getattr__(self, name):
+        if name.startswith('_'):
+            raise AttributeError(name)
+        return getattr(str(self), name)
 
 
 def register_callable(obj=None, *, name=None):
@@ -168,18 +209,34 @@ def blocked_form(path, where):
 
 def _check(path, where, errors):
     if path is not None and not is_allowed(path):
-        errors.append('%s: %s is not an allowed callable (register it with '
-                      'register_callable or list it in '
-                      'GT_FLOWS_ALLOWED_CALLABLES)' % (where, path))
+        errors.append(DocumentError(where, _(
+            '%(path)s is not an allowed callable (register it with '
+            'register_callable or list it in GT_FLOWS_ALLOWED_CALLABLES)')
+            % {'path': path}))
 
 
-def _check_actions(specs, where, errors):
+def validate_actions(specs, where=''):
+    """:class:`~djgentelella.designs.jsonschema.Error` for each ``call``
+    action of the list ``specs`` (``{"action": ..., "props": {...}}``) whose
+    ``function`` is not allowed, at ``<where>[<index>].props.function``.
+
+    For lists of actions outside a flow document -- an automation's, say --;
+    :func:`validate_callables` checks those of a whole document. Only the
+    allowlist is checked here: :func:`~djgentelella.flows.actions.
+    action_from_json` reports an unknown action or invalid props.
+    """
+    errors = []
     for index, spec in enumerate(specs if isinstance(specs, list) else ()):
         if isinstance(spec, dict) and spec.get('action') == CALL:
             props = spec.get('props')
             function = props.get('function') if isinstance(props, dict) else None
             _check(function if isinstance(function, str) else None,
                    '%s[%d].props.function' % (where, index), errors)
+    return errors
+
+
+def _check_actions(specs, where, errors):
+    errors.extend(validate_actions(specs, where))
 
 
 def _check_condition(spec, where, errors):
@@ -189,8 +246,9 @@ def _check_condition(spec, where, errors):
 
 
 def validate_callables(document):
-    """``"<path>: <problem>"`` for each callable ``document`` names that is
-    not allowed: conditions, ``call`` actions and transition forms."""
+    """:class:`~djgentelella.designs.jsonschema.Error` ``(path, message)``
+    for each callable ``document`` names that is not allowed: conditions,
+    ``call`` actions and transition forms."""
     errors = []
     if not isinstance(document, dict):
         return errors

@@ -117,9 +117,9 @@ Chart.js 4 vocabulary
 This library moved from Chart.js 2 to Chart.js 4, which renamed a good part of
 the configuration. If you are porting charts written for the old release:
 
-===============================  ==========================================
+================================ ==========================================
 Chart.js 2                       Chart.js 4
-===============================  ==========================================
+================================ ==========================================
 ``options.title``                ``options.plugins.title``
 ``options.legend``               ``options.plugins.legend``
 ``options.tooltips``             ``options.plugins.tooltip``
@@ -129,7 +129,7 @@ Chart.js 2                       Chart.js 4
 ``elements.rectangle``           ``elements.bar``
 ``dataset.steppedLine``          ``dataset.stepped``
 ``type: 'horizontalBar'``        ``type: 'bar'`` + ``indexAxis: 'y'``
-===============================  ==========================================
+================================ ==========================================
 
 The getter names did not change, and the last five rows are translated for you:
 a ``get_scales`` still returning ``xAxes``/``yAxes``, an ``elements.rectangle``

@@ -19,7 +19,7 @@ from djgentelella.designs.components import NodeBuild
 __all__ = ['ACTION_PERMISSIONS', 'AGGREGATES', 'CHART_TYPES', 'CRUD_PERMISSIONS',
            'CRUD_VIEWS', 'ChartBuild', 'CrudBuild', 'DataBuild', 'FacetsBuild',
            'NotifyAction', 'NotifyBuild', 'ObjectManagementBuild', 'PERIODS',
-           'RowLink', 'StatBuild', 'TABLE_ACTIONS']
+           'ROW_ACTIONS', 'RowLink', 'StatBuild', 'TABLE_ACTIONS']
 
 #: ObjectManagement actions and the model permission each one needs by default.
 ACTION_PERMISSIONS = {
@@ -45,6 +45,8 @@ TABLE_ACTIONS = {
     'destroy': ('destroy',),
     'retrieve': ('retrieve', 'detail_template'),
 }
+#: The actions of a table on one row (:data:`TABLE_ACTIONS`).
+ROW_ACTIONS = ('update', 'destroy', 'retrieve')
 #: The pages of a classic CRUD and the model permission of each one.
 CRUD_VIEWS = ('list', 'create', 'detail', 'update', 'delete')
 CRUD_PERMISSIONS = {'list': 'view', 'detail': 'view', 'create': 'add',
@@ -148,6 +150,10 @@ class ObjectManagementBuild(DataBuild):
     #: ``update``, ``destroy`` and ``retrieve``.
     column_conditions: dict = field(default_factory=dict)
     action_conditions: dict = field(default_factory=dict)
+    #: The actions on one row, whose conditions about the object are
+    #: evaluated with each row (:func:`~djgentelella.designs.conditions.
+    #: row_conditions`). A class attribute, not a field.
+    row_actions = ROW_ACTIONS
 
     @property
     def inline(self):

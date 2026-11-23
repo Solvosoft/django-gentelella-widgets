@@ -58,6 +58,9 @@ def bad_page_context_hook(request, page):
     return ['not', 'a', 'dict']
 
 
+# These tests compare messages in English: the same text whether or not
+# the Spanish catalog is compiled (the demo runs in 'es').
+@override_settings(LANGUAGE_CODE='en')
 class HooksTestCase(DataDesignTestCase):
     def setUp(self):
         super().setUp()

@@ -25,6 +25,8 @@ import json
 from functools import lru_cache
 from pathlib import Path
 
+from django.utils.translation import gettext as _
+
 from djgentelella.designs.jsonschema import Error, validate
 
 SCHEMA_PATH = Path(__file__).resolve().parent / 'schema_v1.json'
@@ -70,12 +72,13 @@ def upgrade(document, current=None, upgrades=None):
     if not isinstance(version, int) or isinstance(version, bool):
         return document
     if version > current:
-        raise UpgradeError('schema_version %d is newer than this djgentelella (%d): '
-                           'upgrade djgentelella.' % (version, current))
+        raise UpgradeError(_('schema_version %(version)d is newer than this '
+                             'djgentelella (%(current)d): upgrade djgentelella.')
+                           % {'version': version, 'current': current})
     while version < current:
         step = upgrades.get(version)
         if step is None:
-            raise UpgradeError('no upgrade from schema_version %d.' % version)
+            raise UpgradeError(_('no upgrade from schema_version %d.') % version)
         document = step(copy.deepcopy(document))
         version += 1
         document['schema_version'] = version
@@ -85,7 +88,7 @@ def upgrade(document, current=None, upgrades=None):
 def validate_envelope(document):
     """The :class:`Error` list of the document's shape; empty means valid."""
     if not isinstance(document, dict):
-        return [Error('$', 'a design must be a JSON object')]
+        return [Error('$', _('a design must be a JSON object'))]
     return validate(document, load_schema())
 
 

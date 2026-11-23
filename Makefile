@@ -27,7 +27,7 @@ help:
 	@echo "assets - build the min.js/min.css bundles (pylp) and collectstatic for the demo"
 	@echo "patch-pylp - patch the installed pylp for asyncio.wait compat"
 	@echo "-- Quality --"
-	@echo "test - run tests quickly with the default Python"
+	@echo "test - the whole unit suite (every label, no selenium), as the CI runs it"
 	@echo "test-selenium - Selenium E2E of the GUI, inside its own Xvfb display"
 	@echo "test-selenium-run - the same, on the caller's display (no Xvfb)"
 	@echo "coverage - unit suite under coverage + report + htmlcov/"
@@ -78,8 +78,10 @@ lint-fix:
 	ruff format --line-length 88 $$(pycodestyle djgentelella demo | cut -d: -f1 | sort -u)
 	$(MAKE) lint
 
+# The whole suite, as the CI runs it: discovery starts in demo/ and would only
+# find the demo's own tests (see TEST_LABELS).
 test:
-	cd demo && python manage.py test --exclude-tag=selenium
+	cd demo && python manage.py test $(TEST_LABELS) --exclude-tag=selenium
 
 # Every label the project has. Discovery starts in demo/, and the package tests
 # live outside it, so each one has to be named explicitly or it is never run.
@@ -143,7 +145,7 @@ docs:
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
 	#sphinx-build -b linkcheck ./docs/source docs/build/
-	sphinx-build -b html ./docs/source docs/build/
+	sphinx-build -W -b html ./docs/source docs/build/
 
 # Refuses to build if the models drifted from the committed migrations: a
 # release must not invent one, and `makemigrations` used to do exactly that
@@ -180,8 +182,19 @@ fuzzysdist: patch-pylp
 	python -m pylp
 	python3 -m build
 
+# gtmakemessages is makemessages plus, for djangojs, the pg_gettext() calls and
+# the inline <script> blocks of the templates: without them --no-obsolete would
+# delete those translations. The tests are left out (their strings are test
+# data), and so are the vendors, the bundles and base.js, which createbasejs
+# builds from the widget scripts already read.
+JS_IGNORE = --ignore 'static/vendors/*' --ignore '*.min.js' \
+	--ignore 'static/gentelella/js/base.js' --ignore 'tests/*'
+
 messages:
-	cd djgentelella && python ../demo/manage.py makemessages --all --no-location --no-obsolete && django-admin makemessages -d djangojs -l es  --ignore "static/*"   --ignore *.min.js --no-location --no-obsolete
+	cd djgentelella && python ../demo/manage.py gtmakemessages --all --no-obsolete \
+		--ignore 'tests/*' --ignore 'static/*'
+	cd djgentelella && python ../demo/manage.py gtmakemessages -d djangojs --all \
+		--no-obsolete $(JS_IGNORE)
 
 trans:
 	cd djgentelella && django-admin compilemessages --locale es

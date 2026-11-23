@@ -31,7 +31,7 @@ There are two halves and they cooperate:
      crumbs.truncateTo(0);
 
 API
-"""
+---
 
 ``set(levels)``, ``push(level)``, ``pop()``, ``truncateTo(index)`` (keeps
 ``0..index`` and returns what it dropped, so a host can undo), ``get(index)``,
@@ -44,7 +44,7 @@ button, not an anchor: navigation is a callback, and an ``<a href="#">`` is a
 broken link for anyone using a screen reader or middle-clicking.
 
 Collapsing
-""""""""""
+----------
 
 When the trail does not fit, everything between the first and the last level
 moves into a dropdown behind an ellipsis. There are only two states, expanded

@@ -227,7 +227,21 @@ title in ``title``, CSS in ``extra_css`` and scripts in ``js``, each after
 ``block.super``. The resolution of a page is kept per process, keyed by its
 ``hash`` (``GT_DESIGNS_CACHE_SIZE``, 128 by default), so serving it does not
 validate it again; a page whose document no longer resolves (a model withdrawn,
-a component gone) is a 404, and editors see its errors.
+a component gone) is a 404, and editors see its errors. The cache keeps one
+resolution per language: the errors and the labels of the builds are
+translated.
+
+Once a page is cached, serving it takes two queries before its components
+read their data: the page with its publisher (``select_related('updated_by')``,
+the document deferred and read only when the cache misses) and the page's
+permissions. That count leaves out the current Site: when no middleware has
+set ``request.site`` (``CurrentSiteMiddleware``), ``get_current_site`` looks it
+up by the request's host, one more query per request. The session and the
+signed-in user cost what they cost on any other view. The same holds for each request to a node endpoint. The
+publisher's trust (below) is kept per process for ``GT_DESIGNS_TRUST_TTL``
+seconds, keyed by ``(page.pk, page.updated_by_id, page.updated_at)``. A page
+about one object (``meta.parent``) takes one more query, to find the page by
+the path without the object's pk.
 
 From Python: ``engine.resolve(document) -> (ResolvedPage, errors)``,
 ``engine.render(resolved, request)`` and ``engine.resolve_page(page)``;
@@ -385,8 +399,32 @@ type                            what it is
     shows (a table's ``list_fields``, a CRUD's list and detail fields). The
     whole node -- ``list`` included -- goes with the node's own condition.
     Conditions are evaluated for the request and, on a page about one object,
-    with that object when the component's API carries it (an inline table);
-    not per row. See "Conditions with the object" below.
+    with that object when the component's API carries it (an inline table).
+    See "Conditions with the object" below.
+
+    **Per row.** In a table, the condition of ``update``, ``destroy`` or
+    ``retrieve`` -- the actions on one row -- that names an authorization
+    (``{"auth": ...}`` anywhere in it) is evaluated with each row instead, as
+    the authorization's ``obj``:
+
+    .. code:: json
+
+        "action_conditions": {"update": {"auth": "es_dueno"},
+                              "destroy": {"all": [{"perm": "ventas.delete_pedido"},
+                                                  {"auth": "es_dueno"}]}}
+
+    The page keeps the action's modal, each row of the API says in its
+    ``actions`` whether it offers it, and the route of a row it does not hold
+    for (``<pk>/``, ``<pk>/get_values_for_update/``, ``PUT``, ``PATCH``,
+    ``DELETE``) answers 403 -- ``detail_template/`` has no row and is served.
+    ``create`` and the conditions without an authorization are evaluated
+    once, as above. ``designs.conditions.row_conditions(build)`` and
+    ``row_denied(build, request, row)`` are the helpers.
+
+    An inline table is not evaluated per row: on a page about one object all
+    its conditions, those of ``update``, ``destroy`` and ``retrieve``
+    included, get the object of the page (see "Conditions with the object"),
+    so an authorization written for the parent keeps receiving the parent.
 
 ``notify``
     Notifications when a row is created, updated or deleted through the table:
@@ -493,6 +531,21 @@ design may use; a subclass that answers otherwise changes them all:
     table's relation columns. By default those registered in ``gtselects.py``.
 ``component(type)``
     the component of a type the design is resolved with.
+``row_link(link, model, path)``
+    the ``RowLink`` of one item of a table's ``row_links`` (its ``condition``
+    already validated) for rows of ``model``, or ``None`` after
+    ``self.error(path, ...)``. By default
+    ``data_components.resolve_row_link``: a URL name, a published design page
+    or a flow. djgentelella-editor can link the pages and flows it generates
+    next to the design, and call ``super()`` for the rest.
+
+``data_components.parse_flow_link(text, known=None)`` reads a
+``flow:<name>[:<transition>]`` link without a context: ``(name,
+transition)`` -- ``transition`` is ``''`` for the flow itself -- or ``None``.
+The last ``:`` starts the transition; since a flow name may hold ``:``,
+``known(name) -> bool``, when given, is asked first whether the whole text is
+a flow. ``PK_PLACEHOLDERS`` (what a row link's URL is reversed with in place
+of the pk), ``FLOW_PREFIX`` and ``PAGE_PREFIX`` are public too.
 
 ``rctx.components`` is the component registry the design is resolved with and
 ``rctx.resolved`` the ``ResolvedPage`` being rendered (``None`` while
@@ -629,9 +682,12 @@ run code:
   (``@im@import x;port``). The result cannot close its ``<style>`` either. A page
   that may serve ``assets.js`` gets its CSS as written: its publisher can
   already run any script on it.
-- The trust is checked on every resolution: revoking the permission or
-  deactivating the publisher turns it off. A page published from the command
-  line without ``--user`` is never trusted.
+- The trust follows the publisher: revoking the permission or deactivating
+  them turns it off on the pages already served within
+  ``GT_DESIGNS_TRUST_TTL`` seconds (60 by default; ``0`` checks it on every
+  request). Saving the page again, or publishing it as another user, applies
+  at once. A page published from the command line without ``--user`` is never
+  trusted.
 - Only exposed models, and only their allowed fields, reach a design.
 - Publishing from the admin or the command records the publisher; whoever can
   change ``Page`` can publish, so grant ``gtdesigns.change_page`` as you would
@@ -648,6 +704,8 @@ Setting                         Default    Meaning
 ``GT_DESIGNS_ALLOW_JS``         ``False``  ``assets.js`` may reach the page
 ``GT_DESIGNS_LOGIN_REQUIRED``   ``True``   pages need a signed-in user
 ``GT_DESIGNS_CACHE_SIZE``       ``128``    resolved pages kept per process
+``GT_DESIGNS_TRUST_TTL``        ``60``     seconds the publisher's trust is
+                                           kept per process
 ``GT_DESIGNS_BASE_TEMPLATE``    see text   what ``gtdesigns/page.html``
                                            extends
 ``GT_DESIGNS_PAGE_CONTEXT``     ``None``   ``(request, page) -> dict`` added

@@ -9,6 +9,8 @@ from dataclasses import dataclass
 
 from django.template import Context, Template, TemplateSyntaxError
 from django.utils.html import format_html
+from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy
 from django.utils.safestring import mark_safe
 
 from djgentelella.designs.components import NodeBuild, RuntimeComponent
@@ -20,7 +22,7 @@ __all__ = ['BUILTIN_COMPONENTS', 'ColComponent', 'HtmlBuild', 'HtmlComponent',
 
 class PageComponent(RuntimeComponent):
     type = 'page'
-    label = 'Page'
+    label = gettext_lazy('Page')
     icon = 'fa fa-file-o'
     container = True
     parent_types = ()
@@ -32,7 +34,7 @@ class PageComponent(RuntimeComponent):
 
 class RowComponent(RuntimeComponent):
     type = 'row'
-    label = 'Row'
+    label = gettext_lazy('Row')
     icon = 'fa fa-columns'
     container = True
     parent_types = ('page', 'col')
@@ -44,7 +46,7 @@ class RowComponent(RuntimeComponent):
 
 class ColComponent(RuntimeComponent):
     type = 'col'
-    label = 'Column'
+    label = gettext_lazy('Column')
     icon = 'fa fa-square-o'
     container = True
     parent_types = ('row',)
@@ -82,7 +84,7 @@ class HtmlComponent(RuntimeComponent):
     """
 
     type = 'html'
-    label = 'HTML'
+    label = gettext_lazy('HTML')
     icon = 'fa fa-code'
     props_schema = {
         'type': 'object',
@@ -102,7 +104,7 @@ class HtmlComponent(RuntimeComponent):
                 build.template = Template(source)
             except TemplateSyntaxError as error:
                 rctx.error(path + '.props.html',
-                           'not a valid Django template: %s' % error)
+                           _('not a valid Django template: %s') % error)
             build.html = source
         else:
             build.html = clean_html(source)

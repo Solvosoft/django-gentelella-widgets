@@ -53,7 +53,7 @@ The Makefile provides several useful commands:
    * - ``make menu``
      - Regenerate the sidebar menu
    * - ``make test``
-     - Run the test suite
+     - Run the whole unit suite (every label, no selenium), as the CI does
    * - ``make lint``
      - Check code style with pycodestyle
    * - ``make docs``
@@ -64,6 +64,22 @@ The Makefile provides several useful commands:
      - Extract translatable strings
    * - ``make trans``
      - Compile translations
+
+Translations
+------------
+
+The ``.po`` catalogs are versioned; the compiled ``.mo`` files are not
+(``.gitignore``). ``make trans`` compiles them, ``make sdist`` does it before
+building the package, and the CI does it before running the tests, so the
+suite runs with the Spanish catalog the demo (``LANGUAGE_CODE = 'es'``) loads.
+The suite passes with and without the ``.mo`` files: a test that compares a
+message in English wraps it in ``translation.override('en')``.
+
+``make messages`` updates both catalogs from the ``djgentelella`` directory
+with ``gtmakemessages``, a ``makemessages`` that for the ``djangojs`` domain
+also reads ``pg_gettext()`` and the inline ``<script>`` blocks of templates,
+so ``--no-obsolete`` keeps their translations. The tests, the vendors, the
+bundles and the generated ``base.js`` are left out.
 
 Manual Setup
 --------------
