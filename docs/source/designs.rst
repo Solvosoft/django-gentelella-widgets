@@ -509,6 +509,111 @@ a JSON object or a bad filter is a 400. The configuration reaches the browser
 as JSON (``<script type="application/json">``), never as code, and the
 renderers of ``gentelella/js/designs/data_components.js`` escape every value.
 
+Flow kanban
+-----------
+
+*(Tablero Kanban por estado de flujo.)* ``flow_kanban``
+(``djgentelella.designs.flow_kanban``) shows the objects of a flow of
+:doc:`flows` as cards, one column per state. Moving a card -- dragging it, or
+with its **Move to** menu, which works without a mouse -- runs a transition of
+the flow: the board never changes a state by itself.
+
+.. code:: json
+
+    {"type": "flow_kanban", "id": "tickets", "props": {
+        "flow": "demoapp.TicketFlow",
+        "states": ["queued", "in_progress", "waiting", "resolved", "closed"],
+        "title_field": "subject",
+        "fields": ["priority", "created_at"],
+        "ordering": ["-pk"],
+        "limit": 5,
+        "page_size": 10}}
+
+``flow`` (required)
+    The flow's name. A name without a dot is one of the design's ``app``, as
+    for the ``flow:`` row links. Its model must be exposed (`Exposing
+    models`_).
+``states``
+    The columns and their order. By default every activity of the flow an
+    object can wait in: states, human tasks, waits, parallels and subflows --
+    not switches, automatic actions nor joins, which an object leaves at once.
+``title_field``, ``fields``
+    The card's title (``str(object)`` by default) and the fields shown under
+    it: fields the exposure allows, not many-to-many, JSON nor files. A
+    relation is read with the cards (``select_related``) and its model must be
+    exposed too. A choice shows its label.
+``ordering``
+    The order of the cards in a column: allowed fields, ``pk`` or
+    ``flow_due_at``; ``-pk`` by default. The pk is added last, so the pages of
+    a column never overlap.
+``limit``
+    A **visual** limit per column: past it the column's counter turns red.
+    Nothing refuses a move because of it (no strict WIP).
+``page_size``
+    Cards per column on load and on each **Load more** (20, at most 100).
+``site_field``
+    A foreign key of the model to ``sites.Site``: only the objects of the
+    current Site and the global ones (``NULL``) are shown.
+
+A flow, a state or a field that does not exist is an error of the document:
+it does not publish, as any other component.
+
+**What it shows.** Only what ``Flow.get_queryset(user)`` lets the user reach
+(:doc:`flows`, "Authorization"), of the current Site: an object whose flow
+instance belongs to another Site is left out, and so are, with
+``site_field``, the objects of another Site. The flow itself is looked up for
+the Site of each request (``get_flow(name, site=...)``), as the flow pages
+do. Each card links to ``flow_detail``. An instance suspended, terminated or
+in error shows its status and cannot be dragged.
+
+**Moving a card.** When a drag starts, the columns the card may go to are
+marked: those a non-automatic transition from its state reaches, for which
+the user holds the permissions. Conditions need the object, so they are
+checked on the drop, when the browser asks the node's endpoint for the
+transitions between both columns for that object and user:
+
+* none: the card goes back to its column and the board says why (the
+  condition's reason, the permission, "no transition goes from A to B");
+* one: it runs; a transition with a ``form`` opens it in a modal, with a
+  comment box;
+* several: the user picks one.
+
+The transition runs with ``Flow.run`` -- the permission and the condition are
+checked again on the locked object, the form is applied, the actions run and
+``FlowTransitionLog`` gets the row, or nothing at all. Any refusal (permission,
+condition, an invalid form, somebody else moved it first) puts the card back
+with the message. After the run the card lands where the object really is:
+automatic transitions may take it further, or off the board.
+
+**Its endpoint** (``gtapis/designs/<page>/<node>/``, session authentication
+with CSRF, JSON):
+
+* ``GET cards/?state=<s>&offset=<n>`` -- the next cards of a column, as HTML
+  rendered and escaped by the server, and ``has_more``;
+* ``GET <pk>/transitions/?target=<s>`` -- ``transitions`` the user may run
+  now (``name``, ``label``, ``form``, ``css_class``), ``refused`` with their
+  ``reason``, and a ``detail`` when there is none;
+* ``GET <pk>/form/?transition=<t>`` -- the modal's form;
+* ``POST <pk>/move/`` with ``transition``, the form's fields (prefix
+  ``flow``) and ``flow_comment-comment`` -- 200 with the new ``state``,
+  ``state_label``, ``status``, ``error`` and the new ``card`` (``null`` when
+  it left the board); 400 with ``errors`` and the form again; 403 with
+  ``detail`` when the flow refuses it; 404 for an object outside the board, a
+  state that is not a column, or a transition that is automatic or goes to a
+  state the board does not show.
+
+**Cost.** Rendering the board takes two queries whatever the number of cards:
+the count of each column, and the first page of every column at once (a
+window function numbering the cards per state). Then come the flow's own
+lookups (its ``FlowDefinition``, the user's permissions), once per request.
+
+The JavaScript is ``gentelella/js/designs/flow_kanban.js`` (HTML5 drag and
+drop, no library) and the styles ``gentelella/css/flow_kanban.css``; the
+configuration reaches the browser as JSON. A transition between two states
+the board shows is reachable by dragging; one that stays in its state
+(``escalate`` in the help desk demo) is not, use the flow's pages for it. The
+demo publishes the help desk board at ``/designs/tickets-board/``.
+
 Extending the engine
 --------------------
 

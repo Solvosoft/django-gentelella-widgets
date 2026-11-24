@@ -3896,3 +3896,76 @@ msgstr "Valor codificado inválido"
 #: serializers/firmador_digital.py:45
 msgid "The document is not available."
 msgstr "El documento no está disponible."
+
+#: designs/flow_kanban.py
+msgid "Flow kanban (cards by state)"
+msgstr "Kanban de flujo (tarjetas por estado)"
+
+#: designs/flow_kanban.py
+msgid "flow_kanban needs djgentelella.flows in INSTALLED_APPS"
+msgstr "flow_kanban necesita djgentelella.flows en INSTALLED_APPS"
+
+#: designs/flow_kanban.py
+#, python-format
+msgid "no flow %r (djgentelella.flows)"
+msgstr "no hay un flujo %r (djgentelella.flows)"
+
+#: designs/flow_kanban.py
+#, python-format
+msgid "flow %(flow)r has no state %(state)r"
+msgstr "el flujo %(flow)r no tiene el estado %(state)r"
+
+#: designs/flow_kanban.py
+#, python-format
+msgid "state %r is repeated"
+msgstr "el estado %r está repetido"
+
+#: designs/flow_kanban.py
+#, python-format
+msgid "%(field)r is not a field of %(model)s the design may show"
+msgstr "%(field)r no es un campo de %(model)s que el diseño pueda mostrar"
+
+#: designs/flow_kanban.py
+#, python-format
+msgid "%r cannot be shown on a card"
+msgstr "%r no se puede mostrar en una tarjeta"
+
+#: designs/flow_kanban.py
+#, python-format
+msgid "%(field)r is not a foreign key of %(model)s to sites.Site"
+msgstr "%(field)r no es una llave foránea de %(model)s a sites.Site"
+
+#: designs/flow_kanban.py
+msgid "Which transition?"
+msgstr "¿Qué transición?"
+
+#: designs/flow_kanban.py
+msgid "The card could not be moved."
+msgstr "No se pudo mover la tarjeta."
+
+#: designs/flow_kanban.py
+#, python-format
+msgid "Moved to %(state)s."
+msgstr "Movida a %(state)s."
+
+#: designs/flow_kanban.py
+#, python-format
+msgid "Moved, but the flow stopped on an error: %(error)s"
+msgstr "Movida, pero el flujo se detuvo por un error: %(error)s"
+
+#: designs/flow_kanban.py
+#, python-format
+msgid "No transition goes from %(source)s to %(target)s."
+msgstr "Ninguna transición va de %(source)s a %(target)s."
+
+#: designs/templates/gtdesigns/components/flow_kanban.html
+msgid "Cards in this state"
+msgstr "Tarjetas en este estado"
+
+#: designs/templates/gtdesigns/components/flow_kanban.html
+msgid "Load more"
+msgstr "Cargar más"
+
+#: designs/templates/gtdesigns/components/flow_kanban_cards.html
+msgid "Move to"
+msgstr "Mover a"
