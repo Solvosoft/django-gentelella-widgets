@@ -26,6 +26,7 @@ from djgentelella.datasources.base import (
     ModelDataSource, register_datasource, unregister_datasource,
 )
 from djgentelella.designs import engine, exposure, factories, grid
+from djgentelella.flows.base import watch_deletes
 from djgentelella.locking import (
     OptimisticLockMixin, add_version_to_rows, object_version,
 )
@@ -695,14 +696,14 @@ class GridQueryCountTests(GridTestCase):
 
         self.assertEqual(self.count(creates(1)), self.count(creates(10)))
         # One DELETE per table while nothing listens to the deletes of the
-        # model; a listener (djgentelella.flows watches the models its
-        # flows run on, and another test may have published one) makes
-        # Django's collector send the signals row by row.
-        with mock.patch.object(signals.pre_delete, 'has_listeners',
-                               return_value=False), \
-                mock.patch.object(signals.post_delete, 'has_listeners',
-                                  return_value=False):
-            self.assertEqual(self.count(deletes(1)), self.count(deletes(10)))
+        # model. djgentelella.flows listens to the models its flows run on
+        # (watch_deletes), and an earlier test may have published one on
+        # Product: then Django's collector sends the signal row by row.
+        uid = 'gtflows-delete-%s' % Product._meta.label_lower
+        if signals.post_delete.disconnect(sender=Product, dispatch_uid=uid):
+            self.addCleanup(watch_deletes, Product)
+        self.assertFalse(signals.post_delete.has_listeners(Product))
+        self.assertEqual(self.count(deletes(1)), self.count(deletes(10)))
 
     def test_the_exact_numbers(self):
         """Pinned, so a change shows. Saving 1 or N rows costs what the
