@@ -66,3 +66,4 @@ from .CrudClassicLock_Test import *
 from .PendingMessages_Test import *
 from .InteractiveGrid_Test import *
 from .FlowKanban_Test import *
+from .GlobalSearch_Test import *

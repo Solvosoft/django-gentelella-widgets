@@ -298,3 +298,7 @@ ASYNC_NEWS_BASE_MODELS = {
         'demoapp.newsletter_interfaces.UserNewsLetterInterface',
     ],
 }
+
+# djgentelella.search: the search box in the top bar (off by default). It finds
+# the searchable data sources of demoapp/gtdatasources.py.
+GT_SEARCH_NAVBAR = True

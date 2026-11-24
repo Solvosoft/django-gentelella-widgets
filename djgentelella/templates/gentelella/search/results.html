@@ -1,0 +1,54 @@
+{% extends 'gentelella/base.html' %}
+{% load i18n %}
+{% block title %}{% trans 'Search' %}{% endblock %}
+{% block content %}
+<div class="x_panel gt-search-results">
+  <div class="x_title">
+    <h2>{% trans 'Search' %}{% if source_label %} <small>{{ source_label }}</small>{% endif %}</h2>
+    <div class="clearfix"></div>
+  </div>
+  <div class="x_content">
+    <form method="get" action="{% url 'gt-search' %}" role="search" class="mb-3">
+      {% if source %}<input type="hidden" name="source" value="{{ source }}">{% endif %}
+      <div class="input-group">
+        <input type="search" name="q" value="{{ query }}" class="form-control"
+               aria-label="{% trans 'Search' %}" placeholder="{% trans 'Search' %}">
+        <button class="btn btn-primary" type="submit"><i class="fa fa-search" aria-hidden="true"></i> {% trans 'Search' %}</button>
+      </div>
+    </form>
+    {% if source %}
+    <p><a class="gt-search-all" href="{% url 'gt-search' %}?q={{ query|urlencode }}">&laquo; {% trans 'Every group' %}</a></p>
+    {% endif %}
+    {% if query|length < min_length %}
+    <p class="text-muted gt-search-short">{% blocktrans count min_length as n %}Write at least {{ n }} character.{% plural %}Write at least {{ n }} characters.{% endblocktrans %}</p>
+    {% elif not groups %}
+    <p class="text-muted gt-search-empty">{% blocktrans %}Nothing found for "{{ query }}".{% endblocktrans %}</p>
+    {% else %}
+    {% for group in groups %}
+    <section class="gt-search-group mb-4" data-source="{{ group.source }}">
+      <h4>{% if group.icon %}<i class="{{ group.icon }}" aria-hidden="true"></i> {% endif %}{{ group.label }}</h4>
+      <div class="list-group">
+        {% for hit in group.results %}
+        {% if hit.url %}<a class="list-group-item list-group-item-action gt-search-hit" href="{{ hit.url }}">{% else %}<div class="list-group-item gt-search-hit">{% endif %}
+          <div class="fw-semibold">{{ hit.title }}</div>
+          {% if hit.subtitle %}<small class="text-muted">{{ hit.subtitle }}</small>{% endif %}
+        {% if hit.url %}</a>{% else %}</div>{% endif %}
+        {% endfor %}
+      </div>
+      {% if not source and group.has_more %}
+      <a class="gt-search-more d-inline-block mt-2" href="{{ group.more_url }}">{% trans 'See more' %} &raquo;</a>
+      {% endif %}
+    </section>
+    {% endfor %}
+    {% if source %}
+    <nav aria-label="{% trans 'Pages' %}">
+      <ul class="pagination">
+        {% if previous_page %}<li class="page-item"><a class="page-link gt-search-previous" href="?q={{ query|urlencode }}&amp;source={{ source|urlencode }}&amp;page={{ previous_page }}">&laquo; {% trans 'Previous' %}</a></li>{% endif %}
+        {% if next_page %}<li class="page-item"><a class="page-link gt-search-next" href="?q={{ query|urlencode }}&amp;source={{ source|urlencode }}&amp;page={{ next_page }}">{% trans 'Next' %} &raquo;</a></li>{% endif %}
+      </ul>
+    </nav>
+    {% endif %}
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

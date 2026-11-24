@@ -15,3 +15,7 @@ msgstr ""
 
 msgid "empty"
 msgstr "Vacío"
+
+#: gtdatasources.py
+msgid "Countries"
+msgstr "Países"

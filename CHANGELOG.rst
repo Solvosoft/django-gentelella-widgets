@@ -202,6 +202,24 @@ of cards. An unknown flow, state or field is an error of the document. The
 demo publishes the help desk at ``/designs/tickets-board/``. See
 ``docs/source/designs.rst`` ("Flow kanban") and ``flows.rst``.
 
+**Global search** (``djgentelella.search``). A data source becomes searchable
+with ``@searchable(...)`` or ``global_search = GlobalSearch(...)``: fields
+and their weights (A-D), the title, subtitle and URL of a hit (a URL name,
+``page:<path>`` or a callable), the group label and its icon.
+``search(request, query, sources=None, limit=None, offset=0)`` asks each
+searchable source the request may read (``has_permission``; one without it is
+not queried) through its ``get_queryset``, so rows of other users or Sites
+never appear, in **one query per source**: full-text with ``SearchRank`` on
+PostgreSQL, plus trigram similarity when ``pg_trgm`` is installed (typos), and
+``icontains`` with a weighted score elsewhere. ``search/`` is the results page
+(grouped, "see more" per group) and ``gtapis/search/`` the same as JSON. The
+box in the top bar (``{% global_search_box %}``, ``gtsearch``) is off by
+default: ``GT_SEARCH_NAVBAR = True`` or the Site's ``global_search`` setting
+turns it on. ``GT_SEARCH_SOURCES`` chooses the sources of a request. The
+optional app ``djgentelella.search.trigram`` creates ``pg_trgm`` with a
+migration. ``datasources.query.fulltext_query(text, config)`` is the search box
+query both share. See ``docs/source/global_search.rst``.
+
 Backwards incompatible
 """"""""""""""""""""""""
 

@@ -33,6 +33,7 @@ from .templatetags.gtsettings import get_version
 from .views import auth
 from .trash.api import TrashViewSet
 from .history.api import HistoryViewSet
+from .search.urls import urlpatterns as search_urls
 
 logger = logging.getLogger(__name__)
 
@@ -213,6 +214,7 @@ urlpatterns = (
     + voice_urls
     + permission_management_urls
     + datasources_urls
+    + search_urls
 )
 
 # djgentelella.flows is an app of its own: its views import its models, which
