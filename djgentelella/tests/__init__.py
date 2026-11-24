@@ -61,3 +61,4 @@ from .EncryptionKey_Test import *
 from .Locking_Test import *
 from .FirmadorAccess_Test import *
 from .SignatureForm_Test import *
+from .ContentTypeSweep_Test import *
