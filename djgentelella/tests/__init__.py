@@ -60,3 +60,4 @@ from .UploadTokens_Test import *
 from .EncryptionKey_Test import *
 from .Locking_Test import *
 from .FirmadorAccess_Test import *
+from .FlowKanban_Test import *
