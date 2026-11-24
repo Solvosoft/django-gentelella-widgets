@@ -11,7 +11,10 @@ environment variables::
 from .settings import *  # noqa: F401,F403
 from .settings import INSTALLED_APPS, os
 
-INSTALLED_APPS = INSTALLED_APPS + ['django.contrib.postgres']
+# djgentelella.search.trigram: its migration creates pg_trgm, so the global
+# search tests also run the typo-tolerant engine.
+INSTALLED_APPS = INSTALLED_APPS + ['django.contrib.postgres',
+                                   'djgentelella.search.trigram']
 
 DATABASES = {
     'default': {

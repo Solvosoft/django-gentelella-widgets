@@ -3896,3 +3896,32 @@ msgstr "Valor codificado inválido"
 #: serializers/firmador_digital.py:45
 msgid "The document is not available."
 msgstr "El documento no está disponible."
+
+#: templates/gentelella/search/navbar_box.html:20
+msgid "No results"
+msgstr "Sin resultados"
+
+#: templates/gentelella/search/navbar_box.html:21
+#: templates/gentelella/search/results.html:42
+msgid "See more"
+msgstr "Ver más"
+
+#: templates/gentelella/search/results.html:20
+msgid "Every group"
+msgstr "Todos los grupos"
+
+#: templates/gentelella/search/results.html:23
+#, python-format
+msgid "Write at least %(n)s character."
+msgid_plural "Write at least %(n)s characters."
+msgstr[0] "Escriba al menos %(n)s carácter."
+msgstr[1] "Escriba al menos %(n)s caracteres."
+
+#: templates/gentelella/search/results.html:25
+#, python-format
+msgid "Nothing found for \"%(query)s\"."
+msgstr "No se encontró nada para «%(query)s»."
+
+#: templates/gentelella/search/results.html:48
+msgid "Pages"
+msgstr "Páginas"
