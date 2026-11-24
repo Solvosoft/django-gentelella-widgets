@@ -3884,3 +3884,15 @@ msgstr "%(name)s disponibles"
 #, python-format
 msgid "Chosen %(name)s"
 msgstr "%(name)s elegidos"
+
+#: firmador_digital/viewsets.py:79
+msgid "File not found"
+msgstr "Archivo no encontrado"
+
+#: serializers/firmador_digital.py:42
+msgid "Invalid encode value"
+msgstr "Valor codificado inválido"
+
+#: serializers/firmador_digital.py:45
+msgid "The document is not available."
+msgstr "El documento no está disponible."
