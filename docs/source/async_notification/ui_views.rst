@@ -142,8 +142,24 @@ files can be reassociated via the ``/reassociate-files/`` endpoint:
               '&content_type=async_notification.emailnotification'
     });
 
+The endpoint only moves the files **the same user uploaded in the same login session** (the
+upload views note each ``upload_session`` in ``request.session``; a session reused by another user
+does not move that user's files), and only to an object of this module
+(``async_notification.emailnotification``, ``newsletter``, ``emailtemplate`` or
+``newslettertemplate``). The user needs ``change`` on its model, or ``add`` when the object is
+theirs (``EmailNotification.user``, ``NewsLetter.created_by``). Another content type is a 400;
+an object that does not exist or that the user may not change is a 404 ``Object not found``.
+
 Orphaned files (``object_id=0``, older than 24 hours) are automatically cleaned up by the
 ``process_notifications`` management command.
+
+Serving attached files
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``/preview-file/<pk>/`` needs one of the module's view or authoring permissions. Inline images and
+uploads not linked yet are served to any such user, since they are part of the bodies they see. A
+file attached to an object (the attachment of a notification) also needs ``view`` or ``change`` on
+that object's model; otherwise the answer is 404.
 
 API ViewSets
 --------------

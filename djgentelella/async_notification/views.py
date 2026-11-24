@@ -14,10 +14,11 @@ from django.contrib.contenttypes.models import ContentType
 from django.core import signing
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
-from django.http import JsonResponse, HttpResponse
+from django.http import Http404, JsonResponse, HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.utils.crypto import constant_time_compare
+from django.utils.translation import gettext as _
 from django.views.decorators.csrf import csrf_exempt
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.authentication import SessionAuthentication
@@ -151,6 +152,72 @@ def _validate_upload(uploaded_file, allowed_types):
     if uploaded_file.content_type not in allowed_types:
         return 'Unsupported file type'
     return None
+
+
+# The models of this module whose objects take attached files, and the field
+# that names who created each one (``None``: no owner).
+ATTACHABLE_MODELS = {
+    'emailnotification': 'user',
+    'newsletter': 'created_by',
+    'emailtemplate': None,
+    'newslettertemplate': None,
+}
+
+# The session remembers which uploads each ``upload_session`` made, so only
+# the user who uploaded a file can link it to an object.
+UPLOADS_SESSION_KEY = 'gt_async_notification_uploads'
+MAX_UPLOAD_SESSIONS = 20
+
+
+def _remember_upload(request, upload_session, attached):
+    """Note ``attached`` as an upload of ``upload_session`` in the user's
+    session (the last :data:`MAX_UPLOAD_SESSIONS` sessions are kept)."""
+    if not upload_session:
+        return
+    sessions = dict(request.session.get(UPLOADS_SESSION_KEY) or {})
+    pks = sessions.pop(upload_session, [])
+    sessions[upload_session] = pks + [attached.pk]
+    while len(sessions) > MAX_UPLOAD_SESSIONS:
+        sessions.pop(next(iter(sessions)))
+    request.session[UPLOADS_SESSION_KEY] = sessions
+
+
+def _model_perm(model, action):
+    return '%s.%s_%s' % (model._meta.app_label, action, model._meta.model_name)
+
+
+def _has_model_perm(user, obj, *actions):
+    """Whether ``user`` has one of ``actions`` on the model of ``obj``,
+    asked without and with the object (object permission backends)."""
+    for action in actions:
+        perm = _model_perm(type(obj), action)
+        if user.has_perm(perm) or user.has_perm(perm, obj):
+            return True
+    return False
+
+
+def can_attach_files(user, obj):
+    """Whether ``user`` may link uploaded files to ``obj``: ``change`` on its
+    model, or ``add`` when ``obj`` is one the user created."""
+    if _has_model_perm(user, obj, 'change'):
+        return True
+    owner_field = ATTACHABLE_MODELS.get(obj._meta.model_name)
+    return bool(owner_field and _has_model_perm(user, obj, 'add')
+                and getattr(obj, owner_field + '_id', None) == user.pk)
+
+
+def can_read_attachment(user, attached):
+    """Whether ``user`` may download ``attached``.
+
+    Inline images and uploads not yet linked to an object are part of the
+    bodies every author and viewer of the module sees. A file attached to an
+    object -- the attachment of a notification -- needs ``view`` or
+    ``change`` on that object.
+    """
+    if attached.is_inline or not attached.object_id:
+        return True
+    obj = attached.content_object
+    return obj is not None and _has_model_perm(user, obj, 'view', 'change')
 
 
 # =============================================================================
@@ -658,6 +725,7 @@ def upload_image_view(request):
         is_inline=True,
         content_id=upload_session,
     )
+    _remember_upload(request, upload_session, attached)
     # Return a ROOT-RELATIVE preview-file URL (no scheme/host) so the stored
     # body is domain-independent — it survives a domain change / multi-site
     # setup, and the browser resolves it against the current origin. The body
@@ -694,6 +762,7 @@ def upload_video_view(request):
         file=uploaded_file,
         content_id=upload_session,
     )
+    _remember_upload(request, upload_session, attached)
     # Videos are not embedded inline (no cid); serve the root-relative media
     # URL directly so it stays domain-independent.
     url = attached.file.url
@@ -704,6 +773,8 @@ def upload_video_view(request):
 def preview_file_view(request, pk):
     """Serve an attached file by its primary key."""
     attached = get_object_or_404(AttachedFile, pk=pk)
+    if not can_read_attachment(request.user, attached):
+        raise Http404()
     response = HttpResponse(
         attached.file.read(), content_type='application/octet-stream'
     )
@@ -718,11 +789,15 @@ def reassociate_files_view(request):
     POST parameters:
         upload_session: The UUID session used during uploads.
         object_id: The ID of the newly created object.
-        content_type: The app_label.model string
+        content_type: The app_label.model string of a model of this module
             (e.g. 'async_notification.emailnotification').
+
+    Only the files the user uploaded in this login session move, and only to
+    an object the user may change (or created, with the ``add`` permission):
+    see :func:`can_attach_files`. Any other object answers 404.
     """
     if request.method != 'POST':
-        return JsonResponse({'error': 'POST required'}, status=405)
+        return JsonResponse({'error': _('POST required')}, status=405)
 
     upload_session = request.POST.get('upload_session', '')
     object_id = request.POST.get('object_id', '')
@@ -730,19 +805,28 @@ def reassociate_files_view(request):
 
     if not all([upload_session, object_id, ct_string]):
         return JsonResponse(
-            {'error': 'upload_session, object_id, and content_type required'},
+            {'error': _('upload_session, object_id, and content_type required')},
             status=400,
         )
 
-    try:
-        app_label, model_name = ct_string.split('.')
-        ct = ContentType.objects.get(app_label=app_label, model=model_name)
-    except (ValueError, ContentType.DoesNotExist):
-        return JsonResponse({'error': 'Invalid content_type'}, status=400)
+    app_label, _dot, model_name = ct_string.lower().partition('.')
+    if app_label != APP_PERM_PREFIX or model_name not in ATTACHABLE_MODELS:
+        return JsonResponse({'error': _('Invalid content_type')}, status=400)
+    ct = ContentType.objects.get_by_natural_key(app_label, model_name)
+    model = ct.model_class()
 
+    obj = None
+    if object_id.isdigit() and int(object_id) > 0:
+        obj = model._default_manager.filter(pk=int(object_id)).first()
+    if obj is None or not can_attach_files(request.user, obj):
+        return JsonResponse({'error': _('Object not found')}, status=404)
+
+    sessions = dict(request.session.get(UPLOADS_SESSION_KEY) or {})
+    pks = sessions.pop(upload_session, [])
     updated = AttachedFile.objects.filter(
-        content_id=upload_session, object_id=0
-    ).update(object_id=object_id, content_type=ct)
+        pk__in=pks, content_id=upload_session, object_id=0
+    ).update(object_id=obj.pk, content_type=ct)
+    request.session[UPLOADS_SESSION_KEY] = sessions
 
     return JsonResponse({'reassociated': updated})
 
