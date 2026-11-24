@@ -3,7 +3,7 @@ from datetime import timedelta, datetime
 from django import forms
 from django.forms import formset_factory
 from django.template import Template, Context
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from rest_framework import serializers
 
 from djgentelella.forms.forms import GTForm
@@ -19,6 +19,8 @@ class CalendarForm(GTForm, forms.Form):
     )
 
 
+# The messages are asserted in English; the demo runs in Spanish.
+@override_settings(LANGUAGE_CODE='en')
 class CalendarWidgetTest(TestCase):
 
     def setUp(self):

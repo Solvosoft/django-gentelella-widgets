@@ -8,6 +8,7 @@ import hashlib
 
 from django.http import Http404, HttpResponse
 from django.utils.html import escape
+from django.utils.translation import gettext as _
 from django.views import View
 
 from djgentelella.flags import get_index, get_sprite_bytes
@@ -84,7 +85,7 @@ class FlagIconView(View):
         if code not in index:
             # No fallback to the `xx` placeholder: it would turn a typo into a
             # blank flag that renders fine and is never noticed.
-            raise Http404('unknown flag %r' % code)
+            raise Http404(_('Unknown flag %(code)r') % {'code': code})
 
         viewbox, body = index[code]
         shape = request.GET.get('shape')

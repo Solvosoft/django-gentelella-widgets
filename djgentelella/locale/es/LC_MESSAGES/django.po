@@ -3896,3 +3896,86 @@ msgstr "Valor codificado inválido"
 #: serializers/firmador_digital.py:45
 msgid "The document is not available."
 msgstr "El documento no está disponible."
+
+#: async_notification/views.py
+msgid "File too large"
+msgstr "Archivo demasiado grande"
+
+#: async_notification/views.py
+msgid "Unsupported file type"
+msgstr "Tipo de archivo no admitido"
+
+#: async_notification/views.py
+#, python-format
+msgid "Status: %(status)s"
+msgstr "Estado: %(status)s"
+
+#: async_notification/views.py
+msgid "Already sent"
+msgstr "Ya se envió"
+
+#: async_notification/views.py
+msgid "No notifications selected"
+msgstr "No se seleccionó ninguna notificación"
+
+#: async_notification/views.py
+#, python-format
+msgid "%(count)d notification processed"
+msgid_plural "%(count)d notifications processed"
+msgstr[0] "%(count)d notificación procesada"
+msgstr[1] "%(count)d notificaciones procesadas"
+
+#: async_notification/views.py
+#, python-format
+msgid "Task already %(status)s"
+msgstr "La tarea ya está en estado %(status)s"
+
+#: async_notification/views.py
+msgid "code parameter required"
+msgstr "El parámetro code es obligatorio"
+
+#: async_notification/views.py
+msgid "Unknown context code"
+msgstr "Código de contexto desconocido"
+
+#: async_notification/views.py
+msgid "POST required"
+msgstr "Se requiere POST"
+
+#: async_notification/views.py
+msgid "No file provided"
+msgstr "No se envió ningún archivo"
+
+#: async_notification/views.py
+msgid "upload_session, object_id, and content_type required"
+msgstr "upload_session, object_id y content_type son obligatorios"
+
+#: async_notification/views.py
+msgid "Invalid content_type"
+msgstr "content_type inválido"
+
+#: async_notification/views.py
+msgid "Object not found"
+msgstr "Objeto no encontrado"
+
+#: serializers/calendar.py
+msgid "Serializer data is not accepted."
+msgstr "No se aceptan los datos del serializador."
+
+#: serializers/calendar.py
+msgid "Empty event parameter."
+msgstr "El parámetro de eventos está vacío."
+
+#: serializers/calendar.py
+msgid "Event end date must occur after start date"
+msgstr "La fecha de fin del evento debe ser posterior a la de inicio"
+
+#: views/flags.py
+#, python-format
+msgid "Unknown flag %(code)r"
+msgstr "Bandera desconocida %(code)r"
+
+#: objectmanagement.py
+#, python-format
+msgid "No %(parameter)s given for the inline objects"
+msgstr "No se indicó %(parameter)s para los objetos en línea"

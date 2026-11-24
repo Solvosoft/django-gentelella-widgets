@@ -1,6 +1,7 @@
 from django.core.exceptions import ImproperlyConfigured
 from django.http import Http404
 from django.shortcuts import get_object_or_404
+from django.utils.translation import gettext as _
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication, SessionAuthentication
@@ -134,8 +135,8 @@ class BaseInlineObjectManagement(BaseObjectManagement):
                     self.__class__.__name__)
             pk = self.get_parent_pk()
             if pk is None:
-                raise Http404('No %s given for the inline objects' %
-                              self.parent_url_kwarg)
+                raise Http404(_('No %(parameter)s given for the inline objects')
+                              % {'parameter': self.parent_url_kwarg})
             self._parent_object = get_object_or_404(
                 self.get_parent_queryset(), pk=pk)
         return self._parent_object

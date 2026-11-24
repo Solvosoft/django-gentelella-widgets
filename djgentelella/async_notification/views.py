@@ -18,7 +18,7 @@ from django.http import Http404, JsonResponse, HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.utils.crypto import constant_time_compare
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _, ngettext
 from django.views.decorators.csrf import csrf_exempt
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.authentication import SessionAuthentication
@@ -148,9 +148,9 @@ def require_any_perm(*perms):
 def _validate_upload(uploaded_file, allowed_types):
     """Return an error string if the upload is too large or a bad type."""
     if uploaded_file.size > ASYNC_NOTIFICATION_UPLOAD_MAX_SIZE:
-        return 'File too large'
+        return _('File too large')
     if uploaded_file.content_type not in allowed_types:
-        return 'Unsupported file type'
+        return _('Unsupported file type')
     return None
 
 
@@ -266,13 +266,13 @@ class EmailNotificationManagement(AuthAllPermBaseObjectManagement):
         """Send a single email notification now."""
         notification = self.get_object()
         if notification.status == 'sent':
-            return Response({'result': False, 'detail': 'Already sent'}, status=400)
+            return Response({'result': False, 'detail': _('Already sent')}, status=400)
         do_send_notification(notification.pk)
         notification.refresh_from_db()
         return Response(
             {
                 'result': notification.status == 'sent',
-                'detail': f'Status: {notification.status}',
+                'detail': _('Status: %(status)s') % {'status': notification.status},
             }
         )
 
@@ -321,7 +321,7 @@ class EmailNotificationManagement(AuthAllPermBaseObjectManagement):
         pks = request.data.get('pks', [])
         if not pks:
             return Response(
-                {'result': False, 'detail': 'No notifications selected'}, status=400
+                {'result': False, 'detail': _('No notifications selected')}, status=400
             )
         sent = 0
         for pk in pks:
@@ -333,7 +333,9 @@ class EmailNotificationManagement(AuthAllPermBaseObjectManagement):
         return Response(
             {
                 'result': True,
-                'detail': f'{sent} notifications processed',
+                'detail': ngettext('%(count)d notification processed',
+                                   '%(count)d notifications processed',
+                                   sent) % {'count': sent},
             }
         )
 
@@ -536,14 +538,16 @@ class NewsLetterTaskManagement(AuthAllPermBaseObjectManagement):
         task = self.get_object()
         if task.status in ('sent', 'revoked'):
             return Response(
-                {'result': False, 'detail': f'Task already {task.status}'}, status=400
+                {'result': False,
+                 'detail': _('Task already %(status)s') % {'status': task.status}},
+                status=400,
             )
         do_send_newsletter(task.pk)
         task.refresh_from_db()
         return Response(
             {
                 'result': task.status == 'sent',
-                'detail': f'Status: {task.status}',
+                'detail': _('Status: %(status)s') % {'status': task.status},
             }
         )
 
@@ -666,11 +670,11 @@ def model_fields_view(request):
     """
     code = request.GET.get('code', '')
     if not code:
-        return JsonResponse({'error': 'code parameter required'}, status=400)
+        return JsonResponse({'error': _('code parameter required')}, status=400)
 
     fields = get_fields_for_context(code)
     if fields is None:
-        return JsonResponse({'error': 'Unknown context code'}, status=404)
+        return JsonResponse({'error': _('Unknown context code')}, status=404)
 
     accept = request.META.get('HTTP_ACCEPT', '')
     if 'text/html' in accept:
@@ -706,11 +710,11 @@ def upload_image_view(request):
     for later reassociation with a real object.
     """
     if request.method != 'POST':
-        return JsonResponse({'error': 'POST required'}, status=405)
+        return JsonResponse({'error': _('POST required')}, status=405)
 
     uploaded_file = request.FILES.get('file')
     if not uploaded_file:
-        return JsonResponse({'error': 'No file provided'}, status=400)
+        return JsonResponse({'error': _('No file provided')}, status=400)
 
     error = _validate_upload(uploaded_file, ASYNC_NOTIFICATION_IMAGE_CONTENT_TYPES)
     if error:
@@ -744,11 +748,11 @@ def upload_video_view(request):
     for later reassociation with a real object.
     """
     if request.method != 'POST':
-        return JsonResponse({'error': 'POST required'}, status=405)
+        return JsonResponse({'error': _('POST required')}, status=405)
 
     uploaded_file = request.FILES.get('file')
     if not uploaded_file:
-        return JsonResponse({'error': 'No file provided'}, status=400)
+        return JsonResponse({'error': _('No file provided')}, status=400)
 
     error = _validate_upload(uploaded_file, ASYNC_NOTIFICATION_VIDEO_CONTENT_TYPES)
     if error:
@@ -841,7 +845,7 @@ def preview_template_view(request):
         base_template: Optional base template key from settings.
     """
     if request.method != 'POST':
-        return JsonResponse({'error': 'POST required'}, status=405)
+        return JsonResponse({'error': _('POST required')}, status=405)
 
     message = request.POST.get('message', '')
     context_code = request.POST.get('context_code', '')
@@ -905,7 +909,7 @@ def suppression_webhook(request):
     (404) unless ASYNC_NOTIFICATION_WEBHOOK_SECRET is set.
     """
     if request.method != 'POST':
-        return JsonResponse({'error': 'POST required'}, status=405)
+        return JsonResponse({'error': _('POST required')}, status=405)
     secret = ansettings.ASYNC_NOTIFICATION_WEBHOOK_SECRET
     if not secret:
         return JsonResponse({'error': 'webhook disabled'}, status=404)
@@ -971,7 +975,7 @@ def newsletter_recipients_preview_view(request):
     base-model + filter-derived recipients, without persisting anything.
     """
     if request.method != 'POST':
-        return JsonResponse({'error': 'POST required'}, status=405)
+        return JsonResponse({'error': _('POST required')}, status=405)
 
     model_base = request.POST.get('model_base', '')
     if not model_base:
