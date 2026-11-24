@@ -25,6 +25,7 @@ from django.apps import apps
 from django.contrib.sites.requests import RequestSite
 from django.core.exceptions import DisallowedHost
 from django.db.models import Model, Q
+from django.http import HttpRequest, QueryDict
 from django.http.request import split_domain_port
 
 # Cached on the request, so the menus and every {% get_settings %} of a page
@@ -120,3 +121,70 @@ def site_pk(site):
     if isinstance(site, RequestSite):
         return None
     raise TypeError('A Site, a Site id or None was expected, not %r.' % site)
+
+
+def resolve_site(site):
+    """The Site row of ``site`` (a Site, its id or ``None``), or ``None`` for
+    the global scope.
+
+    An id of no Site raises ``ValueError``: it is never taken as the global
+    scope, so a job whose Site went away fails instead of reading the global
+    settings and flags.
+    """
+    if site is None or isinstance(site, Model):
+        return site
+    pk = site_pk(site)
+    if pk is None:
+        return None
+    found = apps.get_model('sites', 'Site').objects.filter(pk=pk).first()
+    if found is None:
+        raise ValueError('There is no Site with id %s.' % pk)
+    return found
+
+
+def site_request(site, user=None):
+    """A synthetic ``GET`` request of ``site`` on behalf of ``user``.
+
+    For asking, from one Site, what another Site answers: the export formats
+    of a report of another App (``available_formats(site_request(...))``), its
+    conditions, flags and settings. It is a real
+    :class:`~django.http.HttpRequest`, so whatever reads a request gets one
+    (``request.user``, ``request.GET``, ``get_host()``...), with:
+
+    * ``site``: the Site row (``site`` may be a Site, its id or ``None`` for
+      the global scope; an id of no Site raises ``ValueError``), which
+      :func:`get_current_site` takes as it is;
+    * ``user``: ``user``, or an ``AnonymousUser`` when it is ``None`` (the
+      system, as in :class:`~djgentelella.authorization.ConditionRequest`);
+    * ``method = 'GET'``, ``path = '/'``, empty ``GET``, ``POST`` and
+      ``COOKIES``; the host is the Site's ``domain`` (``SERVER_NAME``, and
+      ``HTTP_HOST`` too, so ``get_host()`` checks it against
+      ``ALLOWED_HOSTS`` like any request) and ``localhost`` for the global
+      scope;
+    * ``is_site_request = True``, to tell it apart from a real one.
+
+    No middleware has run on it: there is no session nor messages, and the
+    language is the active one. Per-request caches (authorizations with
+    ``cache=True``) live on it, so build a new one when the user changes.
+    """
+    site = resolve_site(site)
+    if user is None:
+        # auth.models needs the app registry; this module is imported before
+        # it is ready (djgentelella.authorization imports it).
+        from django.contrib.auth.models import AnonymousUser  # noqa: PLC0415
+
+        user = AnonymousUser()
+    request = HttpRequest()
+    request.method = 'GET'
+    request.path = request.path_info = '/'
+    request.GET = QueryDict()
+    request.POST = QueryDict()
+    request.META = {'SERVER_NAME': site.domain if site is not None else 'localhost',
+                    'SERVER_PORT': '80', 'REQUEST_METHOD': 'GET',
+                    'PATH_INFO': '/', 'QUERY_STRING': ''}
+    if site is not None:
+        request.META['HTTP_HOST'] = site.domain
+    request.user = user
+    request.site = site
+    request.is_site_request = True
+    return request

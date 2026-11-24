@@ -437,7 +437,10 @@ what the API accepts in ``fmt``, what the source endpoint lists
 ``pdf`` first, the others by name): a
 layout of another application is neither listed nor accepted. A resolver that
 raises is logged and adds nothing. ``unregister_exporter_resolver`` takes one
-out.
+out. To list or check the formats of another Site -- a report subscription of
+another application, a job --, pass a request of that Site:
+``available_formats(site_request(site, user))``
+(``djgentelella.sites.site_request``, see :doc:`sites`).
 
 Taking over the export endpoint
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

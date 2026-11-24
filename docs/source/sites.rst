@@ -83,6 +83,39 @@ and only ``Q(site__isnull=True)`` when ``site`` is ``None``. ``field`` names
 the foreign key, or a path to it (``'page__site'``). Any model with an
 optional ``site`` foreign key uses it to apply the rule.
 
+A request of another Site
+-------------------------
+
+Some questions have to be asked on behalf of a Site that is not the one of
+the current request: the export formats of a report of another App (its
+layouts are formats only there), whether a condition holds for the user of a
+subscription, a flag of that Site. ``site_request(site, user=None)`` builds a
+synthetic ``GET`` request of that Site:
+
+.. code:: python
+
+    from djgentelella.datasources.export import available_formats
+    from djgentelella.sites import site_request
+
+    request = site_request(report.site, user=subscription.user)
+    if fmt not in available_formats(request):
+        ...
+
+It is a real ``HttpRequest`` whose ``site`` is the Site row (so
+``get_current_site`` returns it), with ``user`` (an ``AnonymousUser`` when it
+is ``None``, as ``ConditionRequest`` does for the system), ``method='GET'``,
+``path='/'``, empty ``GET``/``POST``/``COOKIES``, the Site's ``domain`` as the
+host (``localhost`` for the global scope) and ``is_site_request = True``.
+``site`` may be a ``Site``, its id or ``None`` (global); an id of no Site
+raises ``ValueError``. No middleware has run on it: there is no session, and
+``get_host()`` checks the domain against ``ALLOWED_HOSTS`` as for any
+request.
+
+Use it where code expects a request (exporters, data sources, templates);
+``djgentelella.authorization.ConditionRequest`` is the lighter stand-in that
+only conditions and authorizations need. ``resolve_site(site)`` is the lookup
+both share: the Site row of a ``Site``, an id or ``None``.
+
 
 Menus
 =====

@@ -56,7 +56,7 @@ from rest_framework.permissions import BasePermission
 
 from djgentelella.autodiscover import autodiscover_once
 from djgentelella.designs.jsonschema import Error
-from djgentelella.sites import get_current_site, site_pk
+from djgentelella.sites import get_current_site, resolve_site, site_pk
 
 logger = logging.getLogger(__name__)
 
@@ -261,17 +261,7 @@ class ConditionRequest:
 
     @staticmethod
     def _site(site):
-        if site is None or isinstance(site, Model):
-            return site
-        pk = site_pk(site)
-        if pk is None:
-            return None
-        found = apps.get_model('sites', 'Site').objects.filter(pk=pk).first()
-        if found is None:
-            # Not the global scope: a job whose Site went away must fail, not
-            # evaluate flags and settings with the global values.
-            raise ValueError('There is no Site with id %s.' % pk)
-        return found
+        return resolve_site(site)
 
     def __repr__(self):
         return '<ConditionRequest user=%r site=%r>' % (self.user, self.site)

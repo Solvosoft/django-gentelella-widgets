@@ -171,6 +171,11 @@ user** there:
   object: reuse one ``ConditionRequest`` for many rows of the same user, and
   build a new one when the user, the Site or the data the authorizations read
   change.
+* To ask something on behalf of another Site that needs a whole request --
+  the export formats of a report of another App, say --, use
+  ``djgentelella.sites.site_request(site, user)``, a synthetic
+  ``HttpRequest`` of that Site (see :doc:`sites`). Conditions evaluate the
+  same with either.
 
 The flows engine builds one on its own for the conditions of a run without a
 request (see :doc:`flows`).
