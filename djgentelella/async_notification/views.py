@@ -6,6 +6,8 @@ Contains both DRF ViewSets for the API and server-rendered HTML views.
 
 import json
 import logging
+import mimetypes
+import os
 from functools import wraps
 
 from django.apps import apps
@@ -15,10 +17,11 @@ from django.contrib.contenttypes.models import ContentType
 from django.core import signing
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
-from django.http import Http404, JsonResponse, HttpResponse
+from django.http import FileResponse, Http404, JsonResponse, HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.utils.crypto import constant_time_compare
+from django.utils.http import content_disposition_header
 from django.utils.translation import gettext as _, ngettext
 from django.views.decorators.csrf import csrf_exempt
 from django_filters.rest_framework import DjangoFilterBackend
@@ -732,6 +735,7 @@ def upload_image_view(request):
         file=uploaded_file,
         is_inline=True,
         content_id=upload_session,
+        uploaded_by=request.user,
     )
     _remember_upload(request, upload_session, attached)
     # Return a ROOT-RELATIVE preview-file URL (no scheme/host) so the stored
@@ -769,11 +773,13 @@ def upload_video_view(request):
         object_id=0,
         file=uploaded_file,
         content_id=upload_session,
+        uploaded_by=request.user,
     )
     _remember_upload(request, upload_session, attached)
-    # Videos are not embedded inline (no cid); serve the root-relative media
-    # URL directly so it stays domain-independent.
-    url = attached.file.url
+    # Videos are not embedded inline (no cid). The ROOT-RELATIVE URL of
+    # preview_video_view, never the media URL: the file is read through the
+    # permissions of preview_file_view, not wherever MEDIA_URL is served.
+    url = reverse('async_notification:preview_video', args=[attached.pk])
     return JsonResponse({'link': url, 'location': url})
 
 
@@ -786,8 +792,31 @@ def preview_file_view(request, pk):
     response = HttpResponse(
         attached.file.read(), content_type='application/octet-stream'
     )
-    response['Content-Disposition'] = f'inline; filename="{attached.file.name}"'
+    # The name escaped by Django (RFC 6266/5987), never pasted into quotes.
+    response['Content-Disposition'] = content_disposition_header(
+        False, os.path.basename(attached.file.name))
     return response
+
+
+@require_any_perm(*VIEW_OR_AUTHORING_PERMS)
+def preview_video_view(request, pk):
+    """Serve an uploaded video by its primary key, with the permissions of
+    :func:`preview_file_view` and the content type of the file."""
+    attached = get_object_or_404(AttachedFile, pk=pk, is_inline=False)
+    if not can_read_attachment(request.user, attached):
+        raise Http404()
+    # The upload checked the type the browser claimed, not the name: a name
+    # that guesses anything but a video type is served as bytes, never as a
+    # page of this origin.
+    content_type = mimetypes.guess_type(attached.file.name)[0]
+    if content_type not in ASYNC_NOTIFICATION_VIDEO_CONTENT_TYPES:
+        content_type = 'application/octet-stream'
+    try:
+        handle = attached.file.open('rb')
+    except (OSError, ValueError):
+        raise Http404()
+    return FileResponse(handle, content_type=content_type,
+                        filename=os.path.basename(attached.file.name))
 
 
 @require_any_perm(*AUTHORING_PERMS)
@@ -832,7 +861,8 @@ def reassociate_files_view(request):
     sessions = dict(request.session.get(UPLOADS_SESSION_KEY) or {})
     pks = sessions.pop(upload_session, [])
     updated = AttachedFile.objects.filter(
-        pk__in=pks, content_id=upload_session, object_id=0
+        pk__in=pks, content_id=upload_session, object_id=0,
+        uploaded_by=request.user,
     ).update(object_id=obj.pk, content_type=ct)
     request.session[UPLOADS_SESSION_KEY] = sessions
 

@@ -321,6 +321,26 @@ checks the object (security fix).**
   the new ``ASYNC_NOTIFICATION_INTERNAL_MODELS``; any other gives no address.
   List there the models whose ``email`` you addressed this way.
 
+**async_notification: uploads belong to their uploader, videos go through a
+view, and the download name is escaped (security fix).**
+
+* Saving a body that named the pk of somebody else's pending image linked
+  that image to the new object. ``AttachedFile`` records ``uploaded_by``
+  (migration ``0009``), and ``sending.link_body_attachments(instance,
+  user=None)`` moves only the pending uploads of ``user``; without a user,
+  only those without an uploader (files created by code or before the
+  migration). The API serializers pass the user of the request, and
+  ``reassociate-files/`` also checks the uploader. It links the videos of the
+  body too.
+* ``upload-video/`` answered the file's ``MEDIA_URL``, served wherever the
+  project serves media and outside any permission. It now answers the new
+  ``preview-video/<pk>/``, which has the permissions of ``preview-file/`` and
+  serves the video with its content type (bytes when its name is not a
+  video). Bodies saved before keep their media URLs.
+* ``preview-file/<pk>/`` pasted the stored name between quotes in
+  ``Content-Disposition``. It sends the base name through Django's
+  ``content_disposition_header``.
+
 Fixes
 """"""""
 

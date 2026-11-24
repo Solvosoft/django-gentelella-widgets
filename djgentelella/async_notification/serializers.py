@@ -47,14 +47,18 @@ def _model_base_field():
 class InlineAttachmentSerializerMixin:
     """Links inline images referenced in ``message`` to the saved object."""
 
+    def _uploader(self):
+        request = self.context.get('request')
+        return getattr(request, 'user', None)
+
     def create(self, validated_data):
         instance = super().create(validated_data)
-        link_body_attachments(instance)
+        link_body_attachments(instance, user=self._uploader())
         return instance
 
     def update(self, instance, validated_data):
         instance = super().update(instance, validated_data)
-        link_body_attachments(instance)
+        link_body_attachments(instance, user=self._uploader())
         return instance
 
 

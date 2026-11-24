@@ -70,6 +70,8 @@ File attachment linked to any model via Django's ``GenericForeignKey``.
 - ``file`` (FileField) - The uploaded file.
 - ``is_inline`` (BooleanField) - If ``True``, embedded as inline image (``cid:``).
 - ``content_id`` (CharField) - Content-ID for inline attachments or upload session identifier.
+- ``uploaded_by`` (ForeignKey to the user, nullable) - Who uploaded it. Only that user links a
+  pending upload to an object; ``NULL`` for files created by code or before the field existed.
 - ``created_at`` - Timestamp.
 
 NewsLetterTemplate

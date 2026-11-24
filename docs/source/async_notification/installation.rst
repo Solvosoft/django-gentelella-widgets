@@ -72,6 +72,7 @@ The module registers the following URL patterns:
 - ``upload-image/`` - Image upload for TinyMCE editor
 - ``upload-video/`` - Video upload for TinyMCE editor
 - ``preview-file/<int:pk>/`` - Serve an attached file
+- ``preview-video/<int:pk>/`` - Serve an uploaded video
 - ``reassociate-files/`` - Reassociate uploaded files with a real object
 - ``preview-template/`` - Template preview rendering
 

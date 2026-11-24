@@ -190,6 +190,11 @@ class AttachedFile(models.Model):
         max_length=255, blank=True, default='',
         verbose_name=_('Content ID'),
         help_text=_('Content-ID for inline attachments'))
+    # Who uploaded it: only that user links a pending upload (object_id=0)
+    # to an object. NULL for files created by code or before the field.
+    uploaded_by = models.ForeignKey(
+        USER_MODEL_BASE, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='+', verbose_name=_('Uploaded by'))
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

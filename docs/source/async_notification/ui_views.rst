@@ -113,7 +113,8 @@ All message fields use the ``EditorTinymce`` widget, which provides:
 
 - Full WYSIWYG editing with toolbar for formatting, lists, links, images, media, and code.
 - Image upload via ``/upload-image/`` endpoint.
-- Video upload via ``/upload-video/`` endpoint.
+- Video upload via ``/upload-video/`` endpoint. It answers the root-relative URL of
+  ``/preview-video/<pk>/``, never the media URL of the file.
 
 .. note::
 
@@ -150,6 +151,15 @@ does not move that user's files), and only to an object of this module
 theirs (``EmailNotification.user``, ``NewsLetter.created_by``). Another content type is a 400;
 an object that does not exist or that the user may not change is a 404 ``Object not found``.
 
+Every upload records its uploader (``AttachedFile.uploaded_by``), and the endpoint moves only
+the files of the user of the request.
+
+Saving a template, notification or newsletter through its API also links the pending images
+(``/preview-file/<pk>/``) and videos (``/preview-video/<pk>/``) its body embeds
+(``sending.link_body_attachments(instance, user=None)``). Only the uploads of that user move: a
+body that names the pk of somebody else's pending upload does not take it over. Called without a
+user (from code), it moves only the uploads without an uploader.
+
 Orphaned files (``object_id=0``, older than 24 hours) are automatically cleaned up by the
 ``process_notifications`` management command.
 
@@ -159,7 +169,16 @@ Serving attached files
 ``/preview-file/<pk>/`` needs one of the module's view or authoring permissions. Inline images and
 uploads not linked yet are served to any such user, since they are part of the bodies they see. A
 file attached to an object (the attachment of a notification) also needs ``view`` or ``change`` on
-that object's model; otherwise the answer is 404.
+that object's model; otherwise the answer is 404. The ``Content-Disposition`` carries the base name
+of the file, escaped by Django (``content_disposition_header``: quoted, or ``filename*=`` when it is
+not ASCII).
+
+``/preview-video/<pk>/`` serves an uploaded video with the same permissions, streamed, with its
+video content type when its name gives one of ``ASYNC_NOTIFICATION_VIDEO_CONTENT_TYPES``
+(``application/octet-stream`` otherwise). The video upload used to answer the file's
+``MEDIA_URL``, which put it wherever the project serves media, outside any permission. The file
+still lives under ``MEDIA_ROOT``: a project that serves that directory publicly serves it too, by
+its path.
 
 API ViewSets
 --------------

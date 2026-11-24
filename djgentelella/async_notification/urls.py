@@ -9,7 +9,8 @@ from djgentelella.async_notification.views import (
     newsletter_view, newsletter_template_view, newsletter_task_view,
     email_autocomplete_view, model_fields_view,
     upload_image_view, upload_video_view,
-    preview_file_view, reassociate_files_view, preview_template_view,
+    preview_file_view, preview_video_view, reassociate_files_view,
+    preview_template_view,
     newsletter_filter_form_view, newsletter_recipients_preview_view,
     unsubscribe_view, suppression_webhook,
 )
@@ -60,6 +61,8 @@ urlpatterns = [
          upload_video_view, name='async_upload_video'),
     path('preview-file/<int:pk>/',
          preview_file_view, name='preview_file'),
+    path('preview-video/<int:pk>/',
+         preview_video_view, name='preview_video'),
     path('reassociate-files/',
          reassociate_files_view, name='reassociate_files'),
     path('preview-template/',

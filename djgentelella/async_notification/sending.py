@@ -6,6 +6,7 @@ retry logic, and template-based sending.
 """
 
 import logging
+import os
 import re
 import time
 from email.mime.image import MIMEImage
@@ -45,6 +46,8 @@ logger = logging.getLogger(__name__)
 
 # Matches <img src=".../preview-file/<pk>"> produced by the WYSIWYG uploader.
 INLINE_IMG_RE = re.compile(r'src="([^"]*/preview[-_]file/(\d+)/?)"')
+# A video of the body: served by preview_video_view, never rewritten to cid:.
+VIDEO_RE = re.compile(r'src="([^"]*/preview[-_]video/(\d+)/?)"')
 
 
 def as_email_list(value):
@@ -147,23 +150,41 @@ def attach_inline_images(msg, pks):
         mime_image = MIMEImage(data)
         mime_image.add_header('Content-ID', f'img_{pk}')
         mime_image.add_header(
-            'Content-Disposition', 'inline', filename=att.file.name)
+            'Content-Disposition', 'inline',
+            filename=os.path.basename(att.file.name))
         msg.attach(mime_image)
 
 
-def link_body_attachments(instance):
-    """Link inline AttachedFiles referenced in ``instance.message`` to it.
+def extract_video_pks(html):
+    """Return the AttachedFile pks of the videos ``html`` embeds."""
+    if not html:
+        return []
+    return [match.group(2) for match in VIDEO_RE.finditer(html)]
 
-    Uploaded images start unattached (``object_id=0``); linking them to the
-    saved object keeps them from being cleaned up as orphans. Sending does
-    not depend on this — it attaches by the pks found in the body.
+
+def link_body_attachments(instance, user=None):
+    """Link the AttachedFiles that ``instance.message`` embeds to it.
+
+    Uploaded images and videos start unattached (``object_id=0``); linking
+    them to the saved object keeps them from being cleaned up as orphans.
+    Sending does not depend on this — it attaches by the pks found in the
+    body.
+
+    Only the pending uploads of ``user`` move: a body that names the pk of
+    somebody else's pending upload does not take it over. Without a user
+    (code, a management command) only the uploads without an uploader move.
     """
-    pks = extract_inline_pks(getattr(instance, 'message', ''))
+    message = getattr(instance, 'message', '')
+    pks = extract_inline_pks(message) + extract_video_pks(message)
     if not pks:
         return
+    files = AttachedFile.objects.filter(pk__in=pks, object_id=0)
+    if user is not None and user.is_authenticated:
+        files = files.filter(uploaded_by=user)
+    else:
+        files = files.filter(uploaded_by__isnull=True)
     ct = ContentType.objects.get_for_model(instance)
-    AttachedFile.objects.filter(pk__in=pks, object_id=0).update(
-        content_type=ct, object_id=instance.pk)
+    files.update(content_type=ct, object_id=instance.pk)
 
 
 def _get_attachments(notification):
