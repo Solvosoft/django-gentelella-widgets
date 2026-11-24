@@ -6,7 +6,7 @@
   <div class="card-body">
     {% include 'gtdesigns/crud/_back.html' %}
     <h2>{% trans 'Update' %} {{ object }}</h2>
-    {% include 'gtdesigns/crud/_form.html' with action=url_update %}
+    {% if form.version_conflict %}<div class="alert alert-info gt-version-conflict" role="alert"><a href="{{ url_update }}" class="alert-link gt-version-reload">{% trans 'Reload the form with the current data' %}</a></div>{% endif %}{% include 'gtdesigns/crud/_form.html' with action=url_update %}
   </div>
 </div>
 {% endblock %}

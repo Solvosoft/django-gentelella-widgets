@@ -221,6 +221,9 @@ class CrudBuild(DataBuild):
     #: ``detail``, ``update`` and ``delete``.
     column_conditions: dict = field(default_factory=dict)
     action_conditions: dict = field(default_factory=dict)
+    #: Optimistic locking of the update page (:mod:`djgentelella.locking`):
+    #: ``CRUDView.optimistic_lock``.
+    optimistic_lock: bool = False
 
 
 @dataclass

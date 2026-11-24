@@ -215,6 +215,25 @@ any ``BaseObjectManagement`` viewset that has ``OptimisticLockMixin``: it
 only acts when ``get_values_for_update`` sends a ``_version``.
 
 
+Designs: ``crud_classic``
+=========================
+
+The ``crud_classic`` component takes the same prop, validated the same way:
+
+.. code:: json
+
+    {"type": "crud_classic", "id": "products",
+     "props": {"model": "ventas.Producto", "form": "producto",
+               "optimistic_lock": true}}
+
+The generated CRUD is a ``CRUDView`` with ``optimistic_lock = True`` (see
+"CRUDView" above): its update page carries the version in a hidden field and
+a conflict shows the form again with the error and a link that reloads it.
+The ``action_conditions`` of the page are checked first, so a refused page
+is still a 403. Without the prop, or with ``false``, the pages are the same
+as before.
+
+
 Reference
 =========
 

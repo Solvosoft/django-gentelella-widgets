@@ -62,3 +62,4 @@ from .Locking_Test import *
 from .FirmadorAccess_Test import *
 from .SignatureForm_Test import *
 from .ContentTypeSweep_Test import *
+from .CrudClassicLock_Test import *

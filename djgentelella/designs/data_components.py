@@ -1012,6 +1012,10 @@ class CrudClassicComponent(RuntimeComponent):
                 'Pages allowed only when',
                 [view for view in CRUD_VIEWS if view != 'list']),
             'paginate_by': {'type': 'integer', 'minimum': 1, 'maximum': 200},
+            'optimistic_lock': {
+                'type': 'boolean', 'default': False,
+                'title': 'Refuse to save an object somebody else changed '
+                         'after its update page was opened (optimistic locking)'},
         },
     }
 
@@ -1083,6 +1087,7 @@ class CrudClassicComponent(RuntimeComponent):
         build.columns = columns_of(found)
         build.column_conditions = column_conditions
         build.action_conditions = action_conditions
+        build.optimistic_lock = bool(props.get('optimistic_lock', False))
         return build
 
     def render(self, build, rctx, children):

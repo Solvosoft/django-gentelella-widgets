@@ -991,6 +991,7 @@ class DesignCRUDView(CRUDView):
             self.add_form = self.update_form = build.form.form_class
         self.column_conditions = dict(build.column_conditions or {})
         self.action_conditions = dict(build.action_conditions or {})
+        self.optimistic_lock = build.optimistic_lock
         self.mixin = type('BoundDesignCRUDMixin', (DesignCRUDMixin,),
                           {'gtdesign_preview': build.preview,
                            'gtdesign_build': build})

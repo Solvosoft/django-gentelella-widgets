@@ -479,7 +479,9 @@ type                            what it is
     with its search (``?q=``) and pagination (``?page=``) on the page's own
     query string; ``link`` shows a tile opening it. Its pages are served at
     the node's endpoint: ``''``, ``create/``, ``<pk>/``, ``<pk>/update/``,
-    ``<pk>/delete/``.
+    ``<pk>/delete/``. ``optimistic_lock`` (``false`` by default) is
+    ``CRUDView.optimistic_lock``: the update page refuses to save an object
+    somebody else changed after it was opened. See :doc:`locking`.
 
 ``facets``
     ``target`` (the id of a table node of the page) and ``columns`` (fields
