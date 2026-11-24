@@ -1,5 +1,3 @@
-import base64
-import json
 import logging
 
 from django.conf import settings
@@ -8,6 +6,7 @@ from django.forms import HiddenInput
 from django.templatetags.static import static
 from django.urls import reverse
 
+from djgentelella.firmador_digital.access import sign_document_reference
 from djgentelella.firmador_digital.signvalue_utils import ValueDSParser
 from djgentelella.widgets.core import js_widget_name, update_kwargs
 
@@ -96,13 +95,10 @@ class DigitalSignatureInput(HiddenInput, ValueDSParser):
         return context
 
     def get_field_attribute_for_get(self, name, value, contenttype):
-        attrs = {
-            'field_name': name,
-            'contenttype': contenttype,
-            'pk': value.instance.pk,
-        }
-        b64 = base64.b64encode(json.dumps(attrs).encode()).decode()
-        return b64
+        """The reference to the file, signed: the preview endpoint, the
+        signing websocket and the form accept no other. ``contenttype`` is
+        the one of ``value.instance``, kept for subclasses."""
+        return sign_document_reference(value.instance, name)
 
     def parse_value(self, value):
         return super().parse_value(value)

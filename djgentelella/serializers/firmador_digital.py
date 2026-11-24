@@ -1,11 +1,16 @@
-import base64
-import json
 import logging
 
-from django.contrib.contenttypes.models import ContentType
+from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
-from djgentelella.chunked_upload.utils import find_upload, request_user
+from djgentelella.chunked_upload.utils import ANY_USER, find_upload, request_user
+from djgentelella.firmador_digital.access import (
+    SIGN,
+    decode_document_value,
+    get_reference_instance,
+    has_document_access,
+    same_object,
+)
 
 logger = logging.getLogger('djgentelella')
 
@@ -19,18 +24,29 @@ class DocumentSettingsSerializer(serializers.Serializer):
 
 
 class InstanceSerializer(serializers.Serializer):
+    """
+    The document the signing websocket works on.
+
+    ``value`` is a reference signed by the server (it must name the same
+    ``cc``/``pk``) or the token of an upload of the user of the socket. With a
+    reference, the user in the context (``user`` or ``request``) must pass
+    :func:`~djgentelella.firmador_digital.access.has_document_access` for the
+    ``action`` of the context (``sign`` by default), the same rule as the
+    preview endpoint.
+    """
     pk = serializers.IntegerField()
     cc = serializers.IntegerField()
     value = serializers.CharField()
 
+    default_error_messages = {
+        'invalid_value': _('Invalid encode value'),
+        # One message for a reference to another object, an object that is
+        # gone and a user who may not use it: it does not say which.
+        'not_available': _('The document is not available.'),
+    }
+
     def get_json_file(self, value):
-        jsondata = None
-        try:
-            instance = base64.b64decode(value.encode())
-            jsondata = json.loads(instance.decode())
-        except Exception as e:
-            logger.error('Validation of value on digital signature fail', exc_info=e)
-        return jsondata
+        return decode_document_value(value)
 
     def get_file_from_token(self, token):
         # The signing consumer passes its user in the context: only a finished
@@ -42,28 +58,41 @@ class InstanceSerializer(serializers.Serializer):
         return dev
 
     def get_instance_file(self, instance, fieldname):
-        file_path = getattr(instance, fieldname)
-        file_data = None
-        with open(file_path.path, 'rb') as f:
-            file_data = f.read()
-        return file_data
+        file_path = getattr(instance, fieldname, None)
+        if not file_path:
+            return None
+        try:
+            with open(file_path.path, 'rb') as f:
+                return f.read()
+        except (FileNotFoundError, OSError):
+            return None
+
+    def get_user(self):
+        user = request_user(self.context)
+        return None if user is ANY_USER else user
 
     def validate_value(self, data):
         jsonparse = self.get_json_file(data)
         if not jsonparse:
-            raise serializers.ValidationError('Invalid encode value')
+            self.fail('invalid_value')
         return jsonparse
 
     def validate(self, attrs):
-        cc = attrs.get('cc')
-        pk = attrs.get('pk')
-        ccinstance = ContentType.objects.get_for_id(cc)
-        instance = ccinstance.get_object_for_this_type(pk=pk)
         value = attrs.get('value')
         if 'token' in value:
             attrs['value'] = self.get_file_from_token(value['token'])
-        elif 'field_name' in value:
-            attrs['value'] = self.get_instance_file(instance, value['field_name'])
+            return attrs
+        if not same_object(value, attrs.get('cc'), attrs.get('pk')):
+            self.fail('not_available')
+        instance = get_reference_instance(value)
+        if instance is None or not has_document_access(
+                self.get_user(), instance, value['field_name'],
+                self.context.get('action', SIGN)):
+            self.fail('not_available')
+        data = self.get_instance_file(instance, value['field_name'])
+        if data is None:
+            self.fail('not_available')
+        attrs['value'] = data
         return attrs
 
 

@@ -2,12 +2,14 @@ import base64
 import json
 from pathlib import Path
 
+from django.contrib.contenttypes.models import ContentType
 from django.core.files.base import ContentFile
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
 from djgentelella.chunked_upload.utils import find_upload, request_user
+from djgentelella.firmador_digital.access import same_object
 from djgentelella.firmador_digital.signvalue_utils import ValueDSParser
 
 
@@ -163,8 +165,23 @@ class DigitalSignatureField(serializers.FileField, ValueDSParser):
         dev = None
         jsondata = self.get_json_file(data)
         if jsondata:
+            if 'field_name' in jsondata and not self.is_own_reference(jsondata):
+                # A reference signed for another object or field: not a
+                # way to copy a file the serializer was not given.
+                return dev
             return self.get_filefield(jsondata)
         return dev
+
+    def is_own_reference(self, reference):
+        """Whether a signed reference names this field of the instance of
+        the serializer."""
+        instance = getattr(self.root, 'instance', None)
+        if instance is None or isinstance(instance, (list, tuple)):
+            return False
+        return (reference['field_name'] == self.source
+                and same_object(reference,
+                                ContentType.objects.get_for_model(instance).pk,
+                                instance.pk))
 
     def to_representation(self, value):
         data = super().to_representation(value)

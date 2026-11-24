@@ -8,6 +8,7 @@ from channels.generic.websocket import JsonWebsocketConsumer
 from django.contrib.staticfiles import finders
 from django.utils.translation import gettext_lazy as _
 
+from djgentelella.firmador_digital.access import SIGN, VIEW
 from djgentelella.firmador_digital.utils import RemoteSignerClient
 from djgentelella.serializers.firmador_digital import (
     WSRequest,
@@ -32,13 +33,16 @@ class SignConsumer(JsonWebsocketConsumer):
 
         if serializer.is_valid():
             # The user of the socket: a document given by upload token is
-            # only read if that user uploaded it.
-            context = {'user': self.scope.get('user')}
+            # only read if that user uploaded it, and one given by a signed
+            # reference only if has_document_access lets that user sign it
+            # (or, to validate it, see it) -- the rule of the preview.
+            context = {'user': self.scope.get('user'), 'action': SIGN}
             if serializer.validated_data['action'] == 'initial_signature':
                 return InitialSignatureSerializer(data=content, context=context)
             if serializer.validated_data['action'] == 'complete_signature':
                 return CompleteSignatureSerializer(data=content, context=context)
             if serializer.validated_data['action'] == 'validate_document':
+                context['action'] = VIEW
                 return ValidateDocumentSerializer(data=content, context=context)
 
     def disconnect(self, close_code):
