@@ -8,6 +8,7 @@ import json
 import logging
 from functools import wraps
 
+from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
@@ -216,7 +217,10 @@ def can_read_attachment(user, attached):
     """
     if attached.is_inline or not attached.object_id:
         return True
-    obj = attached.content_object
+    model = attached.content_type.model_class()
+    if model is None:
+        return False
+    obj = model._base_manager.filter(pk=attached.object_id).first()
     return obj is not None and _has_model_perm(user, obj, 'view', 'change')
 
 
@@ -816,8 +820,8 @@ def reassociate_files_view(request):
     app_label, _dot, model_name = ct_string.lower().partition('.')
     if app_label != APP_PERM_PREFIX or model_name not in ATTACHABLE_MODELS:
         return JsonResponse({'error': _('Invalid content_type')}, status=400)
-    ct = ContentType.objects.get_by_natural_key(app_label, model_name)
-    model = ct.model_class()
+    model = apps.get_model(app_label, model_name)
+    ct = ContentType.objects.get_for_model(model)
 
     obj = None
     if object_id.isdigit() and int(object_id) > 0:

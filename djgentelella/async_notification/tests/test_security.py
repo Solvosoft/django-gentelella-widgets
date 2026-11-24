@@ -202,6 +202,12 @@ class PreviewFileTests(FilesTestCase):
         EmailNotification.objects.filter(pk=self.notification.pk).delete()
         self.assertEqual(self.get(self.attachment).status_code, 404)
 
+    def test_an_attachment_of_a_model_that_is_gone(self):
+        self.client.force_login(perm_user('viewer', 'view_emailnotification'))
+        gone = ContentType.objects.create(app_label='gone', model='gone')
+        AttachedFile.objects.filter(pk=self.attachment.pk).update(content_type=gone)
+        self.assertEqual(self.get(self.attachment).status_code, 404)
+
     def test_without_any_permission_still_403(self):
         self.client.force_login(User.objects.create_user('nobody'))
         self.assertEqual(self.get(self.pending).status_code, 403)
