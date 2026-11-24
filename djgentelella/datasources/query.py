@@ -463,26 +463,34 @@ def apply_search(source, request, queryset, text, colmap=None):
     if use_fulltext(source, queryset):
         # Optional dependency: importing it needs psycopg, which only a
         # PostgreSQL project has installed.
-        from django.contrib.postgres.search import (  # noqa: PLC0415
-            SearchQuery, SearchVector,
-        )
+        from django.contrib.postgres.search import SearchVector  # noqa: PLC0415
         config = getattr(source, 'search_config', None)
         vector = SearchVector(*names, config=config)
-        words = _WORD.findall(text)
-        if words and not _SEARCH_SYNTAX.search(text):
-            # Plain words: each one as a prefix, so a search box finds "Gamma"
-            # while "gam" is still being typed. Built from \w+ only, so the
-            # raw tsquery cannot carry operators of its own.
-            query = SearchQuery(' & '.join(w + ':*' for w in words),
-                                search_type='raw', config=config)
-        else:
-            # Quotes, "or" or a leading "-": the web search syntax.
-            query = SearchQuery(text, search_type='websearch', config=config)
+        query = fulltext_query(text, config)
         return queryset.annotate(_gt_search=vector).filter(_gt_search=query)
     q = Q()
     for name in names:
         q |= Q(**{name + '__icontains': text})
     return queryset.filter(q)
+
+
+def fulltext_query(text, config=None):
+    """The ``SearchQuery`` of a search box text (PostgreSQL only).
+
+    Plain words are prefixes, all required: a box finds "Gamma" while "gam"
+    is still being typed. A text with quotes, "or" or a leading "-" is read
+    with the web search syntax. The global search uses it too.
+    """
+    # Optional dependency: importing it needs psycopg, which only a
+    # PostgreSQL project has installed.
+    from django.contrib.postgres.search import SearchQuery  # noqa: PLC0415
+    words = _WORD.findall(text)
+    if words and not _SEARCH_SYNTAX.search(text):
+        # Built from \w+ only, so the raw tsquery cannot carry operators of
+        # its own.
+        return SearchQuery(' & '.join(w + ':*' for w in words),
+                           search_type='raw', config=config)
+    return SearchQuery(text, search_type='websearch', config=config)
 
 
 # -- ordering ---------------------------------------------------------------
