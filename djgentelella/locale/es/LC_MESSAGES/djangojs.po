@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-24 09:26-0600\n"
+"POT-Creation-Date: 2026-11-24 15:41-0600\n"
 "PO-Revision-Date: 2026-10-29 12:00-0600\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -21,11 +21,13 @@ msgstr ""
 #: async_notification/templates/async_notification/email_notification.html:56
 #: static/gentelella/js/base/dynamic_actions.js:92
 #: static/gentelella/js/datatables.js:166
+#: static/gentelella/js/designs/interactive_grid.js:61
 msgid "Yes"
 msgstr "Sí"
 
 #: async_notification/templates/async_notification/email_notification.html:57
 #: static/gentelella/js/datatables.js:166
+#: static/gentelella/js/designs/interactive_grid.js:61
 msgid "No"
 msgstr "No"
 
@@ -697,6 +699,65 @@ msgstr "Descargar"
 msgid "Id"
 msgstr "Id"
 
+#: static/gentelella/js/designs/interactive_grid.js:190
+#: static/gentelella/js/designs/interactive_grid.js:260
+msgid "Save or undo your changes first."
+msgstr "Primero guarda o deshaz tus cambios."
+
+#: static/gentelella/js/designs/interactive_grid.js:246
+msgid "No rows"
+msgstr "Sin filas"
+
+#: static/gentelella/js/designs/interactive_grid.js:254
+msgid "The rows could not be read."
+msgstr "No se pudieron leer las filas."
+
+#: static/gentelella/js/designs/interactive_grid.js:334
+msgid "Edit"
+msgstr "Editar"
+
+#: static/gentelella/js/designs/interactive_grid.js:337
+#: static/gentelella/js/obj_api_management.js:612
+msgid "Delete"
+msgstr "Eliminar"
+
+#: static/gentelella/js/designs/interactive_grid.js:340
+msgid "Undo the changes of this row"
+msgstr "Deshacer los cambios de esta fila"
+
+#: static/gentelella/js/designs/interactive_grid.js:343
+msgid "Reload this row"
+msgstr "Recargar esta fila"
+
+#: static/gentelella/js/designs/interactive_grid.js:494
+msgid "That row is no longer available."
+msgstr "Esa fila ya no está disponible."
+
+#: static/gentelella/js/designs/interactive_grid.js:504
+msgid "The row was reloaded with the current data."
+msgstr "Se recargó la fila con los datos actuales."
+
+#: static/gentelella/js/designs/interactive_grid.js:507
+msgid "The row could not be read."
+msgstr "No se pudo leer la fila."
+
+#: static/gentelella/js/designs/interactive_grid.js:537
+msgid "Nothing to save."
+msgstr "No hay nada que guardar."
+
+#: static/gentelella/js/designs/interactive_grid.js:542
+msgid "Saving..."
+msgstr "Guardando..."
+
+#: static/gentelella/js/designs/interactive_grid.js:559
+#: static/gentelella/js/designs/interactive_grid.js:602
+msgid "The changes could not be saved."
+msgstr "No se pudieron guardar los cambios."
+
+#: static/gentelella/js/designs/interactive_grid.js:584
+msgid "Saved."
+msgstr "Guardado."
+
 #: static/gentelella/js/obj_api_management.js:138
 msgid "This record has changed"
 msgstr "Este registro cambió"
@@ -725,10 +786,6 @@ msgstr "Detalles"
 msgid "Update"
 msgstr "Actualizar"
 
-#: static/gentelella/js/obj_api_management.js:612
-msgid "Delete"
-msgstr "Eliminar"
-
 #: static/gentelella/js/obj_api_management.js:794
 msgid ""
 "There was a problem performing your request. Please try again later or "
@@ -736,55 +793,3 @@ msgid ""
 msgstr ""
 "Hubo un problema al realizar tu solicitud. Por favor, intenta nuevamente más "
 "tarde o contacta al administrador."
-
-#: static/gentelella/js/designs/interactive_grid.js
-msgid "Edit"
-msgstr "Editar"
-
-#: static/gentelella/js/designs/interactive_grid.js
-msgid "No rows"
-msgstr "Sin filas"
-
-#: static/gentelella/js/designs/interactive_grid.js
-msgid "Nothing to save."
-msgstr "No hay nada que guardar."
-
-#: static/gentelella/js/designs/interactive_grid.js
-msgid "Reload this row"
-msgstr "Recargar esta fila"
-
-#: static/gentelella/js/designs/interactive_grid.js
-msgid "Saved."
-msgstr "Guardado."
-
-#: static/gentelella/js/designs/interactive_grid.js
-msgid "Save or undo your changes first."
-msgstr "Primero guarda o deshaz tus cambios."
-
-#: static/gentelella/js/designs/interactive_grid.js
-msgid "Saving..."
-msgstr "Guardando..."
-
-#: static/gentelella/js/designs/interactive_grid.js
-msgid "That row is no longer available."
-msgstr "Esa fila ya no está disponible."
-
-#: static/gentelella/js/designs/interactive_grid.js
-msgid "The changes could not be saved."
-msgstr "No se pudieron guardar los cambios."
-
-#: static/gentelella/js/designs/interactive_grid.js
-msgid "The row could not be read."
-msgstr "No se pudo leer la fila."
-
-#: static/gentelella/js/designs/interactive_grid.js
-msgid "The rows could not be read."
-msgstr "No se pudieron leer las filas."
-
-#: static/gentelella/js/designs/interactive_grid.js
-msgid "The row was reloaded with the current data."
-msgstr "Se recargó la fila con los datos actuales."
-
-#: static/gentelella/js/designs/interactive_grid.js
-msgid "Undo the changes of this row"
-msgstr "Deshacer los cambios de esta fila"

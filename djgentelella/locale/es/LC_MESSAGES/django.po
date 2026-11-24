@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-24 09:26-0600\n"
+"POT-Creation-Date: 2026-11-24 15:41-0600\n"
 "PO-Revision-Date: 2026-10-29 12:00-0600\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -625,6 +625,7 @@ msgstr "No se encontraron resultados."
 #: async_notification/templates/async_notification/email_template.html:114
 #: async_notification/templates/async_notification/email_template.html:131
 #: async_notification/templates/async_notification/email_template.html:140
+#: designs/templates/gtdesigns/components/flow_kanban.html:31
 #: templates/gentelella/blocks/modal_template.html:9
 #: templates/gentelella/blocks/modal_template.html:20
 #: templates/gentelella/blocks/modal_template_detail.html:9
@@ -673,6 +674,7 @@ msgstr "Actualizar"
 #: async_notification/templates/async_notification/_newsletter_modal.html:49
 #: async_notification/templates/async_notification/email_template.html:65
 #: async_notification/templates/async_notification/email_template.html:115
+#: designs/templates/gtdesigns/components/interactive_grid.html:16
 #: templates/gentelella/blocks/modal_template.html:21
 #: templates/gentelella/menu/palette_modal.html:28
 msgid "Save changes"
@@ -835,6 +837,69 @@ msgstr ""
 #: async_notification/templates/async_notification/unsubscribe.html:31
 msgid "Yes, unsubscribe me"
 msgstr "Sí, cancelar mi suscripción"
+
+#: async_notification/views.py:152
+msgid "File too large"
+msgstr "Archivo demasiado grande"
+
+#: async_notification/views.py:154
+msgid "Unsupported file type"
+msgstr "Tipo de archivo no admitido"
+
+#: async_notification/views.py:273
+msgid "Already sent"
+msgstr "Ya se envió"
+
+#: async_notification/views.py:279 async_notification/views.py:554
+#, python-format
+msgid "Status: %(status)s"
+msgstr "Estado: %(status)s"
+
+#: async_notification/views.py:328
+msgid "No notifications selected"
+msgstr "No se seleccionó ninguna notificación"
+
+#: async_notification/views.py:340
+#, python-format
+msgid "%(count)d notification processed"
+msgid_plural "%(count)d notifications processed"
+msgstr[0] "%(count)d notificación procesada"
+msgstr[1] "%(count)d notificaciones procesadas"
+
+#: async_notification/views.py:546
+#, python-format
+msgid "Task already %(status)s"
+msgstr "La tarea ya está en estado %(status)s"
+
+#: async_notification/views.py:677
+msgid "code parameter required"
+msgstr "El parámetro code es obligatorio"
+
+#: async_notification/views.py:681
+msgid "Unknown context code"
+msgstr "Código de contexto desconocido"
+
+#: async_notification/views.py:717 async_notification/views.py:755
+#: async_notification/views.py:808 async_notification/views.py:852
+#: async_notification/views.py:916 async_notification/views.py:982
+msgid "POST required"
+msgstr "Se requiere POST"
+
+#: async_notification/views.py:721 async_notification/views.py:759
+msgid "No file provided"
+msgstr "No se envió ningún archivo"
+
+#: async_notification/views.py:816
+msgid "upload_session, object_id, and content_type required"
+msgstr "upload_session, object_id y content_type son obligatorios"
+
+#: async_notification/views.py:822
+msgid "Invalid content_type"
+msgstr "content_type inválido"
+
+#: async_notification/views.py:830
+msgid "Object not found"
+msgstr "Objeto no encontrado"
 
 #: authorization.py:415
 #, python-format
@@ -1060,20 +1125,22 @@ msgstr "Máximo"
 msgid "Unknown export format: %s"
 msgstr "Formato de exportación desconocido: %s"
 
-#: datasources/export.py:258 datasources/query.py:808
-#: designs/data_components.py:410 designs/templatetags/gtdesigns_tags.py:26
+#: datasources/export.py:258 datasources/query.py:816
+#: designs/data_components.py:410 designs/flow_kanban.py:172
+#: designs/templatetags/gtdesigns_tags.py:26
 #: templates/gentelella/widgets/checkyesno.html:4 widgets/core.py:747
 msgid "Yes"
 msgstr "Sí"
 
-#: datasources/export.py:258 datasources/query.py:808
-#: designs/data_components.py:410 designs/templatetags/gtdesigns_tags.py:26
+#: datasources/export.py:258 datasources/query.py:816
+#: designs/data_components.py:410 designs/flow_kanban.py:172
+#: designs/templatetags/gtdesigns_tags.py:26
 #: templates/gentelella/widgets/checkyesno.html:2 widgets/core.py:748
 msgid "No"
 msgstr "No"
 
-#: datasources/export.py:483 datasources/query.py:1026
-#: datasources/query.py:1136
+#: datasources/export.py:483 datasources/query.py:1034
+#: datasources/query.py:1144
 msgid "Each highlight needs a \"filter\" object."
 msgstr "Cada resaltado necesita un objeto \"filter\"."
 
@@ -1160,36 +1227,36 @@ msgid "Full-text search needs PostgreSQL and django.contrib.postgres."
 msgstr ""
 "La búsqueda de texto completo necesita PostgreSQL y django.contrib.postgres."
 
-#: datasources/query.py:494
+#: datasources/query.py:502
 #, python-format
 msgid "Invalid ordering: %r"
 msgstr "Ordenamiento inválido: %r"
 
-#: datasources/query.py:545
+#: datasources/query.py:553
 #, python-format
 msgid "Cannot group by %s."
 msgstr "No se puede agrupar por %s."
 
-#: datasources/query.py:549
+#: datasources/query.py:557
 #, python-format
 msgid "Invalid period %(period)r for %(column)s."
 msgstr "Periodo %(period)r inválido para %(column)s."
 
-#: datasources/query.py:564
+#: datasources/query.py:572
 msgid "Each aggregate must be an object."
 msgstr "Cada agregado debe ser un objeto."
 
-#: datasources/query.py:567
+#: datasources/query.py:575
 #, python-format
 msgid "Unknown aggregate function: %s"
 msgstr "Función de agregación desconocida: %s"
 
-#: datasources/query.py:573 datasources/query.py:577
+#: datasources/query.py:581 datasources/query.py:585
 #, python-format
 msgid "%(fn)s is not allowed on %(column)s."
 msgstr "%(fn)s no se permite en %(column)s."
 
-#: datasources/query.py:595
+#: datasources/query.py:603
 #, python-format
 msgid ""
 "More than %(limit)d %(what)s: add a filter, or group by a column with fewer "
@@ -1198,46 +1265,46 @@ msgstr ""
 "Más de %(limit)d %(what)s: añada un filtro o agrupe por una columna con "
 "menos valores."
 
-#: datasources/query.py:653
+#: datasources/query.py:661
 msgid "groups"
 msgstr "grupos"
 
-#: datasources/query.py:691
+#: datasources/query.py:699
 msgid "\"pivot\" is required."
 msgstr "\"pivot\" es obligatorio."
 
-#: datasources/query.py:727 datasources/query.py:739
+#: datasources/query.py:735 datasources/query.py:747
 msgid "rows"
 msgstr "filas"
 
-#: datasources/query.py:741
+#: datasources/query.py:749
 msgid "columns"
 msgstr "columnas"
 
-#: datasources/query.py:819 datasources/query.py:879
+#: datasources/query.py:827 datasources/query.py:887
 msgid "Empty"
 msgstr "Vacío"
 
-#: datasources/query.py:863
+#: datasources/query.py:871
 #, python-format
 msgid "Cannot facet on %s."
 msgstr "No se puede usar %s como faceta."
 
-#: datasources/query.py:1055
+#: datasources/query.py:1063
 #, python-format
 msgid "unknown keys: %s"
 msgstr "claves desconocidas: %s"
 
-#: datasources/query.py:1106
+#: datasources/query.py:1114
 #, python-format
 msgid "Column %s is listed twice."
 msgstr "La columna %s aparece dos veces."
 
-#: datasources/query.py:1126
+#: datasources/query.py:1134
 msgid "\"pivot\" needs \"rows\" and \"columns\"."
 msgstr "\"pivot\" necesita \"rows\" y \"columns\"."
 
-#: datasources/query.py:1146
+#: datasources/query.py:1154
 #, python-format
 msgid "%r is not a list of CSS classes."
 msgstr "%r no es una lista de clases CSS."
@@ -1386,12 +1453,14 @@ msgstr "Gestión de objetos (tabla CRUD)"
 msgid "%r cannot be a table column"
 msgstr "%r no puede ser una columna de la tabla"
 
-#: designs/data_components.py:533 designs/data_components.py:1059
+#: designs/data_components.py:533 designs/data_components.py:1063
+#: designs/grid.py:289
 #, python-format
 msgid "%(field)r is not a text field of %(model)s"
 msgstr "%(field)r no es un campo de texto de %(model)s"
 
-#: designs/data_components.py:540
+#: designs/data_components.py:540 designs/flow_kanban.py:339
+#: designs/grid.py:296
 #, python-format
 msgid "unknown field %r"
 msgstr "campo desconocido %r"
@@ -1405,11 +1474,12 @@ msgstr ""
 "%s tiene un campo \"id\" que no es su clave primaria: la tabla necesita "
 "\"id\" para la fila"
 
-#: designs/data_components.py:554 designs/data_components.py:1069
+#: designs/data_components.py:554 designs/data_components.py:1073
+#: designs/grid.py:318
 msgid "column"
 msgstr "columna"
 
-#: designs/data_components.py:557
+#: designs/data_components.py:557 designs/grid.py:324
 msgid "action"
 msgstr "acción"
 
@@ -1439,7 +1509,7 @@ msgstr ""
 "indica qué permisos pueden verlo: ni la fuente de datos ni la página tienen "
 "ninguno"
 
-#: designs/data_components.py:752
+#: designs/data_components.py:752 designs/grid.py:355
 msgid "give a \"model\" or a \"datasource\", not both"
 msgstr "indica un \"model\" o un \"datasource\", no los dos"
 
@@ -1479,7 +1549,7 @@ msgstr "%r no es una fecha"
 msgid "Classic CRUD (separate pages)"
 msgstr "CRUD clásico (páginas separadas)"
 
-#: designs/data_components.py:1036
+#: designs/data_components.py:1040
 msgid ""
 "the default form (every field the model exposes) does not work: give a "
 "\"form\""
@@ -1487,35 +1557,35 @@ msgstr ""
 "el formulario por defecto (todos los campos que expone el modelo) no "
 "funciona: indica un \"form\""
 
-#: designs/data_components.py:1072
+#: designs/data_components.py:1076
 msgid "page"
 msgstr "página"
 
-#: designs/data_components.py:1150
+#: designs/data_components.py:1155
 msgid "Facets"
 msgstr "Facetas"
 
-#: designs/data_components.py:1191
+#: designs/data_components.py:1196
 #, python-format
 msgid "%(target)r is not the id of a table (%(types)s) of this page"
 msgstr "%(target)r no es el id de una tabla (%(types)s) de esta página"
 
-#: designs/data_components.py:1205 designs/data_components.py:1236
+#: designs/data_components.py:1210 designs/data_components.py:1241
 #, python-format
 msgid "%r cannot have a facet"
 msgstr "%r no puede tener una faceta"
 
-#: designs/data_components.py:1211 designs/data_components.py:1242
+#: designs/data_components.py:1216 designs/data_components.py:1247
 #: templates/gentelella/cruds/list.html:58
 msgid "Filters"
 msgstr "Filtros"
 
-#: designs/data_components.py:1224
+#: designs/data_components.py:1229
 #, python-format
 msgid "node %r has no data source to filter"
 msgstr "el nodo %r no tiene una fuente de datos que filtrar"
 
-#: designs/data_components.py:1255 designs/data_components.py:1282
+#: designs/data_components.py:1260 designs/data_components.py:1287
 #: templates/gentelella/cruds/detail.html:41
 msgid "Value"
 msgstr "Valor"
@@ -1574,9 +1644,80 @@ msgstr "No existe el objeto padre"
 msgid "unknown facet column"
 msgstr "columna de faceta desconocida"
 
-#: designs/factories.py:1015
+#: designs/factories.py:1016
 msgid "No such object"
 msgstr "No existe el objeto"
+
+#: designs/flow_kanban.py:247
+msgid "Flow kanban (cards by state)"
+msgstr "Kanban de flujo (tarjetas por estado)"
+
+#: designs/flow_kanban.py:285
+msgid "flow_kanban needs djgentelella.flows in INSTALLED_APPS"
+msgstr "flow_kanban necesita djgentelella.flows en INSTALLED_APPS"
+
+#: designs/flow_kanban.py:290
+#, python-format
+msgid "no flow %r (djgentelella.flows)"
+msgstr "no hay un flujo %r (djgentelella.flows)"
+
+#: designs/flow_kanban.py:303
+#, python-format
+msgid "flow %(flow)r has no state %(state)r"
+msgstr "el flujo %(flow)r no tiene el estado %(state)r"
+
+#: designs/flow_kanban.py:306
+#, python-format
+msgid "state %r is repeated"
+msgstr "el estado %r está repetido"
+
+#: designs/flow_kanban.py:311
+#, python-format
+msgid "%(field)r is not a field of %(model)s the design may show"
+msgstr "%(field)r no es un campo de %(model)s que el diseño pueda mostrar"
+
+#: designs/flow_kanban.py:317
+#, python-format
+msgid "%r cannot be shown on a card"
+msgstr "%r no se puede mostrar en una tarjeta"
+
+#: designs/flow_kanban.py:349
+#, python-format
+msgid "%(field)r is not a foreign key of %(model)s to sites.Site"
+msgstr "%(field)r no es una llave foránea de %(model)s a sites.Site"
+
+#: designs/flow_kanban.py:395
+msgid "Which transition?"
+msgstr "¿Qué transición?"
+
+#: designs/flow_kanban.py:396 designs/flow_kanban.py:546
+msgid "The card could not be moved."
+msgstr "No se pudo mover la tarjeta."
+
+#: designs/flow_kanban.py:397
+#, python-format
+msgid "Moved to %(state)s."
+msgstr "Movida a %(state)s."
+
+#: designs/flow_kanban.py:398
+#, python-format
+msgid "Moved, but the flow stopped on an error: %(error)s"
+msgstr "Movida, pero el flujo se detuvo por un error: %(error)s"
+
+#: designs/flow_kanban.py:434 flows/models.py:201 flows/models.py:559
+#: flows/models.py:596 flows/views.py:28 flows/views.py:39 flows/views.py:296
+#: flows/views.py:311 flows/views.py:316
+#: templates/gentelella/flows/detail.html:82
+#: templates/gentelella/flows/inbox.html:40
+#: templates/gentelella/flows/tasks/detail.html:69
+#: templates/gentelella/flows/tasks/detail.html:74
+msgid "Comment"
+msgstr "Comentario"
+
+#: designs/flow_kanban.py:524
+#, python-format
+msgid "No transition goes from %(source)s to %(target)s."
+msgstr "Ninguna transición va de %(source)s a %(target)s."
 
 #: designs/format.py:75
 #, python-format
@@ -1662,6 +1803,151 @@ msgstr ""
 #, python-format
 msgid "%r is not a field of this form"
 msgstr "%r no es un campo de este formulario"
+
+#: designs/grid.py:185
+msgid "Interactive grid (edit rows in place)"
+msgstr "Cuadrícula interactiva (editar filas en el lugar)"
+
+#: designs/grid.py:252 designs/grid.py:275
+msgid "a column is listed twice"
+msgstr "una columna aparece dos veces"
+
+#: designs/grid.py:257
+#, python-format
+msgid "%r cannot be a grid column"
+msgstr "%r no puede ser una columna de la cuadrícula"
+
+#: designs/grid.py:271
+#, python-format
+msgid "%r is not one of the columns"
+msgstr "%r no es una de las columnas"
+
+#: designs/grid.py:273
+#, python-format
+msgid "%r cannot be edited in a grid"
+msgstr "%r no se puede editar en una cuadrícula"
+
+#: designs/grid.py:280
+#, python-format
+msgid "%r is not an editable column"
+msgstr "%r no es una columna editable"
+
+#: designs/grid.py:304
+#, python-format
+msgid ""
+"adding rows needs every required field editable: add %s to \"editable\", or "
+"leave \"create\" out of \"actions\""
+msgstr ""
+"añadir filas necesita que todos los campos obligatorios sean editables: "
+"añade %s a \"editable\" o quita \"create\" de \"actions\""
+
+#: designs/grid.py:313
+#, python-format
+msgid ""
+"%s has a field \"id\" that is not its primary key: the grid needs \"id\" for "
+"the row"
+msgstr ""
+"%s tiene un campo \"id\" que no es su clave primaria: la cuadrícula necesita "
+"\"id\" para la fila"
+
+#: designs/grid.py:321
+msgid "editable column"
+msgstr "columna editable"
+
+#: designs/grid.py:364
+#, python-format
+msgid "data source %r is not over a model: a grid edits the rows of a model"
+msgstr ""
+"la fuente de datos %r no es de un modelo: una cuadrícula edita las filas de "
+"un modelo"
+
+#: designs/grid.py:559
+msgid "The body must be {\"rows\": [...]}, with at least one row."
+msgstr "El cuerpo debe ser {\"rows\": [...]}, con al menos una fila."
+
+#: designs/grid.py:561
+#, python-format
+msgid "Too many rows: at most %d in one save."
+msgstr "Demasiadas filas: como máximo %d en un guardado."
+
+#: designs/grid.py:565
+#, python-format
+msgid "Row %d is not an object."
+msgstr "La fila %d no es un objeto."
+
+#: designs/grid.py:569
+#, python-format
+msgid "Row %d has no valid \"key\"."
+msgstr "La fila %d no tiene una \"key\" válida."
+
+#: designs/grid.py:572
+#, python-format
+msgid "The key %r is used twice."
+msgstr "La clave %r se usa dos veces."
+
+#: designs/grid.py:575
+#, python-format
+msgid "Row %(row)s: \"op\" must be one of %(ops)s."
+msgstr "Fila %(row)s: \"op\" debe ser uno de %(ops)s."
+
+#: designs/grid.py:580
+#, python-format
+msgid "Row %s: a new row has no \"id\"."
+msgstr "Fila %s: una fila nueva no tiene \"id\"."
+
+#: designs/grid.py:582
+#, python-format
+msgid "Row %s needs the \"id\" of the row."
+msgstr "La fila %s necesita el \"id\" de la fila."
+
+#: designs/grid.py:584
+#, python-format
+msgid "The row %s appears twice."
+msgstr "La fila %s aparece dos veces."
+
+#: designs/grid.py:591
+#, python-format
+msgid "Row %s: \"data\" must be an object."
+msgstr "Fila %s: \"data\" debe ser un objeto."
+
+#: designs/grid.py:599
+msgid "You cannot add rows here."
+msgstr "Aquí no puedes añadir filas."
+
+#: designs/grid.py:600
+msgid "You cannot change this row."
+msgstr "No puedes cambiar esta fila."
+
+#: designs/grid.py:601
+msgid "You cannot delete this row."
+msgstr "No puedes eliminar esta fila."
+
+#: designs/grid.py:633
+msgid "The database refused the rows (a duplicate value?). Nothing was saved."
+msgstr ""
+"La base de datos rechazó las filas (¿un valor repetido?). No se guardó nada."
+
+#: designs/grid.py:649 designs/grid.py:684 designs/grid.py:699
+#, python-format
+msgid "You cannot change these columns: %s."
+msgstr "No puedes cambiar estas columnas: %s."
+
+#: designs/grid.py:653
+msgid "This column cannot be edited here."
+msgstr "Esta columna no se puede editar aquí."
+
+#: designs/grid.py:689
+msgid "This row no longer exists, or you can no longer reach it."
+msgstr "Esta fila ya no existe, o ya no tienes acceso a ella."
+
+#: designs/grid.py:727
+msgid "This row has errors."
+msgstr "Esta fila tiene errores."
+
+#: designs/grid.py:806
+#, python-format
+msgid "Nothing was saved: %(failed)d of %(total)d rows have problems."
+msgstr "No se guardó nada: %(failed)d de %(total)d filas tienen problemas."
 
 #: designs/jsonschema.py:61
 #, python-format
@@ -1846,6 +2132,62 @@ msgstr "Acciones"
 msgid "Open"
 msgstr "Abrir"
 
+#: designs/templates/gtdesigns/components/flow_kanban.html:15
+msgid "Cards in this state"
+msgstr "Tarjetas en este estado"
+
+#: designs/templates/gtdesigns/components/flow_kanban.html:19
+msgid "Load more"
+msgstr "Cargar más"
+
+#: designs/templates/gtdesigns/components/flow_kanban_cards.html:8
+msgid "Move to"
+msgstr "Mover a"
+
+#: designs/templates/gtdesigns/components/flow_kanban_form.html:9
+#: templates/gentelella/blocks/modal_template_delete.html:9
+#: templates/gentelella/blocks/modal_template_delete.html:21
+#: templates/gentelella/flows/assign.html:15
+#: templates/gentelella/flows/transition.html:19
+#: templates/gentelella/widgets/calendar.html:77
+#: templates/gentelella/widgets/record_audio.html:7
+#: templates/gentelella/widgets/record_photo.html:9
+#: templates/gentelella/widgets/record_video.html:8
+#: templates/gentelella/widgets/voice_dictation.html:8
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: designs/templates/gtdesigns/components/interactive_grid.html:15
+msgid "Add row"
+msgstr "Añadir fila"
+
+#: designs/templates/gtdesigns/components/interactive_grid.html:17
+#: templates/gentelella/blocks/listcard_template.html:13
+#: templates/gentelella/search/navbar_box.html:14
+#: templates/gentelella/search/navbar_box.html:15
+#: templates/gentelella/search/navbar_box.html:21
+#: templates/gentelella/search/navbar_box.html:23
+#: templates/gentelella/search/results.html:3
+#: templates/gentelella/search/results.html:7
+#: templates/gentelella/search/results.html:15
+#: templates/gentelella/search/results.html:16
+msgid "Search"
+msgstr "Buscar"
+
+#: designs/templates/gtdesigns/components/interactive_grid.html:27
+#: templates/gentelella/cruds/pagination/prev_next.html:8
+#: templates/gentelella/search/results.html:46
+#: templates/gentelella/widgets/digital_signature.html:181
+msgid "Previous"
+msgstr "Anterior"
+
+#: designs/templates/gtdesigns/components/interactive_grid.html:29
+#: templates/gentelella/cruds/pagination/prev_next.html:16
+#: templates/gentelella/search/results.html:47
+#: templates/gentelella/widgets/digital_signature.html:184
+msgid "Next"
+msgstr "Siguiente"
+
 #: designs/templates/gtdesigns/components/no_permission.html:3
 msgid "You do not have permission to see this."
 msgstr "No tiene permiso para ver esto."
@@ -1921,6 +2263,11 @@ msgstr "Ver"
 msgid "No items yet."
 msgstr "Sin elementos."
 
+#: designs/templates/gtdesigns/crud/update.html:9
+#: templates/gentelella/cruds/update.html:26
+msgid "Reload the form with the current data"
+msgstr "Recargar el formulario con los datos actuales"
+
 #: designs/templates/gtdesigns/errors.html:9
 msgid "This design does not resolve, so the page is not served."
 msgstr "Este diseño no se resuelve, así que la página no se sirve."
@@ -1946,7 +2293,7 @@ msgstr "No encontrado."
 msgid "You do not have permission to perform this action."
 msgstr "Usted no tiene permiso para realizar esta acción."
 
-#: fields/files.py:33
+#: fields/files.py:35
 msgid ""
 "A list of elements is expected, ej: [{name: 'name of file', value:'base64 "
 "string representation'}]"
@@ -1954,7 +2301,7 @@ msgstr ""
 "Se espera una lista de elementos, ej: [{name: 'nombre del archivo', "
 "value:'representación en cadena base64'}]"
 
-#: fields/files.py:48
+#: fields/files.py:50
 msgid ""
 "Invalid structure you need to provide {name: 'name of file', value:'base64 "
 "string representation'}"
@@ -2010,11 +2357,11 @@ msgstr ""
 msgid "File does not appear to be a valid PDF."
 msgstr "El archivo no parece ser un PDF válido."
 
-#: firmador_digital/consumers/sign.py:71
+#: firmador_digital/consumers/sign.py:75
 msgid "Invalid request."
 msgstr "Petición inválida."
 
-#: firmador_digital/consumers/sign.py:83
+#: firmador_digital/consumers/sign.py:87
 msgid "An unexpected error occurred."
 msgstr "Ha ocurrido un error inesperado."
 
@@ -2120,6 +2467,10 @@ msgstr "Un error ha ocurrido enviando la petición a los servicios de firmado."
 #: firmador_digital/views.py:21
 msgid "Updated signature settings successfully."
 msgstr "Configuración de firma actualizada correctamente."
+
+#: firmador_digital/viewsets.py:79
+msgid "File not found"
+msgstr "Archivo no encontrado"
 
 #: flows/actions.py:151
 #, python-format
@@ -2396,15 +2747,6 @@ msgstr "Usuario"
 #: flows/models.py:200
 msgid "Kind"
 msgstr "Tipo"
-
-#: flows/models.py:201 flows/models.py:559 flows/models.py:596
-#: flows/views.py:28 flows/views.py:39 flows/views.py:296 flows/views.py:311
-#: flows/views.py:316 templates/gentelella/flows/detail.html:82
-#: templates/gentelella/flows/inbox.html:40
-#: templates/gentelella/flows/tasks/detail.html:69
-#: templates/gentelella/flows/tasks/detail.html:74
-msgid "Comment"
-msgstr "Comentario"
 
 #: flows/models.py:202 flows/models.py:290 models.py:285
 msgid "Data"
@@ -2914,6 +3256,31 @@ msgstr "Relaciones de papelera"
 msgid "This is a html email, please use a visor with HTML support"
 msgstr "Este es un correo HTML, por favor use un cliente con soporte HTML"
 
+#: objectmanagement.py:138
+#, python-format
+msgid "No %(parameter)s given for the inline objects"
+msgstr "No se indicó %(parameter)s para los objetos en línea"
+
+#: serializers/calendar.py:17
+msgid "Serializer data is not accepted."
+msgstr "No se aceptan los datos del serializador."
+
+#: serializers/calendar.py:19
+msgid "Empty event parameter."
+msgstr "El parámetro de eventos está vacío."
+
+#: serializers/calendar.py:78 serializers/calendar.py:82
+msgid "Event end date must occur after start date"
+msgstr "La fecha de fin del evento debe ser posterior a la de inicio"
+
+#: serializers/firmador_digital.py:42
+msgid "Invalid encode value"
+msgstr "Valor codificado inválido"
+
+#: serializers/firmador_digital.py:45
+msgid "The document is not available."
+msgstr "El documento no está disponible."
+
 #: settings.py:13
 msgid "You have a new notification"
 msgstr "Usted tiene una nueva notificación"
@@ -2994,10 +3361,6 @@ msgstr "Agregar Permisos"
 msgid "Breadcrumb"
 msgstr "Ruta de navegación"
 
-#: templates/gentelella/blocks/listcard_template.html:13
-msgid "Search"
-msgstr "Buscar"
-
 #: templates/gentelella/blocks/listcard_template.html:17
 msgid "Clean"
 msgstr "Limpiar filtros"
@@ -3005,18 +3368,6 @@ msgstr "Limpiar filtros"
 #: templates/gentelella/blocks/modal_template_delete.html:8
 msgid "Confirmation for delete. Are you sure?"
 msgstr "Confirmación de borrado, ¿está seguro?"
-
-#: templates/gentelella/blocks/modal_template_delete.html:9
-#: templates/gentelella/blocks/modal_template_delete.html:21
-#: templates/gentelella/flows/assign.html:15
-#: templates/gentelella/flows/transition.html:19
-#: templates/gentelella/widgets/calendar.html:77
-#: templates/gentelella/widgets/record_audio.html:7
-#: templates/gentelella/widgets/record_photo.html:9
-#: templates/gentelella/widgets/record_video.html:8
-#: templates/gentelella/widgets/voice_dictation.html:8
-msgid "Cancel"
-msgstr "Cancelar"
 
 #: templates/gentelella/blocks/modal_template_delete.html:22
 msgid "Confirm"
@@ -3088,24 +3439,10 @@ msgstr "Filtro"
 msgid "Clean filter"
 msgstr "Limpiar filtros"
 
-#: templates/gentelella/cruds/pagination/prev_next.html:8
-#: templates/gentelella/widgets/digital_signature.html:181
-msgid "Previous"
-msgstr "Anterior"
-
 #: templates/gentelella/cruds/pagination/prev_next.html:12
 #: templates/gentelella/datasources/export_pdf.html:61
 msgid "of"
 msgstr "de"
-
-#: templates/gentelella/cruds/pagination/prev_next.html:16
-#: templates/gentelella/widgets/digital_signature.html:184
-msgid "Next"
-msgstr "Siguiente"
-
-#: templates/gentelella/cruds/update.html:26
-msgid "Reload the form with the current data"
-msgstr "Recargar el formulario con los datos actuales"
 
 #: templates/gentelella/datasources/export_pdf.html:37
 #, python-format
@@ -3539,6 +3876,35 @@ msgid "You updated correctly your password please login again."
 msgstr ""
 "Actualizó su contraseña correctamente, por favor inicie sesión de nuevo."
 
+#: templates/gentelella/search/navbar_box.html:27
+msgid "No results"
+msgstr "Sin resultados"
+
+#: templates/gentelella/search/navbar_box.html:28
+#: templates/gentelella/search/results.html:39
+msgid "See more"
+msgstr "Ver más"
+
+#: templates/gentelella/search/results.html:20
+msgid "Every group"
+msgstr "Todos los grupos"
+
+#: templates/gentelella/search/results.html:23
+#, python-format
+msgid "Write at least %(n)s character."
+msgid_plural "Write at least %(n)s characters."
+msgstr[0] "Escriba al menos %(n)s carácter."
+msgstr[1] "Escriba al menos %(n)s caracteres."
+
+#: templates/gentelella/search/results.html:25
+#, python-format
+msgid "Nothing found for \"%(query)s\"."
+msgstr "No se encontró nada para «%(query)s»."
+
+#: templates/gentelella/search/results.html:44
+msgid "Pages"
+msgstr "Páginas"
+
 #: templates/gentelella/statics/javascript.html:119
 msgid "Select an User"
 msgstr "Seleccione a un Usuario"
@@ -3859,6 +4225,11 @@ msgstr "page debe ser un entero."
 msgid "page must be between 1 and %(max)d."
 msgstr "page debe estar entre 1 y %(max)d."
 
+#: views/flags.py:88
+#, python-format
+msgid "Unknown flag %(code)r"
+msgstr "Bandera desconocida %(code)r"
+
 #: widgets/core.py:746
 msgid "Unknown"
 msgstr "Desconocido"
@@ -3884,346 +4255,3 @@ msgstr "%(name)s disponibles"
 #, python-format
 msgid "Chosen %(name)s"
 msgstr "%(name)s elegidos"
-
-#: firmador_digital/viewsets.py:79
-msgid "File not found"
-msgstr "Archivo no encontrado"
-
-#: serializers/firmador_digital.py:42
-msgid "Invalid encode value"
-msgstr "Valor codificado inválido"
-
-#: serializers/firmador_digital.py:45
-msgid "The document is not available."
-msgstr "El documento no está disponible."
-
-#: async_notification/views.py
-msgid "File too large"
-msgstr "Archivo demasiado grande"
-
-#: async_notification/views.py
-msgid "Unsupported file type"
-msgstr "Tipo de archivo no admitido"
-
-#: async_notification/views.py
-#, python-format
-msgid "Status: %(status)s"
-msgstr "Estado: %(status)s"
-
-#: async_notification/views.py
-msgid "Already sent"
-msgstr "Ya se envió"
-
-#: async_notification/views.py
-msgid "No notifications selected"
-msgstr "No se seleccionó ninguna notificación"
-
-#: async_notification/views.py
-#, python-format
-msgid "%(count)d notification processed"
-msgid_plural "%(count)d notifications processed"
-msgstr[0] "%(count)d notificación procesada"
-msgstr[1] "%(count)d notificaciones procesadas"
-
-#: async_notification/views.py
-#, python-format
-msgid "Task already %(status)s"
-msgstr "La tarea ya está en estado %(status)s"
-
-#: async_notification/views.py
-msgid "code parameter required"
-msgstr "El parámetro code es obligatorio"
-
-#: async_notification/views.py
-msgid "Unknown context code"
-msgstr "Código de contexto desconocido"
-
-#: async_notification/views.py
-msgid "POST required"
-msgstr "Se requiere POST"
-
-#: async_notification/views.py
-msgid "No file provided"
-msgstr "No se envió ningún archivo"
-
-#: async_notification/views.py
-msgid "upload_session, object_id, and content_type required"
-msgstr "upload_session, object_id y content_type son obligatorios"
-
-#: async_notification/views.py
-msgid "Invalid content_type"
-msgstr "content_type inválido"
-
-#: async_notification/views.py
-msgid "Object not found"
-msgstr "Objeto no encontrado"
-
-#: serializers/calendar.py
-msgid "Serializer data is not accepted."
-msgstr "No se aceptan los datos del serializador."
-
-#: serializers/calendar.py
-msgid "Empty event parameter."
-msgstr "El parámetro de eventos está vacío."
-
-#: serializers/calendar.py
-msgid "Event end date must occur after start date"
-msgstr "La fecha de fin del evento debe ser posterior a la de inicio"
-
-#: views/flags.py
-#, python-format
-msgid "Unknown flag %(code)r"
-msgstr "Bandera desconocida %(code)r"
-
-#: objectmanagement.py
-#, python-format
-msgid "No %(parameter)s given for the inline objects"
-msgstr "No se indicó %(parameter)s para los objetos en línea"
-#: designs/grid.py
-msgid "Interactive grid (edit rows in place)"
-msgstr "Cuadrícula interactiva (editar filas en el lugar)"
-
-#: designs/grid.py
-#, python-format
-msgid "data source %r is not over a model: a grid edits the rows of a model"
-msgstr ""
-"la fuente de datos %r no es de un modelo: una cuadrícula edita las filas de "
-"un modelo"
-
-#: designs/grid.py
-msgid "a column is listed twice"
-msgstr "una columna aparece dos veces"
-
-#: designs/grid.py
-#, python-format
-msgid "%r cannot be a grid column"
-msgstr "%r no puede ser una columna de la cuadrícula"
-
-#: designs/grid.py
-#, python-format
-msgid "%r is not one of the columns"
-msgstr "%r no es una de las columnas"
-
-#: designs/grid.py
-#, python-format
-msgid "%r cannot be edited in a grid"
-msgstr "%r no se puede editar en una cuadrícula"
-
-#: designs/grid.py
-#, python-format
-msgid "%r is not an editable column"
-msgstr "%r no es una columna editable"
-
-#: designs/grid.py
-#, python-format
-msgid ""
-"adding rows needs every required field editable: add %s to \"editable\", or "
-"leave \"create\" out of \"actions\""
-msgstr ""
-"añadir filas necesita que todos los campos obligatorios sean editables: "
-"añade %s a \"editable\" o quita \"create\" de \"actions\""
-
-#: designs/grid.py
-#, python-format
-msgid ""
-"%s has a field \"id\" that is not its primary key: the grid needs \"id\" for "
-"the row"
-msgstr ""
-"%s tiene un campo \"id\" que no es su clave primaria: la cuadrícula necesita "
-"\"id\" para la fila"
-
-#: designs/grid.py
-msgid "editable column"
-msgstr "columna editable"
-
-#: designs/grid.py
-msgid "The database refused the rows (a duplicate value?). Nothing was saved."
-msgstr ""
-"La base de datos rechazó las filas (¿un valor repetido?). No se guardó nada."
-
-#: designs/grid.py
-#, python-format
-msgid "You cannot change these columns: %s."
-msgstr "No puedes cambiar estas columnas: %s."
-
-#: designs/grid.py
-msgid "This column cannot be edited here."
-msgstr "Esta columna no se puede editar aquí."
-
-#: designs/grid.py
-msgid "This row no longer exists, or you can no longer reach it."
-msgstr "Esta fila ya no existe, o ya no tienes acceso a ella."
-
-#: designs/grid.py
-msgid "This row has errors."
-msgstr "Esta fila tiene errores."
-
-#: designs/grid.py
-#, python-format
-msgid "Nothing was saved: %(failed)d of %(total)d rows have problems."
-msgstr "No se guardó nada: %(failed)d de %(total)d filas tienen problemas."
-
-#: designs/grid.py
-msgid "The body must be {\"rows\": [...]}, with at least one row."
-msgstr "El cuerpo debe ser {\"rows\": [...]}, con al menos una fila."
-
-#: designs/grid.py
-#, python-format
-msgid "Too many rows: at most %d in one save."
-msgstr "Demasiadas filas: como máximo %d en un guardado."
-
-#: designs/grid.py
-#, python-format
-msgid "Row %d is not an object."
-msgstr "La fila %d no es un objeto."
-
-#: designs/grid.py
-#, python-format
-msgid "Row %d has no valid \"key\"."
-msgstr "La fila %d no tiene una \"key\" válida."
-
-#: designs/grid.py
-#, python-format
-msgid "The key %r is used twice."
-msgstr "La clave %r se usa dos veces."
-
-#: designs/grid.py
-#, python-format
-msgid "Row %(row)s: \"op\" must be one of %(ops)s."
-msgstr "Fila %(row)s: \"op\" debe ser uno de %(ops)s."
-
-#: designs/grid.py
-#, python-format
-msgid "Row %s: a new row has no \"id\"."
-msgstr "Fila %s: una fila nueva no tiene \"id\"."
-
-#: designs/grid.py
-#, python-format
-msgid "Row %s needs the \"id\" of the row."
-msgstr "La fila %s necesita el \"id\" de la fila."
-
-#: designs/grid.py
-#, python-format
-msgid "The row %s appears twice."
-msgstr "La fila %s aparece dos veces."
-
-#: designs/grid.py
-#, python-format
-msgid "Row %s: \"data\" must be an object."
-msgstr "Fila %s: \"data\" debe ser un objeto."
-
-#: designs/grid.py
-msgid "You cannot add rows here."
-msgstr "Aquí no puedes añadir filas."
-
-#: designs/grid.py
-msgid "You cannot change this row."
-msgstr "No puedes cambiar esta fila."
-
-#: designs/grid.py
-msgid "You cannot delete this row."
-msgstr "No puedes eliminar esta fila."
-
-#: designs/templates/gtdesigns/components/interactive_grid.html
-msgid "Add row"
-msgstr "Añadir fila"
-#: designs/flow_kanban.py
-msgid "Flow kanban (cards by state)"
-msgstr "Kanban de flujo (tarjetas por estado)"
-
-#: designs/flow_kanban.py
-msgid "flow_kanban needs djgentelella.flows in INSTALLED_APPS"
-msgstr "flow_kanban necesita djgentelella.flows en INSTALLED_APPS"
-
-#: designs/flow_kanban.py
-#, python-format
-msgid "no flow %r (djgentelella.flows)"
-msgstr "no hay un flujo %r (djgentelella.flows)"
-
-#: designs/flow_kanban.py
-#, python-format
-msgid "flow %(flow)r has no state %(state)r"
-msgstr "el flujo %(flow)r no tiene el estado %(state)r"
-
-#: designs/flow_kanban.py
-#, python-format
-msgid "state %r is repeated"
-msgstr "el estado %r está repetido"
-
-#: designs/flow_kanban.py
-#, python-format
-msgid "%(field)r is not a field of %(model)s the design may show"
-msgstr "%(field)r no es un campo de %(model)s que el diseño pueda mostrar"
-
-#: designs/flow_kanban.py
-#, python-format
-msgid "%r cannot be shown on a card"
-msgstr "%r no se puede mostrar en una tarjeta"
-
-#: designs/flow_kanban.py
-#, python-format
-msgid "%(field)r is not a foreign key of %(model)s to sites.Site"
-msgstr "%(field)r no es una llave foránea de %(model)s a sites.Site"
-
-#: designs/flow_kanban.py
-msgid "Which transition?"
-msgstr "¿Qué transición?"
-
-#: designs/flow_kanban.py
-msgid "The card could not be moved."
-msgstr "No se pudo mover la tarjeta."
-
-#: designs/flow_kanban.py
-#, python-format
-msgid "Moved to %(state)s."
-msgstr "Movida a %(state)s."
-
-#: designs/flow_kanban.py
-#, python-format
-msgid "Moved, but the flow stopped on an error: %(error)s"
-msgstr "Movida, pero el flujo se detuvo por un error: %(error)s"
-
-#: designs/flow_kanban.py
-#, python-format
-msgid "No transition goes from %(source)s to %(target)s."
-msgstr "Ninguna transición va de %(source)s a %(target)s."
-
-#: designs/templates/gtdesigns/components/flow_kanban.html
-msgid "Cards in this state"
-msgstr "Tarjetas en este estado"
-
-#: designs/templates/gtdesigns/components/flow_kanban.html
-msgid "Load more"
-msgstr "Cargar más"
-
-#: designs/templates/gtdesigns/components/flow_kanban_cards.html
-msgid "Move to"
-msgstr "Mover a"
-#: templates/gentelella/search/navbar_box.html:20
-msgid "No results"
-msgstr "Sin resultados"
-
-#: templates/gentelella/search/navbar_box.html:21
-#: templates/gentelella/search/results.html:42
-msgid "See more"
-msgstr "Ver más"
-
-#: templates/gentelella/search/results.html:20
-msgid "Every group"
-msgstr "Todos los grupos"
-
-#: templates/gentelella/search/results.html:23
-#, python-format
-msgid "Write at least %(n)s character."
-msgid_plural "Write at least %(n)s characters."
-msgstr[0] "Escriba al menos %(n)s carácter."
-msgstr[1] "Escriba al menos %(n)s caracteres."
-
-#: templates/gentelella/search/results.html:25
-#, python-format
-msgid "Nothing found for \"%(query)s\"."
-msgstr "No se encontró nada para «%(query)s»."
-
-#: templates/gentelella/search/results.html:48
-msgid "Pages"
-msgstr "Páginas"
