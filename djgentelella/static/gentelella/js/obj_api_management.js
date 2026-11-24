@@ -61,6 +61,12 @@ function GTBaseFormModal(modal_id, datatable_element, form_config) {
         "type": config.type,
         "btn_class": config.btn_class,
         "parentdiv": config.parentdiv,
+        // Optimistic locking (djgentelella.locking): the version of the
+        // object the form was filled with, sent back as `_version`, and how
+        // to fill the form again with the current data after a conflict.
+        // Both stay null unless the server sends a version.
+        "version": null,
+        "reload_values": null,
         "init": function () {
             var myModalEl = this.instance[0];
             myModalEl.addEventListener('hidden.bs.modal', this.hide_modalevent(this))
@@ -71,8 +77,12 @@ function GTBaseFormModal(modal_id, datatable_element, form_config) {
         },
         "add_btn_form": function (instance) {
             return function (event) {
+                let extras = instance.config.events.form_submit(instance);
+                if (instance.version !== null && instance.version !== undefined) {
+                    extras = Object.assign({}, extras, {'_version': instance.version});
+                }
                 convertToStringJson(instance.form, prefix = instance.prefix,
-                    extras = instance.config.events.form_submit(instance)).then((result) => {
+                    extras = extras).then((result) => {
                     fetch(instance.url, {
                             method: instance.type,
                             body: result,
@@ -108,12 +118,38 @@ function GTBaseFormModal(modal_id, datatable_element, form_config) {
             Swal.fire({icon: 'error', title: gettext('Error'), text: message});
         },
         "error": function (instance, errors) {
+            if (errors && (errors.code === 'version_conflict' || errors.code === 'version_required')) {
+                instance.version_conflict(instance, errors);
+                return;
+            }
             instance.config.events.error_form(errors)
             if (errors.hasOwnProperty('detail') && Object.keys(errors).length == 1) {
                 Swal.fire({icon: 'error', title: gettext('Error'), text: errors.detail});
             }
             instance.form.find('ul.form_errors').remove();
             form_field_errors(instance.form, errors, instance.prefix, instance.parentdiv);
+        },
+        "version_conflict": function (instance, errors) {
+            // Somebody else saved the object after the form was filled: say
+            // so and offer to fill the form again with the current data,
+            // without closing the modal (the user may copy what they typed).
+            let options = {
+                icon: 'warning',
+                title: gettext('This record has changed'),
+                text: errors.detail
+            };
+            if (instance.reload_values !== null) {
+                Object.assign(options, {
+                    showCancelButton: true,
+                    confirmButtonText: gettext('Reload the form with the current data'),
+                    cancelButtonText: gettext('Keep my changes on screen')
+                });
+            }
+            Swal.fire(options).then((result) => {
+                if (result.isConfirmed && instance.reload_values !== null) {
+                    instance.reload_values();
+                }
+            });
         },
         "handle_error": function (instance, error) {
             Swal.fire({icon: 'error', title: gettext('Error'), text: error.message});
@@ -124,6 +160,8 @@ function GTBaseFormModal(modal_id, datatable_element, form_config) {
         "hide_modalevent": function (instance) {
             return function (event) {
                 clear_action_form(instance.form);
+                instance.version = null;
+                instance.reload_values = null;
                 instance.hide_modal();
             }
         },
@@ -661,6 +699,19 @@ function ObjectCRUD(uniqueid, objconfig = {}) {
         "update_value_success": function (instance, element) {
             return function (data) {
                 data = instance.config.events.update_data(data);
+                let form = instance.update_form;
+                if (data && data._version !== undefined) {
+                    // Filling the form again after a conflict: from scratch.
+                    if (form.version !== null) {
+                        clear_action_form(form.form);
+                        form.form.find('a.file-link').remove();
+                    }
+                    form.version = data._version;
+                    form.reload_values = function () {
+                        instance.update(element);
+                    };
+                    delete data._version;
+                }
                 instance.update_form.fill_form(data);
                 instance.update_form.url = instance.base_update_url.replace('/0/', '/' + data.id + '/');
                 instance.update_form.show_modal();

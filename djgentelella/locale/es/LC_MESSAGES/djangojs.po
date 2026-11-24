@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-31 08:29-0600\n"
+"POT-Creation-Date: 2026-11-24 09:26-0600\n"
 "PO-Revision-Date: 2026-10-29 12:00-0600\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -98,7 +98,7 @@ msgstr "Usuario"
 #: async_notification/templates/async_notification/newsletter_template.html:78
 #: static/gentelella/js/designs/data_components.js:104
 #: static/gentelella/js/designs/data_components.js:158
-#: static/gentelella/js/obj_api_management.js:398
+#: static/gentelella/js/obj_api_management.js:436
 msgid "Actions"
 msgstr "Acciones"
 
@@ -123,8 +123,8 @@ msgstr "No hay notificaciones seleccionadas"
 #: async_notification/templates/async_notification/newsletter_task.html:113
 #: static/gentelella/js/base/digital_signature.js:964
 #: static/gentelella/js/base/digital_signature.js:1015
-#: static/gentelella/js/obj_api_management.js:99
-#: static/gentelella/js/obj_api_management.js:504
+#: static/gentelella/js/obj_api_management.js:109
+#: static/gentelella/js/obj_api_management.js:542
 msgid "Success"
 msgstr "Éxito"
 
@@ -168,13 +168,13 @@ msgstr "Aceptar"
 #: static/gentelella/js/base/digital_signature.js:851
 #: static/gentelella/js/base/digital_signature.js:935
 #: static/gentelella/js/base/digital_signature.js:939
-#: static/gentelella/js/obj_api_management.js:108
-#: static/gentelella/js/obj_api_management.js:113
-#: static/gentelella/js/obj_api_management.js:119
-#: static/gentelella/js/obj_api_management.js:375
-#: static/gentelella/js/obj_api_management.js:378
-#: static/gentelella/js/obj_api_management.js:733
-#: static/gentelella/js/obj_api_management.js:737
+#: static/gentelella/js/obj_api_management.js:118
+#: static/gentelella/js/obj_api_management.js:127
+#: static/gentelella/js/obj_api_management.js:155
+#: static/gentelella/js/obj_api_management.js:413
+#: static/gentelella/js/obj_api_management.js:416
+#: static/gentelella/js/obj_api_management.js:784
+#: static/gentelella/js/obj_api_management.js:788
 msgid "Error"
 msgstr "Error"
 
@@ -500,7 +500,7 @@ msgstr "Exportar"
 
 #: static/gentelella/js/base/gt_facets.js:483
 #: static/gentelella/js/datatables.js:245
-#: static/gentelella/js/obj_api_management.js:540
+#: static/gentelella/js/obj_api_management.js:578
 msgid "Clear Filters"
 msgstr "Limpiar filtros"
 
@@ -697,27 +697,39 @@ msgstr "Descargar"
 msgid "Id"
 msgstr "Id"
 
-#: static/gentelella/js/obj_api_management.js:417
+#: static/gentelella/js/obj_api_management.js:138
+msgid "This record has changed"
+msgstr "Este registro cambió"
+
+#: static/gentelella/js/obj_api_management.js:144
+msgid "Reload the form with the current data"
+msgstr "Recargar el formulario con los datos actuales"
+
+#: static/gentelella/js/obj_api_management.js:145
+msgid "Keep my changes on screen"
+msgstr "Mantener mis cambios en pantalla"
+
+#: static/gentelella/js/obj_api_management.js:455
 msgid "This Object"
 msgstr "Este objeto"
 
-#: static/gentelella/js/obj_api_management.js:530
+#: static/gentelella/js/obj_api_management.js:568
 msgid "Create"
 msgstr "Crear"
 
-#: static/gentelella/js/obj_api_management.js:552
+#: static/gentelella/js/obj_api_management.js:590
 msgid "Detail"
 msgstr "Detalles"
 
-#: static/gentelella/js/obj_api_management.js:563
+#: static/gentelella/js/obj_api_management.js:601
 msgid "Update"
 msgstr "Actualizar"
 
-#: static/gentelella/js/obj_api_management.js:574
+#: static/gentelella/js/obj_api_management.js:612
 msgid "Delete"
 msgstr "Eliminar"
 
-#: static/gentelella/js/obj_api_management.js:743
+#: static/gentelella/js/obj_api_management.js:794
 msgid ""
 "There was a problem performing your request. Please try again later or "
 "contact the administrator."

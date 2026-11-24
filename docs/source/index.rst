@@ -62,6 +62,7 @@ Django Gentelella Widgets (``djgentelella``) is a reusable Django application th
    drf_serializers
    sites
    authorization
+   locking
 
 .. toctree::
    :maxdepth: 1

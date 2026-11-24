@@ -126,6 +126,24 @@ the suite of djgentelella-editor (``main``) and of djodo (only when the
 repository variable ``DJODO_GIT`` is set) against the djgentelella of the
 commit.
 
+**Optimistic locking** (``djgentelella.locking``, off by default): the second
+of two users saving the same object gets a clear, translated error -- with
+who changed it last and when, if the history knows -- instead of silently
+overwriting the first one. ``object_version(obj)`` is the value of the field
+``GTLockMeta.version_field`` declares, or a keyed checksum of the editable
+fields (many-to-many left out, files by their name).
+``OptimisticLockFormMixin`` adds a hidden ``_version`` to a ``ModelForm`` and
+checks it in ``clean()`` with the row locked by ``select_for_update()``;
+``CRUDView.optimistic_lock = True`` uses it in the update view, inside one
+transaction. ``OptimisticLockMixin`` gives a DRF viewset an ``ETag`` on the
+detail and takes ``If-Match`` or ``_version`` on ``PUT``/``PATCH``: 409 with
+the current version when it changed, 428 when ``optimistic_lock_required``
+and none was sent; conditions (403) come first and validation (400) last.
+The ``object_management`` design component takes the prop
+``optimistic_lock``, and its update modal sends the version it read and, on
+a 409, offers to reload the form with the current data without closing. See
+``docs/source/locking.rst``.
+
 Backwards incompatible
 """"""""""""""""""""""""
 

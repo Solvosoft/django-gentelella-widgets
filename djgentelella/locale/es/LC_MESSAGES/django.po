@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-31 08:28-0600\n"
+"POT-Creation-Date: 2026-11-24 09:26-0600\n"
 "PO-Revision-Date: 2026-10-29 12:00-0600\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -50,6 +50,161 @@ msgstr "Acción"
 msgid "History"
 msgstr "Historial"
 
+#: alerts/models.py:48
+msgid "Informative"
+msgstr "Informativa"
+
+#: alerts/models.py:49
+msgid "Medium"
+msgstr "Media"
+
+#: alerts/models.py:50
+msgid "Critical"
+msgstr "Crítica"
+
+#: alerts/models.py:60 flows/models.py:42 models.py:211
+#: templates/admin/djgentelella/gentelellasettings/flags.html:51
+msgid "Name"
+msgstr "Nombre"
+
+#: alerts/models.py:62
+msgid "Process"
+msgstr "Proceso"
+
+#: alerts/models.py:63
+msgid "Trigger"
+msgstr "Disparador"
+
+#: alerts/models.py:65
+msgid "Threshold"
+msgstr "Umbral"
+
+#: alerts/models.py:67 alerts/models.py:146
+msgid "Level"
+msgstr "Nivel"
+
+#: alerts/models.py:69
+msgid "Email template"
+msgstr "Plantilla de correo"
+
+#: alerts/models.py:70
+msgid "Empty uses the template of the process."
+msgstr "Vacío usa la plantilla del proceso."
+
+#: alerts/models.py:71
+msgid "Is active"
+msgstr "Activa"
+
+#: alerts/models.py:74
+msgid "Created by"
+msgstr "Creado por"
+
+#: alerts/models.py:79
+msgid "Alert rule"
+msgstr "Regla de alerta"
+
+#: alerts/models.py:80
+msgid "Alert rules"
+msgstr "Reglas de alerta"
+
+#: alerts/models.py:123
+msgid "Unknown process."
+msgstr "Proceso desconocido."
+
+#: alerts/models.py:126
+msgid "This process does not use that trigger."
+msgstr "Este proceso no usa ese disparador."
+
+#: alerts/models.py:144 async_notification/models.py:65
+#: async_notification/models.py:105 async_notification/models.py:211
+#: async_notification/models.py:241
+msgid "Message"
+msgstr "Mensaje"
+
+#: alerts/models.py:148 models.py:188
+#: templates/gentelella/menu/notification_list.html:43
+msgid "Link"
+msgstr "Enlace"
+
+#: alerts/models.py:150 async_notification/admin.py:78
+#: async_notification/models.py:108 async_notification/models.py:244
+#: async_notification/templates/async_notification/_newsletter_modal.html:34
+msgid "Recipients"
+msgstr "Destinatarios"
+
+#: alerts/models.py:152 flows/variables.py:100
+msgid "Date"
+msgstr "Fecha"
+
+#: alerts/models.py:158
+msgid "Resolved at"
+msgstr "Resuelta el"
+
+#: alerts/models.py:161
+msgid "Resolved by"
+msgstr "Resuelta por"
+
+#: alerts/models.py:172
+msgid "Alert event"
+msgstr "Evento de alerta"
+
+#: alerts/models.py:173
+msgid "Alert events"
+msgstr "Eventos de alerta"
+
+#: alerts/triggers.py:51
+msgid "Enter a number."
+msgstr "Ingrese un número."
+
+#: alerts/triggers.py:54
+#, python-format
+msgid "Ensure this value is greater than or equal to %(min)s."
+msgstr "Asegúrese de que este valor sea mayor o igual a %(min)s."
+
+#: alerts/triggers.py:92
+msgid "Unknown trigger."
+msgstr "Disparador desconocido."
+
+#: alerts/triggers.py:113
+msgid "This field is required."
+msgstr "Este campo es obligatorio."
+
+#: alerts/triggers.py:169
+msgid "Absolute threshold"
+msgstr "Umbral absoluto"
+
+#: alerts/triggers.py:170
+msgid "Maximum value"
+msgstr "Valor máximo"
+
+#: alerts/triggers.py:172
+msgid "Percentage variation"
+msgstr "Variación porcentual"
+
+#: alerts/triggers.py:173
+msgid "Percentage over the average"
+msgstr "Porcentaje sobre el promedio"
+
+#: alerts/triggers.py:176
+msgid "No records"
+msgstr "Sin registros"
+
+#: alerts/triggers.py:177
+msgid "Periods without records"
+msgstr "Períodos sin registros"
+
+#: alerts/triggers.py:179
+msgid "Due date"
+msgstr "Fecha de vencimiento"
+
+#: alerts/triggers.py:180
+msgid "Days before the due date"
+msgstr "Días antes del vencimiento"
+
+#: alerts/triggers.py:183
+msgid "Repeat every (days) while overdue, 0 never"
+msgstr "Repetir cada (días) mientras esté vencido, 0 nunca"
+
 #: async_notification/admin.py:32
 msgid "Send selected emails now"
 msgstr "Enviar los correos seleccionados ahora"
@@ -58,12 +213,6 @@ msgstr "Enviar los correos seleccionados ahora"
 #, python-format
 msgid "%(n)d email(s) sent."
 msgstr "%(n)d correo(s) enviado(s)."
-
-#: async_notification/admin.py:78 async_notification/models.py:108
-#: async_notification/models.py:244
-#: async_notification/templates/async_notification/_newsletter_modal.html:34
-msgid "Recipients"
-msgstr "Destinatarios"
 
 #: async_notification/admin.py:84
 msgid "Send selected newsletters now"
@@ -120,11 +269,6 @@ msgstr "Identificador único para esta plantilla"
 #: async_notification/templates/async_notification/email_template.html:135
 msgid "Subject"
 msgstr "Asunto"
-
-#: async_notification/models.py:65 async_notification/models.py:105
-#: async_notification/models.py:211 async_notification/models.py:241
-msgid "Message"
-msgstr "Mensaje"
 
 #: async_notification/models.py:66
 msgid "HTML content with Django template syntax"
@@ -296,7 +440,7 @@ msgstr "Notificaciones de correo"
 msgid "Content Type"
 msgstr "Tipo de contenido"
 
-#: async_notification/models.py:181 models.py:264 models.py:311 models.py:388
+#: async_notification/models.py:181 models.py:282 models.py:329 models.py:406
 msgid "Object ID"
 msgstr "ID del objeto"
 
@@ -488,8 +632,8 @@ msgstr "No se encontraron resultados."
 #: templates/gentelella/blocks/permissions_management.html:36
 #: templates/gentelella/menu/palette_modal.html:27
 #: templates/gentelella/menu/palette_modal.html:51
-#: templates/gentelella/widgets/addselect.html:22
-#: templates/gentelella/widgets/addtreeselect.html:25
+#: templates/gentelella/widgets/addselect.html:26
+#: templates/gentelella/widgets/addtreeselect.html:29
 #: templates/gentelella/widgets/calendar.html:44
 #: templates/gentelella/widgets/calendar.html:90
 #: templates/gentelella/widgets/calendar.html:132
@@ -692,78 +836,78 @@ msgstr ""
 msgid "Yes, unsubscribe me"
 msgstr "Sí, cancelar mi suscripción"
 
-#: authorization.py:425
+#: authorization.py:415
 #, python-format
 msgid "conditions nest at most %d levels"
 msgstr "las condiciones se anidan como mucho %d niveles"
 
-#: authorization.py:428
+#: authorization.py:418
 #, python-format
 msgid "a condition must be an object, not %s"
 msgstr "una condición debe ser un objeto, no %s"
 
-#: authorization.py:434
+#: authorization.py:424
 msgid "empty condition"
 msgstr "condición vacía"
 
-#: authorization.py:436
+#: authorization.py:426
 #, python-format
 msgid "a condition has exactly one of %(nodes)s; got %(keys)s"
 msgstr "una condición tiene exactamente una de %(nodes)s; tiene %(keys)s"
 
-#: authorization.py:442
+#: authorization.py:432
 #, python-format
 msgid "unexpected key(s) in a %(kind)r condition: %(keys)s"
 msgstr "clave(s) inesperada(s) en una condición %(kind)r: %(keys)s"
 
-#: authorization.py:449
+#: authorization.py:439
 msgid "must be a list of conditions"
 msgstr "debe ser una lista de condiciones"
 
-#: authorization.py:458
+#: authorization.py:448
 msgid "must be \"app.codename\" or a non-empty list of them"
 msgstr "debe ser \"app.codename\" o una lista no vacía de ellos"
 
-#: authorization.py:463
+#: authorization.py:453
 #, python-format
 msgid "%r is not an \"app.codename\" permission"
 msgstr "%r no es un permiso \"app.codename\""
 
-#: authorization.py:467
+#: authorization.py:457
 msgid "must be a group name or a non-empty list of them"
 msgstr "debe ser el nombre de un grupo o una lista no vacía de ellos"
 
-#: authorization.py:471
+#: authorization.py:461
 msgid "must be the name of an authorization"
 msgstr "debe ser el nombre de una autorización"
 
-#: authorization.py:473
+#: authorization.py:463
 #, python-format
 msgid "unknown authorization %r"
 msgstr "autorización desconocida %r"
 
-#: authorization.py:476
+#: authorization.py:466
 msgid "must be a flag name"
 msgstr "debe ser el nombre de un flag"
 
-#: authorization.py:479
+#: authorization.py:469
 #, python-format
 msgid "must be one of %s"
 msgstr "debe ser uno de %s"
 
-#: authorization.py:483
+#: authorization.py:473
 msgid "must be the key of a setting"
 msgstr "debe ser la clave de una configuración"
 
-#: authorization.py:486
+#: authorization.py:476
 msgid "a \"setting\" condition takes \"equals\" or \"in\" (one of them)"
 msgstr "una condición \"setting\" lleva \"equals\" o \"in\" (uno de los dos)"
 
-#: authorization.py:489
+#: authorization.py:479
 msgid "must be a string, a number or a boolean"
 msgstr "debe ser una cadena, un número o un booleano"
 
-#: authorization.py:494
+#: authorization.py:484
 msgid "must be a list of strings, numbers or booleans"
 msgstr "debe ser una lista de cadenas, números o booleanos"
 
@@ -849,11 +993,11 @@ msgstr "Nueva Entrada"
 msgid "Categories"
 msgstr "Categorías"
 
-#: blog/views.py:145
+#: blog/views.py:153
 msgid "An error happen, please try again"
 msgstr "Un error ocurrió, por favor vuelva a intentarlo"
 
-#: blog/views.py:154
+#: blog/views.py:162
 msgid "Name of new category"
 msgstr "Nombre de la nueva categoría"
 
@@ -865,10 +1009,27 @@ msgstr "Subiendo"
 msgid "Complete"
 msgstr "Completo"
 
-#: cruds/base.py:745
+#: cruds/base.py:776
 #, python-format
 msgid "Can see available %s"
 msgstr "Puede ver los disponibles %s"
+
+#: datasources/api.py:63
+#, python-format
+msgid "No data source %s"
+msgstr "No existe la fuente de datos %s"
+
+#: datasources/api.py:168
+msgid "\"columns\" is required."
+msgstr "\"columns\" es obligatorio."
+
+#: datasources/api.py:178
+msgid "\"fmt\" has to be a string."
+msgstr "\"fmt\" debe ser una cadena de texto."
+
+#: datasources/api.py:185
+msgid "The body has to be a JSON object."
+msgstr "El cuerpo debe ser un objeto JSON."
 
 #: datasources/export.py:64
 msgid "Count"
@@ -901,13 +1062,13 @@ msgstr "Formato de exportación desconocido: %s"
 
 #: datasources/export.py:258 datasources/query.py:808
 #: designs/data_components.py:410 designs/templatetags/gtdesigns_tags.py:26
-#: templates/gentelella/widgets/checkyesno.html:4 widgets/core.py:695
+#: templates/gentelella/widgets/checkyesno.html:4 widgets/core.py:747
 msgid "Yes"
 msgstr "Sí"
 
 #: datasources/export.py:258 datasources/query.py:808
 #: designs/data_components.py:410 designs/templatetags/gtdesigns_tags.py:26
-#: templates/gentelella/widgets/checkyesno.html:2 widgets/core.py:696
+#: templates/gentelella/widgets/checkyesno.html:2 widgets/core.py:748
 msgid "No"
 msgstr "No"
 
@@ -1220,22 +1381,22 @@ msgstr ""
 msgid "Object management (CRUD table)"
 msgstr "Gestión de objetos (tabla CRUD)"
 
-#: designs/data_components.py:519
+#: designs/data_components.py:523
 #, python-format
 msgid "%r cannot be a table column"
 msgstr "%r no puede ser una columna de la tabla"
 
-#: designs/data_components.py:529 designs/data_components.py:1054
+#: designs/data_components.py:533 designs/data_components.py:1059
 #, python-format
 msgid "%(field)r is not a text field of %(model)s"
 msgstr "%(field)r no es un campo de texto de %(model)s"
 
-#: designs/data_components.py:536
+#: designs/data_components.py:540
 #, python-format
 msgid "unknown field %r"
 msgstr "campo desconocido %r"
 
-#: designs/data_components.py:544
+#: designs/data_components.py:548
 #, python-format
 msgid ""
 "%s has a field \"id\" that is not its primary key: the table needs \"id\" "
@@ -1244,33 +1405,33 @@ msgstr ""
 "%s tiene un campo \"id\" que no es su clave primaria: la tabla necesita "
 "\"id\" para la fila"
 
-#: designs/data_components.py:550 designs/data_components.py:1064
+#: designs/data_components.py:554 designs/data_components.py:1069
 msgid "column"
 msgstr "columna"
 
-#: designs/data_components.py:553
+#: designs/data_components.py:557
 msgid "action"
 msgstr "acción"
 
-#: designs/data_components.py:670
+#: designs/data_components.py:675
 msgid "Inline CRUD table (children of the page parent)"
 msgstr "Tabla CRUD en línea (hijos del padre de la página)"
 
-#: designs/data_components.py:687
+#: designs/data_components.py:692
 msgid "an inline table needs a page with a parent (meta.parent)"
 msgstr "una tabla en línea necesita una página con padre (meta.parent)"
 
-#: designs/data_components.py:699
+#: designs/data_components.py:704
 #, python-format
 msgid "%(field)r is not a foreign key of %(model)s to %(parent)s"
 msgstr "%(field)r no es una clave foránea de %(model)s hacia %(parent)s"
 
-#: designs/data_components.py:707
+#: designs/data_components.py:712
 #, python-format
 msgid "remove %r from the form: the parent comes from the URL"
 msgstr "quita %r del formulario: el padre viene de la URL"
 
-#: designs/data_components.py:729
+#: designs/data_components.py:734
 msgid ""
 "say which permissions can see it: neither the data source nor the page has "
 "any"
@@ -1278,47 +1439,47 @@ msgstr ""
 "indica qué permisos pueden verlo: ni la fuente de datos ni la página tienen "
 "ninguno"
 
-#: designs/data_components.py:747
+#: designs/data_components.py:752
 msgid "give a \"model\" or a \"datasource\", not both"
 msgstr "indica un \"model\" o un \"datasource\", no los dos"
 
-#: designs/data_components.py:784
+#: designs/data_components.py:789
 #, python-format
 msgid "%s needs a value_field"
 msgstr "%s necesita un value_field"
 
-#: designs/data_components.py:788
+#: designs/data_components.py:793
 #, python-format
 msgid "%(aggregate)s needs a numeric value_field; %(field)r is not one"
 msgstr "%(aggregate)s necesita un value_field numérico; %(field)r no lo es"
 
-#: designs/data_components.py:806
+#: designs/data_components.py:811
 msgid "Chart"
 msgstr "Gráfico"
 
-#: designs/data_components.py:846
+#: designs/data_components.py:851
 #, python-format
 msgid "%r cannot be grouped by"
 msgstr "no se puede agrupar por %r"
 
-#: designs/data_components.py:854
+#: designs/data_components.py:859
 msgid "a period needs a date group_by"
 msgstr "un periodo necesita un group_by de fecha"
 
-#: designs/data_components.py:897
+#: designs/data_components.py:902
 msgid "Stat tile"
 msgstr "Indicador"
 
-#: designs/data_components.py:938
+#: designs/data_components.py:943
 #, python-format
 msgid "%r is not a date"
 msgstr "%r no es una fecha"
 
-#: designs/data_components.py:977
+#: designs/data_components.py:982
 msgid "Classic CRUD (separate pages)"
 msgstr "CRUD clásico (páginas separadas)"
 
-#: designs/data_components.py:1031
+#: designs/data_components.py:1036
 msgid ""
 "the default form (every field the model exposes) does not work: give a "
 "\"form\""
@@ -1326,35 +1487,35 @@ msgstr ""
 "el formulario por defecto (todos los campos que expone el modelo) no "
 "funciona: indica un \"form\""
 
-#: designs/data_components.py:1067
+#: designs/data_components.py:1072
 msgid "page"
 msgstr "página"
 
-#: designs/data_components.py:1145
+#: designs/data_components.py:1150
 msgid "Facets"
 msgstr "Facetas"
 
-#: designs/data_components.py:1186
+#: designs/data_components.py:1191
 #, python-format
 msgid "%(target)r is not the id of a table (%(types)s) of this page"
 msgstr "%(target)r no es el id de una tabla (%(types)s) de esta página"
 
-#: designs/data_components.py:1200 designs/data_components.py:1231
+#: designs/data_components.py:1205 designs/data_components.py:1236
 #, python-format
 msgid "%r cannot have a facet"
 msgstr "%r no puede tener una faceta"
 
-#: designs/data_components.py:1206 designs/data_components.py:1237
+#: designs/data_components.py:1211 designs/data_components.py:1242
 #: templates/gentelella/cruds/list.html:58
 msgid "Filters"
 msgstr "Filtros"
 
-#: designs/data_components.py:1219
+#: designs/data_components.py:1224
 #, python-format
 msgid "node %r has no data source to filter"
 msgstr "el nodo %r no tiene una fuente de datos que filtrar"
 
-#: designs/data_components.py:1250 designs/data_components.py:1277
+#: designs/data_components.py:1255 designs/data_components.py:1282
 #: templates/gentelella/cruds/detail.html:41
 msgid "Value"
 msgstr "Valor"
@@ -1396,6 +1557,26 @@ msgstr "un %r no puede tener hijos"
 #: designs/engine.py:401
 msgid "only \"page\" designs can be served"
 msgstr "solo se pueden servir diseños \"page\""
+
+#: designs/factories.py:411
+msgid "not valid JSON"
+msgstr "no es JSON válido"
+
+#: designs/factories.py:414
+msgid "must be a list of filter objects"
+msgstr "debe ser una lista de objetos de filtro"
+
+#: designs/factories.py:563 designs/factories.py:846
+msgid "No such parent"
+msgstr "No existe el objeto padre"
+
+#: designs/factories.py:879
+msgid "unknown facet column"
+msgstr "columna de faceta desconocida"
+
+#: designs/factories.py:1015
+msgid "No such object"
+msgstr "No existe el objeto"
 
 #: designs/format.py:75
 #, python-format
@@ -1692,8 +1873,8 @@ msgstr "Volver a la lista"
 #: templates/gentelella/registration/password_change_form.html:17
 #: templates/gentelella/registration/password_reset_confirm.html:18
 #: templates/gentelella/registration/registration_form.html:17
-#: templates/gentelella/widgets/addselect.html:23
-#: templates/gentelella/widgets/addtreeselect.html:26
+#: templates/gentelella/widgets/addselect.html:27
+#: templates/gentelella/widgets/addtreeselect.html:30
 msgid "Submit"
 msgstr "Enviar"
 
@@ -1755,6 +1936,15 @@ msgstr ""
 #: designs/views.py:109 designs/views.py:112
 msgid "No page at this path."
 msgstr "No hay ninguna página en esta ruta."
+
+#: designs/views.py:141 designs/views.py:147 designs/views.py:151
+#: designs/views.py:154 designs/views.py:158
+msgid "Not found."
+msgstr "No encontrado."
+
+#: designs/views.py:148
+msgid "You do not have permission to perform this action."
+msgstr "Usted no tiene permiso para realizar esta acción."
 
 #: fields/files.py:33
 msgid ""
@@ -1820,11 +2010,11 @@ msgstr ""
 msgid "File does not appear to be a valid PDF."
 msgstr "El archivo no parece ser un PDF válido."
 
-#: firmador_digital/consumers/sign.py:68
+#: firmador_digital/consumers/sign.py:71
 msgid "Invalid request."
 msgstr "Petición inválida."
 
-#: firmador_digital/consumers/sign.py:80
+#: firmador_digital/consumers/sign.py:83
 msgid "An unexpected error occurred."
 msgstr "Ha ocurrido un error inesperado."
 
@@ -1994,12 +2184,12 @@ msgstr "Nada falló: no hay nada que reintentar."
 msgid "You cannot %(action)s it."
 msgstr "No puede %(action)s."
 
-#: flows/callables.py:127
+#: flows/callables.py:101
 #, python-format
 msgid "%(path)s is not an allowed callable."
 msgstr "%(path)s no es un callable permitido."
 
-#: flows/callables.py:213
+#: flows/callables.py:187
 #, python-format
 msgid ""
 "%(path)s is not an allowed callable (register it with register_callable or "
@@ -2032,16 +2222,11 @@ msgstr "Cualquier estado"
 msgid "Tasks"
 msgstr "Tareas"
 
-#: flows/models.py:42 models.py:193
-#: templates/admin/djgentelella/gentelellasettings/flags.html:51
-msgid "Name"
-msgstr "Nombre"
-
 #: flows/models.py:43 flows/models.py:96
 msgid "Version"
 msgstr "Versión"
 
-#: flows/models.py:45 flows/models.py:131 models.py:34 models.py:129
+#: flows/models.py:45 flows/models.py:131 models.py:39 models.py:147
 msgid "Site"
 msgstr "Sitio"
 
@@ -2087,7 +2272,7 @@ msgstr "Terminado"
 msgid "Flow"
 msgstr "Flujo"
 
-#: flows/models.py:104 flows/models.py:279 models.py:179
+#: flows/models.py:104 flows/models.py:279 models.py:197
 #: templates/gentelella/flows/detail.html:11
 #: templates/gentelella/flows/detail.html:37
 #: templates/gentelella/flows/inbox.html:20
@@ -2202,7 +2387,7 @@ msgid "To"
 msgstr "Hasta"
 
 #: flows/models.py:198 flows/models.py:558 flows/models.py:590
-#: flows/variables.py:103 flows/views.py:34 flows/views.py:294 models.py:172
+#: flows/variables.py:103 flows/views.py:34 flows/views.py:294 models.py:190
 #: templates/gentelella/blocks/permissions_management.html:16
 #: templates/gentelella/statics/javascript.html:123
 msgid "User"
@@ -2221,7 +2406,7 @@ msgstr "Tipo"
 msgid "Comment"
 msgstr "Comentario"
 
-#: flows/models.py:202 flows/models.py:290 models.py:267
+#: flows/models.py:202 flows/models.py:290 models.py:285
 msgid "Data"
 msgstr "Datos"
 
@@ -2269,7 +2454,7 @@ msgstr "Baja"
 msgid "Lowest"
 msgstr "Mínima"
 
-#: flows/models.py:265 models.py:169
+#: flows/models.py:265 models.py:187
 #: templates/gentelella/flows/tasks/detail.html:13
 #: templates/gentelella/menu/notification_list.html:42
 #: templates/gentelella/widgets/calendar.html:71
@@ -2415,10 +2600,6 @@ msgstr "Decimal"
 msgid "Yes/No"
 msgstr "Sí/No"
 
-#: flows/variables.py:100
-msgid "Date"
-msgstr "Fecha"
-
 #: flows/variables.py:101
 msgid "Date and time"
 msgstr "Fecha y hora"
@@ -2531,15 +2712,15 @@ msgstr "Actualizado"
 msgid "Deleted"
 msgstr "Eliminado"
 
-#: history/serializers.py:17
+#: history/serializers.py:21
 msgid "No user found"
 msgstr "No se encontró el usuario"
 
-#: history/serializers.py:23 trash/api.py:96
+#: history/serializers.py:27 trash/api.py:96
 msgid "Hard deleted"
 msgstr "Eliminación permanente"
 
-#: history/serializers.py:25 trash/api.py:133
+#: history/serializers.py:29 trash/api.py:133
 msgid "Restored"
 msgstr "Restaurado"
 
@@ -2574,19 +2755,48 @@ msgstr "%(msg)s. Campos: %(fields)s"
 msgid "The record %(obj)s of model %(model)s has been %(action)s"
 msgstr "El registro %(obj)s del modelo %(model)s ha sido %(action)s"
 
-#: models.py:35
+#: locking.py:165
+msgid ""
+"This record was deleted by someone else after you opened it. Your changes "
+"have not been saved."
+msgstr ""
+"Otra persona eliminó este registro después de que lo abriste. Tus cambios no "
+"se guardaron."
+
+#: locking.py:167
+msgid ""
+"This record was changed by someone else after you opened it. Your changes "
+"have not been saved: reload it to see the current data."
+msgstr ""
+"Otra persona modificó este registro después de que lo abriste. Tus cambios "
+"no se guardaron: recárgalo para ver los datos actuales."
+
+#: locking.py:179
+#, python-format
+msgid "Last change: %(user)s, %(when)s."
+msgstr "Último cambio: %(user)s, %(when)s."
+
+#: locking.py:185
+msgid ""
+"This record can only be saved together with the version you read. Reload it "
+"and try again."
+msgstr ""
+"Este registro solo se puede guardar junto con la versión que leíste. "
+"Recárgalo e inténtalo de nuevo."
+
+#: models.py:40
 msgid "Empty: the value is global, for every site."
 msgstr "Vacío: el valor es global, para todos los sitios."
 
-#: models.py:130
+#: models.py:148
 msgid "Empty: the item is global, shown on every site."
 msgstr "Vacío: el elemento es global, se muestra en todos los sitios."
 
-#: models.py:137
+#: models.py:155
 msgid "Condition"
 msgstr "Condición"
 
-#: models.py:138
+#: models.py:156
 msgid ""
 "Empty: no condition. A djgentelella.authorization condition, e.g. {\"perm\": "
 "\"app.view_model\"} or {\"flag\": \"beta\"}."
@@ -2594,113 +2804,109 @@ msgstr ""
 "Vacío: sin condición. Una condición de djgentelella.authorization, por "
 "ejemplo {\"perm\": \"app.view_model\"} o {\"flag\": \"beta\"}."
 
-#: models.py:151
+#: models.py:169
 msgid "Help title"
 msgstr "Título de ayuda"
 
-#: models.py:152
+#: models.py:170
 msgid "Help text"
 msgstr "Texto de ayuda"
 
-#: models.py:159
+#: models.py:177
 msgid "Visible"
 msgstr "Visible"
 
-#: models.py:159
+#: models.py:177
 msgid "Hidden"
 msgstr "Oculto"
 
-#: models.py:162
+#: models.py:180
 msgid "Default"
 msgstr "Por defecto"
 
-#: models.py:163
+#: models.py:181
 msgid "Information"
 msgstr "Información"
 
-#: models.py:164
+#: models.py:182
 msgid "Success"
 msgstr "Éxito"
 
-#: models.py:165
+#: models.py:183
 msgid "Warning"
 msgstr "Precaución"
 
-#: models.py:166
+#: models.py:184
 msgid "Danger"
 msgstr "Peligro"
 
-#: models.py:170 templates/gentelella/menu/notification_list.html:43
-msgid "Link"
-msgstr "Enlace"
-
-#: models.py:176
+#: models.py:194
 msgid "Message Type"
 msgstr "Tipo de mensaje"
 
-#: models.py:181 models.py:194
+#: models.py:199 models.py:212
 msgid "Category"
 msgstr "Categoría"
 
-#: models.py:195
+#: models.py:213
 msgid "Url Name"
 msgstr "Nombre de la url"
 
-#: models.py:201
+#: models.py:219
 msgid "Permission"
 msgstr "Permiso"
 
-#: models.py:254
+#: models.py:272
 msgid "Log entry"
 msgstr "Entrada de bitácora"
 
-#: models.py:261 models.py:309 models.py:386
+#: models.py:279 models.py:327 models.py:404
 msgid "Content type"
 msgstr "Tipo de contenido"
 
-#: models.py:291
+#: models.py:309
 msgid "History relation"
 msgstr "Relación de bitácora"
 
-#: models.py:292
+#: models.py:310
 msgid "History relations"
 msgstr "Relaciones de bitácora"
 
-#: models.py:299
+#: models.py:317
 #, python-format
 msgid "Extra data of log entry %(pk)s"
 msgstr "Datos extra de la entrada de bitácora %(pk)s"
 
-#: models.py:314
+#: models.py:332
 msgid "Object repr"
 msgstr "Representación del objeto"
 
-#: models.py:316
+#: models.py:334
 msgid "Value of str(instance) at deletion time"
 msgstr "Valor de str(instance) al momento de la eliminación"
 
-#: models.py:323
+#: models.py:341
 msgid "Deleted by"
 msgstr "Eliminado por"
 
-#: models.py:333 models.py:334
+#: models.py:351 models.py:352
 msgid "Trash"
 msgstr "Papelera"
 
-#: models.py:337
+#: models.py:355
 #, python-format
 msgid "%(obj)s in trash"
 msgstr "%(obj)s en papelera"
 
-#: models.py:383
+#: models.py:401
 msgid "Trash entry"
 msgstr "Entrada de papelera"
 
-#: models.py:396
+#: models.py:414
 msgid "Trash relation"
 msgstr "Relación de papelera"
 
-#: models.py:397
+#: models.py:415
 msgid "Trash relations"
 msgstr "Relaciones de papelera"
 
@@ -2896,6 +3102,10 @@ msgstr "de"
 #: templates/gentelella/widgets/digital_signature.html:184
 msgid "Next"
 msgstr "Siguiente"
+
+#: templates/gentelella/cruds/update.html:26
+msgid "Reload the form with the current data"
+msgstr "Recargar el formulario con los datos actuales"
 
 #: templates/gentelella/datasources/export_pdf.html:37
 #, python-format
@@ -3649,7 +3859,7 @@ msgstr "page debe ser un entero."
 msgid "page must be between 1 and %(max)d."
 msgstr "page debe estar entre 1 y %(max)d."
 
-#: widgets/core.py:694
+#: widgets/core.py:746
 msgid "Unknown"
 msgstr "Desconocido"
 
@@ -3665,145 +3875,12 @@ msgstr "Usar mi ubicación"
 msgid "Clear"
 msgstr "Limpiar"
 
-#: widgets/selectmultiple.py:66
+#: widgets/selectmultiple.py:75
 #, python-format
 msgid "Available %(name)s"
 msgstr "%(name)s disponibles"
 
-#: widgets/selectmultiple.py:67
+#: widgets/selectmultiple.py:76
 #, python-format
 msgid "Chosen %(name)s"
 msgstr "%(name)s elegidos"
-
-msgid "Informative"
-msgstr "Informativa"
-
-msgid "Medium"
-msgstr "Media"
-
-msgid "Critical"
-msgstr "Crítica"
-
-msgid "Process"
-msgstr "Proceso"
-
-msgid "Trigger"
-msgstr "Disparador"
-
-msgid "Threshold"
-msgstr "Umbral"
-
-msgid "Level"
-msgstr "Nivel"
-
-msgid "Email template"
-msgstr "Plantilla de correo"
-
-msgid "Empty uses the template of the process."
-msgstr "Vacío usa la plantilla del proceso."
-
-msgid "Is active"
-msgstr "Activa"
-
-msgid "Created by"
-msgstr "Creado por"
-
-msgid "Alert rule"
-msgstr "Regla de alerta"
-
-msgid "Alert rules"
-msgstr "Reglas de alerta"
-
-msgid "Unknown process."
-msgstr "Proceso desconocido."
-
-msgid "This process does not use that trigger."
-msgstr "Este proceso no usa ese disparador."
-
-msgid "Resolved at"
-msgstr "Resuelta el"
-
-msgid "Resolved by"
-msgstr "Resuelta por"
-
-msgid "Alert event"
-msgstr "Evento de alerta"
-
-msgid "Alert events"
-msgstr "Eventos de alerta"
-
-msgid "Enter a number."
-msgstr "Ingrese un número."
-
-#, python-format
-msgid "Ensure this value is greater than or equal to %(min)s."
-msgstr "Asegúrese de que este valor sea mayor o igual a %(min)s."
-
-msgid "Unknown trigger."
-msgstr "Disparador desconocido."
-
-msgid "This field is required."
-msgstr "Este campo es obligatorio."
-
-msgid "Absolute threshold"
-msgstr "Umbral absoluto"
-
-msgid "Maximum value"
-msgstr "Valor máximo"
-
-msgid "Percentage variation"
-msgstr "Variación porcentual"
-
-msgid "Percentage over the average"
-msgstr "Porcentaje sobre el promedio"
-
-msgid "No records"
-msgstr "Sin registros"
-
-msgid "Periods without records"
-msgstr "Períodos sin registros"
-
-msgid "Due date"
-msgstr "Fecha de vencimiento"
-
-msgid "Days before the due date"
-msgstr "Días antes del vencimiento"
-
-msgid "Repeat every (days) while overdue, 0 never"
-msgstr "Repetir cada (días) mientras esté vencido, 0 nunca"
-
-msgid "Discount above 50%?"
-msgstr "¿Descuento mayor al 50%?"
-
-msgid "not valid JSON"
-msgstr "no es JSON válido"
-
-msgid "must be a list of filter objects"
-msgstr "debe ser una lista de objetos de filtro"
-
-msgid "No such parent"
-msgstr "No existe el objeto padre"
-
-msgid "No such object"
-msgstr "No existe el objeto"
-
-msgid "unknown facet column"
-msgstr "columna de faceta desconocida"
-
-msgid "No data source %s"
-msgstr "No existe la fuente de datos %s"
-
-msgid "\"columns\" is required."
-msgstr "\"columns\" es obligatorio."
-
-msgid "\"fmt\" has to be a string."
-msgstr "\"fmt\" debe ser una cadena de texto."
-
-msgid "The body has to be a JSON object."
-msgstr "El cuerpo debe ser un objeto JSON."
-
-msgid "Not found."
-msgstr "No encontrado."
-
-msgid "You do not have permission to perform this action."
-msgstr "Usted no tiene permiso para realizar esta acción."

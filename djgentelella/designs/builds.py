@@ -150,6 +150,9 @@ class ObjectManagementBuild(DataBuild):
     #: ``update``, ``destroy`` and ``retrieve``.
     column_conditions: dict = field(default_factory=dict)
     action_conditions: dict = field(default_factory=dict)
+    #: Optimistic locking of the update modal (:mod:`djgentelella.locking`):
+    #: the viewset gets ``OptimisticLockMixin``.
+    optimistic_lock: bool = False
     #: The actions on one row, whose conditions about the object are
     #: evaluated with each row (:func:`~djgentelella.designs.conditions.
     #: row_conditions`). A class attribute, not a field.

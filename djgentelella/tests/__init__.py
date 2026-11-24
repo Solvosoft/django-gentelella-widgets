@@ -58,3 +58,4 @@ from .SiteRequest_Test import *
 from .ApiMessages_Test import *
 from .UploadTokens_Test import *
 from .EncryptionKey_Test import *
+from .Locking_Test import *

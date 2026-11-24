@@ -426,6 +426,11 @@ type                            what it is
     included, get the object of the page (see "Conditions with the object"),
     so an authorization written for the parent keeps receiving the parent.
 
+``optimistic_lock``
+    ``true`` refuses to save a row somebody else changed after the update
+    modal was filled: the API answers 409 and the modal offers to reload the
+    form with the current data. ``false`` by default. See :doc:`locking`.
+
 ``notify``
     Notifications when a row is created, updated or deleted through the table:
     ``{"on": "create|update|delete", "kind": "email|notice", "to": [...],

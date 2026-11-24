@@ -12,6 +12,7 @@ import warnings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
+from django.db import router, transaction
 from django.db.models.query_utils import Q
 from django.http.response import HttpResponseRedirect, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
@@ -26,6 +27,7 @@ from django.views.generic import (ListView, CreateView, DeleteView,
 
 from djgentelella.authorization import evaluate_condition
 from djgentelella.designs.conditions import without_hidden
+from djgentelella.locking import lock_form_class
 
 from . import utils
 from .filter import get_filters
@@ -408,6 +410,10 @@ class CRUDView(object):
     #: :mod:`djgentelella.authorization`: see :class:`CRUDMixin`.
     column_conditions = None
     action_conditions = None
+    #: Optimistic locking of the update view (:mod:`djgentelella.locking`):
+    #: its form carries the version it read, and saving an object somebody
+    #: else changed in between is a form error instead of overwriting it.
+    optimistic_lock = False
 
     """
     It's obligatory this structure
@@ -539,6 +545,21 @@ class CRUDView(object):
             template_blocks = self.template_blocks
             related_fields = self.related_fields
             form_widget_exclude = self.form_widget_exclude
+            optimistic_lock = self.optimistic_lock
+
+            def get_form_class(self):
+                form_class = super().get_form_class()
+                if self.optimistic_lock:
+                    form_class = lock_form_class(form_class)
+                return form_class
+
+            def post(self, request, *args, **kwargs):
+                if not self.optimistic_lock:
+                    return super().post(request, *args, **kwargs)
+                # The form re-reads the row with select_for_update() while
+                # validating: the lock has to last until the save.
+                with transaction.atomic(using=router.db_for_write(self.model)):
+                    return super().post(request, *args, **kwargs)
 
             def form_valid(self, form):
                 if not self.related_fields:
