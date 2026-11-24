@@ -8,11 +8,13 @@ the HTML, the responses and the number of queries do not change."""
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
+import tempfile
 from datetime import date, datetime, timezone as dt_timezone
 from decimal import Decimal
-from unittest import mock
+from unittest import mock, skipUnless
 
 from django import forms
 from django.contrib.admin.models import CHANGE, LogEntry
@@ -23,7 +25,7 @@ from django.db import connection
 from django.test import TestCase, override_settings
 from django.test.utils import CaptureQueriesContext
 from django.urls import include, path, reverse
-from django.utils import timezone
+from django.utils import timezone, translation
 from rest_framework import permissions, serializers, viewsets
 from rest_framework.test import APIRequestFactory, force_authenticate
 
@@ -42,10 +44,12 @@ from djgentelella.tests.DesignsData_Test import (
     ALL_PRODUCT_PERMS, DataDesignTestCase, product_form, table,
 )
 from djgentelella.tests.DesignsHooks_Test import gtconfig
+from djgentelella.tests.Translations_Test import compile_catalogs
 
 
 __all__ = ['LockingVersionTests', 'LockingFormTests', 'LockingCRUDViewTests',
-           'LockingAPITests', 'LockingObjectManagementTests']
+           'LockingAPITests', 'LockingObjectManagementTests',
+           'LockingSpanishTest']
 
 CSRF = re.compile(r'(name="csrfmiddlewaretoken" value=")[^"]*"')
 
@@ -712,3 +716,35 @@ class LockingObjectManagementTests(DataDesignTestCase):
             reverse('gt-design-page', args=['products'])).content.decode())
         self.assertEqual(gtconfig(locked, 'products'), gtconfig(content, 'products'))
         self.assertEqual(locked, content)
+
+
+@skipUnless(shutil.which('msgfmt'), 'compiling the catalog needs gettext')
+class LockingSpanishTest(TestCase):
+    """The conflict speaks the language of the request."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.tmp = tempfile.TemporaryDirectory()
+        cls.addClassCleanup(cls.tmp.cleanup)
+        compile_catalogs(cls.tmp.name)
+
+    def setUp(self):
+        locale = override_settings(LOCALE_PATHS=[self.tmp.name])
+        locale.enable()
+        self.addCleanup(locale.disable)
+        self.product = Product.objects.create(name='Saw', price=Decimal('1.00'))
+
+    def test_in_spanish(self):
+        with translation.override('es'):
+            self.assertIn('Otra persona modificó este registro',
+                          locking.conflict_message(self.product))
+            self.assertIn('Otra persona eliminó', locking.conflict_message(None))
+            self.assertIn('versión que leíste', locking.missing_message())
+            user = User.objects.create_user('carla', first_name='Carla')
+            LogEntry.objects.create(
+                user=user, content_type=ContentType.objects.get_for_model(Product),
+                object_id=str(self.product.pk), object_repr='Saw',
+                action_flag=CHANGE, change_message='x')
+            self.assertIn('Último cambio: Carla,',
+                          locking.conflict_message(self.product))

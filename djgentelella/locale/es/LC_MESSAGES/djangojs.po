@@ -724,3 +724,15 @@ msgid ""
 msgstr ""
 "Hubo un problema al realizar tu solicitud. Por favor, intenta nuevamente más "
 "tarde o contacta al administrador."
+
+#: static/gentelella/js/obj_api_management.js:138
+msgid "This record has changed"
+msgstr "Este registro cambió"
+
+#: static/gentelella/js/obj_api_management.js:144
+msgid "Reload the form with the current data"
+msgstr "Recargar el formulario con los datos actuales"
+
+#: static/gentelella/js/obj_api_management.js:145
+msgid "Keep my changes on screen"
+msgstr "Mantener mis cambios en pantalla"

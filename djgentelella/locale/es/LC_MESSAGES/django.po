@@ -3774,3 +3774,36 @@ msgstr "Repetir cada (días) mientras esté vencido, 0 nunca"
 
 msgid "Discount above 50%?"
 msgstr "¿Descuento mayor al 50%?"
+
+#: locking.py:165
+msgid ""
+"This record was deleted by someone else after you opened it. Your changes "
+"have not been saved."
+msgstr ""
+"Otra persona eliminó este registro después de que lo abriste. Tus cambios no "
+"se guardaron."
+
+#: locking.py:167
+msgid ""
+"This record was changed by someone else after you opened it. Your changes "
+"have not been saved: reload it to see the current data."
+msgstr ""
+"Otra persona modificó este registro después de que lo abriste. Tus cambios no "
+"se guardaron: recárgalo para ver los datos actuales."
+
+#: locking.py:177
+#, python-format
+msgid "Last change: %(user)s, %(when)s."
+msgstr "Último cambio: %(user)s, %(when)s."
+
+#: locking.py:183
+msgid ""
+"This record can only be saved together with the version you read. Reload it "
+"and try again."
+msgstr ""
+"Este registro solo se puede guardar junto con la versión que leíste. "
+"Recárgalo e inténtalo de nuevo."
+
+#: templates/gentelella/cruds/update.html:26
+msgid "Reload the form with the current data"
+msgstr "Recargar el formulario con los datos actuales"
