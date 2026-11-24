@@ -366,6 +366,31 @@ class CrudConditionHookTests(HooksTestCase):
         queryset = Ordered().list(self.request()).context_data['object_list']
         self.assertEqual(list(queryset.query.order_by), ['price', 'name'])
 
+    def test_hiding_a_column_does_not_reorder_the_rows(self):
+        # Product has no Meta.ordering: the list orders by pk whether the
+        # price is hidden or not.
+        queryset = ProductCRUD().list(self.request()).context_data['object_list']
+        self.assertEqual(list(queryset.query.order_by), ['pk'])
+        set_flag(FLAG, True)
+        queryset = ProductCRUD().list(self.request()).context_data['object_list']
+        self.assertEqual(list(queryset.query.order_by), ['pk'])
+
+    def test_a_hidden_column_is_not_a_filter(self):
+        class Filtered(ProductCRUD):
+            list_filter = ['name', 'price']
+        price = str(self.hammer.price)
+        context = Filtered().list(self.request(data={'price': price})).context_data
+        # Filtering by the hidden price would tell its values apart.
+        self.assertEqual(set(context['object_list']),
+                         set(Product.objects.all()))
+        self.assertEqual(list(context['filters'][0].form_instance.fields),
+                         ['name'])
+        set_flag(FLAG, True)
+        context = Filtered().list(self.request(data={'price': price})).context_data
+        self.assertEqual(list(context['object_list']), [self.hammer])
+        self.assertEqual(list(context['filters'][0].form_instance.fields),
+                         ['name', 'price'])
+
     def test_without_conditions_nothing_changes(self):
         class Plain(CRUDView):
             model = Product

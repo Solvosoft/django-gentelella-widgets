@@ -955,10 +955,10 @@ class DesignCRUDMixin(CRUDMixin):
         if self.gtdesign_preview:
             return queryset.none()
         if not queryset.ordered:
-            # CRUDMixin already reorders when a column is hidden. Without
-            # Meta.ordering a paginated list still needs an order, and -pk is
-            # the one hiding a column uses, so a condition that shows or hides
-            # a column does not reorder the rows.
+            # Without Meta.ordering, or when CRUDMixin dropped every ordering
+            # over a hidden column, a paginated list still needs an order:
+            # -pk in both cases, so a condition that shows or hides a column
+            # does not reorder the rows.
             queryset = queryset.order_by('-pk')
         return queryset
 

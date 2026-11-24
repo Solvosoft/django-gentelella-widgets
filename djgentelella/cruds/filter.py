@@ -64,20 +64,36 @@ class FormFilter:
                     params = self.get_build_param(value, data, params)
         return params
 
+    def hide(self, hidden):
+        """Drop the fields over a ``hidden`` column (``price``,
+        ``price__gte``...): they neither show nor filter."""
+        for name in list(self.form_instance.fields):
+            if name.split('__')[0] in hidden:
+                del self.form_instance.fields[name]
+                self.form_instance.cleaned_data.pop(name, None)
 
-def get_filters(model, list_filter, request):
+
+def get_filters(model, list_filter, request, hidden=()):
+    """The filters of ``list_filter`` (model field names or ``FormFilter``
+    classes) for ``request``, without those over a ``hidden`` column: a
+    filter on a column the user cannot see would tell its values apart."""
     fields = []
     forms = []
     for field in list_filter:
-        if field.is_instance(str):
+        if isinstance(field, str):
             # this is a model field
+            if field in hidden:
+                continue
             try:
                 model._meta.get_field(field)
                 fields.append(field)
             except FieldDoesNotExist:
                 pass
         else:
-            forms.append(field(request))
+            filter_form = field(request)
+            if hidden:
+                filter_form.hide(hidden)
+            forms.append(filter_form)
 
     if fields:
         form = modelform_factory(model, fields=fields)

@@ -39,10 +39,10 @@ class CRUDMixin(object):
     (``{field: condition}``) and ``action_conditions`` (``{view: condition}``,
     views ``create``, ``detail``, ``update`` and ``delete``) say which
     columns and pages exist for the request. A hidden column leaves the
-    list, the detail, the search, the ordering and the update form; a refused
-    page loses its links and answers 403. The three hooks below are where a
-    view decides them; by default they evaluate those conditions without an
-    object, once per request.
+    list, the detail, the search, the filters, the ordering and the update
+    form; a refused page loses its links and answers 403. The three hooks
+    below are where a view decides them; by default they evaluate those
+    conditions without an object, once per request.
     """
 
     column_conditions = None
@@ -108,8 +108,12 @@ class CRUDMixin(object):
             ordering = list(queryset.query.order_by
                             or queryset.model._meta.ordering)
             shown = without_hidden(ordering, hidden)
-            if shown != ordering or not ordering:
-                queryset = queryset.order_by(*(shown or ['-pk']))
+            if shown != ordering:
+                # With nothing left the queryset is unordered, and the view
+                # that subclasses this one gives it its default order -- the
+                # same one it uses with nothing hidden, so a condition that
+                # hides a column does not reorder the rows.
+                queryset = queryset.order_by(*shown)
         return queryset
 
     def get_template_names(self):
@@ -134,7 +138,8 @@ class CRUDMixin(object):
     def get_filters(self, context):
         filter_params = []
         if self.view_type == 'list' and self.list_filter:
-            filters = get_filters(self.model, self.list_filter, self.request)
+            filters = get_filters(self.model, self.list_filter, self.request,
+                                  self.get_hidden_columns())
             context['filters'] = filters
             for filter in filters:
                 param = filter.get_params(self.related_fields or [])
@@ -588,7 +593,8 @@ class CRUDView(object):
             def get_listfilter_queryset(self, queryset):
                 if self.list_filter:
                     filters = get_filters(
-                        self.model, self.list_filter, self.request)
+                        self.model, self.list_filter, self.request,
+                        self.get_hidden_columns())
                     for filter in filters:
                         queryset = filter.get_filter(queryset)
 

@@ -147,6 +147,8 @@ def marker_rules(html):
     return json.loads(raw)
 
 
+# The confirm message is translated: the demo runs in Spanish.
+@override_settings(LANGUAGE_CODE='en')
 class DynamicDSLTest(SimpleTestCase):
     def test_serializes_the_example_of_the_stage(self):
         rules = rules_of(PedidoForm())

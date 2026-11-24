@@ -122,6 +122,25 @@ the check on every request). ``ConditionRequiredMixin`` is defined in
 ``djgentelella.views.conditions``; importing it from
 ``djgentelella.authorization`` still works.
 
+Fixes
+""""""""
+
+**``list_filter`` with field names.** ``get_filters`` called
+``field.is_instance(str)``, which ``str`` does not have, so a ``CRUDView``
+whose ``list_filter`` named model fields raised ``AttributeError``.
+
+**A hidden column is not a filter.** The filters of a ``CRUDView`` list drop
+the fields over a column hidden by ``column_conditions`` (``price``,
+``price__gte``...), as the list, the detail, the search and the ordering
+already did: filtering by a column the user cannot see would tell its values
+apart.
+
+**Hiding a column does not reorder the rows.** ``CRUDMixin`` ordered by
+``-pk`` when every ordering was over a hidden column, while a ``CRUDView``
+list without ``Meta.ordering`` orders by ``pk``: a condition flipped the
+order. It now leaves the queryset unordered and the view gives it its usual
+order (``pk`` in ``CRUDView``, ``-pk`` in the designs).
+
 0.7.1 (2026-11-15)
 --------------------
 
