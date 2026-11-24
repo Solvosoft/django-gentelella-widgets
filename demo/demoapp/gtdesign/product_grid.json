@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "app": "demoapp",
+  "slug": "product_grid",
+  "kind": "page",
+  "meta": {
+    "title": "Product prices",
+    "url": "product-grid/",
+    "url_name": "product_grid",
+    "permissions": {
+      "view": [
+        "demoapp.view_product"
+      ]
+    }
+  },
+  "root": {
+    "type": "page",
+    "id": "page",
+    "children": [
+      {
+        "type": "row",
+        "id": "main",
+        "children": [
+          {
+            "type": "col",
+            "id": "body",
+            "props": {
+              "width": 12
+            },
+            "children": [
+              {
+                "type": "html",
+                "id": "help",
+                "props": {
+                  "html": "<p class=\"lead\">Edit several products at once and save them together. Nothing is saved until you press \"Save changes\".</p>"
+                }
+              },
+              {
+                "type": "interactive_grid",
+                "id": "product_grid",
+                "props": {
+                  "model": "demoapp.Product",
+                  "title": "Prices and status",
+                  "columns": [
+                    "name",
+                    "price",
+                    "status",
+                    "available_since",
+                    "category",
+                    "tags"
+                  ],
+                  "editable": [
+                    "name",
+                    "price",
+                    "status",
+                    "available_since",
+                    "category"
+                  ],
+                  "search_fields": [
+                    "name"
+                  ],
+                  "ordering": [
+                    "name"
+                  ],
+                  "page_size": 10
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
