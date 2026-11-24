@@ -91,6 +91,7 @@ local_settings.py
 .env
 demo/db.sqlite3
 demo/test_db.sqlite3*
+demo/test_db_*.sqlite3*
 demo/temp/
 venv/
 .idea/
