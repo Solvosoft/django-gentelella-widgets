@@ -33,6 +33,7 @@ Django Gentelella Widgets (``djgentelella``) is a reusable Django application th
    datatables
    model_fields
    datasources
+   global_search
 
 .. toctree::
    :maxdepth: 2
