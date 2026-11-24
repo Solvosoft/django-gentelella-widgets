@@ -82,6 +82,34 @@ class GSerializerImgBase(serializers.Serializer):
     selected = serializers.SerializerMethodField()
 
 
+class ViewFromContext:
+    """``self.view``: the view the serializer serves, from the context DRF
+    gives every serializer it builds (``get_serializer``)."""
+
+    @property
+    def view(self):
+        return self.context.get('view')
+
+
+# One ModelSerializer per (view class, model, base serializer), built on the
+# first request: a class per request made DRF inspect the model's fields anew
+# every time.
+_serializer_classes = {}
+
+
+def model_serializer_class(view, fields):
+    """The ModelSerializer of ``view.model`` on ``view.serializer_class``."""
+    key = (type(view), view.model, view.serializer_class, tuple(fields))
+    serializer_class = _serializer_classes.get(key)
+    if serializer_class is None:
+        meta = type('Meta', (), {'model': view.model, 'fields': list(fields)})
+        serializer_class = type(
+            'S', (ViewFromContext, view.serializer_class, serializers.ModelSerializer),
+            {'Meta': meta, '__module__': __name__})
+        _serializer_classes[key] = serializer_class
+    return serializer_class
+
+
 class BaseSelect2View(generics.ListAPIView, viewsets.GenericViewSet):
     model = None
     fields = []
@@ -158,14 +186,7 @@ class BaseSelect2View(generics.ListAPIView, viewsets.GenericViewSet):
     #     return super().get_serializer(self, *args, **kwargs)
 
     def get_serializer_class(self):
-        class S(self.serializer_class, serializers.ModelSerializer):
-            view = self
-
-            class Meta:
-                model = self.model
-                fields = ['id', 'text', 'disabled', 'selected']
-
-        return S
+        return model_serializer_class(self, ['id', 'text', 'disabled', 'selected'])
 
     def get_field_value(self, obj, name, func=None):
         if name == '__str__':
@@ -205,11 +226,5 @@ class BaseSelectImg2View(BaseSelect2View):
     serializer_class = GSerializerImgBase
 
     def get_serializer_class(self):
-        class S(self.serializer_class, serializers.ModelSerializer):
-            view = self
-
-            class Meta:
-                model = self.model
-                fields = ['id', 'text', 'url', 'disabled', 'selected']
-
-        return S
+        return model_serializer_class(
+            self, ['id', 'text', 'url', 'disabled', 'selected'])

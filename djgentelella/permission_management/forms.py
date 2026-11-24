@@ -18,8 +18,9 @@ class PermCategoryManagementForm(GTForm, forms.Form):
     option = forms.ChoiceField(choices=((1, 'User'), (2, 'Group')), required=True)
     user = forms.ModelChoiceField(queryset=User.objects.all(), required=False)
     group = forms.ModelChoiceField(queryset=Group.objects.all(), required=False)
-    permissions = forms.ModelMultipleChoiceField(queryset=Permission.objects.all(),
-                                                 required=False)
+    permissions = forms.ModelMultipleChoiceField(
+        queryset=Permission.objects.select_related('content_type'),
+        required=False)
     urlname = forms.CharField(required=True)
 
     def clean_user(self):

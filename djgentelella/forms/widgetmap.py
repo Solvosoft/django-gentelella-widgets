@@ -30,6 +30,7 @@ from tree_queries.models import TreeNode
 from djgentelella.fields.maps import GTPointField
 from djgentelella.fields.tree import GentelellaTreeNodeChoiceField, \
     GentelellaTreeNodeMultipleChoiceField
+from djgentelella.forms.querysets import permission_queryset
 
 #: ``(model field class, kind)``, matched in order with ``isinstance``, so a
 #: subclass (EmailField) is listed before its base (CharField).
@@ -204,4 +205,9 @@ def gt_formfield_callback(field, **kwargs):
         kwargs['widget'] = widget_class(key)
         if key in TREE_FORM_FIELDS and 'form_class' not in kwargs:
             kwargs['form_class'] = TREE_FORM_FIELDS[key]
+    # str(permission) reads its content type: one query per option otherwise.
+    if (field.is_relation and 'queryset' not in kwargs
+            and field.related_model is not None
+            and field.related_model._meta.label == 'auth.Permission'):
+        kwargs['queryset'] = permission_queryset()
     return field.formfield(**kwargs)

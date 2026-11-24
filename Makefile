@@ -3,7 +3,7 @@
 	migrate menu init_demo notification_demo validate-mailhog loadstatic basejs assets \
 	patch-pylp services services-mail services-sign services-celery celery-worker process-loop \
 	coverage coverage-all coverage-unit coverage-selenium coverage-selenium-run \
-	coverage-report coverage-clean
+	coverage-report coverage-clean memprofile memprofile-startup memprofile-runtime
 
 version = $(shell python djgentelella/__init__.py)
 
@@ -32,6 +32,7 @@ help:
 	@echo "test-selenium-run - the same, on the caller's display (no Xvfb)"
 	@echo "coverage - unit suite under coverage + report + htmlcov/"
 	@echo "coverage-all - the same, plus the selenium suite, combined"
+	@echo "memprofile - startup + runtime memory profile -> scripts/memprofile/out/report.md"
 	@echo "validate-mailhog - send every email feature to MailHog and validate reception"
 	@echo "lint - check style (pycodestyle) and import placement (ruff)"
 	@echo "lint-fix - auto-apply the mechanical style fixes with ruff"
@@ -140,6 +141,19 @@ coverage-report:
 
 coverage-clean:
 	rm -rf htmlcov .coverage .coverage.*
+
+# Memory profile: startup footprint per scenario and runtime growth per URL.
+# Not a gate -- a measuring tool. MEMPROFILE_BLOCK = requests per block.
+MEMPROFILE_BLOCK ?= 20
+
+memprofile: memprofile-startup memprofile-runtime
+	python scripts/memprofile/report.py
+
+memprofile-startup:
+	python scripts/memprofile/startup.py
+
+memprofile-runtime:
+	python scripts/memprofile/runtime.py --block $(MEMPROFILE_BLOCK)
 
 docs:
 	$(MAKE) -C docs clean

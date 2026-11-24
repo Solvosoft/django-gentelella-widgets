@@ -2,28 +2,16 @@ from django import template
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
-from djgentelella.authorization import evaluate_condition
+from djgentelella.menu import (  # noqa: F401 -- PLACEHOLDER_URL_NAMES is public here
+    PLACEHOLDER_URL_NAMES,
+    item_visible,
+    menu_tree,
+    override_identity,
+    scope_items,
+)
 from djgentelella.models import MenuItem
 from djgentelella.sites import get_current_site, site_q
 from djgentelella.templatetags._utils import get_title, get_link, get_menu_widget
-
-
-# url_names that do not name a page: items that only open a dropdown, or
-# point nowhere yet, share them. They are no identity on their own.
-PLACEHOLDER_URL_NAMES = frozenset(('', '/', '#'))
-
-
-def override_identity(item):
-    """What a Site item must share with a global one to replace it.
-
-    ``(url_name, category)``; when ``url_name`` is a placeholder (``''``,
-    ``'/'``, ``'#'``) the ``title`` too, or one Site item with ``url_name='/'``
-    would hide every global placeholder item of its level.
-    """
-    url_name = (item.url_name or '').strip()
-    if url_name in PLACEHOLDER_URL_NAMES:
-        return (url_name, item.category, item.title)
-    return (url_name, item.category)
 
 
 def scope_menu_items(queryset, site):
@@ -32,33 +20,40 @@ def scope_menu_items(queryset, site):
     Global items (``site=NULL``) and the Site's own ones. ``queryset`` is one
     level of the tree -- the roots of a category or the children of an item --
     and on that level an item of the Site replaces the global one with the same
-    :func:`override_identity`, children included.
+    :func:`override_identity`, children included. The menu tags use the tree of
+    :func:`djgentelella.menu.menu_tree` instead, which needs no query per level.
     """
-    items = list(queryset.filter(site_q(site)))
-    if site is None:
-        return items
-    overridden = {override_identity(i) for i in items if i.site_id is not None}
-    return [i for i in items
-            if i.site_id is not None or override_identity(i) not in overridden]
+    return scope_items(list(queryset.filter(site_q(site))), site)
 
 
 def get_children(item, env):
-    return scope_menu_items(item.children.all(), env.get('site'))
+    tree = env.get('menu_tree')
+    if tree is None:
+        return scope_menu_items(item.children.all(), env.get('site'))
+    return tree.children(item)
 
 
 def get_roots(category, environment):
-    return scope_menu_items(
-        MenuItem.objects.filter(parent_id=None, category=category).order_by(
-            'position'),
-        environment['site'])
+    tree = environment.get('menu_tree')
+    if tree is None:
+        return scope_menu_items(
+            MenuItem.objects.filter(parent_id=None, category=category).order_by(
+                'position'),
+            environment['site'])
+    return tree.roots(category)
 
 
 def menu_environment(context, args, kwargs):
+    request = context.get('request')
+    site = get_current_site(request)
     return {
         'context': context,
         'args': args,
         'kwargs': kwargs,
-        'site': get_current_site(context.get('request')),
+        'site': site,
+        # Every item, permission and content type of the Site in three
+        # queries, shared by all the menus of the page.
+        'menu_tree': menu_tree(request, site),
     }
 
 
@@ -74,20 +69,14 @@ def validate_menu_item(item, context):
     """``item`` if the user may see it, else ``None``: it needs all of its
     permissions *and* its condition (:mod:`djgentelella.authorization`),
     when it has them."""
-    request = context['context']['request']
-    user = request.user
-    if item.permission.exists():
-        perms = ['%s.%s' % (i.content_type.app_label, i.codename) for i in
-                 item.permission.all()]
-        if not user.has_perms(perms):
-            return None
-    if item.condition is not None and not evaluate_condition(item.condition,
-                                                             request):
+    if not item_visible(item, context['context']['request']):
         return None
     return item
 
 
-def render_item(item, env={}, widget_list=[], level=0, ariabylabel=''):
+def render_item(item, env=None, widget_list=None, level=0, ariabylabel=''):
+    env = {} if env is None else env
+    widget_list = [] if widget_list is None else widget_list
     item = validate_menu_item(item, env)
     if not item:
         return ''
@@ -159,7 +148,9 @@ def top_menu(context, *args, **kwargs):
     return mark_safe(dev)
 
 
-def render_sidebar_item(item, father_pos=0, level=0, env={}, widget_list=[]):
+def render_sidebar_item(item, father_pos=0, level=0, env=None, widget_list=None):
+    env = {} if env is None else env
+    widget_list = [] if widget_list is None else widget_list
     item = validate_menu_item(item, env)
     if not item:
         return ''
@@ -211,7 +202,9 @@ def sidebar_menu(context, *args, **kwargs):
     return mark_safe(dev)
 
 
-def render_footer_sidebar_item(item, env={}, widget_list=[]):
+def render_footer_sidebar_item(item, env=None, widget_list=None):
+    env = {} if env is None else env
+    widget_list = [] if widget_list is None else widget_list
     item = validate_menu_item(item, env)
     if not item:
         return ''

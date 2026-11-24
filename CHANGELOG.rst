@@ -64,6 +64,40 @@ a ``notify`` text shows ``{% %}`` instead of ``{%% %%}``. The labels of the flow
 variable types (``variable_types()``) and the ``DocumentError`` messages of
 ``validate_actions`` are in the ``es`` catalog too.
 
+**Menus in three queries.** The menu tags ran several queries per item -- its
+permissions, their content types, its children --: about 200 on every page of
+the demo. The menu of the Site is now loaded once per request (items,
+permissions and content types, three queries whatever its size), shared by
+``top_menu``, ``sidebar_menu`` and ``footer_sidebar_menu``, and walked in
+memory; the markup is the same. A page of the demo went from 219 queries and
+120 ms to 33 and 38 ms. The tree is public for breadcrumbs and site maps:
+``djgentelella.menu.menu_tree(request)``, ``visible_items(request,
+category)``, ``item_visible(item, request)`` and ``item_permissions(item)``.
+``PLACEHOLDER_URL_NAMES`` and ``override_identity`` moved to
+``djgentelella.menu`` and are still importable from the template tags. The
+children of an item are ordered by ``id``, the order the database returned
+before without one.
+
+**Forms that list permissions.** ``str(permission)`` reads its content type,
+so a ``Permission`` field drew one query per option: 336 on the menu item
+form of a CRUD. ``decore_form_instance`` (the forms of ``CRUDView``),
+``gt_formfield_callback`` and the permission management form now load the
+content types with the permissions (``djgentelella.forms.querysets``).
+
+**Select2 lookups build their serializer once per view**, not on every request,
+which made DRF inspect the model's fields anew each time. The serializer
+reads its view from DRF's serializer context (``self.view``, as before).
+
+**The sidebar title of a page.** ``gentelella/app/sidebar.html`` shows the
+``sidebar_title`` of the template context when a view passes one, and the
+configured ``sidebar_title`` setting otherwise.
+
+**Deploying with moderate resources** (``docs/source/installation.rst``): what
+a worker costs, the optional packages DRF imports when they are installed
+(about 7 MB per worker that djgentelella does not need), and gunicorn with
+threads, ``--preload`` and ``gc.freeze()``. ``make memprofile`` measures it
+(``scripts/memprofile/``, not part of the package).
+
 Backwards incompatible
 """"""""""""""""""""""""
 

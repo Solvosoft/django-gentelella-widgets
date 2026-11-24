@@ -1,4 +1,5 @@
 from djgentelella.forms.forms import GTForm
+from djgentelella.forms.querysets import optimize_form_querysets
 from djgentelella.widgets import core
 
 
@@ -24,6 +25,8 @@ def _form_instance(fnc, instance):
 
 
 def decore_form_instance(form_instance, exclude=()):
+    # Before the widgets are swapped: they copy the field's choices.
+    optimize_form_querysets(form_instance)
     for field in form_instance.fields:
         if field in exclude:
             continue

@@ -246,6 +246,39 @@ A reverse that fails raises ``NoReverseMatch``; with ``fail_silently=True``
 it returns ``''``.
 
 
+The Visible Items in Python
+---------------------------
+
+The menu tags load the whole menu of the current Site once per request --
+every item, its permissions and their content types, three queries however
+large the tree is -- and walk it in memory. The tree is kept on the request,
+so the top bar, the sidebar and the footer of one page share that load. An
+item created during a request shows from the next one.
+
+The same tree is public, for breadcrumbs or a site map that must not query
+item by item:
+
+.. code:: python
+
+    from djgentelella.menu import item_visible, menu_tree, visible_items
+
+    # [(item, level), ...] of a category, depth first, as the menu draws it:
+    # an item shows when it and all of its ancestors are visible.
+    for item, level in visible_items(request, 'sidebar'):
+        ...
+
+    tree = menu_tree(request)          # the Site of the request
+    tree.roots('main')                 # roots of a category, by position
+    tree.children(item)                # children, by id
+    item_visible(item, request)        # its permissions and its condition
+
+Roots are ordered by ``position`` and children by ``id``. Both honour the Site
+of the request and the override of a global item by a Site item, like the
+tags. ``PLACEHOLDER_URL_NAMES`` and ``override_identity`` live in
+``djgentelella.menu`` and are still importable from
+``djgentelella.templatetags.gentelellamenu``.
+
+
 Hierarchical Menus
 ------------------
 

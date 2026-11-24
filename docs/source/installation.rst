@@ -393,3 +393,61 @@ Then visit ``http://localhost:8000/`` and check that:
 2. JavaScript widgets are functional
 3. No console errors in browser developer tools
 
+
+
+Deploying with Moderate Resources
+-----------------------------------
+
+What a worker costs was measured with ``make memprofile`` (tools in
+``scripts/memprofile/`` of the repository, Python 3.13, Django 5.2), right
+after ``django.setup()`` and the URLconf:
+
+=====================================  ========  ===========================
+Project                                RSS       Unshared (USS) per worker
+=====================================  ========  ===========================
+Django and its contrib apps, alone     44 MB     32 MB
++ djgentelella and DRF                 62 MB     48 MB
++ blog, async_notification,            66 MB     52 MB
+  datasources, designs, flows
+=====================================  ========  ===========================
+
+djgentelella's own modules are about 2 MB of that, 6 MB with every optional
+app. Serving requests does not make it grow: the caches it keeps are bounded.
+Most of the rest is decided by the environment and the server:
+
+* **Keep optional packages out of production.** Django REST framework imports
+  ``markdown``, ``pygments``, ``yaml`` and ``requests`` when they are
+  installed, and ``docutils`` comes in through ``django.contrib.admindocs``
+  (imported by DRF's schemas). Nothing in djgentelella needs them, yet
+  together they cost about 7 MB per worker. A development environment with
+  Sphinx installs most of them, so build the production one from the
+  requirements alone. ``requests`` is needed by the ``[firmador]`` and
+  ``[asr-remote]`` extras.
+* **Fewer processes, more threads.** Each worker process pays the figures
+  above; threads share them. Requests that mostly wait on the database or the
+  network are served about as well by ``gunicorn --workers 2 --threads 4`` as
+  by eight processes, with a fraction of the memory; CPU-bound pages still
+  need processes.
+* **Load the code before forking.** With ``gunicorn --preload`` the workers
+  share the imported code with the master until they write to it. Calling
+  ``gc.freeze()`` at the end of the WSGI module keeps the garbage collector
+  from touching, and so copying, those shared objects:
+
+  .. code:: python
+
+      # wsgi.py
+      import gc
+
+      from django.core.wsgi import get_wsgi_application
+
+      application = get_wsgi_application()
+      gc.freeze()
+
+* ``DEBUG = False``: with ``DEBUG`` every SQL query of a request is kept.
+* A shared cache backend (Redis, Memcached, the database) for
+  ``GentelellaSettings`` and the feature flags, instead of one local-memory
+  cache per worker.
+
+The menus cost three queries per page whatever their size (see
+:doc:`menus`), and forms that list ``Permission`` rows load their content
+types with them.

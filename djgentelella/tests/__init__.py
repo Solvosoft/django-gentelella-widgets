@@ -53,3 +53,4 @@ from .MenuItemUrl_Test import *
 from .FlowsPublicApi_Test import *
 from .DesignsPublicApi_Test import *
 from .DesignsQueries_Test import *
+from .MenuQueries_Test import *
