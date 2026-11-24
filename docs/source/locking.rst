@@ -182,6 +182,14 @@ DRF viewsets
   always did, unless ``optimistic_lock_required = True``: then it is **428
   Precondition Required** (``"code": "version_required"``).
 
+- With ``version_in_list = True`` (``False`` by default) every row of the
+  ``list`` carries its ``_version`` too, so a client can edit several rows
+  without reading each one first. The version is computed from the rows the
+  list already read: no extra query. It works with ``many=True`` serializers,
+  paginated ``results`` and object management's ``data``
+  (``add_version_to_rows(serializer)`` does it for any serializer). The
+  ``interactive_grid`` of :doc:`designs` turns it on.
+
 The order is fixed: authentication, permissions and conditions (403) and a
 missing object (404) first, then the version (409, 428), then the validation
 of the data (400). The check and the save run in one transaction, with the
@@ -237,6 +245,8 @@ Reference
 ``OptimisticLockMixin``
     Viewsets: ``optimistic_lock_required``, ``version_field_name``,
     ``version_actions`` (``('retrieve', 'get_values_for_update')``),
-    ``requested_version(request)``.
+    ``version_in_list`` (``False``), ``requested_version(request)``.
+``add_version_to_rows(serializer, name='_version')``
+    Makes each row a list serializer writes carry its version.
 ``VERSION_FIELD`` / ``ANY_VERSION``
     ``'_version'`` and ``'*'``.
