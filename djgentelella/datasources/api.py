@@ -24,6 +24,7 @@ import json
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.http import Http404
+from django.utils.translation import gettext as _
 from rest_framework import status
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
@@ -59,7 +60,7 @@ class DataSourceView(APIView):
         try:
             source = get_datasource(name)
         except KeyError:
-            raise Http404('No data source %s' % name)
+            raise Http404(_('No data source %s') % name)
         if not source.has_permission(self.request):
             raise PermissionDenied()
         return source
@@ -164,7 +165,7 @@ class DataSourceFacetsView(DataSourceView):
         if isinstance(columns, str):
             columns = [name for name in columns.split(',') if name]
         if not columns:
-            raise ValidationError('"columns" is required.')
+            raise ValidationError(_('"columns" is required.'))
         return Response(facets(source, request, params, columns))
 
 
@@ -174,14 +175,14 @@ class DataSourceExportView(DataSourceView):
         if fmt is None and request.method == 'POST':
             fmt = _body(request).get('fmt')
         if fmt is not None and not isinstance(fmt, str):
-            raise ValidationError('"fmt" has to be a string.')
+            raise ValidationError(_('"fmt" has to be a string.'))
         return handle_export(source, request, params, fmt or 'csv')
 
 
 def _body(request):
     """The POST body as a dict; any other JSON document is a bad request."""
     if not hasattr(request.data, 'get'):
-        raise ValidationError('The body has to be a JSON object.')
+        raise ValidationError(_('The body has to be a JSON object.'))
     return request.data
 
 

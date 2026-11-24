@@ -55,3 +55,4 @@ from .DesignsPublicApi_Test import *
 from .DesignsQueries_Test import *
 from .MenuQueries_Test import *
 from .SiteRequest_Test import *
+from .ApiMessages_Test import *

@@ -3774,3 +3774,36 @@ msgstr "Repetir cada (días) mientras esté vencido, 0 nunca"
 
 msgid "Discount above 50%?"
 msgstr "¿Descuento mayor al 50%?"
+
+msgid "not valid JSON"
+msgstr "no es JSON válido"
+
+msgid "must be a list of filter objects"
+msgstr "debe ser una lista de objetos de filtro"
+
+msgid "No such parent"
+msgstr "No existe el objeto padre"
+
+msgid "No such object"
+msgstr "No existe el objeto"
+
+msgid "unknown facet column"
+msgstr "columna de faceta desconocida"
+
+msgid "No data source %s"
+msgstr "No existe la fuente de datos %s"
+
+msgid "\"columns\" is required."
+msgstr "\"columns\" es obligatorio."
+
+msgid "\"fmt\" has to be a string."
+msgstr "\"fmt\" debe ser una cadena de texto."
+
+msgid "The body has to be a JSON object."
+msgstr "El cuerpo debe ser un objeto JSON."
+
+msgid "Not found."
+msgstr "No encontrado."
+
+msgid "You do not have permission to perform this action."
+msgstr "Usted no tiene permiso para realizar esta acción."

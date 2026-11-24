@@ -138,24 +138,24 @@ def design_endpoint(request, page_id, node_id, rest=''):
         pages = pages.exclude(Q(site__isnull=True) & Q(path__in=shadowed))
     page = pages.first()
     if page is None:
-        return JsonResponse({'detail': 'Not found.'}, status=404)
+        return JsonResponse({'detail': _('Not found.')}, status=404)
     resolved, errors = engine.resolve_page(page)
     try:
         check_access(request, page, resolved)
     except Refused as refused:
         status = 404 if refused.status == 404 else 403
-        return JsonResponse({'detail': 'Not found.' if status == 404 else
-                             'You do not have permission to perform this action.'},
+        return JsonResponse({'detail': _('Not found.') if status == 404 else
+                             _('You do not have permission to perform this action.')},
                             status=status)
     if errors:
-        return JsonResponse({'detail': 'Not found.'}, status=404)
+        return JsonResponse({'detail': _('Not found.')}, status=404)
     resolver = engine.node_endpoints(resolved, node_id, request)
     if resolver is None:
-        return JsonResponse({'detail': 'Not found.'}, status=404)
+        return JsonResponse({'detail': _('Not found.')}, status=404)
     try:
         match = resolver.resolve(rest)
     except Resolver404:
-        return JsonResponse({'detail': 'Not found.'}, status=404)
+        return JsonResponse({'detail': _('Not found.')}, status=404)
     request.gtdesign_page = page
     request.gtdesign_resolved = resolved
     request.gtdesign_node = resolved.nodes[node_id]

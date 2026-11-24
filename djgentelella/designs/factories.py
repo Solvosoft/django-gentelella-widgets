@@ -36,6 +36,7 @@ from django.http import Http404
 from django.urls import reverse
 from django.utils.html import escape
 from django.utils.text import capfirst
+from django.utils.translation import gettext as _
 from django_filters import (
     DateFromToRangeFilter, DateTimeFromToRangeFilter, FilterSet,
     ModelMultipleChoiceFilter,
@@ -406,10 +407,10 @@ def parse_filters(raw):
     try:
         filters = json.loads(raw)
     except ValueError:
-        raise ValidationError({'gtfilters': ['not valid JSON']})
+        raise ValidationError({'gtfilters': [_('not valid JSON')]})
     if not isinstance(filters, list) or not all(isinstance(item, dict)
                                                 for item in filters):
-        raise ValidationError({'gtfilters': ['must be a list of filter objects']})
+        raise ValidationError({'gtfilters': [_('must be a list of filter objects')]})
     return filters
 
 
@@ -558,7 +559,7 @@ class ManagementMixin:
             parent = super().get_parent_object()
         except (ValueError, TypeError, DjangoValidationError):
             # A pk the parent's primary key cannot read ('x' for an integer).
-            raise Http404('No such parent')
+            raise Http404(_('No such parent'))
         self.request.gtdesign_parent_pk = parent.pk
         return parent
 
@@ -837,7 +838,7 @@ def _make_facets_viewset(build):
             check_perms(request, target.parent_perms)
             parent = parent_or_none(target.parent_model, self.kwargs.get('parent_pk'))
             if parent is None:
-                raise Http404('No such parent')
+                raise Http404(_('No such parent'))
             queryset = queryset.filter(**{target.parent_field: parent})
         if build.preview:
             queryset = queryset.none()
@@ -870,7 +871,7 @@ def _make_facets_viewset(build):
                 or [name for name in build.columns if name in shown]
             if any(name not in build.columns or name not in shown
                    for name in names):
-                raise DjangoValidationError('unknown facet column')
+                raise DjangoValidationError(_('unknown facet column'))
             if build.preview:
                 return Response({name: [] for name in names})
             return Response(query.facets(data_source, request, params, names))
@@ -1006,7 +1007,7 @@ def _make_crud_viewset(build):
                     build, request, condition_object(build, request)):
                 raise PermissionDenied()
             if 'pk' in kwargs and not valid_pk(build.model, kwargs['pk']):
-                raise Http404('No such object')
+                raise Http404(_('No such object'))
             django_request = request._request
             django_request.gtdesign_crud_base = crud_base(request)
             return getattr(crud, view_name)(django_request, *args, **kwargs)
