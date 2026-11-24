@@ -45,3 +45,43 @@ def delete_expired_uploads(exclude_ids=None):
         'complete': count[COMPLETE],
         'uploading': count[UPLOADING],
     }
+
+
+#: For :func:`find_upload`: the upload of ``token`` whoever uploaded it.
+ANY_USER = object()
+
+
+def find_upload(token, user):
+    """The finished ``ChunkedUpload`` of ``token`` that ``user`` uploaded, or
+    ``None``.
+
+    ``user`` is who presents the token, usually ``request.user``: a signed-in
+    user takes only their own uploads, and an anonymous one (or ``None``) only
+    those without a user, the uploads of anonymous visitors. :data:`ANY_USER`
+    takes the upload whoever uploaded it, for code that has no request to ask
+    (a serializer used outside one). An upload that did not finish
+    (``UPLOADING``) is never taken: its file is only part of the document.
+    """
+    if not isinstance(token, str) or not token:
+        return None
+    uploads = ChunkedUpload.objects.filter(upload_id=token, status=COMPLETE)
+    if user is not ANY_USER:
+        if user is not None and user.is_authenticated:
+            uploads = uploads.filter(user=user)
+        else:
+            uploads = uploads.filter(user__isnull=True)
+    return uploads.first()
+
+
+def request_user(context):
+    """Who presents an upload token to a DRF serializer: the user of the
+    request in its ``context``, the ``user`` of the context (the websocket
+    consumer of the digital signature passes it), or :data:`ANY_USER` when the
+    serializer runs without either."""
+    context = context or {}
+    request = context.get('request')
+    if request is not None:
+        return getattr(request, 'user', None)
+    if 'user' in context:
+        return context['user']
+    return ANY_USER

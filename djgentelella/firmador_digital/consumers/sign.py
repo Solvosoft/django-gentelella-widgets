@@ -31,12 +31,15 @@ class SignConsumer(JsonWebsocketConsumer):
         serializer = WSRequest(data=content)
 
         if serializer.is_valid():
+            # The user of the socket: a document given by upload token is
+            # only read if that user uploaded it.
+            context = {'user': self.scope.get('user')}
             if serializer.validated_data['action'] == 'initial_signature':
-                return InitialSignatureSerializer(data=content)
+                return InitialSignatureSerializer(data=content, context=context)
             if serializer.validated_data['action'] == 'complete_signature':
-                return CompleteSignatureSerializer(data=content)
+                return CompleteSignatureSerializer(data=content, context=context)
             if serializer.validated_data['action'] == 'validate_document':
-                return ValidateDocumentSerializer(data=content)
+                return ValidateDocumentSerializer(data=content, context=context)
 
     def disconnect(self, close_code):
         super().disconnect(close_code)

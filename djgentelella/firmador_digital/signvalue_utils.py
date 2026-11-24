@@ -4,7 +4,7 @@ import logging
 
 from django.contrib.contenttypes.models import ContentType
 
-from djgentelella.models import ChunkedUpload
+from djgentelella.chunked_upload.utils import ANY_USER, find_upload
 
 logger = logging.getLogger('djgentelella')
 
@@ -12,7 +12,10 @@ logger = logging.getLogger('djgentelella')
 class ValueDSParser:
 
     def get_file_from_token(self, token):
-        tmpupload = ChunkedUpload.objects.filter(upload_id=token).first()
+        # A form widget (DigitalSignatureInput) does not see the request, so it
+        # takes the upload whoever uploaded it, as the generic upload widgets
+        # do; DigitalSignatureField (DRF) overrides this with the user.
+        tmpupload = find_upload(token, ANY_USER)
         dev = None
         if tmpupload:
             dev = tmpupload.get_uploaded_file()

@@ -5,7 +5,7 @@ import logging
 from django.contrib.contenttypes.models import ContentType
 from rest_framework import serializers
 
-from djgentelella.models import ChunkedUpload
+from djgentelella.chunked_upload.utils import find_upload, request_user
 
 logger = logging.getLogger('djgentelella')
 
@@ -33,7 +33,9 @@ class InstanceSerializer(serializers.Serializer):
         return jsondata
 
     def get_file_from_token(self, token):
-        tmpupload = ChunkedUpload.objects.filter(upload_id=token).first()
+        # The signing consumer passes its user in the context: only a finished
+        # upload of that user is signed.
+        tmpupload = find_upload(token, request_user(self.context))
         dev = None
         if tmpupload:
             dev = tmpupload.get_uploaded_file().read()

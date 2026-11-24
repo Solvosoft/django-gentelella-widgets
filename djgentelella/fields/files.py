@@ -7,8 +7,8 @@ from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
+from djgentelella.chunked_upload.utils import find_upload, request_user
 from djgentelella.firmador_digital.signvalue_utils import ValueDSParser
-from djgentelella.models import ChunkedUpload
 
 
 class GTBase64FileField(serializers.FileField):
@@ -123,9 +123,9 @@ class ChunkedFileField(serializers.FileField):
             if 'actions' in token and token['actions'] == 'delete':
                 return False
             if 'token' in token:
-                tmpupload = ChunkedUpload.objects.filter(
-                    upload_id=token['token']
-                ).first()
+                # Only a finished upload of the user of the request: a token
+                # is not enough to attach (and then read) someone else's file.
+                tmpupload = find_upload(token['token'], request_user(self.context))
                 if tmpupload:
                     dev = tmpupload.get_uploaded_file()
                     # tmpupload.delete()
@@ -144,6 +144,11 @@ class ChunkedFileField(serializers.FileField):
 
 
 class DigitalSignatureField(serializers.FileField, ValueDSParser):
+    def get_file_from_token(self, token):
+        """The file of a finished upload of the user of the request."""
+        upload = find_upload(token, request_user(self.context))
+        return upload.get_uploaded_file() if upload else None
+
     def to_internal_value(self, data):
         """
         Converts the given data to internal value representation.

@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 
 from djgentelella.firmador_digital.consumers.pdf_render import PDFRenderer
 from djgentelella.firmador_digital.forms import RenderValueForm
-from djgentelella.models import ChunkedUpload
+from djgentelella.chunked_upload.utils import find_upload
 
 
 @method_decorator(login_required, name='dispatch')
@@ -26,7 +26,9 @@ class DigitalSignatureRenderFileAPIView(APIView):
         return None
 
     def get_file_from_token(self, token):
-        tmpupload = ChunkedUpload.objects.filter(upload_id=token).first()
+        # Only a finished upload of who asks: the token alone would show
+        # anyone's upload to any signed-in user.
+        tmpupload = find_upload(token, self.request.user)
         dev = None
         if tmpupload:
             dev = tmpupload.get_uploaded_file()
@@ -66,7 +68,10 @@ class DigitalSignatureRenderFileAPIView(APIView):
                             status=status.HTTP_403_FORBIDDEN)
 
         file_data = self.file_document(form, cc, pk)
-
+        if file_data is None:
+            # It used to answer 200 with the text 'None'.
+            return Response({'detail': 'File not found'},
+                            status=status.HTTP_404_NOT_FOUND)
         return Response(file_data, content_type='application/pdf')
 
     def get_instance_file(self, instance, fieldname):

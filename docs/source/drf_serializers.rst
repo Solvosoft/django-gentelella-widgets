@@ -39,6 +39,10 @@ Usage for upload and edit files:
       class MySerializer(serializers.Serializer):
            chunked_archive = ChunkedFileField()
 
+A token is taken only if it is a finished upload of the user of the request
+(``context['request']``, which the generic views pass); see "Whose upload is
+taken" in :doc:`widgets/chunkedupload`.
+
 
 GTS2SerializerBase
 ---------------------

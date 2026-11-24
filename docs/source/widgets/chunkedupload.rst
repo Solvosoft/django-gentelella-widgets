@@ -56,6 +56,24 @@ unfinished upload, or no user at all -- gives ``None`` and deletes nothing. It
 uses the template and the javascript of ``FileChunkedUpload``
 (``data-widget="FileChunkedUpload"``).
 
+**Outside the form widgets the token is the user's own.** Code that sees the
+request takes only a finished upload of who presents the token, through
+``djgentelella.chunked_upload.utils.find_upload(token, user)``: a signed-in
+user takes their own uploads, an anonymous visitor only the uploads without a
+user, and an unfinished upload is never taken. That is the rule of
+
+- ``ChunkedFileField`` and ``DigitalSignatureField`` (DRF), with the user of
+  the request in the serializer's context; a serializer used without a
+  request keeps taking the token whoever uploaded it (``ANY_USER``);
+- the digital signature websocket (``SignConsumer`` passes the user of the
+  socket to ``InstanceSerializer``);
+- the document preview of the signature,
+  ``DigitalSignatureRenderFileAPIView``, which answers 404 for another user's
+  token, as for one of no upload.
+
+``DigitalSignatureInput`` is a form widget and reads the token as the generic
+widgets do, whoever uploaded it (only a finished upload).
+
 A widget does not see the request, so the form gives it the user with
 ``UserBoundWidgetsMixin`` (called ``UserScopedUploadsMixin`` before 0.7.0; the
 old name still works):
