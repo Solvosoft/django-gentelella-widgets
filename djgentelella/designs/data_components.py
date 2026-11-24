@@ -465,6 +465,10 @@ class ObjectManagementComponent(RuntimeComponent):
                 'Columns shown only when (by field)'),
             'action_conditions': conditions_schema(
                 'Actions allowed only when', list(TABLE_ACTIONS)),
+            'optimistic_lock': {
+                'type': 'boolean', 'default': False,
+                'title': 'Refuse to save a row somebody else changed '
+                         'after it was opened (optimistic locking)'},
             'row_links': {
                 'type': 'array',
                 'x-widget': 'links',
@@ -577,6 +581,7 @@ class ObjectManagementComponent(RuntimeComponent):
         build.columns = columns_of(found)
         build.column_conditions = column_conditions
         build.action_conditions = action_conditions
+        build.optimistic_lock = bool(props.get('optimistic_lock', False))
         return build
 
     def base_url(self, build, rctx):

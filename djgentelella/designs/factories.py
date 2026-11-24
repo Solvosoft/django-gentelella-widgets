@@ -63,6 +63,7 @@ from djgentelella.designs.introspection import NUMBER_KINDS, TEXT_KINDS
 from djgentelella.fields.drfdatetime import DateRangeTextWidget, DateTimeRangeTextWidget
 from djgentelella.fields.files import ChunkedFileField, GTBase64FileField
 from djgentelella.forms import widgetmap
+from djgentelella.locking import OptimisticLockMixin
 from djgentelella.objectmanagement import (
     AuthAllPermBaseObjectManagement, BaseInlineObjectManagement,
 )
@@ -645,6 +646,10 @@ def _management_viewset(build):
         bases = (ManagementMixin, BaseInlineObjectManagement,
                  AuthAllPermBaseObjectManagement)
         attrs.update(parent_model=build.parent_model, parent_field=build.parent_field)
+    if build.optimistic_lock:
+        # Its get_object() goes through ManagementMixin's: the conditions
+        # (403) come before the version (409).
+        bases = (bases[0], OptimisticLockMixin) + bases[1:]
     return type(class_name(build, 'Management'), bases, attrs)
 
 
