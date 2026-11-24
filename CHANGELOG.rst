@@ -158,6 +158,14 @@ reference to the file with ``django.core.signing``
 (seconds, unset by default) makes it expire. See
 ``docs/source/widgets/firmador_digital.rst``.
 
+**``crud_classic`` takes the prop ``optimistic_lock``**, as
+``object_management`` does: a boolean, ``false`` by default and validated by
+the schema; with ``true`` the generated CRUD is a ``CRUDView`` with
+``optimistic_lock = True`` and its update page offers to reload the form
+after a conflict. The messages of async_notification's views, the calendar
+serializer, the flags view and the inline object management are
+translated, with their ``es`` catalog. See ``docs/source/locking.rst``.
+
 Backwards incompatible
 """"""""""""""""""""""""
 
@@ -232,6 +240,32 @@ To keep the old rule of access on purpose -- any signed-in user may see and
 sign the documents the widget shows him -- point ``FIRMADOR_ACCESS_CHECK``
 to a function of your own that returns ``user.is_authenticated``. The
 signature of the references cannot be turned off.
+
+**A form only changes the file of its own object, and async_notification
+checks the object (security fix).**
+
+* ``DigitalSignatureInput`` turned any signed reference into that object's
+  file, so the reference of object X posted in the form of object Y copied
+  X's file into Y. A reference posted back now means "unchanged": the
+  widget returns ``None`` and the field keeps its initial value (in a
+  ``ModelForm``, the file of its instance). Only the token of a signed copy
+  changes the file. A plain ``forms.Form`` that read the file from the
+  reference has to pass it as ``initial``.
+* ``reassociate-files/`` linked the uploads of any ``upload_session`` to any
+  object of any model. It now takes only the models of async_notification
+  (400 for another ``content_type``), an object that exists and that the
+  user may change -- or created, with the ``add`` permission -- (404
+  otherwise), and only the files the same user uploaded in the same login
+  session.
+* ``preview-file/<pk>/`` served any attachment to any user with a permission
+  of the module. A file attached to an object (the attachment of a
+  notification) now needs ``view`` or ``change`` on that object (404
+  otherwise); inline images and uploads not yet linked are served as before.
+* ``<pk>@<app_label>.<model>.internal`` resolved a row of any model with an
+  ``email``, and the recipients preview showed it. It now resolves only the
+  user model, the models with ``gt_get_mail_address()`` and those listed in
+  the new ``ASYNC_NOTIFICATION_INTERNAL_MODELS``; any other gives no address.
+  List there the models whose ``email`` you addressed this way.
 
 Fixes
 """"""""
