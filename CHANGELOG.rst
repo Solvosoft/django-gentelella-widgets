@@ -186,6 +186,22 @@ their cell or row, and a conflict offers to reload that row alone.
 ``product_grid`` (``/designs/product-grid``). See ``docs/source/designs.rst``
 ("Interactive grid") and ``locking.rst``.
 
+**Kanban board of a flow** (``flow_kanban``, a design component in
+``djgentelella.designs.flow_kanban``). The objects of a flow as cards, one
+column per state, from ``Flow.get_queryset(user)`` and the current Site
+(an instance of another Site is left out; ``site_field`` limits the objects
+by their own Site). Props: ``flow``, ``states`` and their order (by default
+the activities an object can wait in), ``title_field``, ``fields``,
+``ordering``, a visual ``limit`` per column and ``page_size`` ("Load more").
+Dragging a card, or its "Move to" menu, asks the node's endpoint which
+transitions go between both states for that object and user and runs one
+with ``Flow.run``: none puts the card back with the reason, several ask which,
+one with a form opens it in a modal. The columns the card may go to are
+marked when the drag starts. The board takes two queries whatever the number
+of cards. An unknown flow, state or field is an error of the document. The
+demo publishes the help desk at ``/designs/tickets-board/``. See
+``docs/source/designs.rst`` ("Flow kanban") and ``flows.rst``.
+
 Backwards incompatible
 """"""""""""""""""""""""
 

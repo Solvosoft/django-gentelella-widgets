@@ -1060,7 +1060,7 @@ class Command(BaseCommand):
                 product.tags.add(red if index % 2 else blue)
         designs = Path(models.__file__).resolve().parent / 'gtdesign'
         for name in ('welcome', 'category_products', 'product_admin',
-                     'sales_dashboard', 'product_grid'):
+                     'sales_dashboard', 'product_grid', 'ticket_kanban'):
             call_command('gtdesigns_publish', str(designs / ('%s.json' % name)))
         parent = MenuItem.objects.create(
             parent=None, title='Designs', url_name='/', category='sidebar',
@@ -1070,7 +1070,9 @@ class Command(BaseCommand):
                                   ('Catalogue dashboard', 'dashboard',
                                    'fa fa-dashboard'),
                                   ('Product prices (grid)', 'product-grid',
-                                   'fa fa-th')):
+                                   'fa fa-th'),
+                                  ('Help desk board', 'tickets-board',
+                                   'fa fa-columns')):
             MenuItem.objects.create(
                 parent=parent, title=title, url_name='gt-design-page',
                 category='sidebar', is_reversed=True, reversed_args=path,

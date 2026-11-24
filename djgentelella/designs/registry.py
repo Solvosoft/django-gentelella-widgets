@@ -3,8 +3,9 @@
 Filled, in this order, so a later ``type`` replaces an earlier one:
 
 1. the built-in components (:mod:`djgentelella.designs.builtin`, then the
-   components with data of :mod:`djgentelella.designs.data_components`
-   and the interactive grid of :mod:`djgentelella.designs.grid`);
+   components with data of :mod:`djgentelella.designs.data_components`,
+   the interactive grid of :mod:`djgentelella.designs.grid` and the board of
+   :mod:`djgentelella.designs.flow_kanban`);
 2. the ``gtdesigns.py`` module of every installed app, imported from
    ``AppConfig.ready()`` -- it registers components with :func:`register` and
    exposes models with :func:`djgentelella.designs.exposure.expose`;
@@ -30,7 +31,9 @@ from importlib.util import find_spec
 from django.apps import apps
 from django.utils.module_loading import import_string
 
-from djgentelella.designs import builtin, conf, data_components, grid
+from djgentelella.designs import (
+    builtin, conf, data_components, flow_kanban, grid,
+)
 
 MODULE_NAME = 'gtdesigns'
 
@@ -83,7 +86,8 @@ def _fill():
     try:
         for component_class in (builtin.BUILTIN_COMPONENTS
                                 + data_components.DATA_COMPONENTS
-                                + grid.GRID_COMPONENTS):
+                                + grid.GRID_COMPONENTS
+                                + flow_kanban.FLOW_KANBAN_COMPONENTS):
             register(component_class)
         autodiscover()
         for path in conf.components():

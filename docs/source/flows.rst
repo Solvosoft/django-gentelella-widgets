@@ -659,6 +659,17 @@ each in its own transaction, and returns ``.done`` and ``.refused``
 (``[(obj, reason)]``). The flow inbox offers it with checkboxes for
 transitions without a form, or with ``bulk=True``.
 
+Kanban board
+------------
+
+The design component ``flow_kanban`` (:doc:`designs`, "Flow kanban") shows
+the objects of a flow as cards in one column per state, from
+``get_queryset(user)`` and the current Site. Dragging a card to another
+column, or picking the column in its "Move to" menu, asks which transitions
+go from one state to the other for that object and user (``Flow.check``) and
+runs the chosen one with ``Flow.run``, its form in a modal: the same rules,
+the same log, as the flow's own pages.
+
 Diagram
 -------
 
@@ -740,7 +751,9 @@ objects and move them:
 * **Purchase requests**: an automatic gateway by amount, a committee where
   every member gets a task and two approvals decide, a reminder on expiry.
 * **Help desk**: automatic triage into a group queue, claim and release, an SLA
-  that depends on the priority, cancelling from any state, bulk close.
+  that depends on the priority, cancelling from any state, bulk close. Its
+  tickets are also on a kanban board, ``/designs/tickets-board/`` ("Board" on
+  ``/flowdemos/``).
 * **Editorial review**: a ``ModelForm`` in a transition, reasons on disabled
   buttons, ``on_exit`` hooks, a loop back for changes.
 * **Leave requests**: the approver is a field of the object, tacit approval

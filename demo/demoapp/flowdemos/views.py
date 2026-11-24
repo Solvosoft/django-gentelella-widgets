@@ -21,7 +21,7 @@ from . import forms
 
 class Demo:
     def __init__(self, slug, flow, form, owner, description, features, title,
-                 filter=None):
+                 filter=None, board=''):
         self.slug = slug
         self.flow_name = flow
         self.form = form
@@ -34,6 +34,8 @@ class Demo:
         #: Field values of the objects of this demo, when two demos share a
         #: model; they are set on the objects it creates.
         self.filter = filter or {}
+        #: The path of a design page with its kanban board (flow_kanban).
+        self.board = board
 
     @property
     def flow(self):
@@ -54,7 +56,7 @@ DEMOS = [
            '5 days low) it is escalated. Resolved tickets close in bulk.'),
          [_('Automatic triage'), _('Claim / release'), _('SLA by priority'),
           _('Cancel from any state'), _('Bulk close'), _('ModelForm transition')],
-         _('Help desk')),
+         _('Help desk'), board='tickets-board'),
     Demo('documents', 'demoapp.EditorialFlow', forms.EditorialDocumentForm, 'author',
          _('The author sends the text to review once it is long enough; an editor '
            'who is not the author publishes it or asks for changes, with notes '

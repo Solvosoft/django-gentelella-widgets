@@ -1,0 +1,12 @@
+{% load i18n %}
+<form class="gtkanban-form" method="post" enctype="multipart/form-data" novalidate>
+  <p>{{ source }} &rarr; <strong>{{ target }}</strong></p>
+  {% if transition.help_text %}<p class="text-muted">{{ transition.help_text }}</p>{% endif %}
+  <input type="hidden" name="transition" value="{{ transition.name }}">
+  {% if form %}{{ form }}{% endif %}
+  {{ comment_form }}
+  <div class="text-end">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans 'Cancel' %}</button>
+    <button type="submit" class="btn {{ transition.css_class }}">{{ transition.label }}</button>
+  </div>
+</form>
