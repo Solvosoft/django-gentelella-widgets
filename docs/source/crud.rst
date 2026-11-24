@@ -123,6 +123,19 @@ your own can change how:
         mixin = ByObject
         action_conditions = {'update': {'auth': 'is_account_manager'}}
 
+Optimistic locking
+------------------
+
+``optimistic_lock = True`` refuses to save an object somebody else changed
+after the update form was opened, instead of overwriting their changes. See
+:doc:`locking`.
+
+.. code:: python
+
+    class Myclass(CRUDView):
+        model = Customer
+        optimistic_lock = True
+
 Searching
 ------------
 
