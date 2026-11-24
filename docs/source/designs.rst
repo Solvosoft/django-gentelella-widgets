@@ -329,6 +329,8 @@ type                            what it is
 ``crud_classic``                djgentelella's ``CRUDView``: its list in the
                                 page, its pages under the node's endpoint
 ``facets``                      a facets panel (``GTFacets``) filtering a table
+``interactive_grid``            rows edited in place like a spreadsheet and
+                                saved together (``djgentelella.designs.grid``)
 ==============================  ===============================================
 
 .. code:: json
@@ -510,6 +512,154 @@ the targets of relations shown, notification paths -- and a body that is not
 a JSON object or a bad filter is a 400. The configuration reaches the browser
 as JSON (``<script type="application/json">``), never as code, and the
 renderers of ``gentelella/js/designs/data_components.js`` escape every value.
+
+Interactive grid
+----------------
+
+*(Cuadrícula interactiva.)* ``interactive_grid``
+(``djgentelella.designs.grid``) edits several rows of a model in place, each
+cell with the djgentelella widget of its field, and saves them together: one
+request, one transaction, every row or none.
+
+.. code:: json
+
+    {"type": "interactive_grid", "id": "prices",
+     "props": {"model": "ventas.Producto",
+               "columns": ["nombre", "precio", "estado", "categoria", "etiquetas"],
+               "editable": ["precio", "estado", "categoria"],
+               "widgets": {"estado": "RadioHorizontalSelect"},
+               "actions": ["update"],
+               "edit_conditions": {"precio": {"perm": "ventas.cambiar_precio"}},
+               "action_conditions": {"update": {"auth": "es_dueno"}},
+               "page_size": 25}}
+
+Props:
+
+``model`` *or* ``datasource``
+    An exposed model, or a registered ``ModelDataSource`` over one: then the
+    rows are those of the data source's queryset (its permissions, Site rule
+    and filters apply, to reading and to writing: a row outside it is a 404),
+    and the columns must be fields it offers. The model must be exposed too.
+``columns`` (required)
+    Fields of the model the exposure allows; not files, JSON, binary or
+    points. A column that does not exist is an error of the document.
+``editable``
+    The columns a cell edits; by default every column it can edit. Not the
+    primary key, ``editable=False`` fields, many-to-many relations (shown
+    read-only), files, JSON, binary or points.
+``widgets``
+    The widget of an editable column, with the rules of the design's
+    ``forms`` (``djgentelella.forms.widgetmap``): an autocomplete needs a
+    lookup in a ``gtselects.py``, a tree select a tree model.
+``actions``
+    What the grid offers: ``create``, ``update``, ``destroy`` (all by default).
+    ``create`` needs every required field of the model among ``editable``.
+``perms``
+    ``list``, ``create``, ``update``, ``destroy``; by default the exposure's
+    ``view``, ``add``, ``change``, ``delete``.
+``column_conditions``, ``edit_conditions``, ``action_conditions``
+    As in a table. ``column_conditions`` hides a column (not in the rows, the
+    search or the ordering; writing it is a 403). ``edit_conditions`` keeps
+    the column but shows it read-only where the condition does not hold, and
+    writing it there is a 403. ``action_conditions`` takes ``create``,
+    ``update`` and ``destroy``. A condition that names an authorization
+    (``auth``) is evaluated **with each row**: on ``update``/``destroy`` it
+    says whether that row can be changed or deleted, on a column whether that
+    cell can be edited (a new row is evaluated with ``obj=None``).
+``optimistic_lock``
+    ``true`` by default: every update and delete must carry the ``_version``
+    of the row it read (:doc:`locking`). ``false`` saves over whatever is
+    there.
+``search_fields``, ``ordering``, ``page_size``, ``title``
+    As in a table; ``ordering`` is ``["pk"]`` by default and ``page_size``
+    25 (at most 200).
+
+**In the page** a row starts as text. Clicking a cell (or the pencil) edits
+its row: each editable cell gets the widget of the column, booted like a modal
+form's. The row is marked as changed as soon as a value differs from what it
+read; *Add row* appends a new row, the trash marks a row to be deleted when
+saving, and the undo icon drops the changes of its row. Nothing is written
+until *Save changes*. Paging and searching wait until there is nothing
+pending.
+
+**The API** of the node (``gtapis/designs/<page>/<node>/``):
+
+``GET ''``
+    ``{"data": [...], "count": n}``, with ``limit``/``offset``, ``search``,
+    ``ordering`` and ``gtfilters`` as in a table. Each row has its columns
+    (relations as ``{id, text}``), its ``_version``, what the request may do
+    on it (``"actions": {"update": true, "destroy": false}``) and which of its
+    editable cells are read-only (``"readonly": ["price"]``).
+``GET <pk>/``
+    One row again, the same shape, with its ``ETag``: what the browser reads
+    to reload a row after a conflict.
+``POST save/``
+    A batch:
+
+    .. code:: json
+
+        {"rows": [
+          {"key": "r1", "op": "update", "id": 5, "_version": "…", "data": {"precio": "3.10"}},
+          {"key": "n1", "op": "create", "data": {"nombre": "Pera", "precio": "1.00"}},
+          {"key": "r7", "op": "delete", "id": 7, "_version": "…"}
+        ]}
+
+    ``key`` names the row in the answer (the browser's own key); an update
+    sends only the fields it changes. At most 500 rows.
+
+Every row is checked before anything is written, in the order of
+:doc:`locking`:
+
+1. **403** ``permission_denied``: the user lacks the permission of the
+   action, the grid does not offer it, its condition does not hold (for the
+   grid, then for that row), or the row writes a column it cannot
+   (``fields`` lists them);
+2. **404** ``not_found``: the row does not exist, or the grid does not reach
+   it;
+3. **409** ``version_conflict`` (with the current ``version``), or **428**
+   ``version_required`` without a ``_version``;
+4. **400** ``invalid``: the validation of the data, as ``errors`` by field.
+
+If every row passes, they are written in that same transaction -- deletes,
+then updates, then new rows -- and the answer is **200**:
+
+.. code:: json
+
+    {"saved": true, "rows": [
+      {"key": "r1", "op": "update", "id": 5, "row": {"id": 5, "_version": "…", "…": "…"}},
+      {"key": "n1", "op": "create", "id": 12, "row": {"…": "…"}},
+      {"key": "r7", "op": "delete", "id": 7}]}
+
+If any row fails **nothing is saved**, and the answer has the status of the
+first kind of failure in the order above (403, then 404, 409, 428, 400) and
+lists each failed row:
+
+.. code:: json
+
+    {"saved": false, "code": "batch_rejected",
+     "detail": "Nothing was saved: 2 of 3 rows have problems.",
+     "rows": [
+       {"key": "r1", "op": "update", "id": 5, "status": 409,
+        "code": "version_conflict", "detail": "…", "version": "…"},
+       {"key": "n1", "op": "create", "status": 400, "code": "invalid",
+        "detail": "…", "errors": {"precio": ["A valid number is required."]}}]}
+
+A body that is not a batch is a 400 with ``"code": "invalid_batch"``; a
+database error while writing (two new rows with the same unique value) a 400
+``batch_rejected`` with no rows. The browser shows field errors under their
+cell and the rest next to the row; a conflict offers to **reload that row**
+(``GET <pk>/``), which drops its changes and keeps those of the other rows.
+
+**Cost.** The rows a batch updates or deletes are read -- and locked with
+``select_for_update`` -- in one query, ordered by pk; each relation the rows
+set is read once for all of them. When the model has no ``save()`` of its own
+and nothing listens to its ``pre_save``/``post_save``, the updates are one
+``bulk_update`` (its ``auto_now`` fields are set as ``save()`` would) and the
+new rows one ``bulk_create`` (when the database returns their keys); the
+deletes are one ``delete()`` of a queryset unless the model has its own
+``delete()``. Otherwise each row is saved with ``save()``. A unique field
+adds its validation query per row. ``tests/InteractiveGrid_Test.py`` pins
+the number of queries: the same for one row and for many.
 
 Extending the engine
 --------------------

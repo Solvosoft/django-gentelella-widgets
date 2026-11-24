@@ -1,0 +1,36 @@
+{% load i18n %}
+<div class="x_panel gtdesign-grid" data-gtdesign="{{ b.id }}"{% if not preview %} data-gtconfig="{{ b.id }}_gtconfig"{% endif %} id="{{ b.id }}_grid">
+  <div class="x_title">
+    <h2>{{ b.title }}</h2>
+    <div class="clearfix"></div>
+  </div>
+  <div class="x_content">
+    {% if preview %}
+    <table class="table table-sm table-bordered w-100" id="{{ b.id }}_table">
+      <thead><tr>{% for title in columns %}<th>{{ title }}</th>{% endfor %}<th></th></tr></thead>
+      <tbody>{% for row in rows %}<tr>{% for value in row %}<td>{{ value }}</td>{% endfor %}<td><i class="fa fa-pencil"></i> <i class="fa fa-trash"></i></td></tr>{% endfor %}</tbody>
+    </table>
+    {% else %}
+    <div class="gtgrid-toolbar d-flex flex-wrap align-items-center gap-2 mb-2">
+      {% if allowed.create %}<button type="button" class="btn btn-sm btn-outline-primary gtgrid-add"><i class="fa fa-plus"></i> {% trans 'Add row' %}</button>{% endif %}
+      {% if allowed.create or allowed.update or allowed.destroy %}<button type="button" class="btn btn-sm btn-primary gtgrid-save" disabled><i class="fa fa-save"></i> {% trans 'Save changes' %}</button>{% endif %}
+      <input type="search" class="form-control form-control-sm gtgrid-search w-auto d-none" placeholder="{% trans 'Search' %}" aria-label="{% trans 'Search' %}">
+      <span class="gtgrid-status ms-2" role="status" aria-live="polite"></span>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-sm table-bordered align-middle w-100 gtgrid-table" id="{{ b.id }}_table">
+        <thead></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div class="gtgrid-pager d-flex align-items-center gap-2">
+      <button type="button" class="btn btn-sm btn-outline-secondary gtgrid-prev" aria-label="{% trans 'Previous' %}"><i class="fa fa-chevron-left"></i></button>
+      <span class="gtgrid-info"></span>
+      <button type="button" class="btn btn-sm btn-outline-secondary gtgrid-next" aria-label="{% trans 'Next' %}"><i class="fa fa-chevron-right"></i></button>
+    </div>
+    {% for name, cell in cells %}<template data-gtgrid-cell="{{ name }}">{{ cell }}</template>
+    {% endfor %}
+    {% endif %}
+  </div>
+</div>
+{% if not preview %}{{ config }}{% endif %}

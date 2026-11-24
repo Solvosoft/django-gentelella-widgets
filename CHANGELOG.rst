@@ -166,6 +166,26 @@ after a conflict. The messages of async_notification's views, the calendar
 serializer, the flags view and the inline object management are
 translated, with their ``es`` catalog. See ``docs/source/locking.rst``.
 
+**Interactive grid** (``djgentelella.designs.grid``). The design component
+``interactive_grid`` edits several rows of a model -- or of a
+``ModelDataSource`` over one -- in place, each cell with the widget of its
+field, and saves them together: new, changed and deleted rows go in one
+``POST save/`` that runs in one transaction with the rows locked, and saves
+every row or none. Each row is checked in the order of the optimistic
+locking -- 403 (permissions and conditions, per row with an ``auth``), 404,
+409 (``version_conflict``, with the current version), 400 (errors by field)
+-- and the answer lists what failed in each row. ``columns``, ``editable``
+and ``widgets`` are validated against the model; ``edit_conditions`` shows a
+column read-only where its condition does not hold. Updates are one
+``bulk_update`` and new rows one ``bulk_create`` when the model has no
+``save()`` of its own and no signal listens; the number of queries does not
+grow with the rows. In the page, changed rows are marked, errors appear in
+their cell or row, and a conflict offers to reload that row alone.
+``OptimisticLockMixin.version_in_list`` (``False`` by default) adds
+``_version`` to every row of a list, with no extra query. The demo publishes
+``product_grid`` (``/designs/product-grid``). See ``docs/source/designs.rst``
+("Interactive grid") and ``locking.rst``.
+
 Backwards incompatible
 """"""""""""""""""""""""
 

@@ -25,19 +25,19 @@ from django import forms
 from django.apps import apps
 from django.core.exceptions import FieldDoesNotExist, ImproperlyConfigured
 from django.core.serializers.json import DjangoJSONEncoder
-from django.db import connections, router, transaction
+from django.db import connections, models, router, transaction
 from django.db.models.fields.files import FieldFile
 from django.utils import formats, timezone
 from django.utils.crypto import salted_hmac
 from django.utils.translation import gettext as _
-from rest_framework import status
+from rest_framework import serializers, status
 from rest_framework.response import Response
 
 __all__ = [
     'VERSION_FIELD', 'ANY_VERSION', 'object_version', 'version_field',
     'version_fields', 'locked_object', 'last_change', 'conflict_message',
     'parse_if_match', 'OptimisticLockFormMixin', 'lock_form_class',
-    'OptimisticLockMixin',
+    'OptimisticLockMixin', 'add_version_to_rows',
 ]
 
 #: The name of the version in a form (hidden field) and in an API body.
@@ -269,6 +269,42 @@ def lock_form_class(form_class):
 
 # -- DRF -----------------------------------------------------------------------------
 
+def _row_serializers(serializer):
+    """The serializers of the rows of a list response: the child of a
+    ``many=True`` serializer, or of the ``ListField``/``ListSerializer``
+    fields of a wrapper (``data`` of object management, ``results``...)."""
+    if isinstance(serializer, serializers.ListSerializer):
+        return [serializer.child]
+    found = []
+    for item in getattr(serializer, 'fields', {}).values():
+        child = getattr(item, 'child', None)
+        if isinstance(item, (serializers.ListField, serializers.ListSerializer)) \
+                and isinstance(child, serializers.BaseSerializer):
+            found.append(child)
+    return found
+
+
+def add_version_to_rows(serializer, name=VERSION_FIELD):
+    """Make each row ``serializer`` writes carry its version as ``name``.
+
+    The rows are the model instances the serializer already has: computing
+    the version runs no query. Returns ``serializer``.
+    """
+    for child in _row_serializers(serializer):
+        if getattr(child, '_gt_versioned', False):
+            continue
+        represent = child.to_representation
+
+        def to_representation(instance, represent=represent):
+            data = represent(instance)
+            if isinstance(instance, models.Model):
+                data[name] = object_version(instance)
+            return data
+        child.to_representation = to_representation
+        child._gt_versioned = True
+    return serializer
+
+
 class OptimisticLockMixin:
     """For a DRF ``ModelViewSet`` (put it before the viewset class).
 
@@ -283,6 +319,9 @@ class OptimisticLockMixin:
     - Without a version the update goes on as always, unless
       :attr:`optimistic_lock_required`, which answers ``428``.
 
+    - With :attr:`version_in_list` every row of ``list`` carries its
+      ``_version`` too (:func:`add_version_to_rows`), with no extra query.
+
     Permissions and conditions (403) and a missing object (404) come first,
     then the version (409/428), then the validation of the data (400).
     """
@@ -291,6 +330,15 @@ class OptimisticLockMixin:
     version_field_name = VERSION_FIELD
     #: The detail actions that answer with the version.
     version_actions = ('retrieve', 'get_values_for_update')
+    #: Whether each row of ``list`` carries its version as ``_version``, so
+    #: that a client can edit several rows without reading each one first.
+    version_in_list = False
+
+    def get_serializer(self, *args, **kwargs):
+        serializer = super().get_serializer(*args, **kwargs)
+        if self.version_in_list and getattr(self, 'action', None) == 'list':
+            add_version_to_rows(serializer, self.version_field_name)
+        return serializer
 
     def get_object(self):
         obj = super().get_object()

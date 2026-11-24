@@ -3979,3 +3979,151 @@ msgstr "Bandera desconocida %(code)r"
 #, python-format
 msgid "No %(parameter)s given for the inline objects"
 msgstr "No se indicó %(parameter)s para los objetos en línea"
+#: designs/grid.py
+msgid "Interactive grid (edit rows in place)"
+msgstr "Cuadrícula interactiva (editar filas en el lugar)"
+
+#: designs/grid.py
+#, python-format
+msgid "data source %r is not over a model: a grid edits the rows of a model"
+msgstr ""
+"la fuente de datos %r no es de un modelo: una cuadrícula edita las filas de "
+"un modelo"
+
+#: designs/grid.py
+msgid "a column is listed twice"
+msgstr "una columna aparece dos veces"
+
+#: designs/grid.py
+#, python-format
+msgid "%r cannot be a grid column"
+msgstr "%r no puede ser una columna de la cuadrícula"
+
+#: designs/grid.py
+#, python-format
+msgid "%r is not one of the columns"
+msgstr "%r no es una de las columnas"
+
+#: designs/grid.py
+#, python-format
+msgid "%r cannot be edited in a grid"
+msgstr "%r no se puede editar en una cuadrícula"
+
+#: designs/grid.py
+#, python-format
+msgid "%r is not an editable column"
+msgstr "%r no es una columna editable"
+
+#: designs/grid.py
+#, python-format
+msgid ""
+"adding rows needs every required field editable: add %s to \"editable\", or "
+"leave \"create\" out of \"actions\""
+msgstr ""
+"añadir filas necesita que todos los campos obligatorios sean editables: "
+"añade %s a \"editable\" o quita \"create\" de \"actions\""
+
+#: designs/grid.py
+#, python-format
+msgid ""
+"%s has a field \"id\" that is not its primary key: the grid needs \"id\" for "
+"the row"
+msgstr ""
+"%s tiene un campo \"id\" que no es su clave primaria: la cuadrícula necesita "
+"\"id\" para la fila"
+
+#: designs/grid.py
+msgid "editable column"
+msgstr "columna editable"
+
+#: designs/grid.py
+msgid "The database refused the rows (a duplicate value?). Nothing was saved."
+msgstr ""
+"La base de datos rechazó las filas (¿un valor repetido?). No se guardó nada."
+
+#: designs/grid.py
+#, python-format
+msgid "You cannot change these columns: %s."
+msgstr "No puedes cambiar estas columnas: %s."
+
+#: designs/grid.py
+msgid "This column cannot be edited here."
+msgstr "Esta columna no se puede editar aquí."
+
+#: designs/grid.py
+msgid "This row no longer exists, or you can no longer reach it."
+msgstr "Esta fila ya no existe, o ya no tienes acceso a ella."
+
+#: designs/grid.py
+msgid "This row has errors."
+msgstr "Esta fila tiene errores."
+
+#: designs/grid.py
+#, python-format
+msgid "Nothing was saved: %(failed)d of %(total)d rows have problems."
+msgstr "No se guardó nada: %(failed)d de %(total)d filas tienen problemas."
+
+#: designs/grid.py
+msgid "The body must be {\"rows\": [...]}, with at least one row."
+msgstr "El cuerpo debe ser {\"rows\": [...]}, con al menos una fila."
+
+#: designs/grid.py
+#, python-format
+msgid "Too many rows: at most %d in one save."
+msgstr "Demasiadas filas: como máximo %d en un guardado."
+
+#: designs/grid.py
+#, python-format
+msgid "Row %d is not an object."
+msgstr "La fila %d no es un objeto."
+
+#: designs/grid.py
+#, python-format
+msgid "Row %d has no valid \"key\"."
+msgstr "La fila %d no tiene una \"key\" válida."
+
+#: designs/grid.py
+#, python-format
+msgid "The key %r is used twice."
+msgstr "La clave %r se usa dos veces."
+
+#: designs/grid.py
+#, python-format
+msgid "Row %(row)s: \"op\" must be one of %(ops)s."
+msgstr "Fila %(row)s: \"op\" debe ser uno de %(ops)s."
+
+#: designs/grid.py
+#, python-format
+msgid "Row %s: a new row has no \"id\"."
+msgstr "Fila %s: una fila nueva no tiene \"id\"."
+
+#: designs/grid.py
+#, python-format
+msgid "Row %s needs the \"id\" of the row."
+msgstr "La fila %s necesita el \"id\" de la fila."
+
+#: designs/grid.py
+#, python-format
+msgid "The row %s appears twice."
+msgstr "La fila %s aparece dos veces."
+
+#: designs/grid.py
+#, python-format
+msgid "Row %s: \"data\" must be an object."
+msgstr "Fila %s: \"data\" debe ser un objeto."
+
+#: designs/grid.py
+msgid "You cannot add rows here."
+msgstr "Aquí no puedes añadir filas."
+
+#: designs/grid.py
+msgid "You cannot change this row."
+msgstr "No puedes cambiar esta fila."
+
+#: designs/grid.py
+msgid "You cannot delete this row."
+msgstr "No puedes eliminar esta fila."
+
+#: designs/templates/gtdesigns/components/interactive_grid.html
+msgid "Add row"
+msgstr "Añadir fila"

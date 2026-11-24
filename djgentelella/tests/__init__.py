@@ -64,3 +64,4 @@ from .SignatureForm_Test import *
 from .ContentTypeSweep_Test import *
 from .CrudClassicLock_Test import *
 from .PendingMessages_Test import *
+from .InteractiveGrid_Test import *
