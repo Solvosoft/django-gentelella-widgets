@@ -736,3 +736,55 @@ msgid ""
 msgstr ""
 "Hubo un problema al realizar tu solicitud. Por favor, intenta nuevamente más "
 "tarde o contacta al administrador."
+
+#: static/gentelella/js/designs/interactive_grid.js
+msgid "Edit"
+msgstr "Editar"
+
+#: static/gentelella/js/designs/interactive_grid.js
+msgid "No rows"
+msgstr "Sin filas"
+
+#: static/gentelella/js/designs/interactive_grid.js
+msgid "Nothing to save."
+msgstr "No hay nada que guardar."
+
+#: static/gentelella/js/designs/interactive_grid.js
+msgid "Reload this row"
+msgstr "Recargar esta fila"
+
+#: static/gentelella/js/designs/interactive_grid.js
+msgid "Saved."
+msgstr "Guardado."
+
+#: static/gentelella/js/designs/interactive_grid.js
+msgid "Save or undo your changes first."
+msgstr "Primero guarda o deshaz tus cambios."
+
+#: static/gentelella/js/designs/interactive_grid.js
+msgid "Saving..."
+msgstr "Guardando..."
+
+#: static/gentelella/js/designs/interactive_grid.js
+msgid "That row is no longer available."
+msgstr "Esa fila ya no está disponible."
+
+#: static/gentelella/js/designs/interactive_grid.js
+msgid "The changes could not be saved."
+msgstr "No se pudieron guardar los cambios."
+
+#: static/gentelella/js/designs/interactive_grid.js
+msgid "The row could not be read."
+msgstr "No se pudo leer la fila."
+
+#: static/gentelella/js/designs/interactive_grid.js
+msgid "The rows could not be read."
+msgstr "No se pudieron leer las filas."
+
+#: static/gentelella/js/designs/interactive_grid.js
+msgid "The row was reloaded with the current data."
+msgstr "Se recargó la fila con los datos actuales."
+
+#: static/gentelella/js/designs/interactive_grid.js
+msgid "Undo the changes of this row"
+msgstr "Deshacer los cambios de esta fila"
