@@ -1,0 +1,39 @@
+{% load i18n %}
+<div class="x_panel gtdesign-kanban" data-gtdesign="{{ b.id }}"{% if not preview %} data-gtconfig="{{ b.id }}_gtconfig"{% endif %}>
+  <div class="x_title">
+    <h2>{{ b.title }}</h2>
+    <div class="clearfix"></div>
+  </div>
+  <div class="x_content">
+    {% if not preview %}{% csrf_token %}{% endif %}
+    <div class="gtkanban-message" role="status" aria-live="polite"></div>
+    <div class="gtkanban-board">
+      {% for column in columns %}
+      <section class="gtkanban-column{% if column.over %} gtkanban-over{% endif %}" data-state="{{ column.state }}" aria-label="{{ column.label }}">
+        <header class="gtkanban-column-header">
+          <h3>{{ column.label }}</h3>
+          <span class="badge bg-secondary gtkanban-count" title="{% trans 'Cards in this state' %}"><span class="gtkanban-total">{{ column.total }}</span>{% if b.limit %} / {{ b.limit }}{% endif %}</span>
+        </header>
+        <div class="gtkanban-cards">{{ column.html }}</div>
+        {% if not preview %}
+        <button type="button" class="btn btn-sm btn-outline-secondary w-100 gtkanban-more"{% if not column.has_more %} hidden{% endif %}>{% trans 'Load more' %}</button>
+        {% endif %}
+      </section>
+      {% endfor %}
+    </div>
+  </div>
+  {% if not preview %}
+  <div class="modal fade gtkanban-modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
+        </div>
+        <div class="modal-body"></div>
+      </div>
+    </div>
+  </div>
+  {{ config }}
+  {% endif %}
+</div>

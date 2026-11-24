@@ -1,0 +1,14 @@
+{% load i18n %}{% for card in cards %}
+<article class="gtkanban-card{% if not card.movable %} gtkanban-locked{% endif %}" data-pk="{{ card.pk }}" data-state="{{ card.state }}"{% if card.movable %} draggable="true"{% endif %} tabindex="0">
+  <div class="gtkanban-card-title">{% if card.url %}<a href="{{ card.url }}">{{ card.title }}</a>{% else %}{{ card.title }}{% endif %}</div>
+  {% if card.fields %}<dl class="gtkanban-fields">{% for name, value in card.fields %}<dt>{{ name }}</dt><dd>{% if value is None or value == '' %}&mdash;{% else %}{{ value }}{% endif %}</dd>{% endfor %}</dl>{% endif %}
+  {% if card.status_label %}<span class="badge bg-warning text-dark gtkanban-status">{{ card.status_label }}</span>{% endif %}
+  {% if card.movable and card.targets %}
+  <div class="dropdown gtkanban-menu">
+    <button type="button" class="btn btn-sm btn-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">{% trans 'Move to' %}</button>
+    <ul class="dropdown-menu">
+      {% for target, target_label in card.targets %}<li><button type="button" class="dropdown-item gtkanban-move-to" data-target="{{ target }}">{{ target_label }}</button></li>{% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+</article>{% endfor %}
