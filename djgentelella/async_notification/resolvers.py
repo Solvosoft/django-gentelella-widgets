@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
@@ -65,12 +66,31 @@ class DjangoGroupResolver(RecipientResolver):
         ]
 
 
+def internal_model_allowed(model):
+    """Whether ``<pk>@<app>.<model>.internal`` may name a row of ``model``.
+
+    The user model and the models that define ``gt_get_mail_address()`` say
+    they hold addresses to write to; ``ASYNC_NOTIFICATION_INTERNAL_MODELS``
+    (``['app_label.model', ...]``) adds models whose plain ``email``
+    attribute is enough. Any other model resolves to nothing: an author who
+    previews the recipients would otherwise read the email of any row of any
+    model.
+    """
+    if model is get_user_model():
+        return True
+    if callable(getattr(model, 'gt_get_mail_address', None)):
+        return True
+    extra = getattr(settings, 'ASYNC_NOTIFICATION_INTERNAL_MODELS', None) or ()
+    return model._meta.label_lower in {label.lower() for label in extra}
+
+
 class ContentTypeResolver(RecipientResolver):
     """Resolve ``<pk>@<app_label>.<model_name>.internal`` to an instance email.
 
     The instance is located via ``ContentType`` and its address is taken
     from a ``gt_get_mail_address()`` method (preferred) or an ``email``
-    attribute. Registered under the terminal label ``internal``.
+    attribute. Only the models of :func:`internal_model_allowed` resolve.
+    Registered under the terminal label ``internal``.
     """
 
     def resolve_domain(self, identifier, domain):
@@ -92,7 +112,7 @@ class ContentTypeResolver(RecipientResolver):
             ct = ContentType.objects.get(
                 app_label=app_label, model=model_name)
             model = ct.model_class()
-            if model is None:
+            if model is None or not internal_model_allowed(model):
                 return []
             instance = model.objects.get(pk=identifier)
         except (ContentType.DoesNotExist, ValueError, TypeError):

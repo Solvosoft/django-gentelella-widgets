@@ -148,6 +148,10 @@ Retry & Resolvers
         'group.local': 'myapp.resolvers.MyGroupResolver',
     }
 
+    # Models (besides the user model and those with gt_get_mail_address())
+    # that <pk>@<app_label>.<model>.internal may name. See :doc:`resolvers`.
+    ASYNC_NOTIFICATION_INTERNAL_MODELS = []
+
 Upload Limits
 ---------------------
 

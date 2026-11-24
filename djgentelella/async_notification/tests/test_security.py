@@ -1,10 +1,12 @@
 """
-Who may link uploaded files to an object or read an attachment (W19).
+Who may link uploaded files to an object, read an attachment, or resolve a
+``<pk>@<app>.<model>.internal`` address (W19).
 
 On 73140ca0 ``reassociate_files_view`` linked the files of any upload
 session to any object of any model -- an author of templates could add an
-attachment to the email of somebody else's notification -- and a user who only
-viewed templates downloaded the attachments of notifications.
+attachment to the email of somebody else's notification -- a user who only
+viewed templates downloaded the attachments of notifications, and an author
+previewing recipients read the email of any row of any model.
 """
 from django.contrib.auth.models import Permission, User
 from django.contrib.contenttypes.models import ContentType
@@ -12,9 +14,13 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import RequestFactory, TestCase, override_settings
 from django.urls import reverse
 
+from demoapp.models import InputMask
 from djgentelella.async_notification import views
 from djgentelella.async_notification.models import (
     AttachedFile, EmailNotification, EmailTemplate, NewsLetter,
+)
+from djgentelella.async_notification.resolvers import (
+    ContentTypeResolver, RecipientResolverRegistry, internal_model_allowed,
 )
 from djgentelella.async_notification.sending import _get_attachments
 
@@ -200,3 +206,41 @@ class PreviewFileTests(FilesTestCase):
         self.client.force_login(User.objects.create_user('nobody'))
         self.assertEqual(self.get(self.pending).status_code, 403)
 
+
+class InternalAddressTests(TestCase):
+    def setUp(self):
+        RecipientResolverRegistry.register('internal', ContentTypeResolver)
+        self.row = InputMask.objects.create(email='private@example.com',
+                                            date='2026-01-01')
+        self.address = '%d@demoapp.inputmask.internal' % self.row.pk
+
+    def preview(self, recipients):
+        response = self.client.post(
+            reverse('async_notification:newsletter_recipients_preview'),
+            {'recipients': recipients})
+        self.assertEqual(response.status_code, 200)
+        return response.json()['recipients']
+
+    def test_any_model_with_an_email_does_not_resolve(self):
+        # The reproduction: on 73140ca0 the preview showed private@example.com.
+        self.client.force_login(perm_user('author', 'add_newsletter'))
+        self.assertEqual(self.preview(self.address), [])
+        self.assertEqual(RecipientResolverRegistry.resolve(self.address), [])
+
+    @override_settings(ASYNC_NOTIFICATION_INTERNAL_MODELS=['demoapp.InputMask'])
+    def test_a_model_listed_in_the_setting(self):
+        self.assertTrue(internal_model_allowed(InputMask))
+        self.assertEqual(RecipientResolverRegistry.resolve(self.address),
+                         ['private@example.com'])
+
+    def test_the_user_model_and_gt_get_mail_address(self):
+        user = perm_user('author', 'add_newsletter')
+        self.client.force_login(user)
+        self.assertEqual(self.preview('%d@auth.user.internal' % user.pk),
+                         ['author@example.com'])
+
+        class Addressed:
+            def gt_get_mail_address(self):
+                return ''
+        self.assertTrue(internal_model_allowed(Addressed))
+        self.assertFalse(internal_model_allowed(InputMask))

@@ -164,6 +164,9 @@ class ContentTypeResolverTest(AsyncNotificationTestBase):
         class FakeModel:
             objects = FakeQS()
 
+            def gt_get_mail_address(self):  # declared by the model (W19)
+                return ''
+
         with patch('django.contrib.contenttypes.models.'
                    'ContentType.objects.get') as get_ct:
             get_ct.return_value.model_class.return_value = FakeModel

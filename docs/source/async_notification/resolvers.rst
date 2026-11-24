@@ -28,6 +28,27 @@ This resolver is registered automatically when the app starts (in ``apps.py``).
     # 'managers@group.local' → emails of users in the "managers" group
     # 'extra@example.com' → used as-is
 
+One object: ``<pk>@<app_label>.<model>.internal``
+-----------------------------------------------------
+
+``ContentTypeResolver`` (also registered in ``apps.py``) resolves
+``<pk>@<app_label>.<model>.internal`` to the address of one row: the result
+of its ``gt_get_mail_address()`` or, failing that, its ``email`` attribute.
+
+Only some models resolve, because the authors who preview the recipients
+would otherwise read the email of any row of any model:
+
+- the user model (``AUTH_USER_MODEL``);
+- the models that define ``gt_get_mail_address()``;
+- the models listed in ``ASYNC_NOTIFICATION_INTERNAL_MODELS``, whose plain
+  ``email`` attribute is then enough:
+
+.. code:: python
+
+    ASYNC_NOTIFICATION_INTERNAL_MODELS = ['crm.customer']
+
+Any other model resolves to no address.
+
 Creating Custom Resolvers
 ----------------------------
 
