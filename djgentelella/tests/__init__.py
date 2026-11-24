@@ -54,3 +54,4 @@ from .FlowsPublicApi_Test import *
 from .DesignsPublicApi_Test import *
 from .DesignsQueries_Test import *
 from .MenuQueries_Test import *
+from .Locking_Test import *
