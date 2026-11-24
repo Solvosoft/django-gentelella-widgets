@@ -170,7 +170,9 @@ def conflict_message(obj):
     entry = last_change(obj)
     if entry is not None:
         user = entry.user
-        who = (user.get_full_name() or user.get_username()) if user else '?'
+        full_name = getattr(user, 'get_full_name', None)
+        who = ((full_name() if full_name else '') or user.get_username()) \
+            if user else '?'
         when = formats.date_format(timezone.localtime(entry.action_time)
                                    if timezone.is_aware(entry.action_time)
                                    else entry.action_time, 'DATETIME_FORMAT')
@@ -311,7 +313,8 @@ class OptimisticLockMixin:
         expected = self.requested_version(request)
         if expected is None and not self.optimistic_lock_required:
             return super().update(request, *args, **kwargs)
-        model = self.get_queryset().model
+        queryset = getattr(self, 'queryset', None)
+        model = (queryset if queryset is not None else self.get_queryset()).model
         with transaction.atomic(using=router.db_for_write(model)):
             instance = self.get_object()
             if expected is None:
