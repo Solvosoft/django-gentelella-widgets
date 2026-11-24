@@ -75,6 +75,10 @@ Djgentelella already implements the required libraries for the following configu
         FIRMADOR_DELETE_FILE_URL = FIRMADOR_DOMAIN + "/firma/delete"
         # Optional: Bearer token for firmador_api (its API_TOKEN). Unset = no header.
         FIRMADOR_TOKEN = os.getenv("FIRMADOR_TOKEN")
+        # Optional: who may see or sign a document (see "Access control").
+        # FIRMADOR_ACCESS_CHECK = "myproject.signature.can_use_document"
+        # Optional: seconds a reference rendered by the widget stays valid.
+        # FIRMADOR_REFERENCE_MAX_AGE = 12 * 3600
 
 
 2. Add files for asgi configuration
@@ -147,6 +151,75 @@ Below is an example of how the ``DigitalSignatureForm`` is implemented:
                 )
             }
 
+-----------------
+Access control
+-----------------
+
+The widget names the file it signs -- content type, primary key and field
+-- and that name travels through the browser to the preview endpoint, to the
+signing websocket and back to the form. So it is **signed by the server**:
+``DigitalSignatureInput`` renders
+``djgentelella.firmador_digital.access.sign_document_reference(instance,
+field_name)``, a ``django.core.signing`` value with a salt of its own, and
+every entry accepts only such a reference. A reference the browser wrote or
+altered names no file. The only value the browser builds itself is the one
+it gets after signing, ``{"token": ...}``: it gives the signed copy only to
+the user who signed it (``find_upload``).
+
+A valid reference is not permission. The preview endpoint and the websocket
+ask ``has_document_access(user, instance, field_name, action)``:
+
+* ``action`` is ``"view"`` for the preview (and for validating a document)
+  and ``"sign"`` for signing;
+* by default signing needs the ``change`` permission of the model, and the
+  preview ``view`` or ``change``. Both are asked with and without the object
+  (``user.has_perm("app.change_model", obj)``), so an object permission
+  backend such as django-guardian is honoured.
+
+The preview accepts ``view`` because it only shows the file, which a user
+allowed to view the object can usually download anyway; it accepts
+``change`` too, as the Django admin does, since signing comes with a
+preview. Signing replaces the file of the object, so it needs ``change``.
+
+A project with its own rule sets ``FIRMADOR_ACCESS_CHECK`` to the dotted
+path of a callable with the same signature. It replaces the default for the
+preview and the websocket alike:
+
+.. code-block:: python
+
+    # myproject/signature.py
+    def can_use_document(user, instance, field_name, action):
+        if not user.is_authenticated:
+            return False
+        if action == "sign":
+            return instance.signers.filter(pk=user.pk).exists()
+        return instance.organization.members.filter(pk=user.pk).exists()
+
+    # settings.py
+    FIRMADOR_ACCESS_CHECK = "myproject.signature.can_use_document"
+
+To change the rule of one preview endpoint only, override ``check_user(cc,
+pk, user, token=None)`` in its ``DigitalSignatureRenderFileAPIView``
+subclass; ``self.document_instance`` and ``self.document_field_name`` are the
+object and field of the reference (``None`` with a token, which only reaches
+the uploads of ``user``). The websocket keeps ``FIRMADOR_ACCESS_CHECK``.
+
+Every refusal looks the same, so it does not tell whether the object exists:
+the preview answers ``404`` ``File not found`` and the websocket the error
+``The document is not available.`` (``Invalid encode value`` for a value
+that is not a reference nor a token).
+
+``FIRMADOR_REFERENCE_MAX_AGE`` (seconds, unset by default) makes the
+references expire: a page open longer has to be reloaded before signing.
+The references are signed with ``SECRET_KEY`` (and its
+``SECRET_KEY_FALLBACKS``); rotating it invalidates the pages already
+rendered.
+
+``DigitalSignatureField`` (DRF) takes only a reference to its own field of
+the serializer's instance. ``DigitalSignatureInput`` does not see the
+instance nor the request, so the view that saves the form decides who may
+change the object, as for any other field.
+
 -----------------------------------------
 DigitalSignatureFileAPIView Documentation
 -----------------------------------------
@@ -166,54 +239,54 @@ HTTP Methods
 """""""""""""
 
 - **GET**:
-  Retrieves the PDF file for a given digital signature.
+  Retrieves the PDF the widget references, for its preview.
 
-  **URL Parameter**:
-  - ``pk``: The primary key of the digital signature record.
+  **URL parameters**: ``cc`` and ``pk``, the content type and primary key
+  the widget reverses ``render_basename`` with (after its
+  ``extra_render_args``).
+
+  **Query parameter**: ``value``, the reference the widget rendered (or, after
+  signing, the token of the signed copy).
 
   **Process**:
-  1. Tries to retrieve a ``DigitalSignature`` instance from the database using the provided ``pk``.
-  2. If the instance does not exist, returns a ``404 Not Found`` response with a message indicating that the file was not found.
-  3. If the instance is found, the associated file is read in binary mode.
-  4. The binary data is then returned with the content type set to ``application/pdf``.
+
+  1. Decodes ``value``: a reference signed by the server, which must name the
+     ``cc`` and ``pk`` of the URL, or an upload token.
+  2. Loads the object and asks ``check_user``, by default
+     ``has_document_access(user, obj, field, "view")``.
+  3. Reads the file in binary mode and returns it as ``application/pdf``.
 
 Response Codes
 """"""""""""""""
 
 - **200 OK**:
   The request was successful and the PDF file content is returned.
+- **302**:
+  No session: ``login_required`` sends the user to log in.
 - **404 Not Found**:
-  The digital signature with the specified primary key does not exist.
+  The value is not a valid reference, names another object, the object or
+  its file is gone, or the user may not see it -- all alike.
 
 Example Implementation
 """"""""""""""""""""""""
 
-Below is the example implementation of the API view:
+The demo subclasses it and wires it to the URL the widget reverses:
 
 .. code-block:: python
 
-    from rest_framework.views import APIView
-    from rest_framework.response import Response
-    from rest_framework import status
+    from djgentelella.firmador_digital.viewsets import (
+        DigitalSignatureRenderFileAPIView,
+    )
 
-    from demoapp.models import DigitalSignature
-    from djgentelella.firmador_digital.consumers.pdf_render import PDFRenderer
+    class DigitalSignatureFileAPIView(DigitalSignatureRenderFileAPIView):
+        pass
 
-
-    class DigitalSignatureFileAPIView(APIView):
-        renderer_classes = [PDFRenderer]
-
-        def get(self, request, pk, format=None):
-            try:
-                signature = DigitalSignature.objects.get(pk=pk)
-            except DigitalSignature.DoesNotExist:
-                return Response({"detail": "File not found"}, status=status.HTTP_404_NOT_FOUND)
-
-            file_path = signature.file.path
-            with open(file_path, 'rb') as f:
-                file_data = f.read()
-
-            return Response(file_data, content_type='application/pdf')
+    # urls.py
+    path(
+        "api/digital_signature_file/<int:cc>/<int:pk>/",
+        DigitalSignatureFileAPIView.as_view(),
+        name="digital_signature_file_api",
+    )
 
 -------------------------------------
 Digital Signature View Documentation

@@ -144,6 +144,20 @@ The ``object_management`` design component takes the prop
 a 409, offers to reload the form with the current data without closing. See
 ``docs/source/locking.rst``.
 
+**Who may see or sign a document of the digital signature**
+(``djgentelella.firmador_digital.access``). ``has_document_access(user,
+instance, field_name, action)`` is the one rule of the preview endpoint and
+of the signing websocket: ``action`` is ``'view'`` (the preview, and
+validating a document) or ``'sign'``. By default signing takes the ``change``
+permission of the model and the preview ``view`` or ``change``, both also
+asked with the object (``user.has_perm(perm, obj)``) for an object
+permission backend. ``FIRMADOR_ACCESS_CHECK`` is the dotted path of a
+callable with the same signature that replaces it. The widget signs the
+reference to the file with ``django.core.signing``
+(``sign_document_reference``, its own salt); ``FIRMADOR_REFERENCE_MAX_AGE``
+(seconds, unset by default) makes it expire. See
+``docs/source/widgets/firmador_digital.rst``.
+
 Backwards incompatible
 """"""""""""""""""""""""
 
@@ -186,6 +200,38 @@ The form widgets do not see the request and keep taking the token whoever
 uploaded it, on purpose: ``FileChunkedUpload`` and ``FileInput`` as before,
 ``DigitalSignatureInput`` now only a finished upload; ``UserFileChunkedUpload``
 takes the user's own.
+
+**The digital signature only reads the document the server named, for a user
+allowed to use it (security fix).** The preview endpoint
+(``DigitalSignatureRenderFileAPIView``), the signing websocket
+(``InstanceSerializer``), ``DigitalSignatureInput`` and
+``DigitalSignatureField`` took ``{contenttype, pk, field_name}`` from the
+browser, and ``check_user`` returned ``True``: any signed-in user could see or
+sign the file of any object of any model. Now:
+
+* the widget renders a signed reference instead of that base64 JSON, and
+  only a signed reference names a file: an unsigned or altered one gives no
+  file. A value the browser builds itself can only carry an upload token.
+  A page rendered before the upgrade has to be reloaded.
+* the preview requires the reference to name the content type and pk of its
+  URL, and ``check_user`` asks ``has_document_access``: ``view`` or
+  ``change`` on the model. The websocket asks the same with ``change``.
+  Users who signed with no permission on the model are refused until they
+  get one or the project sets ``FIRMADOR_ACCESS_CHECK``.
+* every refusal of the preview is the same 404 ``File not found`` (a
+  ``check_user`` that returns ``False`` answered 403), and every refusal of
+  the websocket the same ``The document is not available.``, so neither tells
+  whether the object exists.
+* ``DigitalSignatureField`` only takes a reference to its own field of the
+  serializer's instance.
+* ``ValueDSParser.get_json_file`` and ``InstanceSerializer.get_json_file``
+  return ``None`` for an unsigned reference; code that built one by hand
+  calls ``sign_document_reference(instance, field_name)``.
+
+To keep the old rule of access on purpose -- any signed-in user may see and
+sign the documents the widget shows him -- point ``FIRMADOR_ACCESS_CHECK``
+to a function of your own that returns ``user.is_authenticated``. The
+signature of the references cannot be turned off.
 
 Fixes
 """"""""
