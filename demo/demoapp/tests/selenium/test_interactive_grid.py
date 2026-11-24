@@ -47,6 +47,12 @@ class InteractiveGridTest(SeleniumTestCase):
                        'return !!tr && tr.classList.contains(arguments[1]);',
                        self.row(name), css_class)
 
+    def cell_text(self, name, column):
+        """Read in one go: the grid replaces a row's cells when it redraws."""
+        return self.js('var td = document.querySelector(arguments[0]);'
+                       'return td ? td.textContent.trim() : null;',
+                       '%s td[data-column="%s"]' % (self.row(name), column))
+
     def edit(self, name, column, value):
         """Click the cell, wait for its widget to be filled, type ``value``."""
         cell = '%s td[data-column="%s"]' % (self.row(name), column)
@@ -81,9 +87,7 @@ class InteractiveGridTest(SeleniumTestCase):
         # Only what changed was written: the other columns kept their values.
         self.assertEqual((apple.price, bread.name, bread.status),
                          (Decimal('2.00'), 'Bread', 'active'))
-        self.assertEqual(self.driver.find_element(
-            By.CSS_SELECTOR, self.row('Apple') + ' td[data-column="name"]').text,
-            'Green apple')
+        self.assertEqual(self.cell_text('Apple', 'name'), 'Green apple')
 
     def test_a_conflict_marks_its_row_and_it_reloads(self):
         self.open()
@@ -106,10 +110,8 @@ class InteractiveGridTest(SeleniumTestCase):
 
         self.driver.find_element(
             By.CSS_SELECTOR, self.row('Bread') + ' .gtgrid-reload').click()
-        name_cell = self.row('Bread') + ' td[data-column="name"]'
-        self.wait.until(
-            lambda d: d.find_element(By.CSS_SELECTOR, name_cell).text == 'Whole bread',
-            'the row was not reloaded with the current data')
+        self.wait.until(lambda d: self.cell_text('Bread', 'name') == 'Whole bread',
+                        'the row was not reloaded with the current data')
         self.assertFalse(self.has_class('Bread', 'gtgrid-conflict'))
         self.assertTrue(self.has_class('Apple', 'gtgrid-changed'))
 
