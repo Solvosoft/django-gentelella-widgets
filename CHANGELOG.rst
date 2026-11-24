@@ -98,6 +98,34 @@ a worker costs, the optional packages DRF imports when they are installed
 threads, ``--preload`` and ``gc.freeze()``. ``make memprofile`` measures it
 (``scripts/memprofile/``, not part of the package).
 
+**A request of another Site.** ``djgentelella.sites.site_request(site,
+user=None)`` is a synthetic ``GET`` ``HttpRequest`` of a Site (its
+``request.site``, the user, its domain as the host), for asking what another
+Site answers: ``available_formats(site_request(report.site, user))``, its
+conditions, flags and settings. ``resolve_site(site)`` is the lookup it shares
+with ``ConditionRequest`` (a Site, an id, or ``None``; an id of no Site raises
+``ValueError``). See ``docs/source/sites.rst``.
+
+**A key of their own for the encrypted fields.** ``GTEncryptedText`` and
+``GTEncryptedJSONField`` encrypt with ``GT_ENCRYPTION_KEY`` (the base64 of 16,
+24 or 32 bytes, ``create_key()``; a list rotates them: the first encrypts,
+all decrypt) and still read what the old key, the first 16 bytes of
+``SECRET_KEY``, wrote. The stored format is the same. ``manage.py
+gtreencrypt [--dry-run] [app_label.Model ...]`` rewrites the old values with
+the current key. Without the setting nothing changes. See "The key" in
+``docs/source/model_fields.rst``.
+
+**The API messages of designs and data sources are translated**: ``not valid
+JSON``, ``must be a list of filter objects``, ``unknown facet column``, ``No
+such parent``/``No such object``, the 404/403 of a design endpoint and the 400s
+of the data source API (``"columns" is required.``...), with the ``es``
+catalog.
+
+**CI runs the consumers.** Two informative jobs (``continue-on-error``) run
+the suite of djgentelella-editor (``main``) and of djodo (only when the
+repository variable ``DJODO_GIT`` is set) against the djgentelella of the
+commit.
+
 Backwards incompatible
 """"""""""""""""""""""""
 
@@ -125,6 +153,21 @@ pages already served within ``GT_DESIGNS_TRUST_TTL`` seconds (``0`` restores
 the check on every request). ``ConditionRequiredMixin`` is defined in
 ``djgentelella.views.conditions``; importing it from
 ``djgentelella.authorization`` still works.
+
+**Upload tokens outside the form widgets belong to who presents them.**
+``ChunkedFileField`` and ``DigitalSignatureField`` (DRF), the digital
+signature websocket and the document preview
+(``DigitalSignatureRenderFileAPIView``) took the ``ChunkedUpload`` of a token
+whoever uploaded it, and in whatever state. They now take only a finished
+upload of the user of the request (an anonymous visitor, only the uploads
+without a user): another user's token, or one of an unfinished upload, gives
+no file, and the preview answers 404 (it answered 200 with the text
+``None``). A serializer used without a request keeps the old rule.
+``djgentelella.chunked_upload.utils.find_upload(token, user)`` is the lookup.
+The form widgets do not see the request and keep taking the token whoever
+uploaded it, on purpose: ``FileChunkedUpload`` and ``FileInput`` as before,
+``DigitalSignatureInput`` now only a finished upload; ``UserFileChunkedUpload``
+takes the user's own.
 
 Fixes
 """"""""
