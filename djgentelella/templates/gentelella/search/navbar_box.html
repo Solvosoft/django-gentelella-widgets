@@ -15,7 +15,10 @@
              aria-label="{% trans 'Search' %}" autocomplete="off" role="combobox"
              aria-autocomplete="list" aria-expanded="false"
              aria-controls="gt-global-search-menu">
-      <button class="btn btn-outline-secondary" type="submit" title="{% trans 'Search' %}">
+      {# type="button": a page's own "form button[type=submit]" must still find its #}
+      {# form's button first. Enter submits this form anyway (implicit submission). #}
+      <button class="btn btn-outline-secondary gt-global-search-submit" type="button"
+              title="{% trans 'Search' %}">
         <i class="fa fa-search" aria-hidden="true"></i>
         <span class="visually-hidden">{% trans 'Search' %}</span>
       </button>

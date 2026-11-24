@@ -140,6 +140,12 @@
         input.addEventListener('focus', function () {
             if (menu.childNodes.length && input.value.trim().length >= minLength) { open(); }
         });
+        var button = form.querySelector('.gt-global-search-submit');
+        if (button) {
+            button.addEventListener('click', function () {
+                if (input.value.trim()) { form.submit(); } else { input.focus(); }
+            });
+        }
         document.addEventListener('click', function (event) {
             if (!form.contains(event.target)) { close(); }
         });

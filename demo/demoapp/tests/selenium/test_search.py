@@ -67,3 +67,12 @@ class GlobalSearchTest(SeleniumTestCase):
                         ".getAttribute('href')", HIT)
         box.send_keys(Keys.ENTER)
         self.wait.until(EC.url_contains(first))
+
+    def test_the_button_submits_and_is_not_a_submit_button(self):
+        self.type_in_box('costa')
+        # Pages and tests look for "form button[type=submit]": the box must
+        # not be the first one they find.
+        self.assertFalse(self.driver.find_elements(
+            By.CSS_SELECTOR, '.gt-global-search-form button[type=submit]'))
+        self.driver.find_element(By.CSS_SELECTOR, '.gt-global-search-submit').click()
+        self.wait.until(EC.url_contains('/search/?q=costa'))
