@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "app": "demoapp",
+  "slug": "ticket_kanban",
+  "kind": "page",
+  "meta": {
+    "title": "Help desk board",
+    "url": "tickets-board/",
+    "url_name": "tickets_board"
+  },
+  "root": {
+    "type": "page",
+    "id": "page",
+    "children": [
+      {
+        "type": "row",
+        "id": "main",
+        "children": [
+          {
+            "type": "col",
+            "id": "body",
+            "props": {"width": 12},
+            "children": [
+              {
+                "type": "flow_kanban",
+                "id": "tickets",
+                "props": {
+                  "flow": "demoapp.TicketFlow",
+                  "title": "Help desk",
+                  "states": ["queued", "in_progress", "waiting", "resolved", "closed", "cancelled"],
+                  "title_field": "subject",
+                  "fields": ["priority", "created_at"],
+                  "ordering": ["-pk"],
+                  "limit": 5,
+                  "page_size": 10
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -22,6 +22,7 @@
         <span>
           <a class="btn btn-sm btn-primary" href="{% url 'flow_demo_list' demo.slug %}">{% trans 'Try it' %}</a>
           <a class="btn btn-sm btn-outline-secondary" href="{% url 'flow_inbox' demo.flow_name %}">{% trans 'Inbox' %}</a>
+          {% if demo.board %}<a class="btn btn-sm btn-outline-secondary" href="{% url 'gt-design-page' demo.board %}">{% trans 'Board' %}</a>{% endif %}
           <a class="btn btn-sm btn-outline-secondary" href="{% url 'task_inbox' %}?flow={{ demo.flow_name|urlencode }}">{% trans 'Tasks' %}</a>
         </span>
       </div>
