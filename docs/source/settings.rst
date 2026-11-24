@@ -80,6 +80,8 @@ in full.
      - ``ASYNC_NOTIFICATION_BACKEND``, ``CELERY_BROKER_URL``
    * - Chunked uploads
      - ``TINYMCE_UPLOAD_PATH`` (above), plus the ``chunked_upload`` settings
+   * - Encrypted model fields (:doc:`model_fields`)
+     - ``GT_ENCRYPTION_KEY``
 
 Settings on Database
 ---------------------------

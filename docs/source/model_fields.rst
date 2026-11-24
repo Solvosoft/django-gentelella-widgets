@@ -26,12 +26,10 @@ A TextField that automatically encrypts data before saving and decrypts when loa
 **Features:**
 
 - Uses AES encryption with EAX mode
-- Derives encryption key from Django's ``SECRET_KEY``
+- Encrypts with ``GT_ENCRYPTION_KEY`` (see "The key" below), or with a key
+  derived from Django's ``SECRET_KEY`` when it is not set
 - Transparent encryption/decryption on save/load
 - Stores nonce and authentication tag with encrypted data
-
-.. warning::
-    Changing your ``SECRET_KEY`` will make previously encrypted data unreadable.
 
 GTEncryptedJSONField
 """"""""""""""""""""""
@@ -62,6 +60,45 @@ A JSONField that encrypts the entire JSON payload before storage.
 
     # Data is encrypted in database but accessible as dict
     print(config.api_credentials['api_key'])  # "sk_live_xxxxx"
+
+The key
+"""""""
+
+Without ``GT_ENCRYPTION_KEY`` the AES key is **the first 16 bytes of**
+``SECRET_KEY``. That is a weak key -- sixteen printable characters of a
+secret meant for signing, not for encrypting --, a ``SECRET_KEY`` shorter
+than 16 bytes cannot encrypt at all, and rotating ``SECRET_KEY`` (as Django
+recommends after a leak) makes everything encrypted with it unreadable.
+Give the fields a key of their own:
+
+.. code:: python
+
+    # python -c "from djgentelella.fields.secure import create_key; print(create_key())"
+    GT_ENCRYPTION_KEY = os.environ['GT_ENCRYPTION_KEY']
+
+- ``GT_ENCRYPTION_KEY`` is the base64 of 16, 24 or 32 random bytes
+  (``create_key()`` makes 32). Anything else raises ``ImproperlyConfigured``
+  when a value is encrypted or decrypted.
+- **Old values are still read.** A value is decrypted with the keys of
+  ``GT_ENCRYPTION_KEY`` and then with the ``SECRET_KEY`` one, so setting the
+  key breaks nothing: what was written before keeps loading, and every save
+  writes with the new key. The stored format (``base64(nonce + tag +
+  ciphertext)``) is the same.
+- **Re-encrypt** what the old key wrote with ``python manage.py gtreencrypt``
+  (``--dry-run`` counts without writing; ``app_label.Model`` arguments limit
+  it to those models). It rewrites the column with ``update()`` -- no
+  ``save()`` and no signals -- and reports, per field, the values it
+  re-encrypted, those already on the current key and those no key opens
+  (left as they were; the command then fails). Once it reports nothing
+  left to re-encrypt, ``SECRET_KEY`` can be rotated.
+- **Rotation.** ``GT_ENCRYPTION_KEY`` may be a list: the first key encrypts,
+  all of them decrypt. Put the new key first, run ``gtreencrypt``, then drop
+  the old one.
+
+.. warning::
+    Losing ``GT_ENCRYPTION_KEY`` (or, without it, changing ``SECRET_KEY``
+    before re-encrypting) makes the encrypted values unreadable: loading a
+    row raises ``ValueError: MAC check failed``.
 
 
 Catalog Fields (Filtered Relationships)
