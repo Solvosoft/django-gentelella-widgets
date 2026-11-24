@@ -182,9 +182,9 @@ class DocumentMessagesTest(SimpleTestCase):
                 'envelope': format.validate_envelope([])[0].message,
                 'condition': validate_condition({})[0].message,
                 'callable': validate_callables({'transitions': [
-                    {'name': 't', 'condition': 'os.system'}]})[0],
+                    {'name': 't', 'condition': 'os.system'}]})[0].message,
                 'task_form': validate_task_forms({'states': [
-                    {'type': 'human_task', 'form': 'os.system'}]})[0],
+                    {'type': 'human_task', 'form': 'os.system'}]})[0].message,
                 'label': str(ChartComponent.label),
             }
 
@@ -194,10 +194,10 @@ class DocumentMessagesTest(SimpleTestCase):
             'schema': "falta 'a', que es obligatorio",
             'envelope': 'un diseño debe ser un objeto JSON',
             'condition': 'condición vacía',
-            'callable': '$.transitions[0].condition: os.system no es un callable '
+            'callable': 'os.system no es un callable '
                         'permitido (regístralo con register_callable o inclúyelo '
                         'en GT_FLOWS_ALLOWED_CALLABLES)',
-            'task_form': '$.states[0].form: os.system no es un formulario de tarea '
+            'task_form': 'os.system no es un formulario de tarea '
                          'permitido (regístralo con register_task_form o '
                          'inclúyelo en GT_FLOWS_ALLOWED_CALLABLES)',
             'label': 'Gráfico',

@@ -18,8 +18,8 @@ parse is now public, with tests:
   allowlist check of a list of actions outside a flow document --,
   ``validate_callables``, ``is_task_form_allowed``, ``validate_task_forms``
   and ``variable_types()``. The validators return ``(path, message)`` errors
-  (``DocumentError``, a ``designs.jsonschema.Error`` that still answers as its
-  ``'path: message'`` text). Each entry of ``registered_flows()`` has
+  (``DocumentError``, a ``designs.jsonschema.Error``: read ``error.path`` and
+  ``error.message``). Each entry of ``registered_flows()`` has
   ``auto``, ``{transition: bool}``. ``djgentelella.flows.variables`` is the
   registry of the types a flow variable can be declared with
   (``register_variable_type``, ``check_variable``).
@@ -108,9 +108,13 @@ that names an authorization (``{"auth": ...}``) used to be called with
 may now refuse some rows (403 and no button), and one that refused ``None``
 may now allow some. An inline table is unchanged: its conditions still get
 the object of the page. ``validate_callables`` and ``validate_task_forms``
-return ``DocumentError`` tuples instead of ``'path: message'`` strings; they
-still compare equal to that text and answer its ``str`` methods, a
-transitional bridge until code reads ``error.path`` and ``error.message``.
+return ``DocumentError`` tuples instead of ``'path: message'`` strings: read
+``error.path`` and ``error.message``. ``str(error)`` is still that text, but
+an error is not equal to it (``DocumentError('a', 'b') == 'a: b'`` is
+``False``), ``in`` looks into the tuple and the ``str`` methods
+(``partition``, ``startswith``...) are gone; the bridge that answered them
+while the editor and djodo moved to ``path``/``message`` was removed before
+the release.
 
 **Translated validation messages and cached trust.** The errors of design and
 flow documents and of ``validate_condition`` follow the active language:

@@ -48,40 +48,14 @@ class CallableNotAllowed(TransitionNotAllowed):
 class DocumentError(Error):
     """A problem of a flow document: the
     :class:`~djgentelella.designs.jsonschema.Error` ``(path, message)`` of the
-    design documents, whose ``str()`` is ``'path: message'``.
+    design documents. Read ``error.path`` and ``error.message``; ``str()`` is
+    ``'path: message'``, for showing it.
 
-    Transitional compatibility with code that reads these errors as their
-    text: the methods of ``str`` that a tuple does not have (``partition``,
-    ``startswith``...) answer on the text, ``in`` looks into it and ``==``
-    with a ``str`` compares the text. Everything else is the tuple's:
-    ``index``, ``count``, ``len()``, indexing, iteration, ``+`` and the hash
-    (so an error and its text are not the same set member or dict key). New
-    code reads ``error.path`` and ``error.message``; the text side will be
-    removed once the consumers do.
+    It is a tuple, not a string: it is not equal to its text and has none of
+    the methods of ``str`` (the transitional bridge of 0.7 is gone).
     """
 
     __slots__ = ()
-
-    def __eq__(self, other):
-        if isinstance(other, str):
-            return str(self) == other
-        return super().__eq__(other)
-
-    def __ne__(self, other):
-        result = self.__eq__(other)
-        return result if result is NotImplemented else not result
-
-    __hash__ = Error.__hash__
-
-    def __contains__(self, item):
-        if isinstance(item, str) and item in str(self):
-            return True
-        return super().__contains__(item)
-
-    def __getattr__(self, name):
-        if name.startswith('_'):
-            raise AttributeError(name)
-        return getattr(str(self), name)
 
 
 def register_callable(obj=None, *, name=None):

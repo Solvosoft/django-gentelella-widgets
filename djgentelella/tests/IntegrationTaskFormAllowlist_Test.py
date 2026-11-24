@@ -73,7 +73,7 @@ class TaskFormAllowlistTests(TestCase):
         self.assertFalse(is_task_form_allowed(HERE + '.NoteForm'))
         errors = validate_task_forms(doc)
         self.assertEqual(len(errors), 1, errors)
-        self.assertIn('$.states[1].form', errors[0])
+        self.assertEqual(errors[0].path, '$.states[1].form')
         with self.assertRaisesMessage(ImproperlyConfigured, '$.states[1].form'):
             publish_definition(doc)
         self.assertFalse(FlowDefinition.objects.filter(name=NAME).exists())
@@ -115,7 +115,7 @@ class TaskFormAllowlistTests(TestCase):
     def test_an_allowed_path_that_is_not_a_form_is_refused(self):
         errors = validate_task_forms(document(HERE + '.not_a_form'))
         self.assertEqual(len(errors), 1, errors)
-        self.assertIn('is not a form class', errors[0])
+        self.assertIn('is not a form class', errors[0].message)
         with self.assertRaises(ImproperlyConfigured):
             publish_definition(document(HERE + '.not_a_form'))
 

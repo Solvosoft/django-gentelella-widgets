@@ -95,11 +95,11 @@ class AllowlistTests(TestCase):
         for where, transition in cases.items():
             doc = document(**transition)
             self.assertEqual(len(validate_callables(doc)), 1, where)
-            self.assertIn(where, validate_callables(doc)[0])
+            self.assertEqual(validate_callables(doc)[0].path, '$.' + where)
             with self.assertRaisesMessage(ImproperlyConfigured, where):
                 publish_definition(doc)
         doc = document(condition={'function': HERE + '.yes'})
-        self.assertIn('$.transitions[0].condition', validate_callables(doc)[0])
+        self.assertEqual(validate_callables(doc)[0].path, '$.transitions[0].condition')
         self.assertFalse(FlowDefinition.objects.exists())
 
     def test_publishing_checks_states_and_cases_too(self):
@@ -112,7 +112,7 @@ class AllowlistTests(TestCase):
         errors = validate_callables(doc)
         self.assertEqual(len(errors), 4, errors)
         for path in ('os.system', 'os.getcwd', 'os.remove', 'os.kill'):
-            self.assertTrue(any(path in error for error in errors), path)
+            self.assertTrue(any(path in error.message for error in errors), path)
 
     def test_registered_names_and_c6_conditions_are_fine(self):
         doc = document(condition={'perm': 'demoapp.view_country'})

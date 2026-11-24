@@ -93,30 +93,27 @@ class DocumentErrorTests(TestCase):
         self.assertTrue(error.message.startswith('nowhere.Form is not an allowed '
                                                  'task form'))
 
-    def test_the_text_methods_still_work(self):
+    def test_not_equal_to_its_text(self):
         error = callables.DocumentError('$.a', 'is wrong')
-        where, _colon, message = error.partition(': ')
-        self.assertEqual((where, message), ('$.a', 'is wrong'))
-        self.assertTrue(error.startswith('$.a'))
-        self.assertIn('wrong', error)
+        self.assertFalse(error == '$.a: is wrong')
+        self.assertTrue(error != '$.a: is wrong')
+        self.assertNotIn('$.a: is wrong', [error])
+        self.assertEqual(str(error), '$.a: is wrong')
+        self.assertEqual((error.path, error.message), ('$.a', 'is wrong'))
+        # In looks into the tuple, not into the text.
         self.assertIn('$.a', error)
-        self.assertNotIn('right', error)
+        self.assertNotIn('wrong', error)
+        self.assertFalse(hasattr(error, 'partition'))
+        self.assertFalse(hasattr(error, 'startswith'))
         self.assertEqual(json.loads(json.dumps(error)), ['$.a', 'is wrong'])
-        with self.assertRaises(AttributeError):
-            error._nothing
 
-    def test_equal_to_its_text(self):
+    def test_a_tuple_and_an_error_of_c2(self):
         error = callables.DocumentError('$.a', 'is wrong')
-        self.assertEqual(error, '$.a: is wrong')
-        self.assertNotEqual(error, '$.a: is right')
-        self.assertIn('$.a: is wrong', [error])
         self.assertEqual(error, Error('$.a', 'is wrong'))
         self.assertEqual(error, ('$.a', 'is wrong'))
         self.assertNotEqual(error, Error('$.a', 'is right'))
-        # The rest is the tuple's, hash included.
         self.assertEqual(hash(error), hash(Error('$.a', 'is wrong')))
         self.assertEqual(error.index('is wrong'), 1)
-        self.assertEqual(error.count('$.a'), 1)
         self.assertEqual(len(error), 2)
 
     def test_exported_by_the_package(self):

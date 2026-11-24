@@ -565,12 +565,10 @@ and ``validate_task_forms(document)`` return those errors, and
 (an automation's, say), all three exported by ``djgentelella.flows``. Each
 error is a ``(path, message)`` tuple, the ``Error`` of the design documents
 (``DocumentError``, whose ``str()`` is ``'path: message'``). Read
-``error.path`` and ``error.message``: for code written when these validators
-returned text, a ``DocumentError`` also answers the ``str`` methods a tuple
-lacks (``partition``, ``startswith``...), ``in`` and ``==`` with a ``str`` on
-that text, but ``index``, ``count``, ``len()``, indexing and the hash are the
-tuple's. That text side is transitional and will be removed;
-``is_task_form_allowed(name)`` says whether a ``human_task`` may name a form. A document stored
+``error.path`` and ``error.message``: an error is a tuple, not its text, so it
+is not equal to ``'path: message'`` and has no ``str`` methods (until 0.8 it
+answered them, a transitional bridge for code written when these validators
+returned text). ``is_task_form_allowed(name)`` says whether a ``human_task`` may name a form. A document stored
 some other way still loads, and the path is refused when it runs, logged on
 ``djgentelella.flows``: a condition or a form not allowed blocks its
 transition (``TransitionBlocked``, shown as the reason), and a ``call`` raises
