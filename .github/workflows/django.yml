@@ -63,3 +63,81 @@ jobs:
         # every label, the same command as `make test`
         make test
 
+
+  # The tools built on djgentelella, against this commit: their suites catch a
+  # change of the public API they use before they pin a release. Informative
+  # (continue-on-error) until the maintainers decide to make them a gate.
+  editor:
+    name: djgentelella-editor (main) on this commit
+    runs-on: ubuntu-latest
+    continue-on-error: true
+
+    steps:
+    - name: Checkout djgentelella
+      uses: actions/checkout@v5
+      with:
+        path: djgentelella
+    - name: Checkout djgentelella-editor
+      uses: actions/checkout@v5
+      with:
+        repository: Solvosoft/djgentelella-editor
+        ref: main
+        path: editor
+    - name: Set up Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: '3.13'
+
+    # djgentelella first, editable from the checkout, so installing the editor
+    # finds it satisfied instead of fetching a release or its master.
+    - name: Install
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e "./djgentelella[designs]"
+        pip install -e "./editor[dev]"
+        python -c "import djgentelella, pathlib, sys; path = pathlib.Path(djgentelella.__file__).resolve(); print(path); sys.exit(pathlib.Path('djgentelella').resolve() not in path.parents)"
+
+    - name: Tests
+      working-directory: editor
+      run: make test
+
+  # djodo has no public remote yet: set the repository variable DJODO_GIT (a
+  # clone URL; DJODO_REF picks the branch, main by default) to run it.
+  djodo:
+    name: djodo on this commit
+    if: ${{ vars.DJODO_GIT != '' }}
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    env:
+      DJODO_GIT: ${{ vars.DJODO_GIT }}
+      DJODO_REF: ${{ vars.DJODO_REF || 'main' }}
+
+    steps:
+    - name: Checkout djgentelella
+      uses: actions/checkout@v5
+      with:
+        path: djgentelella
+    - name: Clone djodo
+      run: git clone --depth 1 --branch "$DJODO_REF" "$DJODO_GIT" djodo
+    - name: Set up Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: '3.13'
+
+    - name: Install
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e "./djgentelella[designs]"
+        pip install -e "./djodo[dev,pdf,xlsx,docx]"
+        python -c "import djgentelella, pathlib, sys; path = pathlib.Path(djgentelella.__file__).resolve(); print(path); sys.exit(pathlib.Path('djgentelella').resolve() not in path.parents)"
+
+    # The vendors are not in djgentelella's git tree, as in djodo's own CI.
+    - name: djgentelella static
+      working-directory: djodo/demo
+      run: |
+        DB_ENGINE=sqlite python manage.py loaddevstatic
+        DB_ENGINE=sqlite python manage.py createbasejs
+
+    - name: Tests
+      working-directory: djodo
+      run: make test
