@@ -104,11 +104,19 @@ class DigitalSignatureInput(HiddenInput, ValueDSParser):
         return super().parse_value(value)
 
     def value_from_datadict(self, data, files, name):
+        """The signed file when the browser sends an upload token, and
+        ``None`` -- "unchanged" -- otherwise.
+
+        A signed reference comes back when the document was not signed, so
+        it never yields a file: the widget does not know the object of its
+        form, and a reference issued for another object would copy that
+        object's file into this one. With ``None`` the form field keeps its
+        initial value, which a ``ModelForm`` takes from its own instance.
+        """
         if name in data:
             jsondata = self.get_json_file(data[name])
-            if jsondata:
-                filefield = self.get_filefield(jsondata)
-                return filefield
+            if jsondata and 'token' in jsondata:
+                return self.get_filefield(jsondata)
         return None
 
     def value_omitted_from_data(self, data, files, name):

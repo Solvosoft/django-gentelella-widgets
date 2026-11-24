@@ -370,8 +370,10 @@ class FormTests(FirmadorAccessBase):
         widget = DigitalSignatureInput(render_basename='digital_signature_file_api')
         self.assertIsNone(widget.value_from_datadict(
             {'file': self.forged}, {}, 'file'))
-        self.assertEqual(widget.value_from_datadict(
-            {'file': self.reference}, {}, 'file').name, self.doc.file.name)
+        # Not even a genuine reference yields a file (W19): it means
+        # "unchanged" and the form keeps the file of its own instance.
+        self.assertIsNone(widget.value_from_datadict(
+            {'file': self.reference}, {}, 'file'))
 
     def test_the_drf_field_takes_only_its_own_reference(self):
         class Serializer(serializers.ModelSerializer):

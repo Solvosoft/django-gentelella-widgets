@@ -216,9 +216,18 @@ The references are signed with ``SECRET_KEY`` (and its
 rendered.
 
 ``DigitalSignatureField`` (DRF) takes only a reference to its own field of
-the serializer's instance. ``DigitalSignatureInput`` does not see the
-instance nor the request, so the view that saves the form decides who may
-change the object, as for any other field.
+the serializer's instance.
+
+``DigitalSignatureInput`` does not see the instance of its form, so a
+reference posted back to the form **never yields a file**: it means "not
+signed, unchanged", and the widget returns ``None``. The form field then
+keeps its initial value, which a ``ModelForm`` (and each form of a model
+formset) takes from its own instance. A reference issued for another object
+cannot copy that object's file into this one. Only the ``{"token": ...}`` of
+a signed copy changes the file. A plain ``forms.Form`` that relied on the
+reference to obtain the file must pass the file as ``initial`` (or read the
+object itself). The view that saves the form decides who may change the
+object, as for any other field.
 
 -----------------------------------------
 DigitalSignatureFileAPIView Documentation
