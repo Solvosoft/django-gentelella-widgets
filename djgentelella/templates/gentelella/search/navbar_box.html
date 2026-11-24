@@ -1,0 +1,29 @@
+{% load i18n static %}{% if enabled %}
+<li class="nav-item gt-global-search">
+  <style>
+    .gt-global-search-form { position: relative; min-width: 14rem; margin: .4rem .75rem; }
+    .gt-global-search-menu { right: 0; left: auto; min-width: 22rem; max-width: 90vw;
+                             max-height: 70vh; overflow-y: auto; }
+    .gt-global-search-menu .dropdown-item { white-space: normal; }
+  </style>
+  <form class="gt-global-search-form" role="search" method="get"
+        action="{% url 'gt-search' %}" data-api="{% url 'gt-search-api' %}"
+        data-min-length="{{ min_length }}">
+    <div class="input-group input-group-sm">
+      <input type="search" name="q" class="form-control gt-global-search-input"
+             value="{{ query }}" placeholder="{% trans 'Search' %}"
+             aria-label="{% trans 'Search' %}" autocomplete="off" role="combobox"
+             aria-autocomplete="list" aria-expanded="false"
+             aria-controls="gt-global-search-menu">
+      <button class="btn btn-outline-secondary" type="submit" title="{% trans 'Search' %}">
+        <i class="fa fa-search" aria-hidden="true"></i>
+        <span class="visually-hidden">{% trans 'Search' %}</span>
+      </button>
+    </div>
+    <div class="dropdown-menu gt-global-search-menu" id="gt-global-search-menu"
+         role="listbox" data-empty="{% trans 'No results' %}"
+         data-more="{% trans 'See more' %}"></div>
+  </form>
+  <script src="{% static 'gentelella/js/globalsearch.js' %}" defer></script>
+</li>
+{% endif %}

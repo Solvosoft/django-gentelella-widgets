@@ -1,5 +1,5 @@
 <nav class="navbar navbar-expand-lg nav_menu">
-  {% load i18n gentelellamenu gtsettings urlname_tags %}
+  {% load i18n gentelellamenu gtsettings urlname_tags gtsearch %}
   <div class="container-fluid">
     <div class="nav toggle ">
       <a id="menu_toggle" style="cursor:pointer;" role="button" tabindex="0"
@@ -23,7 +23,7 @@
                  data-urlname="{{urlnameactions}}"><i class="fa fa-key" aria-hidden="true"></i></a></li>
           {% endif %}
           {% endif %}
-
+          {% global_search_box %}
         </ul>
       </div>
     </div>
