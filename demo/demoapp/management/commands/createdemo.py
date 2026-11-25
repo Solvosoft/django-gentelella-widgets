@@ -1088,6 +1088,14 @@ class Command(BaseCommand):
             made[name] = models.Department.objects.create(
                 name=name, parent=made.get(parent), icon=icon, head=head)
 
+    def create_shop_items(self):
+        """What the order page of the pipeline demo sells
+        (/designs/shop-orders/)."""
+        for name, price, stock in (('Notebook', '3.50', 20), ('Pen', '1.25', 50),
+                                   ('Backpack', '28.00', 3)):
+            models.ShopItem.objects.update_or_create(
+                name=name, defaults={'price': price, 'stock': stock})
+
     def create_design_demos(self):
         """The catalogue the design demos show, and the designs, published.
 
@@ -1114,10 +1122,11 @@ class Command(BaseCommand):
                 product.tags.add(red if index % 2 else blue)
         self.create_meetups()
         self.create_departments()
+        self.create_shop_items()
         designs = Path(models.__file__).resolve().parent / 'gtdesign'
         for name in ('welcome', 'category_products', 'product_admin',
                      'sales_dashboard', 'product_grid', 'ticket_kanban',
-                     'meetups', 'insights'):
+                     'meetups', 'insights', 'shop_order_done', 'shop_orders'):
             call_command('gtdesigns_publish', str(designs / ('%s.json' % name)))
         parent = MenuItem.objects.create(
             parent=None, title='Designs', url_name='/', category='sidebar',
@@ -1133,7 +1142,9 @@ class Command(BaseCommand):
                                   ('Meetups (cards, calendar, map)', 'meetups',
                                    'fa fa-map-marker'),
                                   ('Insights (tree, timeline, metrics)',
-                                   'insights', 'fa fa-sitemap')):
+                                   'insights', 'fa fa-sitemap'),
+                                  ('Orders (page pipeline)', 'shop-orders',
+                                   'fa fa-shopping-cart')):
             MenuItem.objects.create(
                 parent=parent, title=title, url_name='gt-design-page',
                 category='sidebar', is_reversed=True, reversed_args=path,

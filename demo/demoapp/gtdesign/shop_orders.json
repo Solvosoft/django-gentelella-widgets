@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "app": "demoapp",
+  "slug": "shop_orders",
+  "kind": "page",
+  "meta": {
+    "title": "Orders (page pipeline)",
+    "url": "shop-orders/",
+    "url_name": "designs_shop_orders"
+  },
+  "forms": {
+    "order": {
+      "model": "demoapp.ShopOrder",
+      "fields": ["item", "quantity"],
+      "render": "as_horizontal"
+    }
+  },
+  "root": {
+    "type": "page",
+    "id": "page",
+    "children": [
+      {
+        "type": "row",
+        "id": "intro_row",
+        "children": [
+          {
+            "type": "col",
+            "id": "intro_col",
+            "props": {"width": 12},
+            "children": [
+              {
+                "type": "html",
+                "id": "intro",
+                "props": {
+                  "html": "<p class=\"lead\">Each new order goes through the <code>on_submit</code> pipeline of the table: <code>demoapp.check_stock</code> (validation), <code>demoapp.order_total</code> (computation, writes <code>total</code>), <code>demoapp.take_stock</code> (process, in the transaction of the save) and a branch to <code>page:shop-orders/done</code>.</p>"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "row",
+        "id": "orders_row",
+        "children": [
+          {
+            "type": "col",
+            "id": "orders_col",
+            "props": {"width": 12},
+            "children": [
+              {
+                "type": "crud_classic",
+                "id": "orders",
+                "props": {
+                  "model": "demoapp.ShopOrder",
+                  "form": "order",
+                  "title": "Orders",
+                  "list_fields": ["item", "quantity", "total", "created"],
+                  "views": ["list", "create", "detail"],
+                  "pipeline": {
+                    "on_submit": {
+                      "steps": [
+                        {"name": "demoapp.check_stock"},
+                        {"name": "demoapp.order_total", "writes": ["total"]},
+                        {"name": "demoapp.take_stock"}
+                      ],
+                      "branches": [
+                        {"to": "page:shop-orders/done"}
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
