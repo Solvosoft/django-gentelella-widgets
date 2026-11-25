@@ -427,11 +427,14 @@ class Command(BaseCommand):
             # FullCalendar 6 ships one global build with the standard plugins
             # already in it, and no stylesheet at all: it injects its own CSS
             # from javascript, so there is nothing left to link or to bundle.
-            # (locales-all.js is not downloaded any more either -- it moved to
-            # another package in 6, and no template ever loaded it.)
+            # Its locales live in @fullcalendar/core (the same version): the
+            # calendar component of the designs loads them, ~26 KB, only on a
+            # page in another language than English.
             'fullcalendar': [
                 'https://cdn.jsdelivr.net/npm/fullcalendar@6.1.20/'
                 'index.global.min.js',
+                'https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.20/'
+                'locales-all.global.min.js',
             ],
             'interact': [
                 # 'https://cdnjs.cloudflare.com/ajax/libs/interact.js/1.0.2/interact.min.js'

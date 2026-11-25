@@ -139,6 +139,16 @@
 
     function initCalendar(region, config) {
         var ready = typeof FullCalendar !== 'undefined' ? Promise.resolve() : load(config.fullcalendar);
+        if (config.locales) {
+            // The locales register themselves in FullCalendar.globalLocales:
+            // after the library, and only on a page in another language.
+            ready = ready.then(function () {
+                var known = FullCalendar.globalLocales || [];
+                var code = config.locale.split('-')[0];
+                if (known.some(function (item) { return item.code === config.locale || item.code === code; })) { return null; }
+                return load(config.locales).catch(function () { return null; });
+            });
+        }
         ready.then(function () {
             var element = region.querySelector('.gtcalendar');
             var state = null;

@@ -65,6 +65,7 @@ from django.urls import NoReverseMatch, reverse
 from django.utils import formats, timezone
 from django.utils.dateparse import parse_date, parse_datetime
 from django.utils.safestring import mark_safe
+from django.utils import translation
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
 from rest_framework import viewsets
@@ -102,6 +103,8 @@ __all__ = ['CALENDAR_VIEWS', 'CalendarBuild', 'CalendarComponent',
 
 SCRIPT = 'gentelella/js/designs/regions.js'
 FULLCALENDAR = 'vendors/fullcalendar/index.global.min.js'
+#: Every FullCalendar locale (``@fullcalendar/core``), ~26 KB.
+FULLCALENDAR_LOCALES = 'vendors/fullcalendar/locales-all.global.min.js'
 MARKERCLUSTER = ('vendors/leaflet-markercluster/leaflet.markercluster.js',
                  'vendors/leaflet-markercluster/MarkerCluster.css',
                  'vendors/leaflet-markercluster/MarkerCluster.Default.css')
@@ -1068,9 +1071,22 @@ class CalendarComponent(RegionComponent):
         build.limit = props.get('limit', CALENDAR_LIMIT)
 
     def config(self, build, rctx):
-        return {'initial_view': build.initial_view, 'limit': build.limit,
-                'fullcalendar': static(FULLCALENDAR),
-                'locale': (getattr(rctx.request, 'LANGUAGE_CODE', '') or '')[:2]}
+        locale = calendar_locale(rctx.request)
+        config = {'initial_view': build.initial_view, 'limit': build.limit,
+                  'fullcalendar': static(FULLCALENDAR), 'locale': locale}
+        if locale and locale.split('-')[0] != 'en':
+            # Only a page in another language loads the locales.
+            config['locales'] = static(FULLCALENDAR_LOCALES)
+        return config
+
+
+def calendar_locale(request):
+    """The FullCalendar locale of the page: the language of ``request``
+    (``LANGUAGE_CODE``, set by ``LocaleMiddleware``) or the active one, in
+    lower case (``es``, ``pt-br``). FullCalendar falls back from ``pt-br`` to
+    ``pt``, and to English for a language it does not know."""
+    code = getattr(request, 'LANGUAGE_CODE', '') or translation.get_language() or ''
+    return code.lower()
 
 
 class MapComponent(RegionComponent):
