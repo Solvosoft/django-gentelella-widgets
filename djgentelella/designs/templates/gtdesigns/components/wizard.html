@@ -1,0 +1,6 @@
+{% load i18n %}
+<div class="x_panel gtdesign-wizard" data-gtdesign="{{ b.id }}">
+  <div class="x_content">
+    {% if preview %}{% include 'gentelella/wizard/body.html' %}{% else %}{% include wizard_body_template %}{% endif %}
+  </div>
+</div>
