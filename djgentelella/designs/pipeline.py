@@ -53,6 +53,7 @@ registered name: the document never names an importable path.
 sends a form (a wizard, a view of the project). See ``docs/source/pipeline.rst``.
 """
 
+import copy
 import inspect
 import logging
 import re
@@ -83,7 +84,8 @@ __all__ = [
     'PipelineFormMixin', 'PipelinePageMixin', 'PipelineViewSetMixin', 'Process',
     'STAGE_SCHEMA', 'StepBuild', 'before_render', 'build_pipeline', 'catalogue',
     'context_for_form', 'form_errors_to', 'generation', 'get_process', 'process',
-    'register_process', 'registered_processes', 'resolve_branch_target',
+    'param_defaults', 'register_process', 'registered_processes',
+    'resolve_branch_target', 'with_param_defaults',
     'resolve_pipeline', 'run_before_render', 'run_form_pipeline', 'run_pipeline',
     'run_serializer_pipeline', 'serializer_errors', 'step_build',
     'unregister_process',
@@ -210,9 +212,12 @@ def register_process(name, function=None, *, kind, schema=None, label='',
             ...
 
     ``name`` is ``app.name``. ``schema`` is the JSON Schema of the step's
-    ``params`` (by default it takes none). Registering a name again replaces
-    the step. Call it from a ``gtdesigns.py`` (imported when the project
-    starts) or from an ``AppConfig.ready()``.
+    ``params`` (by default it takes none); the ``default`` of a property
+    fills a param the document leaves out (:func:`with_param_defaults`), so
+    a step whose params all have one can be named without ``params``.
+    Registering a name again replaces the step. Call it from a
+    ``gtdesigns.py`` (imported when the project starts) or from an
+    ``AppConfig.ready()``.
     """
     if not isinstance(name, str) or not re.match(NAME_PATTERN, name):
         raise ImproperlyConfigured('A pipeline step is named "app.name", not %r'
@@ -371,6 +376,23 @@ def _find_process(rctx, name, path, kind=None):
     return found
 
 
+def param_defaults(schema):
+    """``{param: default}`` of the top-level properties of ``schema`` (the
+    JSON Schema of a step's params) that declare a ``default``; copies."""
+    properties = (schema or {}).get('properties') or {}
+    return {name: copy.deepcopy(spec['default'])
+            for name, spec in properties.items()
+            if isinstance(spec, dict) and 'default' in spec}
+
+
+def with_param_defaults(schema, params):
+    """``params`` with the defaults of ``schema`` for what it leaves out
+    (a new dict; ``params`` is not changed)."""
+    filled = param_defaults(schema)
+    filled.update(params or {})
+    return filled
+
+
 def step_build(name, kind, function, *, params=None, condition=None, writes=(),
                schema=None, label='', description=''):
     """A :class:`StepBuild` of ``function`` for code that builds a
@@ -381,7 +403,8 @@ def step_build(name, kind, function, *, params=None, condition=None, writes=(),
                                    % (name, ', '.join(KINDS), kind))
     found = Process(name, kind, function, dict(schema or NO_PARAMS), label or name,
                     description, app_of(function))
-    return StepBuild(name, kind, found, dict(params or {}), condition, tuple(writes))
+    return StepBuild(name, kind, found, with_param_defaults(found.schema, params),
+                     condition, tuple(writes))
 
 
 def _check_writes(rctx, step, path, model, exposure, form_fields):
@@ -597,7 +620,8 @@ def resolve_pipeline(rctx, props, path, *, event, model=None, exposure=None,
                 'pipeline of the wizard, which runs when it finishes)')
                 % (found.name,))
             continue
-        params = step.get('params') or {}
+        # The defaults of the step's schema fill what the document leaves out.
+        params = with_param_defaults(found.schema, step.get('params') or {})
         rctx.errors.extend(validate(params, found.schema or NO_PARAMS,
                                     step_path + '.params'))
         writes = ()
