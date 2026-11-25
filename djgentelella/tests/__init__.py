@@ -89,3 +89,4 @@ from .Wizard_Test import *
 from .PagePipeline_Test import *
 from .ProposalsW30_Test import *
 from .ProposalsW31_Test import *
+from .PwaPush_Test import *
