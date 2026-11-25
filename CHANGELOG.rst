@@ -802,6 +802,24 @@ Python identifiers (``format.APP_PATTERN``): ``app`` is a Django app label for
 code generation, flows and pipeline steps (``<app>.<step>``).
 ``format.app_name(slug)`` turns a slug with ``-`` (a djodo App) into one.
 
+**PWA and web push (W33).** ``djgentelella.pwa``: a web app manifest per
+Site at ``/pwa/manifest.webmanifest`` (name, short name, colours, icons and
+start URL from the ``pwa_*`` keys of ``GentelellaSettings``, Site's over
+global), its tags in the new ``pwa_head`` block of ``base.html`` behind
+``GT_PWA_MANIFEST``; a service worker at ``/pwa/sw.js`` registered behind
+``GT_PWA_SERVICE_WORKER``, with a versioned cache of the static files only
+(``GT_PWA_CACHE_VERSION``; pages and APIs are not cached) and an offline
+page, which unregisters itself when the setting is turned off; and web push
+(VAPID) of the notifications: ``PushSubscription`` per user and device (with
+its Site) and ``PushPreference`` (migration ``0026_push_subscriptions``),
+every new ``Notification`` sent to its user's subscriptions after the commit
+through a pluggable backend (``GT_PUSH_BACKEND``; ``WebPushBackend`` with
+``pywebpush``, the new ``[push]`` extra, or ``LocmemPushBackend``), expired
+subscriptions (404/410) deleted, ``send_push()`` for anything else, the user's
+page at ``/pwa/push/`` (subscribe, unsubscribe, test, turn off) and
+``manage.py gt_vapid_keys``. Without the extra or the keys push is off and
+everything else works. See ``docs/source/pwa.rst``.
+
 Fixes
 """"""""
 

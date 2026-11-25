@@ -36,6 +36,7 @@ Optional extras
     pip install djgentelella[asr]          # voice dictation transcribed in-process
     pip install djgentelella[asr-remote]   # voice dictation transcribed elsewhere
     pip install djgentelella[designs]      # design documents served as pages (nh3)
+    pip install djgentelella[push]         # web push of the notifications (pywebpush)
     pip install djgentelella[dev]          # asset bundling and minification (pylp)
 
 The two ``asr`` extras back the voice dictation widgets, and you need at most
@@ -60,6 +61,10 @@ are sent in-process. Nothing to configure either way — set
 
 The ``designs`` extra is ``nh3``, which ``djgentelella.designs`` uses to clean
 the markup of the ``html`` nodes of a design. See :doc:`designs`.
+
+The ``push`` extra is ``pywebpush``, which sends the notifications as web
+push (VAPID). Without it, or without ``GT_PUSH_VAPID_PRIVATE_KEY``, push is
+off and everything else works. See :doc:`pwa`.
 
 The ``firmador`` extra covers two separate concerns:
 
