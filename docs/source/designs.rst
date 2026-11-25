@@ -204,6 +204,27 @@ autocompletes need a select2 lookup of the target in a ``gtselects.py``, tree
 selects a ``TreeNode`` target. Without a choice, a relation with a lookup gets
 the autocomplete. ``help`` texts become the fields' ``help_text``.
 
+``widget_options`` sets, by field, the options of its widget -- the one in
+``widgets`` or its default -- as the widget declares them in
+:data:`djgentelella.forms.widgetmap.WIDGET_OPTIONS`::
+
+    "forms": {"showcase": {
+        "model": "demoapp.WidgetShowcase",
+        "fields": ["name", "rating", "category", "address", "location"],
+        "widgets": {"rating": "StarRatingInput", "category": "ComboboxInput",
+                    "address": "GeocodedAddressInput"},
+        "widget_options": {
+            "rating": {"stars": 10},
+            "category": {"choices": ["Books", ["mus", "Music"]]},
+            "address": {"point_field": "location", "replace_text": true}}}}
+
+They are validated with the document, never passed as they come: an option the
+widget does not declare, a value out of its schema, options for a widget that
+takes none (a ``Textarea``), ``min_value``/``max_value``/``step`` that are not
+whole numbers on an integer field, a ``point_field`` that is not a point field
+of the same form or a ``choices`` value longer than the field are errors at
+``$.forms.<key>.widget_options.<field>``. See :doc:`widgets/formwidgets`.
+
 ``djgentelella.designs.forms.default_form(model, fields=None)`` is the entry a
 model gets by default -- ``{"model": "<app>.<Model>", "fields": [...]}`` with
 every field a ModelForm would show (``is_form_field``), concrete fields first
@@ -635,6 +656,15 @@ Props:
     editable grid's list, every row with ``actions`` false and relations as
     ``{id, text}``, and ``search`` only over its ``search_fields`` that the
     request sees. ``grid_page_context`` serves both kinds.
+
+    A ``facets`` panel may target a read-only grid: the panel counts through
+    the data source API, the grid follows its state (``datasource_url`` and
+    ``group`` in its ``data-gtconfig``, from
+    ``source_tables.facets_config``) and its endpoint reads the filters as
+    ``?gtfilters=`` -- only over the columns the request sees, as the list.
+    Code generated from a design passes ``datasource_url=`` to
+    ``grid_page_context`` when its panel counts elsewhere. A grid that edits
+    rows cannot be the target of a panel.
 ``columns`` (required)
     Fields of the model the exposure allows; not files, JSON, binary or
     points. A column that does not exist is an error of the document.
@@ -646,6 +676,9 @@ Props:
     The widget of an editable column, with the rules of the design's
     ``forms`` (``djgentelella.forms.widgetmap``): an autocomplete needs a
     lookup in a ``gtselects.py``, a tree select a tree model.
+``widget_options``
+    The options of the widget of an editable column, as the
+    ``widget_options`` of the design's ``forms``.
 ``actions``
     What the grid offers: ``create``, ``update``, ``destroy`` (all by default).
     ``create`` needs every required field of the model among ``editable``.

@@ -4802,3 +4802,76 @@ msgstr "%s necesita una columna"
 #: designs/tree_timeline_metrics.py
 msgid "Metric cards"
 msgstr "Tarjetas de métricas"
+
+#: forms/widgetmap.py
+msgid "the maximum must be greater than the minimum"
+msgstr "el máximo debe ser mayor que el mínimo"
+
+#: forms/widgetmap.py
+msgid "a value is listed twice"
+msgstr "un valor está dos veces en la lista"
+
+#: forms/widgetmap.py
+msgid "not a finite number"
+msgstr "no es un número finito"
+
+#: forms/widgetmap.py
+#, python-format
+msgid "%r is not a widget"
+msgstr "%r no es un widget"
+
+#: forms/widgetmap.py
+#, python-format
+msgid "%s takes no options"
+msgstr "%s no acepta opciones"
+
+#: designs/jsonschema.py
+#, python-format
+msgid "longer than %d"
+msgstr "más largo que %d"
+
+#: designs/jsonschema.py
+#, python-format
+msgid "not greater than %s"
+msgstr "no es mayor que %s"
+
+#: designs/jsonschema.py
+#, python-format
+msgid "more than %d items"
+msgstr "más de %d elementos"
+
+#: datasources/query.py
+msgid "\"order_by_value\" must be true or false."
+msgstr "\"order_by_value\" debe ser true o false."
+
+#: designs/forms.py
+msgid "the options of a widget must be an object"
+msgstr "las opciones de un widget deben ser un objeto"
+
+#: designs/forms.py
+#, python-format
+msgid "%s is an integer field: use a whole number"
+msgstr "%s es un campo entero: use un número entero"
+
+#: designs/forms.py
+#, python-format
+msgid "%r is not a point field of this form"
+msgstr "%r no es un campo de punto de este formulario"
+
+#: designs/forms.py
+#, python-format
+msgid "%(value)r is longer than the %(limit)d characters of %(field)s"
+msgstr "%(value)r supera los %(limit)d caracteres de %(field)s"
+
+#: designs/forms.py
+msgid "must be an object"
+msgstr "debe ser un objeto"
+
+#: designs/grid.py
+#, python-format
+msgid ""
+"node %r edits rows: a facets panel filters a read-only grid over a "
+"\"datasource\""
+msgstr ""
+"el nodo %r edita filas: un panel de facetas filtra una grilla de solo "
+"lectura sobre un \"datasource\""

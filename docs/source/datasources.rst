@@ -367,6 +367,19 @@ A ``group_by`` entry is a column or ``{"column", "period"}`` for dates. Without
 their values; ``order_by_value=True`` puts the largest first aggregate first
 (an empty one counts as 0) and ``limit=N`` keeps the first ``N`` -- both in
 the database, which is how the charts of designs read their top groups.
+The parameter document can ask for it too, ``"order_by_value": true`` (a
+boolean; ``parse_params`` keeps the key only when the document has it), so a
+saved report comes back ordered by its count; ``order_by_value=`` given to the
+call wins over the document.
+
+``min`` and ``max`` take a ``date`` or ``datetime`` column besides the
+aggregatable ones -- the last visit of each user, say::
+
+    query.aggregate(source, request, {
+        'group_by': ['username'], 'order_by_value': True,
+        'aggregates': [{'column': 'created_at', 'fn': 'max'}, {'fn': 'count'}]})
+
+``sum`` and ``avg`` still need an aggregatable column.
 
 **At most ``GT_DATASOURCE_MAX_GROUPS`` groups** (1000 by default): without a
 ``limit``, more groups than that is a ``ValidationError`` (a 400 from the

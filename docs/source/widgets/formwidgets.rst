@@ -37,6 +37,44 @@ field (it only searches). ``LOVPopupSelect`` needs the name of a LOV and the
 range pair is a form field of two values, so neither is in the table.
 
 --------------------------------
+Options
+--------------------------------
+
+:data:`~djgentelella.forms.widgetmap.WIDGET_OPTIONS` declares the options of
+each widget -- the keyword arguments of its constructor a design (or
+djgentelella-editor) may set -- as a JSON schema per option, with a ``title``
+for an inspector:
+
+=========================  ================================================
+Widget                     Options
+=========================  ================================================
+``StarRatingInput``        ``stars`` (1-10), ``readonly``
+``RangeInput``             ``min_value``, ``max_value``, ``step`` (> 0),
+                           ``show_value``, ``suffix``
+``ComboboxInput``          ``choices``: texts or ``[value, label]`` pairs
+``QRCodeInput``            ``scan``, ``readonly``, ``size`` (64-1024)
+``ImageCropInput``         ``aspect_ratio``, ``max_width``, ``max_height``,
+                           ``output_type``, ``quality``
+``GeocodedAddressInput``   ``point_field``, ``replace_text``
+``MarkdownInput``          ``rows`` (2-60)
+``SwitchInput``            ``label``
+=========================  ================================================
+
+.. code:: python
+
+    from djgentelella.forms import widgetmap
+
+    widgetmap.widget_options('StarRatingInput')   # the object schema
+    widgetmap.validate_widget_options('RangeInput', {'step': 0})
+    # [Error(path='$.step', message='not greater than 0')]
+    widgetmap.build_widget('StarRatingInput', {'stars': 10})  # the instance
+
+Only the declared options reach the constructor, so a design never passes
+``attrs`` or any other keyword argument; ``build_widget`` raises
+``ValueError`` on invalid options. In a design they are the
+``widget_options`` of a form (see :doc:`../designs`).
+
+--------------------------------
 Libraries
 --------------------------------
 
