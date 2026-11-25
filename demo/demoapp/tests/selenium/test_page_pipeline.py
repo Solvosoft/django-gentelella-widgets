@@ -70,3 +70,54 @@ class PagePipelineTest(SeleniumTestCase):
         # The page the branch went to lists the stock left.
         self.wait.until(EC.text_to_be_present_in_element(
             (By.CSS_SELECTOR, '[data-gtdesign="stock"]'), 'Backpack'))
+
+
+@tag('selenium')
+class TablePipelineTest(SeleniumTestCase):
+    """The same pipeline on an ``object_management`` table: the modal shows
+    the error of the validation, and after a save the page follows the
+    branch the API answers (``gtdesign_redirect``)."""
+
+    def setup_data(self):
+        engine.clear_cache()
+        factories.clear_cache()
+        self.backpack = ShopItem.objects.create(name='Backpack',
+                                                price=Decimal('28.00'), stock=3)
+        with open(DEMO_DESIGNS / 'shop_order_done.json') as stream:
+            _page, errors = publishing.publish(json.load(stream))
+        self.assertEqual(errors, [])
+        with open(DEMO_DESIGNS / 'shop_orders.json') as stream:
+            document = json.load(stream)
+        crud = document['root']['children'][1]['children'][0]['children'][0]
+        crud['type'] = 'object_management'
+        for name in ('views', 'list_fields'):
+            crud['props'].pop(name)
+        _page, errors = publishing.publish(document, path='shop-orders-table')
+        self.assertEqual(errors, [])
+
+    def send(self, quantity):
+        self.js("jQuery('#id_orders_create-item').val(arguments[0])"
+                ".trigger('change');", str(self.backpack.pk))
+        field = self.driver.find_element(By.ID, 'id_orders_create-quantity')
+        field.clear()
+        field.send_keys(str(quantity))
+        self.driver.find_element(
+            By.CSS_SELECTOR, '#orders_create_modal .formadd').click()
+
+    def test_the_modal_shows_the_error_and_then_follows_the_branch(self):
+        self.go('/designs/shop-orders-table')
+        self.js("new bootstrap.Modal('#orders_create_modal').show();")
+        self.wait.until(EC.visibility_of_element_located(
+            (By.ID, 'id_orders_create-quantity')))
+        self.send(5)
+        self.wait_js(
+            "return Array.from(document.querySelectorAll("
+            "'#orders_create_modal .form_errors, #orders_create_modal "
+            ".invalid-feedback')).some(function (e) {"
+            "  return e.innerText.indexOf('Backpack') !== -1; });",
+            message='the error of the validation never showed in the modal')
+        self.assertFalse(ShopOrder.objects.exists())
+        self.send(1)
+        self.wait.until(EC.presence_of_element_located((By.ID, 'order-done')))
+        self.assertEqual(ShopItem.objects.get(pk=self.backpack.pk).stock, 2)
+        self.assertEqual(ShopOrder.objects.get().total, Decimal('28.00'))
