@@ -1,0 +1,36 @@
+{% load i18n %}{# Rendered by Squirrelly in the browser (CardList, api_list.js): <% %> escapes what it writes. #}
+<div class="gtcards-grid row g-3">
+  <% @each(it.data) => card %>
+  <div class="col-12 col-sm-6 col-lg-{{ col }}">
+    <div class="card h-100 gtcard" data-pk="<% card.id %>">
+      <% @if(card.image) %><img src="<% card.image %>" class="card-img-top" alt=""><% /if %>
+      <div class="card-body">
+        <h5 class="card-title"><% @if(card.url) %><a class="gtcard-link" href="<% card.url %>"><% card.title %></a><% #else %><% card.title %><% /if %></h5>
+        <% @if(card.subtitle) %><h6 class="card-subtitle mb-2 text-muted"><% card.subtitle %></h6><% /if %>
+        <dl class="row small mb-0">
+          <% @each(card.fields) => item %><dt class="col-5"><% item.label %></dt><dd class="col-7"><% item.value %></dd><% /each %>
+        </dl>
+      </div>
+      {% if with_actions %}<% @if(card.links.length) %>
+      <div class="card-footer gtcard-actions">
+        <% @each(card.links) => link %><a class="btn btn-sm btn-outline-secondary me-1" href="<% link.url %>" title="<% link.title %>"><i class="<% link.icon %>" aria-hidden="true"></i> <% link.title %></a><% /each %>
+      </div>
+      <% /if %>{% endif %}
+    </div>
+  </div>
+  <% /each %>
+</div>
+<% @if(it.data.length === 0) %><p class="text-muted gtcards-empty">{% trans 'Nothing to show.' %}</p><% /if %>
+<div class="d-flex flex-wrap align-items-center gap-2 mt-2 gtcards-pager">
+  <span class="small text-muted gtcards-count"><% it.recordsTotal %> {% trans 'in total' %}</span>
+  <% @if(it.totalPages > 1) %>
+  <nav aria-label="{% trans 'Pages' %}"><ul class="pagination pagination-sm mb-0">
+    <% @each([...Array(it.totalPages).keys()]) => page %>
+    <li class="page-item <% page + 1 == it.currentPage ? 'active' : '' %>"><a class="page-link" href="#" data-page="<% page + 1 %>"><% page + 1 %></a></li>
+    <% /each %>
+  </ul></nav>
+  <% /if %>
+  <select class="form-select form-select-sm w-auto page_size_select" name="page_size" aria-label="{% trans 'Cards per page' %}">
+    {% for option in page_size_options %}<option value="{{ option.id }}"{% if option.selected %} selected{% endif %}>{{ option.id }}</option>{% endfor %}
+  </select>
+</div>

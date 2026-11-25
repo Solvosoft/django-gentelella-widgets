@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "app": "demoapp",
+  "slug": "meetups",
+  "kind": "page",
+  "meta": {
+    "title": "Meetups",
+    "url": "meetups/",
+    "url_name": "meetups",
+    "permissions": {
+      "view": [
+        "demoapp.view_meetup"
+      ]
+    }
+  },
+  "root": {
+    "type": "page",
+    "id": "page",
+    "children": [
+      {
+        "type": "row",
+        "id": "top",
+        "children": [
+          {
+            "type": "col",
+            "id": "filters_col",
+            "props": {
+              "width": 3
+            },
+            "children": [
+              {
+                "type": "facets",
+                "id": "filters",
+                "props": {
+                  "target": "meetup_cards",
+                  "columns": [
+                    "kind",
+                    "city"
+                  ],
+                  "title": "Filters"
+                }
+              }
+            ]
+          },
+          {
+            "type": "col",
+            "id": "cards_col",
+            "props": {
+              "width": 9
+            },
+            "children": [
+              {
+                "type": "cards",
+                "id": "meetup_cards",
+                "props": {
+                  "datasource": "demoapp.meetups",
+                  "title_field": "title",
+                  "row_links": [
+                    {
+                      "url_name": "admin:demoapp_meetup_change",
+                      "title": "Open",
+                      "icon": "fa fa-external-link"
+                    }
+                  ],
+                  "title": "Meetups",
+                  "subtitle_field": "city",
+                  "image_field": "picture",
+                  "fields": [
+                    "kind",
+                    "starts_at"
+                  ],
+                  "page_size": 6,
+                  "ordering": [
+                    "starts_at"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "row",
+        "id": "bottom",
+        "children": [
+          {
+            "type": "col",
+            "id": "calendar_col",
+            "props": {
+              "width": 6
+            },
+            "children": [
+              {
+                "type": "calendar",
+                "id": "meetup_calendar",
+                "props": {
+                  "datasource": "demoapp.meetups",
+                  "title_field": "title",
+                  "row_links": [
+                    {
+                      "url_name": "admin:demoapp_meetup_change",
+                      "title": "Open",
+                      "icon": "fa fa-external-link"
+                    }
+                  ],
+                  "title": "Calendar",
+                  "subtitle_field": "city",
+                  "start_field": "starts_at",
+                  "end_field": "ends_at",
+                  "color_field": "kind",
+                  "colors": {
+                    "talk": "#3498db",
+                    "workshop": "#e67e22",
+                    "social": "#2ecc71"
+                  },
+                  "fields": [
+                    "kind"
+                  ],
+                  "filtered_by": "filters"
+                }
+              }
+            ]
+          },
+          {
+            "type": "col",
+            "id": "map_col",
+            "props": {
+              "width": 6
+            },
+            "children": [
+              {
+                "type": "map",
+                "id": "meetup_map",
+                "props": {
+                  "datasource": "demoapp.meetups",
+                  "title_field": "title",
+                  "row_links": [
+                    {
+                      "url_name": "admin:demoapp_meetup_change",
+                      "title": "Open",
+                      "icon": "fa fa-external-link"
+                    }
+                  ],
+                  "title": "Map",
+                  "subtitle_field": "city",
+                  "point_field": "location",
+                  "fields": [
+                    "kind",
+                    "starts_at"
+                  ],
+                  "cluster": true,
+                  "filtered_by": "filters"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

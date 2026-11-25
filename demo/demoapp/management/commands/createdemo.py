@@ -1034,6 +1034,27 @@ class Command(BaseCommand):
             f'<img src="{static("images/logo.png")}" alt="logo" height="40">',
         )
 
+    def create_meetups(self):
+        """The rows of /designs/meetups/: cards, calendar and map over the
+        ``demoapp.meetups`` data source, around today and in Costa Rica."""
+        models.Meetup.objects.all().delete()
+        start = now().replace(hour=18, minute=0, second=0, microsecond=0)
+        meetups = [
+            ('Django by the volcano', 'talk', 'Cartago', 0, '9.864400,-83.919400'),
+            ('Leaflet workshop', 'workshop', 'San Jose', 2, '9.928100,-84.090700'),
+            ('Coffee and code', 'social', 'Heredia', 5, '9.998100,-84.119700'),
+            ('Async email in practice', 'talk', 'Alajuela', 9, '10.016200,-84.211600'),
+            ('Beach sprint', 'workshop', 'Puntarenas', 16, '9.976300,-84.838400'),
+            ('Caribbean meetup', 'social', 'Limon', 33, '9.990700,-83.035900'),
+            ('Last month recap', 'talk', 'Liberia', -27, '10.633900,-85.437700'),
+        ]
+        for title, kind, city, days, point in meetups:
+            begin = start + timedelta(days=days)
+            models.Meetup.objects.create(
+                title=title, kind=kind, city=city, starts_at=begin,
+                ends_at=begin + timedelta(hours=2 if kind != 'workshop' else 26),
+                location=point)
+
     def create_design_demos(self):
         """The catalogue the design demos show, and the designs, published.
 
@@ -1058,9 +1079,11 @@ class Command(BaseCommand):
                                          days=index * 40)})
             if created:
                 product.tags.add(red if index % 2 else blue)
+        self.create_meetups()
         designs = Path(models.__file__).resolve().parent / 'gtdesign'
         for name in ('welcome', 'category_products', 'product_admin',
-                     'sales_dashboard', 'product_grid', 'ticket_kanban'):
+                     'sales_dashboard', 'product_grid', 'ticket_kanban',
+                     'meetups'):
             call_command('gtdesigns_publish', str(designs / ('%s.json' % name)))
         parent = MenuItem.objects.create(
             parent=None, title='Designs', url_name='/', category='sidebar',
@@ -1072,7 +1095,9 @@ class Command(BaseCommand):
                                   ('Product prices (grid)', 'product-grid',
                                    'fa fa-th'),
                                   ('Help desk board', 'tickets-board',
-                                   'fa fa-columns')):
+                                   'fa fa-columns'),
+                                  ('Meetups (cards, calendar, map)', 'meetups',
+                                   'fa fa-map-marker')):
             MenuItem.objects.create(
                 parent=parent, title=title, url_name='gt-design-page',
                 category='sidebar', is_reversed=True, reversed_args=path,

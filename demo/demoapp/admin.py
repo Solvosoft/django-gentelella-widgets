@@ -16,6 +16,7 @@ from .models import (
     SelectImage,
     Img,
     Customer,
+    Meetup,
 )
 
 
@@ -47,3 +48,4 @@ admin.site.register(Event)
 admin.site.register(SelectImage)
 admin.site.register(Img)
 admin.site.register(Customer, CustomerAdmin)
+admin.site.register(Meetup)

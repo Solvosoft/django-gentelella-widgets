@@ -4371,6 +4371,28 @@ msgstr ""
 "«%(title)s» cuelga de «%(parent)s», de otro ámbito (%(scope)s), y se exporta "
 "como raíz"
 #: designs/data_components.py:917
+#: designs/regions.py:265
+msgid "unknown column"
+msgstr "columna desconocida"
+
+#: designs/regions.py:440
+#, python-format
+msgid ""
+"node %r reads a model: a facets panel filters a component over a "
+"\"datasource\""
+msgstr ""
+"el nodo %r lee un modelo: un panel de facetas filtra un componente sobre un "
+"\"datasource\""
+
+#: designs/regions.py:460
+msgid "row links need a data source over a model"
+msgstr "los enlaces por fila necesitan una fuente de datos sobre un modelo"
+
+#: designs/regions.py:465
+msgid "shown field"
+msgstr "campo mostrado"
+
+#: designs/regions.py:482
 #, python-format
 msgid "%r is not the id of a facets panel of this page"
 msgstr "%r no es el id de un panel de facetas de esta página"
@@ -4419,3 +4441,85 @@ msgstr "%r no es una faceta de este gráfico"
 #: history/utils.py:22
 msgid "secret read"
 msgstr "secreto leído"
+#: designs/regions.py:489
+#, python-format
+msgid "facets panel %(panel)r filters another data source than %(source)r"
+msgstr ""
+"el panel de facetas %(panel)r filtra otra fuente de datos que %(source)r"
+
+#: designs/regions.py:512
+msgid "a data source applies its own Site rule: site_field goes with a model"
+msgstr ""
+"una fuente de datos aplica su propia regla de Site: site_field va con un "
+"modelo"
+
+#: designs/regions.py:526
+#, python-format
+msgid "the columns of data source %r cannot be read"
+msgstr "no se pueden leer las columnas de la fuente de datos %r"
+
+#: designs/regions.py:562
+#, python-format
+msgid "%r is not a column of the rows this component may show"
+msgstr "%r no es una columna de las filas que este componente puede mostrar"
+
+#: designs/regions.py:566
+#, python-format
+msgid "%(column)r is not a %(what)s column"
+msgstr "%(column)r no es una columna %(what)s"
+
+#: designs/regions.py:590
+#, python-format
+msgid "%s is required"
+msgstr "%s es obligatorio"
+
+#: designs/regions.py:809
+msgid "start and end (ISO dates) are required"
+msgstr "se necesitan start y end (fechas ISO)"
+
+#: designs/regions.py:811
+#, python-format
+msgid "the range must go forward and span at most %d days"
+msgstr "el rango debe ir hacia adelante y abarcar como mucho %d días"
+
+#: designs/regions.py:913 designs/regions.py:915
+msgid "bbox is west,south,east,north"
+msgstr "bbox es oeste,sur,este,norte"
+
+#: designs/regions.py:979
+msgid "Cards"
+msgstr "Tarjetas"
+
+#: designs/regions.py:1019
+msgid "Calendar"
+msgstr "Calendario"
+
+#: designs/regions.py:1058
+msgid "colors needs a color_field"
+msgstr "colors necesita un color_field"
+
+#: designs/regions.py:1064
+#, python-format
+msgid "unknown column %r"
+msgstr "columna desconocida %r"
+
+#: designs/regions.py:1082
+msgid "Map"
+msgstr "Mapa"
+
+#: designs/regions.py:1119
+#, python-format
+msgid "%r is not a GTPointField (\"lat,lng\")"
+msgstr "%r no es un GTPointField (\"lat,lng\")"
+
+#: designs/templates/gtdesigns/components/cards_list.html:23
+msgid "Nothing to show."
+msgstr "Nada que mostrar."
+
+#: designs/templates/gtdesigns/components/cards_list.html:25
+msgid "in total"
+msgstr "en total"
+
+#: designs/templates/gtdesigns/components/cards_list.html:33
+msgid "Cards per page"
+msgstr "Tarjetas por página"

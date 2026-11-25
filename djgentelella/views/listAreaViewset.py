@@ -40,6 +40,8 @@ class ListAreaViewset(mixins.ListModelMixin, GenericViewSet):
         return str(uuid.uuid4())[:4]
 
     def get_filter_form(self, request):
+        if self.filter_form is None:
+            return None
         return self.filter_form(data=request.GET)
 
     def get_page_size_options(self, request):
@@ -68,6 +70,11 @@ class ListAreaViewset(mixins.ListModelMixin, GenericViewSet):
             serializer = self.get_serializer(queryset, many=True)
             response_data = {'data': serializer.data}
 
+        response_data.update(self.template_response(request))
+        return Response(response_data)
+
+    def get_template_context(self, request):
+        """The context ``template_name`` is rendered with."""
         context = {'with_top_navigation': self.pagination_top,
                    'with_actions': self.with_actions,
                    'id': self.get_html_id(),
@@ -76,14 +83,19 @@ class ListAreaViewset(mixins.ListModelMixin, GenericViewSet):
                    'distribution': self.distribution()}
         if self.extra_template_context:
             context.update(self.extra_template_context)
-        rendered_template = render_to_string(
-            self.template_name,
-            context=context,
-            request=request)
+        return context
 
-        response_data['template'] = rendered_template  # Agregar plantilla renderizada
-        response_data['actions'] = self.get_actions()
-        return Response(response_data)
+    def template_response(self, request):
+        """What the response carries next to the rows: ``template`` (the
+        Squirrelly template ``CardList`` renders them with) and ``actions``.
+
+        A subclass that reads its rows otherwise -- the ``cards`` design
+        component -- builds its own ``list()`` and adds these.
+        """
+        return {'template': render_to_string(
+                    self.template_name, context=self.get_template_context(request),
+                    request=request),
+                'actions': self.get_actions()}
 
     def get_actions(self):
         return []

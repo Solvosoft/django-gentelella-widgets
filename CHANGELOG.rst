@@ -315,6 +315,23 @@ over its data source). See ``docs/source/designs.rst``.
 **``make mailhog`` and ``make mailhog-stop``.** Start MailHog in the
 background for ``make test-selenium`` (it reuses one already answering on
 ``:8025``) and stop it.
+**Region components: ``cards``, ``calendar`` and ``map`` (C15).** Three design
+components (``djgentelella.designs.regions``) show the rows of a data source
+-- or of an exposed model with an optional ``site_field`` -- with columns by
+role (title, subtitle, fields, image, start/end, colour, ``"lat,lng"`` point),
+row links with their conditions and ``column_conditions``. They show only the
+source's ``get_queryset(request)`` and answer 403 without its permission or
+the node's ``perms``. ``cards`` is a ``ListAreaViewset`` read by ``CardList``
+(paging, search); ``calendar`` (FullCalendar) reads only the visible range,
+at most ``limit`` events, coloured by a column, a value map or C4 filter
+rules; ``map`` is a ``BaseMapView`` drawn by ``maplib.js``: popups, optional
+clustering, at most ``limit`` points and, as the map moves, only those of the
+visible box. A ``facets`` panel filters them (``facets_target``), and
+``filtered_by`` makes one panel filter the three. ``ListAreaViewset`` gained
+``get_template_context()`` and ``template_response()`` and works without a
+``filter_form``; its answer is the same. The demo shows the three over
+``demoapp.meetups`` at ``/designs/meetups/``. See ``docs/source/designs.rst``
+("Region components").
 
 Backwards incompatible
 """"""""""""""""""""""""

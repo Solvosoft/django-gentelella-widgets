@@ -37,3 +37,11 @@ register_datasource(searchable(
     url='demoapp_country_detail', group=_('Countries'), icon='fa fa-flag',
 )(ModelDataSource(models.Country, name='demoapp.country',
                   fields=['id', 'name', 'code'])))
+
+# The meetups of /designs/meetups/ (cards, calendar and map over one source):
+# only those of the current Site and the global ones.
+register_datasource(ModelDataSource(
+    models.Meetup, name='demoapp.meetups', site_field='site',
+    fields=['id', 'title', 'kind', 'city', 'starts_at', 'ends_at', 'location',
+            'picture'],
+))
