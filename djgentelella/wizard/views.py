@@ -440,8 +440,11 @@ class GTWizardView(TemplateResponseMixin, ContextMixin, View):
     # -- hooks ------------------------------------------------------------------
 
     def on_step(self, step, form):
-        """Called after ``step`` validates, before moving on. Add errors with
-        ``form.add_error()`` to keep the user in the step.
+        """Called whenever the data of ``step`` validates: on "Next", quietly
+        on "Previous", "Save draft" and the steps of the bar, and for every
+        step once more on "Finish" -- so it must not have side effects that
+        cannot run twice. Add errors with ``form.add_error()`` to keep the
+        user in the step.
 
         The point where a page pipeline runs its validations and computations
         for one step.
@@ -521,21 +524,24 @@ class GTWizardView(TemplateResponseMixin, ContextMixin, View):
         active = self.active_steps()
         by_name = {step.name: step for step in active}
         posted = request.POST.get(STEP_FIELD)
+        if posted and posted not in by_name:
+            # A form of a step that no longer applies (another tab moved the
+            # wizard): its data is not stored over the current step's.
+            return self.redirect()
         step = by_name.get(posted) or self.current_step()
         self.store_posted(step)
-        if action.startswith(GOTO):
+        if action.startswith(GOTO) or action in (PREVIOUS, SAVE):
+            # Typed data is kept as it is; a step that validates counts as
+            # done, without showing errors if it does not.
+            self.validate_step(step)
+            if action == PREVIOUS:
+                return self.previous(step)
+            if action == SAVE:
+                return self.save_draft(step)
             return self.go_to(step, by_name.get(action[len(GOTO):]))
-        if action == PREVIOUS:
-            return self.previous(step)
-        if action == SAVE:
-            return self.save_draft(step)
-        form = self.bound_form(step)
-        if form.is_valid():
-            self.on_step(step, form)
+        form = self.validate_step(step)
         if not form.is_valid():
             return self.step_invalid(step, form)
-        state['valid'].append(step.name)
-        self.forget_steps()
         active = self.active_steps()
         names = [item.name for item in active]
         if step.name not in names:
@@ -555,6 +561,21 @@ class GTWizardView(TemplateResponseMixin, ContextMixin, View):
 
     def redirect(self):
         return HttpResponseRedirect(self.get_page_url())
+
+    def validate_step(self, step):
+        """The bound form of ``step``, validated, with :meth:`on_step` run
+        when it is valid; a valid step is marked as done."""
+        state = self.load_state()
+        form = self.bound_form(step)
+        if form.is_valid():
+            self.on_step(step, form)
+        if form.is_valid():
+            if step.name not in state['valid']:
+                state['valid'].append(step.name)
+        elif step.name in state['valid']:
+            state['valid'].remove(step.name)
+        self.forget_steps()
+        return form
 
     def step_invalid(self, step, form):
         state = self.load_state()
@@ -591,8 +612,6 @@ class GTWizardView(TemplateResponseMixin, ContextMixin, View):
         :class:`~djgentelella.models.WizardDraft` of the user."""
         state = self.load_state()
         state['current'] = step.name
-        if self.bound_form(step).is_valid():
-            state['valid'].append(step.name)
         if self.uses_model_drafts():
             draft = save_draft(self.request, self.get_wizard_key(), state,
                                self.draft_title(step))
@@ -628,10 +647,8 @@ class GTWizardView(TemplateResponseMixin, ContextMixin, View):
         state = self.load_state()
         forms = {}
         for step in self.active_steps():
-            form = self.bound_form(step)
+            form = self.validate_step(step)
             if not form.is_valid():
-                if step.name in state['valid']:
-                    state['valid'].remove(step.name)
                 return self.step_invalid(step, form)
             forms[step.name] = form
         last = self.active_steps()[-1]

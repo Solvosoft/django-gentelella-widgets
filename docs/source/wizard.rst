@@ -52,7 +52,8 @@ button             what it does
 =================  ==========================================================
 Next               validates the step; with errors it stays, otherwise it
                    goes to the next step that applies
-Previous           keeps what was typed (not validated) and goes back
+Previous           keeps what was typed (errors are not shown) and goes
+                   back
 a step of the bar  goes back to that step, or forward to one whose previous
                    steps are all done
 Save draft         keeps what was typed and saves the draft (see below)
@@ -110,8 +111,10 @@ Hooks
 -----
 
 ``on_step(step, form)``
-    after ``step`` validates, before moving on; ``form.add_error()`` keeps the
-    user in the step.
+    whenever the data of ``step`` validates: on "Next", quietly on
+    "Previous", "Save draft" and the steps of the bar, and for every step once
+    more on "Finish" -- it may run more than once per step, so no side effects
+    that cannot repeat. ``form.add_error()`` keeps the user in the step.
 ``on_finish(forms, result)``
     inside the transaction of ``done()``, with what it returned; an exception
     rolls everything back.

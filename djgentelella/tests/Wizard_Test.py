@@ -239,8 +239,28 @@ class WizNavigationTests(WizBase):
         self.assertFalse(NewHire.objects.exists())
 
     def test_goto_cannot_skip_ahead(self):
-        self.post(self.url, personal(), 'goto:job')
+        self.post(self.url, personal(email='bad'), 'goto:job')
         self.assertContains(self.client.get(self.url), 'Step 1 of 2')
+
+    def test_goto_back_and_forward_again(self):
+        self.post(self.url, personal())
+        self.post(self.url, JOB, 'goto:personal')
+        self.assertContains(self.client.get(self.url), 'Step 1 of 2')
+        # The job step validated on the way back: the bar reaches it again.
+        self.post(self.url, personal(name='Eva'), 'goto:job')
+        response = self.client.get(self.url)
+        self.assertContains(response, 'Step 2 of 2')
+        self.assertEqual(sorted(state_of(self.client, 'SessionWizard')['valid']),
+                         ['job', 'personal'])
+
+    def test_a_stale_step_is_not_stored(self):
+        self.post(self.url, personal())
+        response = self.post(self.url, {'wizard_step': 'vehicle',
+                                        'vehicle-car_plate': 'x'})
+        self.assertRedirects(response, self.url, fetch_redirect_response=False)
+        state = state_of(self.client, 'SessionWizard')
+        self.assertNotIn('vehicle', state['data'])
+        self.assertEqual(state['current'], 'job')
 
     def test_done_is_atomic(self):
         self.post('/wizard-failing/', personal())
