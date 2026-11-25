@@ -31,7 +31,7 @@ FAST_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
 FLOW = 'tests.kanban'
 
 
-class ReviewForm(forms.ModelForm):
+class KanbanReviewForm(forms.ModelForm):
     class Meta:
         model = Product
         fields = ['description']
@@ -63,7 +63,7 @@ class KanbanFlow(Flow):
         Transition('ship', 'doing', 'done', label='Ship',
                    perms=['demoapp.change_product']),
         Transition('send', 'doing', 'review', label='Send to review',
-                   perms=['demoapp.change_product'], form=ReviewForm),
+                   perms=['demoapp.change_product'], form=KanbanReviewForm),
         Transition('approve', 'review', 'done', label='Approve',
                    perms=['demoapp.change_product'], condition=has_a_price),
         Transition('archive', 'done', 'archived', label='Archive',
@@ -136,7 +136,7 @@ class KanbanBase(DesignClient):
 # These tests compare messages in English: the same text whether or not
 # the Spanish catalog is compiled (the demo runs in 'es').
 @override_settings(LANGUAGE_CODE='en')
-class SchemaTests(KanbanBase):
+class KanbanSchemaTests(KanbanBase):
     def errors(self, **props):
         return [tuple(error) for error in engine.resolve(kanban(**props))[1]]
 

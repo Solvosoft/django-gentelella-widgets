@@ -139,7 +139,7 @@ class ReferenceTests(FirmadorAccessBase):
         self.assertEqual(CALLS[0], ('alice', self.doc, 'file', access.SIGN))
 
 
-class RenderEndpointTests(FirmadorAccessBase):
+class FirmadorRenderEndpointTests(FirmadorAccessBase):
     def get(self, user, value, doc=None):
         if user is not None:
             self.client.force_login(user)

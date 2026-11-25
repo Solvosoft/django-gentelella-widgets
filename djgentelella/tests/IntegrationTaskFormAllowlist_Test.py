@@ -24,7 +24,7 @@ HERE = __name__
 NAME = 'tests.int4.taskform'
 
 
-class NoteForm(forms.Form):
+class TaskNoteForm(forms.Form):
     note = forms.CharField()
 
 
@@ -69,8 +69,8 @@ class TaskFormAllowlistTests(TestCase):
         return get_flow(NAME).run(self.country, 'submit', self.root)
 
     def test_a_path_that_is_not_allowed_is_an_error_when_publishing(self):
-        doc = document(HERE + '.NoteForm')
-        self.assertFalse(is_task_form_allowed(HERE + '.NoteForm'))
+        doc = document(HERE + '.TaskNoteForm')
+        self.assertFalse(is_task_form_allowed(HERE + '.TaskNoteForm'))
         errors = validate_task_forms(doc)
         self.assertEqual(len(errors), 1, errors)
         self.assertEqual(errors[0].path, '$.states[1].form')
@@ -78,15 +78,15 @@ class TaskFormAllowlistTests(TestCase):
             publish_definition(doc)
         self.assertFalse(FlowDefinition.objects.filter(name=NAME).exists())
         with self.assertRaises(ImproperlyConfigured):
-            get_task_form(HERE + '.NoteForm')
+            get_task_form(HERE + '.TaskNoteForm')
 
     def test_a_stored_path_that_is_not_allowed_fails_audited_when_it_runs(self):
-        store(document(HERE + '.NoteForm'))
-        self.assertIsNone(build_flow(document(HERE + '.NoteForm'))
+        store(document(HERE + '.TaskNoteForm'))
+        self.assertIsNone(build_flow(document(HERE + '.TaskNoteForm'))
                           .activities['review'].form)
         with self.assertLogs('djgentelella.flows', 'WARNING') as logs:
             instance = self.submit()
-        self.assertIn(HERE + '.NoteForm', logs.output[0])
+        self.assertIn(HERE + '.TaskNoteForm', logs.output[0])
         self.assertEqual((instance.state, instance.status), ('review', 'error'))
         self.assertIn('not an allowed callable', instance.error)
         self.assertTrue(FlowTransitionLog.objects.filter(
@@ -95,16 +95,16 @@ class TaskFormAllowlistTests(TestCase):
                          .exists())
 
     def test_a_stored_path_allowed_later_needs_no_new_version(self):
-        store(document(HERE + '.NoteForm'))
+        store(document(HERE + '.TaskNoteForm'))
         with override_settings(GT_FLOWS_ALLOWED_CALLABLES=[HERE]):
             instance = self.submit()
         self.assertEqual((instance.state, instance.status), ('review', 'running'))
-        self.assertIs(get_flow(NAME).activities['review'].form, NoteForm)
+        self.assertIs(get_flow(NAME).activities['review'].form, TaskNoteForm)
 
-    @override_settings(GT_FLOWS_ALLOWED_CALLABLES=[HERE + '.NoteForm'])
+    @override_settings(GT_FLOWS_ALLOWED_CALLABLES=[HERE + '.TaskNoteForm'])
     def test_an_allowed_path_publishes_and_runs(self):
-        publish_definition(document(HERE + '.NoteForm'))
-        self.assertIs(get_flow(NAME).activities['review'].form, NoteForm)
+        publish_definition(document(HERE + '.TaskNoteForm'))
+        self.assertIs(get_flow(NAME).activities['review'].form, TaskNoteForm)
         self.submit()
         task = Task.objects.get(object_id=str(self.country.pk), state__in=Task.OPEN)
         self.client.force_login(self.root)
@@ -120,7 +120,7 @@ class TaskFormAllowlistTests(TestCase):
             publish_definition(document(HERE + '.not_a_form'))
 
     def test_a_registered_name_works_without_the_allowlist(self):
-        register_task_form('tests.int4.note')(NoteForm)
+        register_task_form('tests.int4.note')(TaskNoteForm)
         self.addCleanup(unregister_task_form, 'tests.int4.note')
         self.assertTrue(is_task_form_allowed('tests.int4.note'))
         self.assertEqual(validate_task_forms(document('tests.int4.note')), [])

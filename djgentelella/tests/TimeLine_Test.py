@@ -9,11 +9,11 @@ from djgentelella.widgets.timeline import UrlTimeLineInput
 attrs = {'data-url': 'exampletimeline-url/', 'height': 568}
 
 
-class FormClass(forms.Form):
+class TimeLineFormClass(forms.Form):
     timeline = forms.CharField(widget=UrlTimeLineInput(attrs))
 
 
-class MultiItemsFormClass(forms.Form):
+class TimeLineMultiItemsFormClass(forms.Form):
     timelineone = forms.CharField(widget=UrlTimeLineInput(attrs), disabled=True,
                                   required=True)
     timelinetwo = forms.CharField(widget=UrlTimeLineInput(attrs), disabled=True,
@@ -30,9 +30,9 @@ class UrlTimeWidgetUnitTest(TestCase):
         return template.render(context)
 
     def setUp(self):
-        self.basicform = FormClass()
-        self.prefixform = FormClass(prefix='newname')
-        self.multiitemsform = MultiItemsFormClass()
+        self.basicform = TimeLineFormClass()
+        self.prefixform = TimeLineFormClass(prefix='newname')
+        self.multiitemsform = TimeLineMultiItemsFormClass()
 
     def test_check_names(self):
         """
@@ -78,7 +78,7 @@ class UrlTimeWidgetUnitTest(TestCase):
                 storytwo = forms.CharField(widget=UrlTimeLineInput({'height': 20}))
 
     def test_widget_formset(self):
-        timeLineFormSet = formset_factory(FormClass, extra=2)
+        timeLineFormSet = formset_factory(TimeLineFormClass, extra=2)
         formset = timeLineFormSet()
         for formIndex in range(len(formset)):
             form_str = self.render('{{form}}', {'form': formset[formIndex]})
