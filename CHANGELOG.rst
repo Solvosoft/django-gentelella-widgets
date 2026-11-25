@@ -364,9 +364,9 @@ view, and the download name is escaped (security fix).**
 * Saving a body that named the pk of somebody else's pending image linked
   that image to the new object. ``AttachedFile`` records ``uploaded_by``
   (migration ``0009``), and ``sending.link_body_attachments(instance,
-  user=None)`` moves only the pending uploads of ``user``; without a user,
-  only those without an uploader (files created by code or before the
-  migration). The API serializers pass the user of the request, and
+  user=None)`` moves only the pending uploads of ``user`` and those without
+  an uploader (files created by code or before the migration); without a
+  user, only the latter. The API serializers pass the user of the request, and
   ``reassociate-files/`` also checks the uploader. It links the videos of the
   body too.
 * ``upload-video/`` answered the file's ``MEDIA_URL``, served wherever the

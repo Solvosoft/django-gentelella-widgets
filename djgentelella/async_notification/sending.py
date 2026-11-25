@@ -15,6 +15,7 @@ from html import unescape
 from django.contrib.contenttypes.models import ContentType
 from django.core.mail import EmailMultiAlternatives, get_connection
 from django.db import transaction
+from django.db.models import Q
 from django.template import Template, Context
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -170,9 +171,11 @@ def link_body_attachments(instance, user=None):
     Sending does not depend on this — it attaches by the pks found in the
     body.
 
-    Only the pending uploads of ``user`` move: a body that names the pk of
-    somebody else's pending upload does not take it over. Without a user
-    (code, a management command) only the uploads without an uploader move.
+    Only the pending uploads of ``user``, and those without an uploader
+    (created by code, or before ``uploaded_by`` existed), move: a body that
+    names the pk of somebody else's pending upload does not take it over.
+    Without a user (code, a management command) only the uploads without an
+    uploader move.
     """
     message = getattr(instance, 'message', '')
     pks = extract_inline_pks(message) + extract_video_pks(message)
@@ -180,7 +183,7 @@ def link_body_attachments(instance, user=None):
         return
     files = AttachedFile.objects.filter(pk__in=pks, object_id=0)
     if user is not None and user.is_authenticated:
-        files = files.filter(uploaded_by=user)
+        files = files.filter(Q(uploaded_by=user) | Q(uploaded_by__isnull=True))
     else:
         files = files.filter(uploaded_by__isnull=True)
     ct = ContentType.objects.get_for_model(instance)

@@ -156,9 +156,10 @@ the files of the user of the request.
 
 Saving a template, notification or newsletter through its API also links the pending images
 (``/preview-file/<pk>/``) and videos (``/preview-video/<pk>/``) its body embeds
-(``sending.link_body_attachments(instance, user=None)``). Only the uploads of that user move: a
-body that names the pk of somebody else's pending upload does not take it over. Called without a
-user (from code), it moves only the uploads without an uploader.
+(``sending.link_body_attachments(instance, user=None)``). Only the uploads of that user, and those
+without an uploader (created by code or before ``uploaded_by`` existed), move: a body that names
+the pk of somebody else's pending upload does not take it over. Called without a user (from
+code), it moves only the uploads without an uploader.
 
 Orphaned files (``object_id=0``, older than 24 hours) are automatically cleaned up by the
 ``process_notifications`` management command.
