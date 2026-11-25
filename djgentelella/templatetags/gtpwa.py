@@ -5,7 +5,9 @@ from django import template
 from django.template.loader import render_to_string
 
 from djgentelella.pwa import conf
+from djgentelella.pwa.appsettings import AppSettings
 from djgentelella.pwa.manifest import build_manifest
+from djgentelella.sites import get_current_site
 
 register = template.Library()
 
@@ -21,5 +23,6 @@ def pwa_head(context):
         'manifest_on': manifest_on,
         'worker_on': worker_on,
         'manifest': build_manifest(request) if manifest_on and request else None,
-        'scope': conf.scope(),
+        'scope': AppSettings(get_current_site(request)).scope() if request
+        else conf.scope(),
     })

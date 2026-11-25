@@ -120,6 +120,22 @@ def push_timeout():
     return float(getattr(settings, 'GT_PUSH_TIMEOUT', 5))
 
 
+def push_queue():
+    """``GT_PUSH_QUEUE``: how a new notification goes out as push.
+    ``'sync'`` (the default) sends it after the commit, in the process that
+    saved it; ``'celery'`` queues it as the Celery task
+    ``djgentelella.pwa.tasks.push_notification_task``; ``'auto'`` queues it
+    when ``djgentelella.async_notification`` would (the ``celery`` extra and
+    ``CELERY_BROKER_URL``), else sends it."""
+    return getattr(settings, 'GT_PUSH_QUEUE', 'sync') or 'sync'
+
+
+def unsubscribe_on_logout():
+    """``GT_PUSH_UNSUBSCRIBE_ON_LOGOUT``: logging out forgets the push
+    subscriptions this browser registered in the session (default False)."""
+    return bool(getattr(settings, 'GT_PUSH_UNSUBSCRIBE_ON_LOGOUT', False))
+
+
 def push_hosts():
     """``GT_PUSH_ALLOWED_HOSTS``; ``None`` accepts any https endpoint."""
     return getattr(settings, 'GT_PUSH_ALLOWED_HOSTS', DEFAULT_PUSH_HOSTS)

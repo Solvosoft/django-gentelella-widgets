@@ -105,6 +105,26 @@ if (GT_PWA.push) {
             }));
     });
 
+    /* The push service replaced the subscription (it expired, the keys
+     * rotated): send the new one with the old one, whose auth secret proves
+     * it is this browser's; no session needed. */
+    self.addEventListener('pushsubscriptionchange', function (event) {
+        var old = event.oldSubscription;
+        if (!old || !GT_PWA.resubscribe_url) { return; }
+        var renewed = event.newSubscription ? Promise.resolve(event.newSubscription)
+            : self.registration.pushManager.subscribe(old.options);
+        event.waitUntil(renewed.then(function (subscription) {
+            return fetch(GT_PWA.resubscribe_url, {
+                method: 'POST',
+                credentials: 'omit',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({old: old.toJSON(), 'new': subscription.toJSON()})
+            });
+        }).catch(function (error) {
+            if (self.console) { console.warn('Push subscription not renewed', error); }
+        }));
+    });
+
     self.addEventListener('notificationclick', function (event) {
         event.notification.close();
         var url = gtAbsolute((event.notification.data || {}).url || GT_PWA.scope);

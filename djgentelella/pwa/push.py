@@ -13,6 +13,7 @@ import json
 import logging
 from urllib.parse import urlsplit
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils import timezone
@@ -65,7 +66,7 @@ def notification_payload(notification, site=None):
     return {
         'title': app.name(),
         'body': notification.description,
-        'url': notification.link or conf.scope(),
+        'url': notification.link or app.scope(),
         'tag': 'gt-notification-%s' % notification.pk,
         'type': notification.message_type,
         'id': notification.pk,
@@ -125,12 +126,37 @@ def push_notification(notification):
         lambda site: notification_payload(notification, site))
 
 
+def queued():
+    """Whether new notifications go out through Celery (``GT_PUSH_QUEUE``)."""
+    mode = conf.push_queue()
+    if mode == 'celery':
+        return True
+    if mode == 'auto':
+        # The rule of djgentelella.async_notification's dispatch backend.
+        try:
+            import celery  # noqa: F401,PLC0415 optional dependency
+        except ImportError:
+            return False
+        return bool(getattr(settings, 'CELERY_BROKER_URL', None))
+    return False
+
+
+def dispatch_notification(notification):
+    """Send ``notification`` as push now, or queue it (:func:`queued`)."""
+    if queued():
+        # Defined only when Celery is installed.
+        from djgentelella.pwa.tasks import push_notification_task  # noqa: PLC0415
+        push_notification_task.delay(notification.pk)
+        return None
+    return push_notification(notification)
+
+
 def on_notification_saved(sender, instance, created, raw=False, **kwargs):
     """``post_save`` of ``Notification``: a new one goes out as push after
-    the commit, if push is on."""
+    the commit, if push is on: sent there or queued (``GT_PUSH_QUEUE``)."""
     if not created or raw or not push_enabled():
         return
-    transaction.on_commit(lambda: push_notification(instance))
+    transaction.on_commit(lambda: dispatch_notification(instance))
 
 
 # -- subscribing --------------------------------------------------------------
@@ -187,6 +213,55 @@ def subscribe(user, data, *, site=None, user_agent=''):
         defaults={'user': user, 'p256dh': p256dh, 'auth': auth,
                   'site_id': site_pk(site), 'user_agent': user_agent[:500]})
     return subscription
+
+
+def resubscribe(old, data):
+    """``pushsubscriptionchange``: the browser replaced the subscription
+    ``old`` (``{endpoint, keys: {auth}}``, its ``toJSON()``) by ``data``. The
+    old one proves who asks -- its ``auth`` secret only the browser and the
+    server know --, so no session is needed. Returns the subscription, or
+    ``None`` when ``old`` is not known."""
+    if not isinstance(old, dict):
+        raise ValidationError(_('Invalid subscription.'))
+    keys = old.get('keys') if isinstance(old.get('keys'), dict) else {}
+    endpoint, auth = old.get('endpoint'), keys.get('auth')
+    if not isinstance(endpoint, str) or not isinstance(auth, str) or not auth:
+        raise ValidationError(_('Invalid subscription.'))
+    found = PushSubscription.objects.filter(endpoint=endpoint, auth=auth).first()
+    if found is None:
+        return None
+    new_endpoint, p256dh, new_auth = clean_subscription(data)
+    with transaction.atomic():
+        # The new endpoint may already be stored (two tabs, a retry).
+        PushSubscription.objects.filter(endpoint=new_endpoint).exclude(
+            pk=found.pk).delete()
+        found.endpoint, found.p256dh, found.auth = new_endpoint, p256dh, new_auth
+        found.save(update_fields=['endpoint', 'p256dh', 'auth'])
+    return found
+
+
+SESSION_KEY = 'gt_push_endpoints'
+
+
+def remember_in_session(request, endpoint):
+    """Note that this browser's session subscribed ``endpoint``: what
+    ``GT_PUSH_UNSUBSCRIBE_ON_LOGOUT`` forgets on logout."""
+    session = getattr(request, 'session', None)
+    if session is None:
+        return
+    endpoints = [item for item in session.get(SESSION_KEY, []) if item != endpoint]
+    session[SESSION_KEY] = (endpoints + [endpoint])[-10:]
+
+
+def on_user_logged_out(sender, request=None, user=None, **kwargs):
+    """``user_logged_out``: with ``GT_PUSH_UNSUBSCRIBE_ON_LOGOUT``, forget
+    the subscriptions this session registered (only the user's)."""
+    if not conf.unsubscribe_on_logout() or user is None or request is None:
+        return
+    session = getattr(request, 'session', None)
+    endpoints = session.get(SESSION_KEY, []) if session is not None else []
+    if endpoints:
+        PushSubscription.objects.filter(user=user, endpoint__in=endpoints).delete()
 
 
 def unsubscribe(user, endpoint):

@@ -9,10 +9,11 @@ from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.translation import gettext as _
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 
 from djgentelella.models import PushSubscription
-from djgentelella.pwa import conf, push
+from djgentelella.pwa import push
 from djgentelella.pwa.appsettings import AppSettings
 from djgentelella.pwa.manifest import build_manifest, worker_config
 from djgentelella.sites import get_current_site
@@ -82,7 +83,27 @@ def subscribe_view(request):
             user_agent=request.META.get('HTTP_USER_AGENT', ''))
     except ValidationError as error:
         return JsonResponse({'detail': ' '.join(error.messages)}, status=400)
+    push.remember_in_session(request, subscription.endpoint)
     return JsonResponse({'id': subscription.pk}, status=201)
+
+
+@csrf_exempt
+@require_POST
+def resubscribe_view(request):
+    """``pushsubscriptionchange`` of the service worker: ``{old, new}``,
+    both ``PushSubscription.toJSON()``. No session and no CSRF token: the old
+    subscription's ``auth`` secret is the proof (:func:`push.resubscribe`).
+    404 when the old one is not known."""
+    data = _json_body(request)
+    if not isinstance(data, dict):
+        return JsonResponse({'detail': _('Invalid subscription.')}, status=400)
+    try:
+        subscription = push.resubscribe(data.get('old'), data.get('new'))
+    except ValidationError as error:
+        return JsonResponse({'detail': ' '.join(error.messages)}, status=400)
+    if subscription is None:
+        return JsonResponse({'detail': _('Unknown subscription.')}, status=404)
+    return JsonResponse({'id': subscription.pk})
 
 
 @require_POST
@@ -130,5 +151,5 @@ def preferences_view(request):
                                    if available else ''),
         'wanted': push.push_wanted(request.user),
         'subscriptions': PushSubscription.objects.filter(user=request.user),
-        'scope': conf.scope(),
+        'scope': AppSettings(get_current_site(request)).scope(),
     })

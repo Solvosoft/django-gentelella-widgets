@@ -11,4 +11,6 @@ urlpatterns = [
     path('pwa/push/unsubscribe/', views.unsubscribe_view,
          name='gt_push_unsubscribe'),
     path('pwa/push/test/', views.test_view, name='gt_push_test'),
+    path('pwa/push/resubscribe/', views.resubscribe_view,
+         name='gt_push_resubscribe'),
 ]

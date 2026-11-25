@@ -24,6 +24,7 @@ def build_manifest(request):
       ``GT_PWA_BACKGROUND_COLOR``.
     - ``icons``: ``pwa_icon_192`` and ``pwa_icon_512`` (static paths or
       URLs), else djgentelella's.
+    - ``scope``: ``pwa_scope``, else ``GT_PWA_SCOPE``.
     - ``start_url``: ``pwa_start_url``, else the scope.
     """
     cached = getattr(request, _REQUEST_ATTR, None)
@@ -31,7 +32,7 @@ def build_manifest(request):
         return cached
     app = AppSettings(get_current_site(request))
     name = app.name()
-    scope = conf.scope()
+    scope = app.scope()
     start_url = app.get('pwa_start_url') or scope
     manifest = {
         'id': start_url,
@@ -75,13 +76,17 @@ def worker_mode():
 def worker_config(request):
     """The config ``sw.js`` is rendered with."""
     mode = worker_mode()
+    app = AppSettings(get_current_site(request))
+    push_on = mode != 'remove' and push_enabled()
     return {
         'mode': mode,
         'cache_name': 'gt-pwa-%s' % conf.cache_version(),
         'cache_prefixes': conf.cache_prefixes() if mode == 'cache' else [],
         'offline_url': reverse('gt_pwa_offline') if mode == 'cache' else '',
         'precache': conf.precache() if mode == 'cache' else [],
-        'push': mode != 'remove' and push_enabled(),
-        'default_title': AppSettings(get_current_site(request)).name(),
-        'scope': conf.scope(),
+        'push': push_on,
+        'default_title': app.name(),
+        'scope': app.scope(),
+        # pushsubscriptionchange: where the worker sends the new subscription.
+        'resubscribe_url': reverse('gt_push_resubscribe') if push_on else '',
     }

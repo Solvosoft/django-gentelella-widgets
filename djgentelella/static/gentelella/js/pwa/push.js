@@ -68,6 +68,11 @@
         return registration.pushManager.getSubscription();
     }).then(function (subscription) {
         show(!!subscription);
+        if (subscription) {
+            // The server may have forgotten it (a logout with
+            // GT_PUSH_UNSUBSCRIBE_ON_LOGOUT): storing it again is harmless.
+            post(box.dataset.subscribe, subscription.toJSON()).catch(function () {});
+        }
         if (Notification.permission === 'denied') {
             status.textContent = _('This browser blocks the notifications of this site.');
         }

@@ -10,7 +10,7 @@ from djgentelella.sites import site_pk, site_q
 PWA_KEYS = (
     'site_title', 'pwa_name', 'pwa_short_name', 'pwa_description',
     'pwa_theme_color', 'pwa_background_color', 'pwa_icon_192', 'pwa_icon_512',
-    'pwa_start_url',
+    'pwa_start_url', 'pwa_scope',
 )
 
 
@@ -37,6 +37,14 @@ class AppSettings:
         if not name and self.site is not None:
             name = getattr(self.site, 'name', '')
         return name or 'djgentelella'
+
+    def scope(self):
+        """``pwa_scope`` of the Site (a path that starts and ends with ``/``:
+        the prefix the application is served under), else ``GT_PWA_SCOPE``."""
+        value = self.get('pwa_scope').strip()
+        if value.startswith('/') and value.endswith('/') and '//' not in value:
+            return value
+        return conf.scope()
 
     def icon(self, size):
         """The icon of ``size`` (``'192'`` or ``'512'``): ``pwa_icon_<size>``
