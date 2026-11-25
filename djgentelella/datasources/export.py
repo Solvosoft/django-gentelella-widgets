@@ -148,7 +148,7 @@ def export_handler():
     return handler
 
 
-def handle_export(source, request, params, fmt):
+def handle_export(source, request, params, fmt, *, use_handler=True):
     """What the export endpoint answers: ``GT_DATASOURCE_EXPORT_HANDLER``
     gets the export first, as ``handler(request, source, params, fmt)``; a
     response from it is the answer (a background job, a redirect...), and
@@ -160,11 +160,17 @@ def handle_export(source, request, params, fmt):
     the API) here and not an error of the background job the handler starts.
     :func:`export` itself never calls the handler, so a handler (or the job it
     starts) exports with it and does not come back to itself.
+    ``use_handler=False`` skips the handler.
+
+    With ``GT_DATASOURCE_EXPORT_REFUSE_OVER_LIMIT`` an export of more rows
+    than the format's limit (:func:`row_limit`) is refused with a
+    ValidationError (a 400) instead of being cut.
     """
     exporters = available_exporters(request)
     if not isinstance(fmt, str) or fmt not in exporters:
         raise ValidationError(_('Unknown export format: %s') % (fmt,))
-    handler = export_handler()
+    check_row_limit(source, request, params, fmt)
+    handler = export_handler() if use_handler else None
     if handler is not None:
         errors = validate_params(source, request, params)[1]
         if errors:
@@ -189,6 +195,33 @@ def export_limit():
     """Most rows the JSON and XLSX exports hold in memory
     (``GT_DATASOURCE_EXPORT_MAX_ROWS``, 50000 by default; None: no limit)."""
     return getattr(settings, 'GT_DATASOURCE_EXPORT_MAX_ROWS', 50000)
+
+
+def row_limit(fmt):
+    """The most rows an export as ``fmt`` holds: ``GT_DATASOURCE_PDF_MAX_ROWS``
+    for a PDF, :func:`export_limit` for the rest (None: no limit)."""
+    if fmt == 'pdf':
+        return getattr(settings, 'GT_DATASOURCE_PDF_MAX_ROWS', 5000)
+    return export_limit()
+
+
+def refuses_over_limit():
+    """``GT_DATASOURCE_EXPORT_REFUSE_OVER_LIMIT``: an export of more rows
+    than its limit is a 400 instead of a cut file (default False)."""
+    return bool(getattr(settings, 'GT_DATASOURCE_EXPORT_REFUSE_OVER_LIMIT', False))
+
+
+def check_row_limit(source, request, params, fmt):
+    """ValidationError when the setting refuses exports over the limit and
+    the rows of ``params`` are more than :func:`row_limit` (a CSV too,
+    which otherwise streams every row)."""
+    limit = row_limit(fmt)
+    if not refuses_over_limit() or limit is None:
+        return
+    queryset = apply_params(source, request, params)
+    if queryset[limit:limit + 1].exists():
+        raise ValidationError(_('The export has more than %(limit)d rows: narrow '
+                                'it with filters.') % {'limit': limit})
 
 
 def limited(queryset, limit):

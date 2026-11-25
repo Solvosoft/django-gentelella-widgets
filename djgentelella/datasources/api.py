@@ -33,7 +33,7 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .base import DataSourceUnavailable, get_datasource
+from .base import DataSourceUnavailable, get_datasource, query_timeout
 from .export import available_formats, handle_export
 from .query import (
     aggregate, apply_params, facets, highlight_classes, parse_params, pivot,
@@ -57,7 +57,23 @@ def _int(value, default):
 
 class DataSourceView(APIView):
     """Base of the endpoints: finds the source, checks it may be read and
-    reads the parameters."""
+    reads the parameters.
+
+    Hooks for a subclass (a project's own endpoint over the same machinery):
+
+    ``get_source(name)``
+        the source the endpoint serves; 404 for an unknown name and 403 when
+        the request may not read it. Override it to serve another object --
+        :func:`~djgentelella.datasources.base.restricted` columns of a
+        source for a role, a source built for the request -- and keep the
+        permission check.
+    ``query_timeout``
+        seconds a request's queries may run (``None``: the setting
+        ``GT_DATASOURCE_QUERY_TIMEOUT``; ``0``: no limit). Past it the answer
+        is a 504.
+    """
+
+    query_timeout = None
 
     def get_source(self, name):
         try:
@@ -103,7 +119,9 @@ class DataSourceView(APIView):
 
     def get(self, request, name):
         source = self.get_source(name)
-        return self.answer(request, source, self.get_params(request))
+        params = self.get_params(request)
+        with query_timeout(self.query_timeout):
+            return self.answer(request, source, params)
 
     def post(self, request, name):
         _body(request)
@@ -176,13 +194,18 @@ class DataSourceFacetsView(DataSourceView):
 
 
 class DataSourceExportView(DataSourceView):
+    #: Whether ``GT_DATASOURCE_EXPORT_HANDLER`` gets the export first; a
+    #: subclass that must always answer the file itself sets it to False.
+    use_export_handler = True
+
     def answer(self, request, source, params):
         fmt = request.query_params.get('fmt')
         if fmt is None and request.method == 'POST':
             fmt = _body(request).get('fmt')
         if fmt is not None and not isinstance(fmt, str):
             raise ValidationError(_('"fmt" has to be a string.'))
-        return handle_export(source, request, params, fmt or 'csv')
+        return handle_export(source, request, params, fmt or 'csv',
+                             use_handler=self.use_export_handler)
 
 
 def _body(request):

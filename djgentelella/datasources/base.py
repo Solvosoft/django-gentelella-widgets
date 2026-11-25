@@ -14,14 +14,18 @@ Sources live in ``<app>/gtdatasources.py`` and are registered with
 import inspect
 import logging
 import sys
+import time
 import warnings
+from contextlib import contextmanager
 from dataclasses import dataclass, field as dc_field
 
 from django.apps import apps
+from django.conf import settings
 from django.core.exceptions import (
     FieldDoesNotExist, ObjectDoesNotExist, PermissionDenied,
 )
-from django.db import models
+from django.db import DEFAULT_DB_ALIAS, OperationalError, connections, models, \
+    transaction
 from django.db.models import Q
 from django.utils.text import capfirst
 from django.utils.translation import gettext_lazy as _
@@ -75,6 +79,66 @@ class DataSourceUnavailable(APIException):
             self.status_code = status
         #: DRF's exception handler sends it as ``Retry-After``.
         self.wait = retry_after
+
+
+def query_timeout_seconds():
+    """``GT_DATASOURCE_QUERY_TIMEOUT``: the longest a query of the data
+    source API may run, in seconds (None, the default: no limit)."""
+    value = getattr(settings, 'GT_DATASOURCE_QUERY_TIMEOUT', None)
+    return float(value) if value else None
+
+
+def _timed_out():
+    return DataSourceUnavailable(_('The query took too long: narrow it with '
+                                   'filters.'), status=504)
+
+
+@contextmanager
+def query_timeout(seconds=None, using=DEFAULT_DB_ALIAS):
+    """Stop the queries run inside after ``seconds`` (by default
+    :func:`query_timeout_seconds`) and raise :class:`DataSourceUnavailable`
+    (504) instead.
+
+    On PostgreSQL it is ``statement_timeout``, set for the block only (in a
+    transaction, restored on the way out); on SQLite a progress handler that
+    interrupts the statement. Other databases run without a limit. Rows read
+    after the block -- a streamed CSV export -- are not covered.
+    """
+    seconds = query_timeout_seconds() if seconds is None else seconds
+    connection = connections[using]
+    if not seconds or connection.vendor not in ('postgresql', 'sqlite'):
+        yield
+        return
+    if connection.vendor == 'postgresql':
+        with transaction.atomic(using=using):
+            with connection.cursor() as cursor:
+                cursor.execute('SHOW statement_timeout')
+                previous = cursor.fetchone()[0]
+                cursor.execute("SELECT set_config('statement_timeout', %s, true)",
+                               ['%dms' % max(1, int(seconds * 1000))])
+            try:
+                with transaction.atomic(using=using):
+                    yield
+            except OperationalError as error:
+                if 'statement timeout' in str(error):
+                    raise _timed_out() from error
+                raise
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT set_config('statement_timeout', %s, true)",
+                               [previous])
+        return
+    connection.ensure_connection()
+    raw = connection.connection
+    deadline = time.monotonic() + seconds
+    raw.set_progress_handler(lambda: int(time.monotonic() > deadline), 1000)
+    try:
+        yield
+    except OperationalError as error:
+        if 'interrupted' in str(error):
+            raise _timed_out() from error
+        raise
+    finally:
+        raw.set_progress_handler(None, 0)
 
 
 def api_error(error, key='detail'):
@@ -262,6 +326,68 @@ class DataSource:
 
     def __repr__(self):
         return '<%s %s>' % (type(self).__name__, self.name)
+
+    def with_columns(self, columns, **kwargs):
+        """This source with only ``columns``: :func:`restricted`."""
+        return restricted(self, columns, **kwargs)
+
+
+class RestrictedDataSource(DataSource):
+    """``source`` reduced to the columns of ``allowed``, in the source's
+    order: only they are listed, filtered, searched, ordered, grouped and
+    exported. The rows, the permission and the model are the source's.
+
+    ``label`` and ``perms`` replace the source's when given (``perms`` is
+    then checked *besides* the source's own ``has_permission``).
+    """
+
+    def __init__(self, source, allowed, *, name=None, label=None, perms=None):
+        self.source = source
+        self.allowed = list(allowed)
+        self.name = name or source.name
+        self.label = label or source.get_label()
+        self.perms = source.perms if perms is None else perms
+        self.extra_perms = perms
+        self.search_mode = getattr(source, 'search_mode', 'auto')
+        self.search_config = getattr(source, 'search_config', None)
+
+    @property
+    def project_model(self):
+        return project_model_of(self.source)
+
+    def _only(self, columns):
+        allowed = set(self.allowed)
+        return [column for column in columns if column.name in allowed]
+
+    def columns(self, request):
+        return self._only(self.source.columns(request))
+
+    def columns_for_site(self, site):
+        return self._only(self.source.columns_for_site(site))
+
+    def get_queryset(self, request, params=None):
+        """The source's rows; ``params`` goes on when the source takes it."""
+        if takes_params(self.source):
+            return self.source.get_queryset(request, params=params)
+        return self.source.get_queryset(request)
+
+    def has_permission(self, request):
+        if not self.source.has_permission(request):
+            return False
+        if self.extra_perms is None:
+            return True
+        return DataSource.has_permission(self, request)
+
+    def get_label(self):
+        return self.label
+
+
+def restricted(source, columns, *, name=None, label=None, perms=None):
+    """A :class:`RestrictedDataSource`: ``source`` with only ``columns``
+    (names). A per-user report, an API for a role, a tool of an assistant:
+    whatever must reach a source through a list of allowed columns."""
+    return RestrictedDataSource(source, columns, name=name, label=label,
+                                perms=perms)
 
 
 def source_column_map(source, request=None, *, site=None):
