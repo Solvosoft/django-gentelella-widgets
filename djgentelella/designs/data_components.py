@@ -185,6 +185,25 @@ def reverse_with_placeholder(url_name):
     return None
 
 
+#: The prop that makes the version mandatory (C9): with it, saving without
+#: the version that was read is refused (428 in the API, a form error in the
+#: classic CRUD) instead of saving as before. It needs ``optimistic_lock``.
+OPTIMISTIC_LOCK_REQUIRED_SCHEMA = {
+    'type': 'boolean', 'default': False,
+    'title': 'Refuse to save without the version that was read (needs '
+             'optimistic locking)'}
+
+
+def lock_props_errors(props, path, lock_default=False):
+    """The error of ``optimistic_lock_required`` without
+    ``optimistic_lock`` (whose default is ``lock_default``)."""
+    if props.get('optimistic_lock_required') is True and \
+            props.get('optimistic_lock', lock_default) is not True:
+        return [format.Error(path + '.props.optimistic_lock_required', _(
+            'optimistic_lock_required needs optimistic_lock'))]
+    return []
+
+
 #: A row link to a design page by its path: ``page:<path>``.
 PAGE_PREFIX = 'page:'
 #: A row link to a flow: ``flow:<name>[:<transition>]``.
@@ -469,6 +488,7 @@ class ObjectManagementComponent(RuntimeComponent):
                 'type': 'boolean', 'default': False,
                 'title': 'Refuse to save a row somebody else changed '
                          'after it was opened (optimistic locking)'},
+            'optimistic_lock_required': OPTIMISTIC_LOCK_REQUIRED_SCHEMA,
             'row_links': {
                 'type': 'array',
                 'x-widget': 'links',
@@ -582,7 +602,13 @@ class ObjectManagementComponent(RuntimeComponent):
         build.column_conditions = column_conditions
         build.action_conditions = action_conditions
         build.optimistic_lock = bool(props.get('optimistic_lock', False))
+        build.optimistic_lock_required = bool(
+            props.get('optimistic_lock_required', False))
         return build
+
+    def check_props(self, node, path):
+        errors = super().check_props(node, path)
+        return errors or lock_props_errors(node.get('props') or {}, path)
 
     def base_url(self, build, rctx):
         if build.inline:
@@ -1016,6 +1042,7 @@ class CrudClassicComponent(RuntimeComponent):
                 'type': 'boolean', 'default': False,
                 'title': 'Refuse to save an object somebody else changed '
                          'after its update page was opened (optimistic locking)'},
+            'optimistic_lock_required': OPTIMISTIC_LOCK_REQUIRED_SCHEMA,
         },
     }
 
@@ -1088,7 +1115,13 @@ class CrudClassicComponent(RuntimeComponent):
         build.column_conditions = column_conditions
         build.action_conditions = action_conditions
         build.optimistic_lock = bool(props.get('optimistic_lock', False))
+        build.optimistic_lock_required = bool(
+            props.get('optimistic_lock_required', False))
         return build
+
+    def check_props(self, node, path):
+        errors = super().check_props(node, path)
+        return errors or lock_props_errors(node.get('props') or {}, path)
 
     def render(self, build, rctx, children):
         if build.model is None:

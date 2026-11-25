@@ -218,6 +218,14 @@ with the ``PUT``. On a 409 the modal stays open and a dialog explains what
 happened, offering to **reload the form with the current data** -- or to keep
 the user's values on screen, to copy them before reloading.
 
+``optimistic_lock_required`` (``false`` by default) also makes the version
+mandatory: the viewset gets ``optimistic_lock_required = True`` and an update
+without ``_version`` or ``If-Match`` is a 428. It needs ``optimistic_lock``;
+alone it is an error of the document. The same prop exists in ``crud_classic``
+(``CRUDView.optimistic_lock_required``: the form refuses a post without the
+version) and ``interactive_grid`` (whose batches already require it when
+locking is on).
+
 The same JavaScript (``obj_api_management.js``, ``ObjectCRUD``) works with
 any ``BaseObjectManagement`` viewset that has ``OptimisticLockMixin``: it
 only acts when ``get_values_for_update`` sends a ``_version``.

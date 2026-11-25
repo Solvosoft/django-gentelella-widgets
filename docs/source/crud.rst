@@ -136,6 +136,9 @@ after the update form was opened, instead of overwriting their changes. See
         model = Customer
         optimistic_lock = True
 
+``optimistic_lock_required = True`` (with ``optimistic_lock``) also refuses a
+form posted without the version it read (error code ``version_required``).
+
 Searching
 ------------
 

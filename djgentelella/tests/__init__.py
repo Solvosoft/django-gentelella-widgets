@@ -71,3 +71,4 @@ from .MenuWidgets_Test import *
 from .MenuTransfer_Test import *
 from .SettingsEscape_Test import *
 from .DesignsTransfer_Test import *
+from .LockRequiredProp_Test import *

@@ -153,6 +153,9 @@ class ObjectManagementBuild(DataBuild):
     #: Optimistic locking of the update modal (:mod:`djgentelella.locking`):
     #: the viewset gets ``OptimisticLockMixin``.
     optimistic_lock: bool = False
+    #: ``OptimisticLockMixin.optimistic_lock_required``: an update without
+    #: the version is refused (428).
+    optimistic_lock_required: bool = False
     #: The actions on one row, whose conditions about the object are
     #: evaluated with each row (:func:`~djgentelella.designs.conditions.
     #: row_conditions`). A class attribute, not a field.
@@ -224,6 +227,9 @@ class CrudBuild(DataBuild):
     #: Optimistic locking of the update page (:mod:`djgentelella.locking`):
     #: ``CRUDView.optimistic_lock``.
     optimistic_lock: bool = False
+    #: ``CRUDView.optimistic_lock_required``: a form without the version is
+    #: refused.
+    optimistic_lock_required: bool = False
 
 
 @dataclass

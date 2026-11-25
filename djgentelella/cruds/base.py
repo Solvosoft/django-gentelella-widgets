@@ -414,6 +414,9 @@ class CRUDView(object):
     #: its form carries the version it read, and saving an object somebody
     #: else changed in between is a form error instead of overwriting it.
     optimistic_lock = False
+    #: With ``optimistic_lock``, a form posted without the version it read is
+    #: refused too (``OptimisticLockFormMixin.optimistic_lock_required``).
+    optimistic_lock_required = False
 
     """
     It's obligatory this structure
@@ -546,11 +549,17 @@ class CRUDView(object):
             related_fields = self.related_fields
             form_widget_exclude = self.form_widget_exclude
             optimistic_lock = self.optimistic_lock
+            optimistic_lock_required = self.optimistic_lock_required
 
             def get_form_class(self):
                 form_class = super().get_form_class()
                 if self.optimistic_lock:
                     form_class = lock_form_class(form_class)
+                    if self.optimistic_lock_required and \
+                            not form_class.optimistic_lock_required:
+                        form_class = type(form_class.__name__, (form_class,), {
+                            '__module__': form_class.__module__,
+                            'optimistic_lock_required': True})
                 return form_class
 
             def post(self, request, *args, **kwargs):

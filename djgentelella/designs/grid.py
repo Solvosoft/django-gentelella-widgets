@@ -66,9 +66,10 @@ from djgentelella.designs.conditions import (
     row_conditions, row_denied,
 )
 from djgentelella.designs.data_components import (
-    PERMISSION_LIST, allowed_fields, can, check_permissions, check_relation,
-    columns_of, data_build, endpoint_url, json_config, kind_of, label,
-    no_permission, plural, sample_rows,
+    OPTIMISTIC_LOCK_REQUIRED_SCHEMA, PERMISSION_LIST, allowed_fields, can,
+    check_permissions, check_relation, columns_of, data_build, endpoint_url,
+    json_config, kind_of, label, lock_props_errors, no_permission, plural,
+    sample_rows,
 )
 from djgentelella.designs.forms import build_form, is_form_field, no_field
 from djgentelella.designs.introspection import TEXT_KINDS
@@ -228,6 +229,7 @@ class InteractiveGridComponent(RuntimeComponent):
                 'type': 'boolean', 'default': True,
                 'title': 'Refuse to save a row somebody else changed after it '
                          'was read (optimistic locking)'},
+            'optimistic_lock_required': OPTIMISTIC_LOCK_REQUIRED_SCHEMA,
             'page_size': {'type': 'integer', 'minimum': 1, 'maximum': 200,
                           'title': 'Rows per page (default 25)'},
         },
@@ -344,7 +346,16 @@ class InteractiveGridComponent(RuntimeComponent):
         build.edit_conditions = edit_conditions
         build.action_conditions = action_conditions
         build.optimistic_lock = bool(props.get('optimistic_lock', True))
+        # With locking a grid always requires the version of each row it
+        # saves (428 without it): the prop only states it.
+        build.optimistic_lock_required = build.optimistic_lock and bool(
+            props.get('optimistic_lock_required', False))
         return build
+
+    def check_props(self, node, path):
+        errors = super().check_props(node, path)
+        return errors or lock_props_errors(node.get('props') or {}, path,
+                                           lock_default=True)
 
     def resolve_model(self, props, rctx, path, build):
         """``(exposure, data source)`` of the grid: of its ``model``, or of the
@@ -943,6 +954,7 @@ def _grid_viewset(build):
         'perms': {'list': read, 'retrieve': read, 'save': read,
                   'detail_template': read},
         'gtdesign_build': build,
+        'optimistic_lock_required': build.optimistic_lock_required,
     }
     # ManagementMixin's get_object() (the conditions of the row) runs inside
     # OptimisticLockMixin's, which answers the ETag of the row read again.

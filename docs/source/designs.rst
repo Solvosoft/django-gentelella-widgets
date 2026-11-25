@@ -448,6 +448,12 @@ type                            what it is
     modal was filled: the API answers 409 and the modal offers to reload the
     form with the current data. ``false`` by default. See :doc:`locking`.
 
+``optimistic_lock_required``
+    With ``optimistic_lock``, an update that does not carry the version it
+    read is refused too (428 ``version_required``) instead of saving as
+    before. ``false`` by default; ``true`` without ``optimistic_lock`` is an
+    error of the document.
+
 ``notify``
     Notifications when a row is created, updated or deleted through the table:
     ``{"on": "create|update|delete", "kind": "email|notice", "to": [...],
@@ -498,7 +504,9 @@ type                            what it is
     the node's endpoint: ``''``, ``create/``, ``<pk>/``, ``<pk>/update/``,
     ``<pk>/delete/``. ``optimistic_lock`` (``false`` by default) is
     ``CRUDView.optimistic_lock``: the update page refuses to save an object
-    somebody else changed after it was opened. See :doc:`locking`.
+    somebody else changed after it was opened. ``optimistic_lock_required``
+    (with ``optimistic_lock``) is ``CRUDView.optimistic_lock_required``: a
+    form posted without the version is refused. See :doc:`locking`.
 
 ``facets``
     ``target`` (the id of a table node of the page) and ``columns`` (fields
@@ -584,7 +592,9 @@ Props:
 ``optimistic_lock``
     ``true`` by default: every update and delete must carry the ``_version``
     of the row it read (:doc:`locking`). ``false`` saves over whatever is
-    there.
+    there. ``optimistic_lock_required`` is accepted for the same contract as
+    the tables: a grid with locking already refuses a row without its version
+    (428), and ``true`` with ``optimistic_lock: false`` is an error.
 ``search_fields``, ``ordering``, ``page_size``, ``title``
     As in a table; ``ordering`` is ``["pk"]`` by default and ``page_size``
     25 (at most 200).

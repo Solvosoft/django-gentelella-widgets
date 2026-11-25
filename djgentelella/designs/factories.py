@@ -651,6 +651,7 @@ def _management_viewset(build):
         # Its get_object() goes through ManagementMixin's: the conditions
         # (403) come before the version (409).
         bases = (bases[0], OptimisticLockMixin) + bases[1:]
+        attrs['optimistic_lock_required'] = build.optimistic_lock_required
     return type(class_name(build, 'Management'), bases, attrs)
 
 
@@ -992,6 +993,7 @@ class DesignCRUDView(CRUDView):
         self.column_conditions = dict(build.column_conditions or {})
         self.action_conditions = dict(build.action_conditions or {})
         self.optimistic_lock = build.optimistic_lock
+        self.optimistic_lock_required = build.optimistic_lock_required
         self.mixin = type('BoundDesignCRUDMixin', (DesignCRUDMixin,),
                           {'gtdesign_preview': build.preview,
                            'gtdesign_build': build})
