@@ -116,6 +116,45 @@ def set_settings(key, value, site=None):
     cache.delete(settings_cache_key(key, site_id))
 
 
+#: The global settings djgentelella's migrations create (``0001``, ``0008``,
+#: ``00012``): what a fresh database has before anyone edits them.
+DEFAULT_SETTINGS = {
+    'site_title': 'Django Gentelella Alela!',
+    'site_logo': '<h1><i class="fa fa-paw"></i></h1>',
+    'site_theme': 'gentelella/css/custom.css',
+    'use_compress_static': 'true',
+}
+
+
+def load_default_settings(overwrite=False, **values):
+    """Create the global settings the migrations load (:data:`DEFAULT_SETTINGS`),
+    those that are missing; with ``overwrite=True`` reset them too.
+
+    For what empties the database after the migrations: the *flush* of a
+    ``TransactionTestCase`` or a live server test (Selenium) leaves no
+    settings, so the pages lose their title, their theme and the bundled
+    static files (``use_compress_static``). Such a test calls it in
+    ``setUp``. ``values`` replaces or adds keys (``use_compress_static='false'``
+    to serve the files one by one); a value ``None`` leaves that key out.
+    Returns the keys written.
+    """
+    wanted = {**DEFAULT_SETTINGS, **values}
+    written = []
+    for key, value in wanted.items():
+        if value is None:
+            continue
+        if overwrite:
+            set_settings(key, value)
+            written.append(key)
+            continue
+        _row, created = GentelellaSettings.objects.get_or_create(
+            key=key, site=None, defaults={'value': value})
+        if created:
+            written.append(key)
+    clean_cache(written)
+    return written
+
+
 def clean_cache(keys, site=None):
     """Forget the cached value of ``keys`` in one scope (global by default)."""
     cache.delete_many([settings_cache_key(key, site) for key in keys])

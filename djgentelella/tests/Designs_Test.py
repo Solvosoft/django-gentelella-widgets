@@ -332,7 +332,8 @@ class EngineTests(DesignState, TestCase):
         content = engine.render(resolved, request).content.decode()
         self.assertIn('<title>Sample</title>', content)
         self.assertIn('left_col', content, 'the gentelella layout')
-        self.assertIn('<div class="gtdesign-page" data-gtdesign="sample">'
+        self.assertIn('<div class="gtdesign-page" data-gtdesign="page" '
+                      'data-gtdesign-page="sample">'
                       '<div class="row" data-gtdesign="main">'
                       '<div class="col-md-12" data-gtdesign="body">', content)
         self.assertIn('&lt;b&gt;hi&lt;/b&gt;', content)

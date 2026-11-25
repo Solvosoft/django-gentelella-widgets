@@ -73,7 +73,7 @@ class PublishAndViewTests(DesignClient):
         self.assertIn('<title>Products</title>', content)
         self.assertIn('<p class="lead">The catalogue, with its categories and '
                       'tags.</p>', content)
-        self.assertIn('data-gtdesign="product_admin"', content)
+        self.assertIn('data-gtdesign-page="product_admin"', content)
 
     def test_every_fixture_publishes(self):
         for name in ('product_admin', 'sales_dashboard', 'category_products'):

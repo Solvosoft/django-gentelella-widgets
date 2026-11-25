@@ -22,7 +22,7 @@
 	{% include 'gentelella/statics/stylesheets.html' %}
 	{% endblock stylesheets %}
 	{% get_settings 'site_theme' as theme %}
-	<link href="{% static theme %}?v={% get_version %}" rel="stylesheet">
+	<link href="{% static theme|default:'gentelella/css/custom.css' %}?v={% get_version %}" rel="stylesheet">
 	{% get_settings 'site_extracss' as extracss %}
 	{% if extracss %}
 	<link href="{% static extracss %}?v={% get_version %}" rel="stylesheet">
