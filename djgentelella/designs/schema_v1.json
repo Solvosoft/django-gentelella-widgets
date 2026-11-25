@@ -109,6 +109,10 @@
           "properties": {
             "model": {
               "$ref": "#/$defs/model_label"
+            },
+            "choose": {
+              "description": "Without a pk in its URL the page lists the objects to choose from (a page a menu can link to) instead of answering 404.",
+              "type": "boolean"
             }
           }
         }

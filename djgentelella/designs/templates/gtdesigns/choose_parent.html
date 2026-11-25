@@ -1,0 +1,16 @@
+{% extends base_template|default:'gentelella/base.html' %}
+{% load i18n %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="x_panel gtdesign-choose-parent" data-gtdesign-page="{{ page.path }}">
+  <div class="x_title"><h2>{{ title }}</h2><div class="clearfix"></div></div>
+  <div class="x_content">
+    <p class="text-muted">{% blocktrans %}Choose a {{ model_name }} to see this page.{% endblocktrans %}</p>
+    <div class="list-group">
+      {% for obj, url in objects %}<a class="list-group-item list-group-item-action" href="{{ url }}">{{ obj }}</a>
+      {% empty %}<span class="list-group-item text-muted">{% trans 'There is nothing to choose.' %}</span>{% endfor %}
+    </div>
+    {% if more %}<p class="text-muted mt-2">{% blocktrans with count=objects|length %}Only the first {{ count }} are listed.{% endblocktrans %}</p>{% endif %}
+  </div>
+</div>
+{% endblock %}

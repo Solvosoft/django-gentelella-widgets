@@ -66,7 +66,7 @@ __all__ = ['ChartComponent', 'CrudClassicComponent', 'DATA_COMPONENTS',
            'ObjectManagementComponent', 'PAGE_PREFIX', 'PK_PLACEHOLDERS',
            'StatComponent', 'parse_flow_link', 'resolve_row_link',
            'FACETS_TEMPLATE', 'facets_page_context', 'TABLE_TEMPLATE',
-           'row_link_config', 'table_page_context']
+           'links_to_itself', 'row_link_config', 'table_page_context']
 
 SCRIPT = 'gentelella/js/designs/data_components.js'
 PERMISSION = {'type': 'string', 'pattern': r'^[a-z_][a-z0-9_]*\.[a-z_][a-z0-9_]*$'}
@@ -267,6 +267,16 @@ def design_page_for(name):
     return page
 
 
+def links_to_itself(document, name):
+    """Whether the row link ``name`` names the page of ``document`` itself:
+    ``page:<its meta.url>`` or its ``meta.url_name``."""
+    meta = (document or {}).get('meta') or {}
+    if name.startswith(PAGE_PREFIX):
+        return bool(meta.get('url')) and normalize_path(
+            name[len(PAGE_PREFIX):]) == normalize_path(meta['url'])
+    return bool(meta.get('url_name')) and name == meta['url_name']
+
+
 def parse_flow_link(text, known=None):
     """``(flow name, transition)`` of a ``flow:<name>[:<transition>]`` row
     link, or ``None`` when ``text`` is not one; ``transition`` is ``''`` for
@@ -365,6 +375,11 @@ def resolve_row_link(rctx, link, model, path):
     if not name.startswith(PAGE_PREFIX) and reverse_with_placeholder(name):
         return RowLink(link['title'], icon, url_name=name, condition=condition)
     page = design_page_for(name)
+    if page is None and links_to_itself(rctx.design, name):
+        # The page being published, not saved yet (a master-detail page
+        # whose rows link to itself): its own meta.parent decides.
+        page = Page(path=normalize_path(rctx.design['meta']['url']),
+                    document=rctx.design)
     if page is None:
         rctx.error(path, _('%r is neither a URL name of the project that takes '
                            'one pk, a design page ("page:<path>" or its '

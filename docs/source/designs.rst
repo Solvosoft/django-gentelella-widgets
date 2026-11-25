@@ -278,7 +278,13 @@ Pages
 ``designs/<path:path>`` (URL name ``gt-design-page``) finds the page of the
 current Site at that path, or else the global one (``site`` empty). A page
 about one object (``meta.parent``) is at ``designs/<path>/<pk of the
-object>``. Then:
+object>``; without the pk it is a 404, unless ``meta.parent`` has
+``"choose": true``: then ``designs/<path>`` lists the first 50 objects the
+user may see (the view permissions of the model's exposure, and the Site rule
+of its ``site_field``), each a link to its page -- a page a menu can link to.
+A row link may name the page being published itself (``page:<its meta.url>``
+or its ``meta.url_name``), the master-detail page that does not exist yet the
+first time it is published. Then:
 
 - an unpublished page is a 404, except for users with
   ``gtdesigns.change_page``, who see it with a "preview" notice;

@@ -1172,6 +1172,8 @@ class Command(BaseCommand):
             is_widget=False, icon='fa fa-list-ol', only_icon=False)
         # Metadata translations (W34): a page, its menu item and a LOV written
         # in Spanish, with their English translation.
+        # Its key names it in the exported translations; run again, it moves.
+        MenuItem.objects.filter(key='designs-translated', site=None).delete()
         MenuItem.objects.create(
             parent=parent, title='Catálogo traducido', key='designs-translated',
             translations={'en': 'Translated catalogue'},

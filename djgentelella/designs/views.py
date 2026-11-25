@@ -4,6 +4,7 @@ from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db.models import Q
 from django.http import Http404, HttpResponseRedirect, JsonResponse
+from django.shortcuts import render
 from django.urls import Resolver404
 from django.utils.translation import gettext as _
 from django.views.decorators.csrf import csrf_exempt
@@ -94,6 +95,40 @@ def parent_object(request, resolved, parent_pk):
     return obj
 
 
+#: How many objects the page without a chosen object lists.
+CHOOSE_PARENT_LIMIT = 50
+
+
+def choose_parent(request, page, resolved):
+    """A page about one object (``meta.parent`` with ``"choose": true``)
+    asked without its pk: no object chosen yet. It lists the first objects
+    of the model the user may see (the view permissions of its exposure;
+    the request's Site and the global rows when it was exposed with a
+    ``site_field``), each a link to the page about it. 404 when the model
+    is not exposed, 403 without the permissions. A page that a menu can link
+    to."""
+    found = resolved.exposure(resolved.document['meta']['parent']['model'])
+    if found is None:
+        raise Http404(_('No page at this path.'))
+    if not request.user.has_perms(found.permissions('view')):
+        raise PermissionDenied
+    queryset = found.model._default_manager.all()
+    if found.site_field:
+        queryset = queryset.filter(site_q(get_current_site(request),
+                                          found.site_field))
+    objects = list(queryset.order_by('pk')[:CHOOSE_PARENT_LIMIT + 1])
+    base = request.path.rstrip('/') + '/'
+    extra_context = engine.page_context(request, page)
+    extra_context.update({
+        'page': page, 'resolved': resolved, 'title': resolved.title,
+        'model_name': found.model._meta.verbose_name,
+        'objects': [(obj, '%s%s/' % (base, obj.pk))
+                    for obj in objects[:CHOOSE_PARENT_LIMIT]],
+        'more': len(objects) > CHOOSE_PARENT_LIMIT})
+    extra_context.setdefault('base_template', conf.base_template())
+    return render(request, 'gtdesigns/choose_parent.html', extra_context)
+
+
 def design_page(request, path):
     page, parent_pk = find_page(path, get_current_site(request))
     if page is None:
@@ -111,6 +146,9 @@ def design_page(request, path):
         if not can_preview(request.user):
             raise Http404(_('No page at this path.'))
         return engine.render_errors(page, errors, request)
+    if parent_pk is None and (resolved.document['meta'].get('parent') or {}).get(
+            'choose'):
+        return choose_parent(request, page, resolved)
     parent = parent_object(request, resolved, parent_pk)
     # What the components of the page read while rendering: the page (the
     # URLs of their endpoints) and the object it is about.

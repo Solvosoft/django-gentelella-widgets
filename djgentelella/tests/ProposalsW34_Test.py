@@ -34,6 +34,10 @@ from djgentelella.pwa.backends import LocmemPushBackend
 from djgentelella.pwa.manifest import build_manifest, worker_config
 from djgentelella.serializers.selects import GTS2SerializerBase
 from djgentelella.tests.PwaPush_Test import AUTH, FCM, P256DH, subscription_json
+from djgentelella.designs import engine
+from djgentelella.designs.models import Page
+from djgentelella.tests.Designs_Test import design, node
+from djgentelella.tests.DesignsData_Test import DataDesignTestCase, load
 from djgentelella.utils import set_settings
 
 LOCMEM = 'djgentelella.pwa.backends.LocmemPushBackend'
@@ -296,3 +300,91 @@ class PushProposalTests(TestCase):
             self.assertFalse(push.queued())
             self.notify()
         self.assertEqual(len(LocmemPushBackend.outbox), 1)
+
+
+@override_settings(LANGUAGE_CODE='en', PASSWORD_HASHERS=FAST)
+class E15ProposalTests(DataDesignTestCase):
+    """What E15 (master-detail and the Advisor of the editor) asked of W."""
+
+    def category_page(self, **parent):
+        document = load('category_products')
+        document['meta']['parent'].update(parent)
+        return document
+
+    def test_a_page_may_link_its_rows_to_itself(self):
+        # A master-detail page whose rows open the page about each row: it
+        # does not exist yet the first time it is published.
+        document = design(
+            node('object_management', 'categories', {
+                'model': 'demoapp.ProductCategory', 'form': 'category_form',
+                'list_fields': ['name'],
+                'row_links': [{'url_name': 'page:master/', 'title': 'Open'}]}),
+            forms={'category_form': {'model': 'demoapp.ProductCategory',
+                                     'fields': ['name']}},
+            url='master/', url_name='master',
+            parent={'model': 'demoapp.ProductCategory'})
+        self.assertFalse(Page.objects.filter(path='master').exists())
+        page = self.publish(document, path='master')
+        build = engine.resolve_page(page)[0].nodes['categories'].build
+        self.assertEqual(build.row_links[0].page, 'master')
+        # By url_name too; another page that does not exist is still refused.
+        links = document['root']['children'][0]['children'][0]['children'][0][
+            'props']['row_links']
+        links[0]['url_name'] = 'master'
+        Page.objects.all().delete()
+        self.publish(document, path='master')
+        links[0]['url_name'] = 'page:elsewhere/'
+        self.assertTrue(self.errors(document))
+
+    def test_choose_the_parent(self):
+        self.grant('demoapp.view_product', 'demoapp.view_productcategory')
+        url = reverse('gt-design-page', args=['category-products'])
+        self.publish(load('category_products'))
+        self.assertEqual(self.client.get(url).status_code, 404)
+        self.publish(self.category_page(choose=True))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'href="/designs/category-products/%d/"'
+                            % self.food.pk)
+        self.assertContains(response, 'Tools')
+        # The page of one object is served as before.
+        self.assertEqual(self.client.get(reverse('gt-design-page', args=[
+            'category-products/%d' % self.food.pk])).status_code, 200)
+
+    def test_choosing_needs_the_view_permission_of_the_model(self):
+        self.grant('demoapp.view_product')
+        self.publish(self.category_page(choose=True))
+        url = reverse('gt-design-page', args=['category-products'])
+        self.assertEqual(self.client.get(url).status_code, 403)
+
+    def test_site_rows_is_public(self):
+        from djgentelella.designs import factories  # noqa: PLC0415 test
+        self.assertIn('site_rows', factories.__all__)
+
+
+class FlowCheckTests(TestCase):
+    def flow(self, **attrs):
+        from djgentelella.flows import Flow, Transition  # noqa: PLC0415 app
+        defaults = {
+            'model': Product, 'name': 'tests.w34.check',
+            'states': [('new', 'New'), ('review', 'Review'), ('stuck', 'Stuck'),
+                       ('orphan', 'Orphan'), ('done', 'Done')],
+            'initial': 'new', 'final_states': ['done'],
+            'transitions': [Transition('send', 'new', 'review'),
+                            Transition('approve', 'review', 'done'),
+                            Transition('park', 'review', 'stuck'),
+                            Transition('loop', 'stuck', 'stuck'),
+                            Transition('revive', 'orphan', 'done')]}
+        defaults.update(attrs)
+        return Flow(**defaults)
+
+    def test_dead_ends_and_unreachable_states(self):
+        flow = self.flow()
+        self.assertEqual(flow.unreachable_states(), ['orphan'])
+        self.assertEqual(flow.dead_ends(), ['stuck'])
+
+    def test_a_sound_flow(self):
+        from djgentelella.flows import Transition  # noqa: PLC0415 app
+        flow = self.flow(states=[('new', 'New'), ('done', 'Done')],
+                         transitions=[Transition('go', 'new', 'done')])
+        self.assertEqual((flow.unreachable_states(), flow.dead_ends()), ([], []))

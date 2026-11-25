@@ -1352,6 +1352,38 @@ class Flow:
                               'timeout': kind == 'timeout', 'kind': kind})
         return {'nodes': nodes, 'edges': edges}
 
+    def _successors(self):
+        found = {key: set() for key in self.activities}
+        for edge in self.as_graph()['edges']:
+            found.setdefault(edge['source'], set()).add(edge['target'])
+        return found
+
+    @staticmethod
+    def _closure(starts, successors):
+        seen, stack = set(starts), list(starts)
+        while stack:
+            for target in successors.get(stack.pop(), ()):
+                if target not in seen:
+                    seen.add(target)
+                    stack.append(target)
+        return seen
+
+    def unreachable_states(self):
+        """The activities no path of :meth:`as_graph` reaches from the
+        initial one, in declaration order. For checks of a flow (an Advisor);
+        the engine itself never needs them."""
+        reached = self._closure([self.initial], self._successors())
+        return [key for key in self.activities if key not in reached]
+
+    def dead_ends(self):
+        """The activities that are not final and from which no final one
+        can be reached: an instance that gets there never finishes. In
+        declaration order."""
+        successors = self._successors()
+        finals = {key for key in self.activities if self.is_final(key)}
+        return [key for key in self.activities if key not in finals
+                and not (self._closure([key], successors) & finals)]
+
     def runtime(self, instance):
         """``{'active': [...], 'error': [...], 'completed': [...]}``: the
         activities of ``instance`` under way, failed, and already done, for

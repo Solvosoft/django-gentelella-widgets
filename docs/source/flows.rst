@@ -708,6 +708,11 @@ an SVG on the server, without JavaScript. With an instance --
 ``{% flow_diagram flow object %}`` -- the activities under way, done and
 failed are coloured (``data-status="active|completed|error"`` on each node).
 
+``flow.unreachable_states()`` lists the activities no edge of the graph
+reaches from the initial one, and ``flow.dead_ends()`` the ones that are not
+final and from which no final activity can be reached (an instance there
+never finishes): checks for a flow designer or an advisor.
+
 ``flow.instance_diagram(obj, user)`` is the diagram of one instance, what the
 detail page shows:
 

@@ -497,8 +497,13 @@ The demo switches between Spanish and English from the top bar
 of select2 have type hints. The wizard documents that the errors of its final
 pipeline come back on its last step. PWA: ``pwa_scope`` per Site,
 ``GT_PUSH_QUEUE`` (Celery), ``pushsubscriptionchange`` handled through
-``/pwa/push/resubscribe/`` and ``GT_PUSH_UNSUBSCRIBE_ON_LOGOUT``. See
-``datasources.rst``, ``designs.rst``, ``wizard.rst`` and ``pwa.rst``.
+``/pwa/push/resubscribe/`` and ``GT_PUSH_UNSUBSCRIBE_ON_LOGOUT``. From
+E15: a row link may name the design page being published itself (master-detail
+on its first publication); ``meta.parent.choose`` serves a page about one
+object without its pk as the list of objects to choose from;
+``Flow.unreachable_states()`` and ``Flow.dead_ends()``; ``factories.site_rows``
+in ``__all__``. See ``datasources.rst``, ``designs.rst``, ``flows.rst``,
+``wizard.rst`` and ``pwa.rst``.
 
 Backwards incompatible
 """"""""""""""""""""""""

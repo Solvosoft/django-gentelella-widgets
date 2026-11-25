@@ -83,7 +83,8 @@ from djgentelella.sites import site_q
 __all__ = ['CHART_CLASSES', 'DesignDataSource', 'GTFiltersMixin', 'apply_filters',
            'chart_getter_for', 'chart_rows', 'parse_filters',
            'clear_cache', 'crud_viewset_for', 'facets_viewset_for', 'filterset_for',
-           'management_viewset_for', 'serializer_for', 'stat_value', 'stat_view_for']
+           'management_viewset_for', 'serializer_for', 'site_rows', 'stat_value',
+           'stat_view_for']
 
 #: Chart kind -> the djgentelella.chartjs getter it extends.
 CHART_CLASSES = {

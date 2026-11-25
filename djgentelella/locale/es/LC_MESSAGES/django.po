@@ -5745,3 +5745,17 @@ msgstr ""
 msgid "Imported: %(pages)d pages, %(menus)d menu items and %(lovs)d lists."
 msgstr ""
 "Importado: %(pages)d páginas, %(menus)d ítems de menú y %(lovs)d listas."
+
+#: designs/templates/gtdesigns/choose_parent.html:8
+#, python-format
+msgid "Choose a %(model_name)s to see this page."
+msgstr "Elija un(a) %(model_name)s para ver esta página."
+
+#: designs/templates/gtdesigns/choose_parent.html:11
+msgid "There is nothing to choose."
+msgstr "No hay nada que elegir."
+
+#: designs/templates/gtdesigns/choose_parent.html:13
+#, python-format
+msgid "Only the first %(count)s are listed."
+msgstr "Solo se listan los primeros %(count)s."

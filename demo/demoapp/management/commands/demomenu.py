@@ -327,7 +327,6 @@ class Command(BaseCommand):
             icon='fa fa-language',
             only_icon=False,
             position=2,
-            key='translations',
         )
         MenuItem.objects.create(
             parent=None,
