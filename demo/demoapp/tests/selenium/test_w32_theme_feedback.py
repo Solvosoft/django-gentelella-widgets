@@ -10,8 +10,8 @@ from .base import By, EC, SeleniumTestCase
 
 def css_color(driver, selector):
     return driver.execute_script(
-        "var e = document.querySelector(arguments[0]);"
-        "return e ? getComputedStyle(e).backgroundColor : null;", selector)
+        'var e = document.querySelector(arguments[0]);'
+        'return e ? getComputedStyle(e).backgroundColor : null;', selector)
 
 
 @tag('selenium')
