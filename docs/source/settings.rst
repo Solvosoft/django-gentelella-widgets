@@ -90,6 +90,10 @@ in full.
      - ``TINYMCE_UPLOAD_PATH`` (above), plus the ``chunked_upload`` settings
    * - Encrypted model fields (:doc:`model_fields`)
      - ``GT_ENCRYPTION_KEY``
+   * - Theme roller (:doc:`theme`)
+     - ``GT_THEME_LOGO_MAX_BYTES``
+   * - User feedback (:doc:`feedback`)
+     - ``GT_FEEDBACK``; per Site, the database setting ``feedback_enabled``
 
 Settings on Database
 ---------------------------

@@ -46,6 +46,7 @@ Django Gentelella Widgets (``djgentelella``) is a reusable Django application th
    help
    jslibraries
    blog
+   theme
 
 .. toctree::
    :maxdepth: 2
@@ -65,6 +66,7 @@ Django Gentelella Widgets (``djgentelella``) is a reusable Django application th
    authorization
    locking
    wizard
+   feedback
    pipeline
 
 .. toctree::
