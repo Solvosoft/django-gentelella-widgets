@@ -1180,11 +1180,24 @@ class PipelinePageMixin:
     def get_pipeline(self):
         return _built(self, self.pipeline, event=BEFORE_RENDER)
 
+    def get_pipeline_parent(self):
+        """The object the page is about (``ctx.parent`` of the steps), or
+        ``None``; a page about one object (a detail, a wizard over it)
+        returns it. By default ``None``."""
+        return None
+
+    def get_pipeline_page(self):
+        """The :class:`~djgentelella.designs.models.Page` the steps see as
+        ``ctx.page``; ``None`` by default (a view of the project)."""
+        return None
+
     def get(self, request, *args, **kwargs):
         found = self.get_pipeline()
         self.pipeline_result = None
         if found:
-            result = run_before_render(found, request, node=self.pipeline_node)
+            result = run_before_render(found, request, node=self.pipeline_node,
+                                       parent=self.get_pipeline_parent(),
+                                       page=self.get_pipeline_page())
             if not result.ok:
                 raise PermissionDenied(' '.join(message for _field, message
                                                 in result.errors))
