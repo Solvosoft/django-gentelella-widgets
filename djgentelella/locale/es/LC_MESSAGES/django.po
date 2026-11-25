@@ -5111,7 +5111,7 @@ msgstr "el panel de facetas %(panel)r filtra otras filas que las de %(model)r"
 
 #: models.py
 msgid "Endpoint"
-msgstr "Endpoint"
+msgstr "Punto de entrega"
 
 #: models.py
 msgid "Public key"

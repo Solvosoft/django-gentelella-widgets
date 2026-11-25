@@ -114,7 +114,8 @@ class W33ManifestTests(TestCase):
         self.client.force_login(user)
         return self.client.get(reverse('notification_list'), HTTP_HOST=host)
 
-    def test_tags_are_off_by_default(self):
+    @override_settings(GT_PWA_MANIFEST=False, GT_PWA_SERVICE_WORKER=False)
+    def test_tags_are_off_without_the_settings(self):
         content = self.page().content.decode()
         self.assertNotIn('rel="manifest"', content)
         self.assertNotIn('pwa/register.js', content)
@@ -128,7 +129,7 @@ class W33ManifestTests(TestCase):
         self.assertIn('<meta name="theme-color" content="#445566">', content)
         self.assertNotIn('pwa/register.js', content)
 
-    @override_settings(GT_PWA_SERVICE_WORKER=True)
+    @override_settings(GT_PWA_SERVICE_WORKER=True, GT_PWA_MANIFEST=False)
     def test_registration_behind_its_setting(self):
         content = self.page().content.decode()
         self.assertIn('gentelella/js/pwa/register.js', content)
