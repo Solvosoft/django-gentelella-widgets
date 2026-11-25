@@ -727,6 +727,22 @@ and the detail modal prints it as HTML; the text itself never is. For
 ``ObjectCRUD`` in code: ``djgentelella.serializers.GTMarkdownHTMLField`` and
 the ``markdownprint`` renderer of ``datatables.js``.
 
+**The pipeline for generated code (W30, proposals of E12).**
+``PipelineFormMixin`` (a ``CreateView``/``UpdateView``),
+``PipelineViewSetMixin`` (``perform_create``/``perform_update``, the branch
+as ``gtdesign_redirect``) and ``PipelinePageMixin`` (``before_render`` before
+a ``GET``) take a ``pipeline`` stage; ``run_form_pipeline``,
+``run_serializer_pipeline`` and ``run_before_render`` are the functions under
+them. ``data_components.js`` exports ``window.gtdesign_pipeline_events`` (the
+modal events that follow ``gtdesign_redirect``). A step of the document may
+say its ``kind`` (checked against the step, and given to a
+``pipeline_step`` hook that takes ``kind=``); ``step_build(name, kind,
+function, ...)`` builds a step without registering it. New hook
+``ResolveContext.branch_target(target, path, *, event, model)`` (default
+``pipeline.resolve_branch_target``) for branch targets a tool generates.
+``catalogue()`` and ``Process`` carry the ``app`` that defines each step.
+The steps of a ``wizard`` take ``widget_options``.
+
 Fixes
 """"""""
 

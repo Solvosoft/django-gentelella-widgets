@@ -252,7 +252,8 @@ prop                   meaning
 ``steps``              each with ``name`` (``[a-z][a-z0-9_]*``), ``title``,
                        ``description``, ``fields`` and, as an entry of the
                        design's ``forms``, ``render``, ``grid``, ``widgets``
-                       and ``help``; plus ``condition`` and ``when``
+                       and ``help``, ``widget_options``; plus
+                       ``condition``, ``when`` and ``pipeline``
 ``mode``               ``create`` (default) or ``edit``: the object of a page
                        about one ``model`` (``meta.parent``)
 ``perms``              ``{"create": [...], "update": [...]}``; by default the

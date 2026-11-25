@@ -191,6 +191,36 @@ the same checks, raising ``ImproperlyConfigured`` with every problem.
 nothing -- a step of a wizard --: a process or a branch is an error. The
 wizard runs both kinds: see :doc:`wizard`.
 
+For generated code there are mixins over the same functions:
+
+``PipelineFormMixin``
+    a ``CreateView``/``UpdateView``: ``pipeline`` (a stage or a
+    ``PipelineBuild``) runs in ``form_valid`` -- errors on the form, the
+    branch as the redirect. ``run_form_pipeline(pipeline, form, request,
+    save, *, node=None, fields=None, page=None)`` is the function.
+``PipelineViewSetMixin``
+    a DRF viewset: ``perform_create``/``perform_update`` through
+    ``pipeline`` -- errors are a 400, the branch comes back as
+    ``gtdesign_redirect`` (``window.gtdesign_pipeline_events()`` of
+    ``designs/data_components.js`` gives the ``ObjectCRUD`` modal events that
+    follow it). ``run_serializer_pipeline(pipeline, serializer, request,
+    save, ...)`` is the function.
+``PipelinePageMixin``
+    a view whose ``GET`` runs a ``before_render`` ``pipeline`` first: errors
+    are a 403, a branch redirects, the values reach the template as
+    ``pipeline``. ``run_before_render(pipeline, request, ...)`` is the
+    function.
+
+A step of a document may say its ``kind``: it must be the registered one,
+and a ``pipeline_step`` hook that takes a ``kind`` keyword receives it (a
+tool that generates the step knows it from there). ``step_build(name, kind,
+function, *, params=None, condition=None, writes=(), ...)`` builds a
+``StepBuild`` without registering anything. The hook
+``ResolveContext.branch_target(target, path, *, event, model)`` resolves
+each branch target (by default ``resolve_branch_target``): a tool answers for
+pages it generates and calls ``super()`` for the rest. ``catalogue()`` gives
+the ``app`` that defines each step.
+
 Validation when publishing
 --------------------------
 
