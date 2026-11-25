@@ -4802,3 +4802,68 @@ msgstr "%s necesita una columna"
 #: designs/tree_timeline_metrics.py
 msgid "Metric cards"
 msgstr "Tarjetas de métricas"
+
+#: designs/components.py designs/pipeline.py
+#, python-format
+msgid "no pipeline step %r is registered"
+msgstr "no hay ningún paso de pipeline %r registrado"
+
+#: designs/pipeline.py
+msgid "only a step of a form over a model can declare \"writes\""
+msgstr "solo un paso de un formulario sobre un modelo puede declarar \"writes\""
+
+#: designs/pipeline.py
+#, python-format
+msgid "%r is the version of optimistic locking: no step may set it"
+msgstr "%r es la versión del bloqueo optimista: ningún paso puede fijarla"
+
+#: designs/pipeline.py
+#, python-format
+msgid "%r is not a field a step can set"
+msgstr "%r no es un campo que un paso pueda fijar"
+
+#: designs/pipeline.py
+msgid "\"page:\" needs a path"
+msgstr "\"page:\" necesita una ruta"
+
+#: designs/pipeline.py
+#, python-format
+msgid "%r leads back to this page before it is drawn: a redirect loop"
+msgstr "%r lleva de vuelta a esta página antes de dibujarla: un ciclo de redirecciones"
+
+#: designs/pipeline.py
+#, python-format
+msgid "no design page %r is published"
+msgstr "no hay ninguna página de diseño %r publicada"
+
+#: designs/pipeline.py
+#, python-format
+msgid "design page %(page)r is about one %(parent)s: a branch can only go there after saving one"
+msgstr "la página de diseño %(page)r es sobre un %(parent)s: una rama solo puede ir ahí después de guardar uno"
+
+#: designs/pipeline.py
+msgid "a branch to a flow needs the object a form saved"
+msgstr "una rama a un flujo necesita el objeto que guardó un formulario"
+
+#: designs/pipeline.py
+#, python-format
+msgid "%r is not a local path"
+msgstr "%r no es una ruta local"
+
+#: designs/pipeline.py
+#, python-format
+msgid "%r is neither \"page:<path>\", \"flow:<name>\", a URL name of the project nor a local path"
+msgstr "%r no es \"page:<ruta>\", \"flow:<nombre>\", un nombre de URL del proyecto ni una ruta local"
+
+#: designs/pipeline.py
+msgid "only a computation sets fields"
+msgstr "solo un cómputo fija campos"
+
+#: designs/pipeline.py
+msgid "only the last branch can go without a condition (the default): the ones after it would never be taken"
+msgstr "solo la última rama puede ir sin condición (la de por defecto): las que vengan después nunca se tomarían"
+
+#: designs/pipeline.py
+#, python-format
+msgid "%(step)s could not be completed: nothing was saved."
+msgstr "No se pudo completar %(step)s: no se guardó nada."
