@@ -628,6 +628,7 @@ down (a saved report can ask for it); ``order_by_value=`` of the call still
 wins. ``max``/``min`` over ``date`` and ``datetime`` columns are covered by
 tests through ``aggregate``, the API and ``validate_params``. See
 ``docs/source/datasources.rst``.
+
 **Wizard: forms in several steps with drafts.** ``djgentelella.wizard``:
 ``GTWizardView`` and ``Step`` -- one form per step, a Bootstrap 5 progress
 bar, "Previous", "Next", "Save draft", "Finish" and "Discard", all plain
