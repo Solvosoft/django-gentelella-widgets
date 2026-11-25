@@ -672,3 +672,23 @@ class Calibration(models.Model):
 
     def __str__(self):
         return '%s %s' % (self.equipment, self.done)
+
+
+class Meetup(models.Model):
+    """A community meetup: the rows of the region components (cards,
+    calendar and map) of ``/designs/meetups/``. ``site`` empty is global."""
+
+    KINDS = (('talk', 'Talk'), ('workshop', 'Workshop'), ('social', 'Social'))
+
+    title = models.CharField(max_length=150)
+    kind = models.CharField(max_length=20, choices=KINDS, default='talk')
+    city = models.CharField(max_length=100, blank=True)
+    starts_at = models.DateTimeField()
+    ends_at = models.DateTimeField(null=True, blank=True)
+    location = GTPointField(blank=True)
+    picture = models.URLField(blank=True)
+    site = models.ForeignKey('sites.Site', null=True, blank=True,
+                             on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.title
