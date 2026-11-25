@@ -1,0 +1,20 @@
+{% load i18n %}
+<div class="x_panel gtdesign-region gtdesign-timeline" data-gtdesign="{{ b.id }}"{% if not preview %} data-gtconfig="{{ b.id }}_gtconfig"{% endif %} id="{{ b.id }}_region">
+  <div class="x_title">
+    <h2>{{ b.title }}</h2>
+    <div class="clearfix"></div>
+  </div>
+  <div class="x_content">
+    {% if preview %}
+    <ol class="gttimeline list-unstyled mb-0">{% for item in sample %}
+      <li class="gttimeline-item"><span class="gttimeline-dot"></span>
+        <div class="gttimeline-body"><strong>{{ item.title }}</strong>{% if item.subtitle %} <small class="text-muted">{{ item.subtitle }}</small>{% endif %}</div></li>
+    {% endfor %}</ol>
+    {% else %}
+    <div class="gttimeline-status small text-warning" role="status" aria-live="polite"></div>
+    <ol class="gttimeline list-unstyled mb-0" id="{{ b.id }}_timeline"></ol>
+    <button type="button" class="btn btn-sm btn-outline-secondary gttimeline-more d-none">{% trans 'Load older' %}</button>
+    {{ config }}
+    {% endif %}
+  </div>
+</div>

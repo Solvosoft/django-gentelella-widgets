@@ -1068,6 +1068,26 @@ class Command(BaseCommand):
                 ends_at=begin + timedelta(hours=2 if kind != 'workshop' else 26),
                 location=point)
 
+    def create_departments(self):
+        """The organization chart of /designs/insights/ (``tree`` over the
+        ``demoapp.departments`` data source)."""
+        models.Department.objects.all().delete()
+        chart = [
+            ('Board', None, 'fa fa-institution', 'Ana'),
+            ('Operations', 'Board', 'fa fa-cogs', 'Beto'),
+            ('Logistics', 'Operations', 'fa fa-truck', ''),
+            ('Warehouse', 'Logistics', 'fa fa-cubes', ''),
+            ('Purchasing', 'Operations', 'fa fa-shopping-cart', ''),
+            ('Technology', 'Board', 'fa fa-laptop', 'Carla'),
+            ('Development', 'Technology', 'fa fa-code', ''),
+            ('Support', 'Technology', 'fa fa-life-ring', ''),
+            ('Finance', 'Board', 'fa fa-money', ''),
+        ]
+        made = {}
+        for name, parent, icon, head in chart:
+            made[name] = models.Department.objects.create(
+                name=name, parent=made.get(parent), icon=icon, head=head)
+
     def create_design_demos(self):
         """The catalogue the design demos show, and the designs, published.
 
@@ -1093,10 +1113,11 @@ class Command(BaseCommand):
             if created:
                 product.tags.add(red if index % 2 else blue)
         self.create_meetups()
+        self.create_departments()
         designs = Path(models.__file__).resolve().parent / 'gtdesign'
         for name in ('welcome', 'category_products', 'product_admin',
                      'sales_dashboard', 'product_grid', 'ticket_kanban',
-                     'meetups'):
+                     'meetups', 'insights'):
             call_command('gtdesigns_publish', str(designs / ('%s.json' % name)))
         parent = MenuItem.objects.create(
             parent=None, title='Designs', url_name='/', category='sidebar',
@@ -1110,7 +1131,9 @@ class Command(BaseCommand):
                                   ('Help desk board', 'tickets-board',
                                    'fa fa-columns'),
                                   ('Meetups (cards, calendar, map)', 'meetups',
-                                   'fa fa-map-marker')):
+                                   'fa fa-map-marker'),
+                                  ('Insights (tree, timeline, metrics)',
+                                   'insights', 'fa fa-sitemap')):
             MenuItem.objects.create(
                 parent=parent, title=title, url_name='gt-design-page',
                 category='sidebar', is_reversed=True, reversed_args=path,

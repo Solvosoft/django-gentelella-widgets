@@ -6,7 +6,8 @@ Filled, in this order, so a later ``type`` replaces an earlier one:
    components with data of :mod:`djgentelella.designs.data_components`,
    the interactive grid of :mod:`djgentelella.designs.grid`, the board of
    :mod:`djgentelella.designs.flow_kanban` and the cards, calendar and map
-   of :mod:`djgentelella.designs.regions`);
+   of :mod:`djgentelella.designs.regions`, and the tree, timeline and metric
+   cards of :mod:`djgentelella.designs.tree_timeline_metrics`);
 2. the ``gtdesigns.py`` module of every installed app, imported from
    ``AppConfig.ready()`` -- it registers components with :func:`register` and
    exposes models with :func:`djgentelella.designs.exposure.expose`;
@@ -34,6 +35,7 @@ from django.utils.module_loading import import_string
 
 from djgentelella.designs import (
     builtin, conf, data_components, flow_kanban, grid, regions,
+    tree_timeline_metrics,
 )
 
 MODULE_NAME = 'gtdesigns'
@@ -89,7 +91,9 @@ def _fill():
                                 + data_components.DATA_COMPONENTS
                                 + grid.GRID_COMPONENTS
                                 + flow_kanban.FLOW_KANBAN_COMPONENTS
-                                + regions.REGION_COMPONENTS):
+                                + regions.REGION_COMPONENTS
+                                + tree_timeline_metrics
+                                .TREE_TIMELINE_METRICS_COMPONENTS):
             register(component_class)
         autodiscover()
         for path in conf.components():

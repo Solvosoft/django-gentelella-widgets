@@ -1,0 +1,18 @@
+{% load i18n %}
+<div class="x_panel gtdesign-region gtdesign-tree" data-gtdesign="{{ b.id }}"{% if not preview %} data-gtconfig="{{ b.id }}_gtconfig"{% endif %} id="{{ b.id }}_region">
+  <div class="x_title">
+    <h2>{{ b.title }}</h2>
+    <div class="clearfix"></div>
+  </div>
+  <div class="x_content">
+    {% if preview %}
+    <ul class="list-unstyled gttree mb-0">{% for node in sample %}
+      <li style="padding-left: {{ node.depth }}em"><i class="fa fa-caret-right text-muted"></i> <i class="fa fa-folder-o"></i> {{ node.title }}{% if node.subtitle %} <small class="text-muted">{{ node.subtitle }}</small>{% endif %}</li>
+    {% endfor %}</ul>
+    {% else %}
+    <div class="gttree-status small text-warning" role="status" aria-live="polite"></div>
+    <ul class="list-unstyled gttree mb-0" id="{{ b.id }}_tree" role="tree" aria-label="{{ b.title }}"></ul>
+    {{ config }}
+    {% endif %}
+  </div>
+</div>

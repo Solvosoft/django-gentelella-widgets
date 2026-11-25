@@ -718,3 +718,23 @@ class WidgetShowcase(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Department(models.Model):
+    """A unit of an organization chart: the rows of the ``tree`` component of
+    ``/designs/insights/``. ``parent`` empty is a root, ``site`` empty is
+    global."""
+
+    name = models.CharField(max_length=150)
+    parent = models.ForeignKey('self', null=True, blank=True, related_name='units',
+                               on_delete=models.SET_NULL)
+    icon = models.CharField(max_length=60, blank=True)
+    head = models.CharField(max_length=150, blank=True)
+    site = models.ForeignKey('sites.Site', null=True, blank=True,
+                             on_delete=models.CASCADE)
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name

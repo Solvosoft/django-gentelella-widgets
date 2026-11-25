@@ -1,0 +1,22 @@
+/* The tree, timeline and metrics region components
+ * (djgentelella/designs/tree_timeline_metrics.py). */
+
+.gttree, .gttree ul { list-style: none; margin: 0; padding: 0; }
+.gttree ul { padding-left: 1.25rem; border-left: 1px dotted #ccc; margin-left: .55rem; }
+.gttree-row { display: flex; align-items: baseline; gap: .35rem; padding: .15rem 0; }
+.gttree-toggle { border: 0; background: none; padding: 0 .15rem; width: 1.1rem; color: inherit; line-height: 1; }
+.gttree-toggle:disabled { visibility: hidden; }
+.gttree-fields { font-size: .8em; color: #73879c; }
+.gttree-more { margin: .2rem 0 .2rem 1.5rem; }
+
+.gttimeline { position: relative; margin: 0; padding: 0 0 0 1.5rem; }
+.gttimeline::before { content: ""; position: absolute; left: .45rem; top: 0; bottom: 0; width: 2px; background: #e6e9ed; }
+.gttimeline-group { margin: .75rem 0 .35rem; font-weight: 600; color: #73879c; font-size: .85em; }
+.gttimeline-group::first-letter { text-transform: uppercase; }
+.gttimeline-item { position: relative; margin: 0 0 .9rem; }
+.gttimeline-dot { position: absolute; left: -1.38rem; top: .3rem; width: .8rem; height: .8rem; border-radius: 50%; background: #1abb9c; border: 2px solid #fff; box-shadow: 0 0 0 1px #ccc; }
+.gttimeline-when { font-size: .8em; color: #73879c; }
+.gttimeline-description { margin: .2rem 0 0; white-space: pre-line; }
+.gttimeline-more { margin-top: .25rem; }
+
+.gtmetric .gtmetric-value { line-height: 1.2; }

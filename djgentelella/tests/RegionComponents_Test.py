@@ -117,7 +117,10 @@ class SchemaTests(RegionBase):
 
     def test_the_three_are_registered_after_the_others(self):
         types = list(registry.get_components())
-        self.assertEqual(types[-3:], ['cards', 'calendar', 'map'])
+        # Together, after the built-in ones (W25 adds its own after them).
+        first = types.index('cards')
+        self.assertEqual(types[first:first + 3], ['cards', 'calendar', 'map'])
+        self.assertGreater(first, types.index('flow_kanban'))
         for name in ('cards', 'calendar', 'map'):
             component = registry.get_component(name)
             self.assertTrue(component.facets_target)
