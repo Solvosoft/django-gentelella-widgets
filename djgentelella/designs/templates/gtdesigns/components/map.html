@@ -1,0 +1,17 @@
+{% load i18n %}
+<div class="x_panel gtdesign-region gtdesign-map" data-gtdesign="{{ b.id }}"{% if not preview %} data-gtconfig="{{ b.id }}_gtconfig"{% endif %} id="{{ b.id }}_region">
+  <div class="x_title">
+    <h2>{{ b.title }}</h2>
+    <div class="clearfix"></div>
+  </div>
+  <div class="x_content">
+    {% if preview %}
+    <div class="border rounded p-4 text-center text-muted" style="height: {{ b.height }}px"><i class="fa fa-map fa-2x"></i>
+      <ul class="list-unstyled mt-2 mb-0">{% for point in sample %}<li>{{ point.title }}</li>{% endfor %}</ul></div>
+    {% else %}
+    <div class="gtmap-status small text-warning" role="status" aria-live="polite"></div>
+    <div class="gtmap" id="{{ b.id }}_map" style="height: {{ b.height }}px"></div>
+    {{ config }}
+    {% endif %}
+  </div>
+</div>

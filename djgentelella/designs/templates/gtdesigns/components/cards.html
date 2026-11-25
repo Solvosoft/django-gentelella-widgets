@@ -1,0 +1,24 @@
+{% load i18n %}
+<div class="x_panel gtdesign-region gtdesign-cards" data-gtdesign="{{ b.id }}"{% if not preview %} data-gtconfig="{{ b.id }}_gtconfig"{% endif %} id="{{ b.id }}_region">
+  <div class="x_title">
+    <h2>{{ b.title }}</h2>
+    <div class="clearfix"></div>
+  </div>
+  <div class="x_content">
+    {% if preview %}
+    <div class="row g-3">
+      {% for card in sample %}
+      <div class="col-12 col-sm-6 col-lg-4"><div class="card h-100"><div class="card-body">
+        <h5 class="card-title">{{ card.title }}</h5>
+        {% if card.subtitle %}<h6 class="card-subtitle mb-2 text-muted">{{ card.subtitle }}</h6>{% endif %}
+        <dl class="row small mb-0">{% for item in card.fields %}<dt class="col-5">{{ item.label }}</dt><dd class="col-7">{{ item.value }}</dd>{% endfor %}</dl>
+      </div></div></div>
+      {% endfor %}
+    </div>
+    {% else %}
+    {% if b.search %}<div class="mb-2"><input type="search" class="form-control form-control-sm gtcards-search w-auto" placeholder="{% trans 'Search' %}" aria-label="{% trans 'Search' %}"></div>{% endif %}
+    <div class="gtcards-list" id="{{ b.id }}_cards"></div>
+    {{ config }}
+    {% endif %}
+  </div>
+</div>

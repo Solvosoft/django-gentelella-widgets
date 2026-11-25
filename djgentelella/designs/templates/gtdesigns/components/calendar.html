@@ -1,0 +1,17 @@
+{% load i18n %}
+<div class="x_panel gtdesign-region gtdesign-calendar" data-gtdesign="{{ b.id }}"{% if not preview %} data-gtconfig="{{ b.id }}_gtconfig"{% endif %} id="{{ b.id }}_region">
+  <div class="x_title">
+    <h2>{{ b.title }}</h2>
+    <div class="clearfix"></div>
+  </div>
+  <div class="x_content">
+    {% if preview %}
+    <div class="border rounded p-4 text-center text-muted"><i class="fa fa-calendar fa-2x"></i>
+      <ul class="list-unstyled mt-2 mb-0">{% for event in sample %}<li>{{ event.title }}</li>{% endfor %}</ul></div>
+    {% else %}
+    <div class="gtcalendar-status small text-warning" role="status" aria-live="polite"></div>
+    <div class="gtcalendar" id="{{ b.id }}_calendar"></div>
+    {{ config }}
+    {% endif %}
+  </div>
+</div>
