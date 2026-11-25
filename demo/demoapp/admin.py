@@ -17,6 +17,7 @@ from .models import (
     Img,
     Customer,
     Meetup,
+    Department,
 )
 
 
@@ -49,3 +50,4 @@ admin.site.register(SelectImage)
 admin.site.register(Img)
 admin.site.register(Customer, CustomerAdmin)
 admin.site.register(Meetup)
+admin.site.register(Department)

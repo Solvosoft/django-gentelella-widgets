@@ -7,13 +7,15 @@ data -- ``category_products`` first (``dashboard`` links its rows to it),
 then ``products`` and ``dashboard``. ``createdemo`` publishes them all, and
 ``ticket_kanban``: the help desk flow (``gtflows.py``) as a kanban board at
 ``/designs/tickets-board/``; ``meetups``: one data source as cards, on a
-calendar and on a map (``/designs/meetups/``).
+calendar and on a map (``/designs/meetups/``); ``insights``: a tree, a
+timeline and metric cards (``/designs/insights/``).
 """
 
 from djgentelella.designs.exposure import expose
 
 from demoapp.models import (
-    Country, Meetup, Person, Product, ProductCategory, ProductTag, SupportTicket,
+    Country, Department, Meetup, Person, Product, ProductCategory, ProductTag,
+    SupportTicket,
 )
 
 expose(Country)
@@ -25,3 +27,5 @@ expose(Product)
 expose(SupportTicket)
 # The region components (cards, calendar, map) of meetups.json.
 expose(Meetup)
+# The tree of insights.json.
+expose(Department)

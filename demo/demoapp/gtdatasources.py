@@ -45,3 +45,10 @@ register_datasource(ModelDataSource(
     fields=['id', 'title', 'kind', 'city', 'starts_at', 'ends_at', 'location',
             'picture'],
 ))
+
+# The organization chart of /designs/insights/ (tree), by Site like the
+# meetups, whose timeline and metric cards are on that page too.
+register_datasource(ModelDataSource(
+    models.Department, name='demoapp.departments', site_field='site',
+    fields=['id', 'name', 'parent', 'icon', 'head'],
+))

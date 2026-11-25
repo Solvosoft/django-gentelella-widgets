@@ -1,0 +1,214 @@
+{
+  "schema_version": 1,
+  "app": "demoapp",
+  "slug": "insights",
+  "kind": "page",
+  "meta": {
+    "title": "Insights",
+    "url": "insights/",
+    "url_name": "insights",
+    "permissions": {
+      "view": [
+        "demoapp.view_meetup"
+      ]
+    }
+  },
+  "root": {
+    "type": "page",
+    "id": "page",
+    "children": [
+      {
+        "type": "row",
+        "id": "kpis",
+        "children": [
+          {
+            "type": "col",
+            "id": "kpis_col",
+            "props": {
+              "width": 12
+            },
+            "children": [
+              {
+                "type": "metrics",
+                "id": "meetup_metrics",
+                "props": {
+                  "datasource": "demoapp.meetups",
+                  "title": "Meetups this month",
+                  "date_field": "starts_at",
+                  "period": "month",
+                  "filtered_by": "filters",
+                  "metrics": [
+                    {
+                      "label": "Meetups",
+                      "fn": "count",
+                      "icon": "fa fa-users"
+                    },
+                    {
+                      "label": "Workshops",
+                      "fn": "count",
+                      "icon": "fa fa-wrench",
+                      "filters": [
+                        {
+                          "column": "kind",
+                          "op": "eq",
+                          "value": "workshop"
+                        }
+                      ]
+                    },
+                    {
+                      "label": "Cities",
+                      "fn": "count_distinct",
+                      "column": "city",
+                      "icon": "fa fa-map-marker"
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "metrics",
+                "id": "purchase_metrics",
+                "props": {
+                  "datasource": "demoapp.purchases",
+                  "title": "Purchase requests",
+                  "date_field": "created_at",
+                  "period": "month",
+                  "per_row": 3,
+                  "metrics": [
+                    {
+                      "label": "Requested",
+                      "fn": "sum",
+                      "column": "amount",
+                      "format": "currency",
+                      "prefix": "$",
+                      "icon": "fa fa-money",
+                      "higher_is_better": false
+                    },
+                    {
+                      "label": "Average request",
+                      "fn": "avg",
+                      "column": "amount",
+                      "format": "currency",
+                      "prefix": "$",
+                      "higher_is_better": false
+                    },
+                    {
+                      "label": "Largest request",
+                      "fn": "max",
+                      "column": "amount",
+                      "format": "currency",
+                      "prefix": "$",
+                      "decimals": 0,
+                      "compare": false
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "row",
+        "id": "middle",
+        "children": [
+          {
+            "type": "col",
+            "id": "filters_col",
+            "props": {
+              "width": 3
+            },
+            "children": [
+              {
+                "type": "facets",
+                "id": "filters",
+                "props": {
+                  "target": "meetup_timeline",
+                  "columns": [
+                    "kind",
+                    "city"
+                  ],
+                  "title": "Filters"
+                }
+              }
+            ]
+          },
+          {
+            "type": "col",
+            "id": "timeline_col",
+            "props": {
+              "width": 9
+            },
+            "children": [
+              {
+                "type": "timeline",
+                "id": "meetup_timeline",
+                "props": {
+                  "datasource": "demoapp.meetups",
+                  "title": "Timeline",
+                  "title_field": "title",
+                  "subtitle_field": "city",
+                  "start_field": "starts_at",
+                  "end_field": "ends_at",
+                  "color_field": "kind",
+                  "colors": {
+                    "talk": "#3498db",
+                    "workshop": "#e67e22",
+                    "social": "#2ecc71"
+                  },
+                  "fields": [
+                    "kind"
+                  ],
+                  "page_size": 5,
+                  "row_links": [
+                    {
+                      "url_name": "admin:demoapp_meetup_change",
+                      "title": "Open",
+                      "icon": "fa fa-external-link"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "row",
+        "id": "bottom",
+        "children": [
+          {
+            "type": "col",
+            "id": "tree_col",
+            "props": {
+              "width": 12
+            },
+            "children": [
+              {
+                "type": "tree",
+                "id": "org_tree",
+                "props": {
+                  "datasource": "demoapp.departments",
+                  "title": "Organization",
+                  "title_field": "name",
+                  "subtitle_field": "head",
+                  "parent_field": "parent",
+                  "icon_field": "icon",
+                  "ordering": [
+                    "name"
+                  ],
+                  "row_links": [
+                    {
+                      "url_name": "admin:demoapp_department_change",
+                      "title": "Open",
+                      "icon": "fa fa-external-link"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
