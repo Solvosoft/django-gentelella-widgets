@@ -282,6 +282,22 @@
     // The modal events that follow the branch of an on_submit pipeline
     // (gtdesign_redirect): for an ObjectCRUD of generated code.
     window.gtdesign_pipeline_events = pipelineEvents;
+    // An ObjectCRUD of generated code follows the facets panel of `id` (the
+    // panel's data-target): its table reloads when a facet changes, and the
+    // function returned is its datatable `filter` event, which sends the
+    // facets as gtfilters (GTFiltersMixin on the server) and the search to
+    // the panel's counts. Either side may start first.
+    window.gtdesign_facet_filters = facetFilters;
+    window.gtdesign_follow_facets = function (id, crud) {
+        var entry = table(String(id));
+        if (crud) { entry.crud = crud; }
+        return function (data) {
+            var filters = facetFilters(String(id));
+            if (filters.length) { data.gtfilters = JSON.stringify(filters); }
+            entry.states.forEach(function (state) { state.setSearch(data.search || ''); });
+            return data;
+        };
+    };
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {

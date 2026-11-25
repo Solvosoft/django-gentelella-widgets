@@ -77,7 +77,8 @@ from djgentelella.serializers import GTDateField, GTDateTimeField, GTMarkdownHTM
 from djgentelella.serializers.selects import GTS2SerializerBase
 from djgentelella.sites import get_current_site, site_q
 
-__all__ = ['CHART_CLASSES', 'DesignDataSource', 'chart_getter_for', 'chart_rows',
+__all__ = ['CHART_CLASSES', 'DesignDataSource', 'GTFiltersMixin', 'apply_filters',
+           'chart_getter_for', 'chart_rows', 'parse_filters',
            'clear_cache', 'crud_viewset_for', 'facets_viewset_for', 'filterset_for',
            'management_viewset_for', 'serializer_for', 'stat_value', 'stat_view_for']
 
@@ -462,6 +463,33 @@ def apply_filters(source, request, queryset, filters):
                                    source.column_map(request))
     except DjangoValidationError as error:
         raise api_error(error, 'gtfilters')
+
+
+class GTFiltersMixin:
+    """A DRF viewset of the project -- the ``ObjectCRUD`` of code generated
+    from a design -- whose ``list`` follows a facets panel: the filters of
+    ``?gtfilters=`` (a JSON list of filters of the parameter document,
+    :mod:`djgentelella.datasources.query`) are applied after the others,
+    over :attr:`gtfilters_fields` only. A filter of another column, or one
+    that is not valid, is a 400. In the browser, the table sends them with
+    ``gtdesign_follow_facets()`` (``designs/data_components.js``).
+    """
+
+    #: The columns a filter may name: those of the facets panel (the model's
+    #: fields the exposure allows). Required.
+    gtfilters_fields = ()
+
+    def get_gtfilters_fields(self):
+        return list(self.gtfilters_fields)
+
+    def filter_queryset(self, queryset):
+        queryset = super().filter_queryset(queryset)
+        raw = self.request.query_params.get('gtfilters')
+        if raw:
+            source = DesignDataSource(queryset.model, self.get_gtfilters_fields())
+            queryset = apply_filters(source, self.request, queryset,
+                                     parse_filters(raw))
+        return queryset
 
 
 def parent_link(request):
