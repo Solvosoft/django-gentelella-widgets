@@ -1,0 +1,49 @@
+{% extends 'gentelella/base.html' %}
+{% load i18n %}
+{% block title %}{% trans 'Translations' %}{% endblock %}
+{% block content %}
+<div class="x_panel gt-translations">
+  <div class="x_title"><h2>{% trans 'Translations' %} <small>{% blocktrans %}texts written as data, in other languages{% endblocktrans %}</small></h2><div class="clearfix"></div></div>
+  <div class="x_content">
+    <p class="text-muted">{% blocktrans with code=default_language %}The written texts are the originals ({{ code }}). A text without a translation is shown as written.{% endblocktrans %}</p>
+    <p>{% trans 'Missing translations:' %}
+      {% for code, name in languages %}<a class="btn btn-sm btn-outline-secondary gt-translations-missing" href="{% url 'gt_translations_missing' code %}">{{ name }}</a>{% endfor %}
+    </p>
+    <table class="table table-sm table-striped gt-translations-index">
+      <thead><tr><th>{% trans 'What' %}</th><th>{% trans 'Texts' %}</th>{% for code, name in languages %}<th>{% blocktrans %}Missing in {{ name }}{% endblocktrans %}</th>{% endfor %}</tr></thead>
+      <tbody>
+      {% for row in pages %}
+        <tr><td><i class="fa fa-file-o" aria-hidden="true"></i> <a href="{% url 'gt_translations_page' row.page.pk %}">{{ row.page.title|default:row.page.path }}</a> <small class="text-muted">{% if row.page.site_id %}{{ row.page.site.domain }}:{% endif %}{{ row.page.path }}</small></td><td>{{ row.total }}</td>{% for missing in row.missing %}<td>{{ missing }}</td>{% endfor %}</tr>
+      {% endfor %}
+      {% for row in menus %}
+        <tr><td><i class="fa fa-bars" aria-hidden="true"></i> <a href="{% url 'gt_translations_menu' %}">{% trans 'Menu' %}</a></td><td>{{ row.total }}</td>{% for missing in row.missing %}<td>{{ missing }}</td>{% endfor %}</tr>
+      {% endfor %}
+      {% for row in lovs %}
+        <tr><td><i class="fa fa-list" aria-hidden="true"></i> <a href="{% url 'gt_translations_lov' row.name %}">{{ row.name }}</a></td><td>{{ row.total }}</td>{% for missing in row.missing %}<td>{{ missing }}</td>{% endfor %}</tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    <div class="row g-3">
+      <div class="col-md-6">
+        <h4>{% trans 'Export' %}</h4>
+        <form method="get" action="{% url 'gt_translations_export' %}" class="gt-translations-export">
+          {% for code, name in languages %}
+          <div class="form-check form-check-inline"><input class="form-check-input" type="checkbox" name="language" value="{{ code }}" id="gt-tr-export-{{ code }}"><label class="form-check-label" for="gt-tr-export-{{ code }}">{{ name }}</label></div>
+          {% endfor %}
+          <div class="form-check"><input class="form-check-input" type="checkbox" name="missing" value="0" id="gt-tr-export-missing"><label class="form-check-label" for="gt-tr-export-missing">{% trans 'Only the texts already translated' %}</label></div>
+          <button class="btn btn-secondary btn-sm mt-2"><i class="fa fa-download" aria-hidden="true"></i> {% trans 'Download JSON' %}</button>
+        </form>
+      </div>
+      <div class="col-md-6">
+        <h4>{% trans 'Import' %}</h4>
+        <form method="post" action="{% url 'gt_translations_import' %}" enctype="multipart/form-data" class="gt-translations-import">
+          {% csrf_token %}
+          <input type="file" name="file" accept="application/json,.json" class="form-control form-control-sm" aria-label="{% trans 'Translations file' %}" required>
+          <div class="form-check mt-1"><input class="form-check-input" type="checkbox" name="dry_run" value="1" id="gt-tr-import-dry"><label class="form-check-label" for="gt-tr-import-dry">{% trans 'Only check the file' %}</label></div>
+          <button class="btn btn-primary btn-sm mt-2"><i class="fa fa-upload" aria-hidden="true"></i> {% trans 'Import' %}</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

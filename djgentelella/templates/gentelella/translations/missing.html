@@ -1,0 +1,26 @@
+{% extends 'gentelella/base.html' %}
+{% load i18n %}
+{% block title %}{% blocktrans %}Missing in {{ language_name }}{% endblocktrans %}{% endblock %}
+{% block content %}
+<div class="x_panel gt-translations-missing-list" data-language="{{ language }}">
+  <div class="x_title"><h2>{% blocktrans %}Missing in {{ language_name }}{% endblocktrans %}</h2><div class="clearfix"></div></div>
+  <div class="x_content">
+    <p><a href="{% url 'gt_translations' %}"><i class="fa fa-arrow-left" aria-hidden="true"></i> {% trans 'Translations' %}</a>
+      &middot; <a href="{% url 'gt_translations_export' %}?language={{ language|urlencode }}">{% trans 'Download them as JSON' %}</a></p>
+    {% for entry in pages %}
+      <h4>{% if entry.pk %}<a href="{% url 'gt_translations_page' entry.pk %}">{{ entry.page.path }}</a>{% else %}{{ entry.page.path }}{% endif %} {% if entry.page.site %}<small class="text-muted">{{ entry.page.site }}</small>{% endif %}</h4>
+      <ul>{% for text in entry.texts %}<li><code>{{ text.key }}</code> {{ text.original }}</li>{% endfor %}</ul>
+    {% endfor %}
+    {% if menus or unnamed %}
+      <h4><a href="{% url 'gt_translations_menu' %}">{% trans 'Menu' %}</a></h4>
+      <ul>{% for entry in menus %}<li><code>{{ entry.key }}</code> {{ entry.original }}</li>{% endfor %}{% for item in unnamed %}<li>{{ item.title }}</li>{% endfor %}</ul>
+    {% endif %}
+    {% regroup lovs by lov as by_lov %}
+    {% for group in by_lov %}
+      <h4><a href="{% url 'gt_translations_lov' group.grouper %}">{{ group.grouper }}</a></h4>
+      <ul>{% for entry in group.list %}<li><code>{{ entry.value }}</code> {{ entry.original }}</li>{% endfor %}</ul>
+    {% endfor %}
+    {% if not pages and not menus and not unnamed and not lovs %}<p class="text-success gt-translations-complete">{% trans 'Everything is translated.' %}</p>{% endif %}
+  </div>
+</div>
+{% endblock %}
