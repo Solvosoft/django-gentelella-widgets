@@ -18,9 +18,14 @@ from django.contrib.sites.models import Site
 from django.core.exceptions import ImproperlyConfigured
 from django.core.management import CommandError, call_command
 from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings
-from django.urls import reverse
+from django.http import JsonResponse
+from django.urls import include, path, reverse
+from django.views import View
+from rest_framework import serializers, viewsets
+from rest_framework.exceptions import ValidationError as APIValidationError
 
-from demoapp.models import Department, PurchaseRequest
+from demoapp.models import Department, NewHire, PurchaseRequest
+from demoapp.wizard.forms import JobForm, PersonalForm, VehicleForm
 from djgentelella import geocoding
 from djgentelella.datasources.base import (
     ModelDataSource, register_datasource, unregister_datasource,
@@ -29,8 +34,9 @@ from djgentelella.designs import engine, format, publishing
 from djgentelella.designs.components import ResolveContext, default_context_class
 from djgentelella.designs.exposure import expose
 from djgentelella.designs.models import Page
+from djgentelella.designs.factories import GTFiltersMixin
 from djgentelella.designs.pipeline import (
-    build_pipeline, param_defaults, process, step_build,
+    PipelinePageMixin, build_pipeline, param_defaults, process, step_build,
 )
 from djgentelella.locking import object_version
 from djgentelella.designs.regions import facets_state, region_page_context
@@ -40,10 +46,11 @@ from djgentelella.tests.DesignsData_Test import DataDesignTestCase
 from djgentelella.tests.DesignsHooks_Test import gtconfig
 from djgentelella.tests.TreeTimelineMetrics_Test import TTMBase, metrics
 from djgentelella.widgets import core as genwidgets
+from djgentelella.wizard import GTWizardView, Step
 
 __all__ = ['W31ResolveContextTests', 'W31CheckboxSelectMultipleTests',
            'W31FacetsOverModelTests', 'W31AppNameTests', 'W31GridSiteFieldTests',
-           'W31SmallTests']
+           'W31SmallTests', 'W31E13ProposalsTests']
 
 FAST_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
 CONTEXT = 'djgentelella.tests.ProposalsW31_Test.AppStepsContext'
@@ -539,3 +546,112 @@ class W31SmallTests(TTMBase):
         self.assertNotIn('hijacked', request.full_url)
         self.assertEqual(request.get_header('X-api-key'), 'h1')
         self.assertEqual(request.get_header('User-agent'), 'djgentelella')
+
+
+# -- proposals of E13 ----------------------------------------------------------------
+
+@process('tests_w31.parent_name', kind='computation')
+def parent_name(ctx):
+    ctx.add_context(parent=getattr(ctx.parent, 'name', None),
+                    page=getattr(ctx.page, 'path', None))
+
+
+@process('tests_w31.plate', kind='computation')
+def finish_plate(ctx):
+    return {'car_plate': 'SET-%s' % ctx.data['name'].upper()}
+
+
+class JsonPage(View):
+    def get(self, request, *args, **kwargs):
+        return JsonResponse(self.get_context_data())
+
+    def get_context_data(self, **kwargs):
+        return {}
+
+
+class UnitPage(PipelinePageMixin, JsonPage):
+    """A page about one Department: its steps get it as ``ctx.parent``."""
+
+    pipeline = {'steps': [{'name': 'tests_w31.parent_name'}]}
+
+    def get_pipeline_parent(self):
+        return Department.objects.get(pk=self.kwargs['pk'])
+
+
+class UnitSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Department
+        fields = ['id', 'name', 'head']
+
+
+class FacetUnits(GTFiltersMixin, viewsets.ReadOnlyModelViewSet):
+    queryset = Department.objects.order_by('name')
+    serializer_class = UnitSerializer
+    gtfilters_fields = ['head']
+
+
+class CarWizard(GTWizardView):
+    """The vehicle step is skipped without a car; the pipeline of the
+    wizard sets its field all the same."""
+
+    title = 'Hire'
+    model = NewHire
+    draft_storage = 'session'
+    wizard_key = 'tests.w31'
+    success_url = '/w31-done/'
+    steps = [Step('personal', PersonalForm),
+             Step('vehicle', VehicleForm,
+                  condition=lambda wizard: wizard.cleaned_value('personal', 'has_car')),
+             Step('job', JobForm)]
+    pipeline = {'steps': [{'name': 'tests_w31.plate'}]}
+
+
+urlpatterns = [
+    path('w31-wizard/', CarWizard.as_view()),
+    path('', include('demo.urls')),
+]
+
+
+@override_settings(ROOT_URLCONF=__name__, LANGUAGE_CODE='en',
+                   PASSWORD_HASHERS=FAST_HASHERS)
+class W31E13ProposalsTests(TestCase):
+    def setUp(self):
+        super().setUp()
+        self.user = User.objects.create_user('w31ana', password='pw')
+
+    def request(self, **params):
+        request = RequestFactory().get('/', params)
+        request.user = self.user
+        return request
+
+    def test_a_page_mixin_passes_the_parent(self):
+        unit = Department.objects.create(name='Sales')
+        response = UnitPage.as_view()(self.request(), pk=unit.pk)
+        self.assertEqual(json.loads(response.content),
+                         {'pipeline': {'parent': 'Sales', 'page': None}})
+
+    def test_gtfilters_in_a_viewset_of_the_project(self):
+        for name, head in (('Sales', 'Eva'), ('Support', 'Leo'), ('Lab', 'Eva')):
+            Department.objects.create(name=name, head=head)
+        view = FacetUnits.as_view({'get': 'list'})
+        filters = [{'column': 'head', 'op': 'in', 'value': ['Eva']}]
+        response = view(self.request(gtfilters=json.dumps(filters)))
+        self.assertEqual([row['name'] for row in response.data], ['Lab', 'Sales'])
+        self.assertEqual(len(view(self.request()).data), 3)
+        # Only its columns, and only valid filters.
+        bad = [{'column': 'name', 'op': 'in', 'value': ['Lab']}]
+        self.assertEqual(view(self.request(gtfilters=json.dumps(bad))).status_code,
+                         400)
+        self.assertEqual(view(self.request(gtfilters='{')).status_code, 400)
+
+    def test_a_computation_sets_a_field_of_a_skipped_step(self):
+        self.client.force_login(self.user)
+        self.client.post('/w31-wizard/', {
+            'wizard_step': 'personal', 'personal-name': 'Ana',
+            'personal-email': 'ana@example.com', 'personal-birth_date': '',
+            'wizard_action': 'next'})
+        response = self.client.post('/w31-wizard/', {
+            'wizard_step': 'job', 'job-department': '',
+            'job-start_date': '2026-12-01', 'wizard_action': 'finish'})
+        self.assertRedirects(response, '/w31-done/', fetch_redirect_response=False)
+        self.assertEqual(NewHire.objects.get().car_plate, 'SET-ANA')
