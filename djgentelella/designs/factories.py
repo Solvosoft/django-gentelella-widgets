@@ -963,6 +963,10 @@ def _make_facets_viewset(build):
         """The data source of the target's rows, and the facet columns the
         request may see: not those its table hides (column_conditions)."""
         target = target_build(request)
+        if not hasattr(target, 'search_fields'):
+            # A node over a model that is not a table (a region): what it
+            # shows needs its own permissions too.
+            check_perms(request, getattr(target, 'perms', ()))
         queryset = site_rows(target.model._default_manager.all(), target, request)
         parent = None
         if build.inline:
@@ -975,7 +979,8 @@ def _make_facets_viewset(build):
             queryset = queryset.none()
         hidden = hidden_columns(target, request, parent) \
             if getattr(target, 'column_conditions', None) else set()
-        search_fields = [name for name in target.search_fields if name not in hidden]
+        search_fields = [name for name in getattr(target, 'search_fields', ())
+                         if name not in hidden]
         return DesignDataSource(
             build.model, [name for name in build.columns if name not in hidden],
             queryset=queryset, search_fields=search_fields, search=search)
@@ -1025,10 +1030,13 @@ def _make_facets_viewset(build):
 def facets_viewset_for(build, target=None):
     """The endpoint GTFacets (djgentelella.datasources) reads: ``''`` is the
     description of the columns and ``facets`` the counts, over
-    the rows of the target table.
+    the rows of the target table -- or of the node over a model the panel
+    filters (a region, a grid: ``RuntimeComponent.facets_model``), its
+    ``site_field`` and, for a region, its ``perms`` included.
 
-    ``target`` is the build of that table (an
-    :class:`~djgentelella.designs.builds.ObjectManagementBuild`), for code
+    ``target`` is the build of that node (an
+    :class:`~djgentelella.designs.builds.ObjectManagementBuild`, a
+    :class:`~djgentelella.designs.regions.RegionBuild`...), for code
     that serves the panel without a published page -- code generated from a
     design --; by default ``build.target_build``, else the one of the
     page of the request."""

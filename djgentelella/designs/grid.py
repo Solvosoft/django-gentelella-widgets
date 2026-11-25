@@ -274,8 +274,11 @@ class InteractiveGridComponent(RuntimeComponent):
                           'title': 'Rows per page (default 25)'},
         },
     }
-    #: A facets panel may filter a read-only grid over a data source.
+    #: A facets panel may filter a read-only grid over a data source, or a
+    #: grid over a ``model`` (through the panel's own endpoint; the grid's
+    #: endpoint takes its filters as ``gtfilters``).
     facets_target = True
+    facets_model = True
 
     def facets_source(self, node, rctx, path):
         """The data source a facets panel filters: that of a read-only grid
@@ -505,9 +508,12 @@ class InteractiveGridComponent(RuntimeComponent):
 def grid_config(build, state, url, columns=None):
     """The configuration interactive_grid.js reads (``data-gtconfig``) of the
     grid of ``build`` for the request of ``state`` (:class:`GridState`),
-    with ``url`` its endpoint; ``columns`` as in :func:`grid_columns`."""
+    with ``url`` its endpoint; ``columns`` as in :func:`grid_columns`.
+    ``group`` is the state a facets panel over the grid writes its filters
+    to; the browser takes its URL from the panel of that group on the page."""
     return {
         'id': build.id,
+        'group': 'gtdesign:%s' % build.id,
         'prefix': build.id,
         'url': url,
         'page_size': build.page_size,

@@ -1546,7 +1546,8 @@ class FacetsComponent(RuntimeComponent):
 
     def target_types(self, rctx):
         """The types of node a panel may filter: the tables, and those of the
-        components that declare ``facets_target``."""
+        components that declare ``facets_target`` -- over a data source, and
+        with ``facets_model`` over an exposed model too."""
         components = rctx.components
         if components is None:
             # The registry imports this module.
@@ -1566,11 +1567,21 @@ class FacetsComponent(RuntimeComponent):
             # A table in list mode: over its data source, like a region.
             return self.resolve_source(node, rctx, path, build,
                                        rctx.component(target['type']), target)
+        over_model = False
         if target is not None and target.get('type') not in TABLE_TYPES:
             component = rctx.component(target.get('type'))
             if component is not None and getattr(component, 'facets_target', False):
-                return self.resolve_source(node, rctx, path, build, component, target)
-        if target is None or target.get('type') not in TABLE_TYPES:
+                target_props = target.get('props') or {}
+                if not (getattr(component, 'facets_model', False)
+                        and target_props.get('model')
+                        and not target_props.get('datasource')):
+                    return self.resolve_source(node, rctx, path, build, component,
+                                               target)
+                # A node over an exposed model (a region, a grid): counted
+                # like a table, through the panel's own endpoint.
+                over_model = True
+        if target is None or (target.get('type') not in TABLE_TYPES
+                              and not over_model):
             rctx.error(path + '.props.target',
                        _('%(target)r is not the id of a table (%(types)s) of this '
                          'page') % {'target': props['target'],

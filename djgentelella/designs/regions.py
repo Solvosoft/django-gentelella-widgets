@@ -26,10 +26,12 @@ plays each role, the row links and the conditions.
 A node condition (``props.condition``) hides the whole component and its
 endpoint (the engine does it), and each row link has its own condition.
 
-Facets: a ``facets`` panel may name one of these nodes as its ``target`` when
-it reads a ``datasource``: the panel and the component share the data source
-state of the page (``gtdesign:<node id>``), and the component reloads with the
-panel's filters, sent as the query parameter document (``?params=``).
+Facets: a ``facets`` panel may name one of these nodes as its ``target``: the
+panel and the component share the data source state of the page
+(``gtdesign:<node id>``), and the component reloads with the panel's filters,
+sent as the query parameter document (``?params=``). Over a ``datasource`` the
+panel counts through the data source API; over a ``model`` through its own
+endpoint, over the rows of the node (its ``site_field`` and ``perms``).
 
 Each node serves ``gtapis/designs/<page>/<node>/``:
 
@@ -82,7 +84,7 @@ from djgentelella.datasources.base import (
 )
 from djgentelella.designs.builds import DataBuild
 from djgentelella.designs.components import (
-    Endpoint, ResolveContext, RuntimeComponent,
+    Endpoint, RuntimeComponent, default_context_class,
 )
 from djgentelella.designs.conditions import (
     check_conditions, conditions_schema, hidden_columns,
@@ -102,7 +104,8 @@ __all__ = ['CALENDAR_VIEWS', 'CalendarBuild', 'CalendarComponent',
            'CalendarViewSet', 'CardsBuild', 'CardsComponent', 'CardsViewSet',
            'MapBuild', 'MapComponent', 'MapViewSet', 'REGION_COMPONENTS',
            'RegionBuild', 'RegionComponent', 'RegionMixin', 'check_access',
-           'events_in_range', 'map_points', 'read_rows', 'region_page_context',
+           'events_in_range', 'facets_state', 'map_points', 'read_rows',
+           'region_page_context',
            'region_queryset', 'region_source', 'request_params']
 
 SCRIPT = 'gentelella/js/designs/regions.js'
@@ -440,8 +443,11 @@ class RegionComponent(RuntimeComponent):
 
     build_class = RegionBuild
     template = ''
-    #: A facets panel may filter it, over its ``datasource``.
+    #: A facets panel may filter it, over its ``datasource`` or its
+    #: ``model`` (then through the panel's own endpoint, with the
+    #: ``site_field`` and ``perms`` of the node).
     facets_target = True
+    facets_model = True
     #: ``{prop: (title, allowed kinds or None, required)}`` of the role
     #: columns besides title and subtitle.
     roles = {}
@@ -496,8 +502,18 @@ class RegionComponent(RuntimeComponent):
             return
         target_id = (panel.get('props') or {}).get('target')
         target = find_node(rctx.design, target_id) if target_id else None
-        source = ((target or {}).get('props') or {}).get('datasource')
-        if not build.datasource or source != build.datasource:
+        target_props = (target or {}).get('props') or {}
+        source = target_props.get('datasource')
+        if not build.datasource:
+            # Over a model: a panel over another node of the same model and
+            # the same Site rule, whose filters name the same columns.
+            if source or target_props.get('model') != props.get('model') or \
+                    (target_props.get('site_field') or '') != build.site_field:
+                rctx.error(where, _('facets panel %(panel)r filters other rows '
+                                    'than those of %(model)r') % {
+                    'panel': panel_id, 'model': props.get('model')})
+                return
+        elif source != build.datasource:
             rctx.error(where, _('facets panel %(panel)r filters another data source '
                                 'than %(source)r') % {'panel': panel_id,
                                                       'source': build.datasource})
@@ -652,13 +668,7 @@ class RegionComponent(RuntimeComponent):
         if not url:
             return None
         config = {'id': build.id, 'type': build.type, 'url': url}
-        if build.datasource:
-            try:
-                config['datasource_url'] = reverse('gtdatasource',
-                                                   kwargs={'name': build.datasource})
-                config['group'] = build.group or 'gtdesign:%s' % build.id
-            except NoReverseMatch:
-                pass
+        config.update(facets_state(build))
         config.update(self.config(build, rctx))
         return {'b': build, 'preview': False, 'template': self.template,
                 'config': json_config(build.id + '_gtconfig', config)}
@@ -682,6 +692,24 @@ class RegionComponent(RuntimeComponent):
         if build.model is None and not build.datasource:
             return []
         return [Endpoint('', self.viewset, 'gtdesign-%s' % build.id)]
+
+
+def facets_state(build):
+    """``{'datasource_url', 'group'}`` of the data source state a facets
+    panel over ``build`` writes to: over a ``datasource``, its API and the
+    group; over a model, only the group (``gtdesign:<target of the panel>``):
+    the browser takes the URL from the panel of that group on the page (its
+    ``data-url``, the endpoint of
+    :func:`~djgentelella.designs.factories.facets_viewset_for`)."""
+    group = build.group or 'gtdesign:%s' % build.id
+    if not build.datasource:
+        return {'group': group}
+    try:
+        return {'datasource_url': reverse('gtdatasource',
+                                          kwargs={'name': build.datasource}),
+                'group': group}
+    except NoReverseMatch:
+        return {}
 
 
 def region_page_context(build, request, url, *, component=None):
@@ -712,7 +740,7 @@ def region_page_context(build, request, url, *, component=None):
             raise LookupError('no component of type %r' % (build.type,))
     if request is None or build.preview:
         return None
-    return component.page_context(build, ResolveContext({}, request), url)
+    return component.page_context(build, default_context_class()({}, request), url)
 
 
 # -- serving -------------------------------------------------------------------------

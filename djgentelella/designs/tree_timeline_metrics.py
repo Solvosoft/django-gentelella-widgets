@@ -58,7 +58,6 @@ from decimal import Decimal
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db.models import Avg, Count, F, Max, Min, Q, Sum
 from django.template.loader import render_to_string
-from django.urls import NoReverseMatch, reverse
 from django.utils import formats, timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
@@ -75,8 +74,9 @@ from djgentelella.designs.data_components import (
 )
 from djgentelella.designs.regions import (
     COLOR, COLOR_SCHEMA, DATE_KINDS, RegionBuild, RegionComponent, RegionMixin,
-    column_prop, common_properties, display, iso, link_urls, model_field_of,
-    parse_moment, read_rows, region_source, row_links, row_texts, rule_colors,
+    column_prop, common_properties, display, facets_state, iso, link_urls,
+    model_field_of, parse_moment, read_rows, region_source, row_links, row_texts,
+    rule_colors,
 )
 
 __all__ = ['ALL_TIME', 'METRIC_FORMATS', 'METRIC_FUNCTIONS', 'MetricsBuild',
@@ -132,13 +132,7 @@ def config_with_source(component, build, rctx, url):
     """What :meth:`RegionComponent.render` puts in the configuration of the
     browser: the endpoint, and with a data source its state for facets."""
     config = {'id': build.id, 'type': build.type, 'url': url}
-    if build.datasource:
-        try:
-            config['datasource_url'] = reverse('gtdatasource',
-                                               kwargs={'name': build.datasource})
-            config['group'] = build.group or 'gtdesign:%s' % build.id
-        except NoReverseMatch:
-            pass
+    config.update(facets_state(build))
     config.update(component.config(build, rctx))
     return config
 

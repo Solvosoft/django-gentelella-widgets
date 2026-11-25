@@ -225,17 +225,45 @@
             var first = this.count ? this.offset + 1 : 0;
             var last = Math.min(this.offset + this.config.page_size, this.count);
             this.info.textContent = first + '-' + last + ' / ' + this.count;
+            if (this.facetsStale && !pending && !this.busy) {
+                // The facets changed while rows were pending: now they apply.
+                this.facetsStale = false;
+                this.offset = 0;
+                this.load();
+            }
         },
 
         // -- reading -----------------------------------------------------------------
 
-        /* A read-only grid over a data source follows the facets panel that
-           filters it: the panel writes its filters into this state. */
+        /* The facets panel that filters the grid writes its filters into
+           this state: over a data source (a read-only grid), its API; over a
+           model, the endpoint of the panel of the grid's group on the page. */
+        facetUrl: function () {
+            var config = this.config;
+            if (config.datasource_url) { return config.datasource_url; }
+            if (!config.group) { return null; }
+            var panels = document.querySelectorAll('.gtdesign-facets[data-group]');
+            for (var i = 0; i < panels.length; i++) {
+                if (panels[i].getAttribute('data-group') === config.group) {
+                    return panels[i].getAttribute('data-url');
+                }
+            }
+            return null;
+        },
+
         facetState: function () {
             var grid = this;
-            if (!this.config.datasource_url || typeof gt_datasource_state !== 'function') { return null; }
-            var state = gt_datasource_state(this.config.datasource_url, this.config.group);
+            var url = this.facetUrl();
+            if (!url || typeof gt_datasource_state !== 'function') { return null; }
+            var state = gt_datasource_state(url, this.config.group);
             state.subscribe(function () {
+                if (grid.pending()) {
+                    // Unsaved rows are not thrown away: the filters apply
+                    // once nothing is pending (refreshButtons).
+                    grid.facetsStale = true;
+                    grid.setStatus(gettext('Save or undo your changes first.'), 'warning');
+                    return;
+                }
                 grid.offset = 0;
                 grid.load();
             });

@@ -13,9 +13,11 @@
  *   rendered and escaped; with `bbox` the points of the visible box are
  *   asked again when the map moves.
  *
- * Facets: over a data source, a component joins the GTDataSourceState of
- * its group (`gtdesign:<node id>`), the one the facets panel writes its
- * filters into, and reloads with the panel's parameter document.
+ * Facets: a component joins the GTDataSourceState of its group
+ * (`gtdesign:<node id>`), the one the facets panel writes its filters into,
+ * and reloads with the panel's parameter document. Over a data source the
+ * state is that of its API; over a model, that of the panel's own endpoint
+ * (the data-url of the panel of the group).
  *
  * FullCalendar and Leaflet.markercluster are loaded here when the page lacks
  * them (only the readonly widgets and `use_maps` bring them).
@@ -56,10 +58,26 @@
         if (element) { element.textContent = text || ''; }
     }
 
+    /* The URL of the data source state of `config`: its data source API or,
+       over a model, the endpoint of the facets panel of its group on the
+       page (that panel's data-url). */
+    function facetUrl(config) {
+        if (config.datasource_url) { return config.datasource_url; }
+        if (!config.group) { return null; }
+        var panels = document.querySelectorAll('.gtdesign-facets[data-group]');
+        for (var i = 0; i < panels.length; i++) {
+            if (panels[i].getAttribute('data-group') === config.group) {
+                return panels[i].getAttribute('data-url');
+            }
+        }
+        return null;
+    }
+
     /* The data source state shared with a facets panel, or null. */
     function facetState(config, reload) {
-        if (!config.datasource_url || typeof gt_datasource_state !== 'function') { return null; }
-        var state = gt_datasource_state(config.datasource_url, config.group);
+        var url = facetUrl(config);
+        if (!url || typeof gt_datasource_state !== 'function') { return null; }
+        var state = gt_datasource_state(url, config.group);
         state.subscribe(reload);
         return state;
     }
