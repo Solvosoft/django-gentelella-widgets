@@ -903,3 +903,7 @@ msgstr "No se pudo cargar la línea de tiempo."
 #: static/gentelella/js/designs/tree_timeline_metrics.js
 msgid "The metrics could not be computed."
 msgstr "No se pudieron calcular las métricas."
+
+#: static/gentelella/js/feedback.js
+msgid "The feedback could not be sent."
+msgstr "No se pudo enviar el comentario."
