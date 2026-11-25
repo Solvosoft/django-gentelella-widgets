@@ -135,6 +135,16 @@
     },
     "root": {
       "$ref": "#/$defs/node"
+    },
+    "translations": {
+      "description": "Texts of the page in other languages: {language: {key: text}}. A key is meta.title or <node id>:<path in its props> (e.g. products:column_labels.name); only the texts its component declares translatable. Plain text, escaped like the original (djgentelella.designs.translations).",
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "string"
+        }
+      }
     }
   },
   "$defs": {

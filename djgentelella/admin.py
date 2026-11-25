@@ -25,6 +25,7 @@ from djgentelella.models import (
     TrashRelation,
     PushSubscription,
     PushPreference,
+    LOVTranslation,
 )
 from djgentelella.models import PermissionsCategoryManagement
 from djgentelella.sites import sites_installed
@@ -259,3 +260,12 @@ class PushPreferenceAdmin(admin.ModelAdmin):
 
 admin.site.register(PushSubscription, PushSubscriptionAdmin)
 admin.site.register(PushPreference, PushPreferenceAdmin)
+
+
+class LOVTranslationAdmin(admin.ModelAdmin):
+    list_display = ('lov', 'value', 'language', 'label')
+    list_filter = ('lov', 'language')
+    search_fields = ('lov', 'value', 'label')
+
+
+admin.site.register(LOVTranslation, LOVTranslationAdmin)

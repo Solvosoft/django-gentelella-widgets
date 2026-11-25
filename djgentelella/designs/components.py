@@ -67,6 +67,11 @@ class RuntimeComponent:
     props_schema = {'type': 'object', 'additionalProperties': False, 'properties': {}}
     #: Props of a node freshly dropped from the editor's palette.
     default_props = {}
+    #: The props whose text may be translated (``document["translations"]``):
+    #: dotted patterns, ``*`` for any list index or key. ``None`` means
+    #: ``djgentelella.designs.translations.DEFAULT_TRANSLATABLE_PROPS``. Only
+    #: texts the component escapes when it renders them belong here.
+    translatable_props = None
 
     def check_props(self, node, path):
         """:class:`Error` list of the props' shape; by default, the schema."""

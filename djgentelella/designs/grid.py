@@ -233,6 +233,7 @@ class InteractiveGridComponent(RuntimeComponent):
             'columns': {'type': 'array', 'items': {'type': 'string'},
                         'minItems': 1, 'x-widget': 'model-fields',
                         'title': 'Columns'},
+            'column_labels': source_tables.COLUMN_LABELS_SCHEMA,
             'editable': {'type': 'array', 'items': {'type': 'string'},
                          'x-widget': 'model-fields',
                          'title': 'Editable columns (default: every column '
@@ -404,6 +405,8 @@ class InteractiveGridComponent(RuntimeComponent):
         action_conditions = check_conditions(
             rctx, path + '.props.action_conditions', props.get('action_conditions'),
             list(GRID_ACTIONS), _('action'))
+        column_labels = source_tables.resolve_column_labels(
+            rctx, path, props, list(columns))
         if rctx.has_errors_under(path):
             return build
         form = build_form('%s_grid' % node['id'],
@@ -425,6 +428,7 @@ class InteractiveGridComponent(RuntimeComponent):
         build.perms = perms
         build.columns = columns_of(found)
         build.column_conditions = column_conditions
+        build.column_labels = column_labels
         build.edit_conditions = edit_conditions
         build.action_conditions = action_conditions
         # With locking a grid always requires the version of each row it
@@ -498,8 +502,9 @@ class InteractiveGridComponent(RuntimeComponent):
         if rctx.preview:
             return render_to_string(TEMPLATE, {
                 'b': build, 'preview': True,
-                'columns': [label(build.model._meta.get_field(name).verbose_name)
-                            for name in build.list_fields],
+                'columns': [source_tables.column_title(
+                    build, name, label(build.model._meta.get_field(name).verbose_name))
+                    for name in build.list_fields],
                 'rows': sample_rows(build.model, build.list_fields)})
         if not can(rctx, build.perms['list']):
             return no_permission(build)
@@ -623,7 +628,8 @@ def grid_columns(build, state, columns=None):
             continue
         model_field = build.model._meta.get_field(name)
         kind = kind_of(model_field)
-        column = {'name': name, 'title': label(model_field.verbose_name),
+        column = {'name': name, 'title': source_tables.column_title(
+                      build, name, label(model_field.verbose_name)),
                   'kind': kind, 'editable': name in state.editable}
         if name in widgets:
             column['widget'] = widgets[name]

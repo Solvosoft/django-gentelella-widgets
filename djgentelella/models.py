@@ -24,6 +24,7 @@ from djgentelella.settings import USER_MODEL_BASE
 from djgentelella.history.utils import add_log, ADDITION
 from djgentelella.menu import is_menu_widget
 from djgentelella.sites import site_pk
+from djgentelella import translations
 from djgentelella.theme import values as theme_values
 from djgentelella.wizard.conf import expired_before
 
@@ -138,8 +139,12 @@ class MenuItemQuerySet(TreeQuerySet):
         return self.get(key=key, site__domain=site_domain)
 
 
+#: The longest title (and translated title) of a menu item.
+MENU_TITLE_LENGTH = 500
+
+
 class MenuItem(TreeNode):
-    title = models.CharField(max_length=500)
+    title = models.CharField(max_length=MENU_TITLE_LENGTH)
     permission = models.ManyToManyField(Permission, blank=True)
     url_name = models.CharField(max_length=500)
     category = models.CharField(
@@ -195,6 +200,16 @@ class MenuItem(TreeNode):
                     'items) when a menu is exported and imported again.'),
     )
 
+    # The title in other languages, {language: title}: the menu shows the
+    # one of the active language (djgentelella.translations.pick).
+    translations = models.JSONField(
+        default=dict,
+        blank=True,
+        verbose_name=_('Translations'),
+        help_text=_('The title in other languages, e.g. {"en": "Products"}. '
+                    'Empty: the title in every language.'),
+    )
+
     objects = MenuItemQuerySet.as_manager()
 
     class Meta:
@@ -222,6 +237,11 @@ class MenuItem(TreeNode):
             self.key = None
         super().save(*args, **kwargs)
 
+    def translated_title(self, language=None):
+        """The title in ``language`` (by default the active one), or the
+        title itself when it has no translation (C20)."""
+        return translations.pick(self.translations, self.title, language)
+
     def clean(self):
         super().clean()
         # A widget item names a class the menu imports and calls: only those
@@ -229,6 +249,11 @@ class MenuItem(TreeNode):
         if self.is_widget and not is_menu_widget(self.url_name):
             raise ValidationError({'url_name': _(
                 '%s is not a registered menu widget.') % self.url_name})
+        errors = translations.validate_texts(
+            self.translations, 'translations', MENU_TITLE_LENGTH)
+        if errors:
+            raise ValidationError({'translations': [error.message
+                                                    for error in errors]})
 
 
 class Help(models.Model):
@@ -791,3 +816,32 @@ class PushPreference(models.Model):
 
     def __str__(self):
         return '%s: %s' % (self.user, self.enabled)
+
+
+class LOVTranslation(models.Model):
+    """The label of one value of a LOV (:mod:`djgentelella.lov`) in one
+    language (C20). The LOV shows it instead of its own label when that
+    language is active; a value without one keeps its label."""
+
+    lov = models.CharField(_('List of values'), max_length=100, db_index=True)
+    value = models.CharField(_('Value'), max_length=255)
+    language = models.CharField(_('Language'), max_length=15)
+    label = models.CharField(_('Label'), max_length=1000)
+
+    class Meta:
+        ordering = ['lov', 'value', 'language']
+        verbose_name = _('LOV translation')
+        verbose_name_plural = _('LOV translations')
+        constraints = [
+            models.UniqueConstraint(fields=['lov', 'value', 'language'],
+                                    name='djgentelella_lovtranslation_unique'),
+        ]
+
+    def __str__(self):
+        return '%s/%s [%s]: %s' % (self.lov, self.value, self.language, self.label)
+
+    def clean(self):
+        super().clean()
+        errors = translations.validate_language(self.language, 'language')
+        if errors:
+            raise ValidationError({'language': [error.message for error in errors]})

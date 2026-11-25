@@ -29,9 +29,11 @@ def get_item_from_context(item, context):
 
 
 def get_title(item):
+    """The title of a menu item in the active language (C20)."""
     if item.only_icon:
         return ''
-    return item.title
+    translated = getattr(item, 'translated_title', None)
+    return translated() if translated is not None else item.title
 
 
 def extract_args(item, context):

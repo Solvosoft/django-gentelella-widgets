@@ -51,6 +51,7 @@ from django.utils.translation import gettext as _
 
 from djgentelella.authorization import evaluate_condition, validate_condition
 from djgentelella.autodiscover import autodiscover_once
+from djgentelella import translations
 from djgentelella.designs.jsonschema import Error
 from djgentelella.sites import get_current_site, resolve_site, site_pk, site_q
 
@@ -471,6 +472,7 @@ def export_tree(site=None, *, warnings=None):
     items) as a list of trees, the format :func:`import_tree` reads.
 
     Each node has the :data:`MENU_FIELDS`, ``permissions`` and ``children``,
+    and ``translations`` (``{language: title}``, C20) when it has any,
     roots and children in the order the menus draw them (``position``, then
     ``id``). A root of a Site under a global item names that parent in
     ``global_parent`` (``key``, ``title``, ``url_name``, ``category``); an
@@ -499,6 +501,8 @@ def export_tree(site=None, *, warnings=None):
 
     def node(item):
         data = {field: getattr(item, field) for field in MENU_FIELDS}
+        if item.translations:
+            data['translations'] = dict(item.translations)
         data['permissions'] = sorted(_permission_label(perm)
                                      for perm in item.permission.all())
         data['children'] = [node(child) for child in children[item.pk]]
@@ -554,7 +558,8 @@ def _check_node(node, path, depth, site, errors, keys):
         errors.append(Error(path, _('the menu is deeper than %d levels')
                             % MAX_MENU_DEPTH))
         return
-    known = set(MENU_FIELDS) | {'permissions', 'children', 'global_parent'}
+    known = set(MENU_FIELDS) | {'permissions', 'children', 'global_parent',
+                                'translations'}
     for name in sorted(set(node) - known):
         errors.append(Error('%s.%s' % (path, name), _('unknown field')))
     # A title that is not empty; a url_name, empty or not (a dropdown).
@@ -582,6 +587,9 @@ def _check_node(node, path, depth, site, errors, keys):
         keys.add(key)
     if isinstance(node.get('condition'), dict):
         errors.extend(validate_condition(node['condition'], path + '.condition'))
+    errors.extend(translations.validate_texts(node.get('translations'),
+                                              path + '.translations',
+                                              _FIELD_SPECS['title'][2]))
     if node.get('is_widget') is True and isinstance(node.get('url_name'), str) \
             and not is_menu_widget(node['url_name']):
         errors.append(Error(path + '.url_name', _(
@@ -660,6 +668,7 @@ def import_tree(data, site=None, *, replace=True):
                 item = model(site=site)
             for name, (_types, default, _longest) in _FIELD_SPECS.items():
                 setattr(item, name, node.get(name, default))
+            item.translations = dict(node.get('translations') or {})
             item.parent = parent
             item.save()
             written.append(item.pk)

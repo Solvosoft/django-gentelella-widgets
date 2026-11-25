@@ -174,6 +174,9 @@ class ObjectManagementBuild(DataBuild):
     #: A foreign key of ``model`` to ``sites.Site``: the rows are those of
     #: the request's Site and the global ones, and a new row gets the Site.
     site_field: str = ''
+    #: ``{column: header}`` instead of the name of the field
+    #: (``props.column_labels``), already in the active language.
+    column_labels: dict = field(default_factory=dict)
     #: The actions on one row, whose conditions about the object are
     #: evaluated with each row (:func:`~djgentelella.designs.conditions.
     #: row_conditions`). A class attribute, not a field.

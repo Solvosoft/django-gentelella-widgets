@@ -41,14 +41,42 @@ from djgentelella.datasources.base import (
 from djgentelella.designs.conditions import check_conditions, hidden_columns
 from djgentelella.permission_management import all_permission
 
-__all__ = ['NOT_SHOWN', 'SourceGridViewSet', 'SourceRowsMixin', 'SourceTableViewSet',
-           'column_config', 'facets_config', 'resolve_source_list', 'source_rows']
+__all__ = ['COLUMN_LABELS_SCHEMA', 'NOT_SHOWN', 'SourceGridViewSet', 'SourceRowsMixin',
+           'SourceTableViewSet', 'column_config', 'column_title', 'facets_config',
+           'resolve_column_labels', 'resolve_source_list', 'source_rows']
 
 #: Kinds of column a read-only table does not show.
 NOT_SHOWN = ('json',)
 #: The largest page each endpoint serves.
 TABLE_MAX_PAGE = 1000
 GRID_MAX_PAGE = 200
+
+
+#: ``props.column_labels`` of a table or grid: the header of a column, by
+#: column, instead of the name of its field. Translatable (C20).
+COLUMN_LABELS_SCHEMA = {
+    'type': 'object', 'x-widget': 'column-labels',
+    'additionalProperties': {'type': 'string'},
+    'title': 'Column headers, by column (empty: the name of the field)'}
+
+
+def resolve_column_labels(rctx, path, props, names):
+    """``props["column_labels"]`` without the empty ones; an error for a
+    column that is not one of ``names``."""
+    result = {}
+    for name, text in (props.get('column_labels') or {}).items():
+        if name not in names:
+            rctx.error(path + '.props.column_labels',
+                       _('%r is not one of the columns') % (name,))
+        elif isinstance(text, str) and text.strip():
+            result[name] = text
+    return result
+
+
+def column_title(build, name, default):
+    """The header of column ``name``: its ``column_labels`` entry, else
+    ``default``."""
+    return (getattr(build, 'column_labels', None) or {}).get(name) or default
 
 
 def column_config(column):
@@ -120,8 +148,11 @@ def resolve_source_list(rctx, path, props, build, *, names_prop,
     build.search_fields = list(search)
     build.ordering = list(ordering)
     build.perms = {'list': list(perms.get('list') or [])}
+    build.column_labels = resolve_column_labels(rctx, path, props, list(names))
     build.source_columns = [column_config(columns[name]) for name in names
                             if name in columns]
+    for column in build.source_columns:
+        column['title'] = column_title(build, column['name'], column['title'])
     return source
 
 

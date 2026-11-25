@@ -447,7 +447,8 @@ def table_columns(build, hidden=()):
         kind = kind_of(model_field)
         lookup = build.lookups.get(name)
         column = {'data': name, 'name': name, 'kind': kind,
-                  'title': escape(label(model_field.verbose_name)),
+                  'title': escape(source_tables.column_title(
+                      build, name, label(model_field.verbose_name))),
                   'type': column_type(describe_field(model_field), bool(lookup))}
         if kind == 'choices':
             column['choices'] = [[value, escape(str(text))]
@@ -602,6 +603,7 @@ class ObjectManagementComponent(RuntimeComponent):
                 'title': 'Refuse to save a row somebody else changed '
                          'after it was opened (optimistic locking)'},
             'optimistic_lock_required': OPTIMISTIC_LOCK_REQUIRED_SCHEMA,
+            'column_labels': source_tables.COLUMN_LABELS_SCHEMA,
             'row_links': {
                 'type': 'array',
                 'x-widget': 'links',
@@ -733,6 +735,8 @@ class ObjectManagementComponent(RuntimeComponent):
         action_conditions = check_conditions(
             rctx, path + '.props.action_conditions', props.get('action_conditions'),
             list(TABLE_ACTIONS), _('action'))
+        column_labels = source_tables.resolve_column_labels(
+            rctx, path, props, list(list_names))
         notify = None
         if props.get('notify'):
             notify = resolve_notify(rctx, path, model, props['notify'])
@@ -769,6 +773,7 @@ class ObjectManagementComponent(RuntimeComponent):
         build.lookups = lookups
         build.columns = columns_of(found)
         build.column_conditions = column_conditions
+        build.column_labels = column_labels
         build.action_conditions = action_conditions
         build.optimistic_lock, build.optimistic_lock_required = lock_props(props)
         build.pipeline = on_submit

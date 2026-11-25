@@ -26,13 +26,26 @@ running the queryset raises ``ValueError``, ``TypeError``, ``OverflowError`` or
 ``ValidationError`` (``?pais=abc`` against an integer foreign key) the LOV is
 treated as empty -- the endpoint answers no options and the field rejects the
 value -- instead of failing with a 500.
+
+The labels can be translated without ``.po`` files (C20): a
+``LOVTranslation`` row (LOV, value, language, label) replaces the label of
+that value while its language is active (:func:`djgentelella.translations.pick`).
+A LOV whose options depend on its parents can give ``all_values``, a function
+of the request returning every ``(value, label)``, so the translation screen
+can list them; otherwise it lists what the LOV returns without parents.
 """
 
+import logging
+
+from django.apps import apps
 from django.core.exceptions import FieldError, ImproperlyConfigured, ValidationError
 from django.db.models import Model, QuerySet
 from django.db.models.query import ModelIterable
 
+from djgentelella import translations
 from djgentelella.autodiscover import autodiscover_once
+
+logger = logging.getLogger(__name__)
 
 # What a filter built from a malformed parent value raises.
 INVALID_VALUE_ERRORS = (ValueError, TypeError, OverflowError, ValidationError)
@@ -42,7 +55,7 @@ _registry = {}
 
 class LOV:
     def __init__(self, name, func, depends_on=(), perms=(), login_required=True,
-                 page_size=20):
+                 page_size=20, all_values=None):
         if isinstance(depends_on, str) or isinstance(perms, str):
             raise ImproperlyConfigured(
                 'register_lov(%r): depends_on and perms are lists' % name)
@@ -52,6 +65,7 @@ class LOV:
         self.perms = list(perms)
         self.login_required = login_required
         self.page_size = page_size
+        self.all_values = all_values
 
     def __repr__(self):
         return '<LOV %s depends_on=%r>' % (self.name, self.depends_on)
@@ -90,7 +104,7 @@ class LOV:
         except INVALID_VALUE_ERRORS:
             return [], False
         more = len(rows) > self.page_size
-        return [_pair(row) for row in rows[:self.page_size]], more
+        return self.translate([_pair(row) for row in rows[:self.page_size]]), more
 
     def find(self, value, parents=None, request=None):
         """``(value, label)`` of ``value`` in the LOV, or None if it is not in."""
@@ -102,14 +116,51 @@ class LOV:
                 found = _filter_value(result, value)
                 if found is not None:
                     row = found.first()
-                    return None if row is None else _pair(row)
+                    return None if row is None else self.translate([_pair(row)])[0]
             for row in result:
                 pair = _pair(row)
                 if str(pair[0]) == str(value):
-                    return pair
+                    return self.translate([pair])[0]
         except INVALID_VALUE_ERRORS:
             return None
         return None
+
+    def translate(self, pairs, language=None):
+        """``pairs`` (``[(value, label)]``) with the labels in ``language``
+        (by default the active one) where a ``LOVTranslation`` has one."""
+        if not pairs:
+            return pairs
+        codes = translations.candidates(language)
+        rows = apps.get_model('djgentelella', 'LOVTranslation').objects.filter(
+            lov=self.name, language__in=codes,
+            value__in={str(value) for value, _label in pairs}).values_list(
+            'value', 'language', 'label')
+        found = {}
+        for value, code, label in rows:
+            found.setdefault(value, {})[code] = label
+        if not found:
+            return pairs
+        return [(value, translations.pick(found.get(str(value)), label, language))
+                for value, label in pairs]
+
+    def values(self, request=None, limit=1000):
+        """Every ``(value, label)`` of the LOV with its own labels, at most
+        ``limit``: ``all_values(request)`` when it was given, else what it
+        returns without parents. The translation screen lists them."""
+        try:
+            if self.all_values is not None:
+                result = self.all_values(request)
+            else:
+                result = self.evaluate(request, {}, '')
+            rows = list(result[:limit]) if isinstance(result, QuerySet) else \
+                list(result)[:limit]
+        except Exception:
+            # A LOV that needs its parents, or a request, to answer: the
+            # translation screen lists only what was already translated.
+            logger.warning('LOV %s cannot list its values without parents',
+                           self.name, exc_info=True)
+            return []
+        return [_pair(row) for row in rows]
 
     def contains(self, value, parents=None, request=None):
         return self.find(value, parents, request) is not None
@@ -145,19 +196,22 @@ def _pair(row):
     return row, str(row)
 
 
-def register_lov(name, depends_on=(), perms=(), login_required=True, page_size=20):
+def register_lov(name, depends_on=(), perms=(), login_required=True, page_size=20,
+                 all_values=None):
     """Register the decorated function as the LOV ``name``.
 
     ``perms`` are checked with ``user.has_perms``; ``login_required=False``
     opens a LOV without perms to anonymous users. A repeated name replaces the
-    previous LOV.
+    previous LOV. ``all_values(request)`` returns every option regardless of
+    the parents, for the translation screen (C20).
     """
     if not isinstance(name, str) or not name or '/' in name:
         raise ImproperlyConfigured('A LOV name is a non empty string without /')
 
     def decorator(func):
         _registry[name] = LOV(name, func, depends_on=depends_on, perms=perms,
-                              login_required=login_required, page_size=page_size)
+                              login_required=login_required, page_size=page_size,
+                              all_values=all_values)
         return func
     return decorator
 

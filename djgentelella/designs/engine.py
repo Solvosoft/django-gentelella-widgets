@@ -33,7 +33,8 @@ from django.utils.translation import gettext as _
 from rest_framework.routers import SimpleRouter
 
 from djgentelella.authorization import evaluate_condition, validate_condition
-from djgentelella.designs import conf, exposure, format, pipeline, registry
+from djgentelella.designs import (conf, exposure, format, pipeline, registry,
+                                  translations)
 from djgentelella.designs.components import ResolveContext, default_context_class
 from djgentelella.designs.css import clean_css
 from djgentelella.designs.jsonschema import Error
@@ -374,7 +375,8 @@ def make_context(document, request=None, preview=False, *, context=None,
 
 
 def resolve(document, request=None, preview=False, *, allow_templates=False,
-            allow_js=False, context=None, components=None, site=None):
+            allow_js=False, context=None, components=None, site=None,
+            translate=True):
     """``(ResolvedPage, [])`` for a valid design, ``(None, errors)`` otherwise.
 
     ``request`` is ``None`` when validating offline (``gtdesigns_publish``);
@@ -401,6 +403,11 @@ def resolve(document, request=None, preview=False, *, allow_templates=False,
         offline): what the design names that only exists in one Site -- a
         ``flow:`` row link to a flow published there -- is looked up in it.
         A ``context`` instance keeps its own.
+    ``translate``
+        whether the page comes in the active language
+        (``document["translations"]``, :mod:`djgentelella.designs.translations`):
+        ``False`` keeps the written texts, what a code generator wants. The
+        translations are validated either way.
     """
     try:
         document = format.upgrade(document)
@@ -414,6 +421,12 @@ def resolve(document, request=None, preview=False, *, allow_templates=False,
 
     components = dict(registry.get_components() if components is None
                       else components)
+    errors = translations.validate_translations(document, components)
+    if errors:
+        return None, errors
+    written_hash = format.document_hash(document)
+    if translate:
+        document = translations.translate_document(document, components=components)
     rctx = make_context(document, request, preview, context=context,
                         allow_templates=allow_templates, site=site)
     rctx.components = components
@@ -438,7 +451,7 @@ def resolve(document, request=None, preview=False, *, allow_templates=False,
         return None, rctx.errors
     _add_dependencies(nodes)
     return ResolvedPage(document, root, nodes, permissions,
-                        format.document_hash(document), preview=preview,
+                        written_hash, preview=preview,
                         allow_templates=allow_templates, allow_js=allow_js,
                         forms=forms, context_class=type(rctx),
                         context=context if isinstance(context, ResolveContext)
@@ -512,7 +525,9 @@ def resolve_page(page):
     The key also holds what the resolution depends on outside the document:
     the publisher's trust (:func:`cached_page_trust`), the generations of
     the component registry and of the exposed models, and the active
-    language, which the errors and the labels of the builds are written in.
+    language, which the errors and the labels of the builds are written in
+    and which picks the page's translations (``document["translations"]``):
+    one resolution per language.
     ``page.document`` is read only when the cache misses, so the page may come
     with it deferred.
 
