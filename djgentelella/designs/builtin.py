@@ -28,7 +28,11 @@ class PageComponent(RuntimeComponent):
     parent_types = ()
 
     def render(self, build, rctx, children):
-        return format_html('<div class="gtdesign-page" data-gtdesign="{}">{}</div>',
+        # data-gtdesign is always a node id (unique in the document); the
+        # page's slug goes in an attribute of its own, so a node whose id is
+        # the slug never makes a selector ambiguous.
+        return format_html('<div class="gtdesign-page" data-gtdesign="{}" '
+                           'data-gtdesign-page="{}">{}</div>', build.id,
                            rctx.design.get('slug', build.id), children)
 
 

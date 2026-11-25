@@ -13,6 +13,7 @@ Sources live in ``<app>/gtdatasources.py`` and are registered with
 
 import inspect
 import logging
+import sys
 import warnings
 from dataclasses import dataclass, field as dc_field
 
@@ -27,7 +28,7 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import status
 from rest_framework.exceptions import APIException
 
-from djgentelella.sites import get_current_site, site_q
+from djgentelella.sites import get_current_site, site_q, site_request
 from djgentelella.autodiscover import autodiscover_once
 
 logger = logging.getLogger(__name__)
@@ -134,6 +135,8 @@ class Column:
     aggregatable: bool = None
     choices: list = None
     #: Free hints for the widgets (format, width, ...). Not used by queries.
+    #: ``{'point': True}``: a ``GTPointField`` (``"lat,lng"``), what a map
+    #: reads its points from (:class:`ModelDataSource` marks it).
     extra: dict = dc_field(default_factory=dict)
     #: The size of a ``decimal`` column (a model ``DecimalField``'s): a filter
     #: value with more whole digits than ``max_digits - decimal_places`` is
@@ -227,6 +230,37 @@ class DataSource:
     def column_map(self, request):
         return {column.name: column for column in self.columns(request)}
 
+    def columns_for_site(self, site):
+        """The columns for ``site`` when there is no request: a design page
+        of that Site validated, published or resolved offline.
+
+        By default :meth:`columns` of a synthetic request of the Site
+        (:func:`~djgentelella.sites.site_request`, an anonymous user): a
+        source whose columns depend on the Site of the request answers the
+        same as for a real one. A source may override it (for example to
+        read them for a given user, or without a request at all).
+        """
+        return self.columns(site_request(site))
+
+
+def source_column_map(source, request=None, *, site=None):
+    """``{name: Column}`` of ``source``: for ``request``; without one, for
+    ``site`` (:meth:`DataSource.columns_for_site`), or ``column_map(None)``
+    when that gives none; with neither, ``source.column_map(None)``. What
+    the design engine validates a page with
+    (:meth:`~djgentelella.designs.components.ResolveContext.source_columns`).
+    """
+    if request is None and site is not None:
+        for_site = getattr(source, 'columns_for_site', None)
+        columns = for_site(site) if for_site is not None else \
+            source.columns(site_request(site))
+        if columns:
+            return {column.name: column for column in columns}
+        # No columns for that Site (yet: an App being imported has its
+        # sources after its pages): what the source answers without a
+        # request, as before there was a hook.
+    return source.column_map(request)
+
     def __repr__(self):
         return '<%s %s>' % (type(self).__name__, self.name)
 
@@ -255,6 +289,17 @@ def model_field_kind(model_field):
     if isinstance(model_field, models.TextField):
         return 'text'
     return 'string'
+
+
+def is_point_field(model_field):
+    """Whether ``model_field`` is a ``GTPointField`` (``"lat,lng"``).
+
+    Without importing it: ``djgentelella.fields.maps`` imports the widgets,
+    which import the models, and this module is imported while the app
+    registry is still loading (``djgentelella.search``). A model with such a
+    field has imported it already."""
+    maps = sys.modules.get('djgentelella.fields.maps')
+    return maps is not None and isinstance(model_field, maps.GTPointField)
 
 
 def resolve_field_path(model, path):
@@ -352,6 +397,8 @@ class ModelDataSource(DataSource):
             aggregatable=kind in NUMERIC_KINDS and not model_field.primary_key,
             # A file is a path in the database: searchable, never a facet.
             filterable=not isinstance(model_field, models.FileField),
+            # A GTPointField is a "lat,lng" string: the map's point column.
+            extra={'point': True} if is_point_field(model_field) else {},
         )
 
     def columns(self, request):

@@ -110,7 +110,8 @@ any field with ``choices``                      ``choices``
 
 Numeric columns are ``aggregatable`` unless they are the primary key;
 many-to-many columns are not ``sortable``; file fields are not
-``filterable``.
+``filterable``. A ``GTPointField`` (``"lat,lng"``) is a ``string`` column
+with ``extra={'point': True}``: what a map reads its points from.
 
 Writing one by hand
 ~~~~~~~~~~~~~~~~~~~
@@ -136,6 +137,18 @@ calls its function, so ``fn`` never runs for a user without it: its
 ``get_queryset`` then returns ``model._default_manager.none()`` if the source
 was given ``model=``, and raises ``PermissionDenied`` otherwise. Remember that ``djgentelella.urls`` serves every
 registered source (see `REST API`_).
+
+**Columns for a Site, without a request.** A design page of a Site is
+validated and published without a request (``publishing.validate(document,
+site=...)``, ``gtdesigns_publish``). The engine then asks
+``source.columns_for_site(site)``, which by default is
+``columns(site_request(site))`` -- a synthetic request of that Site with an
+anonymous user (:doc:`sites`) --, so a source whose columns depend on the
+Site of the request validates the same as when it serves. When it has no
+columns for that Site (an App being imported, whose sources come after its
+pages), ``columns(None)`` is used, as before. A source may override it. ``source_column_map(source, request=None, *, site=None)`` is the
+same lookup as a function: for the request; without one, for the Site; with
+neither, ``column_map(None)``.
 
 ``search_mode`` (``'auto'``, ``'fulltext'`` or ``'icontains'``) and
 ``search_config`` (the PostgreSQL text search configuration, such as

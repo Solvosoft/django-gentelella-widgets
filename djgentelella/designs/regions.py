@@ -80,7 +80,9 @@ from djgentelella.datasources.base import (
     ModelDataSource, get_datasource, project_model_of, resolve_field_path,
 )
 from djgentelella.designs.builds import DataBuild
-from djgentelella.designs.components import Endpoint, RuntimeComponent
+from djgentelella.designs.components import (
+    Endpoint, ResolveContext, RuntimeComponent,
+)
 from djgentelella.designs.conditions import (
     check_conditions, conditions_schema, hidden_columns,
 )
@@ -98,8 +100,9 @@ from djgentelella.views.maps import BaseMapView
 __all__ = ['CALENDAR_VIEWS', 'CalendarBuild', 'CalendarComponent',
            'CalendarViewSet', 'CardsBuild', 'CardsComponent', 'CardsViewSet',
            'MapBuild', 'MapComponent', 'MapViewSet', 'REGION_COMPONENTS',
-           'RegionBuild', 'RegionComponent', 'events_in_range', 'map_points',
-           'region_queryset', 'region_source']
+           'RegionBuild', 'RegionComponent', 'RegionMixin', 'check_access',
+           'events_in_range', 'map_points', 'read_rows', 'region_page_context',
+           'region_queryset', 'region_source', 'request_params']
 
 SCRIPT = 'gentelella/js/designs/regions.js'
 FULLCALENDAR = 'vendors/fullcalendar/index.global.min.js'
@@ -240,7 +243,12 @@ def region_source(build):
 
 def check_access(build, request):
     """The data source of ``build`` if ``request`` may read it: 403
-    (``PermissionDenied``) without the build's permissions or the source's."""
+    (``PermissionDenied``) without the build's permissions or the source's,
+    404 when the data source is gone.
+
+    The contract of the 403 of every region endpoint: ``build.perms`` (all
+    of them) and then :func:`region_source` ``.has_permission(request)``.
+    :func:`region_page_context` applies the same rule to the page."""
     if build.perms and not all_permission(request.user, list(build.perms)):
         raise PermissionDenied()
     source = region_source(build)
@@ -622,15 +630,26 @@ class RegionComponent(RuntimeComponent):
         if rctx.preview:
             return render_to_string(self.template, {
                 'b': build, 'preview': True, 'sample': self.sample(build)})
-        if build.perms and not can(rctx, build.perms):
+        context = self.page_context(build, rctx, endpoint_url(rctx, build))
+        if context is None:
             return no_permission(build)
+        return render_to_string(self.template, context)
+
+    def page_context(self, build, rctx, url):
+        """What :attr:`template` needs to draw ``build`` for the request of
+        ``rctx``, its endpoint at ``url``: ``{'b', 'preview', 'template',
+        'config'}``; ``None`` when the request may not see it (the rule of
+        :func:`check_access`) or there is no ``url``."""
+        if build.model is None and not build.datasource:
+            return None
+        if build.perms and not can(rctx, build.perms):
+            return None
         source = region_source(build)
         if source is None or rctx.request is None or \
                 not source.has_permission(rctx.request):
-            return no_permission(build)
-        url = endpoint_url(rctx, build)
-        if url is None:
-            return no_permission(build)
+            return None
+        if not url:
+            return None
         config = {'id': build.id, 'type': build.type, 'url': url}
         if build.datasource:
             try:
@@ -640,9 +659,8 @@ class RegionComponent(RuntimeComponent):
             except NoReverseMatch:
                 pass
         config.update(self.config(build, rctx))
-        return render_to_string(self.template, {
-            'b': build, 'preview': False,
-            'config': json_config(build.id + '_gtconfig', config)})
+        return {'b': build, 'preview': False, 'template': self.template,
+                'config': json_config(build.id + '_gtconfig', config)}
 
     def config(self, build, rctx):
         return {}
@@ -665,19 +683,68 @@ class RegionComponent(RuntimeComponent):
         return [Endpoint('', self.viewset, 'gtdesign-%s' % build.id)]
 
 
+def region_page_context(build, request, url, *, component=None):
+    """What the template of a region component needs to draw ``build`` for
+    ``request``: ``{'b', 'preview', 'template', 'config'}``, with ``url``
+    the URL of its endpoint -- a :class:`CardsViewSet`, :class:`CalendarViewSet`
+    or :class:`MapViewSet` (or any :class:`RegionMixin`) serving ``build`` --
+    and ``config`` the ``<script>`` the browser reads (``data-gtconfig``):
+    ``id``, ``type``, ``url``, with a ``datasource`` its ``datasource_url``
+    and ``group`` (the facets it follows), and what the component adds
+    (:meth:`RegionComponent.config`).
+
+    No published :class:`~djgentelella.designs.models.Page` is needed: code
+    generated from a design (djgentelella-editor) calls it with its own
+    build and URL, and includes ``template``. ``None`` when ``request`` may
+    not see it -- without ``build.perms``, without the data source or its
+    ``has_permission`` (the rule of :func:`check_access`, the one of the
+    endpoint's 403) -- or without ``url``.
+
+    ``component`` is the :class:`RegionComponent` of ``build.type``; by
+    default the registered one.
+    """
+    if component is None:
+        # The registry imports this module.
+        from djgentelella.designs import registry  # noqa: PLC0415 (circular)
+        component = registry.get_component(build.type)
+        if component is None:
+            raise LookupError('no component of type %r' % (build.type,))
+    if request is None or build.preview:
+        return None
+    return component.page_context(build, ResolveContext({}, request), url)
+
+
 # -- serving -------------------------------------------------------------------------
 
 class RegionMixin:
-    """What the three endpoints share: the build of the node
-    (``request.gtdesign_build``), its permissions and its rows."""
+    """What the region endpoints share: the build of the node, its
+    permissions and its rows.
+
+    The build is :meth:`get_build`'s: :attr:`region_build` when a subclass
+    sets it -- code generated from a design (djgentelella-editor) does --,
+    else ``request.gtdesign_build``, which the endpoint of a published page
+    sets; without either, 404."""
 
     authentication_classes = (SessionAuthentication,)
     permission_classes = (AllowAny,)
     renderer_classes = (JSONRenderer,)
+    #: The :class:`RegionBuild` served, for a viewset outside the design
+    #: engine; ``None``: the one of the request (``request.gtdesign_build``).
+    region_build = None
+
+    def get_build(self):
+        """The :class:`RegionBuild` served: :attr:`region_build`, else
+        ``request.gtdesign_build``; 404 without either."""
+        if self.region_build is not None:
+            return self.region_build
+        build = getattr(self.request, 'gtdesign_build', None)
+        if build is None:
+            raise Http404()
+        return build
 
     def initial(self, request, *args, **kwargs):
         super().initial(request, *args, **kwargs)
-        self.build = request.gtdesign_build
+        self.build = self.get_build()
         if self.build.preview:
             raise Http404()
         self.source = check_access(self.build, request)

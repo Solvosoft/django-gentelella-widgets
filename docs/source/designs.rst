@@ -73,7 +73,9 @@ document to the current version, :func:`validate_envelope` checks the shape.
   publisher is trusted with it (see Security).
 - Every form in ``forms`` is checked, used or not.
 - Node ids are unique in the document; they appear in the markup as
-  ``data-gtdesign="<id>"`` and in the endpoint URLs.
+  ``data-gtdesign="<id>"`` and in the endpoint URLs. The page's wrapper has
+  its root's id there too, and the slug in ``data-gtdesign-page="<slug>"``,
+  so a node whose id is the slug never makes a selector ambiguous.
 
 When the format changes, ``format.CURRENT`` goes up and a function is added to
 ``format.UPGRADES``: ``{old_version: function(document) -> document}``. Every
@@ -908,6 +910,71 @@ class attribute ``kanban_build`` when a subclass sets it, otherwise
 is a 404. The grid's viewset (``grid_viewset_for(build)``) already carries
 its build.
 
+The same goes for the regions, the read-only tables and the facets panels
+over a data source (``designs.regions``, ``designs.source_tables``,
+``designs.data_components``):
+
+.. code:: python
+
+    from djgentelella.designs import data_components, regions, source_tables
+
+    class MeetupCardsApi(regions.CardsViewSet):
+        region_build = MEETUP_CARDS            # no initial() needed
+
+    context = regions.region_page_context(MEETUP_CARDS, request,
+                                          reverse('meetup-cards-api'))
+    html = render_to_string(context['template'], context, request=request) \
+        if context is not None else ''
+
+    context = data_components.facets_page_context(MEETUP_FILTERS, request)
+    # render_to_string(context['template'], context) -> the panel
+
+``region_page_context(build, request, url, *, component=None)``
+    ``{'b', 'preview', 'template', 'config'}``: the template of the
+    component (``gtdesigns/components/cards.html``...) and its
+    ``data-gtconfig`` JSON -- ``id``, ``type``, ``url``, with a
+    ``datasource`` its ``datasource_url`` and ``group`` (the facets it
+    follows, ``filtered_by`` included), and what the component adds
+    (``config(build, rctx)``: page size, FullCalendar and its locale,
+    markercluster, centre...). ``component`` is the registered one of
+    ``build.type`` by default. ``None`` when the request may not see it.
+``facets_page_context(build, request, datasource_url=None)``
+    ``{'b', 'preview', 'template', 'url', 'group', 'columns'}`` of a facets
+    panel over a data source (its target is a region, a chart or a list in
+    list mode): ``url`` is the data source API (``gtdatasource``) unless
+    ``datasource_url`` says otherwise, ``group`` is ``gtdesign:<target>``.
+    ``None`` without ``build.perms`` or the source's ``has_permission``. A
+    panel over a table of a model has an endpoint of its page:
+    ``ValueError``. With it, a page that uses ``filtered_by`` or the
+    ``facets`` prop of ``chart`` can be generated too.
+
+``table_page_context(build, request, url)`` (``designs.data_components``)
+    ``{'b', 'template', 'forms', 'base', 'modal_ids', 'allowed', 'config'}``
+    of ``object_management`` in list mode: the DataTable over a
+    ``SourceTableViewSet`` at ``url``, with the columns the request sees and
+    the row links (``row_link_config``, public too). Render it with
+    ``request=request``. ``None`` as ``grid_page_context``; ``ValueError``
+    for a table with a form.
+
+Whether a grid over a ``datasource`` is read only is the source's call
+(``grid.grid_can_edit(source)``: a ``ModelDataSource`` over a model of the
+project edits), not whether the build has a ``form``: a generated build
+without one, over such a source, is still the editable grid that
+``grid_page_context(..., form_class=...)`` draws.
+
+``RegionMixin`` (the base of ``CardsViewSet``, ``CalendarViewSet`` and
+``MapViewSet``) and ``SourceRowsMixin`` (``SourceTableViewSet``,
+``SourceGridViewSet``) serve the build ``get_build()`` answers: the class
+attribute ``region_build`` when a subclass sets it, otherwise
+``request.gtdesign_build``; without either, 404 -- as ``kanban_build``.
+
+**The 403 of a region.** ``check_access(build, request)`` is the rule every
+region endpoint applies: all of ``build.perms``, then
+``region_source(build).has_permission(request)`` (403), and 404 when the
+data source is gone. ``region_page_context`` applies the same one to the
+page. ``check_access``, ``read_rows``, ``request_params`` and
+``region_queryset`` are public (``__all__``).
+
 A build's ``page_hash`` is only the key the factories cache their classes by,
 with the node id: nothing checks it against a document. A build written as
 code may set any stable string -- djgentelella-editor sets
@@ -1020,6 +1087,11 @@ expression index only helps if it repeats, character for character, the SQL
 djgentelella does not ship one. A prefilter on the text cannot work either
 (``"10.5"`` sorts before ``"9.9"``, and ``"-"`` before both), so there is
 none.
+
+**Point columns.** The columns of a ``ModelDataSource`` over a
+``GTPointField`` carry ``extra={'point': True}`` (also in the API's
+``columns``), so a designer can offer them as the ``point_field`` of a map
+without resolving the field.
 
 **Facets.** A ``facets`` panel may name a region node over a ``datasource``
 as its ``target``; the panel and the component share the data source state of

@@ -30,6 +30,9 @@ from django.contrib.auth import get_user_model
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test.testcases import LiveServerThread, QuietWSGIRequestHandler
 
+from djgentelella.testing import mouse_click, scroll_instantly
+from djgentelella.utils import load_default_settings
+
 try:
     from selenium import webdriver
     from selenium.common.exceptions import WebDriverException
@@ -102,6 +105,11 @@ class SeleniumTestCase(StaticLiveServerTestCase):
     """
 
     server_thread_class = NonKeepAliveLiveServerThread
+    #: Load the settings the migrations create (site title, theme, bundled
+    #: static files) before each test: the flush after every live server test
+    #: removes them. Off by default, so the suite keeps the static branch it
+    #: always ran with.
+    default_settings = False
 
     @classmethod
     def setUpClass(cls):
@@ -141,6 +149,8 @@ class SeleniumTestCase(StaticLiveServerTestCase):
         super().tearDownClass()
 
     def setUp(self):
+        if self.default_settings:
+            load_default_settings()
         User = get_user_model()
         self.user = User.objects.create_user(
             username=USERNAME, email='admin@example.com', password=PASSWORD)
@@ -327,6 +337,21 @@ class SeleniumTestCase(StaticLiveServerTestCase):
             "        ? document.querySelector(arguments[0]) : arguments[0];"
             "if (e) e.scrollIntoView({block: 'nearest', inline: 'nearest'});",
             target)
+
+    def mouse_click(self, target):
+        """Click ``target`` (a CSS selector or a WebElement) with the mouse,
+        after scrolling it to the centre of the viewport without animation
+        (:func:`djgentelella.testing.mouse_click`): Bootstrap's smooth
+        scrolling would still be moving the page when the click lands."""
+        if isinstance(target, str):
+            target = self.driver.find_element(By.CSS_SELECTOR, target)
+        return mouse_click(self.driver, target)
+
+    def scroll_instantly(self, target):
+        """Bring ``target`` to the centre of the viewport, at once."""
+        if isinstance(target, str):
+            target = self.driver.find_element(By.CSS_SELECTOR, target)
+        scroll_instantly(self.driver, target)
 
     def assert_reachable(self, target, message=''):
         """Assert a user could get to ``target`` and click it."""

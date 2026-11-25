@@ -64,7 +64,9 @@ from djgentelella.permission_management import all_permission
 __all__ = ['ChartComponent', 'CrudClassicComponent', 'DATA_COMPONENTS',
            'FLOW_PREFIX', 'FacetsComponent', 'InlineObjectManagementComponent',
            'ObjectManagementComponent', 'PAGE_PREFIX', 'PK_PLACEHOLDERS',
-           'StatComponent', 'parse_flow_link', 'resolve_row_link']
+           'StatComponent', 'parse_flow_link', 'resolve_row_link',
+           'FACETS_TEMPLATE', 'facets_page_context', 'TABLE_TEMPLATE',
+           'row_link_config', 'table_page_context']
 
 SCRIPT = 'gentelella/js/designs/data_components.js'
 PERMISSION = {'type': 'string', 'pattern': r'^[a-z_][a-z0-9_]*\.[a-z_][a-z0-9_]*$'}
@@ -455,6 +457,65 @@ def sample_rows(model, names, count=3):
             for index in range(1, count + 1)]
 
 
+TABLE_TEMPLATE = 'gtdesigns/components/object_management.html'
+
+
+def list_page_context(build, request, url, user):
+    if not url or request is None:
+        return None
+    if build.perms['list'] and (user is None or
+                                not all_permission(user, list(build.perms['list']))):
+        return None
+    try:
+        source = get_datasource(build.datasource)
+    except (KeyError, LookupError):
+        source = None
+    if source is None or not source.has_permission(request):
+        return None
+    hidden = hidden_columns(build, request)
+    columns = []
+    for column in source_tables.visible_columns(build, hidden):
+        item = {'data': column['name'], 'name': column['name'],
+                'kind': column['kind'], 'title': escape(column['title']),
+                'type': 'string' if column['kind'] in TEXT_KINDS else 'readonly'}
+        if 'choices' in column:
+            item['choices'] = [[value, escape(text)]
+                               for value, text in column['choices']]
+        columns.append(item)
+    config = {
+        'id': build.id,
+        'readonly': True,
+        'urls': {'list_url': url},
+        'modal_ids': {},
+        'columns': columns,
+        'row_links': row_link_config(build, request),
+        'delete_display': '',
+    }
+    return {'b': build, 'template': TABLE_TEMPLATE, 'forms': {}, 'base': url,
+            'modal_ids': {}, 'allowed': {},
+            'config': json_config(build.id + '_gtconfig', config)}
+
+
+def table_page_context(build, request, url):
+    """What :data:`TABLE_TEMPLATE` needs to draw ``object_management`` in
+    list mode (``build.list_only``: over a ``datasource``, without a form)
+    for ``request``: ``{'b', 'template', 'forms', 'base', 'modal_ids',
+    'allowed', 'config'}``, with ``url`` the URL of its endpoint -- a
+    :class:`~djgentelella.designs.source_tables.SourceTableViewSet` serving
+    ``build`` -- and ``config`` the DataTable's ``data-gtconfig`` (columns
+    the request sees, row links). Render it with ``request=request``.
+
+    No published :class:`~djgentelella.designs.models.Page` is needed, as
+    :func:`~djgentelella.designs.grid.grid_page_context`. ``None`` when the
+    request may not see the list: without ``perms["list"]``, without the
+    data source or its ``has_permission``, or without ``url``. A table with
+    a form (CRUD) is not in list mode: ``ValueError``.
+    """
+    if not build.list_only:
+        raise ValueError('%r is not a list over a data source' % (build.id,))
+    return list_page_context(build, request, url, getattr(request, 'user', None))
+
+
 class ObjectManagementComponent(RuntimeComponent):
     """A DataTable of a model with create, update, detail and delete modals.
 
@@ -687,41 +748,11 @@ class ObjectManagementComponent(RuntimeComponent):
                 'rows': [['%s %d' % (column['title'], index)
                           for column in build.source_columns]
                          for index in range(1, 4)]})
-        if build.perms['list'] and not can(rctx, build.perms['list']):
+        context = list_page_context(build, rctx.request, endpoint_url(rctx, build),
+                                    rctx.user)
+        if context is None:
             return no_permission(build)
-        try:
-            source = get_datasource(build.datasource)
-        except (KeyError, LookupError):
-            source = None
-        if source is None or rctx.request is None or \
-                not source.has_permission(rctx.request):
-            return no_permission(build)
-        base = endpoint_url(rctx, build)
-        if base is None:
-            return no_permission(build)
-        hidden = hidden_columns(build, rctx.request)
-        columns = []
-        for column in source_tables.visible_columns(build, hidden):
-            item = {'data': column['name'], 'name': column['name'],
-                    'kind': column['kind'], 'title': escape(column['title']),
-                    'type': 'string' if column['kind'] in TEXT_KINDS else 'readonly'}
-            if 'choices' in column:
-                item['choices'] = [[value, escape(text)]
-                                   for value, text in column['choices']]
-            columns.append(item)
-        config = {
-            'id': build.id,
-            'readonly': True,
-            'urls': {'list_url': base},
-            'modal_ids': {},
-            'columns': columns,
-            'row_links': row_link_config(build, rctx.request),
-            'delete_display': '',
-        }
-        return render_to_string('gtdesigns/components/object_management.html', {
-            'b': build, 'forms': {}, 'base': base, 'modal_ids': {},
-            'allowed': {}, 'config': json_config(build.id + '_gtconfig', config),
-        }, request=rctx.request)
+        return render_to_string(TABLE_TEMPLATE, context, request=rctx.request)
 
     def render(self, build, rctx, children):
         if build.list_only:
@@ -859,11 +890,10 @@ class InlineObjectManagementComponent(ObjectManagementComponent):
 
 def source_columns(source, rctx, path):
     """``{name: Column}`` of a data source, or None when they cannot be read
-    without a request (they are checked when serving then)."""
-    try:
-        return source.column_map(rctx.request)
-    except Exception:  # noqa: BLE001 -- a function source may need a request
-        return None
+    without a request (they are checked when serving then): for the request,
+    or without one for the Site of ``rctx``
+    (:meth:`~djgentelella.designs.components.ResolveContext.source_columns`)."""
+    return rctx.source_columns(source)
 
 
 def view_perms(rctx, props, path, default):
@@ -1343,6 +1373,52 @@ def find_node(document, node_id):
     return None
 
 
+FACETS_TEMPLATE = 'gtdesigns/components/facets.html'
+
+
+def source_facets_context(build, request, user, datasource_url=None):
+    """The context of :data:`FACETS_TEMPLATE` for a panel over a data source,
+    or ``None`` when ``user``/``request`` may not see it."""
+    if build.perms and (user is None or not all_permission(user, list(build.perms))):
+        return None
+    try:
+        source = get_datasource(build.datasource)
+        url = datasource_url or reverse('gtdatasource',
+                                        kwargs={'name': build.datasource})
+    except (KeyError, LookupError, NoReverseMatch):
+        source = url = None
+    if source is None or request is None or not source.has_permission(request):
+        return None
+    return {'b': build, 'preview': False, 'template': FACETS_TEMPLATE, 'url': url,
+            'group': 'gtdesign:%s' % build.target, 'columns': ','.join(build.columns)}
+
+
+def facets_page_context(build, request, datasource_url=None):
+    """What :data:`FACETS_TEMPLATE` needs to draw the facets panel ``build``
+    -- one over a data source: its target is a component over a
+    ``datasource`` (a region, a chart, a list in list mode) -- for
+    ``request``: ``{'b', 'preview', 'template', 'url', 'group', 'columns'}``.
+
+    ``datasource_url`` is the URL of the data source API the panel counts
+    with (by default ``reverse('gtdatasource', name=build.datasource)``);
+    ``group`` is ``gtdesign:<target>``, the state the target (and every
+    node ``filtered_by`` the panel) follows.
+
+    No published :class:`~djgentelella.designs.models.Page` is needed: code
+    generated from a design (djgentelella-editor) calls it with its own
+    build. ``None`` when ``request`` may not see it: without
+    ``build.perms`` or the data source's ``has_permission``. A panel over a
+    table of a model (no ``build.datasource``) is served by an endpoint of
+    its page: ``ValueError``.
+    """
+    if not build.datasource:
+        raise ValueError('facets panel %r is not over a data source' % (build.id,))
+    if request is None:
+        return None
+    return source_facets_context(build, request, getattr(request, 'user', None),
+                                 datasource_url)
+
+
 class FacetsComponent(RuntimeComponent):
     """A facets panel (djgentelella.datasources' ``GTFacets``) bound to a
     table of the page by ``target``, its node id.
@@ -1463,7 +1539,7 @@ class FacetsComponent(RuntimeComponent):
             context['facets'] = [
                 (label(build.model._meta.get_field(name).verbose_name),
                  ['%s 1' % _('Value'), '%s 2' % _('Value')]) for name in build.columns]
-            return render_to_string('gtdesigns/components/facets.html', context)
+            return render_to_string(FACETS_TEMPLATE, context)
         if not can(rctx, build.perms):
             return no_permission(build)
         # A facet of a column its table hides (column_conditions) would
@@ -1484,27 +1560,18 @@ class FacetsComponent(RuntimeComponent):
             return no_permission(build)
         context.update(url=url, group='gtdesign:%s' % build.target,
                        columns=','.join(context['b'].columns))
-        return render_to_string('gtdesigns/components/facets.html', context)
+        return render_to_string(FACETS_TEMPLATE, context)
 
     def render_source(self, build, rctx):
         context = {'b': build, 'preview': rctx.preview}
         if rctx.preview:
             context['facets'] = [(name, ['%s 1' % _('Value'), '%s 2' % _('Value')])
                                  for name in build.columns]
-            return render_to_string('gtdesigns/components/facets.html', context)
-        if build.perms and not can(rctx, build.perms):
+            return render_to_string(FACETS_TEMPLATE, context)
+        context = source_facets_context(build, rctx.request, rctx.user)
+        if context is None:
             return no_permission(build)
-        try:
-            source = get_datasource(build.datasource)
-            url = reverse('gtdatasource', kwargs={'name': build.datasource})
-        except (KeyError, LookupError, NoReverseMatch):
-            source = url = None
-        if source is None or rctx.request is None or \
-                not source.has_permission(rctx.request):
-            return no_permission(build)
-        context.update(url=url, group='gtdesign:%s' % build.target,
-                       columns=','.join(build.columns))
-        return render_to_string('gtdesigns/components/facets.html', context)
+        return render_to_string(FACETS_TEMPLATE, context)
 
     def media(self, build, rctx):
         return {'js': [SCRIPT]}

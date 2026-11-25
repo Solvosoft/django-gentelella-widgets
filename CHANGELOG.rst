@@ -375,6 +375,39 @@ of a task and the coroutine of a task with dependencies -- in ``cli/run.py``
 and in ``lib/runner.py``, and repairs an install patched with
 ``create_task``, which broke the tasks without dependencies.
 
+**Regions, read-only tables and facets panels without a published page.**
+``RegionMixin`` (``CardsViewSet``, ``CalendarViewSet``, ``MapViewSet``) and
+``SourceRowsMixin`` (``SourceTableViewSet``, ``SourceGridViewSet``) take
+``region_build`` and ``get_build()``, as ``FlowKanbanViewSet.kanban_build``:
+the class attribute wins, else ``request.gtdesign_build``, else 404.
+``regions.region_page_context(build, request, url)`` and
+``data_components.facets_page_context(build, request, datasource_url=None)``
+return the context of the component's template (``template`` included) or
+``None`` without permission, like ``grid_page_context``; with them generated
+code draws a region, ``filtered_by`` and the ``facets`` of a chart without
+building a ``ResolveContext``. ``check_access`` (the contract of the 403),
+``read_rows``, ``request_params`` and ``RegionMixin`` are in ``__all__``. See
+``docs/source/designs.rst``.
+
+**Columns for a Site without a request.** ``DataSource.columns_for_site(site)``
+(by default ``columns(site_request(site))``) and
+``source_column_map(source, request=None, *, site=None)``: a page of a Site
+validated or published offline reads the columns of its data sources for
+that Site (``ResolveContext.source_columns``), so a source whose columns
+depend on the Site validates. A ``ModelDataSource`` column over a
+``GTPointField`` carries ``extra={'point': True}``.
+
+**``table_page_context(build, request, url)``** draws ``object_management``
+in list mode without a published page (``row_link_config`` is public), and
+``grid.grid_can_edit(source)`` says whether a grid over a data source edits.
+
+**``load_default_settings()``** in ``djgentelella.utils`` creates the global
+settings the migrations load (``DEFAULT_SETTINGS``), for the tests that flush
+the database (``TransactionTestCase``, live server). **``djgentelella.testing``**
+has ``mouse_click(driver, element)``, a Selenium click after scrolling the
+element to the centre without Bootstrap's smooth scrolling, also a method of
+the demo's ``SeleniumTestCase``. See ``docs/source/demo.rst``.
+
 Backwards incompatible
 """"""""""""""""""""""""
 
@@ -569,6 +602,24 @@ schema.** They are still required unless the node has a ``datasource`` (list
 mode), but ``resolve()`` says so now (``"model is required (or a
 "datasource"...)"``), not the JSON schema: a tool reading
 ``props_schema["required"]`` gets nothing there.
+
+**The page's wrapper has its own attribute for the slug.** A design page
+renders ``<div class="gtdesign-page" data-gtdesign="<root id>"
+data-gtdesign-page="<slug>">``: ``data-gtdesign`` is always a node id, so a
+node whose id is the slug of its page no longer makes
+``[data-gtdesign="<slug>"]`` match two elements. A selector of the page by its
+slug becomes ``[data-gtdesign-page="<slug>"]``.
+
+**A generated grid without ``form`` is no longer taken for a read-only
+one.** ``InteractiveGridBuild.list_only`` asks the data source
+(``grid_can_edit``), not ``form is None``: an editable grid over a
+``ModelDataSource`` whose build has no form (generated code passes
+``form_class`` to ``grid_page_context``) came out read-only, without columns
+nor actions.
+
+**A page without the ``site_theme`` setting** (a database flushed by a test)
+loads ``gentelella/css/custom.css`` instead of an empty ``<link
+href="/static/?v=...">``.
 
 0.7.1 (2026-11-15)
 --------------------
