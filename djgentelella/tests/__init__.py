@@ -80,3 +80,4 @@ from .ChartFacets_Test import *
 from .BootstrapBundle_Test import *
 from .RegionComponents_Test import *
 from .SourceReadOnly_Test import *
+from .ConsumerApiW24_Test import *

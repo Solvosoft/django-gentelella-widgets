@@ -74,10 +74,9 @@ class RegionComponentsTest(SeleniumTestCase):
                      message='the facets never rendered')
         self.wait_js("return document.querySelector(arguments[0] + ' .gtmap')"
                      "  .dataset.loaded >= 1", MAP, message='the map never loaded')
-        self.driver.find_element(
+        self.mouse_click(self.driver.find_element(
             By.XPATH, '//div[contains(@class, "gtdesign-facets")]//div[@data-column='
-                      '"kind"]//label[starts-with(normalize-space(.), "Workshop")]'
-        ).click()
+                      '"kind"]//label[starts-with(normalize-space(.), "Workshop")]'))
         self.wait_cards(lambda titles: titles == ['Leaflet workshop'],
                         'the cards did not follow the facet')
         self.wait.until(lambda d: self.texts(CALENDAR + ' .fc-event-title')
