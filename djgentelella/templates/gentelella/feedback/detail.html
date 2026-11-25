@@ -1,0 +1,33 @@
+{% extends 'gentelella/base.html' %}
+{% load i18n %}
+{% block title %}{% trans 'Feedback' %}{% endblock %}
+{% block content %}
+<div class="x_panel gt-feedback-detail">
+  <div class="x_title">
+    <h2>{{ feedback.get_kind_display }} <small>{{ feedback.created_at|date:'SHORT_DATETIME_FORMAT' }}</small></h2>
+    <div class="clearfix"></div>
+  </div>
+  <div class="x_content">
+    {% if inbox %}<p><a href="{% url 'gt_feedback_inbox' %}">&larr; {% trans 'Feedback' %}</a></p>{% endif %}
+    <dl class="row">
+      <dt class="col-sm-3">{% trans 'Status' %}</dt><dd class="col-sm-9"><span class="badge bg-secondary gt-feedback-status">{{ feedback.get_status_display }}</span></dd>
+      <dt class="col-sm-3">{% trans 'User' %}</dt><dd class="col-sm-9">{{ feedback.user|default:'' }}</dd>
+      {% if feedback.site %}<dt class="col-sm-3">{% trans 'Site' %}</dt><dd class="col-sm-9">{{ feedback.site }}</dd>{% endif %}
+      <dt class="col-sm-3">{% trans 'Comment' %}</dt><dd class="col-sm-9 gt-feedback-text">{{ feedback.text|linebreaksbr }}</dd>
+      {% if feedback.url %}<dt class="col-sm-3">{% trans 'Page' %}</dt><dd class="col-sm-9"><code>{{ feedback.url }}</code></dd>{% endif %}
+      {% if feedback.page %}<dt class="col-sm-3">{% trans 'Design page' %}</dt><dd class="col-sm-9"><code>{{ feedback.page }}</code></dd>{% endif %}
+      {% if feedback.browser %}<dt class="col-sm-3">{% trans 'Browser' %}</dt><dd class="col-sm-9"><small>{{ feedback.browser }}</small></dd>{% endif %}
+      {% if feedback.response and not form %}
+      <dt class="col-sm-3">{% trans 'Response' %}</dt><dd class="col-sm-9 gt-feedback-response">{{ feedback.response|linebreaksbr }}{% if feedback.responded_by %}<br><small class="text-muted">{{ feedback.responded_by }}, {{ feedback.responded_at|date:'SHORT_DATETIME_FORMAT' }}</small>{% endif %}</dd>
+      {% endif %}
+    </dl>
+    {% if form %}
+    <form method="post" class="gt-feedback-answer">
+      {% csrf_token %}
+      {{ form }}
+      <button type="submit" class="btn btn-primary">{% trans 'Save' %}</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
