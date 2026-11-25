@@ -73,7 +73,8 @@ from .SettingsEscape_Test import *
 from .DesignsTransfer_Test import *
 from .LockRequiredProp_Test import *
 from .GridKanbanApi_Test import *
-from .ChartFacets_Test import *
 from .FlowSystemRun_Test import *
 from .SearchOwners_Test import *
 from .HistorySystem_Test import *
+from .ChartFacets_Test import *
+from .BootstrapBundle_Test import *

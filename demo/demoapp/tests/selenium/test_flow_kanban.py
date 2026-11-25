@@ -164,3 +164,32 @@ class FlowKanbanTest(SeleniumTestCase):
         self.vpn.refresh_from_db()
         self.assertEqual(self.vpn.resolution, 'Restarted the router.')
         self.assertEqual(self.flow.state(self.vpn), 'resolved')
+
+    def test_the_move_to_menu_opens_with_the_mouse(self):
+        """Bootstrap's dropdown, with the Popper of bootstrap.bundle: opened
+        by a real click, after the board was loaded more than once (D11 saw
+        window.Popper go missing in a run of several tests)."""
+        self.go('/')
+        self.open_board()
+        self.open_board()
+        self.assertFalse(self.js(
+            'return Array.prototype.some.call(document.scripts, function (s) {'
+            '  return /popper(\\.min)?\\.js/.test(s.src); });'),
+            'a separate popper.js is loaded')
+        self.assertTrue(self.js("return typeof bootstrap.Dropdown === 'function';"))
+        card = self.card(self.vpn)
+        toggle = card.find_element(By.CSS_SELECTOR, '.gtkanban-menu .dropdown-toggle')
+        ActionChains(self.driver).move_to_element(toggle).click().perform()
+        menu = card.find_element(By.CSS_SELECTOR, '.gtkanban-menu .dropdown-menu')
+        self.wait.until(lambda d: 'show' in menu.get_attribute('class'),
+                        'the "Move to" menu did not open')
+        self.wait.until(EC.visibility_of(menu))
+        self.assertEqual(toggle.get_attribute('aria-expanded'), 'true')
+        # Popper placed it: Bootstrap sets data-popper-placement on it.
+        self.assertTrue(menu.get_attribute('data-popper-placement'))
+        item = card.find_element(By.CSS_SELECTOR,
+                                 '.gtkanban-move-to[data-target="resolved"]')
+        self.assertTrue(item.is_displayed())
+        ActionChains(self.driver).move_to_element(item).click().perform()
+        self.wait.until(EC.visibility_of_element_located(
+            (By.CSS_SELECTOR, BOARD + ' .gtkanban-modal [name="flow-resolution"]')))

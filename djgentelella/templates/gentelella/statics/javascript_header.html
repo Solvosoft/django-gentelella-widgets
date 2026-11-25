@@ -7,8 +7,8 @@
 {% else %}
 <script src="{% static 'vendors/jquery/jquery.min.js' %}?v={% get_version %}"></script>
 <script src="{% static 'vendors/friconix/friconix.js' %}?v={% get_version %}"></script>
-<!-- Bootstrap -->
-<script src="{% static 'vendors/bootstrap/bootstrap.min.js' %}?v={% get_version %}"></script>
+<!-- Bootstrap, with Popper inside: dropdowns, tooltips and popovers need it -->
+<script src="{% static 'vendors/bootstrap/bootstrap.bundle.min.js' %}?v={% get_version %}"></script>
 {% endif %}
 
 <script>
