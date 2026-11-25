@@ -46,7 +46,7 @@ UNIT_LINK = {'url_name': 'admin:demoapp_department_change', 'title': 'Open'}
 MEETUP_LINK = {'url_name': 'admin:demoapp_meetup_change', 'title': 'Open'}
 
 
-class DownSource(ModelDataSource):
+class TTMDownSource(ModelDataSource):
     def get_queryset(self, request):
         raise DataSourceUnavailable('The provider API is down.')
 
@@ -92,8 +92,8 @@ class TTMBase(DesignState, TestCase):
                 ModelDataSource(PurchaseRequest, name=PURCHASES,
                                 fields=['id', 'title', 'amount', 'supplier',
                                         'created_at']),
-                DownSource(PurchaseRequest, name=DOWN,
-                           fields=['id', 'amount', 'created_at'])):
+                TTMDownSource(PurchaseRequest, name=DOWN,
+                              fields=['id', 'amount', 'created_at'])):
             register_datasource(source)
             self.addCleanup(unregister_datasource, source.name)
         self.user = grant(User.objects.create_user('ana', password='pw'),

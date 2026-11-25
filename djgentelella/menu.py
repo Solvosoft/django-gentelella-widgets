@@ -11,7 +11,10 @@ of the menu tree (breadcrumbs, a site map) link items the same way:
 * ``page:<path>``: the design page published at that path
   (:mod:`djgentelella.designs`, URL name ``gt-design-page``); the text as it
   is when that route does not exist (the app is not installed), so a menu
-  that names a page never breaks the pages that draw it;
+  that names a page never breaks the pages that draw it. With
+  ``GT_MENU_DESIGN_PAGE_SLASH = True`` the link of a design page -- this
+  one, and a reversed ``gt-design-page`` -- ends in ``/``, as the URL of a
+  page visited with it does (both serve the page);
 * anything else: ``url_name`` as it is (a path or an absolute URL).
 
 :func:`menu_tree` is the menu of one Site loaded once per request -- every
@@ -119,10 +122,23 @@ def _reverse_kwargs(item, context):
     return kwargs
 
 
+DESIGN_PAGE = 'gt-design-page'
+
+
+def with_slash(url):
+    """The link of a design page: ``url`` ending in ``/`` when
+    ``GT_MENU_DESIGN_PAGE_SLASH`` is on (off by default), as it is
+    otherwise."""
+    if not getattr(settings, 'GT_MENU_DESIGN_PAGE_SLASH', False):
+        return url
+    return url if url.endswith('/') else url + '/'
+
+
 def _url(item, context):
     if item.is_reversed:
-        return reverse(item.url_name, args=_reverse_args(item, context),
-                       kwargs=_reverse_kwargs(item, context))
+        url = reverse(item.url_name, args=_reverse_args(item, context),
+                      kwargs=_reverse_kwargs(item, context))
+        return with_slash(url) if item.url_name == DESIGN_PAGE else url
     if item.is_widget:
         return ''
     url_name = item.url_name or ''
@@ -131,7 +147,7 @@ def _url(item, context):
         if not path:
             return ''
         try:
-            return reverse('gt-design-page', args=[path])
+            return with_slash(reverse(DESIGN_PAGE, args=[path]))
         except NoReverseMatch:
             return url_name
     return url_name

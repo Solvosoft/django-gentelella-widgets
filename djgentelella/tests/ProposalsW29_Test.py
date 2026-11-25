@@ -301,7 +301,7 @@ class TransitionError(DataSourceUnavailable, ValidationError):
         ValidationError.__init__(self, message)
 
 
-class DownSource(RemoteSource):
+class W29DownSource(RemoteSource):
     def get_queryset(self, request, params=None):
         raise TransitionError('The provider API is down.')
 
@@ -312,7 +312,7 @@ class W29TransitionErrorTests(ReadOnlyBase):
     def setUp(self):
         super().setUp()
         unregister_datasource(REMOTE)
-        register_datasource(DownSource())
+        register_datasource(W29DownSource())
 
     def test_api_error(self):
         error = TransitionError('down')
@@ -346,7 +346,7 @@ class W29TransitionErrorTests(ReadOnlyBase):
 
     def test_validate_params_does_not_swallow_it(self):
         with self.assertRaises(DataSourceUnavailable):
-            query.validate_params(DownSource(), self.request, {})
+            query.validate_params(W29DownSource(), self.request, {})
 
 
 # -- the read-only grid with facets ----------------------------------------------------

@@ -102,7 +102,11 @@ DATABASES = {
         # /chartjs does, one request per chart -- then runs concurrent queries
         # down that one connection and some of them come back 500. With a file
         # each thread opens its own connection.
-        'TEST': {'NAME': os.path.join(BASE_DIR, 'test_db.sqlite3')},
+        # One file per process (test_db_<pid>.sqlite3, ignored by git): the
+        # browser tests and `make test` can run at once in one checkout
+        # without destroying each other's database. A run that is killed
+        # leaves its file behind; --keepdb has nothing to keep between runs.
+        'TEST': {'NAME': os.path.join(BASE_DIR, 'test_db_%d.sqlite3' % os.getpid())},
     }
 }
 

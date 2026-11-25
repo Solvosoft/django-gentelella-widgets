@@ -260,6 +260,9 @@ class DataSource:
         """
         return self.columns(site_request(site))
 
+    def __repr__(self):
+        return '<%s %s>' % (type(self).__name__, self.name)
+
 
 def source_column_map(source, request=None, *, site=None):
     """``{name: Column}`` of ``source``: for ``request``; without one, for
@@ -278,9 +281,6 @@ def source_column_map(source, request=None, *, site=None):
         # sources after its pages): what the source answers without a
         # request, as before there was a hook.
     return source.column_map(request)
-
-    def __repr__(self):
-        return '<%s %s>' % (type(self).__name__, self.name)
 
 
 def model_field_kind(model_field):
