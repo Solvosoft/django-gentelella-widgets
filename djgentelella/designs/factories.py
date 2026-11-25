@@ -53,7 +53,7 @@ from rest_framework.response import Response
 from djgentelella import chartjs
 from djgentelella.cruds.base import CRUDMixin, CRUDView
 from djgentelella.datasources import query
-from djgentelella.datasources.base import ModelDataSource, get_datasource
+from djgentelella.datasources.base import ModelDataSource, api_error, get_datasource
 from djgentelella.designs import notifications
 from djgentelella.designs.builds import TABLE_ACTIONS
 from djgentelella.designs.conditions import (
@@ -422,7 +422,7 @@ def apply_filters(source, request, queryset, filters):
         return query.apply_filters(source, request, queryset, filters,
                                    source.column_map(request))
     except DjangoValidationError as error:
-        raise ValidationError({'gtfilters': error.messages})
+        raise api_error(error, 'gtfilters')
 
 
 def parent_link(request):
@@ -736,7 +736,7 @@ def chart_rows(build, request):
         rows = query.aggregate(source, request, params,
                                order_by_value=not build.period, limit=build.limit)
     except DjangoValidationError as error:
-        raise ValidationError({'detail': error.messages})
+        raise api_error(error)
     result = []
     for row in rows:
         value = row[build.group_by]
@@ -826,7 +826,7 @@ def stat_value(build, request):
         value, previous = (_aggregate_value(source, request, spec, key, filters)
                            for filters in periods)
     except DjangoValidationError as error:
-        raise ValidationError({'detail': error.messages})
+        raise api_error(error)
     change = None
     if previous:
         change = round(((value or 0) - previous) * 100.0 / abs(previous), 1)
@@ -907,7 +907,7 @@ def _make_facets_viewset(build):
                 return Response({name: [] for name in names})
             return Response(query.facets(data_source, request, params, names))
         except DjangoValidationError as error:
-            raise ValidationError({'detail': error.messages})
+            raise api_error(error)
 
     facets_view.__name__ = 'facets'
     return type(class_name(build, 'FacetsViewSet'), (viewsets.ViewSet,), {

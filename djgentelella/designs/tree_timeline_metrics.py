@@ -68,6 +68,7 @@ from rest_framework.response import Response
 
 from djgentelella.authorization import evaluate_condition, validate_condition
 from djgentelella.datasources import query
+from djgentelella.datasources.base import api_error
 from djgentelella.designs.data_components import (
     can, endpoint_url, json_config, no_permission,
 )
@@ -855,7 +856,7 @@ def metric_values(build, source, request, queryset, now=None):
             else:
                 aggregates['m%d' % index] = make(name, q if q else None)
     except DjangoValidationError as error:
-        raise ValidationError({'detail': error.messages})
+        raise api_error(error)
     values = queryset.order_by().aggregate(**aggregates)
     cards = []
     for index, metric in enumerate(metrics):
