@@ -604,3 +604,59 @@ class WizardDraft(models.Model):
 
     def __str__(self):
         return self.title or self.key
+
+
+class PushSubscription(models.Model):
+    """One browser (device) where ``user`` accepted web push (:mod:`djgentelella.pwa`).
+
+    ``endpoint`` is the URL of the browser's push service; ``p256dh`` and
+    ``auth`` are the keys the payload is encrypted with. An endpoint belongs to
+    one browser, so it is unique: subscribing it again from another account
+    moves it there. ``site`` is the Site it was subscribed from.
+    """
+
+    user = models.ForeignKey(USER_MODEL_BASE, on_delete=models.CASCADE,
+                             related_name='push_subscriptions',
+                             verbose_name=_('User'))
+    site = models.ForeignKey('sites.Site', on_delete=models.CASCADE, null=True,
+                             blank=True, related_name='+', verbose_name=_('Site'))
+    endpoint = models.URLField(_('Endpoint'), max_length=1000, unique=True)
+    p256dh = models.CharField(_('Public key'), max_length=255)
+    auth = models.CharField(_('Authentication secret'), max_length=255)
+    user_agent = models.CharField(_('Browser'), max_length=500, blank=True)
+    created_at = models.DateTimeField(_('Created'), auto_now_add=True)
+    last_used = models.DateTimeField(_('Last used'), null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = _('Push subscription')
+        verbose_name_plural = _('Push subscriptions')
+
+    def __str__(self):
+        return '%s: %s' % (self.user, self.user_agent or self.endpoint[:60])
+
+    def subscription_info(self):
+        """The ``subscription_info`` of pywebpush, as the browser's
+        ``PushSubscription.toJSON()``."""
+        return {'endpoint': self.endpoint,
+                'keys': {'p256dh': self.p256dh, 'auth': self.auth}}
+
+
+class PushPreference(models.Model):
+    """Whether the notifications of ``user`` also go out as push.
+
+    Without a row the answer is yes: subscribing a browser already asked the
+    user for it.
+    """
+
+    user = models.OneToOneField(USER_MODEL_BASE, on_delete=models.CASCADE,
+                                related_name='push_preference',
+                                verbose_name=_('User'))
+    enabled = models.BooleanField(_('Send my notifications as push'), default=True)
+
+    class Meta:
+        verbose_name = _('Push preference')
+        verbose_name_plural = _('Push preferences')
+
+    def __str__(self):
+        return '%s: %s' % (self.user, self.enabled)
