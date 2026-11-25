@@ -4361,3 +4361,12 @@ msgstr "Opcional. Nombra el ítem en su Site (o entre los ítems globales) cuand
 #, python-format
 msgid "%s is not a registered menu widget."
 msgstr "%s no es un widget de menú registrado."
+
+#: menu.py
+#, python-format
+msgid ""
+"\"%(title)s\" hangs from \"%(parent)s\" of another scope (%(scope)s) and is "
+"exported as a root"
+msgstr ""
+"«%(title)s» cuelga de «%(parent)s», de otro ámbito (%(scope)s), y se exporta "
+"como raíz"

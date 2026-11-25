@@ -36,6 +36,7 @@ from collections import defaultdict
 from collections.abc import Mapping
 
 from django.apps import apps
+from django.contrib.sites.requests import RequestSite
 from django.conf import settings
 from django.db import router, transaction
 from django.db.models import Prefetch, Q
@@ -441,7 +442,15 @@ def _parent_reference(item):
     return {field: getattr(item, field) for field in _PARENT_FIELDS}
 
 
-def export_tree(site=None):
+def _is_site_scope(site):
+    """Whether ``site`` names the menu of a Site rather than the global one.
+
+    Unlike :func:`~djgentelella.sites.site_pk` it takes a Site not saved yet,
+    so a menu can be validated before its Site exists."""
+    return site is not None and not isinstance(site, RequestSite)
+
+
+def export_tree(site=None, *, warnings=None):
     """The menu items of ``site`` (a Site, its id, or ``None``: the global
     items) as a list of trees, the format :func:`import_tree` reads.
 
@@ -451,6 +460,12 @@ def export_tree(site=None):
     ``global_parent`` (``key``, ``title``, ``url_name``, ``category``); an
     item under an item of another Site is exported as a root. No pk travels:
     ``key`` is what names an item again on import.
+
+    ``warnings``, a list, receives an
+    :class:`~djgentelella.designs.jsonschema.Error` (with the path of the
+    node in the data) for every item exported as a root although it had a
+    parent the data cannot name: an item of another Site, or of a Site in
+    the global menu. The value returned is the same with or without it.
     """
     permission = apps.get_model('auth', 'Permission')
     items = list(_menu_model().objects.filter(_scope(site)).select_related(
@@ -477,7 +492,18 @@ def export_tree(site=None):
             data['global_parent'] = _parent_reference(parent)
         return data
 
-    return [node(item) for item in roots]
+    data = [node(item) for item in roots]
+    if warnings is not None:
+        for index, (item, exported) in enumerate(zip(roots, data)):
+            if item.parent_id is not None and 'global_parent' not in exported:
+                parent = item.parent
+                warnings.append(Error('$[%d]' % index, _(
+                    '"%(title)s" hangs from "%(parent)s" of another scope '
+                    '(%(scope)s) and is exported as a root') % {
+                        # A global parent is exported as global_parent.
+                        'title': item.title, 'parent': parent.title,
+                        'scope': parent.site.domain}))
+    return data
 
 
 def _find_permissions(labels):
@@ -555,7 +581,7 @@ def _check_node(node, path, depth, site, errors, keys):
                                 _('no permission %s') % label))
     if 'global_parent' in node:
         reference = node['global_parent']
-        if depth > 1 or site_pk(site) is None:
+        if depth > 1 or not _is_site_scope(site):
             errors.append(Error(path + '.global_parent', _(
                 'only a root of a Site menu hangs from a global item')))
         elif not isinstance(reference, dict) or _global_parent(reference) is None:
@@ -574,7 +600,11 @@ def validate_tree(data, site=None):
     """The :class:`~djgentelella.designs.jsonschema.Error` list of a menu in
     the format of :func:`export_tree`; empty means :func:`import_tree` takes
     it. Widget items must name a registered menu widget, permissions must
-    exist and conditions be valid."""
+    exist and conditions be valid.
+
+    ``site`` is a Site, its id or ``None`` (the global menu); a ``Site`` not
+    saved yet is taken too, to check a menu before its Site is created
+    (:func:`import_tree` needs it saved)."""
     if not isinstance(data, list):
         return [Error('$', _('a menu is a list of menu items'))]
     errors = []

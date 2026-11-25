@@ -196,3 +196,40 @@ class MenuTransferTests(TestCase):
         self.assertEqual((item.category, item.is_reversed, item.is_widget,
                           item.position, item.key, item.condition, item.site),
                          ('main', False, False, 0, None, None, self.other))
+
+    def test_validate_for_a_site_not_created_yet(self):
+        new = Site(domain='nuevo.example.com', name='Nuevo')
+        data = [node('A', global_parent={'key': 'apps'})]
+        self.assertEqual(validate_tree(data, new), [])
+        self.assertIsNone(new.pk)
+
+    def test_export_warns_of_a_parent_of_another_site(self):
+        foreign = MenuItem.objects.create(title='Foreign', url_name='/f',
+                                          site=self.other)
+        MenuItem.objects.create(title='Stray', url_name='/s', site=self.site,
+                                parent=foreign, position=3)
+        plain = export_tree(self.site)
+        warnings = []
+        data = export_tree(self.site, warnings=warnings)
+        self.assertEqual(data, plain)
+        self.assertEqual([item['title'] for item in data],
+                         ['Ventas app', 'Sales', 'Stray'])
+        self.assertEqual([(str(error.path), error.message) for error in warnings], [
+            ('$[2]', '"Stray" hangs from "Foreign" of another scope '
+                     '(other.example.com) and is exported as a root')])
+
+    def test_export_of_the_global_menu_warns_of_a_site_parent(self):
+        MenuItem.objects.create(title='Global under site', url_name='/g',
+                                parent=self.root)
+        warnings = []
+        data = export_tree(warnings=warnings)
+        self.assertEqual([item['title'] for item in data],
+                         ['Apps', 'Global under site'])
+        self.assertEqual(len(warnings), 1)
+        self.assertEqual(warnings[0].path, '$[1]')
+        self.assertIn('ventas.example.com', warnings[0].message)
+
+    def test_no_warnings_for_a_clean_menu(self):
+        warnings = []
+        export_tree(self.site, warnings=warnings)
+        self.assertEqual(warnings, [])

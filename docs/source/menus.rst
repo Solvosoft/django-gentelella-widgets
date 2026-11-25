@@ -429,6 +429,23 @@ other is created, and with ``replace`` (the default) the items of the scope
 the data does not name are deleted. The global items are never touched by the
 import of a Site.
 
+``validate_tree(data, site)`` takes a ``Site`` that is not saved yet, to check
+a menu -- its ``global_parent`` included -- before creating the Site it is for;
+``import_tree`` needs the Site saved.
+
+An item whose parent is out of the exported scope (an item of another Site,
+or, in the global menu, of a Site) is exported as a root. To be told, pass a
+list:
+
+.. code:: python
+
+    warnings = []
+    data = export_tree(site, warnings=warnings)
+    for warning in warnings:        # Error(path, message), path like '$[2]'
+        print(warning)
+
+The data returned is the same with or without ``warnings``.
+
 ``MenuItem.objects.get_by_natural_key(key, site_domain=None)`` finds an item
 by its key. ``MenuItem`` has no ``natural_key()`` on purpose: the items
 without a key would break ``dumpdata --natural-foreign``.

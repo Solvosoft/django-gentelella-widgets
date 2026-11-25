@@ -257,6 +257,15 @@ without the version is refused with ``version_required``); a grid with
 locking already required it. ``true`` with ``"optimistic_lock": false`` is an
 error of the document. See ``docs/source/locking.rst``.
 
+**Exporting and validating a menu say more** (``djgentelella.menu``).
+``export_tree(site, warnings=[])`` fills the list with one ``Error`` (the
+path of the node in the data and a message) for every item it exports as a
+root because its parent is out of the data: an item of another Site, or of a
+Site in the global menu. What it returns does not change. ``validate_tree``
+takes a ``Site`` not saved yet, so a menu with a ``global_parent`` can be
+checked before its Site is created; ``import_tree`` still needs it saved.
+See ``docs/source/menus.rst`` ("Exporting and Importing a Menu").
+
 Backwards incompatible
 """"""""""""""""""""""""
 
@@ -420,6 +429,14 @@ apart.
 list without ``Meta.ordering`` orders by ``pk``: a condition flipped the
 order. It now leaves the queryset unordered and the view gives it its usual
 order (``pk`` in ``CRUDView``, ``-pk`` in the designs).
+
+**A page of a Site is served for its Site.** ``engine.resolve_page(page)``
+resolved every page without a Site, while ``publishing.publish`` validates
+the document for the Site it publishes in: a page that named something only
+that Site has -- a ``flow:`` row link or a ``flow_kanban`` of a flow
+published there -- was published and then answered 404. It now resolves the
+page for ``page.site`` (a global page, as before, without one), and the Site
+is part of its cache key.
 
 0.7.1 (2026-11-15)
 --------------------
