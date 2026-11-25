@@ -10,7 +10,9 @@
  * Facets (GTFacets, djgentelella.datasources) share a GTDataSourceState with
  * the table they filter (`target`): a change of facet reloads the table with
  * the facets as filters (`gtfilters`), and the table's search box goes
- * into the facets' counts.
+ * into the facets' counts. A chart bound to the same panel (its `facets`
+ * prop: `data-gtfacets-target`) is drawn again with the same filters; the
+ * table's search box does not reach it.
  *
  * Preview pages (the editor) have no endpoints: their charts draw the sample
  * data they carry.
@@ -122,7 +124,7 @@
     var tables = {};
 
     function table(id) {
-        if (!(id in tables)) { tables[id] = {crud: null, states: []}; }
+        if (!(id in tables)) { tables[id] = {crud: null, states: [], charts: []}; }
         return tables[id];
     }
 
@@ -132,7 +134,42 @@
         entry.states.push(state);
         state.subscribe(function () {
             if (entry.crud && entry.crud.datatable) { entry.crud.datatable.ajax.reload(); }
+            entry.charts.forEach(function (chart) { reloadChart(chart, facetFilters(id)); });
         });
+    }
+
+    /* Draw a chart again with `filters`; only the answer to the last request
+       is drawn, whatever order they come back in. */
+    function reloadChart(element, filters) {
+        var graph = element.querySelector('.gentelella_graph');
+        var canvas = graph && graph.querySelector('canvas');
+        if (!canvas || typeof Chart === 'undefined') { return; }
+        var params = {};
+        if (filters.length) { params.gtfilters = JSON.stringify(filters); }
+        var seq = (element.gtchartSeq || 0) + 1;
+        element.gtchartSeq = seq;
+        element.setAttribute('data-gtloading', 'true');
+        $.ajax({url: graph.getAttribute('data-url'), type: 'GET', dataType: 'json',
+                data: params})
+            .done(function (result) {
+                if (seq !== element.gtchartSeq) { return; }
+                var chart = Chart.getChart(canvas);
+                if (chart && result.data) {
+                    chart.data.labels = result.data.labels;
+                    chart.data.datasets = result.data.datasets;
+                    chart.update();
+                } else if (!chart) {
+                    $(graph).data('chartInstance', new Chart(canvas, result));
+                }
+            })
+            .always(function () {
+                if (seq === element.gtchartSeq) { element.removeAttribute('data-gtloading'); }
+            });
+    }
+
+    function initChart(element) {
+        var target = element.getAttribute('data-gtfacets-target');
+        if (target) { table(target).charts.push(element); }
     }
 
     function facetFilters(id) {
@@ -200,6 +237,7 @@
     }
 
     function init() {
+        document.querySelectorAll('.gtdesign-chart[data-gtfacets-target]').forEach(initChart);
         document.querySelectorAll('.gtdesign-facets').forEach(initFacets);
         document.querySelectorAll('.gtdesign-table[data-gtconfig]').forEach(initTable);
         document.querySelectorAll('.gtdesign-chart-sample').forEach(initSample);

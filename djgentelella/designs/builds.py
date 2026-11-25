@@ -9,7 +9,10 @@ generated code from the same data.
 
 Every build carries the hash of the document it comes from (``page_hash``):
 with the node id it is the key the factories cache their classes by, so a
-page published again with a different document gets new classes.
+page published again with a different document gets new classes. That is
+all it is: nothing checks it against a document, and a build written as code
+may set any stable string (djgentelella-editor sets ``'<app>.<slug>'``), as
+long as two different builds of one node id never share it in a process.
 """
 
 from dataclasses import dataclass, field
@@ -57,7 +60,8 @@ CRUD_PERMISSIONS = {'list': 'view', 'detail': 'view', 'create': 'add',
 class DataBuild(NodeBuild):
     """What every component with data has."""
 
-    #: sha256 of the document (``Page.hash``); with ``id``, the cache key.
+    #: sha256 of the document (``Page.hash``); with ``id``, the factories'
+    #: cache key -- only that (any stable string will do, see above).
     page_hash: str = ''
     #: Resolved for the editor's preview: no rows, sample data.
     preview: bool = False
@@ -181,6 +185,15 @@ class ChartBuild(DataBuild):
     value_field: str = None
     limit: int = 10
     perms: list = field(default_factory=list)
+    #: The id of a ``facets`` panel of the page the chart follows, as the
+    #: table it filters does; ``''``: the chart shows every row.
+    facets: str = ''
+    #: The node the panel filters: the chart joins its group of facets
+    #: (``gtdesign:<facets_target>``) in the browser.
+    facets_target: str = ''
+    #: The columns of the panel: the only ones a filter of the chart's
+    #: endpoint (``gtfilters``) may name.
+    facet_columns: list = field(default_factory=list)
 
     @property
     def circular(self):

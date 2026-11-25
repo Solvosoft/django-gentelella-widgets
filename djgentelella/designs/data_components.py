@@ -88,7 +88,13 @@ def plural(model):
 
 
 def page_hash(rctx):
-    """The hash of the document being resolved, the factories' cache key."""
+    """The hash of the document being resolved: only the key the factories
+    cache their classes by (with the node id), never an identity to check.
+
+    A build written as code (djgentelella-editor) may set any stable string
+    -- ``'<app>.<slug>'`` --: two builds of the same node with different
+    content must just not share it within one process.
+    """
     if '_gtdesign_hash' not in rctx.__dict__:
         rctx._gtdesign_hash = format.document_hash(rctx.design)
     return rctx._gtdesign_hash
@@ -259,13 +265,13 @@ def flows_installed():
 def find_flow(rctx, name):
     """The flow of djgentelella.flows called ``name`` for the design's site,
     or ``None``. A name without a dot is one of the design's ``app``, the way
-    djgentelella-editor names the flows it designs (``<app>.<slug>``)."""
-    # Optional app: only importable when it is installed (checked first).
-    from djgentelella.flows.base import get_flow  # noqa: PLC0415
-    flow = get_flow(name, site=rctx.site)
-    if flow is None and '.' not in name and rctx.design.get('app'):
-        flow = get_flow('%s.%s' % (rctx.design['app'], name), site=rctx.site)
-    return flow
+    djgentelella-editor names the flows it designs (``<app>.<slug>``).
+
+    The context's hook answers
+    (:meth:`~djgentelella.designs.components.ResolveContext.flow`): a
+    subclass of the context changes it.
+    """
+    return rctx.flow(name)
 
 
 def resolve_flow_link(rctx, where, model, name):
@@ -864,6 +870,9 @@ class ChartComponent(RuntimeComponent):
                       'title': 'At most this many groups (default 10)'},
             'perms': {**PERMISSION_LIST, 'x-widget': 'perms',
                       'title': 'Permissions to see it (empty = the model view)'},
+            'facets': {'type': 'string', 'x-widget': 'node', 'x-filter': 'facets',
+                       'title': 'Facets panel that filters it, as it filters '
+                                'its table (empty = every row)'},
         },
     }
 
@@ -893,7 +902,59 @@ class ChartComponent(RuntimeComponent):
         if not props.get('title') and build.model is not None and kind is not None:
             build.title = '%s by %s' % (plural(build.model),
                                         str(fields[group].verbose_name))
+        if props.get('facets'):
+            self.resolve_facets(build, rctx, path + '.props.facets',
+                                props['facets'], kinds)
         return build
+
+    def resolve_facets(self, build, rctx, where, facets_id, kinds):
+        """Bind the chart to the ``facets`` panel ``facets_id``: the panel
+        must filter the chart's rows -- a table over the chart's model, or
+        a node whose data source (``facets_source``) is the chart's -- and
+        its columns must be columns of the chart."""
+        panel = find_node(rctx.design, facets_id)
+        if panel is None or panel.get('type') != 'facets':
+            rctx.error(where, _('%r is not the id of a facets panel of this page')
+                       % (facets_id,))
+            return
+        panel_props = panel.get('props') or {}
+        target = find_node(rctx.design, panel_props.get('target') or '')
+        if target is None:
+            return  # the panel reports its own target
+        target_type = target.get('type')
+        if build.datasource:
+            component = rctx.component(target_type)
+            name = None
+            if target_type not in TABLE_TYPES and component is not None \
+                    and getattr(component, 'facets_target', False):
+                name = component.facets_source(target, rctx, where)
+            if name != build.datasource:
+                rctx.error(where, _('facets panel %(panel)r does not filter data '
+                                    'source %(source)r, the one of the chart') % {
+                    'panel': facets_id, 'source': build.datasource})
+                return
+        elif target_type == 'inline_object_management':
+            rctx.error(where, _('facets panel %r filters the rows of one parent '
+                                '(an inline table): a chart cannot follow it')
+                       % (facets_id,))
+            return
+        else:
+            found = rctx.exposure((target.get('props') or {}).get('model'))
+            if target_type not in TABLE_TYPES or found is None \
+                    or found.model is not build.model:
+                rctx.error(where, _('facets panel %(panel)r does not filter rows '
+                                    'of %(model)s, the model of the chart') % {
+                    'panel': facets_id,
+                    'model': build.model._meta.label if build.model else '-'})
+                return
+        columns = list(panel_props.get('columns') or [])
+        for name in columns:
+            if kinds is not None and name not in kinds:
+                rctx.error(where, _('facet %r is not a column the chart can '
+                                    'filter') % (name,))
+        build.facets = facets_id
+        build.facets_target = target['id']
+        build.facet_columns = columns
 
     def render(self, build, rctx, children):
         if not build.group_by:
@@ -910,6 +971,8 @@ class ChartComponent(RuntimeComponent):
             return no_permission(build)
         else:
             context['url'] = endpoint_url(rctx, build)
+            # The chart follows the facets of its panel (data_components.js).
+            context['facets_target'] = build.facets_target if build.facets else ''
         return render_to_string('gtdesigns/components/chart.html', context)
 
     def media(self, build, rctx):

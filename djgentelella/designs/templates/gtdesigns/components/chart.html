@@ -1,4 +1,4 @@
-<div class="x_panel gtdesign-chart" data-gtdesign="{{ b.id }}">
+<div class="x_panel gtdesign-chart" data-gtdesign="{{ b.id }}"{% if facets_target %} data-gtfacets-target="{{ facets_target }}"{% endif %}>
   <div class="x_title">
     <h2>{{ b.title }}</h2>
     <div class="clearfix"></div>
