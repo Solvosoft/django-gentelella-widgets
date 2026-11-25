@@ -1,6 +1,10 @@
+import re
+
+from django.conf import settings as django_settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.db.models import Q
+from django.utils.safestring import mark_safe
 
 from djgentelella.models import GentelellaSettings, settings_cache_key
 from djgentelella.sites import site_pk
@@ -50,6 +54,58 @@ def get_settings(key, site=None, none_asdefault=False):
         else:
             value = ''
     return value
+
+
+#: The settings whose value is HTML: ``{% get_settings %}`` prints them as
+#: they are. ``settings.GT_HTML_SETTINGS`` replaces this list.
+DEFAULT_HTML_SETTINGS = ('site_logo',)
+
+# An ``&`` that does not start a character reference (``&lt;``, ``&#60;``,
+# ``&#x3c;``).
+_BARE_AMPERSAND = re.compile(
+    r'&(?!(?:[A-Za-z][A-Za-z0-9]{1,31}|#[0-9]{1,7}|#[xX][0-9A-Fa-f]{1,6});)')
+
+
+def html_settings():
+    """The keys whose value ``{% get_settings %}`` prints as HTML."""
+    return frozenset(getattr(django_settings, 'GT_HTML_SETTINGS',
+                             DEFAULT_HTML_SETTINGS))
+
+
+def setting_allows_html(key):
+    """Whether the value of the setting ``key`` is HTML (see
+    :func:`html_settings`)."""
+    return key in html_settings()
+
+
+def escape_setting(value):
+    """``value`` as text for HTML: ``<``, ``>``, quotes and every ``&`` that
+    does not start a character reference are escaped.
+
+    A character reference is kept as it is, so a value stored already escaped
+    (``Sales &lt;North&gt;``, what djodo and older code saved because the
+    values used to be printed unescaped) shows the same text, not
+    ``&amp;lt;``. A reference can only ever be text: it cannot open a tag or
+    close an attribute.
+    """
+    value = _BARE_AMPERSAND.sub('&amp;', str(value))
+    return (value.replace('<', '&lt;').replace('>', '&gt;')
+            .replace('"', '&quot;').replace("'", '&#x27;'))
+
+
+def get_settings_display(key, site=None, default=''):
+    """The value of the setting ``key`` ready to print in a template (safe):
+    as it is for the keys of :func:`html_settings`, escaped
+    (:func:`escape_setting`) for any other. ``default`` when there is none.
+
+    What ``{% get_settings %}`` prints.
+    """
+    value = get_settings(key, site=site)
+    if not value:
+        return default
+    if setting_allows_html(key):
+        return mark_safe(value)
+    return mark_safe(escape_setting(value))
 
 
 def set_settings(key, value, site=None):

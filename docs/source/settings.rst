@@ -56,6 +56,14 @@ Optional  You can define a default import of some JS an CSS, see section "Using 
 
 
 
+Optional, the menu widgets the project declares besides the registered ones
+(see :doc:`menus`, "Custom Widgets"); a widget item that names any other class
+is not drawn:
+
+.. code:: python
+
+    GT_MENU_WIDGETS = ['myapp.widgets.ClockMenu']
+
 Settings of the optional modules
 ---------------------------------
 
@@ -96,5 +104,29 @@ You can configurate some settings on database using django admin views `/admin/d
 Each of them can also be set for one ``Site`` only, which then wins over the
 global value on that site: ``set_settings(key, value, site=site)`` or the
 *Site* field in the admin. See :doc:`sites`.
+
+Which values are HTML
+^^^^^^^^^^^^^^^^^^^^^
+
+``{% get_settings 'key' %}`` prints a value **escaped**, as text, unless its
+key is one of the HTML settings: only ``site_logo`` by default. Store plain
+text in ``site_title``, ``sidebar_title``, ``sidebar_icon`` and the rest; a
+value with markup shows the markup as text. A character reference is kept as
+it is (``Sales &lt;North&gt;`` shows ``Sales <North>``, not ``&amp;lt;``), so
+values that were stored escaped by hand while the tag printed everything
+unescaped keep showing the same text.
+
+``settings.GT_HTML_SETTINGS`` replaces the list of HTML keys:
+
+.. code:: python
+
+    GT_HTML_SETTINGS = ['site_logo', 'footer_html']
+
+An HTML setting is printed as it is: only trusted staff may edit it (the
+admin of ``GentelellaSettings``). In Python, ``djgentelella.utils``
+offers ``get_settings_display(key, site=None, default='')`` (what the tag
+prints, already safe), ``setting_allows_html(key)``, ``html_settings()`` and
+``escape_setting(value)``; ``get_settings(key, site)`` still returns the
+stored value as it is.
 
 

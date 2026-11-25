@@ -220,6 +220,20 @@ optional app ``djgentelella.search.trigram`` creates ``pg_trgm`` with a
 migration. ``datasources.query.fulltext_query(text, config)`` is the search box
 query both share. See ``docs/source/global_search.rst``.
 
+**A natural key for menu items and the menu as data** (``djgentelella.menu``).
+``MenuItem.key`` (optional slug, unique in its Site or among the global
+items; migration ``0024``) and ``MenuItem.objects.get_by_natural_key(key,
+site_domain=None)``. ``export_tree(site)`` gives the menu of a Site (or the
+global one) as a list of trees without pks: the fields, ``permissions`` as
+``app_label.codename``, ``children`` and, for a root under a global item,
+``global_parent``. ``import_tree(data, site, replace=True)`` checks it all
+first (``validate_tree``: types, keys, permissions, conditions, registered
+widgets, global parent, depth) and writes nothing when something is wrong;
+otherwise, in one transaction, an item whose key names one of the scope is
+updated in place, the others are created and, with ``replace``, the items the
+data does not name are deleted. See ``docs/source/menus.rst`` ("Exporting and
+Importing a Menu").
+
 Backwards incompatible
 """"""""""""""""""""""""
 
@@ -340,6 +354,30 @@ view, and the download name is escaped (security fix).**
 * ``preview-file/<pk>/`` pasted the stored name between quotes in
   ``Content-Disposition``. It sends the base name through Django's
   ``content_disposition_header``.
+
+**Menu widgets are registered** (``djgentelella.menu``). A ``MenuItem`` with
+``is_widget`` made the menu tags import and call whatever dotted path its
+``url_name`` held. The menu now builds only the widgets the project declares:
+djgentelella's own (``PalleteWidget``, ``NotificationMenu``), a class
+decorated with ``register_menu_widget`` (by its path, and by ``name=``), a
+class defined in the ``menu_widgets`` module of an installed app, or a path of
+the new setting ``GT_MENU_WIDGETS``. Any other widget item is left out of the
+menu with a warning in the ``djgentelella.menu`` log, and ``MenuItem.clean()``
+(the admin) refuses it. To keep a widget of your own, decorate it, move it to
+``<app>/menu_widgets.py`` or list its path in ``GT_MENU_WIDGETS``. See
+``docs/source/menus.rst`` ("Custom Widgets").
+
+**``{% get_settings %}`` escapes the values that are not HTML.** It printed
+every ``GentelellaSettings`` value through ``mark_safe``, so a title with
+markup was HTML in every page. Only the keys of ``GT_HTML_SETTINGS`` (by
+default ``site_logo``) are printed as they are; any other is escaped,
+keeping character references, so a value stored escaped by hand
+(``Sales &lt;North&gt;``) shows the same text as before. A value that held
+markup on purpose in another key shows it as text: add the key to
+``GT_HTML_SETTINGS``. ``djgentelella.utils.get_settings_display(key,
+site=None, default='')`` is what the tag prints; ``setting_allows_html``,
+``html_settings`` and ``escape_setting`` are public. See
+``docs/source/settings.rst`` ("Which values are HTML").
 
 Fixes
 """"""""

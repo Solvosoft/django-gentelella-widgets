@@ -5,24 +5,22 @@ from functools import lru_cache
 from django import template
 from django.contrib.staticfiles import finders
 from django.templatetags.static import static
-from django.utils.safestring import mark_safe
 from django.utils.translation import get_language
 
 from djgentelella import settings
 from djgentelella.sites import get_current_site
-from djgentelella.utils import get_settings as get_settings_utils
+from djgentelella.utils import get_settings_display
 
 register = template.Library()
 
 
 @register.simple_tag(takes_context=True)
 def get_settings(context, name, default='', **kwargs):
-    # The value of the request's Site wins over the global one.
+    """The value of the setting ``name``, the request's Site's over the
+    global one: escaped, unless the key is one of
+    :func:`djgentelella.utils.html_settings` (``site_logo``)."""
     site = get_current_site(context.get('request'))
-    settings = get_settings_utils(name, site=site)
-    if settings:
-        return mark_safe(settings)
-    return default
+    return get_settings_display(name, site=site, default=default)
 
 
 @register.simple_tag
