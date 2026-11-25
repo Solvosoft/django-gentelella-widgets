@@ -187,21 +187,28 @@ def reverse_with_placeholder(url_name):
 
 #: The prop that makes the version mandatory (C9): with it, saving without
 #: the version that was read is refused (428 in the API, a form error in the
-#: classic CRUD) instead of saving as before. It needs ``optimistic_lock``.
+#: classic CRUD) instead of saving as before. It turns ``optimistic_lock`` on.
 OPTIMISTIC_LOCK_REQUIRED_SCHEMA = {
     'type': 'boolean', 'default': False,
-    'title': 'Refuse to save without the version that was read (needs '
-             'optimistic locking)'}
+    'title': 'Refuse to save without the version that was read (turns '
+             'optimistic locking on)'}
 
 
-def lock_props_errors(props, path, lock_default=False):
-    """The error of ``optimistic_lock_required`` without
-    ``optimistic_lock`` (whose default is ``lock_default``)."""
+def lock_props_errors(props, path):
+    """The error of ``optimistic_lock_required`` with ``optimistic_lock``
+    turned off on purpose (``false``)."""
     if props.get('optimistic_lock_required') is True and \
-            props.get('optimistic_lock', lock_default) is not True:
+            props.get('optimistic_lock') is False:
         return [format.Error(path + '.props.optimistic_lock_required', _(
             'optimistic_lock_required needs optimistic_lock'))]
     return []
+
+
+def lock_props(props, lock_default=False):
+    """``(optimistic_lock, optimistic_lock_required)`` of valid props:
+    requiring the version turns locking on."""
+    required = bool(props.get('optimistic_lock_required', False))
+    return bool(props.get('optimistic_lock', lock_default)) or required, required
 
 
 #: A row link to a design page by its path: ``page:<path>``.
@@ -601,9 +608,7 @@ class ObjectManagementComponent(RuntimeComponent):
         build.columns = columns_of(found)
         build.column_conditions = column_conditions
         build.action_conditions = action_conditions
-        build.optimistic_lock = bool(props.get('optimistic_lock', False))
-        build.optimistic_lock_required = bool(
-            props.get('optimistic_lock_required', False))
+        build.optimistic_lock, build.optimistic_lock_required = lock_props(props)
         return build
 
     def check_props(self, node, path):
@@ -1114,9 +1119,7 @@ class CrudClassicComponent(RuntimeComponent):
         build.columns = columns_of(found)
         build.column_conditions = column_conditions
         build.action_conditions = action_conditions
-        build.optimistic_lock = bool(props.get('optimistic_lock', False))
-        build.optimistic_lock_required = bool(
-            props.get('optimistic_lock_required', False))
+        build.optimistic_lock, build.optimistic_lock_required = lock_props(props)
         return build
 
     def check_props(self, node, path):

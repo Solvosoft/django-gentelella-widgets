@@ -449,10 +449,10 @@ type                            what it is
     form with the current data. ``false`` by default. See :doc:`locking`.
 
 ``optimistic_lock_required``
-    With ``optimistic_lock``, an update that does not carry the version it
-    read is refused too (428 ``version_required``) instead of saving as
-    before. ``false`` by default; ``true`` without ``optimistic_lock`` is an
-    error of the document.
+    An update that does not carry the version it read is refused too (428
+    ``version_required``) instead of saving as before. ``false`` by default;
+    ``true`` turns ``optimistic_lock`` on, and together with
+    ``optimistic_lock: false`` is an error of the document.
 
 ``notify``
     Notifications when a row is created, updated or deleted through the table:
@@ -505,8 +505,9 @@ type                            what it is
     ``<pk>/delete/``. ``optimistic_lock`` (``false`` by default) is
     ``CRUDView.optimistic_lock``: the update page refuses to save an object
     somebody else changed after it was opened. ``optimistic_lock_required``
-    (with ``optimistic_lock``) is ``CRUDView.optimistic_lock_required``: a
-    form posted without the version is refused. See :doc:`locking`.
+    (which turns ``optimistic_lock`` on) is
+    ``CRUDView.optimistic_lock_required``: a form posted without the version
+    is refused. See :doc:`locking`.
 
 ``facets``
     ``target`` (the id of a table node of the page) and ``columns`` (fields

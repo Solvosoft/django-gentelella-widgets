@@ -68,8 +68,8 @@ from djgentelella.designs.conditions import (
 from djgentelella.designs.data_components import (
     OPTIMISTIC_LOCK_REQUIRED_SCHEMA, PERMISSION_LIST, allowed_fields, can,
     check_permissions, check_relation, columns_of, data_build, endpoint_url,
-    json_config, kind_of, label, lock_props_errors, no_permission, plural,
-    sample_rows,
+    json_config, kind_of, label, lock_props, lock_props_errors, no_permission,
+    plural, sample_rows,
 )
 from djgentelella.designs.forms import build_form, is_form_field, no_field
 from djgentelella.designs.introspection import TEXT_KINDS
@@ -345,17 +345,15 @@ class InteractiveGridComponent(RuntimeComponent):
         build.column_conditions = column_conditions
         build.edit_conditions = edit_conditions
         build.action_conditions = action_conditions
-        build.optimistic_lock = bool(props.get('optimistic_lock', True))
         # With locking a grid always requires the version of each row it
         # saves (428 without it): the prop only states it.
-        build.optimistic_lock_required = build.optimistic_lock and bool(
-            props.get('optimistic_lock_required', False))
+        build.optimistic_lock, build.optimistic_lock_required = lock_props(
+            props, lock_default=True)
         return build
 
     def check_props(self, node, path):
         errors = super().check_props(node, path)
-        return errors or lock_props_errors(node.get('props') or {}, path,
-                                           lock_default=True)
+        return errors or lock_props_errors(node.get('props') or {}, path)
 
     def resolve_model(self, props, rctx, path, build):
         """``(exposure, data source)`` of the grid: of its ``model``, or of the

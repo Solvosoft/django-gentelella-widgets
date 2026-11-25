@@ -4,7 +4,8 @@ proposed by E6; W20).
 
 With it, saving without the version that was read is refused: 428 in the
 API, a form error in the classic CRUD. It needs ``optimistic_lock`` (the
-schema check refuses it alone), and off it changes nothing.
+schema check refuses it with ``optimistic_lock: false``; otherwise it turns
+locking on), and off it changes nothing.
 """
 from django.test import override_settings
 
@@ -46,18 +47,24 @@ class LockRequiredPropTests(DataDesignTestCase):
         for make in documents:
             self.assertEqual(self.errors(make(optimistic_lock=True, **{PROP: True})),
                              [])
+            self.assertEqual(self.errors(make(**{PROP: True})), [])
             self.assertEqual(self.errors(make(**{PROP: False})), [])
             errors = self.errors(make(**{PROP: 'yes'}))
             self.assertEqual(len(errors), 1)
             self.assertIn(PROP, errors[0])
+            # Locking turned off on purpose and the version required.
             errors = self.errors(make(optimistic_lock=False, **{PROP: True}))
             self.assertEqual(len(errors), 1)
             self.assertIn('optimistic_lock_required needs optimistic_lock', errors[0])
-        # Without the prop locking is off but for the grid, where it is on.
-        self.assertEqual(len(self.errors(design(table(**{PROP: True}),
-                                                forms=product_form()))), 1)
-        self.assertEqual(len(self.errors(crud(**{PROP: True}))), 1)
-        self.assertEqual(self.errors(design(grid_node(**{PROP: True}))), [])
+
+    def test_requiring_the_version_turns_locking_on(self):
+        for document, node_id in (
+                (design(table(**{PROP: True}), forms=product_form()), 'products'),
+                (crud(**{PROP: True}), 'products'),
+                (design(grid_node(**{PROP: True})), 'grid')):
+            build = self.build(document, node_id)
+            self.assertTrue(build.optimistic_lock)
+            self.assertTrue(build.optimistic_lock_required)
 
     def test_the_inline_table_has_it(self):
         self.assertIn(PROP, InlineObjectManagementComponent.props_schema[

@@ -249,12 +249,12 @@ in that Site was an error and is now valid there. See
 
 **``optimistic_lock_required`` as a design prop (C9).** ``object_management``,
 ``inline_object_management``, ``crud_classic`` and ``interactive_grid``
-accept it (a boolean, ``false`` by default, in their ``props_schema``). With
-``optimistic_lock`` the table's viewset gets ``optimistic_lock_required =
-True`` (an update without the version is a 428) and the classic CRUD the new
-``CRUDView.optimistic_lock_required`` (a form without the version is refused
-with ``version_required``); a grid with locking already required it. ``true``
-without ``optimistic_lock`` (``false`` by default except in the grid) is an
+accept it (a boolean, ``false`` by default, in their ``props_schema``). It
+turns ``optimistic_lock`` on: the table's viewset gets
+``optimistic_lock_required = True`` (an update without the version is a 428)
+and the classic CRUD the new ``CRUDView.optimistic_lock_required`` (a form
+without the version is refused with ``version_required``); a grid with
+locking already required it. ``true`` with ``"optimistic_lock": false`` is an
 error of the document. See ``docs/source/locking.rst``.
 
 Backwards incompatible
