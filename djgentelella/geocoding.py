@@ -68,22 +68,36 @@ class NominatimGeocoder(Geocoder):
     The public instance allows one request per second and asks for a
     ``user_agent`` that identifies the application: for real traffic, run
     your own or use a paid service.
+
+    ``extra_params`` are added to the query string of every search (the
+    ``key`` of a compatible service such as LocationIQ, an ``email``,
+    ``viewbox``...), ``extra_headers`` to its headers (an API key sent as a
+    header); neither can replace ``q``, ``format`` or ``limit``.
     """
+
+    #: What a search always sends itself.
+    RESERVED_PARAMS = ('q', 'format', 'limit')
 
     def __init__(self, url='https://nominatim.openstreetmap.org/search',
                  user_agent='djgentelella', timeout=5, countrycodes=None,
-                 language=None):
+                 language=None, extra_params=None, extra_headers=None):
         self.url = url
         self.user_agent = user_agent
         self.timeout = timeout
         self.countrycodes = countrycodes
         self.language = language
+        self.extra_params = {name: value for name, value in
+                             dict(extra_params or {}).items()
+                             if name not in self.RESERVED_PARAMS}
+        self.extra_headers = dict(extra_headers or {})
 
     def search(self, query, limit=5):
-        params = {'q': query, 'format': 'jsonv2', 'limit': limit}
+        params = dict(self.extra_params)
+        params.update({'q': query, 'format': 'jsonv2', 'limit': limit})
         if self.countrycodes:
             params['countrycodes'] = self.countrycodes
-        headers = {'User-Agent': self.user_agent}
+        headers = dict(self.extra_headers)
+        headers['User-Agent'] = self.user_agent
         if self.language:
             headers['Accept-Language'] = self.language
         request = Request('%s?%s' % (self.url, urlencode(params)), headers=headers)
