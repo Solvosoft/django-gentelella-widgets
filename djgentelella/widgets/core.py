@@ -781,13 +781,31 @@ class NullBooleanSelect(RadioSelect):
 
 
 class CheckboxSelectMultiple(DJCheckboxSelectMultiple):
+    """One ``gt-check`` box per choice, in a ``<ul class="gt-check-list">``.
+
+    ``gt-check`` (and the rest of ``attrs``) goes on each ``<input>``; the
+    list only gets the other classes of ``attrs`` plus ``gt-check-list``:
+    with ``gt-check`` the list itself was drawn as one 13 px box, and the
+    choices spilled over whatever came after it.
+    """
     input_type = 'checkbox'
     template_name = 'gentelella/widgets/checkbox_select.html'
     option_template_name = 'gentelella/widgets/checkbox_option.html'
+    #: The class of the list (``<ul>``) around the boxes.
+    list_class = 'gt-check-list'
 
     def __init__(self, attrs=None, check_test=None):
         attrs = update_kwargs(attrs, js_widget_name(self), base_class='gt-check ')
         super().__init__(attrs)
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        widget_attrs = context['widget']['attrs']
+        classes = [item for item in str(widget_attrs.get('class', '')).split()
+                   if item != 'gt-check']
+        context['widget']['attrs'] = dict(
+            widget_attrs, **{'class': ' '.join([self.list_class] + classes)})
+        return context
 
 
 class SplitDateTimeWidget(DJSplitDateTimeWidget):

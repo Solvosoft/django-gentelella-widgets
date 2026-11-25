@@ -160,6 +160,32 @@ label:has(> .gt-switch:disabled) {
     opacity: .65;
 }
 
+/* -- a list of boxes (CheckboxSelectMultiple) ------------------------------ */
+
+/* One box per choice, one per line: the list itself is not a box. */
+.gt-check-list,
+.gt-check-list ul {
+    list-style: none;
+    margin: 0;
+    padding-left: 0;
+}
+
+.gt-check-list ul {
+    padding-left: 1.25rem;
+}
+
+.gt-check-list li {
+    margin: .2rem 0;
+}
+
+.gt-check-list label {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    margin: 0;
+    cursor: pointer;
+}
+
 /* Someone who asked the operating system to stop animations gets the end
  * state, immediately -- not a slower version of it. */
 @media (prefers-reduced-motion: reduce) {
