@@ -5098,3 +5098,8 @@ msgstr "una tabla en línea muestra las filas de su padre: no lleva site_field"
 #: designs/tree_timeline_metrics.py
 msgid "a card has a period only when the node has a date_field"
 msgstr "una tarjeta tiene periodo solo si el nodo tiene date_field"
+
+#: designs/pipeline.py
+#, python-format
+msgid "%(name)r is a %(kind)s, not a %(said)s"
+msgstr "%(name)r es de tipo %(kind)s, no %(said)s"
