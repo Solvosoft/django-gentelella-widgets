@@ -43,6 +43,26 @@ def is_form_field(model_field):
     return model_field.editable and widgetmap.field_type(model_field) != 'auto'
 
 
+def default_form(model, fields=None):
+    """The ``forms`` entry of a design for ``model`` by default:
+    ``{"model": "<app>.<Model>", "fields": [...]}`` with every field a
+    ModelForm would show (:func:`is_form_field`), in the model's order --
+    concrete fields, then many-to-many. Without ``widgets``: each field gets
+    its default widget (:mod:`djgentelella.forms.widgetmap`).
+
+    ``fields`` -- names, an exposure's for instance -- keeps only those.
+    It is what djgentelella-editor imports for a model, and the form an
+    ``object_management`` over the model needs.
+    """
+    opts = model._meta
+    allowed = None if fields is None else set(fields)
+    names = [model_field.name
+             for model_field in list(opts.fields) + list(opts.many_to_many)
+             if is_form_field(model_field)
+             and (allowed is None or model_field.name in allowed)]
+    return {'model': opts.label, 'fields': names}
+
+
 @dataclass
 class FormFieldBuild:
     name: str
