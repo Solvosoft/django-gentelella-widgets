@@ -637,7 +637,7 @@ def resolve_pipeline(rctx, props, path, *, event, model=None, exposure=None,
 
 
 def build_pipeline(stage, *, model=None, event=ON_SUBMIT, form_fields=None,
-                   site=None, intermediate=False):
+                   site=None, intermediate=False, context=None):
     """The :class:`PipelineBuild` of ``stage`` -- the ``on_submit`` (or
     ``before_render``) object of a document: ``{"steps": [...], "branches":
     [...]}`` -- for code that is not a design page: a
@@ -653,6 +653,11 @@ def build_pipeline(stage, *, model=None, event=ON_SUBMIT, form_fields=None,
     looked up in); any problem raises ``ImproperlyConfigured`` with every
     message. A :class:`PipelineBuild` is returned as it is, and an empty
     stage (or ``None``) gives ``None``.
+
+    The steps are looked up through ``context`` -- a
+    :class:`~djgentelella.designs.components.ResolveContext` subclass --,
+    by default the ``GT_DESIGNS_RESOLVE_CONTEXT`` class, so the
+    project's rule over which steps may be named holds here too.
     """
     if stage is None or isinstance(stage, PipelineBuild):
         return stage or None
@@ -662,9 +667,13 @@ def build_pipeline(stage, *, model=None, event=ON_SUBMIT, form_fields=None,
                                              for error in errors))
     # The components module imports this one.
     from djgentelella.designs.components import (  # noqa: PLC0415 (circular)
-        ResolveContext,
+        ResolveContext, default_context_class,
     )
-    rctx = ResolveContext({}, site=site)
+    context = context or default_context_class()
+    if not isinstance(context, type) or not issubclass(context, ResolveContext):
+        raise TypeError('context must be a ResolveContext subclass, not %r'
+                        % (context,))
+    rctx = context({}, None, False, site=site)
     found = resolve_pipeline(rctx, {'pipeline': {event: stage}}, '$', event=event,
                              model=model, form_fields=form_fields,
                              intermediate=intermediate)

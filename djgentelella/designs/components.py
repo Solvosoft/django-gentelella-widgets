@@ -15,17 +15,19 @@ import copy
 from dataclasses import dataclass, field
 
 from django.apps import apps
+from django.core.exceptions import ImproperlyConfigured
 from django.contrib.auth.models import Permission
 from django.db.models import Q
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
-from djgentelella.designs import exposure, pipeline
+from djgentelella.designs import conf, exposure, pipeline
 from djgentelella.designs.forms import build_form, registered_lookups
 from djgentelella.designs.jsonschema import Error, validate
 from djgentelella.sites import get_current_site
 
-__all__ = ['Endpoint', 'Error', 'NodeBuild', 'ResolveContext', 'RuntimeComponent']
+__all__ = ['Endpoint', 'Error', 'NodeBuild', 'ResolveContext', 'RuntimeComponent',
+           'default_context_class']
 
 
 @dataclass
@@ -94,6 +96,13 @@ class RuntimeComponent:
     #: Whether a ``facets`` panel may name a node of this type as its
     #: ``target``; it then asks :meth:`facets_source` what it filters.
     facets_target = False
+    #: With :attr:`facets_target`: whether the panel may also filter a node
+    #: of this type over an exposed ``model`` (no ``datasource``). The panel
+    #: then counts through its own endpoint
+    #: (:func:`~djgentelella.designs.factories.facets_viewset_for`), over the
+    #: rows of the node's build -- its ``site_field`` included --, and the
+    #: node follows the panel's state (``gtdesign:<node id>``) like a table.
+    facets_model = False
 
     def facets_source(self, node, rctx, path):
         """The name of the DataSource (:mod:`djgentelella.datasources`) a
@@ -365,3 +374,18 @@ class ResolveContext:
             self.error(path, _('no permission for data source %r') % (name,))
             return None
         return source
+
+
+def default_context_class():
+    """The :class:`ResolveContext` class a design is resolved with when the
+    caller gives none: ``GT_DESIGNS_RESOLVE_CONTEXT``
+    (:func:`djgentelella.designs.conf.resolve_context_class`), or
+    :class:`ResolveContext` itself. ``ImproperlyConfigured`` when the
+    setting is not a subclass of it."""
+    context = conf.resolve_context_class()
+    if context is None:
+        return ResolveContext
+    if not isinstance(context, type) or not issubclass(context, ResolveContext):
+        raise ImproperlyConfigured('GT_DESIGNS_RESOLVE_CONTEXT must be a '
+                                   'ResolveContext subclass, not %r' % (context,))
+    return context

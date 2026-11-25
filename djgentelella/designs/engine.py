@@ -34,7 +34,7 @@ from rest_framework.routers import SimpleRouter
 
 from djgentelella.authorization import evaluate_condition, validate_condition
 from djgentelella.designs import conf, exposure, format, pipeline, registry
-from djgentelella.designs.components import ResolveContext
+from djgentelella.designs.components import ResolveContext, default_context_class
 from djgentelella.designs.css import clean_css
 from djgentelella.designs.jsonschema import Error
 
@@ -348,13 +348,16 @@ def make_context(document, request=None, preview=False, *, context=None,
                  allow_templates=False, site=None):
     """The :class:`ResolveContext` a design is resolved or rendered with.
 
-    ``context`` is ``None`` (a plain :class:`ResolveContext`), a subclass of
-    it (instantiated here) or an instance, which is used as it is with
-    ``document`` as its ``design``. ``site``, when given, is the Site of a
-    context built here instead of the request's (an instance keeps its own).
+    ``context`` is ``None`` (the class of ``GT_DESIGNS_RESOLVE_CONTEXT``,
+    by default a plain :class:`ResolveContext`: see
+    :func:`~djgentelella.designs.components.default_context_class`), a
+    subclass of it (instantiated here) or an instance, which is used as it is
+    with ``document`` as its ``design``. ``site``, when given, is the Site of
+    a context built here instead of the request's (an instance keeps its
+    own).
     """
     if context is None:
-        context = ResolveContext
+        context = default_context_class()
     if isinstance(context, type):
         if not issubclass(context, ResolveContext):
             raise TypeError('context must be a ResolveContext or a subclass, not %r'
@@ -518,12 +521,17 @@ def resolve_page(page):
     exists there -- a flow published in that Site -- is found. A global page
     is resolved without a Site, so it may only name global things. The Site
     is part of the key: the same document in two Sites is resolved twice.
+
+    It is resolved with the ``GT_DESIGNS_RESOLVE_CONTEXT`` class (part of the
+    key too), so the rules a project publishes with also hold when the page
+    is served: a page saved some other way -- by hand, before the setting --
+    that breaks them does not resolve.
     """
     registry.get_components()  # loading the registry changes its generation
     allow_templates, allow_js = cached_page_trust(page)
     key = (page.hash, page.site_id, allow_templates, allow_js,
            registry.generation(), exposure.generation(), get_language(),
-           pipeline.generation())
+           pipeline.generation(), default_context_class())
     with _cache_lock:
         if key in _cache:
             _cache.move_to_end(key)

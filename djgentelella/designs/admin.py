@@ -17,12 +17,21 @@ class PageAddForm(forms.ModelForm):
         model = Page
         fields = ['site', 'path', 'document', 'is_published', 'permissions']
 
-    def clean_document(self):
-        document = self.cleaned_data['document']
-        errors = validate(document)
-        if errors:
-            raise forms.ValidationError([str(error) for error in errors])
-        return document
+    #: Who publishes it (the admin sets it): the trust the document is
+    #: validated with, as ``gtdesigns_publish --user`` does.
+    publisher = None
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if 'document' in cleaned_data:
+            # Validated as publish() does: for the page's Site, with the
+            # publisher's trust and the project's ResolveContext
+            # (GT_DESIGNS_RESOLVE_CONTEXT).
+            errors = validate(cleaned_data['document'], self.publisher,
+                              site=cleaned_data.get('site'))
+            if errors:
+                self.add_error('document', [str(error) for error in errors])
+        return cleaned_data
 
 
 @admin.register(Page)
@@ -47,7 +56,10 @@ class PageAdmin(admin.ModelAdmin):
     def get_form(self, request, obj=None, **kwargs):
         if obj is None:
             kwargs['form'] = PageAddForm
-        return super().get_form(request, obj, **kwargs)
+        form = super().get_form(request, obj, **kwargs)
+        if obj is None:
+            form = type(form.__name__, (form,), {'publisher': request.user})
+        return form
 
     def get_fields(self, request, obj=None):
         if obj is None:
@@ -76,7 +88,8 @@ class PageAdmin(admin.ModelAdmin):
         allow_templates, allow_js = engine.page_trust(page)
         _resolved, errors = engine.resolve(page.document,
                                            allow_templates=allow_templates,
-                                           allow_js=allow_js)
+                                           allow_js=allow_js,
+                                           site=page.site if page.site_id else None)
         if errors:
             for error in errors:
                 messages.error(request, str(error))

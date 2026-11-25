@@ -26,6 +26,16 @@
     is added to the context of every design page served: the theme and the
     breadcrumbs of whatever mounts the pages (an application, a site), or a
     ``base_template`` of its own.
+``GT_DESIGNS_RESOLVE_CONTEXT`` (``None``)
+    A :class:`~djgentelella.designs.components.ResolveContext` subclass, or
+    its dotted path, that every design is resolved with when the caller does
+    not give a ``context`` of its own: publishing (``gtdesigns_publish``,
+    the admin, :func:`~djgentelella.designs.publishing.publish` and
+    ``import_page``), serving a page (``resolve_page``),
+    :func:`~djgentelella.designs.pipeline.build_pipeline` and
+    ``region_page_context``. The project's rules -- which pipeline steps a
+    page of a Site may name, which models it may use -- then hold wherever a
+    page is published. ``None``: ``ResolveContext`` itself.
 """
 
 from django.conf import settings
@@ -66,3 +76,14 @@ def page_context_hook():
     if isinstance(hook, str):
         hook = import_string(hook)
     return hook
+
+
+def resolve_context_class():
+    """The ``GT_DESIGNS_RESOLVE_CONTEXT`` class (imported when it is a dotted
+    path), or ``None`` when the project does not set one. Whether it is a
+    ``ResolveContext`` subclass is checked by whoever uses it
+    (:func:`djgentelella.designs.engine.make_context`)."""
+    context = getattr(settings, 'GT_DESIGNS_RESOLVE_CONTEXT', None)
+    if isinstance(context, str):
+        context = import_string(context)
+    return context or None

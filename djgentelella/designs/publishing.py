@@ -21,17 +21,23 @@ def default_path(document):
     return normalize_path(document['meta']['url'])
 
 
-def validate(document, user=None, site=None):
+def validate(document, user=None, site=None, *, context=None):
     """The :class:`~djgentelella.designs.jsonschema.Error` list of a document,
     resolved with the trust ``user`` would give it as its publisher, for
     ``site`` (a Site, its id or ``None``): a flow or anything else that only
-    exists in that Site is found."""
+    exists in that Site is found.
+
+    ``context`` is the :class:`~djgentelella.designs.components.ResolveContext`
+    subclass it is resolved with; by default ``GT_DESIGNS_RESOLVE_CONTEXT``
+    (:func:`~djgentelella.designs.components.default_context_class`), the
+    project's rules wherever a page is published."""
     trusted_templates = trusted_js = False
     if user is not None:
         page = Page(document=document, updated_by=user)
         trusted_templates, trusted_js = engine.page_trust(page)
     _resolved, errors = engine.resolve(document, allow_templates=trusted_templates,
-                                       allow_js=trusted_js, site=resolve_site(site))
+                                       allow_js=trusted_js, site=resolve_site(site),
+                                       context=context)
     return errors
 
 
@@ -47,19 +53,20 @@ def permission_objects(perms):
     return list(_permissions_query(perms))
 
 
-def publish(document, *, site=None, path=None, user=None, published=True):
+def publish(document, *, site=None, path=None, user=None, published=True,
+            context=None):
     """``(page, [])`` after saving the page, ``(None, errors)`` without saving.
 
     The page at ``(site, path)`` is replaced when it exists. Its permissions
     become the ``meta.permissions`` of the document. The document is validated
     for ``site``, so it may name what only exists there (a flow published in
-    that Site).
+    that Site), with ``context`` (see :func:`validate`).
     """
     try:
         document = format.upgrade(document)
     except format.UpgradeError as error:
         return None, [format.Error('$.schema_version', str(error))]
-    errors = validate(document, user, site=site)
+    errors = validate(document, user, site=site, context=context)
     if errors:
         return None, errors
     path = normalize_path(path) if path else default_path(document)
@@ -130,7 +137,7 @@ def validate_page_data(data):
     return errors
 
 
-def import_page(data, *, site=None, user=None):
+def import_page(data, *, site=None, user=None, context=None):
     """Publish the page ``data`` (the format of :func:`export_page`) in
     ``site`` with :func:`publish`, ``user`` as its publisher (whose trust the
     document gets): ``(page, [])`` once saved, ``(None, errors)`` -- nothing
@@ -138,7 +145,8 @@ def import_page(data, *, site=None, user=None):
 
     The page at ``(site, path)`` is replaced when it exists. Its title is the
     data's; its permissions are the data's ``permissions`` when it has them,
-    else the document's ``meta.permissions``.
+    else the document's ``meta.permissions``. ``context`` as in
+    :func:`validate`.
     """
     errors = validate_page_data(data)
     if errors:
@@ -146,7 +154,8 @@ def import_page(data, *, site=None, user=None):
     with transaction.atomic():
         page, errors = publish(copy.deepcopy(data['document']), site=site,
                                path=data['path'], user=user,
-                               published=data.get('is_published', True))
+                               published=data.get('is_published', True),
+                               context=context)
         if errors:
             return None, errors
         if 'permissions' in data:
