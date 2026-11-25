@@ -310,3 +310,16 @@ GT_SEARCH_NAVBAR = True
 # GeocodedAddressInput (/formwidgets/): djgentelella has no geocoder by default.
 # The demo's answers from a short offline list, so nothing goes to the network.
 GT_GEOCODER = 'demoapp.geocoding.DemoGeocoder'
+
+# djgentelella.pwa (docs/source/pwa.rst): the manifest of each Site, and web
+# push of the notifications at /pwa/push/. The service worker is opt-in
+# (DEMO_PWA_SERVICE_WORKER=1): it caches the static files, which gets in the
+# way while editing them. Push needs the [push] extra and a VAPID key pair
+# (`manage.py gt_vapid_keys`) in the environment, never in the repository;
+# DEMO_PUSH_LOCMEM=1 keeps the pushes in memory instead.
+GT_PWA_MANIFEST = True
+GT_PWA_SERVICE_WORKER = os.getenv('DEMO_PWA_SERVICE_WORKER', '') == '1'
+GT_PUSH_VAPID_PRIVATE_KEY = os.getenv('GT_PUSH_VAPID_PRIVATE_KEY', '')
+GT_PUSH_VAPID_PUBLIC_KEY = os.getenv('GT_PUSH_VAPID_PUBLIC_KEY', '')
+if os.getenv('DEMO_PUSH_LOCMEM', '') == '1':
+    GT_PUSH_BACKEND = 'djgentelella.pwa.backends.LocmemPushBackend'
