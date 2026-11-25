@@ -4,8 +4,9 @@ Moved from djgentelella-editor (``gteditor.jsonschema``), which imports it from
 here. Written instead of depending on ``jsonschema`` to keep the engine free of
 runtime dependencies. Supported keywords: ``type`` (one or a list),
 ``properties``, ``required``, ``additionalProperties`` (boolean or schema),
-``items``, ``enum``, ``const``, ``pattern``, ``minLength``, ``minimum``,
-``maximum``, ``minItems``, ``$ref`` (``#/$defs/<name>`` only) and ``$defs``.
+``items``, ``enum``, ``const``, ``pattern``, ``minLength``, ``maxLength``,
+``minimum``, ``maximum``, ``exclusiveMinimum``, ``minItems``, ``maxItems``,
+``$ref`` (``#/$defs/<name>`` only) and ``$defs``.
 Anything else in a schema is ignored, so a schema written for a full validator
 -- the ``x-widget`` hints of the editor included -- still loads here.
 
@@ -71,6 +72,8 @@ def validate(value, schema, path='$', root=None):
     if isinstance(value, str):
         if 'minLength' in schema and len(value) < schema['minLength']:
             errors.append(Error(path, _('shorter than %d') % schema['minLength']))
+        if 'maxLength' in schema and len(value) > schema['maxLength']:
+            errors.append(Error(path, _('longer than %d') % schema['maxLength']))
         if 'pattern' in schema and not re.search(schema['pattern'], value):
             errors.append(Error(path, _('%(value)r does not match %(pattern)s') % {
                 'value': value, 'pattern': schema['pattern']}))
@@ -80,10 +83,15 @@ def validate(value, schema, path='$', root=None):
             errors.append(Error(path, _('less than %s') % schema['minimum']))
         if 'maximum' in schema and value > schema['maximum']:
             errors.append(Error(path, _('greater than %s') % schema['maximum']))
+        if 'exclusiveMinimum' in schema and value <= schema['exclusiveMinimum']:
+            errors.append(Error(path, _('not greater than %s')
+                                % schema['exclusiveMinimum']))
 
     if isinstance(value, list):
         if 'minItems' in schema and len(value) < schema['minItems']:
             errors.append(Error(path, _('fewer than %d items') % schema['minItems']))
+        if 'maxItems' in schema and len(value) > schema['maxItems']:
+            errors.append(Error(path, _('more than %d items') % schema['maxItems']))
         if 'items' in schema:
             for index, item in enumerate(value):
                 errors += validate(item, schema['items'],

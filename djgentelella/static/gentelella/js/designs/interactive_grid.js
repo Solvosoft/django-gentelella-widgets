@@ -115,6 +115,8 @@
         this.count = 0;
         this.search = '';
         this.busy = false;
+        this.loadSeq = 0;
+        this.state = this.facetState();
         this.drawHead();
         this.bind();
         this.load();
@@ -227,16 +229,40 @@
 
         // -- reading -----------------------------------------------------------------
 
+        /* A read-only grid over a data source follows the facets panel that
+           filters it: the panel writes its filters into this state. */
+        facetState: function () {
+            var grid = this;
+            if (!this.config.datasource_url || typeof gt_datasource_state !== 'function') { return null; }
+            var state = gt_datasource_state(this.config.datasource_url, this.config.group);
+            state.subscribe(function () {
+                grid.offset = 0;
+                grid.load();
+            });
+            return state;
+        },
+
+        facetFilters: function () {
+            var state = this.state;
+            if (!state) { return []; }
+            return Object.keys(state.facetFilters).map(function (name) { return state.facetFilters[name]; });
+        },
+
         load: function () {
             var grid = this;
             var params = new URLSearchParams({limit: this.config.page_size, offset: this.offset});
             if (this.search) { params.set('search', this.search); }
+            var filters = this.facetFilters();
+            if (filters.length) { params.set('gtfilters', JSON.stringify(filters)); }
+            // Only the answer to the last request is drawn.
+            var seq = ++this.loadSeq;
             return fetch(this.url('?' + params.toString()), {headers: this.headers(false)})
                 .then(function (response) {
                     if (!response.ok) { throw new Error(response.statusText); }
                     return response.json();
                 })
                 .then(function (data) {
+                    if (seq !== grid.loadSeq) { return; }
                     grid.rows = data.data.map(function (item) { return new Row(item, false); });
                     grid.count = data.count;
                     grid.tbody.innerHTML = '';
