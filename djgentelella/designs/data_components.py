@@ -64,7 +64,8 @@ from djgentelella.permission_management import all_permission
 __all__ = ['ChartComponent', 'CrudClassicComponent', 'DATA_COMPONENTS',
            'FLOW_PREFIX', 'FacetsComponent', 'InlineObjectManagementComponent',
            'ObjectManagementComponent', 'PAGE_PREFIX', 'PK_PLACEHOLDERS',
-           'StatComponent', 'parse_flow_link', 'resolve_row_link']
+           'StatComponent', 'parse_flow_link', 'resolve_row_link',
+           'FACETS_TEMPLATE', 'facets_page_context']
 
 SCRIPT = 'gentelella/js/designs/data_components.js'
 PERMISSION = {'type': 'string', 'pattern': r'^[a-z_][a-z0-9_]*\.[a-z_][a-z0-9_]*$'}
@@ -859,11 +860,10 @@ class InlineObjectManagementComponent(ObjectManagementComponent):
 
 def source_columns(source, rctx, path):
     """``{name: Column}`` of a data source, or None when they cannot be read
-    without a request (they are checked when serving then)."""
-    try:
-        return source.column_map(rctx.request)
-    except Exception:  # noqa: BLE001 -- a function source may need a request
-        return None
+    without a request (they are checked when serving then): for the request,
+    or without one for the Site of ``rctx``
+    (:meth:`~djgentelella.designs.components.ResolveContext.source_columns`)."""
+    return rctx.source_columns(source)
 
 
 def view_perms(rctx, props, path, default):
@@ -1343,6 +1343,52 @@ def find_node(document, node_id):
     return None
 
 
+FACETS_TEMPLATE = 'gtdesigns/components/facets.html'
+
+
+def source_facets_context(build, request, user, datasource_url=None):
+    """The context of :data:`FACETS_TEMPLATE` for a panel over a data source,
+    or ``None`` when ``user``/``request`` may not see it."""
+    if build.perms and (user is None or not all_permission(user, list(build.perms))):
+        return None
+    try:
+        source = get_datasource(build.datasource)
+        url = datasource_url or reverse('gtdatasource',
+                                        kwargs={'name': build.datasource})
+    except (KeyError, LookupError, NoReverseMatch):
+        source = url = None
+    if source is None or request is None or not source.has_permission(request):
+        return None
+    return {'b': build, 'preview': False, 'template': FACETS_TEMPLATE, 'url': url,
+            'group': 'gtdesign:%s' % build.target, 'columns': ','.join(build.columns)}
+
+
+def facets_page_context(build, request, datasource_url=None):
+    """What :data:`FACETS_TEMPLATE` needs to draw the facets panel ``build``
+    -- one over a data source: its target is a component over a
+    ``datasource`` (a region, a chart, a list in list mode) -- for
+    ``request``: ``{'b', 'preview', 'template', 'url', 'group', 'columns'}``.
+
+    ``datasource_url`` is the URL of the data source API the panel counts
+    with (by default ``reverse('gtdatasource', name=build.datasource)``);
+    ``group`` is ``gtdesign:<target>``, the state the target (and every
+    node ``filtered_by`` the panel) follows.
+
+    No published :class:`~djgentelella.designs.models.Page` is needed: code
+    generated from a design (djgentelella-editor) calls it with its own
+    build. ``None`` when ``request`` may not see it: without
+    ``build.perms`` or the data source's ``has_permission``. A panel over a
+    table of a model (no ``build.datasource``) is served by an endpoint of
+    its page: ``ValueError``.
+    """
+    if not build.datasource:
+        raise ValueError('facets panel %r is not over a data source' % (build.id,))
+    if request is None:
+        return None
+    return source_facets_context(build, request, getattr(request, 'user', None),
+                                 datasource_url)
+
+
 class FacetsComponent(RuntimeComponent):
     """A facets panel (djgentelella.datasources' ``GTFacets``) bound to a
     table of the page by ``target``, its node id.
@@ -1463,7 +1509,7 @@ class FacetsComponent(RuntimeComponent):
             context['facets'] = [
                 (label(build.model._meta.get_field(name).verbose_name),
                  ['%s 1' % _('Value'), '%s 2' % _('Value')]) for name in build.columns]
-            return render_to_string('gtdesigns/components/facets.html', context)
+            return render_to_string(FACETS_TEMPLATE, context)
         if not can(rctx, build.perms):
             return no_permission(build)
         # A facet of a column its table hides (column_conditions) would
@@ -1484,27 +1530,18 @@ class FacetsComponent(RuntimeComponent):
             return no_permission(build)
         context.update(url=url, group='gtdesign:%s' % build.target,
                        columns=','.join(context['b'].columns))
-        return render_to_string('gtdesigns/components/facets.html', context)
+        return render_to_string(FACETS_TEMPLATE, context)
 
     def render_source(self, build, rctx):
         context = {'b': build, 'preview': rctx.preview}
         if rctx.preview:
             context['facets'] = [(name, ['%s 1' % _('Value'), '%s 2' % _('Value')])
                                  for name in build.columns]
-            return render_to_string('gtdesigns/components/facets.html', context)
-        if build.perms and not can(rctx, build.perms):
+            return render_to_string(FACETS_TEMPLATE, context)
+        context = source_facets_context(build, rctx.request, rctx.user)
+        if context is None:
             return no_permission(build)
-        try:
-            source = get_datasource(build.datasource)
-            url = reverse('gtdatasource', kwargs={'name': build.datasource})
-        except (KeyError, LookupError, NoReverseMatch):
-            source = url = None
-        if source is None or rctx.request is None or \
-                not source.has_permission(rctx.request):
-            return no_permission(build)
-        context.update(url=url, group='gtdesign:%s' % build.target,
-                       columns=','.join(build.columns))
-        return render_to_string('gtdesigns/components/facets.html', context)
+        return render_to_string(FACETS_TEMPLATE, context)
 
     def media(self, build, rctx):
         return {'js': [SCRIPT]}

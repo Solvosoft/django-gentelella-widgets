@@ -40,8 +40,8 @@ from djgentelella.datasources.base import (
 from djgentelella.designs.conditions import check_conditions, hidden_columns
 from djgentelella.permission_management import all_permission
 
-__all__ = ['NOT_SHOWN', 'SourceGridViewSet', 'SourceTableViewSet', 'column_config',
-           'resolve_source_list', 'source_rows']
+__all__ = ['NOT_SHOWN', 'SourceGridViewSet', 'SourceRowsMixin', 'SourceTableViewSet',
+           'column_config', 'resolve_source_list', 'source_rows']
 
 #: Kinds of column a read-only table does not show.
 NOT_SHOWN = ('json',)
@@ -71,10 +71,7 @@ def resolve_source_list(rctx, path, props, build, *, names_prop,
     source = rctx.datasource(props['datasource'], where)
     if source is None:
         return None
-    try:
-        columns = source.column_map(rctx.request)
-    except Exception:  # noqa: BLE001 -- a function source may need a request
-        columns = None
+    columns = rctx.source_columns(source)
     if columns is None:
         rctx.error(where, _('the columns of data source %r cannot be read')
                    % (props['datasource'],))
@@ -148,18 +145,36 @@ def _int(value, default):
 
 
 class SourceRowsMixin:
-    """What both endpoints share: the build of the node
-    (``request.gtdesign_build``), its permissions, the source and the
-    columns the request sees."""
+    """What both endpoints share: the build of the node, its permissions,
+    the source and the columns the request sees.
+
+    The build is :meth:`get_build`'s: :attr:`region_build` when a subclass
+    sets it (code generated from a design), else ``request.gtdesign_build``,
+    which the endpoint of a published page sets; without either, 404 -- as
+    :class:`~djgentelella.designs.regions.RegionMixin`."""
 
     authentication_classes = (SessionAuthentication,)
     permission_classes = (AllowAny,)
     renderer_classes = (JSONRenderer,)
     max_page = TABLE_MAX_PAGE
+    #: The build served (an ``ObjectManagementBuild`` in list mode or a
+    #: read-only ``InteractiveGridBuild``) for a viewset outside the design
+    #: engine; ``None``: ``request.gtdesign_build``.
+    region_build = None
+
+    def get_build(self):
+        """The build served: :attr:`region_build`, else
+        ``request.gtdesign_build``; 404 without either."""
+        if self.region_build is not None:
+            return self.region_build
+        build = getattr(self.request, 'gtdesign_build', None)
+        if build is None:
+            raise Http404()
+        return build
 
     def initial(self, request, *args, **kwargs):
         super().initial(request, *args, **kwargs)
-        self.build = build = request.gtdesign_build
+        self.build = build = self.get_build()
         if build.preview:
             raise Http404()
         needed = list(build.perms.get('list') or [])

@@ -299,6 +299,24 @@ class ResolveContext:
             self._forms[key] = build_form(key, forms[key], self, '$.forms.' + key)
         return self._forms[key]
 
+    def source_columns(self, source):
+        """``{name: Column}`` of the data source ``source`` as this design
+        sees it, or ``None`` when they cannot be read.
+
+        With a request, its columns for it; without one -- a page of a Site
+        validated or published offline -- those for :attr:`site`
+        (:meth:`~djgentelella.datasources.base.DataSource.columns_for_site`),
+        so a source whose columns depend on the Site validates; with
+        neither, ``source.column_map(None)``.
+        """
+        # Optional app: only importable when it is installed (the source
+        # comes from it).
+        from djgentelella.datasources.base import source_column_map  # noqa: PLC0415
+        try:
+            return source_column_map(source, self.request, site=self.site)
+        except Exception:  # noqa: BLE001 -- a function source may need a request
+            return None
+
     def datasource(self, name, path):
         """The DataSource ``name`` (:mod:`djgentelella.datasources`), or
         ``None`` after an error."""
