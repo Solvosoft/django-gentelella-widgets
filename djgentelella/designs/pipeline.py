@@ -53,6 +53,7 @@ registered name: the document never names an importable path.
 sends a form (a wizard, a view of the project). See ``docs/source/pipeline.rst``.
 """
 
+import inspect
 import logging
 import re
 import threading
@@ -60,9 +61,11 @@ import traceback
 from dataclasses import dataclass, field
 
 from django import forms
+from django.apps import apps
 from django.core.exceptions import FieldDoesNotExist, ImproperlyConfigured
-from django.core.exceptions import ValidationError
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import router, transaction
+from django.http import HttpResponseRedirect
 from django.urls import NoReverseMatch, reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
@@ -72,14 +75,18 @@ from djgentelella.designs.jsonschema import Error, validate
 from djgentelella.designs.models import Page, normalize_path
 from djgentelella.locking import VERSION_FIELD, version_field
 from djgentelella.sites import get_current_site
+from rest_framework.exceptions import ValidationError as APIValidationError
 
 __all__ = [
     'BEFORE_RENDER', 'BranchBuild', 'KINDS', 'ON_SUBMIT', 'PAGE_PIPELINE_SCHEMA',
     'PIPELINE_SCHEMA', 'PipelineBuild', 'PipelineContext', 'PipelineResult',
-    'Process', 'STAGE_SCHEMA', 'StepBuild', 'before_render', 'build_pipeline',
-    'catalogue', 'context_for_form', 'form_errors_to', 'generation',
-    'get_process', 'process', 'register_process', 'registered_processes',
-    'resolve_pipeline', 'run_pipeline', 'serializer_errors', 'unregister_process',
+    'PipelineFormMixin', 'PipelinePageMixin', 'PipelineViewSetMixin', 'Process',
+    'STAGE_SCHEMA', 'StepBuild', 'before_render', 'build_pipeline', 'catalogue',
+    'context_for_form', 'form_errors_to', 'generation', 'get_process', 'process',
+    'register_process', 'registered_processes', 'resolve_branch_target',
+    'resolve_pipeline', 'run_before_render', 'run_form_pipeline', 'run_pipeline',
+    'run_serializer_pipeline', 'serializer_errors', 'step_build',
+    'unregister_process',
 ]
 
 logger = logging.getLogger('djgentelella.designs.pipeline')
@@ -105,6 +112,8 @@ STEP_SCHEMA = {
     'properties': {
         'name': {'type': 'string', 'pattern': NAME_PATTERN,
                  'x-widget': 'pipeline-step', 'title': 'Registered step'},
+        'kind': {'enum': list(KINDS),
+                 'title': 'Its kind (optional; checked against the step)'},
         'params': {'type': 'object', 'x-widget': 'pipeline-params',
                    'title': 'Parameters (the schema of the step)'},
         'condition': CONDITION,
@@ -162,6 +171,16 @@ class Process:
     schema: dict = field(default_factory=lambda: dict(NO_PARAMS))
     label: str = ''
     description: str = ''
+    #: The label of the installed app whose module defines the function
+    #: (``''`` when none does).
+    app: str = ''
+
+
+def app_of(function):
+    """The label of the installed app that defines ``function``, or ``''``."""
+    module = getattr(function, '__module__', None) or ''
+    found = apps.get_containing_app_config(module) if module else None
+    return found.label if found is not None else ''
 
 
 _registry = {}
@@ -210,7 +229,7 @@ def register_process(name, function=None, *, kind, schema=None, label='',
         with _lock:
             _registry[name] = Process(
                 name, kind, target, dict(schema) if schema else dict(NO_PARAMS),
-                label or name, description or '')
+                label or name, description or '', app_of(target))
             _bump()
         return target
     return decorator(function) if function is not None else decorator
@@ -246,9 +265,11 @@ def registered_processes(kind=None):
 
 def catalogue():
     """The registered steps as data, for whoever writes documents
-    (djgentelella-editor): ``[{name, kind, label, description, schema}]``."""
+    (djgentelella-editor): ``[{name, kind, label, description, schema,
+    app}]`` -- ``app``, the label of the app that defines the step."""
     return [{'name': found.name, 'kind': found.kind, 'label': str(found.label),
-             'description': str(found.description), 'schema': found.schema}
+             'description': str(found.description), 'schema': found.schema,
+             'app': found.app}
             for found in registered_processes().values()]
 
 
@@ -327,14 +348,40 @@ class PipelineBuild:
 
 # -- resolve -------------------------------------------------------------------------
 
-def _find_process(rctx, name, path):
+def _takes_kind(hook):
+    try:
+        parameters = inspect.signature(hook).parameters
+    except (TypeError, ValueError):
+        return False
+    return 'kind' in parameters or any(
+        item.kind == inspect.Parameter.VAR_KEYWORD for item in parameters.values())
+
+
+def _find_process(rctx, name, path, kind=None):
     hook = getattr(rctx, 'pipeline_step', None)
     if hook is not None:
+        # The kind of the document, to a hook that takes it (one that
+        # generates the step knows it from there).
+        if kind and _takes_kind(hook):
+            return hook(name, path, kind=kind)
         return hook(name, path)
     found = get_process(name)
     if found is None:
         rctx.error(path, _('no pipeline step %r is registered') % (name,))
     return found
+
+
+def step_build(name, kind, function, *, params=None, condition=None, writes=(),
+               schema=None, label='', description=''):
+    """A :class:`StepBuild` of ``function`` for code that builds a
+    :class:`PipelineBuild` by hand (code generated from a design), without
+    registering it. ``kind`` is one of :data:`KINDS`."""
+    if kind not in KINDS:
+        raise ImproperlyConfigured('The kind of step %r is one of %s, not %r'
+                                   % (name, ', '.join(KINDS), kind))
+    found = Process(name, kind, function, dict(schema or NO_PARAMS), label or name,
+                    description, app_of(function))
+    return StepBuild(name, kind, found, dict(params or {}), condition, tuple(writes))
 
 
 def _check_writes(rctx, step, path, model, exposure, form_fields):
@@ -416,7 +463,26 @@ def _leads_back(rctx, start, own):
 
 def _resolve_branch(rctx, branch, path, event, model):
     to = branch['to']
-    condition = branch.get('condition')
+    hook = getattr(rctx, 'branch_target', None)
+    if hook is not None:
+        found = hook(to, path + '.to', event=event, model=model)
+    else:
+        found = resolve_branch_target(rctx, to, path + '.to', event, model)
+    if found is not None:
+        found.condition = branch.get('condition')
+    return found
+
+
+def resolve_branch_target(rctx, to, path, event=ON_SUBMIT, model=None):
+    """The :class:`BranchBuild` of the branch target ``to`` (without a
+    condition), or ``None`` after reporting why at ``path`` (the path of
+    ``to``): ``page:<path>`` (a published page, no ``before_render`` loop),
+    ``flow:<name>[:<transition>]``, a local path or a URL name. What
+    :meth:`ResolveContext.branch_target` answers by default."""
+    condition = None
+    path = path or '$.to'
+    # The messages are reported at "<branch>.to".
+    path = path[:-len('.to')] if path.endswith('.to') else path
     if to.startswith('page:'):
         target = normalize_path(to[len('page:'):])
         if not target:
@@ -512,11 +578,17 @@ def resolve_pipeline(rctx, props, path, *, event, model=None, exposure=None,
     steps = []
     for index, step in enumerate(stage.get('steps') or []):
         step_path = '%s.steps[%d]' % (where, index)
-        found = _find_process(rctx, step['name'], step_path + '.name')
+        found = _find_process(rctx, step['name'], step_path + '.name',
+                              step.get('kind'))
         condition = step.get('condition')
         if condition is not None:
             rctx.errors.extend(validate_condition(condition, step_path + '.condition'))
         if found is None:
+            continue
+        if step.get('kind') and step['kind'] != found.kind:
+            rctx.error(step_path + '.kind', _('%(name)r is a %(kind)s, not a '
+                                              '%(said)s') % {
+                'name': found.name, 'kind': found.kind, 'said': step['kind']})
             continue
         if intermediate and found.kind == 'process':
             rctx.error(step_path + '.name', _(
@@ -924,3 +996,173 @@ def before_render(resolved, request, *, page=None, parent=None):
     ctx = PipelineContext(request, event=BEFORE_RENDER, page=page,
                           node=resolved.root.id, parent=parent)
     return run_pipeline(pipeline, ctx)
+
+
+# -- for code: views, viewsets and pages outside the design engine -----------------
+
+def run_form_pipeline(pipeline, form, request, save, *, node=None, fields=None,
+                      page=None):
+    """Run ``pipeline`` for a valid ``form`` (:func:`context_for_form`):
+    ``save(ctx)`` saves and returns the object. Its errors are put on the
+    form (:func:`form_errors_to`); the :class:`PipelineResult` is returned
+    -- ``result.url`` is the branch taken. What the ``crud_classic`` pages
+    do, for a view of generated code."""
+    ctx = context_for_form(form, request, node=node, page=page, fields=fields)
+    result = run_pipeline(pipeline, ctx, save=save)
+    if not result.ok:
+        form_errors_to(form, result)
+    return result
+
+
+def run_serializer_pipeline(pipeline, serializer, request, save, *, node=None,
+                            model=None, fields=None):
+    """Run ``pipeline`` for a valid DRF ``serializer``: ``save()`` (no
+    arguments) saves it. Its errors raise the 400 of the API
+    (:func:`serializer_errors`); the :class:`PipelineResult` is returned
+    otherwise. What ``object_management`` does in ``perform_create`` and
+    ``perform_update``."""
+    meta = getattr(serializer, 'Meta', None)
+    model = model or getattr(meta, 'model', None)
+    if fields is None:
+        fields = [name for name, item in serializer.fields.items()
+                  if not item.read_only]
+    ctx = PipelineContext(request, node=node, form=serializer,
+                          data=serializer.validated_data,
+                          instance=serializer.instance, model=model, fields=fields)
+
+    def do_save(ctx):
+        save()
+        return serializer.instance
+
+    result = run_pipeline(pipeline, ctx, save=do_save)
+    if not result.ok:
+        raise APIValidationError(serializer_errors(result))
+    return result
+
+
+def run_before_render(pipeline, request, *, page=None, parent=None, node=None):
+    """Run a ``before_render`` ``pipeline`` for ``request`` in a view that is
+    not a design page: the :class:`PipelineResult` (errors refuse the page,
+    ``url`` redirects, ``values`` and ``context`` go to the template)."""
+    ctx = PipelineContext(request, event=BEFORE_RENDER, page=page, node=node,
+                          parent=parent)
+    return run_pipeline(pipeline, ctx)
+
+
+def _built(view, stage, event=ON_SUBMIT, form_fields=None):
+    if not stage:
+        return None
+    return build_pipeline(stage, model=getattr(view, 'model', None), event=event,
+                          form_fields=form_fields)
+
+
+class PipelineFormMixin:
+    """A ``CreateView``/``UpdateView`` (or a ``CRUDView`` mixin) whose save
+    goes through :attr:`pipeline`, an ``on_submit`` stage or a
+    :class:`PipelineBuild`: its errors show on the form, nothing saved; its
+    branch is where it goes after saving."""
+
+    pipeline = None
+    pipeline_node = None
+
+    def get_pipeline(self, form=None):
+        return _built(self, self.pipeline,
+                      form_fields=list(form.fields) if form is not None else None)
+
+    def form_valid(self, form):
+        found = self.get_pipeline(form)
+        if not found:
+            return super().form_valid(form)
+        adding = getattr(getattr(form, 'instance', None), 'pk', None) is None
+        responses = []
+
+        def save(ctx):
+            responses.append(super(PipelineFormMixin, self).form_valid(form))
+            return getattr(self, 'object', None)
+
+        result = run_form_pipeline(found, form, self.request, save,
+                                   node=self.pipeline_node)
+        if not result.ok:
+            if adding:
+                self.object = None
+            return self.form_invalid(form)
+        if result.url:
+            return HttpResponseRedirect(result.url)
+        return responses[0]
+
+
+class PipelineViewSetMixin:
+    """A DRF viewset (``ModelViewSet``, an ``ObjectManagement``) whose
+    ``perform_create``/``perform_update`` go through :attr:`pipeline`: its
+    errors are a 400; its branch comes in the response as
+    ``gtdesign_redirect``, which the ``gtdesign_pipeline_events()`` of
+    ``designs/data_components.js`` follows."""
+
+    pipeline = None
+    pipeline_node = None
+    pipeline_redirect = None
+
+    def get_pipeline(self, serializer=None):
+        fields = None
+        if serializer is not None:
+            fields = [name for name, item in serializer.fields.items()
+                      if not item.read_only]
+        return _built(self, self.pipeline, form_fields=fields)
+
+    def pipeline_save(self, serializer, save):
+        found = self.get_pipeline(serializer)
+        if not found:
+            save()
+            return None
+        result = run_serializer_pipeline(found, serializer, self.request, save,
+                                         node=self.pipeline_node,
+                                         model=getattr(self, 'model', None))
+        self.pipeline_redirect = result.url
+        return result
+
+    def perform_create(self, serializer):
+        self.pipeline_save(serializer, lambda: super(
+            PipelineViewSetMixin, self).perform_create(serializer))
+
+    def perform_update(self, serializer):
+        self.pipeline_save(serializer, lambda: super(
+            PipelineViewSetMixin, self).perform_update(serializer))
+
+    def finalize_response(self, request, response, *args, **kwargs):
+        if self.pipeline_redirect and isinstance(getattr(response, 'data', None),
+                                                 dict):
+            response.data['gtdesign_redirect'] = self.pipeline_redirect
+        return super().finalize_response(request, response, *args, **kwargs)
+
+
+class PipelinePageMixin:
+    """A view whose ``GET`` runs :attr:`pipeline`, a ``before_render`` stage
+    (or :class:`PipelineBuild`), first: errors refuse it (403), a branch
+    redirects, and the computed values and ``add_context`` reach the template
+    as ``pipeline`` -- what a design page does."""
+
+    pipeline = None
+    pipeline_node = None
+
+    def get_pipeline(self):
+        return _built(self, self.pipeline, event=BEFORE_RENDER)
+
+    def get(self, request, *args, **kwargs):
+        found = self.get_pipeline()
+        self.pipeline_result = None
+        if found:
+            result = run_before_render(found, request, node=self.pipeline_node)
+            if not result.ok:
+                raise PermissionDenied(' '.join(message for _field, message
+                                                in result.errors))
+            if result.url:
+                return HttpResponseRedirect(result.url)
+            self.pipeline_result = result
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        result = getattr(self, 'pipeline_result', None)
+        if result is not None:
+            context['pipeline'] = {**result.values, **result.context}
+        return context

@@ -332,6 +332,9 @@ def wizard_schema():
             'help': {'type': 'object', 'x-widget': 'help',
                      'additionalProperties': {'type': 'object'},
                      'title': 'Help per field'},
+            'widget_options': {'type': 'object', 'x-widget': 'widget-options',
+                               'additionalProperties': {'type': 'object'},
+                               'title': 'Options of the widget per field'},
             'condition': {'x-widget': 'condition',
                           'title': 'Step shown only when (user, group, flag...)'},
             'pipeline': {**pipeline.PIPELINE_SCHEMA,
@@ -518,7 +521,7 @@ class WizardComponent(RuntimeComponent):
                         'draft cannot keep a plain file input')
                         % ', '.join(sorted(widgetmap.UPLOAD_WIDGETS)))
         form_data = {'model': label, 'fields': names, 'widgets': widgets}
-        for key in ('render', 'grid', 'help'):
+        for key in ('render', 'grid', 'help', 'widget_options'):
             if key in data:
                 form_data[key] = data[key]
         form = build_form('%s_%s' % (node['id'], data['name']), form_data, rctx, where)

@@ -289,6 +289,20 @@ class ResolveContext:
             self.error(path, _('no flow %r (djgentelella.flows)') % (name,))
         return found
 
+    def branch_target(self, target, path=None, *, event=pipeline.ON_SUBMIT,
+                      model=None):
+        """The :class:`~djgentelella.designs.pipeline.BranchBuild` (without
+        its condition) of the ``to`` of a pipeline branch, or ``None`` after
+        reporting why at ``path`` (the path of ``to``).
+
+        The hook of every branch target a design names. By default
+        :func:`~djgentelella.designs.pipeline.resolve_branch_target`: a
+        published page, a flow, a URL name or a local path. A subclass can
+        answer for targets it knows otherwise (djgentelella-editor, the pages
+        it generates) and call ``super()`` for the rest.
+        """
+        return pipeline.resolve_branch_target(self, target, path, event, model)
+
     def pipeline_step(self, name, path=None):
         """The :class:`~djgentelella.designs.pipeline.Process` registered as
         ``name``, or ``None`` -- reporting why at ``path`` when one is given.

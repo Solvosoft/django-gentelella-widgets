@@ -279,6 +279,9 @@
     }
 
     window.gtdesign_escape = escape;
+    // The modal events that follow the branch of an on_submit pipeline
+    // (gtdesign_redirect): for an ObjectCRUD of generated code.
+    window.gtdesign_pipeline_events = pipelineEvents;
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {
