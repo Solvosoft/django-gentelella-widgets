@@ -84,8 +84,9 @@ from djgentelella.permission_management import AllPermissionByAction, all_permis
 
 __all__ = ['GRID_ACTIONS', 'GRID_COMPONENTS', 'GridState', 'InteractiveGridBuild',
            'InteractiveGridComponent', 'NOT_EDITABLE', 'NOT_SHOWN', 'OPERATIONS',
-           'TEMPLATE', 'grid_columns', 'grid_config', 'grid_page_context',
-           'grid_viewset_for', 'required_fields', 'source_allows']
+           'TEMPLATE', 'grid_can_edit', 'grid_columns', 'grid_config',
+           'grid_page_context', 'grid_viewset_for', 'required_fields',
+           'source_allows']
 
 SCRIPT = 'gentelella/js/designs/interactive_grid.js'
 TEMPLATE = 'gtdesigns/components/interactive_grid.html'
@@ -130,6 +131,32 @@ class InteractiveGridBuild(ObjectManagementBuild):
     #: Its conditions on one row (:func:`~djgentelella.designs.conditions.
     #: row_conditions`). A class attribute, not a field.
     row_actions = ('update', 'destroy')
+
+    @property
+    def list_only(self):
+        """Whether the grid only shows the rows of its data source: decided
+        by the source, not by ``form`` -- a build written as code
+        (djgentelella-editor) has no form and passes its form class to
+        :func:`grid_page_context` instead. ``source_columns`` is what a
+        read-only grid resolves to; without them, the source says it
+        (:func:`grid_can_edit`)."""
+        if not self.datasource or self.form is not None:
+            return False
+        if self.source_columns:
+            return True
+        return not grid_can_edit(self.datasource)
+
+
+def grid_can_edit(source):
+    """Whether a grid over ``source`` (a data source or its registered name)
+    can edit its rows: a ``ModelDataSource`` over a model of the project.
+    Any other is read only (:mod:`djgentelella.designs.source_tables`)."""
+    if isinstance(source, str):
+        try:
+            source = get_datasource(source)
+        except (KeyError, LookupError):
+            return False
+    return isinstance(source, ModelDataSource) and project_model_of(source) is not None
 
 
 # -- conditions and permissions for one request -------------------------------------
@@ -381,7 +408,7 @@ class InteractiveGridComponent(RuntimeComponent):
         source = rctx.datasource(props['datasource'], where)
         if source is None:
             return None, None
-        if not isinstance(source, ModelDataSource) or project_model_of(source) is None:
+        if not grid_can_edit(source):
             return READ_ONLY, source
         build.datasource = props['datasource']
         return rctx.exposure(source.model._meta.label, where), source

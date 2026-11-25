@@ -4,23 +4,25 @@ facets panel without a published page, columns for a Site without a request,
 the point columns, the default settings after a flush, the page attribute of
 a design and the mouse click of the browser tests."""
 
+import dataclasses
 import json
 
-from django.contrib.auth.models import User
+from django import forms as django_forms
+from django.contrib.auth.models import Permission, User
 from django.contrib.sites.models import Site
 from django.template.loader import render_to_string
 from django.test import RequestFactory, TestCase, override_settings
 from django.urls import reverse
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-from demoapp.models import Meetup
+from demoapp.models import Meetup, Product
 from djgentelella import testing
 from djgentelella.datasources.base import (
     Column, DataSource, ModelDataSource, register_datasource, source_column_map,
     unregister_datasource,
 )
 from djgentelella.designs import (
-    data_components, engine, publishing, regions, source_tables,
+    data_components, engine, grid, publishing, regions, source_tables,
 )
 from djgentelella.designs.components import ResolveContext
 from djgentelella.models import GentelellaSettings
@@ -29,7 +31,14 @@ from djgentelella.tests.Designs_Test import DesignState, design, node
 from djgentelella.tests.RegionComponents_Test import (
     SOURCE, RegionBase, calendar, cards, facets, region_map,
 )
+from djgentelella.tests.DesignsData_Test import ALL_PRODUCT_PERMS, DataDesignTestCase
+from djgentelella.tests.InteractiveGrid_Test import COLUMNS, grid_node
 from djgentelella.utils import DEFAULT_SETTINGS, get_settings, load_default_settings
+
+__all__ = ['RegionBuildTests', 'SourceTableBuildTests', 'RegionPageContextTests',
+           'FacetsPageContextTests', 'ColumnsForSiteTests', 'PointColumnTests',
+           'DefaultSettingsTests', 'PageAttributeTests', 'MouseClickTests',
+           'GridListOnlyTests', 'TablePageContextTests']
 
 SITE_SOURCE = 'tests.w24.by_site'
 
@@ -326,6 +335,20 @@ class ColumnsForSiteTests(DesignState, TestCase):
         other = Site.objects.create(domain='b.example', name='B')
         self.assertEqual(publishing.validate(self.document(), site=other), [])
 
+    def test_no_columns_for_the_site_fall_back_to_those_without_a_request(self):
+        class Offline(BySiteSource):
+            # An App being imported: its pages are validated before its
+            # sources exist for the Site; the source answers offline.
+            def columns(self, request):
+                if request is None:
+                    return [Column('title', 'Title', 'string'),
+                            Column('city', 'City', 'string')]
+                return []
+
+        unregister_datasource(SITE_SOURCE)
+        register_datasource(Offline())
+        self.assertEqual(publishing.validate(self.document(), site=self.site_a), [])
+
     def test_the_resolve_context(self):
         rctx = ResolveContext({}, None, site=self.site_a)
         self.assertEqual(sorted(rctx.source_columns(BySiteSource())),
@@ -416,3 +439,105 @@ class MouseClickTests(TestCase):
         self.assertEqual(args, (element,))
         self.assertIn("scrollBehavior = 'auto'", script)
         self.assertIn("behavior: 'instant'", script)
+
+
+PRODUCTS = 'tests.w24.products'
+
+
+class ProductForm(django_forms.ModelForm):
+    class Meta:
+        model = Product
+        fields = ['name', 'price']
+
+
+@override_settings(LANGUAGE_CODE='en')
+class GridListOnlyTests(DataDesignTestCase):
+    """A grid decides it is read only by its source, not by ``form``."""
+
+    def setUp(self):
+        super().setUp()
+        self.grant(*ALL_PRODUCT_PERMS)
+        register_datasource(ModelDataSource(Product, name=PRODUCTS))
+        self.addCleanup(unregister_datasource, PRODUCTS)
+        grid_props = grid_node(editable=['name', 'price'])
+        grid_props['props'].pop('model')
+        grid_props['props']['datasource'] = PRODUCTS
+        resolved, errors = engine.resolve(design(grid_props))
+        self.assertEqual(errors, [])
+        self.build = resolved.nodes['grid'].build
+        self.request = RequestFactory().get('/g/')
+        self.request.user = self.user
+
+    def test_a_generated_editable_grid_without_a_form(self):
+        self.assertFalse(self.build.list_only)
+        generated = dataclasses.replace(self.build, form=None)
+        self.assertFalse(generated.list_only)
+        columns = [{'name': name, 'title': name.title(), 'kind': 'text'}
+                   for name in COLUMNS]
+        context = grid.grid_page_context(generated, self.request, '/gen/',
+                                         form_class=ProductForm, columns=columns)
+        self.assertEqual([name for name, _field in context['cells']],
+                         ['name', 'price'])
+        self.assertTrue(context['allowed']['update'])
+
+    def test_a_read_only_grid_stays_read_only(self):
+        register_datasource(RemoteMeetups())
+        self.addCleanup(unregister_datasource, SOURCE)
+        resolved, errors = engine.resolve(design(node('interactive_grid', 'grid', {
+            'datasource': SOURCE, 'columns': ['title']})))
+        self.assertEqual(errors, [])
+        build = resolved.nodes['grid'].build
+        self.assertTrue(build.list_only)
+        bare = dataclasses.replace(build, source_columns=[])
+        self.assertTrue(bare.list_only)
+
+    def test_grid_can_edit(self):
+        self.assertTrue(grid.grid_can_edit(PRODUCTS))
+        self.assertTrue(grid.grid_can_edit(ModelDataSource(Product, name='x')))
+        self.assertFalse(grid.grid_can_edit(RemoteMeetups()))
+        self.assertFalse(grid.grid_can_edit('tests.w24.nowhere'))
+        self.assertIn('grid_can_edit', grid.__all__)
+
+
+class TablePageContextTests(DesignState, TestCase):
+
+    def setUp(self):
+        super().setUp()
+        register_datasource(RemoteMeetups())
+        self.addCleanup(unregister_datasource, SOURCE)
+        self.build = build_of(design(node('object_management', 'list', {
+            'datasource': SOURCE, 'list_fields': ['title', 'kind'],
+            'perms': {'list': ['demoapp.view_meetup']}})), 'list')
+        self.user = User.objects.create_user('ana')
+        self.request = RequestFactory().get('/t/')
+        self.request.user = self.user
+
+    def config(self, context):
+        text = str(context['config'])
+        return json.loads(text[text.index('>') + 1:text.rindex('</script>')])
+
+    def test_the_context(self):
+        self.assertIsNone(data_components.table_page_context(self.build, self.request,
+                                                             '/t/api/'))
+        self.user.user_permissions.add(Permission.objects.get(
+            codename='view_meetup', content_type__app_label='demoapp'))
+        self.request.user = User.objects.get(pk=self.user.pk)
+        context = data_components.table_page_context(self.build, self.request,
+                                                     '/t/api/')
+        self.assertEqual(context['template'], data_components.TABLE_TEMPLATE)
+        self.assertEqual(context['base'], '/t/api/')
+        config = self.config(context)
+        self.assertTrue(config['readonly'])
+        self.assertEqual(config['urls'], {'list_url': '/t/api/'})
+        self.assertEqual([column['name'] for column in config['columns']],
+                         ['title', 'kind'])
+        html = render_to_string(context['template'], context, request=self.request)
+        self.assertIn('data-gtconfig="list_gtconfig"', html)
+        self.assertIsNone(data_components.table_page_context(self.build,
+                                                             self.request, ''))
+        self.assertIn('row_link_config', data_components.__all__)
+
+    def test_a_crud_table_is_not_a_list(self):
+        crud = dataclasses.replace(self.build, datasource='')
+        with self.assertRaises(ValueError):
+            data_components.table_page_context(crud, self.request, '/t/')

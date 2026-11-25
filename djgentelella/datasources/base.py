@@ -245,15 +245,20 @@ class DataSource:
 
 def source_column_map(source, request=None, *, site=None):
     """``{name: Column}`` of ``source``: for ``request``; without one, for
-    ``site`` (:meth:`DataSource.columns_for_site`); with neither,
-    ``source.column_map(None)``. What the design engine validates a page
-    with (:meth:`~djgentelella.designs.components.ResolveContext.source_columns`).
+    ``site`` (:meth:`DataSource.columns_for_site`), or ``column_map(None)``
+    when that gives none; with neither, ``source.column_map(None)``. What
+    the design engine validates a page with
+    (:meth:`~djgentelella.designs.components.ResolveContext.source_columns`).
     """
     if request is None and site is not None:
         for_site = getattr(source, 'columns_for_site', None)
-        if for_site is not None:
-            return {column.name: column for column in for_site(site)}
-        return source.column_map(site_request(site))
+        columns = for_site(site) if for_site is not None else \
+            source.columns(site_request(site))
+        if columns:
+            return {column.name: column for column in columns}
+        # No columns for that Site (yet: an App being imported has its
+        # sources after its pages): what the source answers without a
+        # request, as before there was a hook.
     return source.column_map(request)
 
     def __repr__(self):

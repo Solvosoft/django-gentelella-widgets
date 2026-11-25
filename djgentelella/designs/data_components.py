@@ -65,7 +65,8 @@ __all__ = ['ChartComponent', 'CrudClassicComponent', 'DATA_COMPONENTS',
            'FLOW_PREFIX', 'FacetsComponent', 'InlineObjectManagementComponent',
            'ObjectManagementComponent', 'PAGE_PREFIX', 'PK_PLACEHOLDERS',
            'StatComponent', 'parse_flow_link', 'resolve_row_link',
-           'FACETS_TEMPLATE', 'facets_page_context']
+           'FACETS_TEMPLATE', 'facets_page_context', 'TABLE_TEMPLATE',
+           'row_link_config', 'table_page_context']
 
 SCRIPT = 'gentelella/js/designs/data_components.js'
 PERMISSION = {'type': 'string', 'pattern': r'^[a-z_][a-z0-9_]*\.[a-z_][a-z0-9_]*$'}
@@ -456,6 +457,65 @@ def sample_rows(model, names, count=3):
             for index in range(1, count + 1)]
 
 
+TABLE_TEMPLATE = 'gtdesigns/components/object_management.html'
+
+
+def list_page_context(build, request, url, user):
+    if not url or request is None:
+        return None
+    if build.perms['list'] and (user is None or
+                                not all_permission(user, list(build.perms['list']))):
+        return None
+    try:
+        source = get_datasource(build.datasource)
+    except (KeyError, LookupError):
+        source = None
+    if source is None or not source.has_permission(request):
+        return None
+    hidden = hidden_columns(build, request)
+    columns = []
+    for column in source_tables.visible_columns(build, hidden):
+        item = {'data': column['name'], 'name': column['name'],
+                'kind': column['kind'], 'title': escape(column['title']),
+                'type': 'string' if column['kind'] in TEXT_KINDS else 'readonly'}
+        if 'choices' in column:
+            item['choices'] = [[value, escape(text)]
+                               for value, text in column['choices']]
+        columns.append(item)
+    config = {
+        'id': build.id,
+        'readonly': True,
+        'urls': {'list_url': url},
+        'modal_ids': {},
+        'columns': columns,
+        'row_links': row_link_config(build, request),
+        'delete_display': '',
+    }
+    return {'b': build, 'template': TABLE_TEMPLATE, 'forms': {}, 'base': url,
+            'modal_ids': {}, 'allowed': {},
+            'config': json_config(build.id + '_gtconfig', config)}
+
+
+def table_page_context(build, request, url):
+    """What :data:`TABLE_TEMPLATE` needs to draw ``object_management`` in
+    list mode (``build.list_only``: over a ``datasource``, without a form)
+    for ``request``: ``{'b', 'template', 'forms', 'base', 'modal_ids',
+    'allowed', 'config'}``, with ``url`` the URL of its endpoint -- a
+    :class:`~djgentelella.designs.source_tables.SourceTableViewSet` serving
+    ``build`` -- and ``config`` the DataTable's ``data-gtconfig`` (columns
+    the request sees, row links). Render it with ``request=request``.
+
+    No published :class:`~djgentelella.designs.models.Page` is needed, as
+    :func:`~djgentelella.designs.grid.grid_page_context`. ``None`` when the
+    request may not see the list: without ``perms["list"]``, without the
+    data source or its ``has_permission``, or without ``url``. A table with
+    a form (CRUD) is not in list mode: ``ValueError``.
+    """
+    if not build.list_only:
+        raise ValueError('%r is not a list over a data source' % (build.id,))
+    return list_page_context(build, request, url, getattr(request, 'user', None))
+
+
 class ObjectManagementComponent(RuntimeComponent):
     """A DataTable of a model with create, update, detail and delete modals.
 
@@ -688,41 +748,11 @@ class ObjectManagementComponent(RuntimeComponent):
                 'rows': [['%s %d' % (column['title'], index)
                           for column in build.source_columns]
                          for index in range(1, 4)]})
-        if build.perms['list'] and not can(rctx, build.perms['list']):
+        context = list_page_context(build, rctx.request, endpoint_url(rctx, build),
+                                    rctx.user)
+        if context is None:
             return no_permission(build)
-        try:
-            source = get_datasource(build.datasource)
-        except (KeyError, LookupError):
-            source = None
-        if source is None or rctx.request is None or \
-                not source.has_permission(rctx.request):
-            return no_permission(build)
-        base = endpoint_url(rctx, build)
-        if base is None:
-            return no_permission(build)
-        hidden = hidden_columns(build, rctx.request)
-        columns = []
-        for column in source_tables.visible_columns(build, hidden):
-            item = {'data': column['name'], 'name': column['name'],
-                    'kind': column['kind'], 'title': escape(column['title']),
-                    'type': 'string' if column['kind'] in TEXT_KINDS else 'readonly'}
-            if 'choices' in column:
-                item['choices'] = [[value, escape(text)]
-                                   for value, text in column['choices']]
-            columns.append(item)
-        config = {
-            'id': build.id,
-            'readonly': True,
-            'urls': {'list_url': base},
-            'modal_ids': {},
-            'columns': columns,
-            'row_links': row_link_config(build, rctx.request),
-            'delete_display': '',
-        }
-        return render_to_string('gtdesigns/components/object_management.html', {
-            'b': build, 'forms': {}, 'base': base, 'modal_ids': {},
-            'allowed': {}, 'config': json_config(build.id + '_gtconfig', config),
-        }, request=rctx.request)
+        return render_to_string(TABLE_TEMPLATE, context, request=rctx.request)
 
     def render(self, build, rctx, children):
         if build.list_only:
