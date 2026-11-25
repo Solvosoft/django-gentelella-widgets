@@ -212,3 +212,18 @@ For Selenium tests (requires browser driver):
     cd demo
     python manage.py test demoapp.tests.selenium
 
+A project built on djgentelella reuses two pieces in its own browser tests:
+
+- ``djgentelella.testing.mouse_click(driver, element)`` clicks with the
+  mouse after bringing the element to the centre of the viewport *without
+  animation*. Bootstrap sets ``scroll-behavior: smooth``, so after a plain
+  ``scrollIntoView()`` the page is still moving when the click lands, and
+  Chrome answers ``ElementClickInterceptedException`` or clicks something
+  else. ``scroll_instantly(driver, element)`` only scrolls. The demo's
+  ``SeleniumTestCase`` has both as methods (``self.mouse_click(css or
+  element)``).
+- ``djgentelella.utils.load_default_settings()`` in ``setUp`` brings back the
+  settings the migrations create, which the flush after every live server
+  test removes (``default_settings = True`` in the demo's base). See
+  :doc:`settings`.
+

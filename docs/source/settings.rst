@@ -105,6 +105,24 @@ Each of them can also be set for one ``Site`` only, which then wins over the
 global value on that site: ``set_settings(key, value, site=site)`` or the
 *Site* field in the admin. See :doc:`sites`.
 
+The migrations of djgentelella create the four global values
+(``djgentelella.utils.DEFAULT_SETTINGS``). Whatever empties the database
+after them -- the *flush* of a ``TransactionTestCase`` or of a live server
+(Selenium) test -- leaves none, and the pages lose their title, theme and
+bundled static files. ``load_default_settings()`` creates the missing ones
+again; call it in the ``setUp`` of such a test. ``overwrite=True`` resets the
+existing ones too, and keyword arguments replace or add values
+(``use_compress_static=None`` leaves that key out). A page without
+``site_theme`` loads ``gentelella/css/custom.css``.
+
+.. code:: python
+
+    from djgentelella.utils import load_default_settings
+
+    class MyBrowserTest(StaticLiveServerTestCase):
+        def setUp(self):
+            load_default_settings()
+
 Which values are HTML
 ^^^^^^^^^^^^^^^^^^^^^
 
