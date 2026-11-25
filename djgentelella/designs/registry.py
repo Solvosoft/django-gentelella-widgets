@@ -35,7 +35,7 @@ from django.utils.module_loading import import_string
 
 from djgentelella.designs import (
     builtin, conf, data_components, flow_kanban, grid, regions,
-    tree_timeline_metrics,
+    tree_timeline_metrics, wizard,
 )
 
 MODULE_NAME = 'gtdesigns'
@@ -93,7 +93,8 @@ def _fill():
                                 + flow_kanban.FLOW_KANBAN_COMPONENTS
                                 + regions.REGION_COMPONENTS
                                 + tree_timeline_metrics
-                                .TREE_TIMELINE_METRICS_COMPONENTS):
+                                .TREE_TIMELINE_METRICS_COMPONENTS
+                                + wizard.WIZARD_COMPONENTS):
             register(component_class)
         autodiscover()
         for path in conf.components():

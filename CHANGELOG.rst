@@ -628,6 +628,27 @@ down (a saved report can ask for it); ``order_by_value=`` of the call still
 wins. ``max``/``min`` over ``date`` and ``datetime`` columns are covered by
 tests through ``aggregate``, the API and ``validate_params``. See
 ``docs/source/datasources.rst``.
+**Wizard: forms in several steps with drafts.** ``djgentelella.wizard``:
+``GTWizardView`` and ``Step`` -- one form per step, a Bootstrap 5 progress
+bar, "Previous", "Next", "Save draft", "Finish" and "Discard", all plain
+posts (no javascript to move). Steps are skipped by a ``condition`` (a
+callable over the earlier steps' ``cleaned_data_for()`` or a condition of
+``djgentelella.authorization``); "Finish" validates every step again and runs
+``done()`` in one transaction, with the hooks ``on_step`` and ``on_finish``;
+``optimistic_lock`` when editing. Drafts in the session (default) or in the
+new model ``WizardDraft`` (migration ``djgentelella.0025_wizarddraft``: user,
+Site, key, data, uploads), only ever found for their own user and Site (404
+otherwise), expiring after ``GT_WIZARD_DRAFT_EXPIRATION`` (30 days) and
+deleted by ``manage.py delete_expired_wizard_drafts``. Files go through the
+chunked upload: only the user's own uploads are taken, kept alive while the
+wizard runs (new ``FileChunkedUpload.consume_upload``) and by a live draft
+(``delete_expired_uploads`` leaves them), and deleted when it finishes. The
+design component ``wizard`` (``djgentelella.designs.wizard``) does the same
+over one exposed model: steps with fields, ``condition`` and ``when``,
+``perms``, ``site_field``, ``mode: "edit"`` on a page about the object with
+``optimistic_lock``; new ``x-widget`` hints ``wizard-steps`` and
+``step-when``. Demo: ``/wizard/employee/`` and ``/designs/employees/new/``.
+See ``docs/source/wizard.rst``.
 
 Fixes
 """"""""

@@ -56,6 +56,7 @@ from demoapp.trash.api import CustomerViewSet
 
 # history
 from demoapp.history.views import history_view
+from demoapp.wizard.views import EmployeeWizard
 
 # flows
 from demoapp.flowdemos import views as flowdemos
@@ -287,6 +288,8 @@ urlpatterns = (
              name='dynamic_actions_formset'),
         path('dynamic_actions/crud/', dynamic_actions.dynamic_actions_crud,
              name='dynamic_actions_crud'),
+        # wizard
+        path('wizard/employee/', EmployeeWizard.as_view(), name='employee_wizard'),
     ]
     + pclss.get_urls()
     + countryclss.get_urls()

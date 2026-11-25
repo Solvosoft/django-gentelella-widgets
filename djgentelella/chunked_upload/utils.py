@@ -4,7 +4,7 @@ Utility functions for chunked upload management.
 from django.utils import timezone
 
 from djgentelella.chunked_upload.constants import UPLOADING, COMPLETE
-from djgentelella.models import ChunkedUpload
+from djgentelella.models import ChunkedUpload, WizardDraft
 from djgentelella.settings import EXPIRATION_DELTA
 
 
@@ -12,12 +12,17 @@ def get_expired_uploads():
     """
     Get queryset of chunked uploads that have expired.
 
+    The uploads a live wizard draft keeps (``WizardDraft.uploads``) are left
+    out: the draft still needs their files.
+
     Returns:
         QuerySet: ChunkedUpload objects that have expired.
     """
+    kept = {token for tokens in WizardDraft.objects.live().exclude(uploads=[])
+            .values_list('uploads', flat=True) for token in tokens or ()}
     return ChunkedUpload.objects.filter(
         created_on__lt=(timezone.now() - EXPIRATION_DELTA)
-    )
+    ).exclude(upload_id__in=kept)
 
 
 def delete_expired_uploads(exclude_ids=None):

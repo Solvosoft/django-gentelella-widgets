@@ -35,6 +35,10 @@ class FileChunkedUpload(FileInput):
     template_name = 'gentelella/widgets/chunkedupload.html'
     #: The name the javascript initializes it by, kept by the subclasses.
     js_widget = 'FileChunkedUpload'
+    #: Delete the upload once the form takes its file. A wizard
+    #: (:mod:`djgentelella.wizard`) turns it off on its forms: it validates a
+    #: step more than once and deletes the uploads when it finishes.
+    consume_upload = True
 
     def __init__(self, attrs=None, extraskwargs=True):
         if extraskwargs:
@@ -57,6 +61,10 @@ class FileChunkedUpload(FileInput):
         Not marked safe: the template escapes it into the ``value`` attribute
         and the browser gives the javascript the exact JSON back.
         """
+        if value and not hasattr(value, 'url'):
+            # A file just taken from an upload (a bound form shown again):
+            # it has no URL yet.
+            return ''
         if value:
             self.value = json.dumps({
                 'name': str(value.name),
@@ -88,9 +96,11 @@ class FileChunkedUpload(FileInput):
 
     def upload_value(self, upload):
         """The value of the field for ``upload``: its file. The upload is
-        deleted, so a token is used once."""
+        deleted (unless :attr:`consume_upload` is off), so a token is used
+        once."""
         dev = upload.get_uploaded_file()
-        upload.delete()
+        if self.consume_upload:
+            upload.delete()
         return dev
 
     def value_from_datadict(self, data, files, name):

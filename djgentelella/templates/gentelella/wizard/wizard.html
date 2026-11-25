@@ -1,0 +1,10 @@
+{% extends 'gentelella/base.html' %}
+{% load i18n %}
+{% block title %}{{ wizard.title|default:_('Wizard') }}{% endblock %}
+{% block content %}
+<div class="x_panel">
+  <div class="x_content">
+    {% include wizard_body_template %}
+  </div>
+</div>
+{% endblock %}

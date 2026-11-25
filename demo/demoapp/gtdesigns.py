@@ -8,14 +8,17 @@ then ``products`` and ``dashboard``. ``createdemo`` publishes them all, and
 ``ticket_kanban``: the help desk flow (``gtflows.py``) as a kanban board at
 ``/designs/tickets-board/``; ``meetups``: one data source as cards, on a
 calendar and on a map (``/designs/meetups/``); ``insights``: a tree, a
-timeline and metric cards (``/designs/insights/``).
+timeline and metric cards (``/designs/insights/``); ``employee_wizard`` and
+``employee_edit``: the ``wizard`` component, hiring an employee in three
+steps (``/designs/employees/new/``) and editing one
+(``/designs/employees/edit/<pk>``).
 """
 
 from djgentelella.designs.exposure import expose
 
 from demoapp.models import (
-    Country, Department, Meetup, Person, Product, ProductCategory, ProductTag,
-    SupportTicket,
+    Country, Department, Meetup, NewHire, Person, Product, ProductCategory,
+    ProductTag, SupportTicket,
 )
 
 expose(Country)
@@ -29,3 +32,5 @@ expose(SupportTicket)
 expose(Meetup)
 # The tree of insights.json.
 expose(Department)
+# The wizards of employee_wizard.json and employee_edit.json.
+expose(NewHire)
