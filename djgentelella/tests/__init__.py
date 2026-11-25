@@ -79,3 +79,4 @@ from .HistorySystem_Test import *
 from .ChartFacets_Test import *
 from .BootstrapBundle_Test import *
 from .RegionComponents_Test import *
+from .SourceReadOnly_Test import *
