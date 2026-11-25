@@ -42,7 +42,9 @@ from django.utils.translation import gettext as _
 
 from djgentelella.designs.jsonschema import Error
 
-from .base import DATE_KINDS, NUMERIC_KINDS, TEXT_KINDS
+from .base import (
+    DATE_KINDS, NUMERIC_KINDS, TEXT_KINDS, project_model_of, takes_params,
+)
 
 OPERATORS = ('eq', 'ne', 'lt', 'lte', 'gt', 'gte', 'in', 'contains',
              'icontains', 'startswith', 'isnull', 'between', 'date_period')
@@ -505,6 +507,18 @@ def ordering_args(colmap, ordering):
     return result
 
 
+def source_queryset(source, request, params=None):
+    """``source.get_queryset(request)``, with ``params=`` -- the parameter
+    document, normalized -- when the source takes it (``get_queryset(request,
+    params=None)``, see :meth:`~djgentelella.datasources.base.DataSource.
+    get_queryset`). Every query function reads the rows of a source through
+    it."""
+    if takes_params(source):
+        return source.get_queryset(
+            request, params=None if params is None else parse_params(params))
+    return source.get_queryset(request)
+
+
 def apply_params(source, request, params):
     """The source queryset with the filters, the search and the ordering.
 
@@ -513,7 +527,7 @@ def apply_params(source, request, params):
     """
     params = parse_params(params)
     colmap = source.column_map(request)
-    queryset = source.get_queryset(request)
+    queryset = source_queryset(source, request, params)
     queryset = apply_filters(source, request, queryset, params['filters'], colmap)
     queryset = apply_search(source, request, queryset, params['search'], colmap)
     order = ordering_args(colmap, params['ordering'])
@@ -815,7 +829,7 @@ def value_labels(source, request, column, values, model=None):
     if column.kind == 'boolean':
         return {True: _('Yes'), False: _('No')}
     if column.kind in ('fk', 'm2m'):
-        model = related_model(model or getattr(source, 'model', None), column)
+        model = related_model(model or project_model_of(source), column)
         if model is not None and values:
             return {pk: str(obj) for pk, obj in
                     model._default_manager.in_bulk(set(values)).items()}
@@ -856,12 +870,27 @@ def facets(source, request, params, columns, limit=FACET_LIMIT,
     colmap = source.column_map(request)
     if isinstance(columns, str):
         columns = [name for name in columns.split(',') if name]
-    base = source.get_queryset(request)
-    base = apply_search(source, request, base, params['search'], colmap)
+    bases = {}
+    narrow = takes_params(source)
+
+    def base_for(name):
+        # A source that takes the parameters gets those of each facet: every
+        # filter but the facet's own, or it would only see the picked values.
+        doc = params
+        if narrow:
+            doc = dict(params, filters=[flt for flt in params['filters']
+                                        if flt.get('column') != name])
+        key = json.dumps(doc['filters'], sort_keys=True, default=str)
+        if key not in bases:
+            bases[key] = apply_search(source, request,
+                                      source_queryset(source, request, doc),
+                                      params['search'], colmap)
+        return bases[key]
+
     result = {}
     for name in columns:
         column = _column(colmap, name, 'filterable')
-        queryset = apply_filters(source, request, base, params['filters'],
+        queryset = apply_filters(source, request, base_for(name), params['filters'],
                                  colmap, skip_columns=(name,)).order_by()
         if column.kind in NUMERIC_KINDS:
             result[name] = _numeric_facet(queryset, column, buckets)
@@ -1063,7 +1092,7 @@ def _unknown_keys(value, allowed, path, errors):
         errors.append(Error(path, _('unknown keys: %s') % ', '.join(unknown)))
 
 
-def validate_params(source, request, params, *, strict=False):
+def validate_params(source, request, params, *, strict=False, build=True):
     """``(clean, errors)``: the parameter document checked against the
     columns of ``source`` without reading a row.
 
@@ -1081,8 +1110,14 @@ def validate_params(source, request, params, *, strict=False):
     ``pivot`` and the ``highlights`` (a ``filter``, and CSS class names in
     ``css``). With ``strict``, unknown keys are errors too; otherwise the top
     level ones are ignored, as :func:`parse_params` does. When all that
-    passes and the user may read the source, the queryset is built (not run)
-    so the ORM checks the values as well.
+    passes and the user may read the source, the queryset is built so the ORM
+    checks the values as well -- unless ``build`` is False, and then
+    ``get_queryset`` is not even called.
+
+    It **never evaluates** the queryset: no row is read, no ``count()``, no
+    ``exists()``. A source whose ``get_queryset`` reads nothing until the
+    queryset is evaluated (an external API read on the first access) is not
+    read by validating.
     """
     errors = []
     try:
@@ -1092,7 +1127,7 @@ def validate_params(source, request, params, *, strict=False):
     if strict and isinstance(params, dict):
         _unknown_keys(params, _PARAM_KEYS, '$', errors)
     colmap = source.column_map(request)
-    model = getattr(source, 'model', None)
+    model = project_model_of(source)
 
     def check(path, function, *args):
         try:
@@ -1152,7 +1187,7 @@ def validate_params(source, request, params, *, strict=False):
                                 or not CSS_CLASSES.match(css)):
             errors.append(Error(path + '.css',
                                 _('%r is not a list of CSS classes.') % (css,)))
-    if not errors and source.has_permission(request):
+    if build and not errors and source.has_permission(request):
         # The ORM prepares each value only when the queryset is filtered.
         check('$', apply_params, source, request, clean)
     return (None, errors) if errors else (clean, [])

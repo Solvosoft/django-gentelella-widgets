@@ -31,6 +31,7 @@ from django.db.models import (
 )
 from django.db.models.functions import Cast, Coalesce, Greatest
 
+from djgentelella.datasources.base import project_model_of
 from djgentelella.datasources.query import fulltext_query
 
 from .base import (
@@ -142,7 +143,7 @@ def search_source(source, request, text, limit=None, offset=0):
         queryset = fulltext_search(source, queryset, fields, text)
     else:
         queryset = icontains_search(queryset, fields, text)
-    related = spec.related(getattr(source, 'model', None) or queryset.model)
+    related = spec.related(project_model_of(source) or queryset.model)
     if related:
         queryset = queryset.select_related(*related)
     rows = list(queryset.order_by('-_gt_score', 'pk')[offset:offset + limit + 1])

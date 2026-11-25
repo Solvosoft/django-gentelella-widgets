@@ -16,7 +16,10 @@ The query parameters (the document of
 :mod:`djgentelella.datasources.query`) travel as JSON: ``?params=<json>`` on a GET, or a
 POST whose body is ``{"params": {...}}``, the parameter document itself, or a
 form with a ``params`` field. Every endpoint checks the source's
-``has_permission`` and answers 403 when it says no; bad parameters are a 400.
+``has_permission`` and answers 403 when it says no; bad parameters are a 400,
+and a source that cannot read its rows now
+(:class:`~djgentelella.datasources.base.DataSourceUnavailable`) a 503 -- or
+the 502/504 it carries.
 """
 
 import json
@@ -34,7 +37,7 @@ from .base import get_datasource
 from .export import available_formats, handle_export
 from .query import (
     aggregate, apply_params, facets, highlight_classes, parse_params, pivot,
-    selected_columns, serialize_rows,
+    selected_columns, serialize_rows, source_queryset,
 )
 
 #: The largest page the rows endpoint serves.
@@ -139,7 +142,7 @@ class DataSourceRowsView(DataSourceView):
                 row['DT_RowClass'] = css[row['pk']]
         return Response({
             'data': rows,
-            'recordsTotal': source.get_queryset(request).count(),
+            'recordsTotal': source_queryset(source, request, {}).count(),
             'recordsFiltered': queryset.count(),
             'draw': _int(data.get('draw'), 0),
         })

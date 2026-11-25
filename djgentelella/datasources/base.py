@@ -11,7 +11,9 @@ Sources live in ``<app>/gtdatasources.py`` and are registered with
 ``AppConfig.ready()``, like ``gtflows``.
 """
 
+import inspect
 import logging
+import warnings
 from dataclasses import dataclass, field as dc_field
 
 from django.apps import apps
@@ -21,6 +23,9 @@ from django.core.exceptions import (
 from django.db import models
 from django.db.models import Q
 from django.utils.text import capfirst
+from django.utils.translation import gettext_lazy as _
+from rest_framework import status
+from rest_framework.exceptions import APIException
 
 from djgentelella.sites import get_current_site, site_q
 from djgentelella.autodiscover import autodiscover_once
@@ -33,6 +38,84 @@ KINDS = ('string', 'text', 'integer', 'decimal', 'boolean', 'date', 'datetime',
 NUMERIC_KINDS = ('integer', 'decimal')
 TEXT_KINDS = ('string', 'text')
 DATE_KINDS = ('date', 'datetime')
+
+
+class DataSourceUnavailable(APIException):
+    """The rows of a source cannot be read right now: the external API it
+    reads is down, timed out or answered something it cannot use.
+
+    It is not a bad request (that is a ``ValidationError``, a 400): the same
+    parameters may work later. A DRF ``APIException``, so every endpoint of
+    djgentelella -- the data source API, the components of a design -- answers
+    it with its ``status_code`` and ``{"detail": ...}``:
+
+    * 503 (the default): the source is unavailable;
+    * 502 (``status=502``): the source upstream answered, but with an error
+      or a body it cannot read;
+    * 504 (``status=504``): the source upstream did not answer in time.
+
+    ``retry_after`` (seconds) becomes the ``Retry-After`` header.
+    """
+    status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+    default_detail = _('The data source is not available right now.')
+    default_code = 'datasource_unavailable'
+    #: The status codes it may carry.
+    STATUSES = (status.HTTP_502_BAD_GATEWAY, status.HTTP_503_SERVICE_UNAVAILABLE,
+                status.HTTP_504_GATEWAY_TIMEOUT)
+
+    def __init__(self, detail=None, code=None, *, status=None, retry_after=None):
+        super().__init__(detail, code)
+        if status is not None:
+            if status not in self.STATUSES:
+                raise ValueError('DataSourceUnavailable takes a status of %s, '
+                                 'not %r' % (self.STATUSES, status))
+            self.status_code = status
+        #: DRF's exception handler sends it as ``Retry-After``.
+        self.wait = retry_after
+
+
+def takes_params(source):
+    """Whether ``source.get_queryset`` takes the query parameters: its
+    signature has a ``params`` argument (``get_queryset(request,
+    params=None)``)."""
+    method = getattr(source, 'get_queryset', None)
+    if method is None:
+        return False
+    try:
+        return 'params' in inspect.signature(method).parameters
+    except (TypeError, ValueError):
+        return False
+
+
+def project_model_of(source):
+    """The model of the project behind ``source`` -- its rows are rows of that
+    model, its pks are that model's -- or None: :attr:`DataSource.
+    project_model`, and for an object that is no :class:`DataSource` its
+    ``model`` attribute (deprecated)."""
+    if isinstance(source, DataSource):
+        return source.project_model
+    if hasattr(source, 'project_model'):
+        return source.project_model
+    return _deprecated_model(source)
+
+
+_warned = set()
+
+
+def _deprecated_model(source):
+    model = getattr(source, 'model', None)
+    if model is not None:
+        key = type(source)
+        if key not in _warned:
+            _warned.add(key)
+            warnings.warn(
+                '%s.%s: djgentelella reads the "model" attribute of a data '
+                'source as the model of the project behind it; declare '
+                '"project_model" instead (None for a source whose rows are '
+                'not rows of a model of the project). "model" stops being '
+                'read in a future version.' % (key.__module__, key.__qualname__),
+                DeprecationWarning, stacklevel=3)
+    return model
 
 
 @dataclass
@@ -100,7 +183,35 @@ class DataSource:
         raise NotImplementedError
 
     def get_queryset(self, request):
+        """The rows ``request`` may read, as a queryset.
+
+        A subclass may take the query parameters too, as
+        ``get_queryset(self, request, params=None)``: the query functions
+        (:func:`~djgentelella.datasources.query.source_queryset`) then pass
+        the parameter document they are about to apply, already normalized
+        by ``parse_params`` -- ``None`` when there is none. It is a hint, for
+        a source that can narrow what it reads (an external API with filters
+        of its own): the queryset may hold more rows than the filters select,
+        never fewer, because the filters, the search and the ordering are
+        applied on it all the same.
+
+        Building the queryset should not read the rows: ``validate_params``
+        builds it to let the ORM check the values, and reading them is the
+        job of whoever evaluates it. An error reading them is
+        :class:`DataSourceUnavailable`.
+        """
         raise NotImplementedError
+
+    @property
+    def project_model(self):
+        """The model of the project the rows are rows of -- their pks are pks
+        of it, so a row link, an edit or a ``pk__in`` reach them -- or None
+        (rows read from an external API, computed in Python...).
+
+        A subclass sets it, as a class attribute or a property. Without it,
+        a ``model`` attribute is still read, with a ``DeprecationWarning``.
+        """
+        return _deprecated_model(self)
 
     def has_permission(self, request):
         if self.perms is not None and not list(self.perms):
@@ -209,6 +320,10 @@ class ModelDataSource(DataSource):
             self.site_field = site_field
         self.extra_columns = {column.name: column for column in columns or ()}
 
+    @property
+    def project_model(self):
+        return self.model
+
     def field_names(self):
         if self.fields is not None:
             return list(self.fields)
@@ -284,6 +399,10 @@ class FunctionDataSource(DataSource):
         self.perms = None if perms is None else list(perms)
         if search_mode:
             self.search_mode = search_mode
+
+    @property
+    def project_model(self):
+        return self.model
 
     def columns(self, request):
         if callable(self._columns):

@@ -208,17 +208,30 @@ def neutralize_formula(text):
     return text
 
 
-def iter_rows(source, request, queryset, columns, display=True):
-    """Serialized rows, read ``CHUNK_SIZE`` at a time."""
+def iter_rows(source, request, queryset, columns, display=True, first=None):
+    """Serialized rows, read ``CHUNK_SIZE`` at a time. ``first`` is the first
+    chunk, already read (:func:`first_chunk`)."""
     start = 0
     while True:
-        chunk = serialize_rows(source, request,
-                               queryset[start:start + CHUNK_SIZE], columns,
-                               display=display)
+        if first is not None:
+            chunk, first = first, None
+        else:
+            chunk = serialize_rows(source, request,
+                                   queryset[start:start + CHUNK_SIZE], columns,
+                                   display=display)
         yield from chunk
         if len(chunk) < CHUNK_SIZE:
             return
         start += CHUNK_SIZE
+
+
+def first_chunk(source, request, queryset, columns, display=True):
+    """The first ``CHUNK_SIZE`` rows, read now: a streamed export reads them
+    before it answers, so a source that cannot be read (a ValidationError, a
+    :class:`~djgentelella.datasources.base.DataSourceUnavailable`) is an HTTP
+    error and not a file cut after its header."""
+    return serialize_rows(source, request, queryset[:CHUNK_SIZE], columns,
+                          display=display)
 
 
 def totals(source, request, params, queryset):
@@ -298,17 +311,31 @@ class _Echo:
 
 @register_exporter('csv')
 def export_csv(source, request, params):
-    """Streams the rows as CSV, a header row of labels first."""
+    """Streams the rows as CSV, a header row of labels first.
+
+    The first ``CHUNK_SIZE`` rows are read before the response is returned,
+    so a source that fails to read is an HTTP error (400, or the 503 of
+    :class:`~djgentelella.datasources.base.DataSourceUnavailable`) and not a
+    file cut after its header. A failure after them (a later chunk) can only
+    cut the stream; it is logged."""
     queryset = apply_params(source, request, params)
     columns = selected_columns(source, request, params)
     writer = csv.writer(_Echo())
+    # Read before answering: an error here is a 400/503, not a cut file.
+    first = first_chunk(source, request, queryset, columns)
 
     def lines():
         # A BOM, so a spreadsheet opens the file as UTF-8.
         yield '﻿'
         yield writer.writerow([str(c.label) for c in columns])
-        for row in iter_rows(source, request, queryset, columns):
-            yield writer.writerow([_csv_value(row[c.name]) for c in columns])
+        try:
+            for row in iter_rows(source, request, queryset, columns, first=first):
+                yield writer.writerow([_csv_value(row[c.name]) for c in columns])
+        except Exception:
+            # The status is gone already: all that is left is to say why the
+            # file is cut.
+            logger.exception('CSV export of %s cut while streaming', source.name)
+            raise
 
     response = StreamingHttpResponse(lines(), content_type='text/csv; charset=utf-8')
     return attachment(response, source, 'csv')

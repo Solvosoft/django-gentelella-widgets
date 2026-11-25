@@ -17,7 +17,7 @@ from django.urls import NoReverseMatch, reverse
 from django.utils.module_loading import import_string
 
 from djgentelella.datasources.base import (
-    TEXT_KINDS, get_datasources, resolve_field_path,
+    TEXT_KINDS, get_datasources, project_model_of, resolve_field_path,
 )
 
 #: The full-text weights, from the most to the least important.
@@ -107,7 +107,7 @@ class GlobalSearch:
         else:
             result = [(column.name, 'A') for column in source.columns(request)
                       if column.kind in TEXT_KINDS]
-        model = getattr(source, 'model', None)
+        model = project_model_of(source)
         if model is not None:
             for path, _weight in result:
                 check_path(model, path)

@@ -76,7 +76,7 @@ from rest_framework.response import Response
 
 from djgentelella.datasources import query
 from djgentelella.datasources.base import (
-    ModelDataSource, get_datasource, resolve_field_path,
+    ModelDataSource, get_datasource, project_model_of, resolve_field_path,
 )
 from djgentelella.designs.builds import DataBuild
 from djgentelella.designs.components import Endpoint, RuntimeComponent
@@ -515,7 +515,7 @@ class RegionComponent(RuntimeComponent):
             if source is None:
                 return None
             build.datasource = props['datasource']
-            build.model = getattr(source, 'model', None)
+            build.model = project_model_of(source)
             if props.get('perms'):
                 rctx.check_permissions(path + '.props.perms', props['perms'])
                 build.perms = list(props['perms'])
