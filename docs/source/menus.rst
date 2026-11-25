@@ -238,6 +238,13 @@ page -- a ``page:<path>`` item and a reversed ``gt-design-page`` -- ends in
 with the slash, so a breadcrumb or an active item that compares the link
 with ``request.path`` matches.
 
+It stays off by default: turning it on changes every link to a design page
+already drawn, and the projects on top of djgentelella assert the link
+without the slash. To adopt it, set it, then update whatever compares those
+links as text (tests, breadcrumbs built by hand, an active item matched by
+``startswith``); the pages keep answering at both paths, so no link breaks
+in the meantime.
+
 
 The Link of an Item in Python
 -----------------------------

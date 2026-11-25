@@ -67,6 +67,15 @@ document to the current version, :func:`validate_envelope` checks the shape.
       ]}
     }
 
+- ``app`` and ``slug`` are lower-case Python identifiers
+  (``^[a-z_][a-z0-9_]*$``, ``format.APP_PATTERN``), never slugs with ``-``:
+  ``app`` is the label of the Django app djgentelella-editor generates code
+  into, a flow named without ``app.`` is looked up as ``<app>.<name>``, and
+  the pipeline steps of an app are named ``<app>.<step>``. A project whose
+  applications have slugs (a ``SlugField``, a djodo App: ``mi-tienda``) maps
+  them with ``format.app_name(slug)`` -- lower case, ``-`` and spaces as
+  ``_``, a leading ``_`` before a digit; ``ValueError`` when nothing valid is
+  left -- and keeps that mapping both ways.
 - ``meta.permissions`` -- ``{"view": [...]}``, or a plain list meaning the same
   -- are the permissions a user needs to see the page.
 - ``assets.css`` is inlined in the page, cleaned; ``assets.js`` only when the
@@ -683,8 +692,15 @@ Props:
     ``source_tables.facets_config``) and its endpoint reads the filters as
     ``?gtfilters=`` -- only over the columns the request sees, as the list.
     Code generated from a design passes ``datasource_url=`` to
-    ``grid_page_context`` when its panel counts elsewhere. A grid that edits
-    rows cannot be the target of a panel.
+    ``grid_page_context`` when its panel counts elsewhere. A grid over a
+    ``datasource`` that edits rows cannot be the target of a panel.
+
+    A grid over a ``model`` can: the panel counts through its own endpoint,
+    as over a table, and the grid follows the state of its ``group``
+    (``gtdesign:<grid>`` in ``data-gtconfig``; the URL is the ``data-url`` of
+    the panel of that group) with ``?gtfilters=``. A facet that changes while
+    rows are pending waits: the grid reloads with it once they are saved or
+    undone.
 ``columns`` (required)
     Fields of the model the exposure allows; not files, JSON, binary or
     points. A column that does not exist is an error of the document.
@@ -1002,8 +1018,9 @@ over a data source (``designs.regions``, ``designs.source_tables``,
     list mode): ``url`` is the data source API (``gtdatasource``) unless
     ``datasource_url`` says otherwise, ``group`` is ``gtdesign:<target>``.
     ``None`` without ``build.perms`` or the source's ``has_permission``. A
-    panel over a table of a model counts through its own endpoint,
-    ``factories.facets_viewset_for(build, target=table_build)``: give its
+    panel over a table, a region or a grid of a model counts through its own
+    endpoint, ``factories.facets_viewset_for(build, target=table_build)``
+    (the build of that node): give its
     ``url`` (and the table's build, whose ``column_conditions`` leave out
     the facets of the columns it hides); without ``url``, ``ValueError``.
     With it, a page that uses ``filtered_by`` or the ``facets`` prop of
@@ -1168,8 +1185,27 @@ filters and search as the parameter document (``?params=``), which its
 endpoint applies with ``apply_params`` on top of ``get_queryset(request)``. A
 component that is not the target follows the same panel with
 ``filtered_by: <panel id>``, over the same data source: one panel then filters
-the cards, the calendar and the map. A region over a ``model`` cannot be a
-facets target (the panel reads a registered data source).
+the cards, the calendar and the map.
+
+A region over a ``model`` can be the target too: the panel then counts
+through its own endpoint (``gtapis/designs/<page>/<panel>/``, as over a
+table), over the rows of the region -- its ``site_field`` (this Site's and the
+global ones) and its ``perms`` included, so it counts what the region shows.
+Its ``columns`` are fields of the model the exposure allows. The region's
+``data-gtconfig`` has the ``group`` and no ``datasource_url``: the browser
+takes the URL from the panel of that group on the page (its ``data-url``).
+``filtered_by`` from another region over a model needs the same ``model``
+and the same ``site_field``.
+
+.. code:: json
+
+    {"type": "facets", "id": "f", "props": {"target": "units", "columns": ["head"]}},
+    {"type": "cards", "id": "units", "props": {
+        "model": "demoapp.Department", "site_field": "site",
+        "title_field": "name", "fields": ["head"]}},
+    {"type": "metrics", "id": "kpis", "props": {
+        "model": "demoapp.Department", "site_field": "site", "filtered_by": "f",
+        "metrics": [{"label": "Units", "fn": "count"}]}}
 
 FullCalendar and Leaflet.markercluster are loaded by the component's script
 (``gentelella/js/designs/regions.js``) when the page does not bring them
@@ -1397,6 +1433,15 @@ endpoint of its own: the data source API applies the source's permissions.
 The target's widget joins the same ``GTDataSourceState`` group to be
 filtered.
 
+A component that also sets ``facets_model = True`` (the regions and the grid
+do) may be the target of a panel when its node reads a ``model`` instead of a
+``datasource``: the panel checks its ``columns`` against the exposure, and
+serves ``factories.facets_viewset_for(build, target=...)`` over the rows of
+the target's build (its ``model``, ``site_field``, ``column_conditions`` and,
+when it has no ``search_fields``, its ``perms``). The target's widget then
+finds the panel by its group (``.gtdesign-facets[data-group]``) to read its
+``data-url``.
+
 .. code:: python
 
     @register
@@ -1426,6 +1471,39 @@ three blocks for a template extending it: ``gtdesign_before``,
         return {'base_template': 'djodo/base.html'}
 
     GT_DESIGNS_PAGE_CONTEXT = 'miapp.designs.design_page_context'
+
+**The project's context.** ``GT_DESIGNS_RESOLVE_CONTEXT`` is a
+:class:`ResolveContext` subclass (or its dotted path) that every design is
+resolved with when the caller gives no ``context`` of its own: publishing --
+``gtdesigns_publish``, the admin (adding a page and **Validate**),
+``publishing.publish``/``validate``/``import_page`` and so any API built on
+them --, serving a page (``engine.resolve_page``; the class is part of its
+cache key), ``pipeline.build_pipeline`` and ``region_page_context``. The
+rules of the project then hold wherever a page is published, not only on its
+own publishing paths. ``components.default_context_class()`` returns it
+(``ImproperlyConfigured`` when it is not a subclass); an explicit
+``context=`` -- which ``publish``, ``validate``, ``import_page`` and
+``build_pipeline`` also take now -- wins. Its ``__init__`` is called as
+``cls(document, request, preview, site=..., allow_templates=...)``, the
+signature of :class:`ResolveContext`.
+
+.. code:: python
+
+    # djodo: a page of an App names only that App's pipeline steps
+    class AppResolveContext(ResolveContext):
+        def pipeline_step(self, name, path=None):
+            found = super().pipeline_step(name, path)
+            if found is not None and not allowed_step(name, app_of(self.site)):
+                if path is not None:
+                    self.error(path, 'the step %s belongs to another App' % name)
+                return None
+            return found
+
+    GT_DESIGNS_RESOLVE_CONTEXT = 'djodo.apps_builder.pipeline.AppResolveContext'
+
+A page saved some other way that breaks the rule -- by hand, or before the
+setting -- does not resolve when it is served (it is logged, as any page that
+does not resolve).
 
 **Conditions with the object.** On a page about one object the page and the
 API of each node must decide the same, so a node's conditions get the object
@@ -1470,7 +1548,11 @@ Commands
     again unchanged, and the editor reads it.
 
 The admin lists the pages and shows the document read only, with a
-**Validate** button; adding a page there validates its document first.
+**Validate** button; adding a page there validates its document first, as
+``publish`` does: for the Site chosen in the form, with the trust of the user
+adding it (who is recorded as its publisher) and the project's
+``GT_DESIGNS_RESOLVE_CONTEXT``. **Validate** resolves a page for its own
+Site.
 
 Security
 --------
@@ -1536,4 +1618,7 @@ Setting                         Default    Meaning
                                            extends
 ``GT_DESIGNS_PAGE_CONTEXT``     ``None``   ``(request, page) -> dict`` added
                                            to the context of each page
+``GT_DESIGNS_RESOLVE_CONTEXT``  ``None``   ``ResolveContext`` subclass every
+                                           design is resolved with (see
+                                           "The project's context")
 ==============================  =========  ================================

@@ -619,6 +619,18 @@ any more: code of a project that used it loads ``vendors/bootstrap/
 popper.min.js`` itself (``loaddevstatic`` still downloads it). The bundle is
 built with ``python -m pylp`` (``make assets``), not committed.
 
+**The list of a ``CheckboxSelectMultiple`` is ``ul.gt-check-list`` (W31).**
+It was ``<ul class="gt-check ...">`` (and drew as one box). CSS or a script
+that selected ``ul.gt-check`` selects ``ul.gt-check-list``; the boxes keep
+``input.gt-check``. Adding a page in the admin validates its document for the
+Site chosen and with the trust of the user adding it (before: global and
+untrusted), so a page with a template ``html`` node is accepted there when
+that user may publish templates, as ``gtdesigns_publish --user`` already
+did. With ``GT_DESIGNS_RESOLVE_CONTEXT`` set, a page saved before it that
+breaks the new rule stops resolving when it is served: validate the pages
+(``gtdesigns_export`` + ``gtdesigns_publish``, or **Validate** in the admin)
+before turning it on.
+
 **Widget options in the designs (W29).** ``widgetmap.WIDGET_OPTIONS``
 declares, as a JSON schema per option, the options a widget takes:
 ``StarRatingInput`` (``stars``, ``readonly``), ``RangeInput`` (``min_value``,
@@ -743,6 +755,38 @@ function, ...)`` builds a step without registering it. New hook
 ``catalogue()`` and ``Process`` carry the ``app`` that defines each step.
 The steps of a ``wizard`` take ``widget_options``.
 
+**The project's ResolveContext everywhere a page is published (W31).** The
+new setting ``GT_DESIGNS_RESOLVE_CONTEXT`` (a ``ResolveContext`` subclass or
+its dotted path) is the context every design is resolved with when the caller
+gives none: ``gtdesigns_publish``, the admin, ``publishing.publish``,
+``validate`` and ``import_page`` (and the APIs built on them),
+``engine.resolve_page`` when a page is served (the class is part of its cache
+key), ``pipeline.build_pipeline`` and ``region_page_context``. A rule such as
+djodo's "a page of an App names only that App's pipeline steps" then holds on
+every path, not only on the project's own. ``publish``, ``validate``,
+``import_page`` and ``build_pipeline`` take ``context=``, which wins;
+``components.default_context_class()`` returns the configured class. Adding a
+page in the admin validates it for the Site of the form and with the trust of
+the user adding it, as ``publish`` does; **Validate** resolves a page for its
+own Site.
+
+**Facets over a region or a grid of a model (W31).** A ``facets`` panel may
+target a ``cards``, ``calendar``, ``map``, ``tree``, ``timeline``,
+``metrics`` or ``interactive_grid`` node over an exposed ``model`` (before,
+only over a ``datasource``): it counts through its own endpoint over the rows
+of that node -- its ``site_field`` and, for a region, its ``perms`` included
+--, and the node follows it by its group (``gtdesign:<target>``; the browser
+reads the panel's ``data-url``). ``filtered_by`` from another region over the
+same model and ``site_field`` works too. A component opts in with
+``RuntimeComponent.facets_model = True``; ``regions.facets_state(build)`` is
+the state a region's configuration names. A grid whose rows are pending
+applies a facet that changed once they are saved or undone.
+
+**The ``app`` of a document (W31).** ``app`` and ``slug`` stay lower-case
+Python identifiers (``format.APP_PATTERN``): ``app`` is a Django app label for
+code generation, flows and pipeline steps (``<app>.<step>``).
+``format.app_name(slug)`` turns a slug with ``-`` (a djodo App) into one.
+
 Fixes
 """"""""
 
@@ -839,6 +883,19 @@ helpers named ``DownSource`` are now ``TTMDownSource`` and
 ``make test`` can run at once in one checkout without destroying each
 other's database (a killed run leaves its file; ``--keepdb`` keeps nothing
 between runs).
+
+**``CheckboxSelectMultiple`` draws one box per choice (W31).** The
+``gt-check`` class of its ``attrs`` reached the ``<ul>`` around the choices
+too, which ``checks.css`` painted as one 13 px box: the choices spilled over
+whatever came after it, in every layout. The list now gets ``gt-check-list``
+(plus the other classes of ``attrs``) and ``gt-check`` stays on each
+``<input>``; ``checks.css`` lays the list out one choice per line. A selector
+that looked for ``ul.gt-check`` must look for ``ul.gt-check-list``.
+
+**The trailing slash of a design page in the menu stays opt-in (W31).**
+``GT_MENU_DESIGN_PAGE_SLASH`` remains off by default: turning it on changes
+every link already drawn, and the projects on top of djgentelella assert the
+links without it. ``docs/source/menus.rst`` says how to adopt it.
 
 0.7.1 (2026-11-15)
 --------------------

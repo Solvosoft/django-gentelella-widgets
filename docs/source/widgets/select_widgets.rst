@@ -248,7 +248,12 @@ A styled checkbox using Gentelella's flat checkbox style.
 CheckboxSelectMultiple
 ----------------------
 
-Multiple checkboxes for selecting several options from a list.
+Multiple checkboxes for selecting several options from a list: one
+``gt-check`` box per choice, one per line, in a ``<ul class="gt-check-list">``
+(``checks.css``). The ``attrs`` of the widget -- ``gt-check``, the
+``data-widget`` and any class of your own -- go on each ``<input>``; the list
+gets ``gt-check-list`` plus your other classes, never ``gt-check`` (which
+drew the whole list as one box). Choices in groups become nested lists.
 
 .. code:: python
 
