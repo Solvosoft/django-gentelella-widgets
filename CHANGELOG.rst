@@ -265,6 +265,7 @@ Site in the global menu. What it returns does not change. ``validate_tree``
 takes a ``Site`` not saved yet, so a menu with a ``global_parent`` can be
 checked before its Site is created; ``import_tree`` still needs it saved.
 See ``docs/source/menus.rst`` ("Exporting and Importing a Menu").
+
 **The grid and the Kanban as public API (W21).** ``designs.grid`` and
 ``designs.flow_kanban`` list in ``__all__`` what code generated from a design
 uses (``GridState``, ``required_fields``, ``NOT_SHOWN``, ``NOT_EDITABLE``,
@@ -315,6 +316,7 @@ over its data source). See ``docs/source/designs.rst``.
 **``make mailhog`` and ``make mailhog-stop``.** Start MailHog in the
 background for ``make test-selenium`` (it reuses one already answering on
 ``:8025``) and stop it.
+
 **Region components: ``cards``, ``calendar`` and ``map`` (C15).** Three design
 components (``djgentelella.designs.regions``) show the rows of a data source
 -- or of an exposed model with an optional ``site_field`` -- with columns by
