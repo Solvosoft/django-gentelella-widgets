@@ -23,6 +23,10 @@ from djgentelella.flows.tasks import create_task
 from djgentelella.models import GentelellaSettings
 from djgentelella.tests.Designs_Test import DesignState, design, node
 
+#: Each test signs users in: a fast hasher keeps it from spending seconds
+#: per test hashing their passwords (PBKDF2).
+FAST_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
+
 HOSTS = override_settings(ALLOWED_HOSTS=['*'])
 
 
@@ -85,6 +89,7 @@ class SiteFieldDataSourceTests(TwoSites, TestCase):
 
 
 @HOSTS
+@override_settings(PASSWORD_HASHERS=FAST_HASHERS)
 class DesignPageBySiteTests(TwoSites, DesignState, TestCase):
     """A design page of the current Site wins over the global one."""
 

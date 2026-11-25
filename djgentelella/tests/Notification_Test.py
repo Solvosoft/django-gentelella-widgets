@@ -4,7 +4,7 @@ import uuid
 
 from django.conf import settings
 from django.test import Client
-from django.test import TestCase, RequestFactory
+from django.test import TestCase, RequestFactory, override_settings
 from django.urls import reverse
 from django.utils import formats
 from django.utils.timezone import now, localtime
@@ -18,9 +18,14 @@ from djgentelella.models import Notification
 from djgentelella.notification.base import NotificationViewSet
 from django.contrib.auth import get_user_model
 
+#: Each test signs users in: a fast hasher keeps it from spending seconds
+#: per test hashing their passwords (PBKDF2).
+FAST_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
+
 User = get_user_model()
 
 
+@override_settings(PASSWORD_HASHERS=FAST_HASHERS)
 class ApiNotificationsTestCase(TestCase):
     def setUp(self):
         self.api_client = APIClient()

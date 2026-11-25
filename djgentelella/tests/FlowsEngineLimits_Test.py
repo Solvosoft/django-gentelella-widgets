@@ -23,6 +23,10 @@ from djgentelella.flows import (
 )
 from djgentelella.flows.models import FlowDefinition, FlowInstance
 
+#: Each test signs users in: a fast hasher keeps it from spending seconds
+#: per test hashing their passwords (PBKDF2).
+FAST_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
+
 
 def root():
     found = get_user_model().objects.filter(username='root').first()
@@ -89,6 +93,7 @@ class LoopFlow(Flow):
     transitions = [Transition('go', 'start', 'ping')]
 
 
+@override_settings(PASSWORD_HASHERS=FAST_HASHERS)
 class AutomaticChainTests(TestCase):
     """Each move used to nest a few Python frames, so a long chain hit
     RecursionError before ``Run.MAX_STEPS``."""

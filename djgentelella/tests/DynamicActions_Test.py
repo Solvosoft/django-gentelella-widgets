@@ -28,6 +28,10 @@ from djgentelella.widgets import core as genwidgets
 
 from .dynamic_snapshot_forms import SNAPSHOT_RENDERS, snapshot_renders
 
+#: Each test signs users in: a fast hasher keeps it from spending seconds
+#: per test hashing their passwords (PBKDF2).
+FAST_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
+
 SNAPSHOTS = Path(__file__).parent / 'snapshots'
 
 
@@ -462,6 +466,7 @@ class DynamicEndpointTest(TestCase):
 # English labels are asserted: the demo runs in Spanish once its .mo, which is
 # not versioned, is compiled, and a local run would disagree with CI.
 @override_settings(LANGUAGE_CODE='en')
+@override_settings(PASSWORD_HASHERS=FAST_HASHERS)
 class DynamicTokenTest(TestCase):
     """The set_value(server=...) token expires, binds to the user of the form
     when it has one, and the form class decides who may run its methods."""

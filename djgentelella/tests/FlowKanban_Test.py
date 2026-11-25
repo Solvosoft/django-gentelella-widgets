@@ -24,6 +24,10 @@ from djgentelella.models import MenuItem
 from djgentelella.tests.DesignsPages_Test import DesignClient, grant
 from djgentelella.tests.Designs_Test import design, node
 
+#: Each test signs users in: a fast hasher keeps it from spending seconds
+#: per test hashing their passwords (PBKDF2).
+FAST_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
+
 FLOW = 'tests.kanban'
 
 
@@ -206,6 +210,7 @@ class SchemaTests(KanbanBase):
 
 
 @override_settings(LANGUAGE_CODE='en')
+@override_settings(PASSWORD_HASHERS=FAST_HASHERS)
 class BoardTests(KanbanBase):
     def test_cards_by_state(self):
         self.page(fields=['price', 'status'])

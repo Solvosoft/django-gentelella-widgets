@@ -6,7 +6,7 @@ import json
 
 from django.contrib.auth.models import AnonymousUser, User
 from django.contrib.contenttypes.models import ContentType
-from django.test import RequestFactory
+from django.test import RequestFactory, override_settings
 from django.urls import reverse
 
 from djgentelella.chunked_upload.constants import UPLOADING
@@ -15,6 +15,10 @@ from djgentelella.fields.files import ChunkedFileField, DigitalSignatureField
 from djgentelella.firmador_digital.signvalue_utils import ValueDSParser
 from djgentelella.serializers.firmador_digital import InitialSignatureSerializer
 from djgentelella.tests.UploadsHardening_Test import UploadsTestBase
+
+#: Each test signs users in: a fast hasher keeps it from spending seconds
+#: per test hashing their passwords (PBKDF2).
+FAST_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
 
 
 def b64(data):
@@ -64,6 +68,7 @@ class FindUploadTests(TokenTestBase):
         self.assertIs(request_user(None), ANY_USER)
 
 
+@override_settings(PASSWORD_HASHERS=FAST_HASHERS)
 class ChunkedFileFieldTests(TokenTestBase):
     def value(self, upload, context):
         field = ChunkedFileField()
@@ -91,6 +96,7 @@ class ChunkedFileFieldTests(TokenTestBase):
         self.assertEqual(self.value(upload, {}), b'data')
 
 
+@override_settings(PASSWORD_HASHERS=FAST_HASHERS)
 class DigitalSignatureFieldTests(TokenTestBase):
     def value(self, upload, context):
         field = DigitalSignatureField()

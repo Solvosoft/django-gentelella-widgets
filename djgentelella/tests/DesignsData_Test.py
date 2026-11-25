@@ -56,8 +56,11 @@ ALL_PRODUCT_PERMS = ['demoapp.%s_product' % action
 
 
 # These tests compare messages in English: the same text whether or not
-# the Spanish catalog is compiled (the demo runs in 'es').
-@override_settings(LANGUAGE_CODE='en')
+# the Spanish catalog is compiled (the demo runs in 'es'). Each test creates
+# and signs in a user: a fast hasher keeps it from spending seconds per test
+# hashing the password (PBKDF2), as InteractiveGrid_Test does.
+@override_settings(LANGUAGE_CODE='en',
+                   PASSWORD_HASHERS=['django.contrib.auth.hashers.MD5PasswordHasher'])
 class DataDesignTestCase(DesignState, TestCase):
     """Some catalogue rows, a signed-in user and helpers to publish."""
 

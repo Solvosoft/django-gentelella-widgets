@@ -22,7 +22,12 @@ from djgentelella.history.api import BaseViewSetWithLogs
 from djgentelella.history.utils import add_log
 from djgentelella.models import HistoryRelation, Trash
 
+#: Each test signs users in: a fast hasher keeps it from spending seconds
+#: per test hashing their passwords (PBKDF2).
+FAST_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
 
+
+@override_settings(PASSWORD_HASHERS=FAST_HASHERS)
 class AddLogTestCase(TestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(
@@ -164,6 +169,7 @@ class FakeRequest:
                      'REMOTE_ADDR': '10.0.0.9'}
 
 
+@override_settings(PASSWORD_HASHERS=FAST_HASHERS)
 class BaseViewSetWithLogsTestCase(TestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(

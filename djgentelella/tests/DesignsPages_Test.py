@@ -21,6 +21,10 @@ from djgentelella.designs.sanitize import clean_html
 from djgentelella.tests.Designs_Test import FIXTURES, DesignState, design, node
 from djgentelella.tests.designs_fixtures.components import EchoComponent
 
+#: Each test signs users in: a fast hasher keeps it from spending seconds
+#: per test hashing their passwords (PBKDF2).
+FAST_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
+
 
 def grant(user, *codenames):
     for codename in codenames:
@@ -307,6 +311,7 @@ class SecurityTests(DesignClient):
         self.assertIn('not a valid Django template', errors[0].message)
 
 
+@override_settings(PASSWORD_HASHERS=FAST_HASHERS)
 class EndpointRouterTests(DesignClient):
     def setUp(self):
         super().setUp()
@@ -389,6 +394,7 @@ class EndpointRouterTests(DesignClient):
 # English labels are asserted: the demo runs in Spanish once its .mo, which is
 # not versioned, is compiled, and a local run would disagree with CI.
 @override_settings(LANGUAGE_CODE='en')
+@override_settings(PASSWORD_HASHERS=FAST_HASHERS)
 class AdminTests(DesignClient):
     def setUp(self):
         super().setUp()

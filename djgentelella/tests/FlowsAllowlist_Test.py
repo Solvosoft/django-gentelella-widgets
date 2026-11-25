@@ -21,6 +21,10 @@ from djgentelella.flows.definitions import build_flow, publish_definition
 from djgentelella.flows.models import FlowDefinition, FlowTransitionLog
 from djgentelella.tests.FlowsV2_Test import root
 
+#: Each test signs users in: a fast hasher keeps it from spending seconds
+#: per test hashing their passwords (PBKDF2).
+FAST_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
+
 CALLS = []
 HERE = __name__
 
@@ -56,6 +60,7 @@ def store(doc):
                                          document=doc, is_active=True)
 
 
+@override_settings(PASSWORD_HASHERS=FAST_HASHERS)
 class AllowlistTests(TestCase):
     def setUp(self):
         # The messages are compared in English, catalog compiled or not.

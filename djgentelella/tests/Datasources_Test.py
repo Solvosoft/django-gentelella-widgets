@@ -26,6 +26,10 @@ from djgentelella.datasources.base import (
     register_datasource, unregister_datasource,
 )
 
+#: Each test signs users in: a fast hasher keeps it from spending seconds
+#: per test hashing their passwords (PBKDF2).
+FAST_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
+
 try:
     import openpyxl
 except ImportError:  # the `export` extra
@@ -663,6 +667,7 @@ def content(response):
     return response.content
 
 
+@override_settings(PASSWORD_HASHERS=FAST_HASHERS)
 class ExportTest(DataSourceFixture, TestCase):
     params = {'columns': ['name', 'knob_number', 'field_autocomplete',
                           'radio_elements', 'born_date'],
@@ -1051,6 +1056,7 @@ class SourcesTest(DataSourceFixture, TestCase):
                          'djgentelella.datasources')
 
 
+@override_settings(PASSWORD_HASHERS=FAST_HASHERS)
 class DataSourceAPITest(DataSourceFixture, TestCase):
 
     def setUp(self):
