@@ -1366,6 +1366,16 @@ and the nodes a node depends on get their own.
 ``ResolvedNode.visible(request, obj=None)`` evaluates with the ``obj`` it is
 given.
 
+Pipeline
+--------
+
+A page can declare what happens before it is drawn
+(``root.props.pipeline.before_render``) and when the form of
+``object_management``, ``inline_object_management`` or ``crud_classic`` is
+sent (``props.pipeline.on_submit``): validations, computations and processes
+registered in Python by name, and branches that say where to go next. See
+:doc:`pipeline`.
+
 Commands
 --------
 
@@ -1421,6 +1431,9 @@ run code:
   at once. A page published from the command line without ``--user`` is never
   trusted.
 - Only exposed models, and only their allowed fields, reach a design.
+- A ``pipeline`` names steps only by the name they were registered with in
+  Python (:doc:`pipeline`), never by an importable path; they run as the user
+  of the request, after the permissions and conditions of the component.
 - Publishing from the admin or the command records the publisher; whoever can
   change ``Page`` can publish, so grant ``gtdesigns.change_page`` as you would
   grant editing the site.

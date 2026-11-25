@@ -64,6 +64,7 @@ Django Gentelella Widgets (``djgentelella``) is a reusable Django application th
    sites
    authorization
    locking
+   pipeline
 
 .. toctree::
    :maxdepth: 1
