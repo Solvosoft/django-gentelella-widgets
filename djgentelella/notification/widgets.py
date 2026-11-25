@@ -2,7 +2,10 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import translation
 
+from djgentelella.menu import register_menu_widget
 
+
+@register_menu_widget
 class NotificationMenu:
     """
     This widget help to create a notification on menú, was tested only on top nav

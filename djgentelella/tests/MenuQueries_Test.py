@@ -13,7 +13,9 @@ from django.test import RequestFactory, TestCase
 from django.test.utils import CaptureQueriesContext
 
 from djgentelella.forms.decorators import decore_form_instance
-from djgentelella.menu import item_visible, menu_tree, visible_items
+from djgentelella.menu import (
+    item_visible, menu_tree, register_menu_widget, visible_items,
+)
 from djgentelella.models import MenuItem
 from djgentelella.permission_management.forms import PermCategoryManagementForm
 from djgentelella.templatetags.gentelellamenu import PLACEHOLDER_URL_NAMES
@@ -25,6 +27,7 @@ ALL_MENUS = ('{% load gentelellamenu %}{% top_menu %}{% sidebar_menu %}'
              '{% footer_sidebar_menu %}')
 
 
+@register_menu_widget
 class RequestWidget:
     """A menu widget, with the contract djodo's AppSwitcherMenu relies on."""
 

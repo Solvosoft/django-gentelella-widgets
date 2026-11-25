@@ -3,12 +3,14 @@ import logging
 from django.conf import settings
 from django.contrib.auth.models import Permission
 from django.core.cache import DEFAULT_CACHE_ALIAS, cache, caches
+from django.core.exceptions import ValidationError
 from django.core.cache.backends.db import DatabaseCache
 from django.db import DatabaseError, models, router, transaction
 from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
 from tree_queries.models import TreeNode
+from tree_queries.query import TreeQuerySet
 
 from djgentelella.chunked_upload.models import AbstractChunkedUpload
 from django.contrib.contenttypes.models import ContentType
@@ -16,6 +18,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from .models_manager import ObjectManager, AllObjectsManager, DeletedObjectsManager
 from djgentelella.settings import USER_MODEL_BASE
 from djgentelella.history.utils import add_log, ADDITION
+from djgentelella.menu import is_menu_widget
 from djgentelella.sites import site_pk
 
 logger = logging.getLogger(__name__)
@@ -110,6 +113,19 @@ def _forget_cached_setting(sender, instance, **kwargs):
                        'table is not there (run createcachetable).', sorted(keys))
 
 
+class MenuItemQuerySet(TreeQuerySet):
+    def get_by_natural_key(self, key, site_domain=None):
+        """The item with ``key`` in the scope of the Site whose domain is
+        ``site_domain`` (``None``: the global items). An item without a key
+        has no natural key."""
+        if not key:
+            raise self.model.DoesNotExist('A menu item without a key has no '
+                                          'natural key.')
+        if site_domain is None:
+            return self.get(key=key, site__isnull=True)
+        return self.get(key=key, site__domain=site_domain)
+
+
 class MenuItem(TreeNode):
     title = models.CharField(max_length=500)
     permission = models.ManyToManyField(Permission, blank=True)
@@ -156,9 +172,51 @@ class MenuItem(TreeNode):
         help_text=_('Empty: no condition. A djgentelella.authorization condition, '
                     'e.g. {"perm": "app.view_model"} or {"flag": "beta"}.'),
     )
+    # The natural key, with the Site: what an exported menu names the item by,
+    # so importing it again updates it in place. Optional.
+    key = models.SlugField(
+        max_length=100,
+        null=True,
+        blank=True,
+        verbose_name=_('Key'),
+        help_text=_('Optional. Names the item in its Site (or among the global '
+                    'items) when a menu is exported and imported again.'),
+    )
+
+    objects = MenuItemQuerySet.as_manager()
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['site', 'key'],
+                condition=models.Q(key__isnull=False, site__isnull=False),
+                name='djgentelella_menuitem_unique_site_key',
+            ),
+            # NULLs never collide in a unique index: the global items need
+            # their own.
+            models.UniqueConstraint(
+                fields=['key'],
+                condition=models.Q(key__isnull=False, site__isnull=True),
+                name='djgentelella_menuitem_unique_global_key',
+            ),
+        ]
 
     def __str__(self):
         return self.title
+
+    def save(self, *args, **kwargs):
+        # A blank key is no key: '' would collide with every other blank one.
+        if not self.key:
+            self.key = None
+        super().save(*args, **kwargs)
+
+    def clean(self):
+        super().clean()
+        # A widget item names a class the menu imports and calls: only those
+        # the project declares (djgentelella.menu.register_menu_widget).
+        if self.is_widget and not is_menu_widget(self.url_name):
+            raise ValidationError({'url_name': _(
+                '%s is not a registered menu widget.') % self.url_name})
 
 
 class Help(models.Model):

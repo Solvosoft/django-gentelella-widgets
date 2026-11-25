@@ -40,7 +40,8 @@ Fields
      - Positional arguments for URL reverse (comma-separated, can use context like ``request.user.pk``)
    * - ``is_widget``
      - BooleanField
-     - If True, ``url_name`` is a Python path to a widget class
+     - If True, ``url_name`` names a registered menu widget (see
+       `Custom Widgets`_)
    * - ``icon``
      - CharField
      - CSS class for icon (e.g., ``'fa fa-home'``)
@@ -64,6 +65,11 @@ Fields
      - JSONField
      - A condition of :doc:`authorization` that must hold, besides the
        permissions, for the item to be shown; empty (the default) means none
+   * - ``key``
+     - SlugField
+     - Optional natural key: unique among the items of its Site (or among the
+       global items). An exported menu names the item by it, so importing it
+       again updates the item in place. See `Exporting and Importing a Menu`_
 
 
 Menu Categories
@@ -319,6 +325,40 @@ Create parent-child relationships for nested menus:
 Custom Widgets
 --------------
 
+A menu item with ``is_widget=True`` is drawn by a class instead of a link.
+The menu only builds classes the project **declares** as menu widgets, so
+whoever edits a menu item cannot make every page import and call any class:
+
+* djgentelella's own (``djgentelella.menu_widgets.palette.PalleteWidget``,
+  ``djgentelella.notification.widgets.NotificationMenu``) register themselves;
+* a class decorated with ``djgentelella.menu.register_menu_widget`` (named by
+  its dotted path, and by ``name=`` when given);
+* a class defined in the ``menu_widgets`` module of an installed app
+  (``myapp/menu_widgets.py``), found when the menu first needs a widget;
+* a dotted path listed in ``settings.GT_MENU_WIDGETS``.
+
+.. code:: python
+
+    # myapp/widgets.py
+    from djgentelella.menu import register_menu_widget
+
+    @register_menu_widget
+    class ClockMenu:
+        def __init__(self, context):
+            self.context = context   # 'id', 'item' and the menu environment
+
+        def render(self):
+            return '<span class="clock"></span>'
+
+An item that names anything else is left out of the menu, with a warning in
+the ``djgentelella.menu`` log (once per name); its class is never imported.
+``MenuItem.clean()`` -- the admin -- refuses it. Up to 0.8 the menu imported
+any ``url_name`` of a widget item; to keep a widget of your own working,
+decorate it, move it to ``<app>/menu_widgets.py`` or list its path in
+``GT_MENU_WIDGETS``. ``djgentelella.menu.get_menu_widget(name)``,
+``is_menu_widget(name)`` and ``registered_menu_widgets()`` answer which ones
+the project has.
+
 Use a custom widget class for special menu functionality:
 
 .. code:: python
@@ -356,6 +396,42 @@ Restrict menu visibility based on Django permissions:
     )
     item.permission.add(perm)  # Only visible to users with this permission
 
+
+Exporting and Importing a Menu
+------------------------------
+
+``djgentelella.menu`` reads and writes the menu of one Site as plain data,
+without pks, for fixtures, copies between Sites and application builders:
+
+.. code:: python
+
+    from djgentelella.menu import export_tree, import_tree, validate_tree
+
+    data = export_tree(site)                # a list of trees; site=None: global
+    roots, errors = import_tree(data, other_site)              # replace=True
+    roots, errors = import_tree(data, other_site, replace=False)
+
+Each node carries ``key``, ``title``, ``url_name``, ``category``,
+``is_reversed``, ``reversed_kwargs``, ``reversed_args``, ``is_widget``,
+``icon``, ``only_icon``, ``position``, ``condition``, ``permissions``
+(``['app_label.codename', ...]``) and ``children``. A root of a Site under a
+global item names it in ``global_parent`` (``key``, ``title``, ``url_name``,
+``category``: by key when it has one).
+
+``import_tree`` checks everything first with ``validate_tree`` -- the fields
+and their types, keys (slugs, not repeated), existing permissions, valid
+conditions, registered widgets, the global parent and at most
+``MAX_MENU_DEPTH`` (10) levels -- and returns ``(None, errors)`` without
+writing anything when something is wrong (``errors`` are ``(path, message)``
+tuples). Otherwise it writes the whole menu in one transaction: an item whose
+``key`` names an item of that scope is updated in place (it keeps its pk), any
+other is created, and with ``replace`` (the default) the items of the scope
+the data does not name are deleted. The global items are never touched by the
+import of a Site.
+
+``MenuItem.objects.get_by_natural_key(key, site_domain=None)`` finds an item
+by its key. ``MenuItem`` has no ``natural_key()`` on purpose: the items
+without a key would break ``dumpdata --natural-foreign``.
 
 Sidebar Footer Items
 --------------------

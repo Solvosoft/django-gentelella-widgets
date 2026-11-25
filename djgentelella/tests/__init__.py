@@ -67,3 +67,6 @@ from .PendingMessages_Test import *
 from .InteractiveGrid_Test import *
 from .FlowKanban_Test import *
 from .GlobalSearch_Test import *
+from .MenuWidgets_Test import *
+from .MenuTransfer_Test import *
+from .SettingsEscape_Test import *

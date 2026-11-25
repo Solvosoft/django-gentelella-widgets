@@ -80,6 +80,14 @@ def render_item(item, env=None, widget_list=None, level=0, ariabylabel=''):
     item = validate_menu_item(item, env)
     if not item:
         return ''
+    widget = None
+    if item.is_widget:
+        wdcontext = {'id': 'tm_' + str(item.id), 'item': item}
+        wdcontext.update(env)
+        widget = get_menu_widget(item.url_name, context=wdcontext)
+        if widget is None:
+            # Not a widget the project declares: the item is left out.
+            return ''
 
     child_items = get_children(item, env)
     children = bool(child_items)
@@ -107,10 +115,7 @@ def render_item(item, env=None, widget_list=None, level=0, ariabylabel=''):
     else:
         a_class = 'tabindex = "-1"'
 
-    if item.is_widget:
-        wdcontext = {'id': 'tm_' + str(item.id), 'item': item}
-        wdcontext.update(env)
-        widget = get_menu_widget(item.url_name, context=wdcontext)
+    if widget is not None:
         dev += widget.render()
         widget_list.append(widget)
 
@@ -220,6 +225,9 @@ def render_footer_sidebar_item(item, env=None, widget_list=None):
         wdcontext = {'id': 'tm_' + str(item.id), 'item': item}
         wdcontext.update(env)
         widget = get_menu_widget(item.url_name, context=wdcontext)
+        if widget is None:
+            # Not a widget the project declares: the item is left out.
+            return ''
         context.update({
             'title': widget.get_title(item) if hasattr(widget, 'get_title') else '',
             'link': widget.get_link(item, env) if hasattr(widget, 'get_link') else '#',

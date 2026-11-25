@@ -19,22 +19,45 @@ item, its permissions and their content types in three queries --, which the
 menu tags walk instead of querying each item and its children, and
 :func:`visible_items` the items a user sees in it, for breadcrumbs or a site
 map.
+
+Menu widgets (an item with ``is_widget``) are classes the project declares:
+:func:`register_menu_widget`, a class defined in the ``menu_widgets`` module
+of an installed app, or a dotted path listed in ``settings.GT_MENU_WIDGETS``.
+:func:`get_menu_widget` finds one by the ``url_name`` of its item and never
+imports a path that is none of those, so whoever edits a menu item cannot make
+the menu import and call any class of the project.
 """
 
+import inspect
+import logging
+import threading
+from importlib import import_module
 from collections import defaultdict
 from collections.abc import Mapping
 
 from django.apps import apps
-from django.db.models import Prefetch
+from django.conf import settings
+from django.db import router, transaction
+from django.db.models import Prefetch, Q
 from django.template.context import BaseContext
 from django.urls import NoReverseMatch, reverse
+from django.utils.module_loading import import_string
+from django.utils.text import slugify
+from django.utils.translation import gettext as _
 
-from djgentelella.authorization import evaluate_condition
-from djgentelella.sites import get_current_site, site_pk, site_q
+from djgentelella.authorization import evaluate_condition, validate_condition
+from djgentelella.autodiscover import autodiscover_once
+from djgentelella.designs.jsonschema import Error
+from djgentelella.sites import get_current_site, resolve_site, site_pk, site_q
 
-__all__ = ['PAGE_PREFIX', 'PLACEHOLDER_URL_NAMES', 'MenuTree', 'context_value',
-           'item_permissions', 'item_url', 'item_visible', 'menu_tree',
-           'override_identity', 'scope_items', 'visible_items']
+__all__ = ['MAX_MENU_DEPTH', 'MENU_FIELDS', 'MENU_WIDGETS_MODULE', 'PAGE_PREFIX',
+           'PLACEHOLDER_URL_NAMES', 'MenuTree', 'context_value', 'export_tree',
+           'get_menu_widget', 'import_tree', 'is_menu_widget', 'item_permissions',
+           'item_url', 'item_visible', 'menu_tree', 'menu_widget_name',
+           'override_identity', 'register_menu_widget', 'registered_menu_widgets',
+           'scope_items', 'validate_tree', 'visible_items']
+
+logger = logging.getLogger(__name__)
 
 #: The ``url_name`` prefix of an item that links a design page by its path.
 PAGE_PREFIX = 'page:'
@@ -252,3 +275,355 @@ def visible_items(request, category, site=None):
 
     walk(tree.roots(category), 0)
     return found
+
+
+# -- menu widgets ----------------------------------------------------------------
+
+#: The module of an installed app whose classes are menu widgets by convention.
+MENU_WIDGETS_MODULE = 'menu_widgets'
+
+# The widgets of djgentelella itself, registered when their module loads.
+_BUILTIN_WIDGET_MODULES = ('djgentelella.menu_widgets.palette',
+                           'djgentelella.notification.widgets')
+
+_widgets = {}
+_widgets_lock = threading.RLock()
+_discovered = False
+_warned = set()
+
+
+def menu_widget_name(widget):
+    """The ``url_name`` a menu item gives to name ``widget``: its dotted path."""
+    return '%s.%s' % (widget.__module__, widget.__qualname__)
+
+
+def register_menu_widget(widget=None, *, name=None):
+    """Declare ``widget`` a menu widget, by its dotted path and by ``name``.
+
+    Usable as ``@register_menu_widget`` or ``@register_menu_widget(name='x')``
+    on the class. A widget is a class built with the item's context (``id``,
+    ``item`` and the menu environment) whose ``render()`` returns its markup,
+    and that may have ``render_js``, ``render_content``,
+    ``render_external_html`` and, in the footer, ``get_title``, ``get_link``,
+    ``get_icon`` and ``get_menu_item``.
+    """
+    def register(cls):
+        with _widgets_lock:
+            _widgets[menu_widget_name(cls)] = cls
+            if name:
+                _widgets[name] = cls
+        return cls
+
+    return register if widget is None else register(widget)
+
+
+def _module_widgets(module):
+    """The classes defined in ``module`` that look like a menu widget."""
+    return [value for key, value in vars(module).items()
+            if not key.startswith('_') and inspect.isclass(value)
+            and value.__module__ == module.__name__
+            and callable(getattr(value, 'render', None))]
+
+
+def _discover():
+    """Import djgentelella's widgets and the ``menu_widgets`` module of each
+    installed app, once."""
+    global _discovered
+    if _discovered:
+        return
+    with _widgets_lock:
+        if _discovered:
+            return
+        for path in _BUILTIN_WIDGET_MODULES:
+            import_module(path)
+        autodiscover_once(MENU_WIDGETS_MODULE)
+        for config in apps.get_app_configs():
+            module = getattr(config.module, MENU_WIDGETS_MODULE, None)
+            if inspect.ismodule(module):
+                for widget in _module_widgets(module):
+                    register_menu_widget(widget)
+        _discovered = True
+
+
+def _setting_widgets():
+    return tuple(getattr(settings, 'GT_MENU_WIDGETS', None) or ())
+
+
+def registered_menu_widgets():
+    """``{name: class}`` of every menu widget the project declares, those of
+    ``GT_MENU_WIDGETS`` included."""
+    _discover()
+    with _widgets_lock:
+        found = dict(_widgets)
+    for path in _setting_widgets():
+        if path not in found:
+            try:
+                found[path] = import_string(path)
+            except ImportError:
+                logger.warning('GT_MENU_WIDGETS names %r, which cannot be '
+                               'imported.', path)
+    return found
+
+
+def is_menu_widget(name):
+    """Whether ``name`` (the ``url_name`` of an item) is a declared menu
+    widget; it never imports ``name`` unless the project listed it."""
+    return get_menu_widget(name) is not None
+
+
+def get_menu_widget(name):
+    """The class of the menu widget ``name``, or ``None`` -- with a warning in
+    the log, once per name -- when the project does not declare it."""
+    name = (name or '').strip()
+    _discover()
+    with _widgets_lock:
+        widget = _widgets.get(name)
+    if widget is None and name in _setting_widgets():
+        try:
+            widget = import_string(name)
+        except ImportError:
+            widget = None
+    if widget is None and name not in _warned:
+        _warned.add(name)
+        logger.warning(
+            'The menu widget %r is not registered, so the menu does not draw '
+            'it: register it with djgentelella.menu.register_menu_widget, '
+            'move it to the menu_widgets module of its app or list it in '
+            'GT_MENU_WIDGETS.', name)
+    return widget
+
+
+# -- exporting and importing a menu ------------------------------------------------
+
+#: The fields of a menu item that an exported menu carries, besides its
+#: ``permissions`` (``['app_label.codename', ...]``), its ``children`` and,
+#: for a root of a Site item under a global one, ``global_parent``.
+MENU_FIELDS = ('key', 'title', 'url_name', 'category', 'is_reversed',
+               'reversed_kwargs', 'reversed_args', 'is_widget', 'icon',
+               'only_icon', 'position', 'condition')
+#: Deepest menu :func:`import_tree` takes.
+MAX_MENU_DEPTH = 10
+
+# name -> (accepted types, default when missing, longest text)
+_FIELD_SPECS = {
+    'key': ((str, type(None)), None, 100),
+    'title': ((str,), None, 500),
+    'url_name': ((str,), None, 500),
+    'category': ((str,), 'main', 200),
+    'is_reversed': ((bool,), False, None),
+    'reversed_kwargs': ((str, type(None)), None, 500),
+    'reversed_args': ((str, type(None)), None, 500),
+    'is_widget': ((bool,), False, None),
+    'icon': ((str, type(None)), None, 50),
+    'only_icon': ((bool,), False, None),
+    'position': ((int,), 0, None),
+    'condition': ((dict, type(None)), None, None),
+}
+_PARENT_FIELDS = ('key', 'title', 'url_name', 'category')
+
+
+def _menu_model():
+    return apps.get_model('djgentelella', 'MenuItem')
+
+
+def _scope(site):
+    site_id = site_pk(site)
+    if site_id is None:
+        return Q(site__isnull=True)
+    return Q(site_id=site_id)
+
+
+def _permission_label(permission):
+    return '%s.%s' % (permission.content_type.app_label, permission.codename)
+
+
+def _parent_reference(item):
+    return {field: getattr(item, field) for field in _PARENT_FIELDS}
+
+
+def export_tree(site=None):
+    """The menu items of ``site`` (a Site, its id, or ``None``: the global
+    items) as a list of trees, the format :func:`import_tree` reads.
+
+    Each node has the :data:`MENU_FIELDS`, ``permissions`` and ``children``,
+    roots and children in the order the menus draw them (``position``, then
+    ``id``). A root of a Site under a global item names that parent in
+    ``global_parent`` (``key``, ``title``, ``url_name``, ``category``); an
+    item under an item of another Site is exported as a root. No pk travels:
+    ``key`` is what names an item again on import.
+    """
+    permission = apps.get_model('auth', 'Permission')
+    items = list(_menu_model().objects.filter(_scope(site)).select_related(
+        'parent').prefetch_related(Prefetch(
+            'permission', queryset=permission.objects.select_related(
+                'content_type'))).order_by('position', 'pk'))
+    ids = {item.pk for item in items}
+    children = defaultdict(list)
+    roots = []
+    for item in items:
+        if item.parent_id in ids:
+            children[item.parent_id].append(item)
+        else:
+            roots.append(item)
+
+    def node(item):
+        data = {field: getattr(item, field) for field in MENU_FIELDS}
+        data['permissions'] = sorted(_permission_label(perm)
+                                     for perm in item.permission.all())
+        data['children'] = [node(child) for child in children[item.pk]]
+        parent = item.parent
+        if item.parent_id not in ids and parent is not None and \
+                parent.site_id is None and site_pk(site) is not None:
+            data['global_parent'] = _parent_reference(parent)
+        return data
+
+    return [node(item) for item in roots]
+
+
+def _find_permissions(labels):
+    """``({label: Permission}, [labels that are none])``."""
+    permission = apps.get_model('auth', 'Permission')
+    query = Q(pk__in=[])
+    for label in labels:
+        app_label, _dot, codename = label.partition('.')
+        query |= Q(content_type__app_label=app_label, codename=codename)
+    found = {_permission_label(perm): perm for perm in
+             permission.objects.filter(query).select_related('content_type')}
+    return found, [label for label in labels if label not in found]
+
+
+def _global_parent(reference):
+    """The global item ``reference`` names: by ``key`` when it has one, else
+    the first with its ``title``, ``url_name`` and ``category``."""
+    items = _menu_model().objects.filter(site__isnull=True)
+    if reference.get('key'):
+        return items.filter(key=reference['key']).first()
+    return items.filter(title=reference.get('title'),
+                        url_name=reference.get('url_name'),
+                        category=reference.get('category', 'main')).order_by(
+        'pk').first()
+
+
+def _check_node(node, path, depth, site, errors, keys):
+    if not isinstance(node, dict):
+        errors.append(Error(path, _('a menu item is an object')))
+        return
+    if depth > MAX_MENU_DEPTH:
+        errors.append(Error(path, _('the menu is deeper than %d levels')
+                            % MAX_MENU_DEPTH))
+        return
+    known = set(MENU_FIELDS) | {'permissions', 'children', 'global_parent'}
+    for name in sorted(set(node) - known):
+        errors.append(Error('%s.%s' % (path, name), _('unknown field')))
+    # A title that is not empty; a url_name, empty or not (a dropdown).
+    if not node.get('title'):
+        errors.append(Error(path + '.title', _('required')))
+    if 'url_name' not in node:
+        errors.append(Error(path + '.url_name', _('required')))
+    for name, (types, _default, longest) in _FIELD_SPECS.items():
+        if name not in node:
+            continue
+        value = node[name]
+        if not isinstance(value, types) or (bool not in types and
+                                            isinstance(value, bool)):
+            errors.append(Error('%s.%s' % (path, name), _('wrong type')))
+        elif longest and isinstance(value, str) and len(value) > longest:
+            errors.append(Error('%s.%s' % (path, name),
+                                _('longer than %d characters') % longest))
+    key = node.get('key')
+    if isinstance(key, str) and key:
+        if slugify(key) != key:
+            errors.append(Error(path + '.key', _('a key is a slug: letters, '
+                                                 'digits, - and _')))
+        elif key in keys:
+            errors.append(Error(path + '.key', _('the key %s is repeated') % key))
+        keys.add(key)
+    if isinstance(node.get('condition'), dict):
+        errors.extend(validate_condition(node['condition'], path + '.condition'))
+    if node.get('is_widget') is True and isinstance(node.get('url_name'), str) \
+            and not is_menu_widget(node['url_name']):
+        errors.append(Error(path + '.url_name', _(
+            '%s is not a registered menu widget') % node['url_name']))
+    permissions = node.get('permissions', [])
+    if not isinstance(permissions, list) or not all(
+            isinstance(label, str) for label in permissions):
+        errors.append(Error(path + '.permissions',
+                            _('a list of "app_label.codename"')))
+    else:
+        for label in _find_permissions(permissions)[1]:
+            errors.append(Error(path + '.permissions',
+                                _('no permission %s') % label))
+    if 'global_parent' in node:
+        reference = node['global_parent']
+        if depth > 1 or site_pk(site) is None:
+            errors.append(Error(path + '.global_parent', _(
+                'only a root of a Site menu hangs from a global item')))
+        elif not isinstance(reference, dict) or _global_parent(reference) is None:
+            errors.append(Error(path + '.global_parent', _(
+                'there is no such global menu item')))
+    children = node.get('children', [])
+    if not isinstance(children, list):
+        errors.append(Error(path + '.children', _('a list of menu items')))
+        return
+    for index, child in enumerate(children):
+        _check_node(child, '%s.children[%d]' % (path, index), depth + 1, site,
+                    errors, keys)
+
+
+def validate_tree(data, site=None):
+    """The :class:`~djgentelella.designs.jsonschema.Error` list of a menu in
+    the format of :func:`export_tree`; empty means :func:`import_tree` takes
+    it. Widget items must name a registered menu widget, permissions must
+    exist and conditions be valid."""
+    if not isinstance(data, list):
+        return [Error('$', _('a menu is a list of menu items'))]
+    errors = []
+    keys = set()
+    for index, node in enumerate(data):
+        _check_node(node, '$[%d]' % index, 1, site, errors, keys)
+    return errors
+
+
+def import_tree(data, site=None, *, replace=True):
+    """Write the menu ``data`` (the format of :func:`export_tree`) in the
+    scope of ``site`` (``None``: the global items). ``(roots, [])`` once
+    written, ``(None, errors)`` -- nothing written -- when
+    :func:`validate_tree` finds problems.
+
+    An item whose ``key`` already names an item of that scope updates it in
+    place (it keeps its pk); any other is created. With ``replace`` the items
+    of the scope the data does not name are deleted, so the scope ends up
+    with exactly that menu; without it they stay. The whole import is one
+    transaction.
+    """
+    errors = validate_tree(data, site)
+    if errors:
+        return None, errors
+    model = _menu_model()
+    site = resolve_site(site)
+    with transaction.atomic(using=router.db_for_write(model)):
+        existing = {item.key: item for item in
+                    model.objects.filter(_scope(site), key__isnull=False)}
+        written = []
+
+        def write(node, parent):
+            if 'global_parent' in node:
+                parent = _global_parent(node['global_parent'])
+            item = existing.get(node.get('key')) if node.get('key') else None
+            if item is None:
+                item = model(site=site)
+            for name, (_types, default, _longest) in _FIELD_SPECS.items():
+                setattr(item, name, node.get(name, default))
+            item.parent = parent
+            item.save()
+            written.append(item.pk)
+            item.permission.set(_find_permissions(node.get('permissions', []))[0]
+                                .values())
+            for child in node.get('children', []):
+                write(child, item)
+            return item
+
+        roots = [write(node, None) for node in data]
+        if replace:
+            model.objects.filter(_scope(site)).exclude(pk__in=written).delete()
+    return roots, []

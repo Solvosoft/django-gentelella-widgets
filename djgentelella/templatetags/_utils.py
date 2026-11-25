@@ -1,5 +1,4 @@
-from django.utils.module_loading import import_string
-
+from djgentelella.menu import get_menu_widget as menu_widget_class
 from djgentelella.menu import item_url
 
 
@@ -64,6 +63,10 @@ def get_link(item, context):
 
 
 def get_menu_widget(item, context):
-    widget = import_string(item.strip())
-    widget = widget(context)
-    return widget
+    """The menu widget the ``url_name`` ``item`` names, built with
+    ``context``; ``None`` when the project does not declare it
+    (:func:`djgentelella.menu.get_menu_widget`): it is never imported."""
+    widget = menu_widget_class(item)
+    if widget is None:
+        return None
+    return widget(context)

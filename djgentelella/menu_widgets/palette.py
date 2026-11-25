@@ -3,8 +3,10 @@ import json
 from django.template.loader import render_to_string
 
 from djgentelella.forms.models import HelpForm
+from djgentelella.menu import register_menu_widget
 
 
+@register_menu_widget
 class PalleteWidget:
     def __init__(self, context):
         self.context = context
