@@ -1,0 +1,4 @@
+<div class="gt-range d-flex align-items-center gap-2">
+    {% include "gentelella/widgets/input.html" %}
+    {% if widget.show_value %}<output class="gt-range-value badge text-bg-secondary"{% if widget.attrs.id %} for="{{ widget.attrs.id }}" id="{{ widget.attrs.id }}_value"{% endif %}>{% if widget.value != None %}{{ widget.value }}{% endif %}{{ widget.suffix }}</output>{% endif %}
+</div>

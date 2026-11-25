@@ -1,0 +1,22 @@
+{# MarkdownInput. The preview pane is filled by base.js with the html the #}
+{# server returns from gtapis/markdown/preview/, already cleaned by nh3.  #}
+<div class="gt-markdown" id="{{ widget.attrs.id }}_markdown">
+    <div class="d-flex flex-wrap align-items-center gap-1 mb-1">
+        <ul class="nav nav-tabs me-auto" role="tablist">
+            <li class="nav-item"><button type="button" class="nav-link active gt-markdown-write"
+                id="{{ widget.attrs.id }}_write">{{ texts.write }}</button></li>
+            <li class="nav-item"><button type="button" class="nav-link gt-markdown-preview-tab"
+                id="{{ widget.attrs.id }}_previewtab">{{ texts.preview }}</button></li>
+        </ul>
+        {% if not widget.attrs.readonly and not widget.attrs.disabled %}
+        <div class="btn-group btn-group-sm gt-markdown-toolbar" role="toolbar">
+            {% for tool in tools %}
+            <button type="button" class="btn btn-outline-secondary" data-md="{{ tool.name }}"
+                    title="{{ tool.title }}" aria-label="{{ tool.title }}"><i class="fa {{ tool.icon }}" aria-hidden="true"></i></button>{% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    {% include "gentelella/widgets/textarea.html" %}
+    <div class="gt-markdown-preview border rounded p-2 d-none" id="{{ widget.attrs.id }}_preview"
+         aria-live="polite"></div>
+</div>

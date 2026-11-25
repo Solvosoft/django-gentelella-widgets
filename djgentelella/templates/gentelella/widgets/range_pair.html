@@ -1,0 +1,3 @@
+<div class="gt-range-pair row g-2">{% for widget in widget.subwidgets %}
+    <div class="col-sm-6"><small class="text-muted">{% cycle labels.0 labels.1 %}</small>{% include widget.template_name %}</div>{% endfor %}
+</div>

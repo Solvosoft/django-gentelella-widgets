@@ -1,0 +1,4 @@
+<div class="form-check form-switch gt-form-switch">
+    {% include "gentelella/widgets/input.html" %}
+    {% if switch_label %}<label class="form-check-label"{% if widget.attrs.id %} for="{{ widget.attrs.id }}"{% endif %}>{{ switch_label }}</label>{% endif %}
+</div>

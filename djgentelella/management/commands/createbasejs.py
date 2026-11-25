@@ -51,6 +51,12 @@ class Command(BaseCommand):
             'gt_facets.js',
             'lovselect.js',
             'dynamic_actions.js',
+            # The form widgets of the catalog (W26). formwidgets.js first: it
+            # defines gt_load_script/gt_load_style, which imagecrop.js uses.
+            'formwidgets.js',
+            'markdowninput.js',
+            'imagecrop.js',
+            'lovpopup.js',
         ]
         jquery_plugins = [
             'notifications.js',

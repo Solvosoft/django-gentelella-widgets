@@ -309,6 +309,33 @@ document.gtwidgets = {
     LOVSelectMultiple: function (instance) {
         gt_lov_select(instance);
     },
+    StarRatingInput: function (instance) {
+        gt_star_rating(instance);
+    },
+    RangeInput: function (instance) {
+        gt_range_input(instance);
+    },
+    ComboboxInput: function (instance) {
+        gt_combobox(instance);
+    },
+    QRCodeInput: function (instance) {
+        gt_qrcode_input(instance);
+    },
+    QRCodeView: function (instance) {
+        gt_qrcode_view(instance);
+    },
+    GeocodedAddressInput: function (instance) {
+        gt_geocoded_address(instance);
+    },
+    MarkdownInput: function (instance) {
+        gt_markdown_input(instance);
+    },
+    ImageCropInput: function (instance) {
+        gt_image_crop(instance);
+    },
+    LOVPopupSelect: function (instance) {
+        gt_lov_popup(instance);
+    },
 
 }
 

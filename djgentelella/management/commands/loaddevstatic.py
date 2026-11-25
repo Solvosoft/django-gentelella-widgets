@@ -564,7 +564,24 @@ class Command(BaseCommand):
             ],
             'leaflet-heat': [
                 'https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js',
-            ]
+            ],
+            # The form widgets of the catalog. None goes in a pylp bundle: the
+            # widget that needs one loads it on first use (gt_load_script in
+            # gentelella/js/base/formwidgets.js), so a page without it pays
+            # nothing. ImageCropInput -- Cropper.js, MIT.
+            'cropperjs': [
+                'https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.js',
+                'https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.css',
+            ],
+            # QRCodeInput and {% qrcode %} -- qrcode-generator, MIT.
+            'qrcode': [
+                'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js',
+            ],
+            # QRCodeInput(scan=True) where the browser has no BarcodeDetector
+            # -- jsQR, Apache-2.0.
+            'jsqr': [
+                'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js',
+            ],
         }
         # Every plugin the build ships, concatenated into one file loaded
         # after tinymce.min.js: each of them only registers itself with the

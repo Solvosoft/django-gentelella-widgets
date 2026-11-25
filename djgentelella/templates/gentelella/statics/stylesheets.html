@@ -41,6 +41,9 @@
 {# already chosen entries in a multiple select2 dropdown, which select2 4.1 no  #}
 {# longer does on its own. Same reasoning as maps.css: not behind a define.     #}
 <link href="{% static 'gentelella/css/filteredselectmultiple.css' %}?v={% get_version %}" rel="stylesheet">
+{# The form widgets of the catalog (stars, range, QR, Markdown, image crop, #}
+{# LOV popup, geocoded address). Same reasoning as maps.css. #}
+<link href="{% static 'gentelella/css/formwidgets.css' %}?v={% get_version %}" rel="stylesheet">
 {% if use_compress == 'true' %}
 	<link href="{% static 'gentelella/css/pdfviewer.css' %}?v={% get_version %}" rel="stylesheet">
 	<link href="{% static 'djgentelella.vendors.min.css' %}?v={% get_version %}" rel="stylesheet">

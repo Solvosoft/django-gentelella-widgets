@@ -1,6 +1,7 @@
 import json
 
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 
 from djgentelella.lov import get_lov
 from djgentelella.widgets.core import Select, SelectMultiple, update_kwargs
@@ -69,3 +70,35 @@ class LOVSelect(LOVSelectBase, Select):
 
 class LOVSelectMultiple(LOVSelectBase, SelectMultiple):
     widget_name = 'LOVSelectMultiple'
+
+
+class LOVPopupSelect(LOVSelectBase, Select):
+    """A LOV searched in a modal, page by page: for lists too long for a
+    dropdown.
+
+    Same LOV, endpoint, parents and ``LOVChoiceField`` as :class:`LOVSelect`
+    (``LOVChoiceField('products', widget=LOVPopupSelect)``). The value lives in
+    a hidden ``<select>`` with only the chosen option; beside it a read-only
+    box shows its label, a button opens the search and another clears it.
+    """
+
+    widget_name = 'LOVPopupSelect'
+    template_name = 'gentelella/widgets/lov_popup.html'
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        widget_attrs = context['widget']['attrs']
+        widget_attrs['class'] = (widget_attrs.get('class', '')
+                                 + ' gt-lov-popup-value visually-hidden')
+        widget_attrs['tabindex'] = '-1'
+        widget_attrs['aria-hidden'] = 'true'
+        selected = [option['label'] for _group, options, _index
+                    in context['widget']['optgroups'] for option in options
+                    if option['selected'] and option['value'] not in ('', None)]
+        context['selected_label'] = selected[0] if selected else ''
+        context['texts'] = {
+            'search': _('Search'), 'clear': _('Clear'), 'close': _('Close'),
+            'previous': _('Previous'), 'next': _('Next'),
+            'title': _('Select an element'), 'empty': _('No results'),
+        }
+        return context

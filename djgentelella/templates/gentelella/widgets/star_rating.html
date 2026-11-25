@@ -1,0 +1,6 @@
+{# StarRatingInput: the number input carries the value (and is what a browser #}
+{# without javascript shows); the stars are buttons the javascript wires up.  #}
+<div class="gt-rating{% if readonly %} gt-rating-readonly{% endif %}" id="{{ widget.attrs.id }}_rating">
+    {% include "gentelella/widgets/input.html" %}
+    <span class="gt-rating-stars d-none" role="group">{% for star in stars %}<button type="button" class="gt-rating-star{% if star.on %} gt-rating-on{% endif %}" data-value="{{ star.value }}" title="{{ star.label }}" aria-label="{{ star.label }}" aria-pressed="{% if star.on %}true{% else %}false{% endif %}"{% if readonly %} disabled tabindex="-1"{% endif %}><i class="fa {% if star.on %}fa-star{% else %}fa-star-o{% endif %}" aria-hidden="true"></i></button>{% endfor %}{% if not readonly %}<button type="button" class="gt-rating-clear btn btn-link btn-sm" title="{{ clear_title }}" aria-label="{{ clear_title }}"><i class="fa fa-times" aria-hidden="true"></i></button>{% endif %}</span>
+</div>

@@ -28,6 +28,8 @@ from djgentelella.voice.views import VoiceTranscribeView
 from djgentelella.firmador_digital import views as firmador_digital
 from djgentelella.datasources.urls import urlpatterns as datasources_urls
 from djgentelella.views.dynamic import dynamic_action_view, lov_view
+from djgentelella.views.geocoding import geocode_view
+from djgentelella.views.markdown import markdown_preview_view
 from .groute import routes
 from .templatetags.gtsettings import get_version
 from .views import auth
@@ -187,6 +189,9 @@ base_urlpatterns = [
     path('api/history/', include(history_router.urls)),
     path('gtapis/dynamic/', dynamic_action_view, name='gt-dynamic-action'),
     path('gtapis/lov/<str:name>/', lov_view, name='gt-lov'),
+    path('gtapis/markdown/preview/', markdown_preview_view,
+         name='gt-markdown-preview'),
+    path('gtapis/geocode/', geocode_view, name='gt-geocode'),
 ]
 
 permission_management_urls = [
