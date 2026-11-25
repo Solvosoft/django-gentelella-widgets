@@ -109,7 +109,7 @@ class RegionBase(DesignState, TestCase):
         return sorted(point['title'] for point in body['layers'][0]['points'])
 
 
-class SchemaTests(RegionBase):
+class RegionSchemaTests(RegionBase):
     def assertError(self, document_node, path, text):
         errors = self.resolve_errors(design(document_node))
         self.assertTrue(any(where.startswith(path) and text in message
@@ -517,7 +517,7 @@ class MapTests(RegionBase):
         self.assertEqual((after, points), (before, 10))
 
 
-class PreviewTests(RegionBase):
+class RegionPreviewTests(RegionBase):
     def test_preview_reads_no_rows(self):
         self.meetup('Hidden')
         document = design(cards(fields=['kind']), calendar(), region_map())

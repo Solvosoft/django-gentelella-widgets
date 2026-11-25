@@ -77,7 +77,8 @@ from rest_framework.response import Response
 
 from djgentelella.datasources import query
 from djgentelella.datasources.base import (
-    ModelDataSource, get_datasource, project_model_of, resolve_field_path,
+    ModelDataSource, api_error, get_datasource, project_model_of,
+    resolve_field_path,
 )
 from djgentelella.designs.builds import DataBuild
 from djgentelella.designs.components import (
@@ -284,7 +285,7 @@ def region_queryset(build, source, request, params):
     try:
         return query.apply_params(source, request, params)
     except DjangoValidationError as error:
-        raise ValidationError({'detail': error.messages})
+        raise api_error(error)
 
 
 def file_url(model_field, name):

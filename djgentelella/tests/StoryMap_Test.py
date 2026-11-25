@@ -9,12 +9,12 @@ from djgentelella.widgets.storymap import GigaPixelStoryMapInput, MapBasedStoryM
 attrs = {'data-url': 'storymap-url/'}
 
 
-class FormClass(forms.Form):
+class StoryMapFormClass(forms.Form):
     gp_storymap = forms.CharField(widget=GigaPixelStoryMapInput(attrs), required=False)
     mb_storymap = forms.CharField(widget=MapBasedStoryMapInput(attrs), disabled=True)
 
 
-class MultiItemsFormClass(forms.Form):
+class StoryMapMultiItemsFormClass(forms.Form):
     gigapixelone = forms.CharField(widget=GigaPixelStoryMapInput(attrs), disabled=True,
                                    required=True)
     gigapixeltwo = forms.CharField(widget=GigaPixelStoryMapInput(attrs), disabled=True,
@@ -38,9 +38,9 @@ class StoryMapFormWidgetTest(TestCase):
         return template.render(context)
 
     def setUp(self):
-        self.basicform = FormClass()
-        self.prefixform = FormClass(prefix='newname')
-        self.multiitemsform = MultiItemsFormClass()
+        self.basicform = StoryMapFormClass()
+        self.prefixform = StoryMapFormClass(prefix='newname')
+        self.multiitemsform = StoryMapMultiItemsFormClass()
 
     def test_check_names(self):
         """
@@ -77,7 +77,7 @@ class StoryMapFormWidgetTest(TestCase):
                 storytwo = forms.CharField(widget=GigaPixelStoryMapInput)
 
     def test_widget_formset(self):
-        gigaPixelStoryMapFormSet = formset_factory(FormClass, extra=2)
+        gigaPixelStoryMapFormSet = formset_factory(StoryMapFormClass, extra=2)
         formset = gigaPixelStoryMapFormSet()
         form_str = self.render('{{form}}', {'form': formset})
         for formIndex in range(len(formset)):

@@ -6,7 +6,7 @@ from django.test import TestCase
 from djgentelella.widgets.maps import MapPointInput
 
 
-class FormClass(forms.Form):
+class MapFormClass(forms.Form):
     location = forms.CharField(widget=MapPointInput())
 
 
@@ -33,8 +33,8 @@ class MapPointWidgetUnitTest(TestCase):
         return Template(msg).render(Context(context))
 
     def setUp(self):
-        self.basicform = FormClass()
-        self.prefixform = FormClass(prefix='newname')
+        self.basicform = MapFormClass()
+        self.prefixform = MapFormClass(prefix='newname')
         self.configuredform = ConfiguredFormClass()
 
     def test_check_names(self):
@@ -95,13 +95,13 @@ class MapPointWidgetUnitTest(TestCase):
         self.assertIn('disabled', rendered)
 
     def test_value_is_rendered_back(self):
-        form = FormClass(data={'location': '9.932700,-84.087500'})
+        form = MapFormClass(data={'location': '9.932700,-84.087500'})
         form.is_valid()
         rendered = self.render('{{form}}', {'form': form})
         self.assertIn('value="9.932700,-84.087500"', rendered)
 
     def test_formset_ids(self):
-        formset = formset_factory(FormClass, extra=2)()
+        formset = formset_factory(MapFormClass, extra=2)()
         rendered = self.render('{{formset}}', {'formset': formset})
         self.assertIn('id="id_form-0-location"', rendered)
         self.assertIn('id="id_form-1-location"', rendered)
@@ -113,4 +113,4 @@ class MapPointWidgetUnitTest(TestCase):
         This project ships all JS through base.js + widgets.js; no widget in it
         declares Media, and adding one here would emit duplicate script tags.
         """
-        self.assertEqual(str(FormClass().media), '')
+        self.assertEqual(str(MapFormClass().media), '')

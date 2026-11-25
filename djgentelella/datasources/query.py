@@ -43,7 +43,8 @@ from django.utils.translation import gettext as _
 from djgentelella.designs.jsonschema import Error
 
 from .base import (
-    DATE_KINDS, NUMERIC_KINDS, TEXT_KINDS, project_model_of, takes_params,
+    DATE_KINDS, NUMERIC_KINDS, TEXT_KINDS, DataSourceUnavailable, project_model_of,
+    takes_params,
 )
 
 OPERATORS = ('eq', 'ne', 'lt', 'lte', 'gt', 'gte', 'in', 'contains',
@@ -95,7 +96,7 @@ _LOOKUPS = {
 }
 
 _PARAM_KEYS = ('search', 'filters', 'ordering', 'columns', 'group_by',
-               'aggregates', 'pivot', 'highlights')
+               'aggregates', 'pivot', 'highlights', 'order_by_value')
 
 _WORD = re.compile(r'\w+')
 _SEARCH_SYNTAX = re.compile(r'"|(^|\s)-|\bor\b', re.IGNORECASE)
@@ -111,7 +112,9 @@ def parse_params(params):
     """Normalize a parameter document: a dict, a JSON string or None.
 
     Unknown top level keys are ignored (a saved report may carry its own),
-    the known ones are type checked. Returns a new dict with every key.
+    the known ones are type checked. Returns a new dict with every key, but
+    ``order_by_value`` (a boolean, read by :func:`aggregate`), which is kept
+    only when the document has it.
     """
     if params is None or params == '':
         params = {}
@@ -142,6 +145,12 @@ def parse_params(params):
             raise ValidationError(_('Each filter must be an object.'))
     if result['pivot'] is not None and not isinstance(result['pivot'], dict):
         raise ValidationError(_('"pivot" must be an object.'))
+    order_by_value = params.get('order_by_value')
+    if order_by_value is not None:
+        # Only when given: a document without it normalizes as it always did.
+        if not isinstance(order_by_value, bool):
+            raise ValidationError(_('"order_by_value" must be true or false.'))
+        result['order_by_value'] = order_by_value
     return result
 
 
@@ -628,7 +637,7 @@ def _value_ordering(queryset, alias):
     return F(alias).desc(nulls_last=True)
 
 
-def aggregate(source, request, params, *, order_by_value=False, limit=None):
+def aggregate(source, request, params, *, order_by_value=None, limit=None):
     """Group by ``group_by`` and compute ``aggregates``.
 
     One dict per group with the group values under the column names and each
@@ -638,12 +647,17 @@ def aggregate(source, request, params, *, order_by_value=False, limit=None):
     totals.
 
     The groups come in the order of their values; with ``order_by_value``,
-    from the largest first aggregate down. ``limit`` keeps the first ones
+    from the largest first aggregate down (a date one with the empty groups
+    last). ``order_by_value=None`` reads ``"order_by_value"`` of the
+    parameter document, so a saved report can ask for it; ``True`` or
+    ``False`` here wins over the document. ``limit`` keeps the first ones
     (in the database). Without it, more than ``GT_DATASOURCE_MAX_GROUPS``
     groups is a ``ValidationError``: a group by a column with a value per
     row would otherwise load the whole table.
     """
     params = parse_params(params)
+    if order_by_value is None:
+        order_by_value = params.get('order_by_value', False)
     colmap = source.column_map(request)
     queryset = apply_params(source, request, params)
     specs = params['aggregates'] or [{'fn': 'count'}]
@@ -1132,6 +1146,9 @@ def validate_params(source, request, params, *, strict=False, build=True):
     def check(path, function, *args):
         try:
             return function(*args)
+        except DataSourceUnavailable:
+            # Not a problem of the document: the source cannot be read now.
+            raise
         except ValidationError as error:
             errors.extend(Error(path, message) for message in _messages(error))
         return None

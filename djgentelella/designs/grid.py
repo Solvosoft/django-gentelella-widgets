@@ -239,6 +239,11 @@ class InteractiveGridComponent(RuntimeComponent):
             'widgets': {'type': 'object', 'additionalProperties': {'type': 'string'},
                         'x-widget': 'widgets',
                         'title': 'Widget of an editable column'},
+            'widget_options': {'type': 'object',
+                               'additionalProperties': {'type': 'object'},
+                               'x-widget': 'widget-options',
+                               'title': 'Options of the widget of an editable '
+                                        'column (by column)'},
             'search_fields': {'type': 'array', 'items': {'type': 'string'},
                               'x-widget': 'model-text-fields',
                               'title': 'Searched by the search box'},
@@ -269,6 +274,22 @@ class InteractiveGridComponent(RuntimeComponent):
                           'title': 'Rows per page (default 25)'},
         },
     }
+    #: A facets panel may filter a read-only grid over a data source.
+    facets_target = True
+
+    def facets_source(self, node, rctx, path):
+        """The data source a facets panel filters: that of a read-only grid
+        (its endpoint, :class:`~djgentelella.designs.source_tables.
+        SourceGridViewSet`, reads ``gtfilters``). A grid that edits rows
+        cannot have one."""
+        props = node.get('props') or {}
+        name = props.get('datasource')
+        if not name or grid_can_edit(name):
+            rctx.error(path, _('node %r edits rows: a facets panel filters a '
+                               'read-only grid over a "datasource"')
+                       % (node.get('id'),))
+            return None
+        return name
 
     def resolve(self, node, rctx, path):
         props = node.get('props') or {}
@@ -316,6 +337,11 @@ class InteractiveGridComponent(RuntimeComponent):
         for name in widgets:
             if name not in editable:
                 rctx.error(path + '.props.widgets',
+                           _('%r is not an editable column') % (name,))
+        widget_options = props.get('widget_options') or {}
+        for name in widget_options:
+            if name not in editable:
+                rctx.error(path + '.props.widget_options',
                            _('%r is not an editable column') % (name,))
 
         search = props.get('search_fields')
@@ -365,7 +391,8 @@ class InteractiveGridComponent(RuntimeComponent):
             return build
         form = build_form('%s_grid' % node['id'],
                           {'model': model_label, 'fields': list(editable),
-                           'widgets': widgets}, rctx, path + '.props')
+                           'widgets': widgets, 'widget_options': widget_options},
+                          rctx, path + '.props')
         if form is None:
             return build
 
@@ -417,8 +444,8 @@ class InteractiveGridComponent(RuntimeComponent):
         """A grid over a data source that is not over a model of the project:
         its rows, read only -- no ``editable`` columns, no ``actions``."""
         props = node.get('props') or {}
-        for name in ('editable', 'actions', 'widgets', 'edit_conditions',
-                     'action_conditions'):
+        for name in ('editable', 'actions', 'widgets', 'widget_options',
+                     'edit_conditions', 'action_conditions'):
             if props.get(name):
                 rctx.error(path + '.props.' + name,
                            _('data source %(source)r is not over a model of the '
@@ -491,7 +518,8 @@ def grid_config(build, state, url, columns=None):
     }
 
 
-def grid_page_context(build, request, url, *, form_class=None, columns=None):
+def grid_page_context(build, request, url, *, form_class=None, columns=None,
+                      datasource_url=None):
     """What :data:`TEMPLATE` needs to draw the grid of ``build`` for
     ``request``: ``{'b', 'cells', 'allowed', 'config'}``, with ``url`` the
     URL of its endpoint -- a viewset of :func:`grid_viewset_for` -- and
@@ -507,7 +535,11 @@ def grid_page_context(build, request, url, *, form_class=None, columns=None):
     The permissions and conditions are those of :class:`GridState`, the same
     its endpoint checks. A read-only grid over a data source
     (``build.list_only``) has neither form nor cells: its endpoint is a
-    :class:`~djgentelella.designs.source_tables.SourceGridViewSet`.
+    :class:`~djgentelella.designs.source_tables.SourceGridViewSet`, and its
+    configuration names the data source state a facets panel over it writes
+    to (``datasource_url``, by default the data source API of the source,
+    and ``group``): see :func:`~djgentelella.designs.source_tables.
+    facets_config`.
     """
     user = getattr(request, 'user', None)
     needed = list(build.perms['list'])
@@ -526,6 +558,7 @@ def grid_page_context(build, request, url, *, form_class=None, columns=None):
             'columns': [dict(column, editable=False) for column in
                         source_tables.visible_columns(build, hidden)],
         }
+        config.update(source_tables.facets_config(build, datasource_url))
         return {'b': build, 'cells': [], 'allowed': allowed,
                 'config': json_config(build.id + '_gtconfig', config)}
     state = GridState(build, request)

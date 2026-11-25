@@ -33,7 +33,7 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .base import get_datasource
+from .base import DataSourceUnavailable, get_datasource
 from .export import available_formats, handle_export
 from .query import (
     aggregate, apply_params, facets, highlight_classes, parse_params, pivot,
@@ -93,7 +93,10 @@ class DataSourceView(APIView):
         return params
 
     def handle_exception(self, exc):
-        if isinstance(exc, ValidationError):
+        # DataSourceUnavailable first: a source error that is both (a class
+        # in transition, or one that carries ``messages``) is a 503, not a 400.
+        if isinstance(exc, ValidationError) and \
+                not isinstance(exc, DataSourceUnavailable):
             return Response({'detail': exc.messages},
                             status=status.HTTP_400_BAD_REQUEST)
         return super().handle_exception(exc)

@@ -10,11 +10,11 @@ from djgentelella.widgets.storyline import UrlStoryLineInput
 attrs = {'data-url': 'examplestoryline-url/', 'height': 568}
 
 
-class FormClass(forms.Form):
+class StoryLineFormClass(forms.Form):
     storyline = forms.CharField(widget=UrlStoryLineInput(attrs))
 
 
-class MultiItemsFormClass(forms.Form):
+class StoryLineMultiItemsFormClass(forms.Form):
     storyone = forms.CharField(widget=UrlStoryLineInput(attrs), disabled=True,
                                required=True)
     storytwo = forms.CharField(widget=UrlStoryLineInput(attrs), disabled=True,
@@ -31,9 +31,9 @@ class UrlStorylineWidgetUnitTest(TestCase):
         return template.render(context)
 
     def setUp(self):
-        self.basicform = FormClass()
-        self.prefixform = FormClass(prefix='newname')
-        self.multiitemsform = MultiItemsFormClass()
+        self.basicform = StoryLineFormClass()
+        self.prefixform = StoryLineFormClass(prefix='newname')
+        self.multiitemsform = StoryLineMultiItemsFormClass()
 
     def test_check_names(self):
         """
@@ -79,7 +79,7 @@ class UrlStorylineWidgetUnitTest(TestCase):
                 storytwo = forms.CharField(widget=UrlStoryLineInput({'height': 20}))
 
     def test_widget_formset(self):
-        storyLineFormSet = formset_factory(FormClass, extra=2)
+        storyLineFormSet = formset_factory(StoryLineFormClass, extra=2)
         formset = storyLineFormSet()
         for formIndex in range(len(formset)):
             form_str = self.render('{{form}}', {'form': formset[formIndex]})

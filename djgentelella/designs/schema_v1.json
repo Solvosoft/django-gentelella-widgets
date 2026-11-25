@@ -196,6 +196,13 @@
             "type": "string"
           }
         },
+        "widget_options": {
+          "description": "Options of the widget of a field, by field: each widget validates them with its schema (djgentelella.forms.widgetmap.WIDGET_OPTIONS).",
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "help": {
           "description": "Contextual help per field, seeded into djgentelella's Help (the ? next to each label).",
           "type": "object",

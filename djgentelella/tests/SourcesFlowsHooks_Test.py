@@ -473,7 +473,7 @@ class SourcesPythonFlow(Flow):
 register_flow(SourcesPythonFlow)
 
 
-class RegistryTests(FlowCase):
+class HooksRegistryTests(FlowCase):
     def test_everything_is_json(self):
         document = catalogue(published=True)
         self.assertEqual(json.loads(json.dumps(document)), document)

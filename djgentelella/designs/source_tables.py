@@ -25,6 +25,7 @@ import json
 
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.http import Http404
+from django.urls import NoReverseMatch, reverse
 from django.utils.translation import gettext as _
 from rest_framework import viewsets
 from rest_framework.authentication import SessionAuthentication
@@ -35,13 +36,13 @@ from rest_framework.response import Response
 
 from djgentelella.datasources import query
 from djgentelella.datasources.base import (
-    TEXT_KINDS, get_datasource, project_model_of,
+    TEXT_KINDS, api_error, get_datasource, project_model_of,
 )
 from djgentelella.designs.conditions import check_conditions, hidden_columns
 from djgentelella.permission_management import all_permission
 
 __all__ = ['NOT_SHOWN', 'SourceGridViewSet', 'SourceRowsMixin', 'SourceTableViewSet',
-           'column_config', 'resolve_source_list', 'source_rows']
+           'column_config', 'facets_config', 'resolve_source_list', 'source_rows']
 
 #: Kinds of column a read-only table does not show.
 NOT_SHOWN = ('json',)
@@ -135,6 +136,21 @@ def source_rows(build, source, request, queryset, columns):
     colmap = source.column_map(request)
     return query.serialize_rows(source, request, queryset,
                                 [colmap[name] for name in columns if name in colmap])
+
+
+def facets_config(build, datasource_url=None):
+    """``{'datasource_url', 'group'}``: the state (``gt_datasource_state``)
+    a facets panel over the read-only node ``build`` writes its filters to --
+    the panel's own URL and group (:func:`~djgentelella.designs.
+    data_components.facets_page_context`) -- so the browser sends them as
+    ``gtfilters``. ``datasource_url`` defaults to the data source API; empty
+    when there is none to name."""
+    if not datasource_url:
+        try:
+            datasource_url = reverse('gtdatasource', kwargs={'name': build.datasource})
+        except NoReverseMatch:
+            return {}
+    return {'datasource_url': datasource_url, 'group': 'gtdesign:%s' % build.id}
 
 
 def _int(value, default):
@@ -250,7 +266,7 @@ class SourceRowsMixin:
                 item for item in params['ordering'] if item.lstrip('-') != 'pk'])
             order += [item for item in params['ordering'] if item.lstrip('-') == 'pk']
         except DjangoValidationError as error:
-            raise ValidationError({'detail': error.messages})
+            raise api_error(error)
         if not any(item.lstrip('-') == 'pk' for item in order):
             order.append('pk')
         return queryset.order_by(*order)
@@ -289,13 +305,14 @@ def _grid_value(value):
 
 class SourceGridViewSet(SourceRowsMixin, viewsets.ViewSet):
     """The rows of a read-only ``interactive_grid`` over a data source, as
-    ``interactive_grid.js`` reads them: ``?limit=&offset=&search=`` ->
-    ``{data, count}``, no row editable."""
+    ``interactive_grid.js`` reads them: ``?limit=&offset=&search=&gtfilters=``
+    -> ``{data, count}``, no row editable. ``gtfilters`` are the filters of a
+    facets panel over the grid, as in :class:`SourceTableViewSet`."""
 
     max_page = GRID_MAX_PAGE
 
     def list(self, request, *args, **kwargs):
-        queryset = self.rows_queryset()
+        queryset = self.rows_queryset(self.filters())
         offset, limit = self.page()
         rows = source_rows(self.build, self.source, request,
                            queryset[offset:offset + limit], self.columns)

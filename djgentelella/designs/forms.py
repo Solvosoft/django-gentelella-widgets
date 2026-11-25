@@ -7,7 +7,14 @@ description, and building a real class instead of code::
     "forms": {"cliente": {"model": "ventas.Cliente",
                           "fields": ["nombre", "pais"],
                           "render": "as_horizontal",
-                          "widgets": {"pais": "AutocompleteSelect"}}}
+                          "widgets": {"pais": "AutocompleteSelect"},
+                          "widget_options": {"nota": {"stars": 10}}}}
+
+``widget_options`` sets the options of a field's widget (the one in
+``widgets`` or its default), validated by the schema the widget declares in
+:data:`djgentelella.forms.widgetmap.WIDGET_OPTIONS`: an option it does not
+declare, a value out of its schema or options for a widget that takes none
+are errors of the design, never keyword arguments passed as they come.
 
 The model must be exposed (:mod:`djgentelella.designs.exposure`), every field
 named must be one the exposure allows, and a relation must point to an exposed
@@ -71,8 +78,13 @@ class FormFieldBuild:
     widget: str
     #: Basename of the select2 lookup an autocomplete widget is built with.
     lookup: str = None
+    #: Options of the widget, validated (``widget_options`` of the form).
+    options: dict = field(default_factory=dict)
 
     def widget_instance(self):
+        if self.options:
+            return widgetmap.build_widget(self.widget, self.options,
+                                          lookup=self.lookup)
         widget_class = widgetmap.widget_class(self.widget)
         if self.widget in widgetmap.LOOKUP_WIDGETS:
             return widget_class(self.lookup)
@@ -168,6 +180,42 @@ def _widget_for(build_path, form_field, model_field, widgets, rctx):
     return key, lookup
 
 
+def _options_errors(build_path, name, widget, options, by_name, names, rctx):
+    """Report the problems of ``options`` for the widget ``widget`` of the
+    field ``name``: its schema, and what depends on the form -- the field
+    kind of a range, the point field of a geocoded address."""
+    path = build_path + '.widget_options.' + name
+    if not isinstance(options, dict):
+        rctx.error(path, _('the options of a widget must be an object'))
+        return
+    errors = widgetmap.validate_widget_options(widget, options, path)
+    if errors:
+        rctx.errors.extend(errors)
+        return
+    kind = widgetmap.field_kind(by_name[name])
+    if widget == 'RangeInput' and kind == 'integer':
+        for option in ('min_value', 'max_value', 'step'):
+            value = options.get(option)
+            if value is not None and value != int(value):
+                rctx.error(path + '.' + option,
+                           _('%s is an integer field: use a whole number') % name)
+    if widget == 'GeocodedAddressInput' and options.get('point_field'):
+        point = options['point_field']
+        if point not in names or point not in by_name or \
+                widgetmap.field_kind(by_name[point]) != 'point':
+            rctx.error(path + '.point_field',
+                       _('%r is not a point field of this form') % (point,))
+    if widget == 'ComboboxInput':
+        limit = getattr(by_name[name], 'max_length', None)
+        for choice in options.get('choices') or []:
+            value = choice[0] if isinstance(choice, list) else choice
+            if limit and len(value) > limit:
+                rctx.error(path + '.choices', _('%(value)r is longer than '
+                                                'the %(limit)d characters of '
+                                                '%(field)s') % {
+                    'value': value, 'limit': limit, 'field': name})
+
+
 def no_field(model_label, name):
     """The error of a field name that ``model_label`` does not let a design use."""
     return _('%(model)s has no field %(field)r a design may use') % {
@@ -228,6 +276,14 @@ def build_form(key, data, rctx, path):
     for name in data.get('help', {}):
         if name not in names:
             rctx.error(path + '.help', _('%r is not a field of this form') % (name,))
+    widget_options = data.get('widget_options') or {}
+    if not isinstance(widget_options, dict):
+        rctx.error(path + '.widget_options', _('must be an object'))
+        widget_options = {}
+    for name in widget_options:
+        if name not in names:
+            rctx.error(path + '.widget_options',
+                       _('%r is not a field of this form') % (name,))
     if len(rctx.errors) > errors_before:
         return None
 
@@ -238,9 +294,13 @@ def build_form(key, data, rctx, path):
         if found is None:
             continue
         widget, lookup = found
+        options = widget_options.get(name)
+        if options is not None:
+            _options_errors(path, name, widget, options, by_name, names, rctx)
         build.fields.append(FormFieldBuild(
             name, widgetmap.field_kind(model_field), widget,
-            lookup if widget in widgetmap.LOOKUP_WIDGETS else None))
+            lookup if widget in widgetmap.LOOKUP_WIDGETS else None,
+            dict(options or {})))
     if len(rctx.errors) > errors_before:
         return None
     return build

@@ -598,6 +598,37 @@ any more: code of a project that used it loads ``vendors/bootstrap/
 popper.min.js`` itself (``loaddevstatic`` still downloads it). The bundle is
 built with ``python -m pylp`` (``make assets``), not committed.
 
+**Widget options in the designs (W29).** ``widgetmap.WIDGET_OPTIONS``
+declares, as a JSON schema per option, the options a widget takes:
+``StarRatingInput`` (``stars``, ``readonly``), ``RangeInput`` (``min_value``,
+``max_value``, ``step``, ``show_value``, ``suffix``), ``ComboboxInput``
+(``choices``), ``QRCodeInput`` (``scan``, ``readonly``, ``size``),
+``ImageCropInput`` (``aspect_ratio``, ``max_width``, ``max_height``,
+``output_type``, ``quality``), ``GeocodedAddressInput`` (``point_field``,
+``replace_text``), ``MarkdownInput`` (``rows``) and ``SwitchInput``
+(``label``). ``widget_options(key)`` is the object schema of one widget,
+``validate_widget_options(key, options)`` its errors and
+``build_widget(key, options)`` the instance. A design form (and an
+``interactive_grid``) takes ``widget_options`` by field, validated with the
+design: an option the widget does not declare, a value out of its schema, a
+fractional range on an integer field, a ``point_field`` that is not a point
+field of the form or options for a widget without them are errors; nothing
+reaches the constructor as a free keyword argument. The JSON schema validator
+also reads ``maxLength``, ``maxItems`` and ``exclusiveMinimum``. See
+``docs/source/designs.rst`` and ``widgets/formwidgets.rst``.
+
+**Facets over a read-only grid and aggregates ordered by value (W29).** A
+``facets`` panel can target an ``interactive_grid`` over a data source that is
+not over a model of the project: ``SourceGridViewSet`` reads ``gtfilters``,
+as the list, and the grid follows the panel (``datasource_url``/``group`` in
+its configuration, ``source_tables.facets_config``; ``grid_page_context``
+takes ``datasource_url=``). The parameter document takes ``"order_by_value":
+true``: ``aggregate()`` returns the groups from the largest first aggregate
+down (a saved report can ask for it); ``order_by_value=`` of the call still
+wins. ``max``/``min`` over ``date`` and ``datetime`` columns are covered by
+tests through ``aggregate``, the API and ``validate_params``. See
+``docs/source/datasources.rst``.
+
 Fixes
 """"""""
 
@@ -655,6 +686,26 @@ nor actions.
 **A page without the ``site_theme`` setting** (a database flushed by a test)
 loads ``gentelella/css/custom.css`` instead of an empty ``<link
 href="/static/?v=...">``.
+
+**A source error that is also a ``ValidationError`` is a 503 (W29).** The
+data source API and the endpoints of the design components (list and grid
+over a data source, regions, metrics, chart, stat, facets) check
+``DataSourceUnavailable`` before ``ValidationError``: a class that inherits
+from both answers its 503/502/504, not a 400 (``datasources.base.api_error``).
+``validate_params`` lets it through instead of reporting it as a problem of
+the document.
+
+**Test classes no longer hide each other (W29).** ``tests/__init__.py``
+imports every module with ``*``, and four test classes had the name of a
+class of another module (``RegistryTests``, ``RenderEndpointTests``,
+``SchemaTests``, ``PreviewTests``): 20 tests did not run. They are renamed,
+and ``UniqueTestNames_Test`` fails on a repeated name, on a test case left out
+of an ``__all__`` and on a ``*_Test.py`` that ``__init__.py`` does not import.
+
+**Schemas that declared ``maxLength``/``maxItems`` are enforced.** The
+validator ignored them: the ``prefix``/``suffix`` of a metric (8 characters),
+the ``metrics`` list (12) and the ``center`` of a map (2 numbers) are now
+checked when the document is validated.
 
 0.7.1 (2026-11-15)
 --------------------

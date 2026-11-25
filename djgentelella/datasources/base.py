@@ -26,7 +26,9 @@ from django.db.models import Q
 from django.utils.text import capfirst
 from django.utils.translation import gettext_lazy as _
 from rest_framework import status
-from rest_framework.exceptions import APIException
+from rest_framework.exceptions import (
+    APIException, ValidationError as DRFValidationError,
+)
 
 from djgentelella.sites import get_current_site, site_q, site_request
 from djgentelella.autodiscover import autodiscover_once
@@ -73,6 +75,22 @@ class DataSourceUnavailable(APIException):
             self.status_code = status
         #: DRF's exception handler sends it as ``Retry-After``.
         self.wait = retry_after
+
+
+def api_error(error, key='detail'):
+    """The exception an endpoint raises for ``error``, a Django
+    ``ValidationError`` caught around a query: a DRF ``ValidationError``
+    (400) with its messages under ``key``, unless ``error`` is also a
+    :class:`DataSourceUnavailable`, which stays itself (503/502/504).
+
+    ``raise api_error(error)`` in an ``except ValidationError as error``:
+    a source may raise a class that inherits from both (one that keeps the
+    ``messages`` of a ``ValidationError`` while its callers move to
+    ``DataSourceUnavailable``) and it must not become a bad request.
+    """
+    if isinstance(error, DataSourceUnavailable):
+        return error
+    return DRFValidationError({key: error.messages})
 
 
 def takes_params(source):
