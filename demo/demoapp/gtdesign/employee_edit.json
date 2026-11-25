@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "app": "demoapp",
+  "slug": "employee_edit",
+  "kind": "page",
+  "meta": {
+    "title": "Edit an employee",
+    "url": "employees/edit/",
+    "url_name": "employee_edit_design",
+    "permissions": {
+      "view": [
+        "demoapp.change_newhire"
+      ]
+    },
+    "parent": {
+      "model": "demoapp.NewHire"
+    }
+  },
+  "root": {
+    "type": "page",
+    "id": "page",
+    "children": [
+      {
+        "type": "row",
+        "id": "main",
+        "children": [
+          {
+            "type": "col",
+            "id": "form",
+            "props": {
+              "width": 12
+            },
+            "children": [
+              {
+                "type": "wizard",
+                "id": "hire",
+                "props": {
+                  "model": "demoapp.NewHire",
+                  "mode": "edit",
+                  "title": "Edit the employee",
+                  "site_field": "site",
+                  "optimistic_lock": true,
+                  "steps": [
+                    {
+                      "name": "personal",
+                      "title": "Personal data",
+                      "fields": [
+                        "name",
+                        "email",
+                        "birth_date",
+                        "has_car"
+                      ],
+                      "widgets": {
+                        "has_car": "YesNoInput"
+                      }
+                    },
+                    {
+                      "name": "vehicle",
+                      "title": "Vehicle",
+                      "fields": [
+                        "car_plate"
+                      ],
+                      "description": "Only for who comes by car.",
+                      "when": {
+                        "field": "has_car",
+                        "equals": true
+                      }
+                    },
+                    {
+                      "name": "job",
+                      "title": "Job",
+                      "fields": [
+                        "department",
+                        "start_date",
+                        "contract"
+                      ]
+                    }
+                  ],
+                  "success_url": "page:employees/new"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

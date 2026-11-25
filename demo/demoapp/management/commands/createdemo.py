@@ -1117,7 +1117,7 @@ class Command(BaseCommand):
         designs = Path(models.__file__).resolve().parent / 'gtdesign'
         for name in ('welcome', 'category_products', 'product_admin',
                      'sales_dashboard', 'product_grid', 'ticket_kanban',
-                     'meetups', 'insights'):
+                     'meetups', 'insights', 'employee_wizard', 'employee_edit'):
             call_command('gtdesigns_publish', str(designs / ('%s.json' % name)))
         parent = MenuItem.objects.create(
             parent=None, title='Designs', url_name='/', category='sidebar',
@@ -1133,11 +1133,17 @@ class Command(BaseCommand):
                                   ('Meetups (cards, calendar, map)', 'meetups',
                                    'fa fa-map-marker'),
                                   ('Insights (tree, timeline, metrics)',
-                                   'insights', 'fa fa-sitemap')):
+                                   'insights', 'fa fa-sitemap'),
+                                  ('Hire an employee (wizard)', 'employees/new',
+                                   'fa fa-list-ol')):
             MenuItem.objects.create(
                 parent=parent, title=title, url_name='gt-design-page',
                 category='sidebar', is_reversed=True, reversed_args=path,
                 is_widget=False, icon=icon, only_icon=False)
+        MenuItem.objects.create(
+            parent=parent, title='Hire an employee (wizard in code)',
+            url_name='employee_wizard', category='sidebar', is_reversed=True,
+            is_widget=False, icon='fa fa-list-ol', only_icon=False)
 
     def handle(self, *args, **options):
 

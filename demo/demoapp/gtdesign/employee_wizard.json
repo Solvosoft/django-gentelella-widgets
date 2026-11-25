@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "app": "demoapp",
+  "slug": "employee_wizard",
+  "kind": "page",
+  "meta": {
+    "title": "Hire an employee",
+    "url": "employees/new/",
+    "url_name": "employee_wizard_design",
+    "permissions": {
+      "view": [
+        "demoapp.add_newhire"
+      ]
+    }
+  },
+  "root": {
+    "type": "page",
+    "id": "page",
+    "children": [
+      {
+        "type": "row",
+        "id": "main",
+        "children": [
+          {
+            "type": "col",
+            "id": "form",
+            "props": {
+              "width": 12
+            },
+            "children": [
+              {
+                "type": "wizard",
+                "id": "hire",
+                "props": {
+                  "model": "demoapp.NewHire",
+                  "title": "Hire an employee",
+                  "site_field": "site",
+                  "draft": "model",
+                  "steps": [
+                    {
+                      "name": "personal",
+                      "title": "Personal data",
+                      "fields": [
+                        "name",
+                        "email",
+                        "birth_date",
+                        "has_car"
+                      ],
+                      "widgets": {
+                        "has_car": "YesNoInput"
+                      }
+                    },
+                    {
+                      "name": "vehicle",
+                      "title": "Vehicle",
+                      "fields": [
+                        "car_plate"
+                      ],
+                      "description": "Only for who comes by car.",
+                      "when": {
+                        "field": "has_car",
+                        "equals": true
+                      }
+                    },
+                    {
+                      "name": "job",
+                      "title": "Job",
+                      "fields": [
+                        "department",
+                        "start_date",
+                        "contract"
+                      ]
+                    }
+                  ],
+                  "success_message": "The employee was hired."
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
