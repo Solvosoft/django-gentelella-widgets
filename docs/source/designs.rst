@@ -360,6 +360,11 @@ type                            what it is
 ``map``                         calendar or on a map
                                 (``djgentelella.designs.regions``, see "Region
                                 components")
+``tree``, ``timeline``,         the rows of a data source as a tree or on a
+``metrics``                     timeline, and KPI cards against the previous
+                                period
+                                (``djgentelella.designs.tree_timeline_metrics``,
+                                see "Tree, timeline and metrics")
 ==============================  ===============================================
 
 .. code:: json
@@ -1036,6 +1041,118 @@ FullCalendar and Leaflet.markercluster are loaded by the component's script
 (``use_readonlywidgets`` and ``use_maps``); Leaflet itself is always there.
 The demo publishes the three over ``demoapp.meetups`` at
 ``/designs/meetups/``.
+
+Tree, timeline and metrics
+""""""""""""""""""""""""""
+
+*(Árbol, línea de tiempo y tarjetas de métricas.)* ``tree``, ``timeline`` and
+``metrics`` (``djgentelella.designs.tree_timeline_metrics``) are region
+components too: they take ``datasource`` (or ``model`` with ``site_field``),
+``title``, ``filtered_by`` and ``perms`` as above -- ``tree`` and ``timeline``
+also ``title_field``, ``subtitle_field``, ``fields``, ``row_links``,
+``column_conditions`` and ``ordering`` -- read only ``get_queryset(request)``
+of the source through ``apply_params``, follow the facets of the page and
+answer 403 without the build's or the source's permissions, 404 under a false
+node condition and 503 when the source raises ``DataSourceUnavailable``. No
+library is needed: ``gentelella/js/designs/tree_timeline_metrics.js`` and
+``gentelella/css/tree_timeline_metrics.css`` come with the components'
+``media``.
+
+.. code:: json
+
+    {"type": "tree", "id": "org_tree",
+     "props": {"datasource": "demoapp.departments", "title_field": "name",
+               "subtitle_field": "head", "parent_field": "parent",
+               "icon_field": "icon", "load": "lazy", "ordering": ["name"],
+               "row_links": [{"url_name": "admin:demoapp_department_change",
+                              "title": "Open"}]}}
+
+    {"type": "timeline", "id": "meetup_timeline",
+     "props": {"datasource": "demoapp.meetups", "title_field": "title",
+               "start_field": "starts_at", "end_field": "ends_at",
+               "description_field": "city", "color_field": "kind",
+               "colors": {"talk": "#3498db", "workshop": "#e67e22"},
+               "page_size": 5}}
+
+    {"type": "metrics", "id": "purchase_metrics",
+     "props": {"datasource": "demoapp.purchases", "date_field": "created_at",
+               "period": "month",
+               "metrics": [
+                 {"label": "Requested", "fn": "sum", "column": "amount",
+                  "format": "currency", "prefix": "$",
+                  "higher_is_better": false},
+                 {"label": "From ACME", "fn": "count",
+                  "filters": [{"column": "supplier", "op": "eq",
+                               "value": "ACME"}]}]}}
+
+**Tree** (``parent_field``, ``id_field``, ``icon_field``, ``load``,
+``limit``, ``expand``). ``parent_field`` names each row's parent: a foreign
+key to the same model, or a column holding the ``id_field`` of the parent
+(``id_field`` is the primary key when empty, and must then be of the same
+kind). ``icon_field`` gives a CSS class (``fa fa-folder``); anything else is
+dropped. With ``load: "lazy"`` (the default) the browser asks for one level
+at a time, ``?parent=<id>&offset=<n>``, at most ``limit`` rows (200) per
+request with a "More" button after them; ``{"nodes", "next_offset",
+"orphans", "cycles", "checked"}`` -- each node ``{key, title, subtitle,
+fields, icon, url, links, children, orphan, cycle}``. A level costs a constant
+number of queries: its page of pks, their rows, which of them have children,
+and for the roots one more for the ``(id, parent)`` pairs (at most 20 000; a
+larger source is not checked for cycles and ``checked`` says so). With
+``load: "full"`` it reads at most ``limit`` rows at once and answers them as a
+**flat list in pre-order**, each with its ``parent`` and ``depth``; ``expand``
+levels start open.
+
+A row whose parent is not among the rows -- deleted, of another Site,
+filtered out by a facet, or beyond the limit -- is shown at the root marked
+``orphan``. The rows of a cycle (``A → B → A``, or a row that is its own
+parent) are reachable from no root: the smallest id of each cycle is shown at
+the root marked ``cycle``. Nothing is walked recursively, a row is never its
+own child, and the browser never opens a node that is already one of its
+ancestors, so neither hangs the page; a note above the tree says how many
+there are.
+
+**Timeline** (``start_field``, ``end_field``, ``description_field``,
+``color_field``, ``colors``, ``color_rules``, ``page_size``). Newest first:
+``?cursor=&from=&to=&params=`` answers ``{"items", "next"}``, at most
+``page_size`` items (20) starting in ``[from, to)`` when given, and ``next``
+is the cursor of the page before (``None`` at the oldest). The cursor is the
+``(start, pk)`` of the last item shown (keyset paging), so the hundredth page
+costs the queries of the first and no row is skipped or repeated when several
+share a start. Each item: ``{id, title, subtitle, description, fields, start,
+end, when, until, group, color, url, links}``; ``group`` is the month it is
+listed under. The colour is chosen like the calendar's.
+
+**Metrics** (``metrics``, ``date_field``, ``period``, ``to_date``,
+``per_row``). Each card of ``metrics`` (1 to 12) is ``{label, fn, column,
+filters, format, decimals, prefix, suffix, icon, compare, higher_is_better,
+condition}``: an aggregate of the parameter document (``count`` -- without a
+column, the rows --, ``count_distinct``, ``sum``, ``avg``, ``min``, ``max``;
+the last four over a numeric column) of the rows matching its ``filters``
+(filters of the parameter document), shown as a ``number``, ``currency``
+(``prefix``/``suffix``) or ``percent`` (the value is a ratio: 0.25 is 25 %),
+with ``decimals`` (0 for counts, 2 otherwise). Its ``condition`` hides it.
+
+With ``date_field`` (a date or date-time column) and ``period`` (``day``,
+``week``, ``month``, ``quarter``, ``year``) every card shows the **current**
+period, and a card with ``compare`` (the default) also the change against the
+**previous** one: absolute (``+10.00``) and in percent (``+50.0 %``), an
+arrow, and green or red after ``higher_is_better`` (``false`` for costs). The
+previous period is the whole of it; with ``to_date`` only as far into it as
+today is into the current one (the first ten days of last month on the 10th).
+A count or a sum of no rows is 0 and an average, minimum or maximum of none is
+``—``; when the previous period is empty or zero there is no percentage (no
+division by zero), and with nothing to compare the card says so.
+
+Every card is computed in **one** aggregate query (conditional aggregates,
+``Sum(..., filter=Q(...))``) over the rows of the source after the page's
+facets. The page renders the cards on the server; the endpoint, ``?params=``,
+answers ``{"metrics": [card], "html"}`` -- the same cards rendered by the
+same template -- and the browser swaps them when a facet changes. A source
+that is down leaves the page up: the cards say they could not be computed.
+
+The demo publishes the three at ``/designs/insights/``: an organization chart
+(``demoapp.departments``), the meetups on a timeline with a facets panel, and
+two rows of cards over the meetups and the purchase requests.
 
 Extending the engine
 --------------------

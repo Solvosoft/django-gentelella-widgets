@@ -375,6 +375,21 @@ of a task and the coroutine of a task with dependencies -- in ``cli/run.py``
 and in ``lib/runner.py``, and repairs an install patched with
 ``create_task``, which broke the tasks without dependencies.
 
+**Tree, timeline and metric cards.** Three more region components
+(``djgentelella.designs.tree_timeline_metrics``, registered after ``map``)
+over a data source or an exposed model, with the Site, permissions (403),
+conditions, facets and ``filtered_by`` of ``cards``/``calendar``/``map``:
+``tree`` (each row under its ``parent_field``, one level per request or all
+at once up to a limit; a missing parent or a cycle goes to the root, marked,
+and never hangs the page), ``timeline`` (newest first, paged backwards with a
+keyset cursor, a colour per value or by rules) and ``metrics`` (KPI cards:
+``count``, ``count_distinct``, ``sum``, ``avg``, ``min`` or ``max`` over a
+column, with filters, a number/currency/percent format and the change against
+the previous day, week, month, quarter or year, coloured by
+``higher_is_better``; every card in one query). No new library. The demo has
+them at ``/designs/insights/`` (new model ``demoapp.Department``). See
+"Tree, timeline and metrics" in ``docs/source/designs.rst``.
+
 Backwards incompatible
 """"""""""""""""""""""""
 
