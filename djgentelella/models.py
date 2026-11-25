@@ -1,4 +1,5 @@
 import logging
+import uuid
 
 from django.conf import settings
 from django.contrib.auth.models import Permission
@@ -20,6 +21,7 @@ from djgentelella.settings import USER_MODEL_BASE
 from djgentelella.history.utils import add_log, ADDITION
 from djgentelella.menu import is_menu_widget
 from djgentelella.sites import site_pk
+from djgentelella.wizard.conf import expired_before
 
 logger = logging.getLogger(__name__)
 
@@ -546,3 +548,59 @@ class DeletedWithTrash(models.Model):
     def restore(self):
         self.is_deleted = False
         self.save(update_fields=['is_deleted'])
+
+
+class WizardDraftQuerySet(models.QuerySet):
+    """The drafts of :mod:`djgentelella.wizard`; expiry is read from
+    ``GT_WIZARD_DRAFT_EXPIRATION`` each time
+    (:func:`djgentelella.wizard.conf.draft_expiration`)."""
+
+    def of(self, user, site=None):
+        """The drafts of ``user`` in ``site`` (``None``: the global scope).
+
+        Exactly that Site: a draft is never shared between Sites, nor
+        between users.
+        """
+        if user is None or not getattr(user, 'is_authenticated', False):
+            return self.none()
+        return self.filter(user=user, site_id=site_pk(site))
+
+    def expired(self, now=None):
+        return self.filter(updated_at__lt=expired_before(now))
+
+    def live(self, now=None):
+        return self.filter(updated_at__gte=expired_before(now))
+
+
+class WizardDraft(models.Model):
+    """A wizard saved half way (:mod:`djgentelella.wizard`) to go on later.
+
+    ``key`` names the wizard (and the object it edits); ``data`` is its state:
+    the step the user was at, the data of each step and the tokens of the
+    files uploaded in chunks. Only its ``user`` sees it, and only in its
+    ``site``.
+    """
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(USER_MODEL_BASE, on_delete=models.CASCADE,
+                             related_name='wizard_drafts', verbose_name=_('User'))
+    site = models.ForeignKey('sites.Site', on_delete=models.CASCADE, null=True,
+                             blank=True, related_name='+', verbose_name=_('Site'))
+    key = models.CharField(_('Wizard'), max_length=255, db_index=True)
+    title = models.CharField(_('Title'), max_length=255, blank=True)
+    data = models.JSONField(_('Data'), default=dict, blank=True)
+    #: ``upload_id`` of the chunked uploads the draft keeps: they are not
+    #: deleted as expired while the draft lives.
+    uploads = models.JSONField(_('Uploads'), default=list, blank=True)
+    created_at = models.DateTimeField(_('Created'), auto_now_add=True)
+    updated_at = models.DateTimeField(_('Updated'), auto_now=True, db_index=True)
+
+    objects = WizardDraftQuerySet.as_manager()
+
+    class Meta:
+        ordering = ['-updated_at']
+        verbose_name = _('Wizard draft')
+        verbose_name_plural = _('Wizard drafts')
+
+    def __str__(self):
+        return self.title or self.key

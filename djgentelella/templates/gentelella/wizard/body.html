@@ -1,0 +1,66 @@
+{% load i18n %}{# The progress bar, the form of the current step and its buttons: djgentelella.wizard #}
+<div class="gt-wizard" data-gt-wizard="{{ wizard.step.name }}">
+  {% if wizard.title %}<h2 class="gt-wizard-title h4">{{ wizard.title }}</h2>{% endif %}
+  <p class="gt-wizard-position text-muted mb-1" id="{{ wizard.prefix|default:'gtwizard' }}-position">{% blocktrans with number=wizard.number total=wizard.total title=wizard.step.title %}Step {{ number }} of {{ total }}: {{ title }}{% endblocktrans %}</p>
+  <div class="progress mb-3" role="progressbar" aria-labelledby="{{ wizard.prefix|default:'gtwizard' }}-position" aria-valuemin="0" aria-valuemax="{{ wizard.total }}" aria-valuenow="{{ wizard.number }}" aria-valuetext="{% blocktrans with number=wizard.number total=wizard.total %}Step {{ number }} of {{ total }}{% endblocktrans %}">
+    <div class="progress-bar" style="width: {{ wizard.percent }}%"></div>
+  </div>
+  <form method="post" action="{{ wizard.action_url }}"{% if wizard.multipart %} enctype="multipart/form-data"{% endif %} class="gt-wizard-form" novalidate>
+    {% csrf_token %}
+    <input type="hidden" name="{{ wizard.step_field }}" value="{{ wizard.step.name }}">
+    {# The first submit button is the one Enter presses: "next" (or "finish"), never "previous". #}
+    <button type="submit" name="{{ wizard.action_field }}" value="{% if wizard.is_last %}finish{% else %}next{% endif %}" class="visually-hidden" tabindex="-1" aria-hidden="true">{% if wizard.is_last %}{% trans 'Finish' %}{% else %}{% trans 'Next' %}{% endif %}</button>
+    <nav aria-label="{% trans 'Wizard steps' %}">
+      <ol class="gt-wizard-steps list-unstyled d-flex flex-wrap gap-2 mb-3">
+        {% for item in wizard.steps %}
+        <li class="gt-wizard-step{% if item.current %} current{% elif item.done %} done{% endif %}">
+          {% if item.reachable %}
+          <button type="submit" formnovalidate name="{{ wizard.action_field }}" value="goto:{{ item.name }}" class="btn btn-sm {% if item.done %}btn-outline-success{% else %}btn-outline-secondary{% endif %}">
+            <span class="badge rounded-pill bg-{% if item.done %}success{% else %}secondary{% endif %}">{{ item.number }}</span> {{ item.title }}{% if item.done %}<span class="visually-hidden"> ({% trans 'done' %})</span>{% endif %}
+          </button>
+          {% else %}
+          <span class="btn btn-sm {% if item.current %}btn-primary{% else %}btn-light disabled{% endif %}"{% if item.current %} aria-current="step"{% endif %}>
+            <span class="badge rounded-pill bg-{% if item.current %}light text-dark{% else %}secondary{% endif %}">{{ item.number }}</span> {{ item.title }}
+          </span>
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ol>
+    </nav>
+    {% if wizard.step.description %}<p class="gt-wizard-description">{{ wizard.step.description }}</p>{% endif %}
+    {% if wizard.form.errors %}<div class="alert alert-danger" role="alert">{% trans 'Please correct the errors below.' %}</div>{% endif %}
+    {% if wizard.uploaded %}
+    <ul class="gt-wizard-uploaded list-unstyled small text-muted">
+      {% for item in wizard.uploaded %}<li><i class="fa fa-paperclip" aria-hidden="true"></i> {% blocktrans with field=item.field name=item.name %}{{ field }}: "{{ name }}" is already uploaded; upload another file only to replace it.{% endblocktrans %}</li>{% endfor %}
+    </ul>
+    {% endif %}
+    <fieldset class="gt-wizard-fields">
+      <legend class="visually-hidden">{{ wizard.step.title }}</legend>
+      {{ wizard.form }}
+    </fieldset>
+    <div class="gt-wizard-buttons d-flex flex-wrap gap-2 mt-3">
+      {% if not wizard.is_first %}
+      <button type="submit" formnovalidate name="{{ wizard.action_field }}" value="previous" class="btn btn-secondary gt-wizard-previous"><i class="fa fa-arrow-left" aria-hidden="true"></i> {% trans 'Previous' %}</button>
+      {% endif %}
+      {% if wizard.is_last %}
+      <button type="submit" name="{{ wizard.action_field }}" value="finish" class="btn btn-success gt-wizard-finish"><i class="fa fa-check" aria-hidden="true"></i> {% trans 'Finish' %}</button>
+      {% else %}
+      <button type="submit" name="{{ wizard.action_field }}" value="next" class="btn btn-primary gt-wizard-next">{% trans 'Next' %} <i class="fa fa-arrow-right" aria-hidden="true"></i></button>
+      {% endif %}
+      <button type="submit" formnovalidate name="{{ wizard.action_field }}" value="save" class="btn btn-outline-primary gt-wizard-save"><i class="fa fa-floppy-o" aria-hidden="true"></i> {% trans 'Save draft' %}</button>
+      {% if wizard.started or wizard.draft_id %}
+      <button type="submit" formnovalidate name="{{ wizard.action_field }}" value="discard" class="btn btn-outline-danger ms-auto gt-wizard-discard"><i class="fa fa-trash" aria-hidden="true"></i> {% trans 'Discard' %}</button>
+      {% endif %}
+    </div>
+  </form>
+  {% if wizard.drafts %}
+  <div class="gt-wizard-drafts mt-4">
+    <h3 class="h6">{% trans 'Your drafts' %}</h3>
+    <ul class="list-unstyled">
+      {% for draft in wizard.drafts %}
+      <li>{% if draft.current %}<strong>{{ draft.title }}</strong> <span class="text-muted">({% trans 'open' %})</span>{% else %}<a href="{{ draft.url }}" class="gt-wizard-resume">{{ draft.title }}</a>{% endif %} <small class="text-muted">{{ draft.updated }}</small></li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+</div>
