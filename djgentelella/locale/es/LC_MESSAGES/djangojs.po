@@ -793,3 +793,30 @@ msgid ""
 msgstr ""
 "Hubo un problema al realizar tu solicitud. Por favor, intenta nuevamente más "
 "tarde o contacta al administrador."
+
+#: static/gentelella/js/designs/regions.js:119
+msgid "The cards could not be loaded."
+msgstr "No se pudieron cargar las tarjetas."
+
+#: static/gentelella/js/designs/regions.js:160
+#, javascript-format
+msgid "Showing the first %s events of this range."
+msgstr "Se muestran los primeros %s eventos de este rango."
+
+#: static/gentelella/js/designs/regions.js:165
+msgid "The events could not be loaded."
+msgstr "No se pudieron cargar los eventos."
+
+#: static/gentelella/js/designs/regions.js:176
+msgid "The calendar could not be loaded."
+msgstr "No se pudo cargar el calendario."
+
+#: static/gentelella/js/designs/regions.js:219
+#, javascript-format
+msgid "Showing the first %s points: zoom in to see the others."
+msgstr ""
+"Se muestran los primeros %s puntos: acerque el mapa para ver los demás."
+
+#: static/gentelella/js/designs/regions.js:223
+msgid "The points could not be loaded."
+msgstr "No se pudieron cargar los puntos."
