@@ -42,7 +42,7 @@ from rest_framework.exceptions import APIException
 
 from djgentelella.authorization import evaluate_condition, validate_condition
 from djgentelella.datasources.base import get_datasource
-from djgentelella.designs import conditions, factories, format
+from djgentelella.designs import conditions, factories, format, source_tables
 from djgentelella.designs.builds import (
     ACTION_PERMISSIONS, AGGREGATES, CHART_TYPES, CRUD_PERMISSIONS, CRUD_VIEWS,
     PERIODS, TABLE_ACTIONS, ChartBuild, CrudBuild, FacetsBuild, ObjectManagementBuild,
@@ -462,6 +462,10 @@ class ObjectManagementComponent(RuntimeComponent):
     ``AuthAllPermBaseObjectManagement`` viewset (permission checked per
     action), its serializers and FilterSet -- all made at runtime -- and
     ``ObjectCRUD`` in the page.
+
+    In list mode -- a ``datasource`` instead of ``model`` and ``form`` -- it
+    only lists the rows of any data source, read only
+    (:mod:`djgentelella.designs.source_tables`).
     """
 
     type = 'object_management'
@@ -469,10 +473,13 @@ class ObjectManagementComponent(RuntimeComponent):
     icon = 'fa fa-table'
     props_schema = {
         'type': 'object',
-        'required': ['model', 'form'],
+        # "model" and "form", or "datasource": checked by resolve().
         'additionalProperties': False,
         'properties': {
             'model': {'type': 'string', 'x-widget': 'model', 'title': 'Model'},
+            'datasource': {'type': 'string', 'x-widget': 'datasource',
+                           'title': 'Data source (instead of a model and a form): '
+                                    'its rows listed, read only'},
             'form': {'type': 'string', 'x-widget': 'form', 'title': 'Form',
                      'description': 'Key in the design "forms".'},
             'title': {'type': 'string', 'title': 'Title'},
@@ -525,7 +532,49 @@ class ObjectManagementComponent(RuntimeComponent):
     }
 
     def resolve(self, node, rctx, path):
+        props = node.get('props') or {}
+        if props.get('datasource'):
+            return self.resolve_list(node, rctx, path)
+        missing = [name for name in ('model', 'form') if not props.get(name)]
+        if missing:
+            for name in missing:
+                rctx.error(path + '.props.' + name,
+                           _('%s is required (or a "datasource", to only list its '
+                             'rows)') % name)
+            return data_build(ObjectManagementBuild, node, rctx)
         return self.resolve_management(node, rctx, path)
+
+    def resolve_list(self, node, rctx, path):
+        """List mode: the rows of ``datasource``, read only."""
+        props = node.get('props') or {}
+        build = data_build(ObjectManagementBuild, node, rctx)
+        for name in ('model', 'form', 'notify', 'action_conditions'):
+            if props.get(name):
+                rctx.error(path + '.props.' + name,
+                           _('a list over a data source only reads: it has no '
+                             '%r') % (name,))
+        if props.get('optimistic_lock') or props.get('optimistic_lock_required'):
+            rctx.error(path + '.props.optimistic_lock',
+                       _('a list over a data source only reads: there is nothing '
+                         'to lock'))
+        source = source_tables.resolve_source_list(
+            rctx, path, props, build, names_prop='list_fields')
+        if source is not None:
+            links = props.get('row_links') or []
+            if build.model is not None:
+                build.row_links = resolve_row_links(rctx, path, build.model, links)
+            elif links:
+                rctx.error(path + '.props.row_links',
+                           _('row links need a data source over a model'))
+        if rctx.has_errors_under(path):
+            # Nothing is served from a node with errors.
+            build.model, build.datasource = None, ''
+        return build
+
+    def facets_source(self, node, rctx, path):
+        """A facets panel filters a list over a data source through the data
+        source API."""
+        return (node.get('props') or {}).get('datasource') or None
 
     def resolve_management(self, node, rctx, path, parent_field=None,
                            parent_model=None, parent_perms=()):
@@ -629,7 +678,54 @@ class ObjectManagementComponent(RuntimeComponent):
             return endpoint_url(rctx, build, parent.pk)
         return endpoint_url(rctx, build)
 
+    def render_list(self, build, rctx):
+        """List mode: a DataTable without modals over the node's endpoint."""
+        if rctx.preview:
+            return render_to_string('gtdesigns/components/object_management.html', {
+                'b': build, 'preview': True,
+                'columns': [column['title'] for column in build.source_columns],
+                'rows': [['%s %d' % (column['title'], index)
+                          for column in build.source_columns]
+                         for index in range(1, 4)]})
+        if build.perms['list'] and not can(rctx, build.perms['list']):
+            return no_permission(build)
+        try:
+            source = get_datasource(build.datasource)
+        except (KeyError, LookupError):
+            source = None
+        if source is None or rctx.request is None or \
+                not source.has_permission(rctx.request):
+            return no_permission(build)
+        base = endpoint_url(rctx, build)
+        if base is None:
+            return no_permission(build)
+        hidden = hidden_columns(build, rctx.request)
+        columns = []
+        for column in source_tables.visible_columns(build, hidden):
+            item = {'data': column['name'], 'name': column['name'],
+                    'kind': column['kind'], 'title': escape(column['title']),
+                    'type': 'string' if column['kind'] in TEXT_KINDS else 'readonly'}
+            if 'choices' in column:
+                item['choices'] = [[value, escape(text)]
+                                   for value, text in column['choices']]
+            columns.append(item)
+        config = {
+            'id': build.id,
+            'readonly': True,
+            'urls': {'list_url': base},
+            'modal_ids': {},
+            'columns': columns,
+            'row_links': row_link_config(build, rctx.request),
+            'delete_display': '',
+        }
+        return render_to_string('gtdesigns/components/object_management.html', {
+            'b': build, 'forms': {}, 'base': base, 'modal_ids': {},
+            'allowed': {}, 'config': json_config(build.id + '_gtconfig', config),
+        }, request=rctx.request)
+
     def render(self, build, rctx, children):
+        if build.list_only:
+            return self.render_list(build, rctx)
         if build.model is None:
             return mark_safe('')
         if rctx.preview:
@@ -691,6 +787,9 @@ class ObjectManagementComponent(RuntimeComponent):
         return {'js': [SCRIPT]}
 
     def endpoints(self, build):
+        if build.list_only:
+            return [Endpoint('', source_tables.SourceTableViewSet,
+                             'gtdesign-%s' % build.id)]
         if build.model is None:
             return []
         viewset = factories.management_viewset_for(build)
@@ -715,7 +814,9 @@ class InlineObjectManagementComponent(ObjectManagementComponent):
         **ObjectManagementComponent.props_schema,
         'required': ['model', 'form', 'parent_field'],
         'properties': {
-            **ObjectManagementComponent.props_schema['properties'],
+            **{name: schema for name, schema in
+               ObjectManagementComponent.props_schema['properties'].items()
+               if name != 'datasource'},
             'parent_field': {'type': 'string', 'x-widget': 'model-field',
                              'x-filter': 'parent-fk',
                              'title': 'Foreign key to the page parent'},
@@ -1286,6 +1387,11 @@ class FacetsComponent(RuntimeComponent):
         props = node.get('props') or {}
         build = data_build(FacetsBuild, node, rctx, target=props['target'])
         target = find_node(rctx.design, props['target'])
+        if target is not None and target.get('type') in TABLE_TYPES and \
+                (target.get('props') or {}).get('datasource'):
+            # A table in list mode: over its data source, like a region.
+            return self.resolve_source(node, rctx, path, build,
+                                       rctx.component(target['type']), target)
         if target is not None and target.get('type') not in TABLE_TYPES:
             component = rctx.component(target.get('type'))
             if component is not None and getattr(component, 'facets_target', False):

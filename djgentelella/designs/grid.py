@@ -57,8 +57,10 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
 from djgentelella.authorization import evaluate_condition
-from djgentelella.datasources.base import ModelDataSource, get_datasource
-from djgentelella.designs import factories
+from djgentelella.datasources.base import (
+    ModelDataSource, get_datasource, project_model_of,
+)
+from djgentelella.designs import factories, source_tables
 from djgentelella.designs.builds import ObjectManagementBuild
 from djgentelella.designs.components import Endpoint, RuntimeComponent
 from djgentelella.designs.conditions import (
@@ -97,6 +99,9 @@ OPERATIONS = {'create': 'create', 'update': 'update', 'delete': 'destroy'}
 NOT_SHOWN = ('json', 'binary', 'point', 'other', 'file', 'image')
 #: Kinds of field a cell cannot edit: their widgets need room or an upload.
 NOT_EDITABLE = NOT_SHOWN + ('auto', 'm2m')
+#: What :meth:`InteractiveGridComponent.resolve_model` answers for a data
+#: source that is not over a model of the project.
+READ_ONLY = object()
 #: The most rows one save may carry.
 MAX_BATCH_ROWS = 500
 #: The precedence of the failures of a batch, as C9 orders them: the answer
@@ -194,7 +199,8 @@ class InteractiveGridComponent(RuntimeComponent):
         'properties': {
             'model': {'type': 'string', 'x-widget': 'model', 'title': 'Model'},
             'datasource': {'type': 'string', 'x-widget': 'datasource',
-                           'title': 'Data source over a model (instead of a model)'},
+                           'title': 'Data source (instead of a model); read only '
+                                    'when it is not over a model of the project'},
             'title': {'type': 'string', 'title': 'Title'},
             'columns': {'type': 'array', 'items': {'type': 'string'},
                         'minItems': 1, 'x-widget': 'model-fields',
@@ -242,6 +248,8 @@ class InteractiveGridComponent(RuntimeComponent):
         build = data_build(InteractiveGridBuild, node, rctx,
                            page_size=props.get('page_size', 25))
         found, source = self.resolve_model(props, rctx, path, build)
+        if found is READ_ONLY:
+            return self.resolve_read_only(node, rctx, path, build, source)
         if found is None:
             return build
         model = found.model
@@ -359,8 +367,10 @@ class InteractiveGridComponent(RuntimeComponent):
 
     def resolve_model(self, props, rctx, path, build):
         """``(exposure, data source)`` of the grid: of its ``model``, or of the
-        model of its ``datasource``, which must be over one. ``(None, None)``
-        after an error."""
+        model of its ``datasource``. ``(None, None)`` after an error, and
+        ``(READ_ONLY, source)`` for a data source that is not a
+        ``ModelDataSource`` over a model of the project: the grid only shows
+        its rows (:meth:`resolve_read_only`)."""
         has_model, has_source = bool(props.get('model')), bool(props.get('datasource'))
         if has_model == has_source:
             rctx.error(path + '.props', _('give a "model" or a "datasource", not both'))
@@ -371,16 +381,46 @@ class InteractiveGridComponent(RuntimeComponent):
         source = rctx.datasource(props['datasource'], where)
         if source is None:
             return None, None
-        if not isinstance(source, ModelDataSource) or source.model is None:
-            rctx.error(where, _('data source %r is not over a model: a grid edits '
-                                'the rows of a model') % (props['datasource'],))
-            return None, None
+        if not isinstance(source, ModelDataSource) or project_model_of(source) is None:
+            return READ_ONLY, source
         build.datasource = props['datasource']
         return rctx.exposure(source.model._meta.label, where), source
+
+    def resolve_read_only(self, node, rctx, path, build, source):
+        """A grid over a data source that is not over a model of the project:
+        its rows, read only -- no ``editable`` columns, no ``actions``."""
+        props = node.get('props') or {}
+        for name in ('editable', 'actions', 'widgets', 'edit_conditions',
+                     'action_conditions'):
+            if props.get(name):
+                rctx.error(path + '.props.' + name,
+                           _('data source %(source)r is not over a model of the '
+                             'project: its grid only reads, it has no %(prop)r')
+                           % {'source': props['datasource'], 'prop': name})
+        source_tables.resolve_source_list(rctx, path, props, build,
+                                          names_prop='columns',
+                                          default_ordering=['pk'])
+        build.editable, build.actions = [], []
+        build.optimistic_lock = build.optimistic_lock_required = False
+        if rctx.has_errors_under(path):
+            build.model, build.datasource = None, ''
+        return build
 
     # -- page ---------------------------------------------------------------------
 
     def render(self, build, rctx, children):
+        if build.list_only:
+            if rctx.preview:
+                return render_to_string(TEMPLATE, {
+                    'b': build, 'preview': True,
+                    'columns': [column['title'] for column in build.source_columns],
+                    'rows': [['%s %d' % (column['title'], index)
+                              for column in build.source_columns]
+                             for index in range(1, 4)]})
+            context = grid_page_context(build, rctx.request, endpoint_url(rctx, build))
+            if context is None:
+                return no_permission(build)
+            return render_to_string(TEMPLATE, context, request=rctx.request)
         if build.model is None:
             return mark_safe('')
         if rctx.preview:
@@ -400,6 +440,9 @@ class InteractiveGridComponent(RuntimeComponent):
         return {'js': [SCRIPT]}
 
     def endpoints(self, build):
+        if build.list_only:
+            return [Endpoint('', source_tables.SourceGridViewSet,
+                             'gtdesign-%s' % build.id)]
         if build.model is None:
             return []
         return [Endpoint('', grid_viewset_for(build), 'gtdesign-%s' % build.id)]
@@ -435,13 +478,29 @@ def grid_page_context(build, request, url, *, form_class=None, columns=None):
     the data source's (``build.datasource``), or without ``url``.
 
     The permissions and conditions are those of :class:`GridState`, the same
-    its endpoint checks.
+    its endpoint checks. A read-only grid over a data source
+    (``build.list_only``) has neither form nor cells: its endpoint is a
+    :class:`~djgentelella.designs.source_tables.SourceGridViewSet`.
     """
     user = getattr(request, 'user', None)
-    if not url or user is None or not all_permission(user, list(build.perms['list'])):
+    needed = list(build.perms['list'])
+    if not url or user is None or (
+            (needed or not build.list_only) and not all_permission(user, needed)):
         return None
     if build.datasource and not source_allows(build, request):
         return None
+    if build.list_only:
+        hidden = hidden_columns(build, request) if build.column_conditions else set()
+        allowed = {name: False for name in GRID_ACTIONS}
+        config = {
+            'id': build.id, 'prefix': build.id, 'url': url,
+            'page_size': build.page_size, 'search': bool(build.search_fields),
+            'lock': False, 'allowed': allowed,
+            'columns': [dict(column, editable=False) for column in
+                        source_tables.visible_columns(build, hidden)],
+        }
+        return {'b': build, 'cells': [], 'allowed': allowed,
+                'config': json_config(build.id + '_gtconfig', config)}
     state = GridState(build, request)
     cells = []
     if (state.allowed['create'] or state.allowed['update']) and state.editable:

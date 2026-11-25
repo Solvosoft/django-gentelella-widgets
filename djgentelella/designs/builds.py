@@ -160,6 +160,14 @@ class ObjectManagementBuild(DataBuild):
     #: ``OptimisticLockMixin.optimistic_lock_required``: an update without
     #: the version is refused (428).
     optimistic_lock_required: bool = False
+    #: List mode: the name of the data source whose rows it shows, read
+    #: only, instead of a model and a form (``model`` is then the source's
+    #: ``project_model``, or None). See :mod:`djgentelella.designs.
+    #: source_tables`.
+    datasource: str = ''
+    #: List mode: the columns shown, as the browser draws them
+    #: (``{name, title, kind, choices?}``).
+    source_columns: list = field(default_factory=list)
     #: The actions on one row, whose conditions about the object are
     #: evaluated with each row (:func:`~djgentelella.designs.conditions.
     #: row_conditions`). A class attribute, not a field.
@@ -168,6 +176,12 @@ class ObjectManagementBuild(DataBuild):
     @property
     def inline(self):
         return self.parent_field is not None
+
+    @property
+    def list_only(self):
+        """Whether it only lists the rows of a data source: no form, so no
+        create, update, detail or delete."""
+        return bool(self.datasource) and self.form is None
 
 
 @dataclass

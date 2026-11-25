@@ -195,7 +195,9 @@
                       title: gettext('Actions'), className: 'no-export-col'},
             datatable_inits: {
                 columns: columns(config),
-                addfilter: true,
+                // A list over a data source (list mode) has no column filters:
+                // its search, its ordering and the facets filter it.
+                addfilter: !config.readonly,
                 events: {
                     filter: function (data) {
                         var filters = facetFilters(id);
@@ -205,7 +207,7 @@
                     }
                 }
             },
-            add_filter: true,
+            add_filter: !config.readonly,
             relation_render: {},
             delete_display: function (data) { return escape(data[config.delete_display]); }
         };
