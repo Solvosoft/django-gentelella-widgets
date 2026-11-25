@@ -1,7 +1,9 @@
-from django.contrib.admin.models import LogEntry
+from django.contrib.admin.models import ADDITION, CHANGE, DELETION, LogEntry
 from django.contrib.contenttypes.models import ContentType
+from django.utils.text import capfirst
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
+from djgentelella.history.utils import ACTIONS
 from djgentelella.serializers import (
     DataTableSerializer,
     GTDateField,
@@ -27,6 +29,10 @@ class HistorySerializer(serializers.ModelSerializer):
             return _('Hard deleted')
         elif obj.action_flag == 5:
             return _('Restored')
+        elif obj.action_flag not in (ADDITION, CHANGE, DELETION) \
+                and obj.action_flag in ACTIONS:
+            # SECRET_READ and the actions added with register_action().
+            return capfirst(str(ACTIONS[obj.action_flag]))
 
         return obj.get_action_flag_display()
 
