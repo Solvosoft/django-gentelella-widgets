@@ -36,6 +36,7 @@ from .views import auth
 from .trash.api import TrashViewSet
 from .history.api import HistoryViewSet
 from .search.urls import urlpatterns as search_urls
+from .pwa.urls import urlpatterns as pwa_urls
 
 logger = logging.getLogger(__name__)
 
@@ -220,6 +221,7 @@ urlpatterns = (
     + permission_management_urls
     + datasources_urls
     + search_urls
+    + pwa_urls
 )
 
 # djgentelella.flows is an app of its own: its views import its models, which

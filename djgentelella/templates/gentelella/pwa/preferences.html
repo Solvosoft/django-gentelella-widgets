@@ -1,0 +1,61 @@
+{% extends 'gentelella/base_site.html' %}
+{% load static i18n %}
+{% block title %}{% trans 'Push notifications' %}{% endblock %}
+{% block content %}
+<div class="container" id="gt-push-preferences">
+  <h1 class="h3">{% trans 'Push notifications' %}</h1>
+  {% if not available %}
+  <div class="alert alert-info" id="gt-push-unavailable">
+    {% trans 'Push notifications are not available on this server.' %}
+  </div>
+  {% else %}
+  <div class="card mb-3">
+    <div class="card-header">{% trans 'This device' %}</div>
+    <div class="card-body" id="gt-push-device"
+         data-key="{{ application_server_key }}"
+         data-sw="{% url 'gt_pwa_service_worker' %}"
+         data-scope="{{ scope }}"
+         data-subscribe="{% url 'gt_push_subscribe' %}"
+         data-unsubscribe="{% url 'gt_push_unsubscribe' %}"
+         data-test="{% url 'gt_push_test' %}">
+      <p id="gt-push-status" class="mb-3">{% trans 'Checking this browser...' %}</p>
+      <button type="button" class="btn btn-primary d-none" id="gt-push-subscribe">
+        <i class="fa fa-bell" aria-hidden="true"></i> {% trans 'Receive push notifications on this device' %}</button>
+      <button type="button" class="btn btn-outline-secondary d-none" id="gt-push-unsubscribe">
+        <i class="fa fa-bell-slash" aria-hidden="true"></i> {% trans 'Stop on this device' %}</button>
+      <button type="button" class="btn btn-outline-primary d-none" id="gt-push-test">
+        <i class="fa fa-paper-plane" aria-hidden="true"></i> {% trans 'Send a test' %}</button>
+    </div>
+  </div>
+  {% endif %}
+  <div class="card mb-3">
+    <div class="card-header">{% trans 'My notifications' %}</div>
+    <div class="card-body">
+      <form method="post" id="gt-push-preference-form">{% csrf_token %}
+        <div class="form-check form-switch mb-3">
+          <input class="form-check-input" type="checkbox" role="switch" name="enabled" value="1"
+                 id="gt-push-enabled" {% if wanted %}checked{% endif %}>
+          <label class="form-check-label" for="gt-push-enabled">{% trans 'Send my notifications as push to my subscribed devices' %}</label>
+        </div>
+        <button type="submit" class="btn btn-primary">{% trans 'Save' %}</button>
+      </form>
+    </div>
+  </div>
+  {% if subscriptions %}
+  <div class="card">
+    <div class="card-header">{% trans 'Subscribed devices' %}</div>
+    <ul class="list-group list-group-flush" id="gt-push-subscriptions">
+      {% for subscription in subscriptions %}
+      <li class="list-group-item">{{ subscription.user_agent|default:subscription.endpoint|truncatechars:90 }}
+        <small class="text-muted">· {{ subscription.created_at|date:"SHORT_DATETIME_FORMAT" }}</small></li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+</div>
+{% endblock content %}
+{% block js %}
+{% if available %}
+<script src="{% static 'gentelella/js/pwa/push.js' %}?v=1"></script>
+{% endif %}
+{% endblock %}

@@ -32,6 +32,7 @@
 	{% block extra_css %} {% endblock %}
 	<script src="{% url 'djgentelella-js-catalog' %}?v={% get_version %}"></script>
 	{% include 'gentelella/statics/javascript_header.html' %}
+	{% block pwa_head %}{% load gtpwa %}{% pwa_head %}{% endblock pwa_head %}
 	{% block extra_head %}{% endblock %}
 </head>
 
