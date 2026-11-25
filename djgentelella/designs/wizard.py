@@ -36,6 +36,15 @@ page's own rule for its object (the ``view`` permission of the model).
 Site on creation, and an object of another Site cannot be edited (404).
 ``optimistic_lock`` (edit only) refuses to finish when the object changed
 after the wizard started.
+
+``pipeline`` (:mod:`djgentelella.designs.pipeline`, ``on_submit``) on a step
+runs its validations and computations whenever the step validates -- an
+error keeps the user in the step, a computed value is kept in the draft --;
+a process or a branch there is an error. On the wizard it runs when it
+finishes: validations and computations, then the save and the processes in
+one transaction (a failing process rolls everything back and the wizard
+stays at its last step), and the branch that holds is where it goes instead
+of ``success_url``.
 """
 
 from dataclasses import dataclass, field
@@ -55,6 +64,7 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework.renderers import JSONRenderer
 
 from djgentelella.authorization import evaluate_condition, validate_condition
+from djgentelella.designs import pipeline
 from djgentelella.designs.builds import DataBuild
 from djgentelella.designs.components import Endpoint, RuntimeComponent
 from djgentelella.designs.data_components import (
@@ -94,6 +104,9 @@ class WizardStepBuild:
     condition: dict = None
     #: ``{"field", "step", "equals" | "in" | "filled"}``, or ``None``.
     when: dict = None
+    #: Its ``on_submit`` :class:`~djgentelella.designs.pipeline.PipelineBuild`
+    #: (validations and computations only), or ``None``.
+    pipeline: object = None
 
 
 @dataclass
@@ -184,12 +197,21 @@ class DesignWizardView(GTWizardView):
         self.draft_storage = build.draft
         self.optimistic_lock = build.optimistic_lock
         self.success_message = build.success_message or _('Saved.')
+        self.pipeline = build.pipeline
+        self.pipeline_node = build.id
 
     def get_steps(self):
         return [Step(step.name, step.form.form_class, step.title,
                      condition=step_condition(self.build, step),
-                     description=step.description)
+                     description=step.description, pipeline=step.pipeline)
                 for step in self.build.steps]
+
+    def get_step_pipeline(self, step):
+        # Resolved with the document: a PipelineBuild already.
+        return step.pipeline or None
+
+    def get_pipeline(self):
+        return self.build.pipeline or None
 
     def get_object(self):
         return self.parent if self.build.mode == 'edit' else None
@@ -226,7 +248,7 @@ class DesignWizardView(GTWizardView):
         return reverse(target)
 
     def done(self, forms):
-        values = {}
+        values = self.extra_values(forms)
         if self.build.site_field and self.build.mode == 'create':
             values[self.build.site_field + '_id'] = site_pk(
                 get_current_site(self.request))
@@ -312,6 +334,9 @@ def wizard_schema():
                      'title': 'Help per field'},
             'condition': {'x-widget': 'condition',
                           'title': 'Step shown only when (user, group, flag...)'},
+            'pipeline': {**pipeline.PIPELINE_SCHEMA,
+                         'title': 'Pipeline each time the step validates '
+                                  '(validations and computations)'},
             'when': {
                 'type': 'object', 'x-widget': 'step-when',
                 'title': 'Step shown only when a field of an earlier step...',
@@ -362,6 +387,8 @@ def wizard_schema():
                                      'page)'},
             'success_message': {'type': 'string', 'title': 'Message when it '
                                                            'finishes'},
+            'pipeline': {**pipeline.PIPELINE_SCHEMA,
+                         'title': 'Pipeline when the wizard finishes'},
         },
     }
 
@@ -413,13 +440,17 @@ class WizardComponent(RuntimeComponent):
         for index, data in enumerate(props.get('steps') or []):
             where = '%s.props.steps[%d]' % (path, index)
             step = self.resolve_step(node, rctx, where, data, props['model'],
-                                     by_name, placed, site_field)
+                                     by_name, placed, site_field, found)
             if any(item.name == data['name'] for item in steps):
                 rctx.error(where + '.name', _('step %r is repeated') % data['name'])
             if step is not None:
                 steps.append(step)
             for name in data.get('fields') or []:
                 placed.setdefault(name, data['name'])
+
+        on_submit = pipeline.resolve_pipeline(
+            rctx, props, path, event=pipeline.ON_SUBMIT, model=model, exposure=found,
+            form_fields=list(placed))
 
         if build.mode == 'create' and not rctx.has_errors_under(path + '.props.steps'):
             for model_field in model._meta.concrete_fields:
@@ -463,10 +494,11 @@ class WizardComponent(RuntimeComponent):
         build.optimistic_lock = bool(props.get('optimistic_lock'))
         build.success_url = success_url
         build.columns = columns_of(found)
+        build.pipeline = on_submit
         return build
 
     def resolve_step(self, node, rctx, where, data, label, by_name, placed,
-                     site_field):
+                     site_field, found=None):
         names = list(data.get('fields') or [])
         for name in names:
             if name in placed:
@@ -508,10 +540,16 @@ class WizardComponent(RuntimeComponent):
                            % (when['field'],))
             else:
                 when['step'] = placed[when['field']]
+        on_submit = pipeline.resolve_pipeline(
+            rctx, data, where, event=pipeline.ON_SUBMIT,
+            model=found.model if found is not None else None, exposure=found,
+            form_fields=names, intermediate=True,
+            where='%s.pipeline.%s' % (where, pipeline.ON_SUBMIT))
         if form is None:
             return None
         return WizardStepBuild(data['name'], data.get('title') or data['name'],
-                               form, data.get('description', ''), condition, when)
+                               form, data.get('description', ''), condition, when,
+                               on_submit)
 
     def preview(self, build, rctx):
         step = build.steps[0]

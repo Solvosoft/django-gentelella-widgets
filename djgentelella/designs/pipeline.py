@@ -76,10 +76,10 @@ from djgentelella.sites import get_current_site
 __all__ = [
     'BEFORE_RENDER', 'BranchBuild', 'KINDS', 'ON_SUBMIT', 'PAGE_PIPELINE_SCHEMA',
     'PIPELINE_SCHEMA', 'PipelineBuild', 'PipelineContext', 'PipelineResult',
-    'Process', 'StepBuild', 'before_render', 'catalogue', 'context_for_form',
-    'form_errors_to', 'generation', 'get_process', 'process',
-    'register_process', 'registered_processes', 'resolve_pipeline',
-    'run_pipeline', 'serializer_errors', 'unregister_process',
+    'Process', 'STAGE_SCHEMA', 'StepBuild', 'before_render', 'build_pipeline',
+    'catalogue', 'context_for_form', 'form_errors_to', 'generation',
+    'get_process', 'process', 'register_process', 'registered_processes',
+    'resolve_pipeline', 'run_pipeline', 'serializer_errors', 'unregister_process',
 ]
 
 logger = logging.getLogger('djgentelella.designs.pipeline')
@@ -482,7 +482,7 @@ def _resolve_branch(rctx, branch, path, event, model):
 
 
 def resolve_pipeline(rctx, props, path, *, event, model=None, exposure=None,
-                     form_fields=None):
+                     form_fields=None, intermediate=False, where=None):
     """The :class:`PipelineBuild` of ``props["pipeline"][event]``, ``None``
     without one, after reporting each problem with ``rctx.error()``.
 
@@ -494,6 +494,11 @@ def resolve_pipeline(rctx, props, path, *, event, model=None, exposure=None,
     model lets a design use -- never the version of optimistic locking --;
     each branch target exists, a default branch goes last, and no
     ``before_render`` branch leads back to its own page.
+
+    ``intermediate``: the pipeline of a step of a wizard, run before anything
+    is saved -- only validations and computations; a process or a branch is
+    an error. ``where`` is the path of the stage in the document when it
+    is not ``<path>.props.pipeline.<event>`` (a step of a wizard).
     """
     pipeline = (props or {}).get('pipeline')
     if not isinstance(pipeline, dict):
@@ -501,7 +506,7 @@ def resolve_pipeline(rctx, props, path, *, event, model=None, exposure=None,
     stage = pipeline.get(event)
     if not isinstance(stage, dict):
         return None
-    where = '%s.props.pipeline.%s' % (path, event)
+    where = where or '%s.props.pipeline.%s' % (path, event)
     build = PipelineBuild(event, model=model)
     errors_before = len(rctx.errors)
     steps = []
@@ -512,6 +517,13 @@ def resolve_pipeline(rctx, props, path, *, event, model=None, exposure=None,
         if condition is not None:
             rctx.errors.extend(validate_condition(condition, step_path + '.condition'))
         if found is None:
+            continue
+        if intermediate and found.kind == 'process':
+            rctx.error(step_path + '.name', _(
+                '%r is a process: a step of a wizard saves nothing, so it only '
+                'runs validations and computations (put the process in the '
+                'pipeline of the wizard, which runs when it finishes)')
+                % (found.name,))
             continue
         params = step.get('params') or {}
         rctx.errors.extend(validate(params, found.schema or NO_PARAMS,
@@ -528,6 +540,10 @@ def resolve_pipeline(rctx, props, path, *, event, model=None, exposure=None,
                                condition, writes))
     build.steps = sorted(steps, key=lambda item: KINDS.index(item.kind))
     branches = stage.get('branches') or []
+    if intermediate and branches:
+        rctx.error(where + '.branches', _('a step of a wizard does not branch: '
+                                          'only the wizard, when it finishes'))
+        branches = []
     for index, branch in enumerate(branches):
         branch_path = '%s.branches[%d]' % (where, index)
         condition = branch.get('condition')
@@ -546,6 +562,44 @@ def resolve_pipeline(rctx, props, path, *, event, model=None, exposure=None,
     if len(rctx.errors) > errors_before:
         return None
     return build or None
+
+
+def build_pipeline(stage, *, model=None, event=ON_SUBMIT, form_fields=None,
+                   site=None, intermediate=False):
+    """The :class:`PipelineBuild` of ``stage`` -- the ``on_submit`` (or
+    ``before_render``) object of a document: ``{"steps": [...], "branches":
+    [...]}`` -- for code that is not a design page: a
+    :class:`~djgentelella.wizard.views.GTWizardView`, a view of the project,
+    code generated from a design::
+
+        build_pipeline({'steps': [{'name': 'shop.order_total',
+                                   'writes': ['total']}],
+                        'branches': [{'to': 'order-list'}]}, model=Order)
+
+    Checked as :func:`resolve_pipeline` checks a document (``model`` and
+    ``form_fields`` as there; ``site`` the Site the ``page:`` targets are
+    looked up in); any problem raises ``ImproperlyConfigured`` with every
+    message. A :class:`PipelineBuild` is returned as it is, and an empty
+    stage (or ``None``) gives ``None``.
+    """
+    if stage is None or isinstance(stage, PipelineBuild):
+        return stage or None
+    errors = validate(stage, STAGE_SCHEMA, '$')
+    if errors:
+        raise ImproperlyConfigured('; '.join('%s: %s' % (error.path, error.message)
+                                             for error in errors))
+    # The components module imports this one.
+    from djgentelella.designs.components import (  # noqa: PLC0415 (circular)
+        ResolveContext,
+    )
+    rctx = ResolveContext({}, site=site)
+    found = resolve_pipeline(rctx, {'pipeline': {event: stage}}, '$', event=event,
+                             model=model, form_fields=form_fields,
+                             intermediate=intermediate)
+    if rctx.errors:
+        raise ImproperlyConfigured('; '.join('%s: %s' % (error.path, error.message)
+                                             for error in rctx.errors))
+    return found
 
 
 # -- run ------------------------------------------------------------------------------

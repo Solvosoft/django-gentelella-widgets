@@ -31,17 +31,37 @@ Files are uploaded in chunks (``FileChunkedUpload`` and its subclasses): the
 draft keeps the token of the upload, only an upload of the same user is
 accepted, and the upload is deleted once the wizard finishes.
 
-Two hooks are left for the page pipeline: :meth:`GTWizardView.on_step`, after
-a step validates, and :meth:`GTWizardView.on_finish`, inside the transaction
-of :meth:`GTWizardView.done`.
+A pipeline (:mod:`djgentelella.designs.pipeline`) runs in two places: the
+``pipeline`` of a :class:`Step` -- validations and computations, each time
+the step validates, nothing saved -- and the ``pipeline`` of the view, when
+it finishes: its validations and computations first, then :meth:`done` and
+its processes in one transaction, and its branch says where to go::
+
+    class OrderWizard(GTWizardView):
+        model = Order
+        steps = [Step('items', ItemsForm, pipeline={'steps': [
+                     {'name': 'shop.check_stock'},
+                     {'name': 'shop.order_total', 'writes': ['total']}]}),
+                 Step('delivery', DeliveryForm)]
+        pipeline = {'steps': [{'name': 'shop.take_stock'}],
+                    'branches': [{'to': 'order-list'}]}
+
+A step validates more than once (on "Next", quietly on "Previous" and "Save
+draft", and again on "Finish"): its computations must be idempotent. What
+they compute is kept in the state -- and in a draft -- and saved when the
+wizard finishes. Two hooks are left for code: :meth:`GTWizardView.on_step`,
+after a step validates, and :meth:`GTWizardView.on_finish`, inside the
+transaction of :meth:`GTWizardView.done`.
 """
 
 import copy
+import datetime
 import json
+from decimal import Decimal
 
 from django.contrib import messages
 from django.core.exceptions import ImproperlyConfigured
-from django.db import transaction
+from django.db import models, transaction
 from django.forms import ModelForm
 from django.forms.models import construct_instance
 from django.forms.utils import ErrorDict
@@ -85,10 +105,16 @@ class Step:
     receives the wizard view, or a condition of
     :mod:`djgentelella.authorization` (``{"perm": ...}``, ``{"group": ...}``),
     evaluated for the request and the object the wizard edits.
+
+    ``pipeline`` runs whenever the step validates: the ``on_submit`` stage of
+    :mod:`djgentelella.designs.pipeline` (``{"steps": [...]}``) or a
+    :class:`~djgentelella.designs.pipeline.PipelineBuild`, with validations
+    and computations only -- a step saves nothing, so a process or a branch
+    is refused (``ImproperlyConfigured``).
     """
 
     def __init__(self, name, form_class, title=None, condition=None,
-                 description=''):
+                 description='', pipeline=None):
         if not name or '|' in name or ':' in name:
             raise ImproperlyConfigured('%r is not a valid step name' % (name,))
         self.name = name
@@ -96,6 +122,7 @@ class Step:
         self.title = title if title is not None else capfirst(name.replace('_', ' '))
         self.condition = condition
         self.description = description
+        self.pipeline = pipeline
 
     def applies(self, wizard):
         if self.condition is None:
@@ -116,6 +143,44 @@ class WizardConflict(Exception):
     def __init__(self, message):
         super().__init__(message)
         self.message = message
+
+
+def pipelines():
+    """:mod:`djgentelella.designs.pipeline`, imported only by a wizard with a
+    pipeline."""
+    # Optional app: djgentelella.designs (its models) is needed only then.
+    from djgentelella.designs import pipeline  # noqa: PLC0415
+    return pipeline
+
+
+def plain(value):
+    """``value`` as JSON keeps it in the state of a wizard: a row by its
+    pk, a decimal as text, a date in ISO 8601, a list item by item."""
+    if isinstance(value, models.Model):
+        return value.pk
+    if isinstance(value, dict):
+        return {str(key): plain(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple, set)) or isinstance(value, models.QuerySet):
+        return [plain(item) for item in value]
+    if isinstance(value, Decimal):
+        return str(value)
+    if isinstance(value, (datetime.date, datetime.time)):
+        return value.isoformat()
+    if value is None or isinstance(value, (str, int, float, bool)):
+        return value
+    return str(value)
+
+
+def add_errors(form, errors):
+    """Put ``[(field or None, message)]`` on ``form``; a field it does not
+    have becomes a general error."""
+    for name, message in errors:
+        if name is not None and name in form.fields:
+            form.add_error(name, message)
+        elif name is not None:
+            form.add_error(None, '%s: %s' % (name, message))
+        else:
+            form.add_error(None, message)
 
 
 def upload_fields(form):
@@ -140,6 +205,10 @@ class GTWizardView(TemplateResponseMixin, ContextMixin, View):
     ``optimistic_lock`` with an object to edit (:meth:`get_object`), refuse
                         to finish if it changed after the wizard started
     ``success_url``     where :meth:`done` goes by default
+    ``pipeline``        runs when it finishes (:mod:`djgentelella.designs.
+                        pipeline`): an ``on_submit`` stage or a
+                        ``PipelineBuild``; its branch, if one holds, is
+                        where it goes instead of ``success_url``
     """
 
     steps = ()
@@ -150,6 +219,10 @@ class GTWizardView(TemplateResponseMixin, ContextMixin, View):
     optimistic_lock = False
     success_url = None
     success_message = None
+    #: The ``on_submit`` pipeline run when the wizard finishes, or ``None``.
+    pipeline = None
+    #: The ``node`` the steps of the pipelines see (``ctx.node``).
+    pipeline_node = None
     template_name = 'gentelella/wizard/wizard.html'
     #: The fragment with the progress bar, the form and the buttons.
     body_template_name = 'gentelella/wizard/body.html'
@@ -232,6 +305,119 @@ class GTWizardView(TemplateResponseMixin, ContextMixin, View):
             # and the object must keep its values until done() saves it.
             return copy.copy(obj)
         return None
+
+    # -- pipelines --------------------------------------------------------------
+
+    def step_field_names(self, step):
+        form_class = step.form_class
+        return list(getattr(form_class, 'base_fields', None) or {})
+
+    def get_step_pipeline(self, step):
+        """The :class:`~djgentelella.designs.pipeline.PipelineBuild` of
+        ``step`` (:attr:`Step.pipeline`), or ``None``."""
+        if not step.pipeline:
+            return None
+        if not hasattr(self, '_step_pipelines'):
+            self._step_pipelines = {}
+        if step.name not in self._step_pipelines:
+            self._step_pipelines[step.name] = pipelines().build_pipeline(
+                step.pipeline, model=self.model,
+                form_fields=self.step_field_names(step), intermediate=True)
+        return self._step_pipelines[step.name]
+
+    def get_pipeline(self):
+        """The pipeline run when the wizard finishes (:attr:`pipeline`), or
+        ``None``."""
+        if not self.pipeline:
+            return None
+        if not hasattr(self, '_pipeline'):
+            names = [name for step in self.get_steps()
+                     for name in self.step_field_names(step)]
+            self._pipeline = pipelines().build_pipeline(
+                self.pipeline, model=self.model, form_fields=names)
+        return self._pipeline
+
+    def computed(self):
+        """``{step name: {field: value}}`` computed by the pipelines of the
+        steps in this request (and ``'__finish__'``, by the one of the
+        wizard)."""
+        if not hasattr(self, '_computed'):
+            self._computed = {}
+        return self._computed
+
+    def computed_values(self):
+        """Every value computed in this request, the later ones first."""
+        values = {}
+        names = [step.name for step in self.active_steps()] + ['__finish__']
+        for name in names:
+            values.update(self.computed().get(name) or {})
+        return values
+
+    def extra_values(self, forms):
+        """The computed values that no form of ``forms`` has: the fields a
+        computation declared in ``writes``, for :meth:`save_object`."""
+        if self.model is None:
+            return {}
+        in_forms = {name for form in forms.values() for name in form.fields}
+        concrete = {model_field.name for model_field in self.model._meta.concrete_fields
+                    if not model_field.primary_key}
+        return {name: value for name, value in self.computed_values().items()
+                if name not in in_forms and name in concrete}
+
+    def pipeline_context(self, step, form):
+        """The context of the pipeline of ``step`` for its valid ``form``."""
+        ctx = pipelines().context_for_form(form, self.request, node=self.pipeline_node)
+        if ctx.model is None:
+            ctx.model = self.model
+        if ctx.instance is None and ctx.parent is None:
+            ctx.parent = self.get_object()
+        return ctx
+
+    def run_step_pipeline(self, step, form):
+        """Run the pipeline of ``step`` on its valid ``form``: its errors go
+        to the form (the user stays in the step) and what it computes to the
+        form's ``cleaned_data`` and to the state (``state['computed']``,
+        kept in drafts)."""
+        found = self.get_step_pipeline(step)
+        state = self.load_state()
+        stored = state.setdefault('computed', {})
+        if not found:
+            return None
+        pipeline = pipelines()
+        result = pipeline.run_pipeline(found, self.pipeline_context(step, form))
+        if not result.ok:
+            add_errors(form, result.errors)
+            self.pipeline_errors()[step.name] = list(result.errors)
+            stored.pop(step.name, None)
+            self.computed().pop(step.name, None)
+            return result
+        self.pipeline_errors().pop(step.name, None)
+        self.computed()[step.name] = dict(result.values)
+        if result.values:
+            stored[step.name] = plain(result.values)
+        else:
+            stored.pop(step.name, None)
+        return result
+
+    def pipeline_errors(self):
+        """``{step name: [(field, message)]}`` of the pipelines that refused
+        a step in this request."""
+        if not hasattr(self, '_pipeline_errors'):
+            self._pipeline_errors = {}
+        return self._pipeline_errors
+
+    def finish_context(self, forms):
+        """The context of the wizard's pipeline: the cleaned data of every
+        step and what their pipelines computed, the object edited (or
+        ``None``) and :attr:`model`."""
+        data, names = {}, []
+        for form in forms.values():
+            data.update(form.cleaned_data)
+            names.extend(form.fields)
+        data.update(self.computed_values())
+        return pipelines().PipelineContext(
+            self.request, node=self.pipeline_node, data=data,
+            instance=self.get_object(), model=self.model, fields=names)
 
     # -- state ------------------------------------------------------------------
 
@@ -381,7 +567,9 @@ class GTWizardView(TemplateResponseMixin, ContextMixin, View):
             return self.get_form(step)
         form = self.bound_form(step)
         if state.get('errors') == step.name:
-            form.is_valid()
+            if form.is_valid():
+                # What the pipeline refused, kept across the redirect.
+                add_errors(form, state.get('pipeline_errors') or [])
             return form
         form.full_clean()
         # Typed but not refused: shown as it was, without errors.
@@ -421,6 +609,7 @@ class GTWizardView(TemplateResponseMixin, ContextMixin, View):
         else:
             state['files'].pop(step.name, None)
         state['errors'] = None
+        state.pop('pipeline_errors', None)
         self.forget_steps()
 
     def check_uploads(self):
@@ -446,8 +635,8 @@ class GTWizardView(TemplateResponseMixin, ContextMixin, View):
         cannot run twice. Add errors with ``form.add_error()`` to keep the
         user in the step.
 
-        The point where a page pipeline runs its validations and computations
-        for one step.
+        The pipeline of the step (:meth:`run_step_pipeline`) has already run:
+        ``form.cleaned_data`` has what it computed.
         """
 
     def on_finish(self, forms, result):
@@ -455,21 +644,24 @@ class GTWizardView(TemplateResponseMixin, ContextMixin, View):
         every step that applied and what :meth:`done` returned. An exception
         rolls everything back.
 
-        The point where a page pipeline runs its processes.
+        The processes of :attr:`pipeline` run right after it, in the same
+        transaction.
         """
 
     def done(self, forms):
         """Save the result; runs inside a transaction. ``forms`` is
         ``{step name: valid form}`` of the steps that applied, in order.
 
-        Returns a response, or ``None`` to go to :meth:`get_success_url`. By
-        default, with :attr:`model`, saves one object from every
-        ``ModelForm`` (:meth:`save_object`).
+        Returns a response, or ``None`` to go to :meth:`get_success_url` (or
+        the branch of :attr:`pipeline`). By default, with :attr:`model`,
+        saves one object from every ``ModelForm`` (:meth:`save_object`) and
+        the fields the pipelines computed outside the forms
+        (:meth:`extra_values`).
         """
         if self.model is None:
             raise ImproperlyConfigured('%s needs a model or its own done()'
                                        % type(self).__name__)
-        self.object = self.save_object(forms)
+        self.object = self.save_object(forms, **self.extra_values(forms))
         return None
 
     def save_object(self, forms, model=None, instance=None, **values):
@@ -568,6 +760,8 @@ class GTWizardView(TemplateResponseMixin, ContextMixin, View):
         state = self.load_state()
         form = self.bound_form(step)
         if form.is_valid():
+            self.run_step_pipeline(step, form)
+        if form.is_valid():
             self.on_step(step, form)
         if form.is_valid():
             if step.name not in state['valid']:
@@ -582,6 +776,11 @@ class GTWizardView(TemplateResponseMixin, ContextMixin, View):
         state['current'] = step.name
         if self.errors_by_redirect:
             state['errors'] = step.name
+            errors = self.pipeline_errors().get(step.name)
+            if errors:
+                state['pipeline_errors'] = [list(error) for error in errors]
+            else:
+                state.pop('pipeline_errors', None)
             self.save_state()
             return self.redirect()
         self.save_state()
@@ -643,7 +842,9 @@ class GTWizardView(TemplateResponseMixin, ContextMixin, View):
 
     def finish(self):
         """Validate every step that applies and, in one transaction, check
-        the object version, :meth:`done` and :meth:`on_finish`."""
+        the object version, :meth:`done`, :meth:`on_finish` and the processes
+        of :attr:`pipeline` (whose validations and computations run before,
+        and whose branch says where to go after)."""
         state = self.load_state()
         forms = {}
         for step in self.active_steps():
@@ -653,11 +854,26 @@ class GTWizardView(TemplateResponseMixin, ContextMixin, View):
             forms[step.name] = form
         last = self.active_steps()[-1]
         key = self.get_wizard_key()
+        found = self.get_pipeline()
+        responses = []
+        result = None
+
+        def save(ctx=None):
+            if ctx is not None:
+                self.take_computed(forms, ctx.values)
+            self.check_version()
+            response = self.done(forms)
+            responses.append(response)
+            self.on_finish(forms, response)
+            return getattr(self, 'object', None)
+
         try:
-            with transaction.atomic():
-                self.check_version()
-                response = self.done(forms)
-                self.on_finish(forms, response)
+            if found:
+                result = pipelines().run_pipeline(found, self.finish_context(forms),
+                                                  save=save)
+            else:
+                with transaction.atomic():
+                    save()
         except WizardConflict as conflict:
             form = forms[last.name]
             form.add_error(None, conflict.message)
@@ -670,13 +886,34 @@ class GTWizardView(TemplateResponseMixin, ContextMixin, View):
                 return self.redirect()
             return self.render_to_response(self.get_context_data(form=form,
                                                                  step=last))
+        if result is not None and not result.ok:
+            return self.finish_refused(last, forms[last.name], result)
+        response = responses[0]
         self.finished(state, key)
         if response is None:
             if self.success_message:
                 messages.success(self.request, self.success_message,
                                  fail_silently=True)
-            response = HttpResponseRedirect(self.get_success_url())
+            url = result.url if result is not None and result.url else \
+                self.get_success_url()
+            response = HttpResponseRedirect(url)
         return response
+
+    def take_computed(self, forms, values):
+        """Give what the wizard's pipeline computed to the forms that have
+        those fields; the others are :meth:`extra_values`."""
+        self.computed()['__finish__'] = dict(values)
+        for name, value in values.items():
+            for form in forms.values():
+                if name in form.fields:
+                    form.cleaned_data[name] = value
+
+    def finish_refused(self, step, form, result):
+        """The pipeline of the wizard refused to finish (a validation, or a
+        process that rolled everything back): its errors on the last step."""
+        add_errors(form, result.errors)
+        self.pipeline_errors()[step.name] = list(result.errors)
+        return self.step_invalid(step, form)
 
     def check_version(self):
         """Raise :class:`WizardConflict` if the object being edited changed
@@ -714,6 +951,7 @@ class GTWizardView(TemplateResponseMixin, ContextMixin, View):
             form = self.form_to_show(step)
         if state.get('errors') == step.name:
             state['errors'] = None
+            state.pop('pipeline_errors', None)
             self.save_state()
         active = self.active_steps()
         index = self.step_index(step)
@@ -755,6 +993,7 @@ class GTWizardView(TemplateResponseMixin, ContextMixin, View):
             'started': bool(state['data'] or state['files']),
             'conflict': getattr(self, 'conflict', False),
             'multipart': form.is_multipart(),
+            'computed': state.get('computed') or {},
         }
 
     def get_context_data(self, form=None, step=None, **kwargs):
