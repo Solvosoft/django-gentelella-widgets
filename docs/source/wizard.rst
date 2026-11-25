@@ -138,7 +138,19 @@ cleaned data of every step and what the steps computed, then -- in one
 transaction -- ``done()``, ``on_finish()`` and its processes; a failing
 process rolls everything back and the wizard stays at its last step with the
 error. Its branch, the first that holds for the saved object, is where it
-goes instead of ``success_url``::
+goes instead of ``success_url``.
+
+**Where the errors of the final pipeline go.** Whatever field the error
+names, the wizard returns to its **last step**, never to the step that owns
+the field: going back to an earlier step would drop the user in the middle of
+data already validated. An error of a field of the last step shows under that
+field; an error of a field of an earlier step (``ValidationError({'reason':
+...})`` when ``reason`` is in step 2 of 3) shows as an error of the form,
+``reason: <message>``, above the last step's fields; an error without a field
+shows the same way. The user goes back through the progress bar (``goto:``)
+or *Previous* to fix it; the next *Finish* validates every step again. To
+send the user to the step of the field instead, validate it in that step's
+own ``pipeline`` (or ``on_step()``): those errors keep the user in the step::
 
     class OrderWizard(GTWizardView):
         model = Order
