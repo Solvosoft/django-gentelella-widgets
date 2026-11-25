@@ -1,11 +1,12 @@
 from django import template
+from django.contrib.contenttypes.models import ContentType
+from django.db import models
 from django.urls import NoReverseMatch, reverse
 from django.utils.text import capfirst
 from django.utils.translation import gettext_lazy as _
 
-from djgentelella.flows.base import current_site, get_flow
-from djgentelella.flows.diagram import render_svg
-from djgentelella.flows.models import Task
+from djgentelella.flows.base import current_site, get_flow, get_flows
+from djgentelella.flows.models import FlowInstance, Task
 
 register = template.Library()
 
@@ -61,20 +62,47 @@ def flow_label(states, pk):
     return states.get(pk, '')
 
 
-@register.simple_tag(takes_context=True)
-def flow_diagram(context, flow_name, obj=None):
-    """The flow as an SVG; with ``obj``, its activities under way, done and
-    failed are highlighted.
+def flow_of_object(obj, site=None):
+    """The flow ``obj`` runs in: the one of its most recent instance, else
+    the only flow (declared or published) over its model; ``None`` when
+    there is none or more than one could be meant."""
+    content_type = ContentType.objects.get_for_model(type(obj))
+    keys = {str(obj.pk)}
+    if hasattr(obj.pk, 'hex'):
+        keys.add(obj.pk.hex)
+    name = FlowInstance.objects.filter(
+        content_type=content_type, object_id__in=keys).order_by(
+        '-updated_at', '-pk').values_list('flow', flat=True).first()
+    if name is not None:
+        return get_flow(name, site=site)
+    found = [flow for flow in get_flows().values() if flow.model is type(obj)]
+    if len(found) == 1:
+        return get_flow(found[0].name, site=site) or found[0]
+    return None
 
-    ``{% flow_diagram 'app.Flow' object %}``
+
+@register.simple_tag(takes_context=True)
+def flow_diagram(context, flow_or_object, obj=None, flow=None):
+    """The flow as an SVG. With an object, the instance's diagram: its
+    current activity, the way it took and the transitions the user may run
+    now are highlighted, and the image says so in its ``<title>``/``<desc>``.
+
+    ``{% flow_diagram object %}`` finds the flow of the object (that of its
+    instance, else the only flow over its model); ``{% flow_diagram object
+    flow='app.Flow' %}`` or ``{% flow_diagram 'app.Flow' object %}`` names it;
+    ``{% flow_diagram 'app.Flow' %}`` draws the bare flow.
     """
-    flow = _flow(context, flow_name)
-    if flow is None:
+    request = context.get('request')
+    site = current_site(request)
+    if isinstance(flow_or_object, models.Model):
+        obj = flow_or_object
+        found = (get_flow(flow, site=site) if flow
+                 else flow_of_object(obj, site=site))
+    else:
+        found = _flow(context, flow_or_object)
+    if found is None:
         return ''
-    if obj is None:
-        return render_svg(flow.as_graph())
-    flow, instance = flow._bound(obj)
-    return render_svg(flow.as_graph(), runtime=flow.runtime(instance))
+    return found.instance_diagram(obj, getattr(request, 'user', None))
 
 
 @register.simple_tag(takes_context=True)

@@ -81,6 +81,7 @@ from djgentelella.flows import signals
 from djgentelella.flows.actions import ActionContext, run_actions
 from djgentelella.flows.activities import FlowError, State, Subflow
 from djgentelella.flows.conditions import evaluate
+from djgentelella.flows.diagram import MOVES, render_svg
 from djgentelella.flows.exceptions import (
     TaskNotAllowed,
     TransitionBlocked,
@@ -1356,18 +1357,48 @@ class Flow:
         activities of ``instance`` under way, failed, and already done, for
         the diagram."""
         if instance is None:
-            return {'active': [self.initial], 'error': [], 'completed': []}
+            return {'active': [self.initial], 'error': [], 'completed': [],
+                    'taken': [], 'path': [self.initial]}
         active = [token['activity'] for token in instance.tokens
                   if token['status'] in ('active', 'joined')]
         error = [token['activity'] for token in instance.tokens
                  if token['status'] == 'error']
         visited = set()
-        for source, target in instance.log.values_list('source', 'target'):
+        taken, path = [], [self.initial]
+        rows = instance.log.order_by('created_at', 'pk').values_list(
+            'source', 'target', 'transition', 'kind')
+        for source, target, name, kind in rows:
             visited.update((source, target))
+            if kind not in MOVES or not source or not target:
+                continue
+            taken.append([source, target, name])
+            if source != target and target != path[-1]:
+                path.append(target)
         visited.add(self.initial)
         completed = [key for key in self.activities
                      if key in visited and key not in active and key not in error]
-        return {'active': active, 'error': error, 'completed': completed}
+        return {'active': active, 'error': error, 'completed': completed,
+                'taken': taken, 'path': path}
+
+    def instance_diagram(self, obj=None, user=None):
+        """The SVG of the flow for ``obj``: its current activities, the
+        activities done and the transitions taken (from its log), and the
+        transitions ``user`` may run now (:meth:`available_transitions`,
+        so its permissions and conditions). Without ``obj``, the bare flow.
+        """
+        if obj is None:
+            return render_svg(self.as_graph(), title=str(self))
+        flow, instance = self._bound(obj)
+        available = []
+        if user is not None and getattr(user, 'is_authenticated', False):
+            available = [transition for transition
+                         in flow.available_transitions(obj, user)
+                         if not transition.auto]
+        return render_svg(
+            flow.as_graph(), runtime=flow.runtime(instance),
+            available=[transition.name for transition in available],
+            available_labels=[str(transition.label) for transition in available],
+            title=str(flow))
 
 
 # -- objects that go away ----------------------------------------------------------
