@@ -13,6 +13,7 @@ Sources live in ``<app>/gtdatasources.py`` and are registered with
 
 import inspect
 import logging
+import sys
 import warnings
 from dataclasses import dataclass, field as dc_field
 
@@ -27,7 +28,6 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import status
 from rest_framework.exceptions import APIException
 
-from djgentelella.fields.maps import GTPointField
 from djgentelella.sites import get_current_site, site_q, site_request
 from djgentelella.autodiscover import autodiscover_once
 
@@ -286,6 +286,17 @@ def model_field_kind(model_field):
     return 'string'
 
 
+def is_point_field(model_field):
+    """Whether ``model_field`` is a ``GTPointField`` (``"lat,lng"``).
+
+    Without importing it: ``djgentelella.fields.maps`` imports the widgets,
+    which import the models, and this module is imported while the app
+    registry is still loading (``djgentelella.search``). A model with such a
+    field has imported it already."""
+    maps = sys.modules.get('djgentelella.fields.maps')
+    return maps is not None and isinstance(model_field, maps.GTPointField)
+
+
 def resolve_field_path(model, path):
     """The model field at the end of an ORM path like ``'country__name'``,
     and the verbose names along it."""
@@ -382,7 +393,7 @@ class ModelDataSource(DataSource):
             # A file is a path in the database: searchable, never a facet.
             filterable=not isinstance(model_field, models.FileField),
             # A GTPointField is a "lat,lng" string: the map's point column.
-            extra={'point': True} if isinstance(model_field, GTPointField) else {},
+            extra={'point': True} if is_point_field(model_field) else {},
         )
 
     def columns(self, request):
