@@ -491,6 +491,24 @@ type                            what it is
     the model's view permission, or for a data source its own permissions or
     the page's; the endpoint also asks the data source's ``has_permission``.
 
+    ``facets`` (optional) is the id of a ``facets`` panel of the page: the
+    chart follows it as the panel's table does. Each change of facet draws
+    the chart again with the panel's filters, sent to its endpoint as
+    ``gtfilters`` (the table's search box does not reach it). The panel has
+    to filter the chart's rows -- a table over the chart's ``model`` (not an
+    inline one, whose rows belong to one parent), or for a chart over a
+    ``datasource`` a node whose ``facets_source`` is that data source -- and
+    its columns must be columns of the chart. The endpoint takes filters only
+    on the panel's columns, and not on one its table hides for the request
+    (``column_conditions``): anything else is a 400, and so is ``gtfilters``
+    on a chart without ``facets``.
+
+    .. code:: json
+
+        {"type": "chart", "id": "by_category", "props": {
+            "model": "demoapp.Product", "group_by": "category",
+            "facets": "product_facets"}}
+
 ``stat``
     The same measure without grouping, computed while the page renders (and
     at its endpoint). ``compare: {"field": <date>, "period": "month"}`` shows
@@ -794,6 +812,64 @@ the board shows is reachable by dragging; one that stays in its state
 (``escalate`` in the help desk demo) is not, use the flow's pages for it. The
 demo publishes the help desk board at ``/designs/tickets-board/``.
 
+Grid and Kanban outside a page
+------------------------------
+
+Code generated from a design (djgentelella-editor) or an application builder
+serves a grid or a board with djgentelella's own viewsets and templates, but
+without a published ``Page``. The names it uses are public (``__all__``):
+
+``designs.grid``
+    ``GridState`` (what a request may see and do), ``required_fields(model)``,
+    ``NOT_SHOWN`` and ``NOT_EDITABLE`` (the kinds of field a grid cannot show
+    or edit), ``grid_viewset_for(build)``, ``grid_columns``, ``grid_config``
+    and ``TEMPLATE``.
+``designs.flow_kanban``
+    ``board``, ``card``, ``render_cards``, ``resting_states(flow)``,
+    ``moves_for``, ``kanban_flow``, ``kanban_config``, ``kanban_messages``,
+    ``FlowKanbanViewSet`` and ``TEMPLATE``.
+
+The context of each template comes from a build, the request and the URL of
+its endpoint -- what the components render with too:
+
+.. code:: python
+
+    from django.template.loader import render_to_string
+    from djgentelella.designs import flow_kanban, grid
+
+    context = grid.grid_page_context(PRICES_GRID, request, reverse('prices-api'),
+                                     form_class=PricesForm, columns=COLUMNS)
+    html = render_to_string(grid.TEMPLATE, context, request=request) \
+        if context is not None else ''
+
+    context = flow_kanban.kanban_page_context(TICKETS, request, reverse('tickets-api'))
+
+``grid_page_context(build, request, url, *, form_class=None, columns=None)``
+    ``{'b', 'cells', 'allowed', 'config'}``: the cells the request may edit,
+    what it may do and the ``data-gtconfig`` JSON of interactive_grid.js.
+    ``form_class`` replaces ``build.form`` (a generated build has none);
+    ``columns`` are the columns of the build already described
+    (``name``, ``title``, ``kind``, ``widget``...): the hidden ones are left
+    out and ``editable`` is set for the request. ``None`` when the request
+    may not see the grid -- without the ``list`` permissions or the data
+    source's.
+``kanban_page_context(build, request, url)``
+    ``{'b', 'columns', 'config'}``: the columns with their first cards and
+    the JSON of flow_kanban.js. ``None`` without an authenticated user, a
+    flow for the request's Site or one of the columns in that version.
+
+``FlowKanbanViewSet`` serves the build its ``get_build()`` answers: the
+class attribute ``kanban_build`` when a subclass sets it, otherwise
+``request.gtdesign_build`` (what the design endpoint sets); without either it
+is a 404. The grid's viewset (``grid_viewset_for(build)``) already carries
+its build.
+
+A build's ``page_hash`` is only the key the factories cache their classes by,
+with the node id: nothing checks it against a document. A build written as
+code may set any stable string -- djgentelella-editor sets
+``'<app>.<slug>'`` -- as long as two different builds of one node id never
+share it in one process.
+
 Extending the engine
 --------------------
 
@@ -821,6 +897,16 @@ design may use; a subclass that answers otherwise changes them all:
     table's relation columns. By default those registered in ``gtselects.py``.
 ``component(type)``
     the component of a type the design is resolved with.
+``flow(name, path=None)``
+    the :doc:`flows` flow ``name`` for the design's Site, or ``None``
+    (reporting why at ``path`` when one is given). Every flow a design names
+    goes through it: the ``flow`` of a ``flow_kanban`` and the ``flow:`` row
+    links. By default the flows registered in Python and the published
+    ``FlowDefinition`` of the Site (``get_flow(name, site=...)``), with a
+    name without a dot read as one of the design's ``app``. A subclass can
+    answer flows that are not published yet -- djgentelella-editor builds
+    them from the flow designs of the app -- to validate a board without the
+    database, and call ``super()`` for the rest.
 ``row_link(link, model, path)``
     the ``RowLink`` of one item of a table's ``row_links`` (its ``condition``
     already validated) for rows of ``model``, or ``None`` after

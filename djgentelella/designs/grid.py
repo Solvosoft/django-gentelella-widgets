@@ -81,7 +81,9 @@ from djgentelella.locking import (
 from djgentelella.permission_management import AllPermissionByAction, all_permission
 
 __all__ = ['GRID_ACTIONS', 'GRID_COMPONENTS', 'GridState', 'InteractiveGridBuild',
-           'InteractiveGridComponent', 'OPERATIONS', 'grid_viewset_for']
+           'InteractiveGridComponent', 'NOT_EDITABLE', 'NOT_SHOWN', 'OPERATIONS',
+           'TEMPLATE', 'grid_columns', 'grid_config', 'grid_page_context',
+           'grid_viewset_for', 'required_fields', 'source_allows']
 
 SCRIPT = 'gentelella/js/designs/interactive_grid.js'
 TEMPLATE = 'gtdesigns/components/interactive_grid.html'
@@ -389,31 +391,10 @@ class InteractiveGridComponent(RuntimeComponent):
                 'rows': sample_rows(build.model, build.list_fields)})
         if not can(rctx, build.perms['list']):
             return no_permission(build)
-        if build.datasource and not source_allows(build, rctx.request):
+        context = grid_page_context(build, rctx.request, endpoint_url(rctx, build))
+        if context is None:
             return no_permission(build)
-        base = endpoint_url(rctx, build)
-        if base is None:
-            return no_permission(build)
-        state = GridState(build, rctx.request)
-        writes = state.allowed['create'] or state.allowed['update']
-        cells = []
-        if writes and state.editable:
-            form = build.form.get_form(prefix='%s-__row__' % build.id)
-            cells = [(name, form[name]) for name in state.editable]
-        config = {
-            'id': build.id,
-            'prefix': build.id,
-            'url': base,
-            'page_size': build.page_size,
-            'search': bool(build.search_fields),
-            'lock': build.optimistic_lock,
-            'allowed': state.allowed,
-            'columns': grid_columns(build, state),
-        }
-        return render_to_string(TEMPLATE, {
-            'b': build, 'cells': cells, 'allowed': state.allowed,
-            'config': json_config(build.id + '_gtconfig', config),
-        }, request=rctx.request)
+        return render_to_string(TEMPLATE, context, request=rctx.request)
 
     def media(self, build, rctx):
         return {'js': [SCRIPT]}
@@ -424,7 +405,57 @@ class InteractiveGridComponent(RuntimeComponent):
         return [Endpoint('', grid_viewset_for(build), 'gtdesign-%s' % build.id)]
 
 
+def grid_config(build, state, url, columns=None):
+    """The configuration interactive_grid.js reads (``data-gtconfig``) of the
+    grid of ``build`` for the request of ``state`` (:class:`GridState`),
+    with ``url`` its endpoint; ``columns`` as in :func:`grid_columns`."""
+    return {
+        'id': build.id,
+        'prefix': build.id,
+        'url': url,
+        'page_size': build.page_size,
+        'search': bool(build.search_fields),
+        'lock': build.optimistic_lock,
+        'allowed': state.allowed,
+        'columns': grid_columns(build, state, columns),
+    }
+
+
+def grid_page_context(build, request, url, *, form_class=None, columns=None):
+    """What :data:`TEMPLATE` needs to draw the grid of ``build`` for
+    ``request``: ``{'b', 'cells', 'allowed', 'config'}``, with ``url`` the
+    URL of its endpoint -- a viewset of :func:`grid_viewset_for` -- and
+    ``config`` the ``<script>`` of :func:`grid_config`.
+
+    No published :class:`~djgentelella.designs.models.Page` is needed: code
+    generated from a design (djgentelella-editor) calls it with its own
+    build, URL, form class (``form_class``, instead of ``build.form``) and
+    columns (``columns``, see :func:`grid_columns`). ``None`` when the
+    request may not see the grid: without the ``list`` permissions, without
+    the data source's (``build.datasource``), or without ``url``.
+
+    The permissions and conditions are those of :class:`GridState`, the same
+    its endpoint checks.
+    """
+    user = getattr(request, 'user', None)
+    if not url or user is None or not all_permission(user, list(build.perms['list'])):
+        return None
+    if build.datasource and not source_allows(build, request):
+        return None
+    state = GridState(build, request)
+    cells = []
+    if (state.allowed['create'] or state.allowed['update']) and state.editable:
+        prefix = '%s-__row__' % build.id
+        form = (form_class(prefix=prefix) if form_class is not None
+                else build.form.get_form(prefix=prefix))
+        cells = [(name, form[name]) for name in state.editable]
+    config = grid_config(build, state, url, columns)
+    return {'b': build, 'cells': cells, 'allowed': state.allowed,
+            'config': json_config(build.id + '_gtconfig', config)}
+
+
 def source_allows(build, request):
+    """Whether ``request`` may read the data source of the grid."""
     try:
         source = get_datasource(build.datasource)
     except (KeyError, LookupError):
@@ -432,9 +463,18 @@ def source_allows(build, request):
     return source.has_permission(request)
 
 
-def grid_columns(build, state):
+def grid_columns(build, state, columns=None):
     """The columns of the page: those the request sees, as JSON-friendly data
-    (the browser writes them as text, never as HTML)."""
+    (the browser writes them as text, never as HTML).
+
+    ``columns`` are the columns of every list field already described -- as
+    code generated from a design keeps them, without a ``build.form``: only
+    the ones ``state`` hides are left out and ``editable`` is set for the
+    request. ``None``: described from the build and its form.
+    """
+    if columns is not None:
+        return [dict(column, editable=column['name'] in state.editable)
+                for column in columns if column['name'] not in state.hidden]
     widgets = {form_field.name: form_field.widget for form_field in build.form.fields}
     result = []
     for name in build.list_fields:

@@ -384,8 +384,8 @@ def resolve(document, request=None, preview=False, *, allow_templates=False,
 
     ``context``
         a :class:`ResolveContext` subclass, or an instance of one, whose
-        hooks (``exposure``, ``check_permissions``, ``lookups``, ``form``...)
-        every component asks. An instance gets the upgraded document as its
+        hooks (``exposure``, ``check_permissions``, ``lookups``, ``form``,
+        ``flow``...) every component asks. An instance gets the upgraded document as its
         ``design`` and keeps what it collected, errors included, so the
         caller can read it afterwards. Its ``request``, ``preview`` and
         ``allow_templates`` are its own: the arguments of the same name only

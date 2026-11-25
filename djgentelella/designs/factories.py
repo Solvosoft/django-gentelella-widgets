@@ -688,6 +688,30 @@ def _aggregate_spec(build):
 SAMPLE_LABELS = ['A', 'B', 'C', 'D', 'E']
 
 
+def chart_facet_filters(build, request):
+    """The filters of the facets the chart follows (``gtfilters``, as the
+    table of its panel receives them): only on the panel's columns, and not
+    on one its table hides for ``request`` (``column_conditions``). Any
+    other filter is a 400; without ``facets`` the chart takes none."""
+    raw = request.GET.get('gtfilters')
+    if not raw:
+        return []
+    if not build.facets:
+        raise ValidationError({'gtfilters': [_('this chart follows no facets')]})
+    filters = parse_filters(raw)
+    allowed = set(build.facet_columns)
+    resolved = getattr(request, 'gtdesign_resolved', None)
+    target = resolved.nodes.get(build.facets_target) if resolved is not None \
+        else None
+    if target is not None and getattr(target.build, 'column_conditions', None):
+        allowed -= set(hidden_columns(target.build, request))
+    for item in filters:
+        if item.get('column') not in allowed:
+            raise ValidationError({'gtfilters': [
+                _('%r is not a facet of this chart') % (item.get('column'),)]})
+    return filters
+
+
 def chart_rows(build, request):
     """``[{'label', 'value'}]``: one per group, at most ``build.limit``.
 
@@ -701,10 +725,11 @@ def chart_rows(build, request):
     spec, key = _aggregate_spec(build)
     group = {'column': build.group_by, 'period': build.period} if build.period \
         else build.group_by
-    params = {'group_by': [group], 'aggregates': [spec]}
+    params = {'group_by': [group], 'aggregates': [spec],
+              'filters': chart_facet_filters(build, request)}
     if build.period:
-        params['filters'] = [{'column': build.group_by, 'op': 'isnull',
-                              'value': False}]
+        params['filters'].append({'column': build.group_by, 'op': 'isnull',
+                                  'value': False})
     try:
         # In the database: the largest values first (or the dates in order)
         # and only as many groups as the chart draws.

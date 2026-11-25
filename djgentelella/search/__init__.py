@@ -9,10 +9,14 @@ autocomplete ``gtapis/search/`` (``gt-search-api``), and
 ``{% global_search_box %}`` (``gtsearch``) draws the box of the top bar.
 See ``docs/source/global_search.rst``.
 """
-from .base import GlobalSearch, searchable, searchable_sources
+from .base import (
+    GlobalSearch, is_owned_by, searchable, searchable_sources, source_owners,
+    source_tags,
+)
 from .engine import (
     SearchGroup, SearchResult, reset_trigram_cache, search, trigram_available,
 )
 
-__all__ = ['GlobalSearch', 'SearchGroup', 'SearchResult', 'reset_trigram_cache',
-           'search', 'searchable', 'searchable_sources', 'trigram_available']
+__all__ = ['GlobalSearch', 'SearchGroup', 'SearchResult', 'is_owned_by',
+           'reset_trigram_cache', 'search', 'searchable', 'searchable_sources',
+           'source_owners', 'source_tags', 'trigram_available']

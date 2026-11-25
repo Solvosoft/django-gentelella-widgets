@@ -46,6 +46,11 @@ the objects they can act on or are assigned to.
 **The system.** Automatic transitions, activities and timers run with
 ``user=None``: no permission is checked for it, but the state and the
 condition are, so a condition has to accept ``context.user is None``.
+Code runs a transition as the system -- seeding data, a migration, a
+command -- with ``Flow.run(obj, name, system=True)``: the flag is explicit,
+so a ``user`` that happens to be ``None`` (or anonymous) is refused as
+before instead of passing for the system. :meth:`Flow.start` checks no
+permission: ``start(obj)`` without a user is a start by the system.
 
 **Concurrency.** Every change locks the instance and reloads the object with
 ``select_for_update()``, so two users racing for one transition cannot both
@@ -781,7 +786,12 @@ class Flow:
               parent_token=None, notify_parent=True):
         """The object's instance, started on the initial activity if it had
         none: its ``on_enter`` actions run, and whatever follows by itself.
-        An object that already has one keeps it as it is."""
+        An object that already has one keeps it as it is.
+
+        Starting checks no permission (there is no transition to check):
+        without ``user`` it is a start by the system, logged without a user,
+        and the automatic transitions it reaches run as the system too.
+        """
         with transaction.atomic():
             instance, created = FlowInstance.objects.get_or_create(
                 **self._lookup(obj), defaults={
@@ -935,7 +945,8 @@ class Flow:
         error = TransitionBlocked if where == CONDITION else TransitionNotAllowed
         raise error(reason)
 
-    def run(self, obj, name, user, form=None, data=None, comment='', request=None):
+    def run(self, obj, name, user=None, form=None, data=None, comment='',
+            request=None, *, system=False):
         """Run transition ``name`` on ``obj``; return the FlowInstance.
 
         Everything happens in one transaction, on a fresh copy of the object
@@ -944,7 +955,18 @@ class Flow:
         the actions run, the state changes and the log row is written -- or,
         when anything raises, none of it. Actions marked ``on_commit`` run
         once the transaction has committed.
+
+        ``system=True`` runs it as the system, like an automatic transition
+        or a ``Deadline``: the transition's ``perms`` are not checked, its
+        source state and its ``condition`` are (with ``context.user`` None),
+        and the log has no user. It takes no ``user``: passing one raises
+        ``ValueError``, so a request's user never runs as the system by
+        mistake. Without the flag a missing or anonymous ``user`` is refused
+        (``TransitionNotAllowed``), as any user without the permissions.
         """
+        if system and user is not None:
+            raise ValueError('Flow.run(system=True) runs without a user: pass '
+                             'user=None (got %r)' % (user,))
         with transaction.atomic():
             flow, instance, fresh = self._locked(obj, user, request)
             transition = flow.get_transition(name)
@@ -956,7 +978,8 @@ class Flow:
                         if key not in transition.log_exclude}
             data = data or {}
             states = flow.active_states(instance)
-            ok, reason, where = flow._check(transition, fresh, user, states, instance)
+            ok, reason, where = flow._check(transition, fresh, user, states, instance,
+                                            system=system)
             if not ok:
                 flow._refuse(reason, where)
             if isinstance(form, ModelForm):

@@ -96,6 +96,55 @@ class DesignDataComponentsTest(SeleniumTestCase):
         self.wait_rows(table, lambda rows: len(rows) == 1 and 'Hammer' in rows[0],
                        'the table did not follow the facet')
 
+    def publish_with_a_chart(self):
+        """product_admin with a chart that follows its facets panel."""
+        with open(DEMO_DESIGNS / 'product_admin.json') as stream:
+            document = json.load(stream)
+        document['slug'] = 'product_chart'
+        document['meta'].update(url='products-chart/', url_name='product_chart')
+        document['meta'].pop('menu', None)
+        column = next(item for item in document['root']['children'][0]['children']
+                      if item['id'] == 'filters')
+        column['children'].append({'type': 'chart', 'id': 'by_category', 'props': {
+            'model': 'demoapp.Product', 'group_by': 'category',
+            'facets': 'product_facets'}})
+        _page, errors = publishing.publish(document, path='products-chart')
+        self.assertEqual(errors, [])
+
+    def chart_values(self, node_id):
+        return self.js(
+            "var canvas = document.querySelector("
+            "  '[data-gtdesign=\"' + arguments[0] + '\"] canvas');"
+            "var chart = canvas && Chart.getChart(canvas);"
+            "return chart ? [chart.data.labels, chart.data.datasets[0].data] : null;",
+            node_id)
+
+    def test_the_chart_follows_the_facets(self):
+        self.publish_with_a_chart()
+        self.go('/designs/products-chart')
+        self.wait.until(lambda d: self.chart_values('by_category')
+                        == [['Food', 'Tools'], [2, 1]],
+                        'the chart never drew every row')
+        self.wait_js("return document.querySelectorAll("
+                     "  '.gtdesign-facets .gt-facet').length === 4",
+                     message='the facets never rendered')
+        self.driver.find_element(
+            By.XPATH, '//div[contains(@class, "gtdesign-facets")]//div[@data-column='
+                      '"status"]//label[starts-with(normalize-space(.), "%s")]'
+            % str(dict(Product.STATUS)['draft'])).click()
+        self.wait.until(lambda d: self.chart_values('by_category') == [['Food'], [1]],
+                        'the chart did not follow the facet')
+        self.wait_rows('#products_table', lambda rows: len(rows) == 1
+                       and 'Bread' in rows[0], 'the table did not follow the facet')
+        # Unticked, the chart shows every row again.
+        self.driver.find_element(
+            By.XPATH, '//div[contains(@class, "gtdesign-facets")]//div[@data-column='
+                      '"status"]//label[starts-with(normalize-space(.), "%s")]'
+            % str(dict(Product.STATUS)['draft'])).click()
+        self.wait.until(lambda d: self.chart_values('by_category')
+                        == [['Food', 'Tools'], [2, 1]],
+                        'the chart did not show every row again')
+
     def row_index(self, table, text):
         return self.js(
             'var dt = jQuery(arguments[0]).DataTable(), name = arguments[1];'

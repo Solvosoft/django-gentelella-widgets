@@ -142,6 +142,23 @@ An action with ``on_commit = True``, such as ``CallFunction(f,
 on_commit=True)`` or a custom one, runs only after the transaction commits.
 Use it for anything a rollback cannot undo: an HTTP call, a queue, a file.
 
+**Running as the system.** Code that is not a person -- seeding data, a data
+migration, a command, a job -- runs a transition with
+``flow.run(obj, 'publish', system=True)``, the way automatic transitions and
+``Deadline`` timeouts run:
+
+* no ``perms`` are checked;
+* the source state and the ``condition`` are, with ``context.user`` set to
+  ``None`` (a condition has to accept it);
+* the ``FlowTransitionLog`` row has no user.
+
+The flag is explicit on purpose. Without it, ``user=None`` or an anonymous
+user is refused as any user without the permissions is, so a view that hands
+over ``request.user`` -- or a missing one -- never runs as the system by
+accident; and ``system=True`` takes no user (``ValueError``). ``flow.start(obj)``
+checks no permission at all (there is no transition to check): without a user
+it is a start by the system, and so are the automatic transitions it reaches.
+
 **Who can reach what.** ``Flow.get_queryset(user)`` decides which objects a
 user can see at all: the inbox, the detail page and the history. By default
 it allows every object to users who have ``<app>.view_<model>``, and

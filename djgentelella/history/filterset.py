@@ -4,7 +4,7 @@ from django.contrib.admin.models import LogEntry
 from django_filters.rest_framework import CharFilter, ChoiceFilter, FilterSet
 from django_filters import DateTimeFromToRangeFilter
 from djgentelella.fields.drfdatetime import DateTimeRangeTextWidget
-from djgentelella.history.utils import ACTIONS
+from djgentelella.history.utils import action_choices
 
 
 class HistoryFilterSet(FilterSet):
@@ -14,7 +14,8 @@ class HistoryFilterSet(FilterSet):
 
     action_flag = ChoiceFilter(
         field_name='action_flag',
-        choices=[(k, str(v)) for k, v in ACTIONS.items()],  # added 4 y 5
+        # Read on each form: actions registered after import show up too.
+        choices=action_choices,
     )
 
     # ?extra={"key": "value", ...} — entries whose HistoryRelation data

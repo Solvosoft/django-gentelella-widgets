@@ -103,8 +103,11 @@ READONLY_WIDGETS_CSS = [str(BASE_PATH / path) for path in [
 JS_FILES_HEADER = [str(BASE_PATH / path) for path in [
     'vendors/jquery/jquery.min.js',
     'vendors/friconix/friconix.js',
-    'vendors/bootstrap/popper.min.js',
-    'vendors/bootstrap/bootstrap.min.js'
+    # The bundle carries its own Popper: with popper.min.js as a separate
+    # global, a page where window.Popper ended up undefined (an AMD loader,
+    # a later script) left every dropdown dead -- "createPopper is not a
+    # function" -- without an error of its own.
+    'vendors/bootstrap/bootstrap.bundle.min.js'
 ]]
 
 JS_FILES = [str(BASE_PATH / path) for path in [

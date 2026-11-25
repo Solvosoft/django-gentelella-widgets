@@ -58,15 +58,19 @@ from rest_framework.response import Response
 from djgentelella.designs.builds import DataBuild
 from djgentelella.designs.components import Endpoint, RuntimeComponent
 from djgentelella.designs.data_components import (
-    NOT_LISTABLE, allowed_fields, data_build, endpoint_url, find_flow,
-    flows_installed, json_config, kind_of, label, no_permission, sample_value,
+    NOT_LISTABLE, allowed_fields, data_build, endpoint_url, flows_installed,
+    json_config, kind_of, label, no_permission, sample_value,
 )
 from djgentelella.sites import get_current_site, site_q
 
 __all__ = ['FLOW_KANBAN_COMPONENTS', 'FlowKanbanBuild', 'FlowKanbanComponent',
-           'FlowKanbanViewSet', 'board_queryset', 'kanban_flow', 'moves_for']
+           'FlowKanbanViewSet', 'TEMPLATE', 'TRANSIENT', 'board', 'board_queryset',
+           'card', 'kanban_config', 'kanban_flow', 'kanban_messages',
+           'kanban_page_context', 'moves_for', 'render_cards', 'resting_states']
 
 SCRIPT = 'gentelella/js/designs/flow_kanban.js'
+#: The board's template; :func:`kanban_page_context` is its context.
+TEMPLATE = 'gtdesigns/components/flow_kanban.html'
 STYLE = 'gentelella/css/flow_kanban.css'
 #: Activities an object never waits in: they move on as soon as entered.
 TRANSIENT = ('switch', 'action', 'join')
@@ -204,6 +208,7 @@ def card(flow, build, obj, moves):
 
 
 def render_cards(cards, build):
+    """The HTML of ``cards`` (dicts of :func:`card`) in a column of ``build``."""
     return render_to_string('gtdesigns/components/flow_kanban_cards.html',
                             {'cards': cards, 'b': build})
 
@@ -237,6 +242,57 @@ def board(flow, build, request):
             'over': build.limit is not None and total > build.limit,
         })
     return columns, moves
+
+
+def kanban_messages():
+    """The texts flow_kanban.js shows, in the language of the request."""
+    return {
+        'choose': _('Which transition?'),
+        'error': _('The card could not be moved.'),
+        'moved': _('Moved to %(state)s.'),
+        'stopped': _('Moved, but the flow stopped on an error: %(error)s'),
+    }
+
+
+def kanban_config(build, flow, moves, url):
+    """The configuration flow_kanban.js reads (``data-gtconfig``) of the
+    board of ``build``, with ``url`` its endpoint (``FlowKanbanViewSet``)."""
+    return {
+        'id': build.id,
+        'urls': {'base': url},
+        'states': build.states,
+        'labels': {state: str(flow.state_label(state)) for state in build.states},
+        'moves': {state: [target for target, _label in targets]
+                  for state, targets in moves.items()},
+        'limit': build.limit,
+        'page_size': build.page_size,
+        'messages': kanban_messages(),
+    }
+
+
+def kanban_page_context(build, request, url):
+    """What :data:`TEMPLATE` needs to draw the board of ``build`` for
+    ``request``: ``{'b', 'columns', 'config'}``, with ``url`` the URL of
+    its endpoint -- a :class:`FlowKanbanViewSet` serving ``build``.
+
+    No published :class:`~djgentelella.designs.models.Page` is needed: code
+    generated from a design (djgentelella-editor) calls it with its own
+    build and URL. ``None`` when ``request`` may not see the board: no
+    authenticated user, no such flow for the Site of the request, or a
+    version of the flow without one of the columns.
+    """
+    user = getattr(request, 'user', None)
+    if user is None or not user.is_authenticated or not url:
+        return None
+    flow = kanban_flow(build, request)
+    if flow is None or any(state not in flow.activities for state in build.states):
+        return None
+    columns, moves = board(flow, build, request)
+    for column in columns:
+        column['html'] = render_cards(column['cards'], build)
+    return {'b': build, 'columns': columns,
+            'config': json_config(build.id + '_gtconfig',
+                                  kanban_config(build, flow, moves, url))}
 
 
 class FlowKanbanComponent(RuntimeComponent):
@@ -285,9 +341,8 @@ class FlowKanbanComponent(RuntimeComponent):
             rctx.error(where, _('flow_kanban needs djgentelella.flows in '
                                 'INSTALLED_APPS'))
             return build
-        flow = find_flow(rctx, props['flow'])
+        flow = rctx.flow(props['flow'], where)
         if flow is None:
-            rctx.error(where, _('no flow %r (djgentelella.flows)') % (props['flow'],))
             return build
         found = rctx.exposure(flow.model._meta.label, where)
         if found is None:
@@ -370,38 +425,12 @@ class FlowKanbanComponent(RuntimeComponent):
             return mark_safe('')
         if rctx.preview:
             return self.render_preview(build, rctx)
-        request = rctx.request
-        user = rctx.user
-        base = endpoint_url(rctx, build)
-        flow = kanban_flow(build, request) if base else None
-        if user is None or not user.is_authenticated or flow is None:
+        if rctx.user is None or not rctx.user.is_authenticated:
             return no_permission(build)
-        missing = [state for state in build.states if state not in flow.activities]
-        if missing:  # the Site's version of the flow lacks some state
+        context = kanban_page_context(build, rctx.request, endpoint_url(rctx, build))
+        if context is None:
             return no_permission(build)
-        columns, moves = board(flow, build, request)
-        for column in columns:
-            column['html'] = render_cards(column['cards'], build)
-        config = {
-            'id': build.id,
-            'urls': {'base': base},
-            'states': build.states,
-            'labels': {state: str(flow.state_label(state)) for state in build.states},
-            'moves': {state: [target for target, _label in targets]
-                      for state, targets in moves.items()},
-            'limit': build.limit,
-            'page_size': build.page_size,
-            'messages': {
-                'choose': _('Which transition?'),
-                'error': _('The card could not be moved.'),
-                'moved': _('Moved to %(state)s.'),
-                'stopped': _('Moved, but the flow stopped on an error: %(error)s'),
-            },
-        }
-        return render_to_string('gtdesigns/components/flow_kanban.html', {
-            'b': build, 'columns': columns,
-            'config': json_config(build.id + '_gtconfig', config),
-        }, request=request)
+        return render_to_string(TEMPLATE, context, request=rctx.request)
 
     def render_preview(self, build, rctx):
         """The editor's preview: the columns, with sample cards; no row is
@@ -418,7 +447,7 @@ class FlowKanbanComponent(RuntimeComponent):
                                 sample_value(meta.get_field(name), index + 1))
                                for name in build.fields],
                 }], build)})
-        return render_to_string('gtdesigns/components/flow_kanban.html', {
+        return render_to_string(TEMPLATE, {
             'b': build, 'columns': columns, 'preview': True})
 
     def media(self, build, rctx):
@@ -437,17 +466,32 @@ class CommentForm(forms.Form):
 
 
 class FlowKanbanViewSet(viewsets.ViewSet):
-    """The endpoint of one ``flow_kanban`` node: its build is
-    ``request.gtdesign_build``. Every object is looked up in
-    :func:`board_queryset`; anything outside it is a 404."""
+    """The endpoint of one ``flow_kanban`` node: the build :meth:`get_build`
+    answers. Every object is looked up in :func:`board_queryset`; anything
+    outside it is a 404."""
 
     authentication_classes = (SessionAuthentication,)
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
+    #: The board this viewset serves; ``None``: the one of the design page
+    #: the request comes through (``request.gtdesign_build``).
+    kanban_build = None
+
+    def get_build(self):
+        """The :class:`FlowKanbanBuild` served: :attr:`kanban_build` -- what
+        a subclass outside the design engine sets, as code generated by
+        djgentelella-editor does -- or else ``request.gtdesign_build``,
+        which the engine's endpoint sets."""
+        if self.kanban_build is not None:
+            return self.kanban_build
+        build = getattr(self.request, 'gtdesign_build', None)
+        if build is None:
+            raise Http404()
+        return build
 
     def initial(self, request, *args, **kwargs):
         super().initial(request, *args, **kwargs)
-        self.build = request.gtdesign_build
+        self.build = self.get_build()
         self.flow = kanban_flow(self.build, request)
         if self.flow is None or self.build.preview:
             raise Http404()

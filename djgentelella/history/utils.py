@@ -2,19 +2,103 @@ from django.conf import settings
 from django.contrib.admin.models import LogEntry, ADDITION, CHANGE, DELETION
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import FieldDoesNotExist
+from django.core.exceptions import FieldDoesNotExist, ValidationError
+from django.db import IntegrityError, transaction
 from django.utils.translation import gettext_lazy as _
 
 HARD_DELETION = 4
 RESTORE = 5
+#: Somebody (or the system) read a secret: a credential, a key, a password.
+SECRET_READ = 6
 
+#: ``{action_flag: label}`` of every action the history knows: Django's
+#: three, djgentelella's and those added with :func:`register_action`.
 ACTIONS = {
     ADDITION: _('created'),
     CHANGE: _('updated'),
     DELETION: _('deleted'),
     HARD_DELETION: _('hard deleted'),
     RESTORE: _('restored'),
+    SECRET_READ: _('secret read'),
 }
+#: The flags djgentelella defines; :func:`register_action` cannot change them.
+BUILTIN_ACTIONS = frozenset(ACTIONS)
+#: The account a system event is attributed to, by default.
+DEFAULT_SYSTEM_USERNAME = 'gt-system'
+#: Keys :func:`add_log` writes in the ``extra`` of a system event.
+SYSTEM_KEY, ACTOR_KEY = 'gt_system', 'gt_actor'
+
+
+def register_action(action_flag, label):
+    """Add an action to the history (:data:`ACTIONS`): ``add_log`` takes its
+    flag, the history shows ``label`` and its filter offers it.
+
+    ``action_flag`` is a positive integer that is not one of
+    :data:`BUILTIN_ACTIONS`; use values from 100 up, apart from any
+    djgentelella may add later. Registering the same flag again with
+    another label is an error (two apps that chose the same number).
+    Returns ``action_flag``, so a module can write
+    ``USED = register_action(100, _('used'))``.
+    """
+    if not isinstance(action_flag, int) or isinstance(action_flag, bool) \
+            or action_flag <= 0:
+        raise ValueError('action_flag must be a positive integer, not %r'
+                         % (action_flag,))
+    if action_flag in BUILTIN_ACTIONS:
+        raise ValueError("action_flag %d is one of djgentelella's own actions"
+                         % action_flag)
+    known = ACTIONS.get(action_flag)
+    if known is not None and str(known) != str(label):
+        raise ValueError('action_flag %d is already registered as %r'
+                         % (action_flag, str(known)))
+    ACTIONS[action_flag] = label
+    return action_flag
+
+
+def action_label(action_flag):
+    """The label of ``action_flag`` (:data:`ACTIONS`), or the number."""
+    return ACTIONS.get(action_flag, str(action_flag))
+
+
+def action_choices():
+    """``[(flag, label)]`` of :data:`ACTIONS`, read when asked: an action
+    registered after import shows up."""
+    return [(flag, str(label)) for flag, label in ACTIONS.items()]
+
+
+def system_user():
+    """The account system events are written with (:func:`add_log`
+    ``system=True``): ``GT_HISTORY_SYSTEM_USERNAME``, ``'gt-system'`` by
+    default.
+
+    ``LogEntry.user`` cannot be empty, so the account exists: when it does
+    not, it is created inactive and without a usable password -- nobody can
+    sign in with it. A user model that needs more than the username to
+    create one has to create the account itself.
+    """
+    username = getattr(settings, 'GT_HISTORY_SYSTEM_USERNAME', None) \
+        or DEFAULT_SYSTEM_USERNAME
+    model = get_user_model()
+    found = model._default_manager.filter(**{model.USERNAME_FIELD: username}).first()
+    if found is not None:
+        return found
+    account = model(**{model.USERNAME_FIELD: username})
+    if hasattr(account, 'is_active'):
+        account.is_active = False
+    account.set_unusable_password()
+    try:
+        with transaction.atomic():
+            account.save()
+    except (IntegrityError, ValidationError, TypeError, ValueError) as error:
+        found = model._default_manager.filter(
+            **{model.USERNAME_FIELD: username}).first()
+        if found is not None:  # created meanwhile by another process
+            return found
+        raise ValueError(
+            'add_log(system=True) could not create the account %r (%s): '
+            'create it, or name an existing one with '
+            'GT_HISTORY_SYSTEM_USERNAME.' % (username, error)) from error
+    return account
 
 
 def _resolve_log_user(user):
@@ -96,6 +180,9 @@ def add_log(
     content_type=None,
     related_objects=None,
     extra=None,
+    *,
+    system=False,
+    actor='',
 ):
     """Write one audit entry and return the created ``LogEntry``.
 
@@ -103,8 +190,27 @@ def add_log(
     ``HistoryRelation`` row per instance, optionally ``(instance, data)``
     pairs), and ``extra`` stores an arbitrary dict as a relation row with no
     target — both queryable through ``LogEntry.gt_relations``.
+
+    ``action_flag`` is one of :data:`ACTIONS`: Django's, ``HARD_DELETION``,
+    ``RESTORE``, ``SECRET_READ`` or one added with :func:`register_action`.
+
+    ``system=True`` records an event of the system -- a job, a command, a
+    migration -- with no user: ``user`` must be ``None``, the entry goes to
+    :func:`system_user` and ``extra`` gets ``{"gt_system": true,
+    "gt_actor": actor}`` (``actor``: what did it, ``'rotate_credentials'``),
+    so ``?extra={"gt_system": true}`` finds them. Without the flag a missing
+    user is refused, or goes to ``GT_HISTORY_ANONYMOUS_USERNAME``, as before.
     """
-    user = _resolve_log_user(user)
+    if system:
+        if user is not None:
+            raise ValueError('add_log(system=True) records an event without a '
+                             'user: pass user=None (got %r)' % (user,))
+        user = system_user()
+        extra = dict(extra or {})
+        extra[SYSTEM_KEY] = True
+        extra[ACTOR_KEY] = str(actor or '')
+    else:
+        user = _resolve_log_user(user)
 
     if content_type is None:
         content_type = ContentType.objects.get_for_model(object)
@@ -115,7 +221,7 @@ def add_log(
     if not isinstance(action_flag, int):
         raise ValueError('action_flag must be an integer')
 
-    action_label = ACTIONS.get(action_flag, str(action_flag))
+    action_label = str(ACTIONS.get(action_flag, action_flag))
 
     if not object_repr:
         object_repr = _('An object of model %(model)s has been %(action)s') % {

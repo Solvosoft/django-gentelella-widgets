@@ -261,6 +261,34 @@ class ResolveContext:
         )
         return resolve_row_link(self, link, model, path)
 
+    def flow(self, name, path=None):
+        """The :class:`~djgentelella.flows.base.Flow` called ``name`` for the
+        design's Site, or ``None`` -- reporting why at ``path`` when one is
+        given. A name without a dot is one of the design's ``app``, the way
+        djgentelella-editor names the flows it designs (``<app>.<slug>``).
+
+        The hook of every flow a design names (a ``flow_kanban`` board, a
+        ``flow:`` row link). By default the flows registered in Python and
+        the published ``FlowDefinition`` of the Site
+        (:func:`~djgentelella.flows.base.get_flow`). A subclass can answer
+        with flows that are not published yet -- djgentelella-editor builds
+        them from the flow designs of the app, to validate a page without
+        the database -- and call ``super()`` for the rest.
+        """
+        if not apps.is_installed('djgentelella.flows'):
+            if path is not None:
+                self.error(path, _('%r needs djgentelella.flows in INSTALLED_APPS')
+                           % (name,))
+            return None
+        # Optional app: only importable when it is installed (checked above).
+        from djgentelella.flows.base import get_flow  # noqa: PLC0415
+        found = get_flow(name, site=self.site)
+        if found is None and '.' not in name and self.design.get('app'):
+            found = get_flow('%s.%s' % (self.design['app'], name), site=self.site)
+        if found is None and path is not None:
+            self.error(path, _('no flow %r (djgentelella.flows)') % (name,))
+        return found
+
     def form(self, key, path):
         """The :class:`~djgentelella.designs.forms.FormBuild` of ``forms[key]``."""
         forms = self.design.get('forms') or {}
