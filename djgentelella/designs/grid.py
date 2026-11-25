@@ -68,10 +68,10 @@ from djgentelella.designs.conditions import (
     row_conditions, row_denied,
 )
 from djgentelella.designs.data_components import (
-    OPTIMISTIC_LOCK_REQUIRED_SCHEMA, PERMISSION_LIST, allowed_fields, can,
-    check_permissions, check_relation, columns_of, data_build, endpoint_url,
-    json_config, kind_of, label, lock_props, lock_props_errors, no_permission,
-    plural, sample_rows,
+    OPTIMISTIC_LOCK_REQUIRED_SCHEMA, PERMISSION_LIST, SITE_FIELD_SCHEMA,
+    allowed_fields, can, check_permissions, check_relation, columns_of,
+    data_build, endpoint_url, json_config, kind_of, label, lock_props,
+    lock_props_errors, no_permission, plural, resolve_site_field, sample_rows,
 )
 from djgentelella.designs.forms import build_form, is_form_field, no_field
 from djgentelella.designs.introspection import TEXT_KINDS
@@ -270,6 +270,7 @@ class InteractiveGridComponent(RuntimeComponent):
                 'title': 'Refuse to save a row somebody else changed after it '
                          'was read (optimistic locking)'},
             'optimistic_lock_required': OPTIMISTIC_LOCK_REQUIRED_SCHEMA,
+            'site_field': SITE_FIELD_SCHEMA,
             'page_size': {'type': 'integer', 'minimum': 1, 'maximum': 200,
                           'title': 'Rows per page (default 25)'},
         },
@@ -336,6 +337,18 @@ class InteractiveGridComponent(RuntimeComponent):
                 rctx.error(where, _('%r cannot be edited in a grid') % (name,))
         if len(set(editable)) != len(editable):
             rctx.error(where, _('a column is listed twice'))
+        site_field = ''
+        if props.get('site_field'):
+            if source is not None:
+                rctx.error(path + '.props.site_field',
+                           _('a data source applies its own Site rule: site_field '
+                             'goes with a model'))
+            else:
+                site_field = resolve_site_field(rctx, path, model, props)
+                if site_field and site_field in editable:
+                    rctx.error(path + '.props.site_field',
+                               _('%r is the site_field: the component sets it, the '
+                                 'form cannot ask for it') % (site_field,))
         widgets = props.get('widgets') or {}
         for name in widgets:
             if name not in editable:
@@ -366,7 +379,7 @@ class InteractiveGridComponent(RuntimeComponent):
         actions = list(dict.fromkeys(props.get('actions', GRID_ACTIONS)))
         if 'create' in actions:
             missing = [name for name in required_fields(model)
-                       if name not in editable]
+                       if name not in editable and name != site_field]
             if missing:
                 rctx.error(path + '.props.actions',
                            _('adding rows needs every required field editable: '
@@ -406,6 +419,7 @@ class InteractiveGridComponent(RuntimeComponent):
         build.editable = list(editable)
         build.search_fields = list(search)
         build.ordering = list(ordering)
+        build.site_field = site_field
         build.actions = actions
         build.perms = perms
         build.columns = columns_of(found)
@@ -448,7 +462,7 @@ class InteractiveGridComponent(RuntimeComponent):
         its rows, read only -- no ``editable`` columns, no ``actions``."""
         props = node.get('props') or {}
         for name in ('editable', 'actions', 'widgets', 'widget_options',
-                     'edit_conditions', 'action_conditions'):
+                     'edit_conditions', 'action_conditions', 'site_field'):
             if props.get(name):
                 rctx.error(path + '.props.' + name,
                            _('data source %(source)r is not over a model of the '
@@ -899,6 +913,10 @@ class Batch:
             errors.update(row.field_errors)
             if errors:
                 row.fail(400, 'invalid', _('This row has errors.'), errors=errors)
+            elif row.op == 'create' and self.build.site_field:
+                # Not a column of the grid: a new row is of the request's Site.
+                row.serializer.validated_data[self.build.site_field] = \
+                    factories.request_site(self.view.request)
 
     def read_related(self, serializer_class, writes):
         """``{field: {str(pk): object}}`` of the relations the rows name,
@@ -1040,7 +1058,9 @@ class GridMixin:
                 pk__in=source.get_queryset(self.request).values('pk'))
         if build.preview:
             return queryset.none()
-        return queryset
+        # With site_field, the rows of the request's Site and the global ones:
+        # another Site's row is not found (404 to read it, in a batch too).
+        return factories.site_rows(queryset, build, self.request)
 
     def row_serializer(self):
         serializer = self.serializer_class(context=self.get_serializer_context())
