@@ -843,7 +843,12 @@ def card_labels(build, metric):
 
 
 def labelled(build, metric, card):
-    card['period'] = card_period(build, metric) or ''
+    period = card_period(build, metric)
+    if period is None and build.date_field and \
+            (metric.get('period') or build.period) == ALL_TIME:
+        # A card over every row says so: "all", not an empty period.
+        period = ALL_TIME
+    card['period'] = period or ''
     card['period_label'], card['compare_label'] = card_labels(build, metric)
     return card
 
