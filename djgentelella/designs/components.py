@@ -20,7 +20,7 @@ from django.db.models import Q
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
-from djgentelella.designs import exposure
+from djgentelella.designs import exposure, pipeline
 from djgentelella.designs.forms import build_form, registered_lookups
 from djgentelella.designs.jsonschema import Error, validate
 from djgentelella.sites import get_current_site
@@ -287,6 +287,21 @@ class ResolveContext:
             found = get_flow('%s.%s' % (self.design['app'], name), site=self.site)
         if found is None and path is not None:
             self.error(path, _('no flow %r (djgentelella.flows)') % (name,))
+        return found
+
+    def pipeline_step(self, name, path=None):
+        """The :class:`~djgentelella.designs.pipeline.Process` registered as
+        ``name``, or ``None`` -- reporting why at ``path`` when one is given.
+
+        The hook of every step of a ``pipeline`` a design names. By default
+        the steps registered with
+        :func:`~djgentelella.designs.pipeline.register_process`; a subclass
+        can answer with steps it knows otherwise (djgentelella-editor, those
+        of the app it generates) and call ``super()`` for the rest.
+        """
+        found = pipeline.get_process(name)
+        if found is None and path is not None:
+            self.error(path, _('no pipeline step %r is registered') % (name,))
         return found
 
     def form(self, key, path):

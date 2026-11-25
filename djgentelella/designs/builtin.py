@@ -13,11 +13,19 @@ from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
 from django.utils.safestring import mark_safe
 
+from djgentelella.designs import pipeline
 from djgentelella.designs.components import NodeBuild, RuntimeComponent
 from djgentelella.designs.sanitize import clean_html
 
 __all__ = ['BUILTIN_COMPONENTS', 'ColComponent', 'HtmlBuild', 'HtmlComponent',
-           'PageComponent', 'RowComponent']
+           'PageBuild', 'PageComponent', 'RowComponent']
+
+
+@dataclass
+class PageBuild(NodeBuild):
+    #: The ``before_render``
+    #: :class:`~djgentelella.designs.pipeline.PipelineBuild`, or ``None``.
+    pipeline: object = None
 
 
 class PageComponent(RuntimeComponent):
@@ -26,6 +34,17 @@ class PageComponent(RuntimeComponent):
     icon = 'fa fa-file-o'
     container = True
     parent_types = ()
+    props_schema = {
+        'type': 'object',
+        'additionalProperties': False,
+        'properties': {'pipeline': pipeline.PAGE_PIPELINE_SCHEMA},
+    }
+
+    def resolve(self, node, rctx, path):
+        props = dict(node.get('props') or {})
+        return PageBuild(node['id'], node['type'], props,
+                         pipeline=pipeline.resolve_pipeline(
+                             rctx, props, path, event=pipeline.BEFORE_RENDER))
 
     def render(self, build, rctx, children):
         # data-gtdesign is always a node id (unique in the document); the
@@ -116,7 +135,10 @@ class HtmlComponent(RuntimeComponent):
 
     def render(self, build, rctx, children):
         if build.template is not None:
-            context = Context({'request': rctx.request, 'user': rctx.user},
+            context = Context({'request': rctx.request, 'user': rctx.user,
+                               # What the page's before_render set.
+                               'pipeline': getattr(rctx.request,
+                                                   'gtdesign_pipeline', {})},
                               autoescape=True)
             markup = clean_html(build.template.render(context))
         else:

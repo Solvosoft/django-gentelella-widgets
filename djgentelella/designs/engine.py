@@ -33,7 +33,7 @@ from django.utils.translation import gettext as _
 from rest_framework.routers import SimpleRouter
 
 from djgentelella.authorization import evaluate_condition, validate_condition
-from djgentelella.designs import conf, exposure, format, registry
+from djgentelella.designs import conf, exposure, format, pipeline, registry
 from djgentelella.designs.components import ResolveContext
 from djgentelella.designs.css import clean_css
 from djgentelella.designs.jsonschema import Error
@@ -522,7 +522,8 @@ def resolve_page(page):
     registry.get_components()  # loading the registry changes its generation
     allow_templates, allow_js = cached_page_trust(page)
     key = (page.hash, page.site_id, allow_templates, allow_js,
-           registry.generation(), exposure.generation(), get_language())
+           registry.generation(), exposure.generation(), get_language(),
+           pipeline.generation())
     with _cache_lock:
         if key in _cache:
             _cache.move_to_end(key)

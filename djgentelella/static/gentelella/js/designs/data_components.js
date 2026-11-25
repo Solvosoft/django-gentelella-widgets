@@ -182,6 +182,27 @@
         return filters;
     }
 
+    // The on_submit pipeline of the table (djgentelella.designs.pipeline):
+    // its branch comes back as gtdesign_redirect, and a general error of
+    // its steps as `detail` next to the errors of the fields.
+    function pipelineEvents() {
+        return {
+            form_submit: function () { return {}; },
+            success_form: function (data) {
+                if (data && typeof data.gtdesign_redirect === 'string' &&
+                        data.gtdesign_redirect.charAt(0) === '/' &&
+                        data.gtdesign_redirect.charAt(1) !== '/') {
+                    window.location.assign(data.gtdesign_redirect);
+                }
+            },
+            error_form: function (errors) {
+                if (errors && errors.detail && Object.keys(errors).length > 1) {
+                    Swal.fire({icon: 'error', title: gettext('Error'), text: errors.detail});
+                }
+            }
+        };
+    }
+
     function initTable(element) {
         var config = readJSON(element.getAttribute('data-gtconfig'));
         if (!config) { return; }
@@ -209,7 +230,9 @@
             },
             add_filter: !config.readonly,
             relation_render: {},
-            delete_display: function (data) { return escape(data[config.delete_display]); }
+            delete_display: function (data) { return escape(data[config.delete_display]); },
+            gt_form_modals: {create: {events: pipelineEvents()},
+                             update: {events: pipelineEvents()}, detail: {}, destroy: {}}
         };
         config.columns.forEach(function (column) {
             if (column.kind === 'fk' || column.kind === 'o2o') { options.relation_render[column.name] = 'text'; }
