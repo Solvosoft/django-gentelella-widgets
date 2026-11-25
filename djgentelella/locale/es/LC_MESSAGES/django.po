@@ -5108,3 +5108,272 @@ msgstr "%(name)r es de tipo %(kind)s, no %(said)s"
 #, python-format
 msgid "facets panel %(panel)r filters other rows than those of %(model)r"
 msgstr "el panel de facetas %(panel)r filtra otras filas que las de %(model)r"
+
+#: feedback/forms.py
+#, python-format
+msgid "%(max)d characters at most."
+msgstr "%(max)d caracteres como máximo."
+
+#: feedback/forms.py
+msgid "Write a comment."
+msgstr "Escriba un comentario."
+
+#: feedback/views.py
+#, python-format
+msgid "The feedback could not be sent: %(errors)s"
+msgstr "No se pudo enviar el comentario: %(errors)s"
+
+#: feedback/views.py
+msgid "Thank you: your feedback was sent."
+msgstr "Gracias: su comentario fue enviado."
+
+#: feedback/views.py
+#, python-format
+msgid "Your feedback was answered: %(text)s"
+msgstr "Respondieron su comentario: %(text)s"
+
+#: feedback/views.py
+msgid "Feedback saved."
+msgstr "Comentario guardado."
+
+#: flows/diagram.py
+#, python-format
+msgid "%(flow)s: current state %(state)s"
+msgstr "%(flow)s: estado actual %(state)s"
+
+#: flows/diagram.py
+#, python-format
+msgid "Way taken: %s."
+msgstr "Recorrido: %s."
+
+#: flows/diagram.py
+#, python-format
+msgid "Failed: %s."
+msgstr "Con error: %s."
+
+#: flows/diagram.py
+#, python-format
+msgid "You can run: %s."
+msgstr "Puede ejecutar: %s."
+
+#: flows/diagram.py
+msgid "You cannot run any transition now."
+msgstr "Ahora no puede ejecutar ninguna transición."
+
+#: models.py
+msgid "Empty: the theme of every Site that has none of its own."
+msgstr "Vacío: el tema de todo Site que no tiene uno propio."
+
+#: models.py
+msgid "Primary"
+msgstr "Primario"
+
+#: models.py
+msgid "Secondary"
+msgstr "Secundario"
+
+#: models.py
+msgid "Sidebar background"
+msgstr "Fondo de la barra lateral"
+
+#: models.py
+msgid "Sidebar text"
+msgstr "Texto de la barra lateral"
+
+#: models.py
+msgid "Border radius (px)"
+msgstr "Radio de los bordes (px)"
+
+#: models.py
+msgid "Font"
+msgstr "Fuente"
+
+#: models.py
+msgid "Logo"
+msgstr "Logotipo"
+
+#: models.py
+msgid "PNG, JPEG, GIF or WebP."
+msgstr "PNG, JPEG, GIF o WebP."
+
+#: models.py
+msgid "Site theme"
+msgstr "Tema del Site"
+
+#: models.py
+msgid "Site themes"
+msgstr "Temas de los Sites"
+
+#: models.py
+msgid "Global theme"
+msgstr "Tema global"
+
+#: models.py
+msgid "Idea"
+msgstr "Idea"
+
+#: models.py
+msgid "Question"
+msgstr "Pregunta"
+
+#: models.py
+msgid "Under review"
+msgstr "En revisión"
+
+#: models.py
+msgid "Answered"
+msgstr "Respondido"
+
+#: models.py
+msgid "Closed"
+msgstr "Cerrado"
+
+#: models.py
+msgid "Design page"
+msgstr "Página de diseño"
+
+#: models.py
+msgid "Browser"
+msgstr "Navegador"
+
+#: models.py
+msgid "Response"
+msgstr "Respuesta"
+
+#: models.py
+msgid "Answered by"
+msgstr "Respondido por"
+
+#: models.py
+msgid "Answered at"
+msgstr "Respondido el"
+
+#: models.py
+msgid "Feedback"
+msgstr "Comentarios"
+
+#: templates/gentelella/feedback/button.html
+msgid "Send feedback"
+msgstr "Enviar un comentario"
+
+#: templates/gentelella/feedback/button.html
+msgid "Send"
+msgstr "Enviar"
+
+#: templates/gentelella/feedback/button.html
+msgid "Include the address of this page"
+msgstr "Incluir la dirección de esta página"
+
+#: templates/gentelella/feedback/button.html
+msgid "Include my browser and screen size"
+msgstr "Incluir mi navegador y el tamaño de la pantalla"
+
+#: templates/gentelella/feedback/button.html
+msgid "What you type in the forms of this page is never sent."
+msgstr "Lo que escriba en los formularios de esta página nunca se envía."
+
+#: templates/gentelella/feedback/inbox.html
+msgid "Any status"
+msgstr "Cualquier estado"
+
+#: templates/gentelella/feedback/inbox.html
+msgid "Any type"
+msgstr "Cualquier tipo"
+
+#: templates/gentelella/feedback/inbox.html
+msgid "No feedback."
+msgstr "No hay comentarios."
+
+#: templates/gentelella/theme/roller.html
+msgid "Theme"
+msgstr "Tema"
+
+#: templates/gentelella/theme/roller.html
+msgid "Current logo"
+msgstr "Logo actual"
+
+#: templates/gentelella/theme/roller.html
+msgid "Remove theme"
+msgstr "Quitar el tema"
+
+#: templates/gentelella/theme/roller.html
+msgid "The whole page shows the values being edited; nothing is saved until you press Save."
+msgstr "Toda la página muestra los valores que edita; no se guarda nada hasta que pulse Guardar."
+
+#: templates/gentelella/theme/roller.html
+msgid "Badge"
+msgstr "Insignia"
+
+#: templates/gentelella/theme/roller.html
+msgid "A link"
+msgstr "Un enlace"
+
+#: templates/gentelella/theme/roller.html
+msgid "A success message."
+msgstr "Un mensaje de éxito."
+
+#: templates/gentelella/theme/roller.html
+msgid "An error message."
+msgstr "Un mensaje de error."
+
+#: templates/gentelella/theme/roller.html
+msgid "Other"
+msgstr "Otro"
+
+#: templates/gentelella/theme/roller.html
+msgid "Checked"
+msgstr "Marcado"
+
+#: templates/gentelella/theme/roller.html
+msgid "The sidebar of this page previews its colours."
+msgstr "La barra lateral de esta página muestra sus colores."
+
+#: theme/forms.py
+msgid "Remove the logo"
+msgstr "Quitar el logo"
+
+#: theme/values.py
+msgid "Enter a colour as #rrggbb (six hexadecimal digits)."
+msgstr "Escriba un color como #rrggbb (seis dígitos hexadecimales)."
+
+#: theme/values.py
+msgid "Sans serif"
+msgstr "Sin serifa"
+
+#: theme/values.py
+msgid "Humanist"
+msgstr "Humanista"
+
+#: theme/values.py
+msgid "Serif"
+msgstr "Con serifa"
+
+#: theme/values.py
+msgid "Monospace"
+msgstr "Monoespaciada"
+
+#: theme/values.py
+#, python-format
+msgid "The logo is too big: %(size)d KB at most."
+msgstr "El logo es demasiado grande: %(size)d KB como máximo."
+
+#: theme/values.py
+msgid "The logo is not an image."
+msgstr "El logo no es una imagen."
+
+#: theme/values.py
+msgid "The logo must be a PNG, JPEG, GIF or WebP image."
+msgstr "El logo debe ser una imagen PNG, JPEG, GIF o WebP."
+
+#: theme/values.py
+#, python-format
+msgid "The name of the logo does not match its format (%(format)s)."
+msgstr "El nombre del logo no corresponde a su formato (%(format)s)."
+
+#: theme/views.py
+msgid "The theme was removed: the default one applies."
+msgstr "Se quitó el tema: se usa el predeterminado."
+
+#: theme/views.py
+msgid "Theme saved."
+msgstr "Tema guardado."

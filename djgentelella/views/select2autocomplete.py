@@ -7,6 +7,9 @@ from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
+from djgentelella.designs.exposure import request_site, site_field_of
+from djgentelella.sites import site_q
+
 """
 {
   "results": [
@@ -127,6 +130,24 @@ class BaseSelect2View(generics.ListAPIView, viewsets.GenericViewSet):
     # page whose five rows are all selected reaches the browser and leaves the
     # dropdown looking empty. Excluding them here keeps every page full.
     exclude_selected = False
+    #: The foreign key to ``sites.Site`` the rows are limited by: those of
+    #: the request's Site and the global ones. ``None`` (the default) takes
+    #: the ``site_field`` the model was exposed to designs with
+    #: (:func:`djgentelella.designs.exposure.expose`); ``''`` turns it off.
+    site_field = None
+
+    def get_site_field(self):
+        if self.site_field is not None:
+            return self.site_field
+        return site_field_of(getattr(self, 'model', None))
+
+    def filter_site(self, queryset):
+        """The rows of the request's Site and the global ones, when the lookup
+        has a :attr:`site_field`."""
+        name = self.get_site_field()
+        if not name:
+            return queryset
+        return queryset.filter(site_q(request_site(self.request), field=name))
 
     def get_filter_suffix(self, fieldname):
         if hasattr(self, f'get_filter_suffix_{fieldname}'):
@@ -156,6 +177,7 @@ class BaseSelect2View(generics.ListAPIView, viewsets.GenericViewSet):
         return q
 
     def filter_queryset(self, queryset):
+        queryset = self.filter_site(queryset)
         q = self.query_get('term', '')
         if hasattr(self, 'selected'):
             self.selected += self.query_get('selected', '')

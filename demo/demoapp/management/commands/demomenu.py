@@ -279,3 +279,36 @@ class Command(BaseCommand):
                 only_icon=False,
                 position=position
             )
+
+        # The theme roller and the feedback inbox (W32): the look of each Site
+        # and what the users send with the feedback button.
+        look = MenuItem.objects.create(
+            parent=None,
+            title='Theme and feedback',
+            url_name='gt_theme_roller',
+            category='main',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-paint-brush',
+            only_icon=False,
+            position=2
+        )
+        for position, (title, url_name, icon) in enumerate([
+            ('Theme', 'gt_theme_roller', 'fa fa-paint-brush'),
+            ('Feedback', 'gt_feedback_inbox', 'fa fa-comments'),
+        ]):
+            MenuItem.objects.create(
+                parent=look,
+                title=title,
+                url_name=url_name,
+                category='main',
+                is_reversed=True,
+                reversed_kwargs=None,
+                reversed_args=None,
+                is_widget=False,
+                icon=icon,
+                only_icon=False,
+                position=position
+            )

@@ -58,6 +58,9 @@ from djgentelella.datasources import query
 from djgentelella.datasources.base import ModelDataSource, api_error, get_datasource
 from djgentelella.designs import notifications, pipeline
 from djgentelella.designs.builds import TABLE_ACTIONS
+from djgentelella.designs.exposure import (
+    limit_form_choices, request_site, site_choices,
+)
 from djgentelella.designs.conditions import (
     condition_object, denied, hidden_columns, row_conditions, row_denied,
     without_hidden,
@@ -75,7 +78,7 @@ from djgentelella.permission_management import (
 )
 from djgentelella.serializers import GTDateField, GTDateTimeField, GTMarkdownHTMLField
 from djgentelella.serializers.selects import GTS2SerializerBase
-from djgentelella.sites import get_current_site, site_q
+from djgentelella.sites import site_q
 
 __all__ = ['CHART_CLASSES', 'DesignDataSource', 'GTFiltersMixin', 'apply_filters',
            'chart_getter_for', 'chart_rows', 'parse_filters',
@@ -194,11 +197,6 @@ def valid_pk(model, value):
     except DjangoValidationError:
         return False
     return True
-
-
-def request_site(request):
-    """The Site of ``request`` (a DRF one too), or ``None``."""
-    return get_current_site(getattr(request, '_request', request))
 
 
 def site_rows(queryset, build, request):
@@ -321,10 +319,26 @@ def read_fields(build):
                                      if name not in build.form.field_names]
 
 
+class SitePrimaryKeyRelatedField(serializers.PrimaryKeyRelatedField):
+    """A relation written by its primary key whose choices, when its model
+    was exposed with a ``site_field``, are the rows of the request's Site
+    and the global ones (:func:`~djgentelella.designs.exposure.site_choices`):
+    another Site's row is "does not exist". Without a request in the
+    context, every row."""
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        request = self.context.get('request')
+        if queryset is None or request is None:
+            return queryset
+        return site_choices(queryset, request_site(request))
+
+
 def _make_serializer(build, role):
     model = build.model
     opts = model._meta
-    attrs = {'__module__': __name__}
+    attrs = {'__module__': __name__,
+             'serializer_related_field': SitePrimaryKeyRelatedField}
     uploads = {form_field.name for form_field in build.form.fields
                if form_field.widget in widgetmap.UPLOAD_WIDGETS}
     alias = opts.pk.name != 'id'
@@ -1139,6 +1153,12 @@ class DesignCRUDMixin(CRUDMixin):
             # does not reorder the rows.
             queryset = queryset.order_by('-pk')
         return queryset
+
+    def get_form(self, *args, **kwargs):
+        # The choices of a relation to a model with a site_field: the rows of
+        # the request's Site and the global ones.
+        return limit_form_choices(super().get_form(*args, **kwargs),
+                                  request_site(self.request))
 
     def get_success_url(self):
         return self.gtdesign_base()

@@ -5,8 +5,11 @@ from django.conf import settings
 from django.contrib.auth.models import Permission
 from django.core.cache import DEFAULT_CACHE_ALIAS, cache, caches
 from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.core.cache.backends.db import DatabaseCache
 from django.db import DatabaseError, models, router, transaction
+from django.db.models import Value
+from django.db.models.functions import Coalesce
 from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
@@ -21,6 +24,7 @@ from djgentelella.settings import USER_MODEL_BASE
 from djgentelella.history.utils import add_log, ADDITION
 from djgentelella.menu import is_menu_widget
 from djgentelella.sites import site_pk
+from djgentelella.theme import values as theme_values
 from djgentelella.wizard.conf import expired_before
 
 logger = logging.getLogger(__name__)
@@ -99,6 +103,12 @@ def _forget_cached_setting(sender, instance, **kwargs):
     previous = instance.__dict__.pop(_PREVIOUS_SCOPE_ATTR, None)
     if previous is not None:
         keys.add(previous)
+    forget_cache_keys(keys)
+
+
+def forget_cache_keys(keys):
+    """Delete ``keys`` from the default cache, also when it is a
+    ``DatabaseCache`` whose table does not exist."""
     backend = caches[DEFAULT_CACHE_ALIAS]  # `cache` is a proxy: no isinstance
     if not isinstance(backend, DatabaseCache):
         cache.delete_many(list(keys))
@@ -604,3 +614,124 @@ class WizardDraft(models.Model):
 
     def __str__(self):
         return self.title or self.key
+
+
+def _theme_upload_to(instance, filename):
+    extension = filename.rsplit('.', 1)[-1].lower() if '.' in filename else ''
+    return 'gt_theme/%s.%s' % (uuid.uuid4().hex, extension)
+
+
+class SiteTheme(models.Model):
+    """The look of a Site (:mod:`djgentelella.theme`): Bootstrap's colours,
+    the sidebar's, the border radius, a font and a logo.
+
+    One per Site, plus at most one global (``site=NULL``) that the Sites
+    without their own use. A blank value keeps the default of the bundled
+    theme. Every save bumps ``version``, which goes into the URL of the
+    stylesheet, so a browser fetches it again only when it changed.
+    """
+
+    site = models.ForeignKey('sites.Site', on_delete=models.CASCADE, null=True,
+                             blank=True, related_name='+', verbose_name=_('Site'),
+                             help_text=_('Empty: the theme of every Site that '
+                                         'has none of its own.'))
+    primary = models.CharField(_('Primary'), max_length=7, blank=True,
+                               validators=[theme_values.hex_color])
+    secondary = models.CharField(_('Secondary'), max_length=7, blank=True,
+                                 validators=[theme_values.hex_color])
+    success = models.CharField(_('Success'), max_length=7, blank=True,
+                               validators=[theme_values.hex_color])
+    danger = models.CharField(_('Danger'), max_length=7, blank=True,
+                              validators=[theme_values.hex_color])
+    sidebar_bg = models.CharField(_('Sidebar background'), max_length=7, blank=True,
+                                  validators=[theme_values.hex_color])
+    sidebar_text = models.CharField(_('Sidebar text'), max_length=7, blank=True,
+                                    validators=[theme_values.hex_color])
+    border_radius = models.PositiveSmallIntegerField(
+        _('Border radius (px)'), null=True, blank=True,
+        validators=[MinValueValidator(theme_values.RADIUS_MIN),
+                    MaxValueValidator(theme_values.RADIUS_MAX)])
+    font = models.CharField(_('Font'), max_length=20, blank=True,
+                            choices=theme_values.FONT_CHOICES)
+    logo = models.FileField(_('Logo'), upload_to=_theme_upload_to, blank=True,
+                            validators=[theme_values.validate_logo],
+                            help_text=_('PNG, JPEG, GIF or WebP.'))
+    version = models.PositiveIntegerField(default=1, editable=False)
+    updated_at = models.DateTimeField(_('Updated'), auto_now=True)
+
+    class Meta:
+        verbose_name = _('Site theme')
+        verbose_name_plural = _('Site themes')
+        constraints = [
+            # One theme per Site and one global: NULLs never collide in a
+            # unique index, so the global row counts as Site 0.
+            models.UniqueConstraint(Coalesce('site', Value(0)),
+                                    name='djgentelella_theme_one_per_site'),
+        ]
+
+    def __str__(self):
+        return str(self.site) if self.site_id else str(_('Global theme'))
+
+    def save(self, *args, **kwargs):
+        if self.pk is not None:
+            version, site_id = type(self).objects.filter(pk=self.pk).values_list(
+                'version', 'site_id').first() or (0, self.site_id)
+            self.version = version + 1
+            # A theme moved to another Site: that Site's cache goes too.
+            self._gt_previous_site = site_id
+        super().save(*args, **kwargs)
+
+
+@receiver([post_save, post_delete], sender=SiteTheme)
+def _forget_theme(sender, instance, **kwargs):
+    keys = {theme_cache_key(instance.site_id)}
+    if hasattr(instance, '_gt_previous_site'):
+        keys.add(theme_cache_key(instance.__dict__.pop('_gt_previous_site')))
+    forget_cache_keys(keys)
+
+
+def theme_cache_key(site=None):
+    """Cache key of the theme of ``site`` (a Site, an id or ``None``)."""
+    return 'gttheme:%s' % (site_pk(site) or 0)
+
+
+class Feedback(models.Model):
+    """A comment a user left from the feedback button of a page
+    (:mod:`djgentelella.feedback`): an error, an idea or a question, the page
+    it was written on and, if they agreed, their browser. Reviewers answer it
+    from the inbox; the answer notifies its author."""
+
+    BUG, IDEA, QUESTION = 'bug', 'idea', 'question'
+    KINDS = [(BUG, _('Error')), (IDEA, _('Idea')), (QUESTION, _('Question'))]
+    NEW, REVIEWING, ANSWERED, CLOSED = 'new', 'reviewing', 'answered', 'closed'
+    STATUSES = [(NEW, _('New')), (REVIEWING, _('Under review')),
+                (ANSWERED, _('Answered')), (CLOSED, _('Closed'))]
+
+    user = models.ForeignKey(USER_MODEL_BASE, on_delete=models.SET_NULL, null=True,
+                             blank=True, related_name='gt_feedback',
+                             verbose_name=_('User'))
+    site = models.ForeignKey('sites.Site', on_delete=models.CASCADE, null=True,
+                             blank=True, related_name='+', verbose_name=_('Site'))
+    kind = models.CharField(_('Type'), max_length=20, choices=KINDS, default=IDEA)
+    text = models.TextField(_('Comment'))
+    url = models.CharField(_('Page'), max_length=500, blank=True)
+    #: The slug of the design page it was written on (``data-gtdesign-page``).
+    page = models.CharField(_('Design page'), max_length=200, blank=True)
+    browser = models.CharField(_('Browser'), max_length=500, blank=True)
+    status = models.CharField(_('Status'), max_length=20, choices=STATUSES,
+                              default=NEW, db_index=True)
+    response = models.TextField(_('Response'), blank=True)
+    responded_by = models.ForeignKey(USER_MODEL_BASE, on_delete=models.SET_NULL,
+                                     null=True, blank=True, related_name='+',
+                                     verbose_name=_('Answered by'))
+    responded_at = models.DateTimeField(_('Answered at'), null=True, blank=True)
+    created_at = models.DateTimeField(_('Created'), auto_now_add=True)
+    updated_at = models.DateTimeField(_('Updated'), auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at', '-pk']
+        verbose_name = _('Feedback')
+        verbose_name_plural = _('Feedback')
+
+    def __str__(self):
+        return '%s: %s' % (self.get_kind_display(), self.text[:60])

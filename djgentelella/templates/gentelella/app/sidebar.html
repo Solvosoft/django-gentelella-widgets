@@ -1,9 +1,9 @@
-{% load gentelellamenu gtsettings %}
+{% load gentelellamenu gtsettings gttheme %}
 
 <div class="left_col gt-sidebar">
 	
   <div class="navbar nav_title mb-4" style="border: 0;">
-    <a href="{% url 'home' %}" class="site_title"><i class="{% get_settings 'sidebar_icon' 'fa fa-spinner' %}"></i> <span>{% if sidebar_title %}{{ sidebar_title }}{% else %}{% get_settings 'sidebar_title' 'My Site' %}{% endif %}</span></a>
+    {% gt_theme_logo_url as theme_logo %}<a href="{% url 'home' %}" class="site_title">{% if theme_logo %}<img src="{{ theme_logo }}" alt="" class="gt-theme-logo" style="max-height:40px;max-width:48px;vertical-align:middle">{% else %}<i class="{% get_settings 'sidebar_icon' 'fa fa-spinner' %}"></i>{% endif %} <span>{% if sidebar_title %}{{ sidebar_title }}{% else %}{% get_settings 'sidebar_title' 'My Site' %}{% endif %}</span></a>
   </div>
 
 	<div class="clearfix"></div>

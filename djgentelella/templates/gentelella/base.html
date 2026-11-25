@@ -1,6 +1,7 @@
 <!doctype html>
 {% load static i18n %}
 {% load  gentelellamenu gtsettings  %}
+{% load gttheme gtfeedback %}
 {% get_current_language as LANGUAGE_CODE %}
 <html lang="{{LANGUAGE_CODE}}">
 <head>
@@ -28,6 +29,7 @@
 	{% if extracss %}
 	<link href="{% static extracss %}?v={% get_version %}" rel="stylesheet">
 	{% endif %}
+	{% gt_theme_css %}
 	{% endblock head %}
 	{% block extra_css %} {% endblock %}
 	<script src="{% url 'djgentelella-js-catalog' %}?v={% get_version %}"></script>
@@ -76,6 +78,7 @@
 		{% if perms.djgentelella.can_manage_permissions %}
 		{% include 'gentelella/blocks/permissions_management.html' %}
 		{% endif %}
+		{% gt_feedback_button %}
 		{% endblock footer %}
 	</div>
 </div>

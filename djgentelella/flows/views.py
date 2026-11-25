@@ -100,7 +100,7 @@ def flow_detail(request, flow, pk):
         'control': control_actions(flow, instance, request.user),
         'assignment': flow.assignment_actions(obj, request.user),
         'history': flow.history(obj),
-        'diagram': render_svg(flow.as_graph(), runtime=flow.runtime(instance)),
+        'diagram': flow.instance_diagram(obj, request.user),
     })
 
 

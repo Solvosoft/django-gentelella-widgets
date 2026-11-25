@@ -828,10 +828,12 @@ class ObjectManagementComponent(RuntimeComponent):
         forms = {}
         if allowed['create']:
             modal_ids['create'] = '#%s_create_modal' % prefix
-            forms['create'] = build.form.get_form(prefix=prefix + '_create')
+            forms['create'] = build.form.get_form(prefix=prefix + '_create',
+                                                  request=rctx.request)
         if allowed['update']:
             modal_ids['update'] = '#%s_update_modal' % prefix
-            forms['update'] = build.form.get_form(prefix=prefix + '_update')
+            forms['update'] = build.form.get_form(prefix=prefix + '_update',
+                                                  request=rctx.request)
             # An update neither shows nor writes a hidden column (its API
             # leaves it out too).
             for name in hidden:

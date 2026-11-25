@@ -310,3 +310,7 @@ GT_SEARCH_NAVBAR = True
 # GeocodedAddressInput (/formwidgets/): djgentelella has no geocoder by default.
 # The demo's answers from a short offline list, so nothing goes to the network.
 GT_GEOCODER = 'demoapp.geocoding.DemoGeocoder'
+
+# The feedback button (djgentelella.feedback): on every page of the demo for a
+# signed-in user; a Site turns it off with the setting feedback_enabled=false.
+GT_FEEDBACK = True

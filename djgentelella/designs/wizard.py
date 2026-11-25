@@ -72,6 +72,7 @@ from djgentelella.designs.data_components import (
     data_build, endpoint_url, no_permission, plural,
 )
 from djgentelella.designs.factories import valid_pk
+from djgentelella.designs.exposure import limit_form_choices
 from djgentelella.designs.forms import RENDERS, build_form, is_form_field, no_field
 from djgentelella.designs.models import normalize_path
 from djgentelella.forms import widgetmap
@@ -205,6 +206,12 @@ class DesignWizardView(GTWizardView):
                      condition=step_condition(self.build, step),
                      description=step.description, pipeline=step.pipeline)
                 for step in self.build.steps]
+
+    def get_form(self, step, data=None):
+        # The choices of a relation to a model with a site_field: the rows of
+        # the request's Site and the global ones.
+        return limit_form_choices(super().get_form(step, data),
+                                  get_current_site(self.request))
 
     def get_step_pipeline(self, step):
         # Resolved with the document: a PipelineBuild already.

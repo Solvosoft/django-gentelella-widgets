@@ -802,6 +802,40 @@ Python identifiers (``format.APP_PATTERN``): ``app`` is a Django app label for
 code generation, flows and pipeline steps (``<app>.<step>``).
 ``format.app_name(slug)`` turns a slug with ``-`` (a djodo App) into one.
 
+**Theme roller per Site (W32).** ``SiteTheme`` (migration ``0026``) holds the
+Bootstrap colours, the sidebar's, the border radius, a font of a fixed list and
+a logo of a Site, or the global theme. Only typed, validated values (``#rrggbb``,
+0-24 px, PNG/JPEG/GIF/WebP checked with Pillow), never CSS: the stylesheet is
+written from them (``theme.css.render_css``) and served at
+``/gt-theme/<pk>.css?v=<version>``, cached for a year and fetched again when the
+theme is saved. ``{% gt_theme_css %}`` links it from ``base.html``; the sidebar
+shows the logo. The page ``gt_theme_roller`` edits it with a live preview. See
+``docs/source/theme.rst``.
+
+**The diagram of a flow instance (W32).** ``Flow.instance_diagram(obj, user)``
+highlights the current activity, the transitions taken (from the log) and the
+transitions the user may run now (``data-transition``), and says it in a
+``<title>``/``<desc>`` for screen readers; ``Flow.runtime()`` adds ``taken`` and
+``path``. ``flow_detail`` uses it, and ``{% flow_diagram object %}`` finds the
+flow of the object (``flow=`` names it).
+
+**User feedback (W32).** With ``GT_FEEDBACK = True``, a button of ``base.html``
+(``{% gt_feedback_button %}``) sends an error, an idea or a question, with the
+page and the browser if the user agrees, never form data. ``Feedback`` (same
+migration) is reviewed at ``gt_feedback_inbox`` (``view_feedback``) and answered
+at ``gt_feedback_detail`` (``change_feedback``), which notifies its author. A
+Site turns it off with the setting ``feedback_enabled``. See
+``docs/source/feedback.rst``.
+
+**Choices of a relation by Site (W32, proposal of D18).** ``expose(model,
+site_field='site')`` makes every relation to that model in the forms of
+``object_management``, ``crud_classic``, ``wizard`` and ``interactive_grid``,
+their serializers (``factories.SitePrimaryKeyRelatedField``) and the model's
+select2 lookups (``BaseSelect2View.site_field``) offer the rows of the
+request's Site and the global ones; another Site's row is refused.
+``exposure.site_choices``, ``limit_form_choices``, ``site_field_of``;
+``FormBuild.get_form(request=)``.
+
 Fixes
 """"""""
 

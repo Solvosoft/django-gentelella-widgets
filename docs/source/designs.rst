@@ -200,6 +200,31 @@ lists them.
 model, the fields it names and the targets of its relations must all be
 exposed, since a relation's choices list rows of the target.
 
+**Rows of a Site.** ``site_field`` names the foreign key to ``sites.Site`` of
+a model whose rows belong to a Site (anything else is ``ImproperlyConfigured``
+at once):
+
+.. code:: python
+
+    expose(Departamento, site_field='site')
+
+Then every relation *to* that model offers the rows of the request's Site and
+the global ones (the rule of :doc:`sites`), and refuses another Site's row as
+one that does not exist:
+
+* the forms of ``object_management``, ``crud_classic``, ``wizard`` and
+  ``interactive_grid`` (``FormBuild.get_form(request=...)``; without a
+  request nothing is limited);
+* their serializers (``factories.SitePrimaryKeyRelatedField``, with the
+  request in the serializer context), the batches of the grid included;
+* the select2 lookups of the model (``BaseSelect2View.site_field``: ``None``
+  takes the exposure's, ``''`` turns it off, a name sets it).
+
+``exposure.site_field_of(model)``, ``site_choices(queryset, site)`` and
+``limit_form_choices(form, site)`` are the same rule for a form of the
+project. It is not the ``site_field`` prop of a component, which limits the
+rows the component lists and writes; both can be used together.
+
 Forms
 -----
 

@@ -27,6 +27,7 @@ from functools import cached_property
 from django import forms
 from django.utils.translation import gettext as _
 
+from djgentelella.designs.exposure import limit_form_choices, request_site
 from djgentelella.forms import widgetmap
 from djgentelella.forms.forms import GTForm
 from djgentelella.groute import routes
@@ -134,14 +135,19 @@ class FormBuild:
             form_class.base_fields[name].help_text = item.get('text', '')
         return form_class
 
-    def get_form(self, *args, preview=False, **kwargs):
+    def get_form(self, *args, preview=False, request=None, **kwargs):
         """An instance of :attr:`form_class`; with ``preview`` relations list
-        no rows, the way the editor shows a design."""
+        no rows, the way the editor shows a design. With ``request``, a
+        relation to a model exposed with a ``site_field`` offers the rows of
+        the request's Site and the global ones
+        (:func:`~djgentelella.designs.exposure.limit_form_choices`)."""
         form = self.form_class(*args, **kwargs)
         if preview:
             for form_field in form.fields.values():
                 if hasattr(form_field, 'queryset'):
                     form_field.queryset = form_field.queryset.none()
+        elif request is not None:
+            limit_form_choices(form, request_site(request))
         return form
 
 

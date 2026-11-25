@@ -39,7 +39,9 @@ expose(SupportTicket)
 # The region components (cards, calendar, map) of meetups.json.
 expose(Meetup)
 # The tree of insights.json.
-expose(Department)
+# Rows of a Site: a form over a model with a relation to Department (NewHire)
+# offers the request's Site's departments and the global ones.
+expose(Department, site_field='site')
 # The wizards of employee_wizard.json and employee_edit.json.
 expose(NewHire)
 # The order page of the pipeline (shop_orders.json).

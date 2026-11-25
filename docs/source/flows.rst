@@ -708,6 +708,37 @@ an SVG on the server, without JavaScript. With an instance --
 ``{% flow_diagram flow object %}`` -- the activities under way, done and
 failed are coloured (``data-status="active|completed|error"`` on each node).
 
+``flow.instance_diagram(obj, user)`` is the diagram of one instance, what the
+detail page shows:
+
+* the current activity (``data-status="active"``) and those already done;
+* the transitions the instance took, from its ``FlowTransitionLog``
+  (``class="gt-flow-edge taken"``; a loop on one state only with its own
+  transition name, so a claim or a change of variables does not light it up);
+  ``runtime()`` returns them as ``taken`` (``[source, target, name]``, oldest
+  first) and the states visited as ``path``;
+* the transitions ``user`` may run now (``available_transitions``: its
+  permissions and the conditions; automatic ones never), drawn dashed in the
+  primary colour with ``data-transition="<name>"`` on their edge;
+* in words, for a screen reader: the SVG is ``role="img"`` with a
+  ``<title>`` (the flow and its current state) and a ``<desc>`` (the way
+  taken, what failed and what the user can run), and every node carries a
+  ``<title>`` with its status.
+
+In a template:
+
+.. code:: html+django
+
+    {% load gtflows %}
+    {% flow_diagram object %}                          {# the flow of its instance #}
+    {% flow_diagram object flow='news.ArticleReviewFlow' %}
+    {% flow_diagram 'news.ArticleReviewFlow' object %}  {# as before #}
+    {% flow_diagram 'news.ArticleReviewFlow' %}         {# the bare flow #}
+
+``{% flow_diagram object %}`` finds the flow of the object's most recent
+instance or, without one, the only flow over its model; it draws nothing when
+there is none or more than one could be meant.
+
 Signals
 -------
 

@@ -1,0 +1,49 @@
+{% extends 'gentelella/base.html' %}
+{% load i18n %}
+{% block title %}{% trans 'Feedback' %}{% endblock %}
+{% block content %}
+<div class="x_panel gt-feedback-inbox">
+  <div class="x_title"><h2>{% trans 'Feedback' %}</h2><div class="clearfix"></div></div>
+  <div class="x_content">
+    <form method="get" class="row g-2 mb-3">
+      <div class="col-auto">
+        <select name="status" class="form-select" aria-label="{% trans 'Status' %}">
+          <option value="">{% trans 'Any status' %}</option>
+          {% for value, label in statuses %}<option value="{{ value }}"{% if value == status %} selected{% endif %}>{{ label }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-auto">
+        <select name="kind" class="form-select" aria-label="{% trans 'Type' %}">
+          <option value="">{% trans 'Any type' %}</option>
+          {% for value, label in kinds %}<option value="{{ value }}"{% if value == kind %} selected{% endif %}>{{ label }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-auto"><button class="btn btn-secondary">{% trans 'Filter' %}</button></div>
+    </form>
+    <table class="table table-sm table-striped">
+      <thead><tr><th>{% trans 'Date' %}</th><th>{% trans 'Type' %}</th><th>{% trans 'Comment' %}</th><th>{% trans 'User' %}</th><th>{% trans 'Page' %}</th><th>{% trans 'Status' %}</th></tr></thead>
+      <tbody>
+      {% for item in page %}
+        <tr class="gt-feedback-row" data-feedback="{{ item.pk }}">
+          <td>{{ item.created_at|date:'SHORT_DATETIME_FORMAT' }}</td>
+          <td>{{ item.get_kind_display }}</td>
+          <td><a href="{% url 'gt_feedback_detail' item.pk %}">{{ item.text|truncatechars:80 }}</a></td>
+          <td>{{ item.user|default:'' }}</td>
+          <td>{% if item.url %}<code>{{ item.url }}</code>{% endif %}</td>
+          <td><span class="badge {% if item.status == 'new' %}bg-primary{% elif item.status == 'answered' %}bg-success{% else %}bg-secondary{% endif %}">{{ item.get_status_display }}</span></td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="6" class="text-muted">{% trans 'No feedback.' %}</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% if page.has_other_pages %}
+    <nav><ul class="pagination">
+      {% if page.has_previous %}<li class="page-item"><a class="page-link" href="?status={{ status }}&amp;kind={{ kind }}&amp;page={{ page.previous_page_number }}">&laquo;</a></li>{% endif %}
+      <li class="page-item active"><span class="page-link">{{ page.number }} / {{ page.paginator.num_pages }}</span></li>
+      {% if page.has_next %}<li class="page-item"><a class="page-link" href="?status={{ status }}&amp;kind={{ kind }}&amp;page={{ page.next_page_number }}">&raquo;</a></li>{% endif %}
+    </ul></nav>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

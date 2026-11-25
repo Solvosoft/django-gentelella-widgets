@@ -1,0 +1,36 @@
+{% load i18n static gtsettings %}{% if enabled %}
+{# A narrow tab on the right edge, half way down: over the page's right    #}
+{# margin, not the top bar, and under dropdowns, popovers and modals.      #}
+<style>.gt-feedback-button{position:fixed;right:0;top:50%;z-index:990;writing-mode:vertical-rl;transform:translateY(-50%);border-radius:var(--bs-border-radius) 0 0 var(--bs-border-radius);padding:.5rem .2rem;font-size:12px;line-height:1}</style>
+<button type="button" class="btn btn-primary btn-sm gt-feedback-button d-print-none" data-bs-toggle="modal" data-bs-target="#gt-feedback-modal" title="{% trans 'Send feedback' %}"><i class="fa fa-comment" aria-hidden="true"></i> <span>{% trans 'Feedback' %}</span></button>
+<div class="modal fade" id="gt-feedback-modal" tabindex="-1" aria-labelledby="gt-feedback-title" aria-hidden="true">
+  <div class="modal-dialog">
+    <form class="modal-content gt-feedback-form" method="post" action="{{ url }}">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ next }}">
+      <div class="modal-header">
+        <h5 class="modal-title" id="gt-feedback-title">{% trans 'Send feedback' %}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert d-none gt-feedback-result" role="status"></div>
+        {{ form.as_plain }}
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="gt-feedback-with-page" checked>
+          <label class="form-check-label" for="gt-feedback-with-page">{% trans 'Include the address of this page' %}</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="gt-feedback-with-browser" checked>
+          <label class="form-check-label" for="gt-feedback-with-browser">{% trans 'Include my browser and screen size' %}</label>
+        </div>
+        <p class="text-muted small mt-2 mb-0">{% trans 'What you type in the forms of this page is never sent.' %}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans 'Cancel' %}</button>
+        <button type="submit" class="btn btn-primary gt-feedback-send">{% trans 'Send' %}</button>
+      </div>
+    </form>
+  </div>
+</div>
+<script src="{% static 'gentelella/js/feedback.js' %}?v={% get_version %}"></script>
+{% endif %}

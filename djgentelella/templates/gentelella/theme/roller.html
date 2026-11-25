@@ -1,0 +1,63 @@
+{% extends 'gentelella/base.html' %}
+{% load i18n static gtsettings %}
+{% block title %}{% trans 'Theme' %}{% endblock %}
+{% block extra_css %}
+<link id="gt-theme-preview-css" rel="stylesheet" href="{{ preview_url }}?{% for field in form %}{% if field.name != 'logo' and field.name != 'clear_logo' %}{{ field.name }}={{ field.value|default_if_none:''|urlencode }}&amp;{% endif %}{% endfor %}">
+{% endblock %}
+{% block content %}
+<div class="x_panel gt-theme-roller">
+  <div class="x_title">
+    <h2>{% trans 'Theme' %} <small>{% if site %}{{ site }}{% else %}{% trans 'Global theme' %}{% endif %}</small></h2>
+    <div class="clearfix"></div>
+  </div>
+  <div class="x_content">
+    <form method="get" class="row g-2 align-items-center mb-3">
+      <div class="col-auto"><label for="gt-theme-site" class="col-form-label">{% trans 'Site' %}</label></div>
+      <div class="col-auto">
+        <select id="gt-theme-site" name="site" class="form-select" onchange="this.form.submit()">
+          <option value="global"{% if scope == 'global' %} selected{% endif %}>{% trans 'Global theme' %}</option>
+          {% for item in sites %}<option value="{{ item.pk }}"{% if scope == item.pk|stringformat:'s' %} selected{% endif %}>{{ item.domain }} ({{ item.name }})</option>{% endfor %}
+        </select>
+      </div>
+      <noscript><div class="col-auto"><button class="btn btn-secondary">{% trans 'Choose' %}</button></div></noscript>
+    </form>
+    <div class="row">
+      <div class="col-lg-6">
+        <form method="post" enctype="multipart/form-data" id="gt-theme-form" data-preview="{{ preview_url }}">
+          {% csrf_token %}
+          <input type="hidden" name="site" value="{{ scope }}">
+          {{ form }}
+          {% if theme.logo %}<p>{% trans 'Current logo' %}: <img src="{% url 'gt_theme_logo' theme.pk %}?v={{ theme.version }}" alt="" class="gt-theme-logo-current" style="max-height:40px"></p>{% endif %}
+          <button type="submit" class="btn btn-primary" id="gt-theme-save">{% trans 'Save' %}</button>
+          {% if theme %}<button type="submit" name="reset" value="1" class="btn btn-outline-danger" formnovalidate>{% trans 'Remove theme' %}</button>{% endif %}
+        </form>
+      </div>
+      <div class="col-lg-6">
+        <h5>{% trans 'Preview' %}</h5>
+        <p class="text-muted small">{% trans 'The whole page shows the values being edited; nothing is saved until you press Save.' %}</p>
+        <div id="gt-theme-preview" class="border rounded p-3">
+          <p>
+            <button type="button" class="btn btn-primary" id="gt-theme-sample-primary">{% trans 'Primary' %}</button>
+            <button type="button" class="btn btn-secondary">{% trans 'Secondary' %}</button>
+            <button type="button" class="btn btn-success">{% trans 'Success' %}</button>
+            <button type="button" class="btn btn-danger">{% trans 'Danger' %}</button>
+          </p>
+          <p>
+            <button type="button" class="btn btn-outline-primary btn-sm">{% trans 'Primary' %}</button>
+            <span class="badge bg-primary">{% trans 'Badge' %}</span>
+            <a href="#gt-theme-preview">{% trans 'A link' %}</a>
+          </p>
+          <div class="alert alert-success py-2">{% trans 'A success message.' %}</div>
+          <div class="alert alert-danger py-2">{% trans 'An error message.' %}</div>
+          <ul class="nav nav-pills mb-2"><li class="nav-item"><span class="nav-link active">{% trans 'Active' %}</span></li><li class="nav-item"><span class="nav-link">{% trans 'Other' %}</span></li></ul>
+          <div class="form-check"><input class="form-check-input" type="checkbox" checked id="gt-theme-sample-check"><label class="form-check-label" for="gt-theme-sample-check">{% trans 'Checked' %}</label></div>
+          <p class="mt-2 mb-0">{% trans 'The sidebar of this page previews its colours.' %}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block js %}
+<script src="{% static 'gentelella/js/theme_roller.js' %}?v={% get_version %}"></script>
+{% endblock %}
