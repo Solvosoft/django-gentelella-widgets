@@ -4361,3 +4361,53 @@ msgstr "Opcional. Nombra el ítem en su Site (o entre los ítems globales) cuand
 #, python-format
 msgid "%s is not a registered menu widget."
 msgstr "%s no es un widget de menú registrado."
+
+#: designs/data_components.py:917
+#, python-format
+msgid "%r is not the id of a facets panel of this page"
+msgstr "%r no es el id de un panel de facetas de esta página"
+
+#: designs/data_components.py:932
+#, python-format
+msgid ""
+"facets panel %(panel)r does not filter data source %(source)r, the one of "
+"the chart"
+msgstr ""
+"el panel de facetas %(panel)r no filtra la fuente de datos %(source)r, la "
+"del gráfico"
+
+#: designs/data_components.py:937
+#, python-format
+msgid ""
+"facets panel %r filters the rows of one parent (an inline table): a chart "
+"cannot follow it"
+msgstr ""
+"el panel de facetas %r filtra las filas de un padre (una tabla en línea): "
+"un gráfico no puede seguirlo"
+
+#: designs/data_components.py:945
+#, python-format
+msgid ""
+"facets panel %(panel)r does not filter rows of %(model)s, the model of the "
+"chart"
+msgstr ""
+"el panel de facetas %(panel)r no filtra filas de %(model)s, el modelo del "
+"gráfico"
+
+#: designs/data_components.py:953
+#, python-format
+msgid "facet %r is not a column the chart can filter"
+msgstr "la faceta %r no es una columna que el gráfico pueda filtrar"
+
+#: designs/factories.py:700
+msgid "this chart follows no facets"
+msgstr "este gráfico no sigue ninguna faceta"
+
+#: designs/factories.py:711
+#, python-format
+msgid "%r is not a facet of this chart"
+msgstr "%r no es una faceta de este gráfico"
+
+#: history/utils.py:22
+msgid "secret read"
+msgstr "secreto leído"
