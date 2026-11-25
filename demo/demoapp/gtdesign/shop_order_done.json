@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "app": "demoapp",
+  "slug": "shop_order_done",
+  "kind": "page",
+  "meta": {
+    "title": "Order received",
+    "url": "shop-orders/done/",
+    "url_name": "designs_shop_order_done"
+  },
+  "root": {
+    "type": "page",
+    "id": "page",
+    "children": [
+      {
+        "type": "row",
+        "id": "thanks_row",
+        "children": [
+          {
+            "type": "col",
+            "id": "thanks_col",
+            "props": {"width": 12},
+            "children": [
+              {
+                "type": "html",
+                "id": "thanks",
+                "props": {
+                  "html": "<div class=\"x_panel\"><div class=\"x_title\"><h2 id=\"order-done\">Order received</h2><div class=\"clearfix\"></div></div><div class=\"x_content\"><p class=\"lead\">The pipeline of the order form checked the stock, computed the total and took the stock, all in the transaction of the save, and its branch brought you here.</p><p><a href=\"/designs/shop-orders/\">Back to the orders</a></p></div></div>"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "row",
+        "id": "stock_row",
+        "children": [
+          {
+            "type": "col",
+            "id": "stock_col",
+            "props": {"width": 12},
+            "children": [
+              {
+                "type": "crud_classic",
+                "id": "stock",
+                "props": {
+                  "model": "demoapp.ShopItem",
+                  "title": "Stock left",
+                  "list_fields": ["name", "price", "stock"],
+                  "views": ["list"]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

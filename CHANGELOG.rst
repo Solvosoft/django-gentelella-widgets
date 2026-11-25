@@ -443,6 +443,27 @@ the previous day, week, month, quarter or year, coloured by
 them at ``/designs/insights/`` (new model ``demoapp.Department``). See
 "Tree, timeline and metrics" in ``docs/source/designs.rst``.
 
+**Page pipeline.** A design page declares what happens before it is drawn
+and when one of its forms is sent (``djgentelella.designs.pipeline``): steps
+registered in Python by name (``register_process(name, fn, kind=...)`` or
+``@process``) of three kinds -- ``validation`` (errors per field or general;
+nothing is saved), ``computation`` (values set before the save: fields of the
+form, or others the step declares in ``writes``, never the version of
+optimistic locking) and ``process`` (in the transaction of the save; an error
+rolls all of it back, is shown and is logged without the data) -- and
+``branches`` that say where to go (``page:``, ``flow:``, a URL name or a
+local path, by condition). The props are ``pipeline.on_submit`` of
+``object_management``, ``inline_object_management`` and ``crud_classic``,
+and ``pipeline.before_render`` of the page, which can add context, refuse
+the page (403) or redirect. Unregistered steps, params that do not fit the
+step's schema, bad ``writes`` and a ``before_render`` that loops back to its
+page are errors of the document when it is published. ``run_pipeline()``
+is public for other senders (a wizard, a view); ``ResolveContext.
+pipeline_step()`` is the hook for the steps a design names. The demo order
+page (``/designs/shop-orders/``, new models ``demoapp.ShopItem`` and
+``ShopOrder``) checks the stock, computes the total, takes the stock and goes
+to another page. See ``docs/source/pipeline.rst``.
+
 Backwards incompatible
 """"""""""""""""""""""""
 

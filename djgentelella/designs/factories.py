@@ -32,7 +32,7 @@ from decimal import Decimal
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import models
 from django.db.models import Q
-from django.http import Http404
+from django.http import Http404, HttpResponseRedirect
 from django.urls import reverse
 from django.utils.html import escape
 from django.utils.text import capfirst
@@ -54,7 +54,7 @@ from djgentelella import chartjs
 from djgentelella.cruds.base import CRUDMixin, CRUDView
 from djgentelella.datasources import query
 from djgentelella.datasources.base import ModelDataSource, api_error, get_datasource
-from djgentelella.designs import notifications
+from djgentelella.designs import notifications, pipeline
 from djgentelella.designs.builds import TABLE_ACTIONS
 from djgentelella.designs.conditions import (
     condition_object, denied, hidden_columns, row_conditions, row_denied,
@@ -570,13 +570,52 @@ class ManagementMixin:
             notifications.notify(build.notify, event, instance, self.request.user,
                                  link=parent_link(self.request))
 
+    #: Where the ``on_submit`` pipeline's branch goes after a save: the
+    #: response carries it as ``gtdesign_redirect``.
+    gtdesign_redirect = None
+
+    def gtdesign_run_pipeline(self, serializer, save):
+        """``save()`` through the ``on_submit`` pipeline of the build
+        (:mod:`djgentelella.designs.pipeline`): its validations and
+        computations first, then the save and its processes in one
+        transaction. Its errors are a 400; its branch, the
+        ``gtdesign_redirect`` of the response. Runs after the permissions,
+        the conditions and the version (C9) were checked."""
+        build = self.gtdesign_build
+        if not build.pipeline:
+            save()
+            return
+        hidden = () if self.action == 'create' else self.gtdesign_hidden
+        ctx = pipeline.PipelineContext(
+            self.request, node=build.id, form=serializer,
+            data=serializer.validated_data, instance=serializer.instance,
+            model=build.model,
+            fields=[name for name in build.form.field_names if name not in hidden])
+
+        def do_save(ctx):
+            save()
+            return serializer.instance
+
+        result = pipeline.run_pipeline(build.pipeline, ctx, save=do_save)
+        if not result.ok:
+            raise ValidationError(pipeline.serializer_errors(result))
+        self.gtdesign_redirect = result.url
+
     def perform_create(self, serializer):
-        super().perform_create(serializer)
+        self.gtdesign_run_pipeline(
+            serializer, lambda: super(ManagementMixin, self).perform_create(serializer))
         self._notify('create', serializer.instance)
 
     def perform_update(self, serializer):
-        super().perform_update(serializer)
+        self.gtdesign_run_pipeline(
+            serializer, lambda: super(ManagementMixin, self).perform_update(serializer))
         self._notify('update', serializer.instance)
+
+    def finalize_response(self, request, response, *args, **kwargs):
+        if self.gtdesign_redirect and isinstance(getattr(response, 'data', None),
+                                                 dict):
+            response.data['gtdesign_redirect'] = self.gtdesign_redirect
+        return super().finalize_response(request, response, *args, **kwargs)
 
     def perform_destroy(self, instance):
         # Before deleting: the notification still reads the row.
@@ -996,6 +1035,34 @@ class DesignCRUDMixin(CRUDMixin):
 
     def get_success_url(self):
         return self.gtdesign_base()
+
+    def form_valid(self, form):
+        """The save of the create and update pages, through the ``on_submit``
+        pipeline of the build (:mod:`djgentelella.designs.pipeline`): its
+        errors show on the form, nothing saved; its branch is where the page
+        goes after saving."""
+        build = self.gtdesign_build
+        if not build.pipeline:
+            return super().form_valid(form)
+        hidden = self.get_hidden_columns() if self.view_type == 'update' else ()
+        ctx = pipeline.context_for_form(
+            form, self.request, node=build.id,
+            fields=[name for name in form.fields if name not in hidden])
+        responses = []
+
+        def save(ctx):
+            responses.append(super(DesignCRUDMixin, self).form_valid(form))
+            return self.object
+
+        result = pipeline.run_pipeline(build.pipeline, ctx, save=save)
+        if not result.ok:
+            if self.view_type == 'create':
+                self.object = None
+            pipeline.form_errors_to(form, result)
+            return self.form_invalid(form)
+        if result.url:
+            return HttpResponseRedirect(result.url)
+        return responses[0]
 
 
 class DesignCRUDView(CRUDView):

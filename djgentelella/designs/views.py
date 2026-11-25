@@ -3,12 +3,12 @@
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db.models import Q
-from django.http import Http404, JsonResponse
+from django.http import Http404, HttpResponseRedirect, JsonResponse
 from django.urls import Resolver404
 from django.utils.translation import gettext as _
 from django.views.decorators.csrf import csrf_exempt
 
-from djgentelella.designs import conf, engine
+from djgentelella.designs import conf, engine, pipeline
 from djgentelella.designs.models import Page, normalize_path
 from djgentelella.sites import get_current_site, site_q
 
@@ -116,10 +116,22 @@ def design_page(request, path):
     # URLs of their endpoints) and the object it is about.
     request.gtdesign_page = page
     request.gtdesign_parent = parent
+    # The page's before_render pipeline: it may refuse the page, send the
+    # request elsewhere or give the page values.
+    outcome = pipeline.before_render(resolved, request, page=page, parent=parent)
+    if outcome is not None:
+        if not outcome.ok:
+            raise PermissionDenied(' '.join(message for _field, message
+                                            in outcome.errors))
+        if outcome.url:
+            return HttpResponseRedirect(outcome.url)
+        request.gtdesign_pipeline = {**outcome.values, **outcome.context}
     # What mounts the page (GT_DESIGNS_PAGE_CONTEXT): its theme, breadcrumbs...
     extra_context = engine.page_context(request, page)
     extra_context.update({'page': page, 'parent': parent,
                           'is_preview': not page.is_published})
+    if outcome is not None:
+        extra_context['pipeline'] = request.gtdesign_pipeline
     return engine.render(resolved, request, extra_context=extra_context)
 
 

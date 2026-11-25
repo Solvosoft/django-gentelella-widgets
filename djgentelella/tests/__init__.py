@@ -86,3 +86,4 @@ from .TreeTimelineMetrics_Test import *
 from .UniqueTestNames_Test import *
 from .ProposalsW29_Test import *
 from .Wizard_Test import *
+from .PagePipeline_Test import *

@@ -70,6 +70,9 @@ class DataBuild(NodeBuild):
     #: exposure allows, for the filters, facets and aggregates of the
     #: parameter document of :mod:`djgentelella.datasources.query`.
     columns: list = field(default_factory=list)
+    #: The ``on_submit`` :class:`~djgentelella.designs.pipeline.PipelineBuild`
+    #: of a component with a form (``props.pipeline``), or ``None``.
+    pipeline: object = None
 
 
 @dataclass

@@ -19,3 +19,61 @@ msgstr "Vacío"
 #: gtdatasources.py
 msgid "Countries"
 msgstr "Países"
+
+#: demoapp/gtdesigns.py
+msgid "Check the stock"
+msgstr "Revisar el inventario"
+
+#: demoapp/gtdesigns.py
+msgid "Compute the total"
+msgstr "Calcular el total"
+
+#: demoapp/gtdesigns.py
+msgid "Take the stock"
+msgstr "Descontar el inventario"
+
+#: demoapp/gtdesigns.py
+#, python-format
+msgid "Only %(stock)d of %(item)s in stock."
+msgstr "Solo quedan %(stock)d de %(item)s en inventario."
+
+#: demoapp/gtdesigns.py
+#, python-format
+msgid "The stock of %(item)s ran out."
+msgstr "Se agotó el inventario de %(item)s."
+
+#: demoapp/models.py
+msgid "Stock"
+msgstr "Inventario"
+
+#: demoapp/models.py
+msgid "shop item"
+msgstr "artículo de la tienda"
+
+#: demoapp/models.py
+msgid "shop items"
+msgstr "artículos de la tienda"
+
+#: demoapp/models.py
+msgid "Item"
+msgstr "Artículo"
+
+#: demoapp/models.py
+msgid "Quantity"
+msgstr "Cantidad"
+
+#: demoapp/models.py
+msgid "Total"
+msgstr "Total"
+
+#: demoapp/models.py
+msgid "Created"
+msgstr "Creado"
+
+#: demoapp/models.py
+msgid "shop order"
+msgstr "pedido de la tienda"
+
+#: demoapp/models.py
+msgid "shop orders"
+msgstr "pedidos de la tienda"

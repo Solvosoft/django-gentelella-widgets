@@ -42,7 +42,7 @@ from rest_framework.exceptions import APIException
 
 from djgentelella.authorization import evaluate_condition, validate_condition
 from djgentelella.datasources.base import get_datasource
-from djgentelella.designs import conditions, factories, format, source_tables
+from djgentelella.designs import conditions, factories, format, pipeline, source_tables
 from djgentelella.designs.builds import (
     ACTION_PERMISSIONS, AGGREGATES, CHART_TYPES, CRUD_PERMISSIONS, CRUD_VIEWS,
     PERIODS, TABLE_ACTIONS, ChartBuild, CrudBuild, FacetsBuild, ObjectManagementBuild,
@@ -589,6 +589,7 @@ class ObjectManagementComponent(RuntimeComponent):
                                                  'title': 'Shown only when'}},
                 },
             },
+            'pipeline': pipeline.PIPELINE_SCHEMA,
         },
     }
 
@@ -609,7 +610,7 @@ class ObjectManagementComponent(RuntimeComponent):
         """List mode: the rows of ``datasource``, read only."""
         props = node.get('props') or {}
         build = data_build(ObjectManagementBuild, node, rctx)
-        for name in ('model', 'form', 'notify', 'action_conditions'):
+        for name in ('model', 'form', 'notify', 'action_conditions', 'pipeline'):
             if props.get(name):
                 rctx.error(path + '.props.' + name,
                            _('a list over a data source only reads: it has no '
@@ -701,6 +702,9 @@ class ObjectManagementComponent(RuntimeComponent):
         notify = None
         if props.get('notify'):
             notify = resolve_notify(rctx, path, model, props['notify'])
+        on_submit = pipeline.resolve_pipeline(
+            rctx, props, path, event=pipeline.ON_SUBMIT, model=model,
+            exposure=found, form_fields=form.field_names)
         if rctx.has_errors_under(path):
             return build
 
@@ -725,6 +729,7 @@ class ObjectManagementComponent(RuntimeComponent):
         build.column_conditions = column_conditions
         build.action_conditions = action_conditions
         build.optimistic_lock, build.optimistic_lock_required = lock_props(props)
+        build.pipeline = on_submit
         return build
 
     def check_props(self, node, path):
@@ -1242,6 +1247,7 @@ class CrudClassicComponent(RuntimeComponent):
                 'title': 'Refuse to save an object somebody else changed '
                          'after its update page was opened (optimistic locking)'},
             'optimistic_lock_required': OPTIMISTIC_LOCK_REQUIRED_SCHEMA,
+            'pipeline': pipeline.PIPELINE_SCHEMA,
         },
     }
 
@@ -1300,8 +1306,12 @@ class CrudClassicComponent(RuntimeComponent):
         action_conditions = check_conditions(
             rctx, path + '.props.action_conditions', props.get('action_conditions'),
             [view for view in CRUD_VIEWS if view != 'list'], _('page'))
+        on_submit = pipeline.resolve_pipeline(
+            rctx, props, path, event=pipeline.ON_SUBMIT, model=model,
+            exposure=found, form_fields=form.field_names)
         if rctx.has_errors_under(path):
             return build
+        build.pipeline = on_submit
         build.title = props.get('title') or plural(model)
         build.model = model
         build.form = form

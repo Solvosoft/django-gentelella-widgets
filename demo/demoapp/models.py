@@ -771,3 +771,40 @@ class NewHire(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class ShopItem(models.Model):
+    """Something the order page of the pipeline demo sells
+    (``/designs/shop-orders/``): its ``stock`` goes down with each order."""
+
+    name = models.CharField(_('Name'), max_length=150)
+    price = models.DecimalField(_('Price'), max_digits=10, decimal_places=2)
+    stock = models.PositiveIntegerField(_('Stock'), default=0)
+
+    class Meta:
+        ordering = ['name']
+        verbose_name = _('shop item')
+        verbose_name_plural = _('shop items')
+
+    def __str__(self):
+        return self.name
+
+
+class ShopOrder(models.Model):
+    """An order of the pipeline demo: its form has the item and the quantity;
+    the pipeline checks the stock, computes ``total`` and takes the stock."""
+
+    item = models.ForeignKey(ShopItem, on_delete=models.PROTECT,
+                             related_name='orders', verbose_name=_('Item'))
+    quantity = models.PositiveIntegerField(_('Quantity'))
+    total = models.DecimalField(_('Total'), max_digits=12, decimal_places=2,
+                                default=0)
+    created = models.DateTimeField(_('Created'), auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created']
+        verbose_name = _('shop order')
+        verbose_name_plural = _('shop orders')
+
+    def __str__(self):
+        return '%s x %s' % (self.quantity, self.item)
