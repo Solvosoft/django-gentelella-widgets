@@ -1,0 +1,22 @@
+{% load i18n %}<div class="row g-3">{% for card in cards %}
+  <div class="col-12 col-sm-6 col-lg-{{ col }}">
+    <div class="card h-100 gtmetric" data-metric="{{ card.key }}">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start">
+          <div class="text-muted small gtmetric-label">{{ card.label }}{% if current_label %} &middot; {{ current_label }}{% endif %}</div>
+          {% if card.icon %}<i class="{{ card.icon }} fa-lg text-muted" aria-hidden="true"></i>{% endif %}
+        </div>
+        <div class="fs-3 fw-semibold gtmetric-value">{{ card.display }}</div>
+        {% if card.compare %}
+        <div class="small gtmetric-change {% if card.good is True %}text-success{% elif card.good is False %}text-danger{% else %}text-muted{% endif %}" data-trend="{{ card.trend|default:'' }}">
+          {% if card.trend is None %}<span>{% trans 'No data to compare with' %}</span>
+          {% else %}<i class="fa {% if card.trend == 'up' %}fa-arrow-up{% elif card.trend == 'down' %}fa-arrow-down{% else %}fa-arrow-right{% endif %}" aria-hidden="true"></i>
+          <span class="gtmetric-delta">{{ card.delta_display }}</span>{% if card.change_display %} <span class="gtmetric-percent">({{ card.change_display }})</span>{% endif %}
+          <span class="text-muted">{{ compare_label }}</span>
+          <span class="visually-hidden">{% if card.trend == 'up' %}{% trans 'up' %}{% elif card.trend == 'down' %}{% trans 'down' %}{% else %}{% trans 'no change' %}{% endif %}</span>{% endif %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% empty %}<div class="col-12 text-muted small">{% trans 'No metrics to show.' %}</div>{% endfor %}</div>

@@ -1,0 +1,12 @@
+{% load i18n %}
+<div class="x_panel gtdesign-region gtdesign-metrics" data-gtdesign="{{ b.id }}"{% if not preview %} data-gtconfig="{{ b.id }}_gtconfig"{% endif %} id="{{ b.id }}_region">
+  {% if b.title %}<div class="x_title">
+    <h2>{{ b.title }}</h2>
+    <div class="clearfix"></div>
+  </div>{% endif %}
+  <div class="x_content">
+    <div class="gtmetrics-status small text-warning" role="status" aria-live="polite">{% if unavailable %}{% trans 'The metrics could not be computed.' %}{% endif %}</div>
+    <div class="gtmetrics-cards" id="{{ b.id }}_metrics">{{ cards_html }}</div>
+    {% if not preview %}{{ config }}{% endif %}
+  </div>
+</div>
