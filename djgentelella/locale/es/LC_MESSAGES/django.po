@@ -4569,3 +4569,110 @@ msgstr "una lista sobre una fuente de datos solo lee: no tiene permisos %r"
 #: designs/source_tables.py
 msgid "must be a list of filters"
 msgstr "debe ser una lista de filtros"
+
+#: fields/extras.py
+msgid "The minimum cannot be greater than the maximum."
+msgstr "El mínimo no puede ser mayor que el máximo."
+
+#: fields/imagecrop.py
+#, python-format
+msgid "Images in %(format)s are not accepted. Use %(formats)s."
+msgstr "No se aceptan imágenes en %(format)s. Use %(formats)s."
+
+#: fields/imagecrop.py
+#, python-format
+msgid "The image is %(size)s; the limit is %(max)s."
+msgstr "La imagen pesa %(size)s; el límite es %(max)s."
+
+#: views/geocoding.py
+msgid "There is no geocoder configured."
+msgstr "No hay un geocodificador configurado."
+
+#: views/geocoding.py
+msgid "Write an address."
+msgstr "Escriba una dirección."
+
+#: views/geocoding.py
+msgid "The geocoder did not answer."
+msgstr "El geocodificador no respondió."
+
+#: views/markdown.py
+msgid "The text is too long to preview."
+msgstr "El texto es demasiado largo para previsualizarlo."
+
+#: views/markdown.py
+msgid "Markdown is not installed."
+msgstr "Markdown no está instalado."
+
+#: widgets/extras.py
+#, python-format
+msgid "%(value)s of %(stars)s"
+msgstr "%(value)s de %(stars)s"
+
+#: widgets/extras.py
+msgid "Minimum"
+msgstr "Mínimo"
+
+#: widgets/extras.py
+msgid "Maximum"
+msgstr "Máximo"
+
+#: widgets/extras.py
+msgid "Read a QR code with the camera"
+msgstr "Leer un código QR con la cámara"
+
+#: widgets/geocoding.py
+msgid "Find on the map"
+msgstr "Buscar en el mapa"
+
+#: widgets/geocoding.py
+msgid "No places found"
+msgstr "No se encontraron lugares"
+
+#: widgets/imagecrop.py
+msgid "Apply crop"
+msgstr "Aplicar recorte"
+
+#: widgets/imagecrop.py
+msgid "Rotate"
+msgstr "Rotar"
+
+#: widgets/imagecrop.py
+msgid "Reset"
+msgstr "Restablecer"
+
+#: widgets/imagecrop.py
+msgid "Current image"
+msgstr "Imagen actual"
+
+#: widgets/imagecrop.py
+msgid "New image"
+msgstr "Imagen nueva"
+
+#: widgets/lov.py
+msgid "Select an element"
+msgstr "Seleccione un elemento"
+
+#: widgets/markdown.py
+msgid "Write"
+msgstr "Escribir"
+
+#: widgets/markdown.py
+msgid "Bold"
+msgstr "Negrita"
+
+#: widgets/markdown.py
+msgid "Italic"
+msgstr "Cursiva"
+
+#: widgets/markdown.py
+msgid "Heading"
+msgstr "Título"
+
+#: widgets/markdown.py
+msgid "Numbered list"
+msgstr "Lista numerada"
+
+#: widgets/markdown.py
+msgid "Quote"
+msgstr "Cita"

@@ -1,0 +1,15 @@
+{# GeocodedAddressInput: the button and the list exist only with a geocoder. #}
+<div class="gt-geocoded-address" id="{{ widget.attrs.id }}_geocoded">
+    {% if geocoder %}<div class="input-group">{% endif %}
+    {% include "gentelella/widgets/input.html" %}
+    {% if geocoder %}
+        <button class="btn btn-outline-secondary gt-geocode-search" type="button"
+                id="{{ widget.attrs.id }}_geocode" title="{{ texts.search }}"{% if widget.attrs.disabled or widget.attrs.readonly %} disabled{% endif %}>
+            <i class="fa fa-map-marker" aria-hidden="true"></i>
+            <span class="visually-hidden">{{ texts.search }}</span>
+        </button>
+    </div>
+    <div class="list-group gt-geocode-results d-none mt-1" id="{{ widget.attrs.id }}_places"
+         data-empty="{{ texts.empty }}"></div>
+    {% endif %}
+</div>

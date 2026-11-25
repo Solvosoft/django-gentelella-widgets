@@ -1,0 +1,31 @@
+{# ImageCropInput: a normal file input. base.js loads Cropper.js on the first #}
+{# file chosen and swaps the file of the input for the cropped one.           #}
+<div class="gt-image-crop" id="{{ widget.attrs.id }}_crop">
+    {% if widget.is_initial %}
+    <div class="gt-image-crop-current mb-1">
+        <a href="{{ widget.value.url }}" target="_blank" rel="noopener">
+            <img src="{{ widget.value.url }}" alt="{{ texts.current }}" class="img-thumbnail gt-image-crop-thumb"></a>
+        {% if not widget.required %}
+        <div class="form-check form-check-inline ms-2">
+            <input type="checkbox" class="form-check-input" name="{{ widget.checkbox_name }}" id="{{ widget.checkbox_id }}"{% if widget.attrs.disabled %} disabled{% endif %}>
+            <label class="form-check-label" for="{{ widget.checkbox_id }}">{{ widget.clear_checkbox_label }}</label>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+    <input type="{{ widget.type }}" name="{{ widget.name }}"{% include "gentelella/widgets/attrs.html" %}>
+    <div class="gt-image-crop-editor d-none mt-2">
+        <div class="gt-image-crop-stage"><img alt="" class="gt-image-crop-source"></div>
+        <div class="btn-group btn-group-sm mt-1" role="group">
+            <button type="button" class="btn btn-primary gt-image-crop-apply">{{ texts.apply }}</button>
+            <button type="button" class="btn btn-outline-secondary gt-image-crop-rotate" title="{{ texts.rotate }}">
+                <i class="fa fa-repeat" aria-hidden="true"></i><span class="visually-hidden">{{ texts.rotate }}</span></button>
+            <button type="button" class="btn btn-outline-secondary gt-image-crop-reset" title="{{ texts.reset }}">
+                <i class="fa fa-undo" aria-hidden="true"></i><span class="visually-hidden">{{ texts.reset }}</span></button>
+            <button type="button" class="btn btn-outline-secondary gt-image-crop-cancel">{{ texts.cancel }}</button>
+        </div>
+    </div>
+    <div class="gt-image-crop-result d-none mt-1">
+        <img alt="{{ texts.new }}" class="img-thumbnail gt-image-crop-thumb gt-image-crop-preview">
+    </div>
+</div>

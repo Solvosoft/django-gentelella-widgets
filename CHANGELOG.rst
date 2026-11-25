@@ -408,6 +408,26 @@ has ``mouse_click(driver, element)``, a Selenium click after scrolling the
 element to the centre without Bootstrap's smooth scrolling, also a method of
 the demo's ``SeleniumTestCase``. See ``docs/source/demo.rst``.
 
+**Form widgets of the catalog.** ``StarRatingInput`` (with ``RatingField``),
+``SwitchInput`` (Bootstrap's ``form-switch``), ``RangeInput`` (with its value
+beside it) and ``RangePairField``/``RangePairInput`` (a minimum and a maximum),
+``ComboboxInput`` (select2 with ``tags``: a value of a list or a new one, as
+text) and ``QRCodeInput`` (the value drawn as a QR code, ``scan=True`` reads
+one with the camera; ``{% qrcode value %}`` in ``gtqrcode``) in
+``djgentelella.widgets.extras``; ``LOVPopupSelect`` (a LOV searched in a modal,
+page by page); ``MarkdownInput`` with a server preview
+(``gtapis/markdown/preview/``) and the ``markdown`` filter (``gtmarkdown``),
+both through ``djgentelella.markdown.render_markdown``, which cleans the HTML
+with nh3 (the ``[markdown]`` extra); ``ImageCropInput`` (Cropper.js in the
+browser) with ``ImageCropField``, which checks image, format and size on the
+server (``GT_IMAGE_MAX_SIZE``); and ``GeocodedAddressInput``, an address that
+fills a ``GTPointField`` through ``gtapis/geocode/`` and a geocoder of
+``GT_GEOCODER`` (``djgentelella.geocoding``, off by default). ``widgetmap``
+offers them at the end of the lists of their kinds, so no default changes.
+Cropper.js 1.6.2, qrcode-generator 1.4.4 and jsQR 1.4.0 come with
+``loaddevstatic`` and are loaded by the widget that needs them, never bundled.
+Demo at ``/formwidgets/``; see ``docs/source/widgets/formwidgets.rst``.
+
 Backwards incompatible
 """"""""""""""""""""""""
 

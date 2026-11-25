@@ -1,0 +1,17 @@
+{# QRCodeInput: the text input keeps the value; the code is drawn on the canvas #}
+{# below by base.js, from the value, whenever it changes.                      #}
+<div class="gt-qrcode-input" id="{{ widget.attrs.id }}_qrwidget">
+    {% if scan %}<div class="input-group">{% endif %}
+    {% include "gentelella/widgets/input.html" %}
+    {% if scan %}
+        <button class="btn btn-outline-secondary gt-qrcode-scan d-none" type="button"
+                id="{{ widget.attrs.id }}_scan" title="{{ scan_title }}">
+            <i class="fa fa-camera" aria-hidden="true"></i>
+            <span class="visually-hidden">{{ scan_title }}</span>
+        </button>
+    </div>
+    <video class="gt-qrcode-video d-none mt-1" id="{{ widget.attrs.id }}_video" playsinline muted></video>
+    {% endif %}
+    <canvas class="gt-qrcode mt-1" id="{{ widget.attrs.id }}_qr" role="img" aria-label="QR"></canvas>
+    <small class="text-muted d-block" id="{{ widget.attrs.id }}_qrstatus"></small>
+</div>

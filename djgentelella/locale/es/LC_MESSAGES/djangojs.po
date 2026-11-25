@@ -820,3 +820,40 @@ msgstr ""
 #: static/gentelella/js/designs/regions.js:223
 msgid "The points could not be loaded."
 msgstr "No se pudieron cargar los puntos."
+
+#: static/gentelella/js/base/formwidgets.js
+msgid "Select or write a value"
+msgstr "Seleccione o escriba un valor"
+
+#: static/gentelella/js/base/formwidgets.js
+msgid "The text is too long for a QR code."
+msgstr "El texto es demasiado largo para un código QR."
+
+#: static/gentelella/js/base/formwidgets.js
+msgid "The camera could not be opened."
+msgstr "No se pudo abrir la cámara."
+
+#: static/gentelella/js/base/lovpopup.js
+#, javascript-format
+msgid "Page %s"
+msgstr "Página %s"
+
+#: static/gentelella/js/base/lovpopup.js
+msgid "The list could not be loaded."
+msgstr "No se pudo cargar la lista."
+
+#: static/gentelella/js/base/markdowninput.js
+msgid "bold text"
+msgstr "texto en negrita"
+
+#: static/gentelella/js/base/markdowninput.js
+msgid "italic text"
+msgstr "texto en cursiva"
+
+#: static/gentelella/js/base/markdowninput.js
+msgid "link text"
+msgstr "texto del enlace"
+
+#: static/gentelella/js/base/markdowninput.js
+msgid "Loading..."
+msgstr "Cargando..."

@@ -25,3 +25,4 @@ This section covers specialized widgets that provide enhanced functionality beyo
 .. include:: calendar.rst
 .. include:: storyline.rst
 .. include:: firmador_digital.rst
+.. include:: formwidgets.rst

@@ -1,0 +1,29 @@
+/* The form widgets of the catalog: StarRatingInput, RangeInput,
+   QRCodeInput, MarkdownInput, ImageCropInput, LOVPopupSelect and
+   GeocodedAddressInput. */
+.gt-rating-stars { display: inline-flex; align-items: center; gap: .1rem; }
+.gt-rating-star {
+    border: 0; background: none; padding: 0 .1rem; line-height: 1;
+    font-size: 1.5rem; color: #adb5bd; cursor: pointer;
+}
+.gt-rating-star.gt-rating-on { color: #f0ad4e; }
+.gt-rating-star:focus-visible { outline: 2px solid #0d6efd; outline-offset: 2px; }
+.gt-rating-readonly .gt-rating-star { cursor: default; }
+.gt-rating-star:disabled { opacity: 1; }
+
+.gt-range .form-range { flex: 1 1 auto; }
+.gt-range-value { min-width: 3rem; }
+
+.gt-qrcode { display: block; max-width: 100%; image-rendering: pixelated; }
+.gt-qrcode[width="0"] { display: none; }
+.gt-qrcode-video { width: 100%; max-width: 320px; }
+
+.gt-markdown .gt-markdown-preview { min-height: 6rem; overflow-wrap: anywhere; }
+.gt-markdown .gt-markdown-preview img { max-width: 100%; }
+
+.gt-image-crop-stage { max-width: 100%; max-height: 420px; }
+.gt-image-crop-stage img { display: block; max-width: 100%; }
+.gt-image-crop-thumb { max-height: 120px; }
+
+.gt-lov-popup-results { max-height: 50vh; overflow-y: auto; }
+.gt-geocode-results { max-height: 240px; overflow-y: auto; }

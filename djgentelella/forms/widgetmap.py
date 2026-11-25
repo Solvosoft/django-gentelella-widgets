@@ -87,6 +87,17 @@ WIDGETS = {
     'TreeSelectMultiple': 'djgentelella.widgets.trees.TreeSelectMultiple',
     'FileChunkedUpload': 'djgentelella.widgets.files.FileChunkedUpload',
     'PDFViewerWidget': 'djgentelella.widgets.pdf.PDFViewerWidget',
+    # The form widgets of the catalog (2.1). Each one is built without
+    # arguments here; ComboboxInput has no list then (free text with select2)
+    # and GeocodedAddressInput no point field (it only searches).
+    'StarRatingInput': 'djgentelella.widgets.extras.StarRatingInput',
+    'SwitchInput': 'djgentelella.widgets.extras.SwitchInput',
+    'RangeInput': 'djgentelella.widgets.extras.RangeInput',
+    'ComboboxInput': 'djgentelella.widgets.extras.ComboboxInput',
+    'QRCodeInput': 'djgentelella.widgets.extras.QRCodeInput',
+    'MarkdownInput': 'djgentelella.widgets.markdown.MarkdownInput',
+    'ImageCropInput': 'djgentelella.widgets.imagecrop.ImageCropInput',
+    'GeocodedAddressInput': 'djgentelella.widgets.geocoding.GeocodedAddressInput',
 }
 #: Built with the basename of a select2 lookup (``gtselects.py``):
 #: ``AutocompleteSelect('<basename>')``. Never a default, there is no lookup
@@ -103,18 +114,20 @@ TREE_FORM_FIELDS = {
 #: the base64 content.
 UPLOAD_WIDGETS = frozenset({'FileChunkedUpload', 'PDFViewerWidget'})
 
-#: Widgets offered for each kind of field. The first usable one is the default.
+#: Widgets offered for each kind of field. The first usable one is the default;
+#: new widgets go at the end of their lists, so no default changes.
 WIDGETS_BY_KIND = {
     'string': ['TextInput', 'Textarea', 'TaggingInput', 'PhoneNumberMaskInput',
-               'ColorInput'],
+               'ColorInput', 'ComboboxInput', 'QRCodeInput', 'GeocodedAddressInput'],
     'slug': ['TextInput'],
     'email': ['EmailInput', 'EmailMaskInput', 'TextInput'],
-    'url': ['URLInput', 'TextInput'],
-    'text': ['Textarea', 'EditorTinymce', 'TextareaWysiwyg', 'TextInput'],
-    'integer': ['NumberInput'],
-    'decimal': ['FloatInput', 'NumberInput'],
-    'float': ['FloatInput', 'NumberInput'],
-    'boolean': ['YesNoInput', 'CheckboxInput'],
+    'url': ['URLInput', 'TextInput', 'QRCodeInput'],
+    'text': ['Textarea', 'EditorTinymce', 'TextareaWysiwyg', 'TextInput',
+             'MarkdownInput'],
+    'integer': ['NumberInput', 'StarRatingInput', 'RangeInput'],
+    'decimal': ['FloatInput', 'NumberInput', 'RangeInput'],
+    'float': ['FloatInput', 'NumberInput', 'RangeInput'],
+    'boolean': ['YesNoInput', 'CheckboxInput', 'SwitchInput'],
     # A checkbox cannot say "unknown": null=True needs the three choices.
     'nullboolean': ['NullBooleanSelect'],
     'date': ['DateInput', 'DateMaskInput'],
@@ -128,7 +141,7 @@ WIDGETS_BY_KIND = {
     # Clearable first, as in Django: an edit form shows the current file and
     # can empty an optional one.
     'file': ['ClearableFileInput', 'FileInput', 'FileChunkedUpload', 'PDFViewerWidget'],
-    'image': ['ClearableFileInput', 'FileInput', 'FileChunkedUpload'],
+    'image': ['ClearableFileInput', 'FileInput', 'FileChunkedUpload', 'ImageCropInput'],
     # The form field is a ChoiceField of the files found under ``path``.
     'filepath': ['Select'],
     'point': ['MapPointInput', 'TextInput'],

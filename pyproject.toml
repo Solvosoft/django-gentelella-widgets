@@ -177,6 +177,12 @@ asr-remote = [
 designs = [
     "nh3>=0.2.15"
 ]
+# MarkdownInput and {{ text|markdown }}: Python-Markdown converts, nh3 cleans
+# (the allow list of djgentelella.designs.sanitize). Imported on use only.
+markdown = [
+    "Markdown>=3.5",
+    "nh3>=0.2.15"
+]
 # Exports of djgentelella.datasources. Without them the csv and json formats
 # still work; xlsx needs openpyxl and pdf needs xhtml2pdf.
 export = [

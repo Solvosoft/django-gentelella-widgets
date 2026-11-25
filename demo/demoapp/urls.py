@@ -36,6 +36,7 @@ from .storyLine.views import storyline_view
 from .storymap.views import gigapixel_view, mapbased_view
 from .tagging import views as tagging
 from .maps.views import map_dashboard_view, map_point_view
+from .formwidgets.views import form_widgets_view
 from .timeline.views import timeline_view
 from .views import (
     knobView,
@@ -237,6 +238,8 @@ urlpatterns = (
             'filteredselect/', filtered_select_view, name='filteredselect'
         ),
         path('maps/dashboard', map_dashboard_view, name='map-dashboard'),
+        path('formwidgets/', form_widgets_view, name='formwidgets'),
+        path('formwidgets/<int:pk>/', form_widgets_view, name='formwidgets-edit'),
         path('datatable_view', datatableViewExample, name='datatable_view'),
         # CardTable
         path('cardlist_view', cardListViewExample, name='cardlist_view'),

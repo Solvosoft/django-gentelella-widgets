@@ -1,0 +1,44 @@
+{# LOVPopupSelect: the hidden select holds the value; the modal searches the #}
+{# LOV (gtapis/lov/<name>/) page by page. Rows are built with textContent.   #}
+<div class="gt-lov-popup" id="{{ widget.attrs.id }}_lovpopup">
+    {% include "gentelella/widgets/select.html" %}
+    <div class="input-group">
+        <input type="text" class="form-control gt-lov-popup-label" readonly
+               id="{{ widget.attrs.id }}_label" value="{{ selected_label }}"
+               placeholder="{{ texts.title }}"{% if widget.attrs.disabled %} disabled{% endif %}>
+        <button class="btn btn-outline-secondary gt-lov-popup-open" type="button"
+                id="{{ widget.attrs.id }}_open" title="{{ texts.search }}"{% if widget.attrs.disabled %} disabled{% endif %}>
+            <i class="fa fa-search" aria-hidden="true"></i>
+            <span class="visually-hidden">{{ texts.search }}</span>
+        </button>
+        <button class="btn btn-outline-secondary gt-lov-popup-clear" type="button"
+                id="{{ widget.attrs.id }}_clear" title="{{ texts.clear }}"{% if widget.attrs.disabled %} disabled{% endif %}>
+            <i class="fa fa-times" aria-hidden="true"></i>
+            <span class="visually-hidden">{{ texts.clear }}</span>
+        </button>
+    </div>
+    <div class="modal fade gt-lov-popup-modal" id="{{ widget.attrs.id }}_modal" tabindex="-1"
+         aria-labelledby="{{ widget.attrs.id }}_modaltitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="{{ widget.attrs.id }}_modaltitle">{{ texts.title }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ texts.close }}"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="search" class="form-control mb-2 gt-lov-popup-search" autocomplete="off"
+                           id="{{ widget.attrs.id }}_search" placeholder="{{ texts.search }}" aria-label="{{ texts.search }}">
+                    <div class="list-group gt-lov-popup-results" id="{{ widget.attrs.id }}_results"></div>
+                    <p class="text-muted gt-lov-popup-empty d-none mt-2">{{ texts.empty }}</p>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-outline-secondary gt-lov-popup-prev" disabled>
+                        <i class="fa fa-chevron-left" aria-hidden="true"></i> {{ texts.previous }}</button>
+                    <span class="gt-lov-popup-page text-muted"></span>
+                    <button type="button" class="btn btn-outline-secondary gt-lov-popup-next" disabled>
+                        {{ texts.next }} <i class="fa fa-chevron-right" aria-hidden="true"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
