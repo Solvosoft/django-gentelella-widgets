@@ -692,3 +692,29 @@ class Meetup(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class WidgetShowcase(models.Model):
+    """The form widgets of the catalog (/formwidgets/): one field per widget.
+
+    ``product`` holds a code of the ``demo_products`` LOV (demoapp/gtlovs.py),
+    ``budget_min``/``budget_max`` the pair of the range pair field.
+    """
+
+    name = models.CharField(_('Name'), max_length=150)
+    rating = models.PositiveSmallIntegerField(_('Rating'), default=0)
+    active = models.BooleanField(_('Active'), default=True)
+    volume = models.IntegerField(_('Volume'), default=50)
+    budget_min = models.IntegerField(_('Minimum budget'), null=True, blank=True)
+    budget_max = models.IntegerField(_('Maximum budget'), null=True, blank=True)
+    category = models.CharField(_('Category'), max_length=60, blank=True)
+    product = models.CharField(_('Product'), max_length=20, blank=True)
+    description = models.TextField(_('Description'), blank=True)
+    photo = models.ImageField(_('Photo'), upload_to='showcase/', null=True,
+                              blank=True)
+    code = models.CharField(_('Code'), max_length=200, blank=True)
+    address = models.CharField(_('Address'), max_length=250, blank=True)
+    location = GTPointField(blank=True)
+
+    def __str__(self):
+        return self.name

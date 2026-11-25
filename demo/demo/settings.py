@@ -302,3 +302,7 @@ ASYNC_NEWS_BASE_MODELS = {
 # djgentelella.search: the search box in the top bar (off by default). It finds
 # the searchable data sources of demoapp/gtdatasources.py.
 GT_SEARCH_NAVBAR = True
+
+# GeocodedAddressInput (/formwidgets/): djgentelella has no geocoder by default.
+# The demo's answers from a short offline list, so nothing goes to the network.
+GT_GEOCODER = 'demoapp.geocoding.DemoGeocoder'

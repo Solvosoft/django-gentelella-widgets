@@ -1,0 +1,72 @@
+{% extends 'gentelella/base.html' %}
+{% load i18n gtmarkdown gtqrcode %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>{% trans 'Form widgets' %} <small>{% if instance %}{{ instance }}{% else %}{% trans 'new' %}{% endif %}</small></h2>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <form method="post" enctype="multipart/form-data" id="showcase_form">
+                    {% csrf_token %}
+                    {{ form.as_grid }}
+                    <button type="submit" class="btn btn-success">{% trans 'Save' %}</button>
+                    {% if instance %}<a class="btn btn-outline-secondary" href="{% url 'formwidgets' %}">{% trans 'New' %}</a>{% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>{% trans 'Saved' %}</h2>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <table class="table table-striped" id="showcase_table">
+                    <thead>
+                        <tr>
+                            <th>{% trans 'Name' %}</th>
+                            <th>{% trans 'Rating' %}</th>
+                            <th>{% trans 'Active' %}</th>
+                            <th>{% trans 'Volume' %}</th>
+                            <th>{% trans 'Budget' %}</th>
+                            <th>{% trans 'Category' %}</th>
+                            <th>{% trans 'Product' %}</th>
+                            <th>{% trans 'Description' %}</th>
+                            <th>{% trans 'Photo' %}</th>
+                            <th>{% trans 'Code' %}</th>
+                            <th>{% trans 'Address' %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items %}
+                            <tr data-pk="{{ item.pk }}">
+                                <td><a href="{% url 'formwidgets-edit' item.pk %}">{{ item.name }}</a></td>
+                                <td class="gt-rating"><span class="gt-rating-on">{% for i in "12345" %}{% if forloop.counter <= item.rating %}<i class="fa fa-star text-warning"></i>{% else %}<i class="fa fa-star-o text-muted"></i>{% endif %}{% endfor %}</span></td>
+                                <td>{{ item.active|yesno }}</td>
+                                <td>{{ item.volume }}</td>
+                                <td>{{ item.budget_min|default_if_none:'' }}{% if item.budget_max is not None %} – {{ item.budget_max }}{% endif %}</td>
+                                <td>{{ item.category }}</td>
+                                <td>{{ item.product }}</td>
+                                <td class="showcase-description">{{ item.description|markdown }}</td>
+                                <td>{% if item.photo %}<img src="{{ item.photo.url }}" alt="" class="img-thumbnail" style="max-height: 60px">{% endif %}</td>
+                                <td>{% if item.code %}{% qrcode item.code 80 %}{% endif %}</td>
+                                <td>{{ item.address }}<br><small class="text-muted">{{ item.location }}</small></td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="11">{% trans 'Nothing saved yet' %}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

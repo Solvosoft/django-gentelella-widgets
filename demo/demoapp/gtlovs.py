@@ -40,3 +40,13 @@ def provinces(request, country=None, q=''):
 @register_lov('demo_cantons', depends_on=['province'])
 def cantons(request, province=None, q=''):
     return _search(CANTONS.get(province, []), q)
+
+
+#: A list too long for a dropdown: the popup LOV of /formwidgets/.
+PRODUCTS = [('p%03d' % number, 'Producto %03d' % number)
+            for number in range(1, 251)]
+
+
+@register_lov('demo_products', page_size=10)
+def products(request, q=''):
+    return _search(PRODUCTS, q)
