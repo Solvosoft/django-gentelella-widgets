@@ -204,6 +204,15 @@ function showlink(data, type, row, meta){ return data ? '<a href="'+data+'" targ
 function downloadlink(data, type, row, meta){ return data ? '<a href="'+data+'" target="_blank" class="btn btn-xs btn-success"> '+gettext('Download')+' </a>': ''; };
 function objshowlink(data, type, row, meta){ return data ? '<a href="'+data.url+'" target="_blank" class="'+(data.class!=undefined ? data.class : 'link')+'"> '+data.display_name+ '</a>': ''; };
 function objnode(data, type, row, meta){ return data ? '<'+data.tagName+' href="'+data.url+'" '+data.extraattr+' class="'+(data.class!=undefined ? data.class : 'link')+'"> '+data.display_name+ '</'+data.tagName+'>': ''; };
+/* A Markdown column: shows <data>_html of the row, the HTML the server
+   cleaned (GTMarkdownHTMLField); without it, the text escaped. */
+function markdownprint(data, type, row, meta){
+    if (type !== 'display') { return data; }
+    var name = meta && meta.settings ? meta.settings.aoColumns[meta.col].data : null;
+    var html = name && row ? row[name + '_html'] : undefined;
+    if (html !== undefined && html !== null) { return '<div class="gt-markdown">' + html + '</div>'; }
+    return $.fn.dataTable.render.text().display(data);
+};
 function objShowBool(data, type, row, meta){ return data ? '<i class="fa fa-check-circle" title="' + data + '">': '<i class="fa fa-times-circle" title="' +  data + '">'; };
 
 document.table_default_layout = {

@@ -171,6 +171,9 @@ class ObjectManagementBuild(DataBuild):
     #: List mode: the columns shown, as the browser draws them
     #: (``{name, title, kind, choices?}``).
     source_columns: list = field(default_factory=list)
+    #: A foreign key of ``model`` to ``sites.Site``: the rows are those of
+    #: the request's Site and the global ones, and a new row gets the Site.
+    site_field: str = ''
     #: The actions on one row, whose conditions about the object are
     #: evaluated with each row (:func:`~djgentelella.designs.conditions.
     #: row_conditions`). A class attribute, not a field.
@@ -211,6 +214,10 @@ class ChartBuild(DataBuild):
     #: The columns of the panel: the only ones a filter of the chart's
     #: endpoint (``gtfilters``) may name.
     facet_columns: list = field(default_factory=list)
+    #: The ``column_conditions`` of the node the panel filters: a facet over
+    #: a column it hides for the request is refused. Copied when the page is
+    #: resolved, so code generated from it needs no published page.
+    facet_conditions: dict = field(default_factory=dict)
 
     @property
     def circular(self):
@@ -260,6 +267,10 @@ class CrudBuild(DataBuild):
     #: ``CRUDView.optimistic_lock_required``: a form without the version is
     #: refused.
     optimistic_lock_required: bool = False
+    #: A foreign key of ``model`` to ``sites.Site``: the pages show the
+    #: objects of the request's Site and the global ones (another one is a
+    #: 404), and a new object gets the Site.
+    site_field: str = ''
 
 
 @dataclass
@@ -278,3 +289,7 @@ class FacetsBuild(DataBuild):
     #: For a target of another component (``facets_target``): the data
     #: source its rows come from, served by the data source API.
     datasource: str = ''
+    #: The build of the table it filters, for code that serves the panel
+    #: without a published page (:func:`~djgentelella.designs.factories.
+    #: facets_viewset_for`); ``None``: the one of the page of the request.
+    target_build: object = None

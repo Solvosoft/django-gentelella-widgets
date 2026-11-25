@@ -47,6 +47,16 @@
     /* The DataTables renderer of a column, by the kind of its model field. */
     function renderer(column) {
         var kind = column.kind;
+        if (column.markdown) {
+            // Markdown: the row carries <name>_html, cleaned on the server
+            // (render_markdown); the text itself is never HTML.
+            return function (data, type, row) {
+                if (type !== 'display') { return data; }
+                var html = row ? row[column.data + '_html'] : undefined;
+                return html === undefined || html === null ? escape(data) :
+                    '<div class="gt-markdown">' + html + '</div>';
+            };
+        }
         if (kind === 'fk' || kind === 'o2o') {
             return function (data, type) {
                 if (type !== 'display') { return data && typeof data === 'object' ? data.text : data; }

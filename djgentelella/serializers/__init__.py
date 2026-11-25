@@ -2,6 +2,8 @@ from django.utils import formats
 from rest_framework import serializers
 from rest_framework.fields import DateField, DateTimeField
 
+from djgentelella.markdown import render_markdown
+
 
 class GTDateField(DateField):
 
@@ -62,3 +64,16 @@ class DataTableSerializer(serializers.Serializer):
     draw = serializers.IntegerField(required=True)
     recordsFiltered = serializers.IntegerField(required=True)
     recordsTotal = serializers.IntegerField(required=True)
+
+
+class GTMarkdownHTMLField(serializers.ReadOnlyField):
+    """The Markdown text of ``source`` as cleaned HTML
+    (:func:`djgentelella.markdown.render_markdown`), read only: what a
+    ``<name>_html`` column shows with the ``markdownprint`` renderer of
+    ``datatables.js`` or ``<% it.<name>_html | safe %>`` in an ObjectCRUD
+    detail template. The text of the user is never sent as HTML."""
+
+    def to_representation(self, value):
+        if value in (None, ''):
+            return ''
+        return str(render_markdown(value))

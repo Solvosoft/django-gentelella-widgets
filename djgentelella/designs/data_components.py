@@ -52,7 +52,7 @@ from djgentelella.designs.components import Endpoint, RuntimeComponent
 from djgentelella.designs.conditions import (
     check_conditions, conditions_schema, denied, hidden_columns,
 )
-from djgentelella.designs.forms import build_form, no_field
+from djgentelella.designs.forms import build_form, is_form_field, no_field
 from djgentelella.designs.introspection import (
     NUMBER_KINDS, TEXT_KINDS, column_type, describe_field,
 )
@@ -118,6 +118,34 @@ def check_permissions(rctx, path, perms):
     :meth:`~djgentelella.designs.components.ResolveContext.check_permissions`.
     """
     return rctx.check_permissions(path, perms)
+
+
+SITE_FIELD_SCHEMA = {
+    'type': 'string', 'x-widget': 'model-field', 'x-filter': 'site',
+    'title': 'Foreign key to the Site (only the rows of the current Site and '
+             'the global ones; set on creation)'}
+
+
+def resolve_site_field(rctx, path, model, props, form=None):
+    """The ``site_field`` of ``props``: a foreign key of ``model`` to
+    ``sites.Site`` that ``form`` (a :class:`~djgentelella.designs.forms.
+    FormBuild`) does not ask for -- the component sets it --, or ``''``."""
+    site_field = props.get('site_field') or ''
+    if not site_field:
+        return ''
+    model_field = next((item for item in model._meta.get_fields()
+                        if item.name == site_field), None)
+    related = getattr(model_field, 'related_model', None)
+    if model_field is None or not model_field.many_to_one or \
+            related is None or related._meta.label_lower != 'sites.site':
+        rctx.error(path + '.props.site_field',
+                   _('%(field)r is not a foreign key of %(model)s to sites.Site')
+                   % {'field': site_field, 'model': model._meta.label})
+    elif form is not None and site_field in form.field_names:
+        rctx.error(path + '.props.site_field',
+                   _('%r is the site_field: the component sets it, the form '
+                     'cannot ask for it') % (site_field,))
+    return site_field
 
 
 def check_relation(rctx, path, model_field):
@@ -411,6 +439,7 @@ def table_columns(build, hidden=()):
     """The DataTables columns of a table, as JSON-friendly data, without the
     ``hidden`` ones (their condition does not hold)."""
     columns = []
+    markdown = set(factories.markdown_fields(build))
     for name in build.list_fields:
         if name in hidden:
             continue
@@ -425,6 +454,9 @@ def table_columns(build, hidden=()):
                                  for value, text in model_field.flatchoices]
         if kind == 'm2m' and lookup:
             column['multiple'] = True
+        if name in markdown:
+            # Its row carries <name>_html, cleaned on the server.
+            column['markdown'] = True
         if lookup:
             try:
                 column['url'] = reverse(lookup + '-list')
@@ -590,6 +622,7 @@ class ObjectManagementComponent(RuntimeComponent):
                 },
             },
             'pipeline': pipeline.PIPELINE_SCHEMA,
+            'site_field': SITE_FIELD_SCHEMA,
         },
     }
 
@@ -610,7 +643,8 @@ class ObjectManagementComponent(RuntimeComponent):
         """List mode: the rows of ``datasource``, read only."""
         props = node.get('props') or {}
         build = data_build(ObjectManagementBuild, node, rctx)
-        for name in ('model', 'form', 'notify', 'action_conditions', 'pipeline'):
+        for name in ('model', 'form', 'notify', 'action_conditions', 'pipeline',
+                     'site_field'):
             if props.get(name):
                 rctx.error(path + '.props.' + name,
                            _('a list over a data source only reads: it has no '
@@ -705,6 +739,14 @@ class ObjectManagementComponent(RuntimeComponent):
         on_submit = pipeline.resolve_pipeline(
             rctx, props, path, event=pipeline.ON_SUBMIT, model=model,
             exposure=found, form_fields=form.field_names)
+        site_field = ''
+        if props.get('site_field'):
+            if parent_field is not None:
+                rctx.error(path + '.props.site_field',
+                           _('an inline table shows the rows of its parent: it '
+                             'takes no site_field'))
+            else:
+                site_field = resolve_site_field(rctx, path, model, props, form)
         if rctx.has_errors_under(path):
             return build
 
@@ -730,6 +772,7 @@ class ObjectManagementComponent(RuntimeComponent):
         build.action_conditions = action_conditions
         build.optimistic_lock, build.optimistic_lock_required = lock_props(props)
         build.pipeline = on_submit
+        build.site_field = site_field
         return build
 
     def check_props(self, node, path):
@@ -1091,6 +1134,11 @@ class ChartComponent(RuntimeComponent):
         build.facets = facets_id
         build.facets_target = target['id']
         build.facet_columns = columns
+        # The target's column_conditions travel with the build: a facet over
+        # a column it hides is refused without looking at the page.
+        conditions_of_target = (target.get('props') or {}).get('column_conditions')
+        build.facet_conditions = dict(conditions_of_target) \
+            if isinstance(conditions_of_target, dict) else {}
 
     def render(self, build, rctx, children):
         if not build.group_by:
@@ -1248,6 +1296,7 @@ class CrudClassicComponent(RuntimeComponent):
                          'after its update page was opened (optimistic locking)'},
             'optimistic_lock_required': OPTIMISTIC_LOCK_REQUIRED_SCHEMA,
             'pipeline': pipeline.PIPELINE_SCHEMA,
+            'site_field': SITE_FIELD_SCHEMA,
         },
     }
 
@@ -1266,7 +1315,14 @@ class CrudClassicComponent(RuntimeComponent):
                 return build
         else:
             errors_before = len(rctx.errors)
-            form = build_form('%s_crud' % node['id'], {'model': props['model']}, rctx,
+            form_data = {'model': props['model']}
+            if props.get('site_field'):
+                # The default form leaves out the field the component sets.
+                form_data['fields'] = [
+                    model_field.name for model_field in found.model_fields()
+                    if is_form_field(model_field)
+                    and model_field.name != props['site_field']]
+            form = build_form('%s_crud' % node['id'], form_data, rctx,
                               path + '.props.model')
             if len(rctx.errors) > errors_before:
                 rctx.error(path + '.props.form', _('the default form (every field '
@@ -1309,9 +1365,11 @@ class CrudClassicComponent(RuntimeComponent):
         on_submit = pipeline.resolve_pipeline(
             rctx, props, path, event=pipeline.ON_SUBMIT, model=model,
             exposure=found, form_fields=form.field_names)
+        site_field = resolve_site_field(rctx, path, model, props, form)
         if rctx.has_errors_under(path):
             return build
         build.pipeline = on_submit
+        build.site_field = site_field
         build.title = props.get('title') or plural(model)
         build.model = model
         build.form = form
@@ -1403,7 +1461,8 @@ def source_facets_context(build, request, user, datasource_url=None):
             'group': 'gtdesign:%s' % build.target, 'columns': ','.join(build.columns)}
 
 
-def facets_page_context(build, request, datasource_url=None):
+def facets_page_context(build, request, datasource_url=None, *, url=None,
+                        target=None):
     """What :data:`FACETS_TEMPLATE` needs to draw the facets panel ``build``
     -- one over a data source: its target is a component over a
     ``datasource`` (a region, a chart, a list in list mode) -- for
@@ -1417,16 +1476,45 @@ def facets_page_context(build, request, datasource_url=None):
     No published :class:`~djgentelella.designs.models.Page` is needed: code
     generated from a design (djgentelella-editor) calls it with its own
     build. ``None`` when ``request`` may not see it: without
-    ``build.perms`` or the data source's ``has_permission``. A panel over a
-    table of a model (no ``build.datasource``) is served by an endpoint of
-    its page: ``ValueError``.
+    ``build.perms`` or the data source's ``has_permission``.
+
+    A panel over a table of a model (no ``build.datasource``) counts through
+    its own endpoint (:func:`~djgentelella.designs.factories.
+    facets_viewset_for`): ``url`` is where it is mounted, and ``target`` the
+    build of the table (by default ``build.target_build``), whose
+    ``column_conditions`` leave out the facets of the columns it hides.
+    Without ``url``, ``ValueError``.
     """
     if not build.datasource:
-        raise ValueError('facets panel %r is not over a data source' % (build.id,))
+        if url is None:
+            raise ValueError('facets panel %r is not over a data source: give the '
+                             'url of its facets_viewset_for()' % (build.id,))
+        if request is None:
+            return None
+        return model_facets_context(build, request, url,
+                                    target if target is not None
+                                    else build.target_build)
     if request is None:
         return None
     return source_facets_context(build, request, getattr(request, 'user', None),
                                  datasource_url)
+
+
+def model_facets_context(build, request, url, target=None):
+    """The context of :data:`FACETS_TEMPLATE` for a panel over a table of a
+    model, served at ``url``; ``None`` without ``build.perms``."""
+    user = getattr(request, 'user', None)
+    if build.model is None or user is None or \
+            not all_permission(user, list(build.perms)):
+        return None
+    hidden = hidden_columns(target, request) \
+        if getattr(target, 'column_conditions', None) else set()
+    shown = copy.copy(build)
+    shown.columns = [name for name in build.columns if name not in hidden]
+    if not shown.columns:
+        return None
+    return {'b': shown, 'preview': False, 'template': FACETS_TEMPLATE, 'url': url,
+            'group': 'gtdesign:%s' % build.target, 'columns': ','.join(shown.columns)}
 
 
 class FacetsComponent(RuntimeComponent):

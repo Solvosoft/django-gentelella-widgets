@@ -22,6 +22,7 @@ Every viewset authenticates with the session and checks
 queryset is empty.
 """
 
+import dataclasses
 import json
 import re
 import threading
@@ -51,6 +52,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
 from djgentelella import chartjs
+from djgentelella.authorization import evaluate_condition
 from djgentelella.cruds.base import CRUDMixin, CRUDView
 from djgentelella.datasources import query
 from djgentelella.datasources.base import ModelDataSource, api_error, get_datasource
@@ -71,8 +73,9 @@ from djgentelella.objectmanagement import (
 from djgentelella.permission_management import (
     AllPermissionByAction, all_permission, get_actions_by_perms,
 )
-from djgentelella.serializers import GTDateField, GTDateTimeField
+from djgentelella.serializers import GTDateField, GTDateTimeField, GTMarkdownHTMLField
 from djgentelella.serializers.selects import GTS2SerializerBase
+from djgentelella.sites import get_current_site, site_q
 
 __all__ = ['CHART_CLASSES', 'DesignDataSource', 'chart_getter_for', 'chart_rows',
            'clear_cache', 'crud_viewset_for', 'facets_viewset_for', 'filterset_for',
@@ -192,6 +195,21 @@ def valid_pk(model, value):
     return True
 
 
+def request_site(request):
+    """The Site of ``request`` (a DRF one too), or ``None``."""
+    return get_current_site(getattr(request, '_request', request))
+
+
+def site_rows(queryset, build, request):
+    """``queryset`` limited, when ``build`` has a ``site_field``, to the rows
+    of the request's Site and the global ones (:func:`~djgentelella.sites.
+    site_q`)."""
+    site_field = getattr(build, 'site_field', '')
+    if not site_field:
+        return queryset
+    return queryset.filter(site_q(request_site(request), field=site_field))
+
+
 def parent_or_none(model, pk):
     if pk is None or not valid_pk(model, pk):
         return None
@@ -283,6 +301,20 @@ def display_fields(build):
             if field_kind(build.model, name) in SINGLE_RELATIONS + ('m2m', 'choices')]
 
 
+#: The widget that makes a text field of a form Markdown.
+MARKDOWN_WIDGET = 'MarkdownInput'
+
+
+def markdown_fields(build):
+    """The fields of the form of ``build`` written with ``MarkdownInput``:
+    the table and the detail show them as cleaned HTML (``<name>_html``)."""
+    form = getattr(build, 'form', None)
+    if form is None:
+        return []
+    return [form_field.name for form_field in form.fields
+            if form_field.widget == MARKDOWN_WIDGET]
+
+
 def read_fields(build):
     return build.form.field_names + [name for name in build.list_fields
                                      if name not in build.form.field_names]
@@ -304,6 +336,10 @@ def _make_serializer(build, role):
         attrs['actions'] = serializers.SerializerMethodField()
         attrs['get_actions'] = _actions_method(build)
         meta_fields = ['id'] + names + ['actions']
+        for name in markdown_fields(build):
+            if name in names:
+                attrs[name + '_html'] = GTMarkdownHTMLField(source=name)
+                meta_fields.append(name + '_html')
     elif role == 'write':
         names = build.form.field_names
         for name in names:
@@ -328,6 +364,9 @@ def _make_serializer(build, role):
                 attrs[name + '_display'] = serializers.SerializerMethodField()
                 attrs['get_%s_display' % name] = _display_method(name, kind == 'm2m')
             meta_fields.append(name + '_display')
+        for name in markdown_fields(build):
+            attrs[name + '_html'] = GTMarkdownHTMLField(source=name)
+            meta_fields.append(name + '_html')
     else:
         raise ValueError('role must be list, read or write, not %r' % (role,))
     if alias:
@@ -536,7 +575,8 @@ class ManagementMixin:
         queryset = super().get_queryset()
         if self.gtdesign_build.preview:
             return queryset.none()
-        return queryset
+        # Another Site's row is not found: a 404 for one row.
+        return site_rows(queryset, self.gtdesign_build, self.request)
 
     def filter_queryset(self, queryset):
         queryset = super().filter_queryset(queryset)
@@ -602,6 +642,10 @@ class ManagementMixin:
         self.gtdesign_redirect = result.url
 
     def perform_create(self, serializer):
+        site_field = self.gtdesign_build.site_field
+        if site_field:
+            # Not a field of the form: the row belongs to the request's Site.
+            serializer.validated_data[site_field] = request_site(self.request)
         self.gtdesign_run_pipeline(
             serializer, lambda: super(ManagementMixin, self).perform_create(serializer))
         self._notify('create', serializer.instance)
@@ -627,6 +671,7 @@ class ManagementMixin:
         """The squirrelly template of the detail modal (escaped by squirrelly)."""
         build = self.gtdesign_build
         shown = set(display_fields(build))
+        markdown = set(markdown_fields(build))
         rows = []
         for name in build.list_fields:
             if name in self.gtdesign_hidden:
@@ -634,9 +679,15 @@ class ManagementMixin:
             model_field = build.model._meta.get_field(name)
             if widgetmap.field_kind(model_field) in ('file', 'image'):
                 continue
+            title = escape(capfirst(str(model_field.verbose_name)))
+            if name in markdown:
+                # Cleaned on the server (render_markdown): the only HTML the
+                # detail takes as it is.
+                rows.append('<dt>%s</dt><dd class="gt-markdown"><%% it.%s_html | safe '
+                            '%%></dd>' % (title, name))
+                continue
             rows.append('<dt>%s</dt><dd><%% it.%s %%></dd>' % (
-                escape(capfirst(str(model_field.verbose_name))),
-                name + ('_display' if name in shown else '')))
+                title, name + ('_display' if name in shown else '')))
         title = '<%% it.%s %%>' % delete_display(build)
         return Response({'title': title, 'template': '<dl>%s</dl>' % ''.join(rows)})
 
@@ -739,11 +790,16 @@ def chart_facet_filters(build, request):
         raise ValidationError({'gtfilters': [_('this chart follows no facets')]})
     filters = parse_filters(raw)
     allowed = set(build.facet_columns)
-    resolved = getattr(request, 'gtdesign_resolved', None)
-    target = resolved.nodes.get(build.facets_target) if resolved is not None \
-        else None
-    if target is not None and getattr(target.build, 'column_conditions', None):
-        allowed -= set(hidden_columns(target.build, request))
+    if build.facet_conditions:
+        allowed -= {name for name, cond in build.facet_conditions.items()
+                    if not evaluate_condition(cond, request)}
+    else:
+        # A build made by hand: the conditions of the target on the page.
+        resolved = getattr(request, 'gtdesign_resolved', None)
+        target = resolved.nodes.get(build.facets_target) if resolved is not None \
+            else None
+        if target is not None and getattr(target.build, 'column_conditions', None):
+            allowed -= set(hidden_columns(target.build, request))
     for item in filters:
         if item.get('column') not in allowed:
             raise ValidationError({'gtfilters': [
@@ -896,13 +952,18 @@ def stat_view_for(build):
 
 def _make_facets_viewset(build):
     def target_build(request):
-        return request.gtdesign_resolved.nodes[build.target].build
+        if build.target_build is not None:
+            return build.target_build
+        resolved = getattr(request, 'gtdesign_resolved', None)
+        if resolved is None or build.target not in resolved.nodes:
+            raise Http404()
+        return resolved.nodes[build.target].build
 
     def source(self, request, search=''):
         """The data source of the target's rows, and the facet columns the
         request may see: not those its table hides (column_conditions)."""
         target = target_build(request)
-        queryset = target.model._default_manager.all()
+        queryset = site_rows(target.model._default_manager.all(), target, request)
         parent = None
         if build.inline:
             check_perms(request, target.parent_perms)
@@ -961,10 +1022,18 @@ def _make_facets_viewset(build):
     })
 
 
-def facets_viewset_for(build):
+def facets_viewset_for(build, target=None):
     """The endpoint GTFacets (djgentelella.datasources) reads: ``''`` is the
     description of the columns and ``facets`` the counts, over
-    the rows of the target table."""
+    the rows of the target table.
+
+    ``target`` is the build of that table (an
+    :class:`~djgentelella.designs.builds.ObjectManagementBuild`), for code
+    that serves the panel without a published page -- code generated from a
+    design --; by default ``build.target_build``, else the one of the
+    page of the request."""
+    if target is not None and build.target_build is not target:
+        build = dataclasses.replace(build, target_build=target)
     return cached(build, 'facets', _make_facets_viewset)
 
 
@@ -1025,6 +1094,8 @@ class DesignCRUDMixin(CRUDMixin):
         queryset = super().get_queryset()
         if self.gtdesign_preview:
             return queryset.none()
+        # Another Site's object is not found: its pages are a 404.
+        queryset = site_rows(queryset, self.gtdesign_build, self.request)
         if not queryset.ordered:
             # Without Meta.ordering, or when CRUDMixin dropped every ordering
             # over a hidden column, a paginated list still needs an order:
@@ -1040,8 +1111,11 @@ class DesignCRUDMixin(CRUDMixin):
         """The save of the create and update pages, through the ``on_submit``
         pipeline of the build (:mod:`djgentelella.designs.pipeline`): its
         errors show on the form, nothing saved; its branch is where the page
-        goes after saving."""
+        goes after saving. A new object gets the request's Site
+        (``site_field``)."""
         build = self.gtdesign_build
+        if build.site_field and self.view_type == 'create':
+            setattr(form.instance, build.site_field, request_site(self.request))
         if not build.pipeline:
             return super().form_valid(form)
         hidden = self.get_hidden_columns() if self.view_type == 'update' else ()

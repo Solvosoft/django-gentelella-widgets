@@ -41,8 +41,9 @@ the build or of the data source (and 503 when the source is unavailable:
     ``month``, ``quarter``, ``year``) a card shows the current period and,
     with ``compare``, the change against the previous one: absolute and in
     percent (none when the previous one is empty or zero), with an arrow
-    coloured by ``higher_is_better``. Every card is computed in a single
-    query.
+    coloured by ``higher_is_better``. A card's own ``period`` overrides the
+    node's, and ``"period": "all"`` counts every row (a total next to "new
+    this month"). Every card is computed in a single query.
 """
 
 import base64
@@ -70,7 +71,7 @@ from djgentelella.authorization import evaluate_condition, validate_condition
 from djgentelella.datasources import query
 from djgentelella.datasources.base import api_error
 from djgentelella.designs.data_components import (
-    can, endpoint_url, json_config, no_permission,
+    can, endpoint_url, no_permission,
 )
 from djgentelella.designs.regions import (
     COLOR, COLOR_SCHEMA, DATE_KINDS, RegionBuild, RegionComponent, RegionMixin,
@@ -78,8 +79,8 @@ from djgentelella.designs.regions import (
     parse_moment, read_rows, region_source, row_links, row_texts, rule_colors,
 )
 
-__all__ = ['METRIC_FORMATS', 'METRIC_FUNCTIONS', 'MetricsBuild',
-           'MetricsComponent', 'MetricsViewSet', 'PERIOD_LABELS',
+__all__ = ['ALL_TIME', 'METRIC_FORMATS', 'METRIC_FUNCTIONS', 'MetricsBuild',
+           'MetricsComponent', 'MetricsViewSet', 'PERIOD_LABELS', 'render_cards',
            'TREE_TIMELINE_METRICS_COMPONENTS', 'TimelineBuild',
            'TimelineComponent', 'TimelineViewSet', 'TreeBuild', 'TreeComponent',
            'TreeViewSet', 'format_metric', 'metric_values', 'period_bounds',
@@ -107,6 +108,8 @@ METRIC_FUNCTIONS = {
     'max': lambda name, q: Max(name, filter=q),
 }
 METRIC_FORMATS = ('number', 'currency', 'percent')
+#: The ``period`` of a card that counts every row, whatever the node's.
+ALL_TIME = 'all'
 MAX_METRICS = 12
 #: What a value without data shows, the sign of a fall and the space before %.
 DASH, MINUS, NBSP = '\u2014', '\u2212', '\u00a0'
@@ -719,6 +722,9 @@ METRIC_SCHEMA = {
                  'title': 'Icon (CSS class)'},
         'compare': {'type': 'boolean', 'default': True,
                     'title': 'Compare with the previous period'},
+        'period': {'enum': list(query.PERIODS) + [ALL_TIME],
+                   'title': 'Period of this card (default: the one of the node; '
+                            '"all": every row, no comparison)'},
         'higher_is_better': {'type': 'boolean', 'default': True,
                              'title': 'A rise is good news'},
         'condition': {'x-widget': 'condition', 'title': 'Shown only when'},
@@ -726,15 +732,16 @@ METRIC_SCHEMA = {
 }
 
 
-def period_bounds(build, column, now=None):
+def period_bounds(build, column, now=None, period=None):
     """``((start, end), (start, end))`` of the current and the previous
-    period of ``build``, typed for ``column`` (a date or date-time Column).
-    With ``to_date`` the previous one ends as far into it as today is into
-    the current one."""
+    ``period`` (by default the one of ``build``), typed for ``column`` (a
+    date or date-time Column). With ``to_date`` the previous one ends as far
+    into it as today is into the current one."""
+    period = period or build.period
     today = timezone.localdate(now) if now is not None else timezone.localdate()
-    current = query.period_range(column, {'period': build.period,
+    current = query.period_range(column, {'period': period,
                                           'date': today.isoformat()})
-    previous = query.period_range(column, {'period': build.period,
+    previous = query.period_range(column, {'period': period,
                                            'date': (current_start_date(current)
                                                     - datetime.timedelta(days=1))
                                            .isoformat()})
@@ -823,22 +830,47 @@ def visible_metrics(build, request):
             or evaluate_condition(metric['condition'], request)]
 
 
+def card_period(build, metric):
+    """The period ``metric`` is counted by, or ``None`` (every row)."""
+    if not build.date_field:
+        return None
+    period = metric.get('period') or build.period
+    return None if period == ALL_TIME else period
+
+
+def card_labels(build, metric):
+    """``(current, compare)`` labels of a card: "This month", "vs. the
+    previous month"; empty without a period."""
+    period = card_period(build, metric)
+    if period is None:
+        return '', ''
+    labels = PERIOD_LABELS.get(period, ('', ''))
+    return str(labels[0]), str(labels[1])
+
+
+def labelled(build, metric, card):
+    card['period'] = card_period(build, metric) or ''
+    card['period_label'], card['compare_label'] = card_labels(build, metric)
+    return card
+
+
 def metric_values(build, source, request, queryset, now=None):
     """``[card]`` of the metrics whose condition holds, every one computed in
     a single aggregate query over ``queryset`` (the rows of the source after
     the filters of the page). A sum or a count of no rows is 0; an average,
     a minimum or a maximum of none is ``None``; the change in percent is
-    ``None`` when the previous period is empty or zero."""
+    ``None`` when the previous period is empty or zero. A card without a
+    period (``"period": "all"``) counts every row and compares nothing."""
     metrics = visible_metrics(build, request)
     if not metrics:
         return []
     colmap = source.column_map(request)
-    bounds = None
+    column = None
     if build.date_field:
         column = colmap.get(build.date_field)
         if column is None or column.kind not in DATE_KINDS:
             raise ValidationError({'detail': _('unknown column')})
-        bounds = period_bounds(build, column, now)
+    by_period = {}
     aggregates = {}
     try:
         for index, metric in enumerate(metrics):
@@ -847,6 +879,12 @@ def metric_values(build, source, request, queryset, now=None):
                 q &= query.filter_q(source, request, flt, colmap, queryset.model)
             name = metric['column'] or 'pk'
             make = METRIC_FUNCTIONS[metric['fn']]
+            period = card_period(build, metric)
+            bounds = None
+            if period is not None:
+                if period not in by_period:
+                    by_period[period] = period_bounds(build, column, now, period)
+                bounds = by_period[period]
             if bounds is not None:
                 aggregates['m%d' % index] = make(
                     name, q & range_filter(build.date_field, bounds[0]))
@@ -861,12 +899,13 @@ def metric_values(build, source, request, queryset, now=None):
     cards = []
     for index, metric in enumerate(metrics):
         value = plain_number(values.get('m%d' % index))
-        compared = bounds is not None and metric['compare']
+        compared = card_period(build, metric) is not None and metric['compare']
         previous = plain_number(values.get('p%d' % index)) if compared else None
         if metric['fn'] in ('count', 'count_distinct', 'sum'):
             value = value or 0
             previous = (previous or 0) if compared else None
-        cards.append(metric_result(metric, value, previous, compared))
+        cards.append(labelled(build, metric,
+                              metric_result(metric, value, previous, compared)))
     return cards
 
 
@@ -881,7 +920,14 @@ class MetricsViewSet(RegionMixin, viewsets.ViewSet):
 
 
 def render_cards(build, cards):
+    """The HTML of ``cards`` (:func:`metric_values`) of ``build``: what the
+    page shows and the endpoint answers as ``html``."""
     labels = PERIOD_LABELS.get(build.period, ('', ''))
+    for card in cards:
+        # A card made without labelled() (by hand): the period of the node.
+        if 'period_label' not in card:
+            card['period_label'] = str(labels[0]) if build.date_field else ''
+            card['compare_label'] = str(labels[1])
     return render_to_string('gtdesigns/components/metrics_cards.html', {
         'b': build, 'cards': cards,
         'col': {1: 12, 2: 6, 3: 4, 4: 3, 6: 2}.get(build.per_row, 3),
@@ -968,15 +1014,23 @@ class MetricsComponent(RegionComponent):
             errors = validate_condition(condition, where + '.condition')
             if errors:
                 rctx.errors.extend(errors)
+        if spec.get('period') and not build.date_field:
+            rctx.error(where + '.period', _('a card has a period only when the node '
+                                            'has a date_field'))
         counts = fn in ('count', 'count_distinct')
-        return {'label': spec.get('label', ''), 'fn': fn, 'column': name,
-                'filters': filters, 'format': spec.get('format', 'number'),
-                'decimals': spec.get('decimals', 0 if counts else 2),
-                'prefix': spec.get('prefix', ''), 'suffix': spec.get('suffix', ''),
-                'icon': clean_icon(spec.get('icon')),
-                'compare': spec.get('compare', True),
-                'higher_is_better': spec.get('higher_is_better', True),
-                'condition': condition}
+        metric = {'label': spec.get('label', ''), 'fn': fn, 'column': name,
+                  'filters': filters, 'format': spec.get('format', 'number'),
+                  'decimals': spec.get('decimals', 0 if counts else 2),
+                  'prefix': spec.get('prefix', ''), 'suffix': spec.get('suffix', ''),
+                  'icon': clean_icon(spec.get('icon')),
+                  'compare': spec.get('compare', True),
+                  'higher_is_better': spec.get('higher_is_better', True),
+                  'condition': condition}
+        if spec.get('period'):
+            # Only when the card has one: the normalized card of a document
+            # without it stays as it was (generated code compares it).
+            metric['period'] = spec['period']
+        return metric
 
     def render(self, build, rctx, children):
         if build.model is None and not build.datasource:
@@ -985,34 +1039,39 @@ class MetricsComponent(RegionComponent):
             return render_to_string(self.template, {
                 'b': build, 'preview': True,
                 'cards_html': render_cards(build, self.sample(build))})
-        if build.perms and not can(rctx, build.perms):
+        # The access rule and the configuration are RegionComponent's.
+        context = self.page_context(build, rctx, endpoint_url(rctx, build))
+        if context is None:
             return no_permission(build)
+        return render_to_string(self.template, context)
+
+    def page_context(self, build, rctx, url):
+        """:meth:`RegionComponent.page_context` plus the cards computed for
+        the request: ``cards_html`` (:func:`render_cards`), ``cards`` and
+        ``unavailable`` (the data source is down: the page stays, the
+        cards say so). What :func:`~djgentelella.designs.regions.
+        region_page_context` gives code generated from a design."""
+        context = super().page_context(build, rctx, url)
+        if context is None:
+            return None
         source = region_source(build)
-        if source is None or rctx.request is None or \
-                not source.has_permission(rctx.request):
-            return no_permission(build)
-        url = endpoint_url(rctx, build)
-        if url is None:
-            return no_permission(build)
         try:
             cards = metric_values(build, source, rctx.request,
                                   query.apply_params(source, rctx.request, {}))
             unavailable = False
         except (APIException, PermissionDenied, DjangoValidationError):
-            # A data source that is down: the page stays, the cards say so.
             cards, unavailable = [], True
-        return render_to_string(self.template, {
-            'b': build, 'preview': False, 'unavailable': unavailable,
-            'cards_html': render_cards(build, cards),
-            'config': json_config(build.id + '_gtconfig',
-                                  config_with_source(self, build, rctx, url))})
+        context.update(cards=cards, unavailable=unavailable,
+                       cards_html=render_cards(build, cards))
+        return context
 
     def sample(self, build):
         cards = []
         for index, metric in enumerate(build.metrics):
             value, previous = 40 + index * 7, 36 + index * 9
-            cards.append(metric_result(metric, value, previous,
-                                       bool(build.date_field) and metric['compare']))
+            compared = card_period(build, metric) is not None and metric['compare']
+            cards.append(labelled(build, metric,
+                                  metric_result(metric, value, previous, compared)))
         return cards
 
     def media(self, build, rctx):
