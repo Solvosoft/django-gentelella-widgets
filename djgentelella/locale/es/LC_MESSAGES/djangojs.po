@@ -903,3 +903,32 @@ msgstr "No se pudo cargar la línea de tiempo."
 #: static/gentelella/js/designs/tree_timeline_metrics.js
 msgid "The metrics could not be computed."
 msgstr "No se pudieron calcular las métricas."
+
+#: static/gentelella/js/pwa/push.js
+msgid "Push notifications failed:"
+msgstr "Las notificaciones push fallaron:"
+
+#: static/gentelella/js/pwa/push.js
+#, javascript-format
+msgid "Test sent to %s device(s)."
+msgstr "Prueba enviada a %s dispositivo(s)."
+
+#: static/gentelella/js/pwa/push.js
+msgid "This browser blocks the notifications of this site."
+msgstr "Este navegador bloquea las notificaciones de este sitio."
+
+#: static/gentelella/js/pwa/push.js
+msgid "This browser does not support push notifications."
+msgstr "Este navegador no admite notificaciones push."
+
+#: static/gentelella/js/pwa/push.js
+msgid "This device does not receive push notifications."
+msgstr "Este dispositivo no recibe notificaciones push."
+
+#: static/gentelella/js/pwa/push.js
+msgid "This device receives your push notifications."
+msgstr "Este dispositivo recibe sus notificaciones push."
+
+#: static/gentelella/js/pwa/push.js
+msgid "permission not granted"
+msgstr "permiso no concedido"

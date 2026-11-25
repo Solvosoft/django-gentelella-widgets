@@ -5108,3 +5108,124 @@ msgstr "%(name)r es de tipo %(kind)s, no %(said)s"
 #, python-format
 msgid "facets panel %(panel)r filters other rows than those of %(model)r"
 msgstr "el panel de facetas %(panel)r filtra otras filas que las de %(model)r"
+
+#: models.py
+msgid "Endpoint"
+msgstr "Endpoint"
+
+#: models.py
+msgid "Public key"
+msgstr "Clave pública"
+
+#: models.py
+msgid "Authentication secret"
+msgstr "Secreto de autenticación"
+
+#: models.py
+msgid "Browser"
+msgstr "Navegador"
+
+#: models.py
+msgid "Last used"
+msgstr "Último uso"
+
+#: models.py
+msgid "Push subscription"
+msgstr "Suscripción push"
+
+#: models.py
+msgid "Push subscriptions"
+msgstr "Suscripciones push"
+
+#: models.py
+msgid "Send my notifications as push"
+msgstr "Enviar mis notificaciones como push"
+
+#: models.py
+msgid "Push preference"
+msgstr "Preferencia de push"
+
+#: models.py
+msgid "Push preferences"
+msgstr "Preferencias de push"
+
+#: pwa/push.py
+#, python-format
+msgid "Invalid %(field)s."
+msgstr "%(field)s no es válido."
+
+#: pwa/push.py
+msgid "Invalid subscription."
+msgstr "Suscripción no válida."
+
+#: pwa/push.py
+msgid "The endpoint must be an https URL."
+msgstr "El endpoint debe ser una URL https."
+
+#: pwa/push.py
+msgid "The endpoint is not a known push service."
+msgstr "El endpoint no es un servicio de push conocido."
+
+#: pwa/views.py
+msgid "Push notifications are not available."
+msgstr "Las notificaciones push no están disponibles."
+
+#: pwa/views.py
+msgid "Push notifications work on this device."
+msgstr "Las notificaciones push funcionan en este dispositivo."
+
+#: pwa/views.py
+msgid "Your push preference was saved."
+msgstr "Se guardó su preferencia de push."
+
+#: templates/gentelella/pwa/offline.html
+msgid "You are offline"
+msgstr "Está sin conexión"
+
+#: templates/gentelella/pwa/offline.html
+msgid "This page needs a connection. Check your network and try again."
+msgstr "Esta página necesita conexión. Revise su red e intente de nuevo."
+
+#: templates/gentelella/pwa/offline.html
+msgid "Try again"
+msgstr "Intentar de nuevo"
+
+#: templates/gentelella/pwa/preferences.html
+msgid "Push notifications"
+msgstr "Notificaciones push"
+
+#: templates/gentelella/pwa/preferences.html
+msgid "Push notifications are not available on this server."
+msgstr "Las notificaciones push no están disponibles en este servidor."
+
+#: templates/gentelella/pwa/preferences.html
+msgid "This device"
+msgstr "Este dispositivo"
+
+#: templates/gentelella/pwa/preferences.html
+msgid "Checking this browser..."
+msgstr "Revisando este navegador..."
+
+#: templates/gentelella/pwa/preferences.html
+msgid "Receive push notifications on this device"
+msgstr "Recibir notificaciones push en este dispositivo"
+
+#: templates/gentelella/pwa/preferences.html
+msgid "Stop on this device"
+msgstr "Dejar de recibirlas en este dispositivo"
+
+#: templates/gentelella/pwa/preferences.html
+msgid "Send a test"
+msgstr "Enviar una prueba"
+
+#: templates/gentelella/pwa/preferences.html
+msgid "My notifications"
+msgstr "Mis notificaciones"
+
+#: templates/gentelella/pwa/preferences.html
+msgid "Send my notifications as push to my subscribed devices"
+msgstr "Enviar mis notificaciones como push a mis dispositivos suscritos"
+
+#: templates/gentelella/pwa/preferences.html
+msgid "Subscribed devices"
+msgstr "Dispositivos suscritos"
