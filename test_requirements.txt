@@ -24,3 +24,7 @@ nh3>=0.2.15
 # extras). Without them their tests skip themselves.
 openpyxl>=3.1
 xhtml2pdf>=0.2.28
+
+# The [markdown] extra: MarkdownInput's preview and the |markdown filter, whose
+# tests check that the HTML is cleaned.
+Markdown>=3.5
