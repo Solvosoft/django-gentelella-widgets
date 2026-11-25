@@ -144,8 +144,9 @@ site=...)``, ``gtdesigns_publish``). The engine then asks
 ``source.columns_for_site(site)``, which by default is
 ``columns(site_request(site))`` -- a synthetic request of that Site with an
 anonymous user (:doc:`sites`) --, so a source whose columns depend on the
-Site of the request validates the same as when it serves. A source may
-override it. ``source_column_map(source, request=None, *, site=None)`` is the
+Site of the request validates the same as when it serves. When it has no
+columns for that Site (an App being imported, whose sources come after its
+pages), ``columns(None)`` is used, as before. A source may override it. ``source_column_map(source, request=None, *, site=None)`` is the
 same lookup as a function: for the request; without one, for the Site; with
 neither, ``column_map(None)``.
 

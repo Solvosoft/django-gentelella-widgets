@@ -948,6 +948,20 @@ over a data source (``designs.regions``, ``designs.source_tables``,
     ``ValueError``. With it, a page that uses ``filtered_by`` or the
     ``facets`` prop of ``chart`` can be generated too.
 
+``table_page_context(build, request, url)`` (``designs.data_components``)
+    ``{'b', 'template', 'forms', 'base', 'modal_ids', 'allowed', 'config'}``
+    of ``object_management`` in list mode: the DataTable over a
+    ``SourceTableViewSet`` at ``url``, with the columns the request sees and
+    the row links (``row_link_config``, public too). Render it with
+    ``request=request``. ``None`` as ``grid_page_context``; ``ValueError``
+    for a table with a form.
+
+Whether a grid over a ``datasource`` is read only is the source's call
+(``grid.grid_can_edit(source)``: a ``ModelDataSource`` over a model of the
+project edits), not whether the build has a ``form``: a generated build
+without one, over such a source, is still the editable grid that
+``grid_page_context(..., form_class=...)`` draws.
+
 ``RegionMixin`` (the base of ``CardsViewSet``, ``CalendarViewSet`` and
 ``MapViewSet``) and ``SourceRowsMixin`` (``SourceTableViewSet``,
 ``SourceGridViewSet``) serve the build ``get_build()`` answers: the class

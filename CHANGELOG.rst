@@ -397,6 +397,10 @@ that Site (``ResolveContext.source_columns``), so a source whose columns
 depend on the Site validates. A ``ModelDataSource`` column over a
 ``GTPointField`` carries ``extra={'point': True}``.
 
+**``table_page_context(build, request, url)``** draws ``object_management``
+in list mode without a published page (``row_link_config`` is public), and
+``grid.grid_can_edit(source)`` says whether a grid over a data source edits.
+
 **``load_default_settings()``** in ``djgentelella.utils`` creates the global
 settings the migrations load (``DEFAULT_SETTINGS``), for the tests that flush
 the database (``TransactionTestCase``, live server). **``djgentelella.testing``**
@@ -605,6 +609,13 @@ data-gtdesign-page="<slug>">``: ``data-gtdesign`` is always a node id, so a
 node whose id is the slug of its page no longer makes
 ``[data-gtdesign="<slug>"]`` match two elements. A selector of the page by its
 slug becomes ``[data-gtdesign-page="<slug>"]``.
+
+**A generated grid without ``form`` is no longer taken for a read-only
+one.** ``InteractiveGridBuild.list_only`` asks the data source
+(``grid_can_edit``), not ``form is None``: an editable grid over a
+``ModelDataSource`` whose build has no form (generated code passes
+``form_class`` to ``grid_page_context``) came out read-only, without columns
+nor actions.
 
 **A page without the ``site_theme`` setting** (a database flushed by a test)
 loads ``gentelella/css/custom.css`` instead of an empty ``<link
