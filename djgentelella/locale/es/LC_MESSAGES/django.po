@@ -5076,3 +5076,25 @@ msgstr "solo la última rama puede ir sin condición (la de por defecto): las qu
 #, python-format
 msgid "%(step)s could not be completed: nothing was saved."
 msgstr "No se pudo completar %(step)s: no se guardó nada."
+
+#: designs/pipeline.py
+#, python-format
+msgid "%r is a process: a step of a wizard saves nothing, so it only runs validations and computations (put the process in the pipeline of the wizard, which runs when it finishes)"
+msgstr "%r es un proceso: un paso de un asistente no guarda nada, así que solo corre validaciones y cómputos (ponga el proceso en el pipeline del asistente, que corre al terminar)"
+
+#: designs/pipeline.py
+msgid "a step of a wizard does not branch: only the wizard, when it finishes"
+msgstr "un paso de un asistente no tiene ramas: solo el asistente, al terminar"
+
+#: designs/data_components.py
+#, python-format
+msgid "%r is the site_field: the component sets it, the form cannot ask for it"
+msgstr "%r es el site_field: lo llena el componente, el formulario no puede pedirlo"
+
+#: designs/data_components.py
+msgid "an inline table shows the rows of its parent: it takes no site_field"
+msgstr "una tabla en línea muestra las filas de su padre: no lleva site_field"
+
+#: designs/tree_timeline_metrics.py
+msgid "a card has a period only when the node has a date_field"
+msgstr "una tarjeta tiene periodo solo si el nodo tiene date_field"
