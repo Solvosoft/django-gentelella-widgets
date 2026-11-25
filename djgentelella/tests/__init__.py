@@ -84,3 +84,4 @@ from .ConsumerApiW24_Test import *
 from .FormWidgets_Test import *
 from .TreeTimelineMetrics_Test import *
 from .UniqueTestNames_Test import *
+from .ProposalsW29_Test import *
