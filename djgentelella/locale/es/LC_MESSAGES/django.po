@@ -5103,3 +5103,8 @@ msgstr "una tarjeta tiene periodo solo si el nodo tiene date_field"
 #, python-format
 msgid "%(name)r is a %(kind)s, not a %(said)s"
 msgstr "%(name)r es de tipo %(kind)s, no %(said)s"
+
+#: designs/regions.py
+#, python-format
+msgid "facets panel %(panel)r filters other rows than those of %(model)r"
+msgstr "el panel de facetas %(panel)r filtra otras filas que las de %(model)r"
