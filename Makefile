@@ -1,5 +1,6 @@
 .PHONY: help clean clean-pyc clean-build list test docs release sdist fuzzysdist \
 	lint lint-fix test-selenium test-selenium-run run run-mailhog run-celery \
+	mailhog mailhog-stop \
 	migrate menu init_demo notification_demo validate-mailhog loadstatic basejs assets \
 	patch-pylp services services-mail services-sign services-celery celery-worker process-loop \
 	coverage coverage-all coverage-unit coverage-selenium coverage-selenium-run \
@@ -12,6 +13,8 @@ help:
 	@echo "run - run the demo dev server (PORT=8000 by default)"
 	@echo "run-mailhog - run the demo server sending email to MailHog (SMTP :1025)"
 	@echo "run-celery - run-mailhog, plus CELERY_BROKER_URL set (queued async_notification dispatch)"
+	@echo "mailhog - start MailHog in the background (SMTP :1025, UI :8025), for the Selenium email test"
+	@echo "mailhog-stop - stop the MailHog that 'make mailhog' started"
 	@echo "services - run every support service in the foreground (MailHog + Firmador + Redis); Ctrl+C stops them"
 	@echo "services-mail - same, MailHog only"
 	@echo "services-sign - same, MailHog + Firmador"
@@ -243,6 +246,24 @@ run-celery:
 		EMAIL_HOST=localhost EMAIL_PORT=1025 \
 		CELERY_BROKER_URL=redis://localhost:6379/0 \
 		python manage.py runserver $(PORT)
+
+# MailHog in the background, for `make test-selenium` (its email test skips
+# itself without it). Same container name as scripts/run_services.sh. A MailHog
+# already answering on :8025 -- this container or anyone else's -- is reused,
+# never replaced.
+MAILHOG_CONTAINER ?= djgentelella_mailhog
+
+mailhog:
+	@if curl -fsS -o /dev/null http://localhost:8025/api/v2/messages?limit=1 2>/dev/null; then \
+		echo "MailHog already up: SMTP localhost:1025, UI http://localhost:8025"; \
+	else \
+		docker run -d --rm --name $(MAILHOG_CONTAINER) -p 8025:8025 -p 1025:1025 \
+			mailhog/mailhog >/dev/null && \
+		echo "MailHog: SMTP localhost:1025, UI http://localhost:8025"; \
+	fi
+
+mailhog-stop:
+	docker rm -f $(MAILHOG_CONTAINER)
 
 services-mail:
 	./scripts/run_services.sh
