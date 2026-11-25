@@ -423,6 +423,23 @@ type                            what it is
     how the facets reach the table. The page renders only the modals the user
     may use, and each row says which icons it gets.
 
+    ``site_field`` (also in ``crud_classic``) names a foreign key of the
+    model to ``sites.Site``: the rows are those of the request's Site and the
+    global ones (the rule of :doc:`sites`), a row of another Site is a 404
+    (detail, update, delete), and a new row gets the request's Site. The form
+    cannot ask for it -- the default form of ``crud_classic`` leaves it out
+    -- and a ``facets`` panel over the table counts the same rows. Not in an
+    inline table, whose rows are those of its parent.
+
+    A field of the form written with ``MarkdownInput`` is a **Markdown
+    column**: the rows and the detail carry ``<name>_html``, the text
+    converted and cleaned on the server (``djgentelella.markdown.
+    render_markdown``); the table shows it and the detail modal prints it as
+    HTML, the text itself never. In code, ``djgentelella.serializers.
+    GTMarkdownHTMLField(source='<name>')`` gives the same field to any
+    serializer and ``markdownprint`` (``datatables.js``) is its
+    ``ObjectCRUD`` renderer.
+
 ``object_management`` in list mode
     ``datasource`` -- any registered data source, over a model of the project
     or not (one that reads an external API, say) -- instead of ``model`` and
@@ -979,15 +996,25 @@ over a data source (``designs.regions``, ``designs.source_tables``,
     (``config(build, rctx)``: page size, FullCalendar and its locale,
     markercluster, centre...). ``component`` is the registered one of
     ``build.type`` by default. ``None`` when the request may not see it.
-``facets_page_context(build, request, datasource_url=None)``
+``facets_page_context(build, request, datasource_url=None, *, url=None, target=None)``
     ``{'b', 'preview', 'template', 'url', 'group', 'columns'}`` of a facets
     panel over a data source (its target is a region, a chart or a list in
     list mode): ``url`` is the data source API (``gtdatasource``) unless
     ``datasource_url`` says otherwise, ``group`` is ``gtdesign:<target>``.
     ``None`` without ``build.perms`` or the source's ``has_permission``. A
-    panel over a table of a model has an endpoint of its page:
-    ``ValueError``. With it, a page that uses ``filtered_by`` or the
-    ``facets`` prop of ``chart`` can be generated too.
+    panel over a table of a model counts through its own endpoint,
+    ``factories.facets_viewset_for(build, target=table_build)``: give its
+    ``url`` (and the table's build, whose ``column_conditions`` leave out
+    the facets of the columns it hides); without ``url``, ``ValueError``.
+    With it, a page that uses ``filtered_by`` or the ``facets`` prop of
+    ``chart`` can be generated too: the chart's build carries the
+    ``column_conditions`` of the panel's target (``facet_conditions``), so
+    ``factories.chart_facet_filters`` needs no published page.
+
+The cards of a ``metrics`` node are computed for the request:
+``region_page_context`` of a metrics build adds ``cards``, ``cards_html``
+(``render_cards``, public) and ``unavailable`` (``MetricsComponent.
+page_context``).
 
 ``table_page_context(build, request, url)`` (``designs.data_components``)
     ``{'b', 'template', 'forms', 'base', 'modal_ids', 'allowed', 'config'}``
@@ -1250,6 +1277,12 @@ today is into the current one (the first ten days of last month on the 10th).
 A count or a sum of no rows is 0 and an average, minimum or maximum of none is
 ``—``; when the previous period is empty or zero there is no percentage (no
 division by zero), and with nothing to compare the card says so.
+
+A card can take its own ``period`` -- another of the periods ("this year"
+next to "this month"), or ``"all"``: every row, without a comparison (the
+headcount next to the hires of the month). Only with a ``date_field``. Each
+card the endpoint answers carries ``period``, ``period_label`` and
+``compare_label``.
 
 Every card is computed in **one** aggregate query (conditional aggregates,
 ``Sum(..., filter=Q(...))``) over the rows of the source after the page's

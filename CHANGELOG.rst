@@ -672,6 +672,61 @@ over one exposed model: steps with fields, ``condition`` and ``when``,
 ``step-when``. Demo: ``/wizard/employee/`` and ``/designs/employees/new/``.
 See ``docs/source/wizard.rst``.
 
+**The page pipeline inside the wizard (W30).** A ``Step`` takes
+``pipeline=`` and ``GTWizardView`` a ``pipeline`` attribute: an ``on_submit``
+stage of ``djgentelella.designs.pipeline`` (``{"steps", "branches"}``) or a
+``PipelineBuild``. The pipeline of a step runs its validations and
+computations whenever the step validates -- an error keeps the user in the
+step, a computed value goes to the form and to ``state['computed']``, so a
+draft keeps it --; a process or a branch there is refused. The pipeline of
+the wizard runs when it finishes: validations and computations with the data
+of every step, then ``done()``, ``on_finish()`` and the processes in one
+transaction (a failing process rolls everything back and the wizard stays at
+its last step with the error), and the branch that holds is where it goes
+instead of ``success_url``. ``done()`` saves the fields computed outside the
+forms (``writes``; ``extra_values()``). The ``wizard`` component takes
+``pipeline`` on the node and on each step, checked when the document is
+published. New: ``pipeline.build_pipeline(stage, model=, form_fields=,
+intermediate=)`` builds a pipeline in code; ``resolve_pipeline`` takes
+``intermediate=`` and ``where=``. Computations must be idempotent: a step
+validates more than once. See ``docs/source/wizard.rst``.
+
+**``site_field`` in the forms of a model (W30).** ``object_management`` and
+``crud_classic`` take ``site_field`` (a foreign key to ``sites.Site``): the
+rows are those of the request's Site and the global ones, another Site's row
+is a 404 (detail, update, delete), and a new row gets the request's Site. The
+form cannot ask for it, and the default form of ``crud_classic`` leaves it
+out; a ``facets`` panel over the table counts the same rows. See
+``docs/source/designs.rst``.
+
+**A geocoder per request (W30).** ``GT_GEOCODER`` can name a function -- or
+be one -- that takes the request and returns its ``Geocoder`` (or ``None``):
+one per Site, with the key read from the Site's credentials, without global
+state. ``get_geocoder(request=None)`` and ``geocoder_configured()``;
+``gt-geocode`` passes the request. A class keeps working as before. See
+``docs/source/widgets/formwidgets.rst``.
+
+**Metrics and facets for generated code (W30).** A metric card takes its own
+``period`` (one of the periods, or ``"all"``: every row, no comparison --
+"total" next to "new this month"); each card carries ``period``,
+``period_label`` and ``compare_label``. ``MetricsComponent.page_context()``
+adds ``cards``, ``cards_html`` and ``unavailable``, so
+``region_page_context()`` draws a metrics node without a page, and
+``render_cards`` is public. A chart bound to a ``facets`` panel copies the
+``column_conditions`` of the panel's target into ``ChartBuild.
+facet_conditions`` when the page is resolved, and ``chart_facet_filters`` no
+longer needs ``request.gtdesign_resolved``. ``facets_viewset_for(build,
+target=None)`` (or ``FacetsBuild.target_build``) and
+``facets_page_context(build, request, url=, target=)`` serve a panel over a
+table of a model without a published page. See ``docs/source/designs.rst``.
+
+**Markdown columns (W30).** A field of the form of an ``object_management``
+written with ``MarkdownInput`` is a Markdown column: its rows and its detail
+carry ``<name>_html`` (cleaned by ``render_markdown``), the table shows it
+and the detail modal prints it as HTML; the text itself never is. For
+``ObjectCRUD`` in code: ``djgentelella.serializers.GTMarkdownHTMLField`` and
+the ``markdownprint`` renderer of ``datatables.js``.
+
 Fixes
 """"""""
 
@@ -749,6 +804,25 @@ of an ``__all__`` and on a ``*_Test.py`` that ``__init__.py`` does not import.
 validator ignored them: the ``prefix``/``suffix`` of a metric (8 characters),
 the ``metrics`` list (12) and the ``center`` of a map (2 numbers) are now
 checked when the document is validated.
+
+**A design page in the menu with a trailing slash (W30).** With the new
+setting ``GT_MENU_DESIGN_PAGE_SLASH = True`` the link of a ``page:<path>``
+item and of a reversed ``gt-design-page`` ends in ``/``
+(``/designs/sales/clients/``), the URL a project that visits its pages with
+the slash shows, so a breadcrumb or an "active item" that compares the link
+with ``request.path`` matches. Off by default: the links stay as they were.
+Both forms serve the page.
+
+**Small fixes (W30).** ``DataSource.__repr__`` was dead code inside
+``source_column_map`` (W24): a source shows as ``<ModelDataSource name>``
+again. ``MetricsComponent.render`` no longer repeats the access rule of
+``RegionComponent.render``: both go through ``page_context``. Two test
+helpers named ``DownSource`` are now ``TTMDownSource`` and
+``W29DownSource``. The demo's SQLite test database is
+``demo/test_db_<pid>.sqlite3``, one per process: the browser tests and
+``make test`` can run at once in one checkout without destroying each
+other's database (a killed run leaves its file; ``--keepdb`` keeps nothing
+between runs).
 
 0.7.1 (2026-11-15)
 --------------------

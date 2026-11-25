@@ -280,3 +280,20 @@ geocoder, 400 without a query and 502 when the service fails. Any class with
 objects works -- a commercial service, a local gazetteer, or a fake in tests
 (the demo's, ``demoapp/geocoding.py``, is a short offline list). The public
 Nominatim allows one request per second: for real traffic, run your own.
+
+**A geocoder per request.** ``GT_GEOCODER`` can also name a function -- or
+be one -- that takes the request and returns the geocoder for it, or
+``None``: one per Site, with the key of the service in the Site's credentials
+and no global state::
+
+    def site_geocoder(request):
+        key = credentials_of(get_current_site(request)).get('geocoder')
+        return MyGeocoder(api_key=key) if key else None
+
+    GT_GEOCODER = 'myproject.geocoding.site_geocoder'
+
+``djgentelella.geocoding.get_geocoder(request=None)`` gives it (a class is
+built with ``GT_GEOCODER_OPTIONS`` whatever the request) and
+``geocoder_configured()`` says whether one is set. ``gt-geocode`` passes its
+request: a function that gives ``None`` for it answers 404. The widget has
+no request, so with a function it always shows its search button.

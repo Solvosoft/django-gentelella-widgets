@@ -183,6 +183,14 @@ project)::
 model=..., exposure=..., form_fields=...)`` makes of a document -- or ``None``
 (only the save). ``save(ctx)`` returns the saved object.
 
+In code, ``build_pipeline(stage, *, model=None, event='on_submit',
+form_fields=None, site=None, intermediate=False)`` makes the
+``PipelineBuild`` of a stage (``{"steps": [...], "branches": [...]}``) with
+the same checks, raising ``ImproperlyConfigured`` with every problem.
+``intermediate=True`` (also in ``resolve_pipeline``) is a stage that saves
+nothing -- a step of a wizard --: a process or a branch is an error. The
+wizard runs both kinds: see :doc:`wizard`.
+
 Validation when publishing
 --------------------------
 

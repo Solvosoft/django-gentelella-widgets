@@ -231,6 +231,13 @@ A ``url_name`` of ``page:<path>`` (not reversed) links the page of
 Without ``djgentelella.designs`` installed there is no such route, and the
 item links its ``url_name`` as it is instead of breaking the menu.
 
+A page answers at its path with and without a trailing slash. With
+``GT_MENU_DESIGN_PAGE_SLASH = True`` (off by default) the link of a design
+page -- a ``page:<path>`` item and a reversed ``gt-design-page`` -- ends in
+``/`` (``/designs/sales/clients/``): for a project that visits its pages
+with the slash, so a breadcrumb or an active item that compares the link
+with ``request.path`` matches.
+
 
 The Link of an Item in Python
 -----------------------------

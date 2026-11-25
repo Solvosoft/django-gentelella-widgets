@@ -119,8 +119,50 @@ Hooks
     inside the transaction of ``done()``, with what it returned; an exception
     rolls everything back.
 
-These are where a page pipeline runs its validations and computations per
-step and its processes at the end.
+The pipelines (below) run before them: ``on_step`` sees what the step's
+computations set, and the processes of the wizard's pipeline run right after
+``on_finish``.
+
+The pipeline
+------------
+
+The page pipeline of :doc:`pipeline` runs in two places. ``Step(...,
+pipeline=...)`` takes an ``on_submit`` stage (``{"steps": [...]}``) or a
+``PipelineBuild``: its **validations and computations** run whenever the
+step validates -- an error keeps the user in the step; a computed value goes
+to the form's ``cleaned_data`` and to ``state['computed'][step]``, so a draft
+keeps it. A process or a branch there is refused (``ImproperlyConfigured``):
+nothing is saved until the wizard finishes. The ``pipeline`` attribute of the
+view runs when it finishes: its validations and computations with the
+cleaned data of every step and what the steps computed, then -- in one
+transaction -- ``done()``, ``on_finish()`` and its processes; a failing
+process rolls everything back and the wizard stays at its last step with the
+error. Its branch, the first that holds for the saved object, is where it
+goes instead of ``success_url``::
+
+    class OrderWizard(GTWizardView):
+        model = Order
+        steps = [
+            Step('items', ItemsForm, pipeline={'steps': [
+                {'name': 'shop.check_stock'},
+                {'name': 'shop.order_total', 'writes': ['total']}]}),
+            Step('delivery', DeliveryForm),
+        ]
+        pipeline = {'steps': [{'name': 'shop.take_stock'}],
+                    'branches': [{'to': 'order-review',
+                                  'condition': {'auth': 'shop.big_order'}},
+                                 {'to': 'order-list'}]}
+
+A field a computation sets outside its form (``writes``) is saved by the
+default ``done()`` (``extra_values(forms)``; pass it to ``save_object`` in a
+``done()`` of your own). **Computations must be idempotent**: a step
+validates on "Next", quietly on "Previous" and "Save draft", and once more
+for every step on "Finish". The steps see ``ctx.node`` =
+``pipeline_node`` and, without an instance, ``ctx.parent`` = the object being
+edited. ``djgentelella.designs`` must be installed for a wizard with a
+pipeline; one without does not import it. Hooks: ``get_step_pipeline(step)``,
+``get_pipeline()``, ``pipeline_context(step, form)``,
+``finish_context(forms)``.
 
 Other hooks: ``get_steps()``, ``get_form_kwargs(step)``,
 ``get_form_initial(step)``, ``get_form_instance(step)``, ``get_wizard_key()``,
@@ -224,7 +266,16 @@ prop                   meaning
                        the page itself
 ``success_message``    the message when it finishes (default "Saved.")
 ``title``              above the progress bar
+``pipeline``           ``{"on_submit": ...}`` (:doc:`pipeline`) when it
+                       finishes: validations, computations, the save and the
+                       processes in one transaction, and the branch where it
+                       goes (instead of ``success_url``)
 =====================  ======================================================
+
+A step takes ``pipeline`` too (``{"on_submit": {"steps": [...]}}``): its
+validations and computations run whenever it validates; a process or a branch
+there is an error of the document. Its errors show on the page after the
+redirect, as those of the form.
 
 ``when`` skips a step by a value of a field of an **earlier** step:
 ``{"field": "has_car", "equals": true}``, ``{"field": "kind", "in": ["a",
