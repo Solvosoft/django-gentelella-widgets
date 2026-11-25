@@ -12,6 +12,17 @@ with a ``search(query, limit)`` that returns :class:`Place` objects works:
 a commercial service, a local gazetteer, or a fake in tests. The browser
 never calls the geocoder: it asks ``gtapis/geocode/`` (login required), so
 the service, its key and its usage policy stay on the server.
+
+``GT_GEOCODER`` can also name a function -- or be one -- that takes the
+request and returns the geocoder for it, or ``None`` (none for that
+request): a geocoder per Site, with the key of the service read from the
+credentials of the Site, and no global state::
+
+    def site_geocoder(request):
+        key = credentials_of(get_current_site(request)).get('geocoder')
+        return MyGeocoder(api_key=key) if key else None
+
+    GT_GEOCODER = 'myproject.geocoding.site_geocoder'
 """
 
 import json
@@ -91,13 +102,42 @@ class NominatimGeocoder(Geocoder):
         return places[:limit]
 
 
-def get_geocoder():
-    """The geocoder of ``GT_GEOCODER``, or None when there is none (default)."""
-    path = getattr(settings, 'GT_GEOCODER', None)
-    if not path:
+def geocoder_setting():
+    """What ``GT_GEOCODER`` names: a :class:`Geocoder` class, a function
+    ``request -> Geocoder | None``, or ``None`` when it is not set (the
+    default). A dotted path that does not import is ``ImproperlyConfigured``.
+    """
+    value = getattr(settings, 'GT_GEOCODER', None)
+    if not value:
         return None
-    try:
-        geocoder_class = import_string(path)
-    except ImportError as error:
-        raise ImproperlyConfigured('GT_GEOCODER: %s' % error) from error
-    return geocoder_class(**getattr(settings, 'GT_GEOCODER_OPTIONS', {}))
+    if isinstance(value, str):
+        try:
+            value = import_string(value)
+        except ImportError as error:
+            raise ImproperlyConfigured('GT_GEOCODER: %s' % error) from error
+    if not callable(value):
+        raise ImproperlyConfigured('GT_GEOCODER is neither a Geocoder class nor a '
+                                   'function of the request: %r' % (value,))
+    return value
+
+
+def geocoder_configured():
+    """Whether a geocoder is configured (``GT_GEOCODER``); with a function of
+    the request, it may still give none for a request."""
+    return geocoder_setting() is not None
+
+
+def get_geocoder(request=None):
+    """The geocoder for ``request``, or ``None`` when there is none (the
+    default).
+
+    A class in ``GT_GEOCODER`` is built with ``GT_GEOCODER_OPTIONS`` whatever
+    the request; a function is called with ``request`` (``None`` when there
+    is none) and its answer returned.
+    """
+    found = geocoder_setting()
+    if found is None:
+        return None
+    if isinstance(found, type):
+        return found(**getattr(settings, 'GT_GEOCODER_OPTIONS', {}))
+    return found(request)

@@ -1,7 +1,7 @@
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from djgentelella.geocoding import get_geocoder
+from djgentelella.geocoding import geocoder_configured
 
 from .core import TextInput, js_widget_name, update_kwargs
 
@@ -34,7 +34,9 @@ class GeocodedAddressInput(TextInput):
 
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
-        enabled = get_geocoder() is not None
+        # A widget has no request: a function of the request may still find
+        # no geocoder for one, and the endpoint then answers 404.
+        enabled = geocoder_configured()
         if enabled:
             context['widget']['attrs']['data-geocode-url'] = reverse('gt-geocode')
         context['geocoder'] = enabled

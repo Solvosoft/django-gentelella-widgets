@@ -15,10 +15,10 @@ MAX_RESULTS = 10
 def geocode_view(request):
     """``{"results": [{"label", "lat", "lng", "point"}]}`` for ``?q=``.
 
-    404 while ``GT_GEOCODER`` is not set, 400 without a query, 502 when the
-    geocoder fails.
+    404 while ``GT_GEOCODER`` is not set (or its function gives no geocoder
+    for this request), 400 without a query, 502 when the geocoder fails.
     """
-    geocoder = get_geocoder()
+    geocoder = get_geocoder(request)
     if geocoder is None:
         return JsonResponse({'error': _('There is no geocoder configured.')},
                             status=404)
