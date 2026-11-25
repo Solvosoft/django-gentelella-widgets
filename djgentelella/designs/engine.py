@@ -345,12 +345,13 @@ def _add_dependencies(nodes):
 
 
 def make_context(document, request=None, preview=False, *, context=None,
-                 allow_templates=False):
+                 allow_templates=False, site=None):
     """The :class:`ResolveContext` a design is resolved or rendered with.
 
     ``context`` is ``None`` (a plain :class:`ResolveContext`), a subclass of
     it (instantiated here) or an instance, which is used as it is with
-    ``document`` as its ``design``.
+    ``document`` as its ``design``. ``site``, when given, is the Site of a
+    context built here instead of the request's (an instance keeps its own).
     """
     if context is None:
         context = ResolveContext
@@ -358,7 +359,10 @@ def make_context(document, request=None, preview=False, *, context=None,
         if not issubclass(context, ResolveContext):
             raise TypeError('context must be a ResolveContext or a subclass, not %r'
                             % (context,))
-        return context(document, request, preview, allow_templates=allow_templates)
+        kwargs = {'allow_templates': allow_templates}
+        if site is not None:
+            kwargs['site'] = site
+        return context(document, request, preview, **kwargs)
     if not isinstance(context, ResolveContext):
         raise TypeError('context must be a ResolveContext or a subclass, not %r'
                         % (context,))
@@ -367,7 +371,7 @@ def make_context(document, request=None, preview=False, *, context=None,
 
 
 def resolve(document, request=None, preview=False, *, allow_templates=False,
-            allow_js=False, context=None, components=None):
+            allow_js=False, context=None, components=None, site=None):
     """``(ResolvedPage, [])`` for a valid design, ``(None, errors)`` otherwise.
 
     ``request`` is ``None`` when validating offline (``gtdesigns_publish``);
@@ -389,6 +393,11 @@ def resolve(document, request=None, preview=False, *, allow_templates=False,
     ``components``
         ``{type: RuntimeComponent instance}`` instead of the registry's
         (:func:`djgentelella.designs.registry.get_components`).
+    ``site``
+        the Site the design is resolved for, by default the request's (none
+        offline): what the design names that only exists in one Site -- a
+        ``flow:`` row link to a flow published there -- is looked up in it.
+        A ``context`` instance keeps its own.
     """
     try:
         document = format.upgrade(document)
@@ -403,7 +412,7 @@ def resolve(document, request=None, preview=False, *, allow_templates=False,
     components = dict(registry.get_components() if components is None
                       else components)
     rctx = make_context(document, request, preview, context=context,
-                        allow_templates=allow_templates)
+                        allow_templates=allow_templates, site=site)
     rctx.components = components
     preview, allow_templates = rctx.preview, rctx.allow_templates
     _check_tree(document['root'], components, rctx)

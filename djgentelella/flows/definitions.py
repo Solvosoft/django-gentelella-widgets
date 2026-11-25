@@ -35,6 +35,7 @@ from djgentelella.flows.actions import action_from_json
 from djgentelella.flows.activities import TYPES
 from djgentelella.flows.base import Deadline, Flow, Transition
 from djgentelella.flows.callables import (
+    DocumentError,
     blocked_form,
     guard_action,
     guard_condition,
@@ -50,6 +51,7 @@ from djgentelella.flows.taskforms import (
     validate_task_forms,
 )
 from djgentelella.flows.utils import to_timedelta
+from djgentelella.sites import resolve_site, site_pk
 
 #: The keys of an activity that are not arguments of its class.
 COMMON = ('id', 'type', 'label', 'help_text', 'on_enter', 'on_exit')
@@ -223,3 +225,81 @@ def publish_definition(document, site=None, activate=True, version=None):
         if activate:
             same.exclude(pk=definition.pk).update(is_active=False)
     return definition
+
+
+# -- a definition as data ----------------------------------------------------------
+
+def export_definition(definition):
+    """A :class:`~djgentelella.flows.models.FlowDefinition` as data:
+    ``{'name', 'document'}``, the document with its ``version``. No pk and no
+    Site: :func:`import_definition` is told where."""
+    return {'name': definition.name, 'document': definition.document}
+
+
+def export_definitions(site=None):
+    """The active version of every flow of ``site`` (``None``: the global
+    ones), as :func:`export_definition`, ordered by name."""
+    found = {}
+    for definition in FlowDefinition.objects.filter(
+            site_id=site_pk(site), is_active=True).order_by('name', '-version'):
+        found.setdefault(definition.name, definition)
+    return [export_definition(found[name]) for name in sorted(found)]
+
+
+def _comparable(document):
+    document = dict(document)
+    document.pop('version', None)
+    document.pop('schema_version', None)
+    return document
+
+
+def validate_definition_data(data):
+    """``(path, message)`` errors of ``data`` (the format of
+    :func:`export_definition`): its shape, and the document as
+    :func:`publish_definition` checks it. Empty means it can be imported."""
+    if not isinstance(data, dict):
+        return [DocumentError('$', _('a flow is an object'))]
+    errors = [DocumentError('$.' + name, _('unknown field'))
+              for name in sorted(set(data) - {'name', 'document'})]
+    name, document = data.get('name'), data.get('document')
+    if not isinstance(name, str) or not name:
+        errors.append(DocumentError('$.name', _('required')))
+    if not isinstance(document, dict):
+        errors.append(DocumentError('$.document', _('required')))
+        return errors
+    if isinstance(name, str) and document.get('name') != name:
+        errors.append(DocumentError('$.document.name', _(
+            'the document is of another flow: %s') % document.get('name')))
+    document = dict(document)
+    document.setdefault('schema_version', CURRENT)
+    try:
+        build_flow(document)
+    except ImproperlyConfigured as error:
+        errors.append(DocumentError('$.document', str(error)))
+        return errors
+    return errors + (validate_conditions(document) + validate_callables(document)
+                     + validate_task_forms(document))
+
+
+def import_definition(data, site=None):
+    """Publish the flow ``data`` (the format of :func:`export_definition`)
+    in ``site`` and return its active ``FlowDefinition``.
+
+    When the active version there already has the same document (its
+    ``version`` aside) it is returned as it is; otherwise the document becomes
+    a new version -- the next one of that name and Site --, so the instances
+    under way keep theirs. ``ImproperlyConfigured`` with every problem when
+    :func:`validate_definition_data` finds any; nothing is saved then.
+    """
+    errors = validate_definition_data(data)
+    if errors:
+        raise invalid_definition(errors)
+    current = FlowDefinition.objects.filter(
+        name=data['name'], site_id=site_pk(site), is_active=True).order_by(
+        '-version').first()
+    if current is not None and \
+            _comparable(current.document) == _comparable(data['document']):
+        return current
+    document = dict(data['document'])
+    document.pop('version', None)
+    return publish_definition(document, site=resolve_site(site))

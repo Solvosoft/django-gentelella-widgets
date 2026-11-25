@@ -70,3 +70,4 @@ from .GlobalSearch_Test import *
 from .MenuWidgets_Test import *
 from .MenuTransfer_Test import *
 from .SettingsEscape_Test import *
+from .DesignsTransfer_Test import *

@@ -27,7 +27,10 @@ _EXPORTS = {
         'get_flow', 'get_flows', 'register_flow',
     ],
     'djgentelella.flows.conditions': ['register_condition'],
-    'djgentelella.flows.definitions': ['build_flow', 'publish_definition'],
+    'djgentelella.flows.definitions': [
+        'build_flow', 'export_definition', 'export_definitions', 'import_definition',
+        'publish_definition', 'validate_definition_data',
+    ],
     'djgentelella.flows.exceptions': [
         'ActionNotAllowed', 'TaskNotAllowed', 'TransitionBlocked',
         'TransitionNotAllowed',

@@ -234,6 +234,19 @@ updated in place, the others are created and, with ``replace``, the items the
 data does not name are deleted. See ``docs/source/menus.rst`` ("Exporting and
 Importing a Menu").
 
+**Pages and flows as data, published for their Site.**
+``designs.publishing.export_page(page)`` / ``import_page(data, site=None,
+user=None)`` (``path``, ``title``, ``is_published``, ``document``,
+``permissions`` as ``app_label.codename``; checked by ``validate_page_data``,
+nothing saved on errors) and ``djgentelella.flows.export_definition`` /
+``export_definitions(site)`` / ``import_definition(data, site)`` (``{name,
+document}``; the same document is no new version; checked by
+``validate_definition_data``). ``publishing.publish`` and ``validate`` resolve
+the document for the Site they publish in (``engine.resolve`` and
+``make_context`` take ``site=``): a ``flow:`` row link to a flow published only
+in that Site was an error and is now valid there. See
+``docs/source/designs.rst`` and ``flows.rst``.
+
 Backwards incompatible
 """"""""""""""""""""""""
 

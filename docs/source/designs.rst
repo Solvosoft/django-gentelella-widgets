@@ -245,7 +245,22 @@ the path without the object's pk.
 
 From Python: ``engine.resolve(document) -> (ResolvedPage, errors)``,
 ``engine.render(resolved, request)`` and ``engine.resolve_page(page)``;
-``publishing.publish(document, site=None, path=None, user=None)``.
+``publishing.publish(document, site=None, path=None, user=None)``. ``publish``
+and ``publishing.validate(document, user=None, site=None)`` resolve the
+document for ``site`` (``engine.resolve(..., site=site)``, which a request
+otherwise gives), so a ``flow:`` row link to a flow published only in that
+Site is valid there.
+
+**A page as data.** ``publishing.export_page(page)`` gives ``path``,
+``title``, ``is_published``, ``document`` and ``permissions``
+(``['app_label.codename', ...]``), with no pk and no Site.
+``publishing.import_page(data, site=None, user=None) -> (page, errors)``
+checks the shape (``validate_page_data``: unknown keys, types, the path, that
+the permissions exist) and publishes the document with ``publish`` for that
+Site, ``user`` as the publisher whose trust it gets; nothing is saved when
+something is wrong. The page at ``(site, path)`` is replaced. The title and
+permissions are the data's (without ``permissions``, those of
+``meta.permissions``).
 
 Endpoints
 ---------

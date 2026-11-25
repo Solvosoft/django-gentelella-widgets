@@ -531,6 +531,16 @@ instances. ``get_flow(name, site=site)`` returns the active definition with
 the highest version -- the site's own before the global one -- and falls back
 to the Python class of that name.
 
+**A definition as data.** ``export_definition(definition)`` gives
+``{'name', 'document'}`` (the document with its ``version``; no pk, no Site)
+and ``export_definitions(site=None)`` the active version of each flow of a
+Site, by name. ``import_definition(data, site=None)`` publishes it there: when
+the active version already has the same document (``version`` aside) it is
+returned as it is, otherwise the document becomes the next version. It checks
+everything first (``validate_definition_data``: the shape, the name of the
+document and what ``publish_definition`` checks) and raises
+``ImproperlyConfigured`` without saving when something is wrong.
+
 **Versions.** An instance stays bound to the version it started with
 (``FlowInstance.version`` and ``definition``): publishing a new one does not
 change the instances under way, and ``get_flow(name).run(obj, ...)`` runs the
