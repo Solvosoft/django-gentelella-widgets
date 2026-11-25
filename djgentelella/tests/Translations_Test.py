@@ -73,7 +73,7 @@ class CatalogTest(SimpleTestCase):
         'django.po': {'CC', 'Slug', 'Manual', 'Variables', 'No', 'hash',
                       'Error', 'Normal', '%(task)s: %(action)s.', 'Visible',
                       'Flag', 'Global', 'Error 403', 'Color', 'HTML',
-                      'Decimal'},
+                      'Decimal', 'Idea'},
         'djangojs.po': {'Error', 'No', 'Id', 'Slug', 'Total'},
     }
 
