@@ -4569,3 +4569,130 @@ msgstr "una lista sobre una fuente de datos solo lee: no tiene permisos %r"
 #: designs/source_tables.py
 msgid "must be a list of filters"
 msgstr "debe ser una lista de filtros"
+
+#: designs/templates/gtdesigns/components/metrics.html
+msgid "The metrics could not be computed."
+msgstr "No se pudieron calcular las métricas."
+
+#: designs/templates/gtdesigns/components/metrics_cards.html
+msgid "No data to compare with"
+msgstr "Sin datos para comparar"
+
+#: designs/templates/gtdesigns/components/metrics_cards.html
+msgid "up"
+msgstr "sube"
+
+#: designs/templates/gtdesigns/components/metrics_cards.html
+msgid "down"
+msgstr "baja"
+
+#: designs/templates/gtdesigns/components/metrics_cards.html
+msgid "no change"
+msgstr "sin cambio"
+
+#: designs/templates/gtdesigns/components/metrics_cards.html
+msgid "No metrics to show."
+msgstr "No hay métricas que mostrar."
+
+#: designs/templates/gtdesigns/components/timeline.html
+msgid "Load older"
+msgstr "Cargar anteriores"
+
+#: designs/tree_timeline_metrics.py
+msgid "Today"
+msgstr "Hoy"
+
+#: designs/tree_timeline_metrics.py
+msgid "vs. the previous day"
+msgstr "frente al día anterior"
+
+#: designs/tree_timeline_metrics.py
+msgid "This week"
+msgstr "Esta semana"
+
+#: designs/tree_timeline_metrics.py
+msgid "vs. the previous week"
+msgstr "frente a la semana anterior"
+
+#: designs/tree_timeline_metrics.py
+msgid "This month"
+msgstr "Este mes"
+
+#: designs/tree_timeline_metrics.py
+msgid "vs. the previous month"
+msgstr "frente al mes anterior"
+
+#: designs/tree_timeline_metrics.py
+msgid "This quarter"
+msgstr "Este trimestre"
+
+#: designs/tree_timeline_metrics.py
+msgid "vs. the previous quarter"
+msgstr "frente al trimestre anterior"
+
+#: designs/tree_timeline_metrics.py
+msgid "This year"
+msgstr "Este año"
+
+#: designs/tree_timeline_metrics.py
+msgid "vs. the previous year"
+msgstr "frente al año anterior"
+
+#: designs/tree_timeline_metrics.py
+#, python-format
+msgid "%s must be a whole number"
+msgstr "%s debe ser un número entero"
+
+#: designs/tree_timeline_metrics.py
+#, python-format
+msgid "%s is out of range"
+msgstr "%s está fuera de rango"
+
+#: designs/tree_timeline_metrics.py
+msgid "parent is not an id of this tree"
+msgstr "parent no es un id de este árbol"
+
+#: designs/tree_timeline_metrics.py
+msgid "Tree"
+msgstr "Árbol"
+
+#: designs/tree_timeline_metrics.py
+msgid "a foreign key parent names the primary key: leave id_field empty"
+msgstr "un padre que es llave foránea nombra la llave primaria: deje id_field vacío"
+
+#: designs/tree_timeline_metrics.py
+#, python-format
+msgid "%(field)r is not a foreign key to %(model)s"
+msgstr "%(field)r no es una llave foránea a %(model)s"
+
+#: designs/tree_timeline_metrics.py
+#, python-format
+msgid "the parent (%(parent)s) and the id (%(id)s) are not of the same kind"
+msgstr "el padre (%(parent)s) y el id (%(id)s) no son del mismo tipo"
+
+#: designs/tree_timeline_metrics.py
+msgid "invalid cursor"
+msgstr "cursor inválido"
+
+#: designs/tree_timeline_metrics.py
+#, python-format
+msgid "%s is not an ISO date"
+msgstr "%s no es una fecha ISO"
+
+#: designs/tree_timeline_metrics.py
+msgid "Timeline"
+msgstr "Línea de tiempo"
+
+#: designs/tree_timeline_metrics.py
+#, python-format
+msgid "%(fn)s needs a numeric column; %(column)r is not one"
+msgstr "%(fn)s necesita una columna numérica; %(column)r no lo es"
+
+#: designs/tree_timeline_metrics.py
+#, python-format
+msgid "%s needs a column"
+msgstr "%s necesita una columna"
+
+#: designs/tree_timeline_metrics.py
+msgid "Metric cards"
+msgstr "Tarjetas de métricas"

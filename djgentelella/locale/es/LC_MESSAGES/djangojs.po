@@ -820,3 +820,50 @@ msgstr ""
 #: static/gentelella/js/designs/regions.js:223
 msgid "The points could not be loaded."
 msgstr "No se pudieron cargar los puntos."
+
+#: static/gentelella/js/designs/tree_timeline_metrics.js
+#, javascript-format
+msgid "%s rows whose parent is not shown are at the root."
+msgstr "%s filas cuyo padre no se muestra están en la raíz."
+
+#: static/gentelella/js/designs/tree_timeline_metrics.js
+#, javascript-format
+msgid "%s cycles in the parents: one row of each is at the root."
+msgstr "%s ciclos en los padres: una fila de cada uno está en la raíz."
+
+#: static/gentelella/js/designs/tree_timeline_metrics.js
+msgid "Too many rows to look for cycles in the parents."
+msgstr "Demasiadas filas para buscar ciclos en los padres."
+
+#: static/gentelella/js/designs/tree_timeline_metrics.js
+#, javascript-format
+msgid "Showing the first %s rows."
+msgstr "Se muestran las primeras %s filas."
+
+#: static/gentelella/js/designs/tree_timeline_metrics.js
+msgid "Open"
+msgstr "Abrir"
+
+#: static/gentelella/js/designs/tree_timeline_metrics.js
+msgid "parent not shown"
+msgstr "padre no visible"
+
+#: static/gentelella/js/designs/tree_timeline_metrics.js
+msgid "cycle"
+msgstr "ciclo"
+
+#: static/gentelella/js/designs/tree_timeline_metrics.js
+msgid "The tree could not be loaded."
+msgstr "No se pudo cargar el árbol."
+
+#: static/gentelella/js/designs/tree_timeline_metrics.js
+msgid "Nothing to show."
+msgstr "Nada que mostrar."
+
+#: static/gentelella/js/designs/tree_timeline_metrics.js
+msgid "The timeline could not be loaded."
+msgstr "No se pudo cargar la línea de tiempo."
+
+#: static/gentelella/js/designs/tree_timeline_metrics.js
+msgid "The metrics could not be computed."
+msgstr "No se pudieron calcular las métricas."
