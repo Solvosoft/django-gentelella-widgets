@@ -346,6 +346,10 @@ type                            what it is
 ``facets``                      a facets panel (``GTFacets``) filtering a table
 ``interactive_grid``            rows edited in place like a spreadsheet and
                                 saved together (``djgentelella.designs.grid``)
+``cards``, ``calendar``,        the rows of a data source as cards, on a
+``map``                         calendar or on a map
+                                (``djgentelella.designs.regions``, see "Region
+                                components")
 ==============================  ===============================================
 
 .. code:: json
@@ -791,6 +795,110 @@ configuration reaches the browser as JSON. A transition between two states
 the board shows is reachable by dragging; one that stays in its state
 (``escalate`` in the help desk demo) is not, use the flow's pages for it. The
 demo publishes the help desk board at ``/designs/tickets-board/``.
+
+Region components
+-----------------
+
+*(Componentes de región: tarjetas, calendario y mapa.)* ``cards``,
+``calendar`` and ``map`` (``djgentelella.designs.regions``) show the rows of a
+data source (:doc:`datasources`) -- or of an exposed model -- as cards, as
+events of a calendar or as points of a map. The three share one contract:
+
+``datasource``
+    a registered data source: its ``get_queryset(request)`` (Site and
+    permissions) is every row the component shows, and its
+    ``has_permission(request)`` answers 403 for the others. Or ``model``, an
+    exposed model, with an optional ``site_field`` (a foreign key to
+    ``sites.Site``: the current Site's rows and the global ones); its rows are
+    those of a ``ModelDataSource`` over the fields its exposure allows, and
+    seeing them needs ``perms`` (the model's view permission by default).
+``title_field``, ``subtitle_field``, ``fields``
+    columns of the data source: the title, the subtitle and more fields shown
+    (on the card, in the event, in the popup). Relations show their text and
+    choices their label.
+role columns
+    ``image_field`` (cards: a file field or a URL), ``start_field`` and
+    ``end_field`` (calendar: a date or a date-time; the end is optional),
+    ``color_field`` (calendar), ``point_field`` (map: a
+    :doc:`GTPointField <widgets/maps>`, ``"lat,lng"``).
+``row_links``
+    as a table's: a URL name taking the pk, ``page:<path>`` or ``flow:<name>``,
+    each with its ``condition``. The first one the user may see is the row's
+    own link: the card title, a click on the event, the link of the popup.
+``column_conditions``
+    ``{field: condition}``: a field of ``fields`` (or the subtitle) shown only
+    when it holds; the endpoint refuses a filter or an ordering over it (400).
+``ordering``, ``perms``, ``title``
+    as in the other components. A node condition (``props.condition``) hides
+    the component and its endpoint (404).
+
+.. code:: json
+
+    {"type": "cards", "id": "meetup_cards",
+     "props": {"datasource": "demoapp.meetups", "title_field": "title",
+               "subtitle_field": "city", "image_field": "picture",
+               "fields": ["kind", "starts_at"], "page_size": 6,
+               "row_links": [{"url_name": "admin:demoapp_meetup_change",
+                              "title": "Open"}]}}
+
+    {"type": "calendar", "id": "meetup_calendar",
+     "props": {"datasource": "demoapp.meetups", "title_field": "title",
+               "start_field": "starts_at", "end_field": "ends_at",
+               "color_field": "kind",
+               "colors": {"talk": "#3498db", "workshop": "#e67e22"},
+               "filtered_by": "filters"}}
+
+    {"type": "map", "id": "meetup_map",
+     "props": {"datasource": "demoapp.meetups", "title_field": "title",
+               "point_field": "location", "fields": ["kind"], "cluster": true,
+               "filtered_by": "filters"}}
+
+**Cards** (``page_size``, ``per_row``, ``search``). The endpoint *is* a
+``ListAreaViewset`` (``views/listAreaViewset.py``) and the browser reads it
+with ``CardList`` (``api_list.js``), the same pair the hand-written card
+lists use: ``?page=&page_size=&params=`` answers ``data``, ``recordsTotal``,
+``totalPages``, ``currentPage`` and the Squirrelly ``template`` that draws
+them, escaping every value. ``ListAreaViewset`` gained
+``get_template_context()`` and ``template_response()`` for that, and works
+without a ``filter_form``; its answer did not change. A page of cards takes
+the same queries for one card or a hundred: the count, the pks of the page and
+their rows (plus one per relation shown).
+
+**Calendar** (``initial_view``, ``limit``, ``colors``, ``color_rules``).
+FullCalendar asks for the **visible range only**: ``?start=&end=`` (ISO dates,
+at most 400 days apart, 400 otherwise), and the endpoint reads the rows that
+overlap it -- start before the end, and end after the start (or, without an
+end, start inside) -- in one query, at most ``limit`` (500; ``truncated``
+says when there were more). The colour of an event is the first
+``color_rules`` item whose filter (a filter of the parameter document)
+matches, else ``colors[<value of color_field>]``, else the value itself when
+it is a colour. An event of a date column is an all-day one.
+
+**Map** (``cluster``, ``bbox``, ``limit``, ``center``, ``zoom``, ``height``).
+The endpoint is a ``BaseMapView`` (``views/maps.py``), so its payload is the
+one ``DJMap`` and ``maplib.js`` draw. It sends at most ``limit`` points (500,
+``truncated`` when there were more). With ``bbox`` (the default), after the
+first load the browser asks again for the points of the visible box when the
+map moves: ``?bbox=<west>,<south>,<east>,<north>``, filtered in the database
+(the ``"lat,lng"`` text is split and cast inside a ``CASE`` that skips a value
+that is not a point, so PostgreSQL never fails on one), across the
+antimeridian too. The popup is HTML rendered and escaped by the server.
+
+**Facets.** A ``facets`` panel may name a region node over a ``datasource``
+as its ``target``; the panel and the component share the data source state of
+the page (``gtdesign:<target>``), and the component reloads with the panel's
+filters and search as the parameter document (``?params=``), which its
+endpoint applies with ``apply_params`` on top of ``get_queryset(request)``. A
+component that is not the target follows the same panel with
+``filtered_by: <panel id>``, over the same data source: one panel then filters
+the cards, the calendar and the map. A region over a ``model`` cannot be a
+facets target (the panel reads a registered data source).
+
+FullCalendar and Leaflet.markercluster are loaded by the component's script
+(``gentelella/js/designs/regions.js``) when the page does not bring them
+(``use_readonlywidgets`` and ``use_maps``); Leaflet itself is always there.
+The demo publishes the three over ``demoapp.meetups`` at
+``/designs/meetups/``.
 
 Extending the engine
 --------------------
