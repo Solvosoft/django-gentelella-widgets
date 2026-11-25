@@ -21,8 +21,9 @@ class RatingField(forms.IntegerField):
         kwargs['max_value'] = self.stars
         super().__init__(**kwargs)
 
-    def to_python(self, value):
-        value = super().to_python(value)
+    def clean(self, value):
+        # After validation: a required field must not take 0 for empty.
+        value = super().clean(value)
         return self.empty_value if value is None else value
 
 

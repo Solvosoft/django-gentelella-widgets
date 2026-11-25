@@ -133,6 +133,8 @@ class StarRatingTests(SimpleTestCase):
             with self.assertRaises(forms.ValidationError):
                 field.clean(bad)
         self.assertIsNone(RatingField(required=False).clean(''))
+        with self.assertRaises(forms.ValidationError):
+            RatingField(empty_value=0).clean('')
 
 
 class SwitchTests(SimpleTestCase):
