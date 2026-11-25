@@ -107,6 +107,8 @@ METRIC_FUNCTIONS = {
 }
 METRIC_FORMATS = ('number', 'currency', 'percent')
 MAX_METRICS = 12
+#: What a value without data shows, the sign of a fall and the space before %.
+DASH, MINUS, NBSP = '\u2014', '\u2212', '\u00a0'
 PERIOD_LABELS = {
     'day': (gettext_lazy('Today'), gettext_lazy('vs. the previous day')),
     'week': (gettext_lazy('This week'), gettext_lazy('vs. the previous week')),
@@ -764,20 +766,29 @@ def plain_number(value):
 
 
 def format_metric(metric, value, signed=False):
-    """The text of ``value`` in the format of ``metric``; ``—`` for none."""
+    """The text of ``value`` in the format of ``metric``; an em dash for none."""
     if value is None:
-        return '—'
+        return DASH
     decimals = metric['decimals']
     number = value * 100 if metric['format'] == 'percent' else value
     sign = ''
     if signed:
-        sign = '+' if number > 0 else ('−' if number < 0 else '')
+        sign = '+' if number > 0 else (MINUS if number < 0 else '')
         number = abs(number)
     text = formats.number_format(round(Decimal(str(number)), decimals), decimals,
                                  use_l10n=True, force_grouping=True)
     if metric['format'] == 'percent':
-        text += ' %'
+        text += NBSP + '%'
     return '%s%s%s%s' % (sign, metric['prefix'], text, metric['suffix'])
+
+
+def format_change(change):
+    """``+12.5 %`` (localized) of a change in percent; '' for none."""
+    if change is None:
+        return ''
+    sign = '+' if change > 0 else (MINUS if change < 0 else '')
+    return '%s%s%s%%' % (sign, formats.number_format(abs(change), 1, use_l10n=True),
+                         NBSP)
 
 
 def metric_result(metric, value, previous, compared):
@@ -798,10 +809,9 @@ def metric_result(metric, value, previous, compared):
     result.update({
         'previous': previous, 'previous_display': format_metric(metric, previous),
         'delta': delta, 'delta_display': format_metric(metric, delta, signed=True)
-        if delta is not None else '—',
+        if delta is not None else DASH,
         'change': change,
-        'change_display': ('%+.1f %%' % change).replace('-', '−')
-        if change is not None else '',
+        'change_display': format_change(change),
         'trend': trend, 'good': good})
     return result
 

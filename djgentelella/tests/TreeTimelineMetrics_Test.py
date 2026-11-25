@@ -676,7 +676,7 @@ class MetricsTests(Base):
         cards = self.cards({'label': 'sum', 'fn': 'sum', 'column': 'amount'},
                            {'label': 'avg', 'fn': 'avg', 'column': 'amount'})
         self.assertEqual((cards['m0']['value'], cards['m1']['value']), (0, None))
-        self.assertEqual(cards['m1']['display'], '—')
+        self.assertEqual(cards['m1']['display'], '\u2014')
 
     def test_a_filter_per_card(self):
         self.purchase('10.00', supplier='ACME')
@@ -702,7 +702,7 @@ class MetricsTests(Base):
                           card['change'], card['trend'], card['good']),
                          (30.0, 20.0, 10.0, 50.0, 'up', True))
         self.assertEqual((card['delta_display'], card['change_display']),
-                         ('+10.00', '+50.0 %'))
+                         ('+10.00', '+50.0\u00a0%'))
         self.assertIs(cards['m1']['good'], False)
         self.assertEqual((cards['m2']['value'], cards['m2']['compare']), (1, False))
 
@@ -727,7 +727,7 @@ class MetricsTests(Base):
                            date_field='created_at', period='month')
         self.assertEqual((cards['m0']['change'], cards['m0']['trend'],
                           cards['m0']['good']), (-75.0, 'down', False))
-        self.assertEqual(cards['m0']['change_display'], '−75.0 %')
+        self.assertEqual(cards['m0']['change_display'], '\u221275.0\u00a0%')
         self.assertEqual((cards['m1']['trend'], cards['m1']['good']), ('flat', None))
 
     def test_every_period(self):
@@ -755,12 +755,12 @@ class MetricsTests(Base):
         metric = {'format': 'currency', 'decimals': 2, 'prefix': '$', 'suffix': ''}
         self.assertEqual(ttm.format_metric(metric, 1234.5), '$1,234.50')
         metric = {'format': 'percent', 'decimals': 1, 'prefix': '', 'suffix': ''}
-        self.assertEqual(ttm.format_metric(metric, 0.125), '12.5 %')
+        self.assertEqual(ttm.format_metric(metric, 0.125), '12.5\u00a0%')
         self.assertEqual(ttm.format_metric(metric, -0.5, signed=True),
-                         '−50.0 %')
+                         '\u221250.0\u00a0%')
         metric = {'format': 'number', 'decimals': 0, 'prefix': '', 'suffix': ' u'}
         self.assertEqual(ttm.format_metric(metric, 3), '3 u')
-        self.assertEqual(ttm.format_metric(metric, None), '—')
+        self.assertEqual(ttm.format_metric(metric, None), '\u2014')
 
     def test_a_card_condition(self):
         self.purchase('10.00')
