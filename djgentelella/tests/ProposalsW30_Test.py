@@ -11,10 +11,14 @@ from decimal import Decimal
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
-from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.test import RequestFactory, TestCase, override_settings
 from django.urls import include, path, reverse
+from django.http import HttpResponse, JsonResponse
 from django.utils import timezone
+from django.views.generic import CreateView, View
+from rest_framework import serializers, viewsets
+from rest_framework.test import APIRequestFactory, force_authenticate
 from rest_framework.exceptions import ValidationError as APIValidationError
 
 from demoapp.models import Department, NewHire, PurchaseRequest, SupportTicket
@@ -25,7 +29,12 @@ from djgentelella.datasources.base import ModelDataSource
 from djgentelella.designs import engine, factories, publishing, registry
 from djgentelella.designs.data_components import facets_page_context
 from djgentelella.designs.exposure import expose
-from djgentelella.designs.pipeline import PipelineBuild, build_pipeline, process
+from djgentelella.designs import pipeline as pipelines
+from djgentelella.designs.components import ResolveContext
+from djgentelella.designs.pipeline import (
+    BranchBuild, PipelineBuild, PipelineFormMixin, PipelinePageMixin,
+    PipelineViewSetMixin, build_pipeline, process, step_build,
+)
 from djgentelella.designs.regions import region_page_context
 from djgentelella.models import MenuItem, WizardDraft
 from djgentelella.serializers import GTMarkdownHTMLField
@@ -40,6 +49,7 @@ from djgentelella.widgets.geocoding import GeocodedAddressInput
 from djgentelella.wizard import GTWizardView, Step
 
 __all__ = ['W30WizardPipelineTests', 'W30WizardComponentPipelineTests',
+           'W30EditorHooksTests', 'W30PipelineMixinsTests',
            'W30BuildPipelineTests', 'W30SiteFieldTests', 'W30GeocoderTests',
            'W30MetricsTests', 'W30FacetsTests', 'W30SmallTests']
 
@@ -74,6 +84,17 @@ def audit(ctx):
     calls.append(('audit', ctx.instance.pk, ctx.instance.car_plate))
     if ctx.instance.name == 'Fail':
         raise RuntimeError('the audit service is down')
+
+
+@process('tests_w30.greet', kind='computation')
+def greet(ctx):
+    ctx.add_context(greeting='hello')
+
+
+@process('tests_w30.deny', kind='validation')
+def deny(ctx):
+    if ctx.request.GET.get('deny'):
+        ctx.add_error(None, 'Not today.')
 
 
 @authorization('tests.w30.has_car', cache=False)
@@ -670,3 +691,144 @@ class W30SmallTests(DataDesignTestCase):
         # The pid of the process that loaded the settings (the parent of
         # the workers of --parallel, which clone it).
         self.assertRegex(str(database['TEST']['NAME']), r'test_db_\d+\.sqlite3$')
+
+
+# -- the proposals of E12: hooks for the editor and mixins for generated code ------
+
+class GeneratingContext(ResolveContext):
+    """What the editor does: steps and pages it generates."""
+
+    def pipeline_step(self, name, path=None, kind=None):
+        if name.startswith('gen.'):
+            return step_build(name, kind or 'validation', lambda ctx: None).process
+        return super().pipeline_step(name, path)
+
+    def branch_target(self, target, path=None, *, event=pipelines.ON_SUBMIT,
+                      model=None):
+        if target == 'page:generated':
+            return BranchBuild(target, url='/generated/')
+        return super().branch_target(target, path, event=event, model=model)
+
+
+@override_settings(LANGUAGE_CODE='en')
+class W30EditorHooksTests(TestCase):
+    def resolve(self, stage, rctx=None):
+        rctx = rctx or GeneratingContext({})
+        found = pipelines.resolve_pipeline(
+            rctx, {'pipeline': {'on_submit': stage}}, '$', event='on_submit',
+            model=NewHire)
+        return found, [str(error) for error in rctx.errors]
+
+    def test_the_kind_in_the_document(self):
+        found, errors = self.resolve({'steps': [
+            {'name': 'gen.check', 'kind': 'validation'},
+            {'name': 'gen.total', 'kind': 'computation'}]})
+        self.assertEqual(errors, [])
+        self.assertEqual([step.kind for step in found.steps],
+                         ['validation', 'computation'])
+        with self.assertRaisesMessage(ImproperlyConfigured, 'is a computation'):
+            build_pipeline({'steps': [{'name': 'tests_w30.plate',
+                                       'kind': 'process'}]}, model=NewHire)
+        with self.assertRaises(ImproperlyConfigured):
+            step_build('gen.x', 'magic', len)
+
+    def test_a_branch_to_a_generated_page(self):
+        found, errors = self.resolve({'branches': [{'to': 'page:generated'}]})
+        self.assertEqual(errors, [])
+        self.assertEqual(found.branches[0].url_for(), '/generated/')
+        _found, errors = self.resolve({'branches': [{'to': 'page:generated'}]},
+                                      ResolveContext({}))
+        self.assertIn("no design page 'generated' is published", ' '.join(errors))
+        self.assertTrue(any('.branches[0].to' in error for error in errors))
+
+    def test_the_catalogue_says_the_app(self):
+        entry = next(item for item in pipelines.catalogue()
+                     if item['name'] == 'tests_w30.plate')
+        self.assertEqual(entry['app'], 'djgentelella')
+
+
+class UnitCreate(PipelineFormMixin, CreateView):
+    model = Department
+    fields = ['name', 'head']
+    success_url = '/units/'
+    pipeline = {'steps': [{'name': 'tests_w30.no_bob'}],
+                'branches': [{'to': '/w30-done/',
+                              'condition': {'perm': 'demoapp.delete_department'}}]}
+
+    def form_invalid(self, form):
+        return HttpResponse(str(form.errors), status=400)
+
+
+class UnitSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Department
+        fields = ['id', 'name', 'head']
+
+
+class UnitViewSet(PipelineViewSetMixin, viewsets.ModelViewSet):
+    queryset = Department.objects.all()
+    serializer_class = UnitSerializer
+    model = Department
+    pipeline = {'steps': [{'name': 'tests_w30.no_bob'}],
+                'branches': [{'to': '/w30-done/'}]}
+
+
+class PlainPage(View):
+    def get(self, request):
+        return JsonResponse(self.get_context_data())
+
+    def get_context_data(self, **kwargs):
+        return {}
+
+
+class GreetingPage(PipelinePageMixin, PlainPage):
+    pipeline = {'steps': [{'name': 'tests_w30.greet'}, {'name': 'tests_w30.deny'}]}
+
+
+@override_settings(LANGUAGE_CODE='en', PASSWORD_HASHERS=FAST_HASHERS)
+class W30PipelineMixinsTests(TestCase):
+    def setUp(self):
+        super().setUp()
+        self.user = User.objects.create_user('ana', password='pw')
+
+    def test_a_form_view(self):
+        def post(data):
+            request = RequestFactory().post('/', data)
+            request.user = self.user
+            return UnitCreate.as_view()(request)
+
+        response = post({'name': 'Bob', 'head': ''})
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('No Bobs.', response.content.decode())
+        self.assertFalse(Department.objects.exists())
+        response = post({'name': 'Sales', 'head': ''})
+        self.assertEqual(response['Location'], '/units/')
+        self.user = grant(self.user, 'demoapp.delete_department')
+        self.assertEqual(post({'name': 'Ops', 'head': ''})['Location'], '/w30-done/')
+        self.assertEqual(Department.objects.count(), 2)
+
+    def test_a_viewset(self):
+        view = UnitViewSet.as_view({'post': 'create'})
+
+        def post(data):
+            request = APIRequestFactory().post('/', data, format='json')
+            force_authenticate(request, self.user)
+            return view(request)
+
+        response = post({'name': 'Bob', 'head': ''})
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data['name'], ['No Bobs.'])
+        response = post({'name': 'Sales', 'head': ''})
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data['gtdesign_redirect'], '/w30-done/')
+
+    def test_a_page(self):
+        request = RequestFactory().get('/')
+        request.user = self.user
+        response = GreetingPage.as_view()(request)
+        self.assertEqual(json.loads(response.content),
+                         {'pipeline': {'greeting': 'hello'}})
+        request = RequestFactory().get('/', {'deny': '1'})
+        request.user = self.user
+        with self.assertRaises(PermissionDenied):
+            GreetingPage.as_view()(request)
