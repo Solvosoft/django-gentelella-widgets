@@ -73,6 +73,7 @@ from djgentelella.designs.data_components import (
     data_build, endpoint_url, json_config, kind_of, label, lock_props,
     lock_props_errors, no_permission, plural, resolve_site_field, sample_rows,
 )
+from djgentelella.designs.exposure import limit_form_choices, request_site
 from djgentelella.designs.forms import build_form, is_form_field, no_field
 from djgentelella.designs.introspection import TEXT_KINDS
 from djgentelella.forms import widgetmap
@@ -585,8 +586,9 @@ def grid_page_context(build, request, url, *, form_class=None, columns=None,
     cells = []
     if (state.allowed['create'] or state.allowed['update']) and state.editable:
         prefix = '%s-__row__' % build.id
-        form = (form_class(prefix=prefix) if form_class is not None
-                else build.form.get_form(prefix=prefix))
+        form = (limit_form_choices(form_class(prefix=prefix), request_site(request))
+                if form_class is not None
+                else build.form.get_form(prefix=prefix, request=request))
         cells = [(name, form[name]) for name in state.editable]
     config = grid_config(build, state, url, columns)
     return {'b': build, 'cells': cells, 'allowed': state.allowed,
@@ -635,9 +637,10 @@ def grid_columns(build, state, columns=None):
 
 # -- serializers --------------------------------------------------------------------
 
-class BatchPrimaryKeyRelatedField(PrimaryKeyRelatedField):
+class BatchPrimaryKeyRelatedField(factories.SitePrimaryKeyRelatedField):
     """A ``PrimaryKeyRelatedField`` that finds its object among those the
-    batch read beforehand (one query per relation, not per row)."""
+    batch read beforehand (one query per relation, not per row), among the
+    choices of the request's Site when the model has a ``site_field``."""
 
     def to_internal_value(self, data):
         cache = (self.root.context.get('gtgrid_related') or {}).get(self.field_name)
@@ -922,7 +925,10 @@ class Batch:
         """``{field: {str(pk): object}}`` of the relations the rows name,
         one query per relation field."""
         result = {}
-        for name, item in serializer_class().fields.items():
+        # With the context: the relations of a model with a site_field read
+        # only the request's Site's rows (and the global ones).
+        for name, item in serializer_class(context=self.view.get_serializer_context()
+                                           ).fields.items():
             if not isinstance(item, BatchPrimaryKeyRelatedField):
                 continue
             related = item.get_queryset().model
