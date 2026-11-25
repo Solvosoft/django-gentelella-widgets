@@ -269,7 +269,7 @@ def _actions_method(build):
                     'detail': build.perms['retrieve']}
     per_row = bool(row_conditions(build))
 
-    def get_actions(self, obj):
+    def get_actions(self, obj) -> dict[str, bool]:
         # Which row icons (detail, update, delete) the user gets: the
         # permissions, the conditions of the actions (gtdesign_denied) and
         # those evaluated with this row.
@@ -285,10 +285,10 @@ def _actions_method(build):
 
 def _display_method(name, many):
     if many:
-        def get_display(self, obj):
+        def get_display(self, obj) -> str:
             return ', '.join(str(related) for related in getattr(obj, name).all())
     else:
-        def get_display(self, obj):
+        def get_display(self, obj) -> str:
             related = getattr(obj, name)
             return str(related) if related is not None else ''
     return get_display
@@ -489,6 +489,10 @@ class GTFiltersMixin:
     ``gtdesign_follow_facets()`` (``designs/data_components.js``).
     """
 
+    #: What the endpoint reads besides its serializer
+    #: (:mod:`djgentelella.designs.openapi`).
+    openapi_parameters = {'list': ['gtfilters']}
+
     #: The columns a filter may name: those of the facets panel (the model's
     #: fields the exposure allows). Required.
     gtfilters_fields = ()
@@ -547,6 +551,10 @@ class ManagementMixin:
     Creating a row still takes it (writing a new row reveals nothing; the
     ``create`` action has its own condition).
     """
+
+    #: What the endpoint reads besides its serializer
+    #: (:mod:`djgentelella.designs.openapi`).
+    openapi_parameters = {'list': ['gtfilters', 'offset', 'limit']}
 
     gtdesign_build = None
     gtdesign_hidden = frozenset()
@@ -1064,6 +1072,7 @@ def _make_facets_viewset(build):
         'renderer_classes': (JSONRenderer,),
         'perms': {'list': list(build.perms), 'facets': list(build.perms)},
         'gtdesign_build': build,
+        'openapi_parameters': {'facets': ['params', 'columns']},
         'list': list_view,
         'facets': action(detail=False, methods=['get'])(facets_view),
     })

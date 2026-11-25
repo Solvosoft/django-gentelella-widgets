@@ -200,6 +200,11 @@ class SourceRowsMixin:
     which the endpoint of a published page sets; without either, 404 -- as
     :class:`~djgentelella.designs.regions.RegionMixin`."""
 
+    #: What the endpoint reads besides its serializer
+    #: (:mod:`djgentelella.designs.openapi`).
+    openapi_parameters = {'list': ['gtfilters', 'search', 'ordering', 'offset',
+                                   'limit']}
+
     authentication_classes = (SessionAuthentication,)
     permission_classes = (AllowAny,)
     renderer_classes = (JSONRenderer,)
@@ -311,6 +316,10 @@ class SourceTableViewSet(SourceRowsMixin, viewsets.ViewSet):
     ``ObjectCRUD`` reads them: ``?offset=&limit=&draw=&search=&ordering=
     &gtfilters=`` -> ``{data, recordsTotal, recordsFiltered, draw}``, each row
     with its ``id`` and no ``actions``."""
+
+    #: What the endpoint reads besides its serializer
+    #: (:mod:`djgentelella.designs.openapi`).
+    openapi_parameters = {'list': ['draw']}
 
     def list(self, request, *args, **kwargs):
         queryset = self.rows_queryset(self.filters(), self.asked_ordering())

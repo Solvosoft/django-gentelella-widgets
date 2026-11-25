@@ -665,10 +665,10 @@ def _row_serializer(build):
         if declared is not None:
             attrs[name] = declared
 
-    def get_actions(self, obj):
+    def get_actions(self, obj) -> dict[str, bool]:
         return self.context['gtgrid_state'].row_actions(obj)
 
-    def get_readonly(self, obj):
+    def get_readonly(self, obj) -> list[str]:
         return sorted(self.context['gtgrid_state'].row_readonly(obj))
 
     attrs.update(actions=serializers.SerializerMethodField(), get_actions=get_actions,
@@ -1037,6 +1037,10 @@ class GridMixin:
     """The API of a grid: ``list``, ``retrieve`` (one row, to reload it) and
     ``save`` (a batch). Goes before ``ManagementMixin``, whose conditions,
     hidden columns and filters it shares with the tables."""
+
+    #: What the endpoint reads besides its serializer
+    #: (:mod:`djgentelella.designs.openapi`).
+    openapi_parameters = {'list': ['gtfilters', 'offset', 'limit']}
 
     max_batch_rows = MAX_BATCH_ROWS
     version_in_list = True

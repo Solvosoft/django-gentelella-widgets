@@ -44,16 +44,16 @@ class GPaginator(PageNumberPagination):
 
 
 class GSerializerBase(serializers.Serializer):
-    def get_id(self, obj):
+    def get_id(self, obj) -> int | str:
         return self.view.get_id_display(obj)
 
-    def get_text(self, obj):
+    def get_text(self, obj) -> str:
         return self.view.get_text_display(obj)
 
-    def get_selected(self, obj):
+    def get_selected(self, obj) -> bool:
         return self.view.get_selected_display(obj)
 
-    def get_disabled(self, obj):
+    def get_disabled(self, obj) -> bool:
         return self.view.get_disabled_display(obj)
 
     id = serializers.SerializerMethodField()
@@ -63,19 +63,19 @@ class GSerializerBase(serializers.Serializer):
 
 
 class GSerializerImgBase(serializers.Serializer):
-    def get_id(self, obj):
+    def get_id(self, obj) -> int | str:
         return self.view.get_id_display(obj)
 
-    def get_text(self, obj):
+    def get_text(self, obj) -> str:
         return self.view.get_text_display(obj)
 
-    def get_url(self, obj):
+    def get_url(self, obj) -> str:
         return self.view.get_url(obj)
 
-    def get_selected(self, obj):
+    def get_selected(self, obj) -> bool:
         return self.view.get_selected_display(obj)
 
-    def get_disabled(self, obj):
+    def get_disabled(self, obj) -> bool:
         return self.view.get_disabled_display(obj)
 
     id = serializers.SerializerMethodField()
@@ -234,7 +234,7 @@ class BaseSelect2View(generics.ListAPIView, viewsets.GenericViewSet):
         iid = str(self.get_id_display(obj))
         return iid in self.selected
 
-    def get_selected(self, obj):
+    def get_selected(self, obj) -> bool:
         return self.view.get_selected_display(obj)
 
     def get_disabled_display(self, obj):

@@ -7,10 +7,10 @@ class GTS2SerializerBase(serializers.Serializer):
     default_selected = True
     default_disable = False
 
-    def get_id(self, obj):
+    def get_id(self, obj) -> int | str:
         return getattr(obj, self.id_field)
 
-    def get_text(self, obj):
+    def get_text(self, obj) -> str:
         if isinstance(self.display_fields, str):
             if self.display_fields == '__str__':
                 return str(obj)
@@ -20,10 +20,10 @@ class GTS2SerializerBase(serializers.Serializer):
             return ' '.join(lwords)
         return repr(obj)
 
-    def get_selected(self, obj):
+    def get_selected(self, obj) -> bool:
         return self.default_selected
 
-    def get_disabled(self, obj):
+    def get_disabled(self, obj) -> bool:
         return self.default_disable
 
     id = serializers.SerializerMethodField()

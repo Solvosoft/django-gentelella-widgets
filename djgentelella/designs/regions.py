@@ -754,6 +754,10 @@ class RegionMixin:
     else ``request.gtdesign_build``, which the endpoint of a published page
     sets; without either, 404."""
 
+    #: What the endpoint reads besides its serializer
+    #: (:mod:`djgentelella.designs.openapi`).
+    openapi_parameters = {'list': ['params', 'search']}
+
     authentication_classes = (SessionAuthentication,)
     permission_classes = (AllowAny,)
     renderer_classes = (JSONRenderer,)
@@ -793,6 +797,10 @@ class CardsViewSet(RegionMixin, ListAreaViewset):
     """The cards of a ``cards`` node: a
     :class:`~djgentelella.views.listAreaViewset.ListAreaViewset`, so the
     browser reads it with ``CardList`` (``api_list.js``)."""
+
+    #: What the endpoint reads besides its serializer
+    #: (:mod:`djgentelella.designs.openapi`).
+    openapi_parameters = {'list': ['page']}
 
     pagination_class = CardsPagination
     filter_backends = ()
@@ -846,6 +854,10 @@ class CardsViewSet(RegionMixin, ListAreaViewset):
 class CalendarViewSet(RegionMixin, viewsets.ViewSet):
     """The events of a ``calendar`` node between ``?start`` and ``?end``."""
 
+    #: What the endpoint reads besides its serializer
+    #: (:mod:`djgentelella.designs.openapi`).
+    openapi_parameters = {'list': ['start', 'end']}
+
     def list(self, request, *args, **kwargs):
         start, end = visible_range(request.query_params)
         events, truncated = events_in_range(self.build, self.source, request,
@@ -858,6 +870,10 @@ class MapViewSet(RegionMixin, BaseMapView):
     """The points of a ``map`` node: a
     :class:`~djgentelella.views.maps.BaseMapView`, so its payload is the one
     ``DJMap`` and ``maplib.js`` draw."""
+
+    #: What the endpoint reads besides its serializer
+    #: (:mod:`djgentelella.designs.openapi`).
+    openapi_parameters = {'list': ['bbox']}
 
     def get_layers(self):
         points, self.truncated = map_points(

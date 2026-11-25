@@ -378,6 +378,10 @@ class TreeViewSet(RegionMixin, viewsets.ViewSet):
     """A ``tree`` node: one level (``?parent=&offset=``) or, with ``load:
     "full"``, the whole tree."""
 
+    #: What the endpoint reads besides its serializer
+    #: (:mod:`djgentelella.designs.openapi`).
+    openapi_parameters = {'list': ['parent', 'offset']}
+
     def list(self, request, *args, **kwargs):
         build = self.build
         queryset = self.rows_queryset()
@@ -590,6 +594,10 @@ def group_label(moment):
 
 class TimelineViewSet(RegionMixin, viewsets.ViewSet):
     """A page of a ``timeline`` node: ``?cursor=&from=&to=&params=``."""
+
+    #: What the endpoint reads besides its serializer
+    #: (:mod:`djgentelella.designs.openapi`).
+    openapi_parameters = {'list': ['cursor', 'from', 'to']}
 
     def list(self, request, *args, **kwargs):
         params = request.query_params
