@@ -370,10 +370,13 @@ class W29GridFacetsTests(ReadOnlyBase):
         errors = self.errors(grid(datasource=local), self.facets())
         self.assertTrue(any('edits rows' in message for _where, message in errors),
                         errors)
+        # A grid over a model may be filtered since W31 (the panel counts
+        # through its own endpoint): only one over a data source that edits
+        # rows is refused.
         errors = self.errors(node('interactive_grid', 'grid', {
             'model': 'demoapp.Country', 'columns': ['name']}), self.facets())
-        self.assertTrue(any('edits rows' in message for _where, message in errors),
-                        errors)
+        self.assertFalse(any('edits rows' in message for _where, message in errors),
+                         errors)
 
     def test_the_endpoint_reads_gtfilters(self):
         page = self.publish(grid(), self.facets())

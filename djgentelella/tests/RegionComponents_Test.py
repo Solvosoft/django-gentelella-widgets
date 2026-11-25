@@ -163,11 +163,13 @@ class RegionSchemaTests(RegionBase):
     def test_facets_need_a_datasource(self):
         self.assertError(node('facets', 'f', {'target': 'x', 'columns': ['kind']}),
                          '$.root', '')
+        # Over a model too since W31: the panel counts through its own
+        # endpoint (ProposalsW31_Test.W31FacetsOverModelTests).
         errors = self.resolve_errors(design(
             node('cards', 'list', {'model': 'demoapp.Meetup', 'title_field': 'title'}),
             facets()))
-        self.assertTrue(any('facets panel filters a component over a "datasource"'
-                            in message for _where, message in errors), errors)
+        self.assertFalse(any('datasource' in message for _where, message in errors),
+                         errors)
         self.assertEqual(self.resolve_errors(design(cards(), facets())), [])
 
     def test_filtered_by(self):
