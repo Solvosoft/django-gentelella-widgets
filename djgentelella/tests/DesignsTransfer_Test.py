@@ -8,6 +8,10 @@ a flow definition.
 from django.contrib.auth.models import Permission
 from django.contrib.sites.models import Site
 from django.core.exceptions import ImproperlyConfigured
+from django.test import override_settings
+from django.urls import reverse
+
+from djgentelella.designs import engine
 
 from djgentelella.designs import publishing
 from djgentelella.designs.models import Page
@@ -56,6 +60,43 @@ class PublishForASiteTests(DataDesignTestCase):
         self.assertEqual(publishing.validate(flow_links_page(), site=self.site.pk),
                          [])
         self.assertEqual(len(publishing.validate(flow_links_page())), 1)
+
+
+@override_settings(ALLOWED_HOSTS=['ventas.example.com', 'other.example.com',
+                                  'testserver'])
+class ServeForItsSiteTests(DataDesignTestCase):
+    """A page of a Site is resolved for that Site when it is served.
+
+    On 78fcee1c ``engine.resolve_page`` resolved every page without a Site:
+    a page that named a flow published only in its Site was published (the
+    publication validates with the Site) but answered 404 when served.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.site = Site.objects.create(domain='ventas.example.com', name='Ventas')
+        publish_definition(product_flow('tests.w20.review'), site=self.site)
+        self.page = self.publish(flow_links_page(), site=self.site, path='w20/flows')
+        self.user.is_superuser = True
+        self.user.save()
+
+    def test_it_resolves_for_its_site(self):
+        _resolved, errors = engine.resolve_page(self.page)
+        self.assertEqual(errors, [])
+
+    def test_it_is_served(self):
+        response = self.client.get(reverse('gt-design-page', args=['w20/flows']),
+                                   HTTP_HOST='ventas.example.com')
+        self.assertEqual(response.status_code, 200)
+
+    def test_the_same_document_in_another_site_is_resolved_apart(self):
+        other = Site.objects.create(domain='other.example.com', name='Other')
+        page = Page.objects.create(site=other, path='w20/flows',
+                                   document=self.page.document)
+        self.assertEqual(page.hash, self.page.hash)
+        self.assertEqual(engine.resolve_page(self.page)[1], [])
+        _resolved, errors = engine.resolve_page(page)
+        self.assertIn("no flow 'tests.w20.review'", str(errors[0]))
 
 
 class PageTransferTests(DataDesignTestCase):

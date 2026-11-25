@@ -249,7 +249,9 @@ From Python: ``engine.resolve(document) -> (ResolvedPage, errors)``,
 and ``publishing.validate(document, user=None, site=None)`` resolve the
 document for ``site`` (``engine.resolve(..., site=site)``, which a request
 otherwise gives), so a ``flow:`` row link to a flow published only in that
-Site is valid there.
+Site is valid there. ``resolve_page`` resolves a page for its own Site in the
+same way when it is served (a global page, without a Site), so what
+``publish`` accepted for a Site is also what the page shows there.
 
 **A page as data.** ``publishing.export_page(page)`` gives ``path``,
 ``title``, ``is_published``, ``document`` and ``permissions``

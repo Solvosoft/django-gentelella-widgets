@@ -512,17 +512,24 @@ def resolve_page(page):
     language, which the errors and the labels of the builds are written in.
     ``page.document`` is read only when the cache misses, so the page may come
     with it deferred.
+
+    A page of a Site is resolved for that Site (``resolve(..., site=)``), as
+    :func:`~djgentelella.designs.publishing.publish` validated it: what only
+    exists there -- a flow published in that Site -- is found. A global page
+    is resolved without a Site, so it may only name global things. The Site
+    is part of the key: the same document in two Sites is resolved twice.
     """
     registry.get_components()  # loading the registry changes its generation
     allow_templates, allow_js = cached_page_trust(page)
-    key = (page.hash, allow_templates, allow_js, registry.generation(),
-           exposure.generation(), get_language())
+    key = (page.hash, page.site_id, allow_templates, allow_js,
+           registry.generation(), exposure.generation(), get_language())
     with _cache_lock:
         if key in _cache:
             _cache.move_to_end(key)
             return _cache[key]
     result = resolve(page.document, allow_templates=allow_templates,
-                     allow_js=allow_js)
+                     allow_js=allow_js,
+                     site=page.site if page.site_id is not None else None)
     if result[1]:
         logger.warning('Design page %s (%s) does not resolve: %s', page.pk,
                        page.path, '; '.join(str(error) for error in result[1]))
