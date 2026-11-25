@@ -35,7 +35,9 @@ from djgentelella.utils import load_default_settings
 
 try:
     from selenium import webdriver
-    from selenium.common.exceptions import WebDriverException
+    from selenium.common.exceptions import (
+        StaleElementReferenceException, WebDriverException,
+    )
     from selenium.webdriver.chrome.options import Options
     from selenium.webdriver.chrome.service import Service
     from selenium.webdriver.common.by import By
@@ -46,7 +48,7 @@ try:
 except ImportError:                                  # pragma: no cover
     HAS_SELENIUM = False
     By = EC = Keys = WebDriverWait = None
-    WebDriverException = Exception
+    WebDriverException = StaleElementReferenceException = Exception
 
 
 class NonKeepAliveHandler(QuietWSGIRequestHandler):

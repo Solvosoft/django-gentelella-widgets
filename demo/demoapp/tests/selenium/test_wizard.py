@@ -12,7 +12,7 @@ from demoapp.models import NewHire
 from djgentelella.designs import engine, publishing
 from djgentelella.models import ChunkedUpload, WizardDraft
 
-from .base import EC, By, SeleniumTestCase
+from .base import EC, By, SeleniumTestCase, StaleElementReferenceException
 
 DESIGN = Path(demoapp.__file__).parent / 'gtdesign' / 'employee_wizard.json'
 PAGE = '/designs/employees/new/'
@@ -37,8 +37,15 @@ class WizardDraftTest(SeleniumTestCase):
         return self.wait.until(EC.presence_of_element_located(
             (By.CSS_SELECTOR, '.gt-wizard-position'))).text
 
+    def at_position(self, text):
+        # Each step is a new page: the element read can go stale under us.
+        try:
+            return text in self.position()
+        except StaleElementReferenceException:
+            return False
+
     def wait_position(self, text):
-        self.wait.until(lambda d: text in self.position(),
+        self.wait.until(lambda d: self.at_position(text),
                         'the wizard is not at "%s"' % text)
 
     def test_a_draft_saved_half_way_is_resumed_and_finished(self):
