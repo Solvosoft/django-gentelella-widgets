@@ -873,6 +873,7 @@ with the node id: nothing checks it against a document. A build written as
 code may set any stable string -- djgentelella-editor sets
 ``'<app>.<slug>'`` -- as long as two different builds of one node id never
 share it in one process.
+
 Region components
 -----------------
 
