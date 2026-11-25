@@ -7,7 +7,9 @@ hides another module's."""
 
 import json
 import tempfile
+from decimal import Decimal
 from io import StringIO
+from unittest import mock
 from pathlib import Path
 
 from django import forms
@@ -18,21 +20,30 @@ from django.core.management import CommandError, call_command
 from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
 
-from demoapp.models import Department
+from demoapp.models import Department, PurchaseRequest
+from djgentelella import geocoding
+from djgentelella.datasources.base import (
+    ModelDataSource, register_datasource, unregister_datasource,
+)
 from djgentelella.designs import engine, format, publishing
 from djgentelella.designs.components import ResolveContext, default_context_class
 from djgentelella.designs.exposure import expose
 from djgentelella.designs.models import Page
-from djgentelella.designs.pipeline import build_pipeline, process
+from djgentelella.designs.pipeline import (
+    build_pipeline, param_defaults, process, step_build,
+)
+from djgentelella.locking import object_version
 from djgentelella.designs.regions import facets_state, region_page_context
 from djgentelella.forms.forms import GTForm
 from djgentelella.tests.Designs_Test import DesignState, design, node
 from djgentelella.tests.DesignsData_Test import DataDesignTestCase
 from djgentelella.tests.DesignsHooks_Test import gtconfig
+from djgentelella.tests.TreeTimelineMetrics_Test import TTMBase, metrics
 from djgentelella.widgets import core as genwidgets
 
 __all__ = ['W31ResolveContextTests', 'W31CheckboxSelectMultipleTests',
-           'W31FacetsOverModelTests', 'W31AppNameTests']
+           'W31FacetsOverModelTests', 'W31AppNameTests', 'W31GridSiteFieldTests',
+           'W31SmallTests']
 
 FAST_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
 CONTEXT = 'djgentelella.tests.ProposalsW31_Test.AppStepsContext'
@@ -402,3 +413,129 @@ class W31AppNameTests(SimpleTestCase):
         self.assertEqual([error.path for error in errors], ['$.app'])
         document['app'] = format.app_name('mi-tienda')
         self.assertEqual(format.validate_envelope(document), [])
+
+
+# -- proposals of D18 ----------------------------------------------------------------
+
+@process('demoapp.w31_limit', kind='validation', schema={
+    'type': 'object', 'additionalProperties': False, 'required': ['limit'],
+    'properties': {'limit': {'type': 'integer', 'minimum': 1, 'default': 10},
+                   'unit': {'type': 'string', 'default': 'kg'}}})
+def limited(ctx, limit, unit):
+    return None
+
+
+@override_settings(LANGUAGE_CODE='en', PASSWORD_HASHERS=FAST_HASHERS,
+                   ALLOWED_HOSTS=['*'])
+class W31GridSiteFieldTests(DataDesignTestCase):
+    def setUp(self):
+        super().setUp()
+        expose(Department)
+        self.site_a = Site.objects.create(domain='a.example', name='A')
+        self.site_b = Site.objects.create(domain='b.example', name='B')
+        self.grant(*UNIT_PERMS)
+        self.mine = Department.objects.create(name='Mine', site=self.site_a)
+        self.theirs = Department.objects.create(name='Theirs', site=self.site_b)
+        self.shared = Department.objects.create(name='Shared')
+
+    def grid(self, **props):
+        return design(node('interactive_grid', 'grid', {
+            'model': 'demoapp.Department', 'columns': ['name', 'head'],
+            'site_field': 'site', **props}))
+
+    def save(self, url, *rows):
+        return self.client.post(url + 'save/', json.dumps({'rows': list(rows)}),
+                                content_type='application/json',
+                                HTTP_HOST='a.example')
+
+    def test_what_resolve_checks(self):
+        errors = ' '.join(self.errors(self.grid(site_field='name')))
+        self.assertIn("'name' is not a foreign key of demoapp.Department to "
+                      "sites.Site", errors)
+        expose(Site)
+        errors = ' '.join(self.errors(self.grid(columns=['name', 'site'],
+                                                editable=['name', 'site'])))
+        self.assertIn("'site' is the site_field", errors)
+        resolved, errors = engine.resolve(self.grid())
+        self.assertEqual(errors, [])
+        self.assertEqual(resolved.nodes['grid'].build.site_field, 'site')
+
+    def test_rows_of_the_site(self):
+        page = self.publish(self.grid(), path='w31-grid-site')
+        url = self.api(page, 'grid')
+        rows = self.client.get(url, {'limit': 100}, HTTP_HOST='a.example').json()
+        self.assertEqual(sorted(row['name'] for row in rows['data']),
+                         ['Mine', 'Shared'])
+        self.assertEqual(self.client.get(url + '%d/' % self.theirs.pk,
+                                         HTTP_HOST='a.example').status_code, 404)
+        response = self.save(url, {'key': 'n1', 'op': 'create',
+                                   'data': {'name': 'New', 'head': 'Ana'}})
+        self.assertEqual(response.status_code, 200, response.content)
+        self.assertEqual(Department.objects.get(name='New').site, self.site_a)
+        # Another Site's row cannot be changed nor deleted.
+        response = self.save(url, {'key': 'u', 'op': 'update', 'id': self.theirs.pk,
+                                   '_version': object_version(self.theirs),
+                                   'data': {'name': 'Taken'}})
+        self.assertEqual(response.status_code, 404, response.content)
+        response = self.save(url, {'key': 'd', 'op': 'delete', 'id': self.theirs.pk,
+                                   '_version': object_version(self.theirs)})
+        self.assertEqual(response.status_code, 404, response.content)
+        self.theirs.refresh_from_db()
+        self.assertEqual(self.theirs.name, 'Theirs')
+
+    def test_not_over_a_data_source(self):
+        name = 'tests.w31.units'
+        register_datasource(ModelDataSource(Department, name=name, perms=[]))
+        self.addCleanup(unregister_datasource, name)
+        errors = ' '.join(self.errors(design(node('interactive_grid', 'grid', {
+            'datasource': name, 'columns': ['name'], 'site_field': 'site'}))))
+        self.assertIn('a data source applies its own Site rule', errors)
+
+
+@override_settings(LANGUAGE_CODE='en', ALLOWED_HOSTS=['*'])
+class W31SmallTests(TTMBase):
+    def test_a_card_over_every_row_says_all(self):
+        requester = User.objects.create_user('w31req')
+        PurchaseRequest.objects.create(title='P', amount=Decimal('5.00'),
+                                       requester=requester)
+        page = self.publish(metrics(
+            {'label': 'Month', 'fn': 'count'},
+            {'label': 'Total', 'fn': 'count', 'period': 'all'},
+            date_field='created_at', period='month'), path='w31-kpis')
+        cards = {card['key']: card for card in self.json(page, 'kpis')['metrics']}
+        self.assertEqual((cards['m0']['period'], cards['m1']['period']),
+                         ('month', 'all'))
+        self.assertEqual(cards['m1']['period_label'], '')
+
+    def test_the_defaults_of_the_params_of_a_step(self):
+        schema = {'properties': {'limit': {'default': 10}, 'unit': {'default': 'kg'},
+                                 'other': {'type': 'string'}}}
+        self.assertEqual(param_defaults(schema), {'limit': 10, 'unit': 'kg'})
+        found = build_pipeline({'steps': [{'name': 'demoapp.w31_limit'}]})
+        self.assertEqual(found.steps[0].params, {'limit': 10, 'unit': 'kg'})
+        found = build_pipeline({'steps': [{'name': 'demoapp.w31_limit',
+                                           'params': {'limit': 3}}]})
+        self.assertEqual(found.steps[0].params, {'limit': 3, 'unit': 'kg'})
+        with self.assertRaises(ImproperlyConfigured):
+            build_pipeline({'steps': [{'name': 'demoapp.w31_limit',
+                                       'params': {'limit': 0}}]})
+        built = step_build('gen.x', 'validation', limited, schema={
+            'properties': {'limit': {'type': 'integer', 'default': 2}}})
+        self.assertEqual(built.params, {'limit': 2})
+
+    def test_extra_params_of_nominatim(self):
+        response = mock.MagicMock()
+        response.read.return_value = b'[]'
+        response.__enter__.return_value = response
+        with mock.patch('djgentelella.geocoding.urlopen',
+                        return_value=response) as urlopen:
+            geocoding.NominatimGeocoder(
+                url='https://geo.invalid/search',
+                extra_params={'key': 'k1', 'q': 'hijacked'},
+                extra_headers={'X-Api-Key': 'h1'}).search('San José')
+        request = urlopen.call_args[0][0]
+        self.assertIn('key=k1', request.full_url)
+        self.assertIn('q=San+Jos', request.full_url)
+        self.assertNotIn('hijacked', request.full_url)
+        self.assertEqual(request.get_header('X-api-key'), 'h1')
+        self.assertEqual(request.get_header('User-agent'), 'djgentelella')
