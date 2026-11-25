@@ -22,8 +22,8 @@ import demoapp
 from demoapp.models import Department, Meetup, PurchaseRequest
 from djgentelella.datasources import query
 from djgentelella.datasources.base import (
-    Column, DataSourceUnavailable, ModelDataSource, register_datasource,
-    unregister_datasource,
+    Column, DataSourceUnavailable, ModelDataSource, get_datasource,
+    register_datasource, unregister_datasource,
 )
 from djgentelella.designs import engine, publishing, registry
 from djgentelella.designs.models import Page
@@ -142,8 +142,9 @@ class Base(DesignState, TestCase):
 class SchemaTests(Base):
     def test_registered_after_the_others(self):
         types = list(registry.get_components())
-        self.assertEqual(types[-6:], ['cards', 'calendar', 'map', 'tree', 'timeline',
-                                      'metrics'])
+        first = types.index('cards')
+        self.assertEqual(types[first:first + 6], ['cards', 'calendar', 'map', 'tree',
+                                                  'timeline', 'metrics'])
         for name in ('tree', 'timeline', 'metrics'):
             component = registry.get_component(name)
             self.assertTrue(component.facets_target)
@@ -217,7 +218,12 @@ class SchemaTests(Base):
                                                      'head']),
                 ('demoapp.purchases', PurchaseRequest, ['id', 'title', 'amount',
                                                         'supplier', 'created_at'])):
-            register_datasource(ModelDataSource(model, name=name, fields=fields))
+            # The demo's own (autodiscovered) stay: only a missing one is added.
+            try:
+                get_datasource(name)
+            except KeyError:
+                register_datasource(ModelDataSource(model, name=name, fields=fields))
+                self.addCleanup(unregister_datasource, name)
         path = Path(demoapp.__file__).resolve().parent / 'gtdesign' / 'insights.json'
         _page, errors = publishing.publish(json.loads(path.read_text()),
                                            path='insights')
