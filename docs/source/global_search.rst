@@ -75,6 +75,13 @@ or the attribute it sets, ``global_search = GlobalSearch(...)``.
     Foreign keys named by a ``title``/``subtitle`` path or ``{a__b}``
     placeholder are added on their own; a callable or ``{a.b}`` that follows
     a relation needs it here, or it costs a query per hit.
+``owners`` / ``tags``
+    Who the source belongs to -- the keys of whatever groups sources in the
+    project: the slugs of the applications, a tenant -- and free labels
+    (``'catalog'``, ``'people'``). A string is one key. Without ``owners``
+    the source is shared. djgentelella only keeps them, for a
+    ``GT_SEARCH_SOURCES`` hook and for screens that let someone choose
+    sources (see "Choosing the sources per request").
 
 What the search does
 --------------------
@@ -173,6 +180,21 @@ more, a *See more* link: the same page with ``source=<name>``, which shows
 that group alone, ``GT_SEARCH_PAGE_SIZE`` hits per page with previous/next
 links. The template is ``gentelella/search/results.html``.
 
+The page extends ``GT_SEARCH_BASE_TEMPLATE`` (``gentelella/base.html``).
+Inside an application with a layout of its own, ``GT_SEARCH_PAGE_CONTEXT``
+is the dotted path of a callable ``(request) -> dict`` whose keys are added
+to the page's context: a ``base_template`` of its own, ``breadcrumbs``
+(gentelella's breadcrumbs block draws them), a theme. It cannot replace what
+the page itself shows (``query``, ``source``, ``groups``, the pages...)::
+
+    def search_context(request):
+        app = getattr(request, 'app', None)
+        if app is None:
+            return {}
+        return {'base_template': app.base_template,
+                'breadcrumbs': [{'label': app.title, 'href': app.url},
+                                {'label': _('Search'), 'href': ''}]}
+
 The box in the top bar is off by default. Turn it on for the whole project::
 
     GT_SEARCH_NAVBAR = True
@@ -218,6 +240,20 @@ source names or None``. The page, the API and ``search()`` without
 an explicit ``source``/``sources`` within that list. A project with several
 applications (Sites) uses it to search, in each one, its own sources.
 
+The owners of the sources (``owners`` of ``GlobalSearch``) are what such a
+hook reads: ``searchable_sources(owner=...)`` keeps the shared sources and
+those of that owner (``owner=None``: only the shared ones), and ``tags=``
+those with every given tag. ``source_owners(source)``, ``source_tags(source)``
+and ``is_owned_by(source, owner)`` answer for one source::
+
+    from djgentelella.search import searchable_sources
+
+    def app_sources(request):
+        app = getattr(request, 'app', None)
+        return list(searchable_sources(owner=app.slug if app else None))
+
+    GT_SEARCH_SOURCES = 'myproject.search.app_sources'
+
 Settings
 --------
 
@@ -233,6 +269,8 @@ Setting                            Default   Meaning
 ``GT_SEARCH_TRIGRAM``              None      pg_trgm: None detects it, True/False force
 ``GT_SEARCH_TRIGRAM_THRESHOLD``    0.5       least word similarity of a trigram hit
 ``GT_SEARCH_SOURCES``              None      callable choosing the sources of a request
+``GT_SEARCH_BASE_TEMPLATE``        (base)    the template the results page extends
+``GT_SEARCH_PAGE_CONTEXT``         None      callable adding context to the results page
 =================================  ========  ==========================================
 
 Indexes

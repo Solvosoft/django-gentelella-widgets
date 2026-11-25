@@ -193,6 +193,49 @@ Writing entries: ``add_log``
   ``GT_HISTORY_ANONYMOUS_USERNAME`` setting; without it, ``add_log`` raises
   ``ValueError`` (``LogEntry.user`` cannot be NULL).
 
+System events
+~~~~~~~~~~~~~
+
+A job, a command or a migration has no user. ``system=True`` records the
+event as the system's:
+
+.. code:: python
+
+    from djgentelella.history.utils import SECRET_READ, add_log
+
+    add_log(None, credential, SECRET_READ, system=True,
+            actor='rotate_credentials', extra={'purpose': 'smtp'})
+
+``user`` must be ``None`` (a user with the flag is a ``ValueError``, so a
+request's user never passes for the system). ``LogEntry.user`` cannot be
+NULL, so the entry goes to the account ``GT_HISTORY_SYSTEM_USERNAME``
+(``'gt-system'`` by default); when it does not exist it is created inactive
+and without a usable password, so nobody can sign in with it. A user model
+that needs more than the username to create a user has to create that
+account itself. ``extra`` gets ``"gt_system": true`` and ``"gt_actor"``
+(``actor``), so ``?extra={"gt_system": true}`` lists the system's events.
+Without the flag nothing changes: a missing user goes to
+``GT_HISTORY_ANONYMOUS_USERNAME`` or raises.
+
+Actions
+~~~~~~~
+
+``action_flag`` is one of ``ACTIONS``: Django's ``ADDITION``, ``CHANGE`` and
+``DELETION``, ``HARD_DELETION`` (4), ``RESTORE`` (5) and ``SECRET_READ``
+(6, somebody or the system read a secret: a credential, a key). A project
+adds its own with ``register_action``; ``add_log``, the API (its
+``action_flag`` label) and the filter of the history know them:
+
+.. code:: python
+
+    from django.utils.translation import gettext_lazy as _
+    from djgentelella.history.utils import register_action
+
+    EXPORTED = register_action(100, _('exported'))
+
+Use flags from 100 up. A flag of djgentelella's, or one already registered
+with another label, is a ``ValueError``.
+
 Automatic logging: ``BaseViewSetWithLogs``
 ------------------------------------------
 

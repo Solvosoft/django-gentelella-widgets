@@ -257,6 +257,57 @@ without the version is refused with ``version_required``); a grid with
 locking already required it. ``true`` with ``"optimistic_lock": false`` is an
 error of the document. See ``docs/source/locking.rst``.
 
+**The grid and the Kanban as public API (W21).** ``designs.grid`` and
+``designs.flow_kanban`` list in ``__all__`` what code generated from a design
+uses (``GridState``, ``required_fields``, ``NOT_SHOWN``, ``NOT_EDITABLE``,
+``board``, ``render_cards``, ``resting_states``...).
+``grid_page_context(build, request, url, form_class=None, columns=None)`` and
+``kanban_page_context(build, request, url)`` build the context of their
+templates -- the cells, the columns and the ``data-gtconfig`` JSON -- from a
+build, without a published ``Page`` (``None`` when the request may not see
+it); the components render with them. ``FlowKanbanViewSet.get_build()``
+serves its ``kanban_build`` class attribute, or else
+``request.gtdesign_build``. ``ResolveContext.flow(name, path=None)`` is the
+hook every flow a design names goes through (a board, a ``flow:`` row link):
+a subclass answers flows that are not published yet. ``page_hash`` is
+documented as the factories' cache key only. See ``docs/source/designs.rst``.
+
+**System runs of a flow.** ``Flow.run(obj, name, system=True)`` runs a
+transition as the system, like an automatic transition or a ``Deadline``: no
+permission is checked, the source state and the condition are, and the log
+has no user. The flag is explicit and takes no user (``ValueError``), so
+``user=None`` or an anonymous user without it are refused as before.
+``Flow.start(obj)`` without a user is documented as a start by the system.
+See ``docs/source/flows.rst``.
+
+**Owners and tags of a searchable source; the results page in an
+application.** ``searchable(..., owners=[...], tags=[...])`` (fields of
+``GlobalSearch``) say who a source belongs to; ``source_owners``,
+``source_tags``, ``is_owned_by`` and ``searchable_sources(owner=...,
+tags=...)`` are what a ``GT_SEARCH_SOURCES`` hook reads. The results page
+extends ``GT_SEARCH_BASE_TEMPLATE`` and adds what ``GT_SEARCH_PAGE_CONTEXT``
+returns (a ``base_template``, ``breadcrumbs``, a theme). See
+``docs/source/global_search.rst``.
+
+**System events and more actions in the history.** ``add_log(None, obj,
+flag, system=True, actor='job')`` records an event without a user: it goes to
+the inactive account ``GT_HISTORY_SYSTEM_USERNAME`` (``gt-system``, created
+without a usable password when missing) with ``gt_system``/``gt_actor`` in
+its ``extra``. ``SECRET_READ`` (6) is a new action, and
+``register_action(flag, label)`` adds others: ``add_log``, the history API
+and its filter know them. See ``docs/source/history.rst``.
+
+**A chart follows the facets of its page.** The ``facets`` prop of a
+``chart`` names a ``facets`` panel; the chart is drawn again with the panel's
+filters whenever they change, as its table is. The endpoint takes
+``gtfilters`` only on the panel's columns that the table shows the user, and
+the panel must filter the chart's rows (a table over its model, or a node
+over its data source). See ``docs/source/designs.rst``.
+
+**``make mailhog`` and ``make mailhog-stop``.** Start MailHog in the
+background for ``make test-selenium`` (it reuses one already answering on
+``:8025``) and stop it.
+
 Backwards incompatible
 """"""""""""""""""""""""
 
@@ -401,6 +452,16 @@ markup on purpose in another key shows it as text: add the key to
 site=None, default='')`` is what the tag prints; ``setting_allows_html``,
 ``html_settings`` and ``escape_setting`` are public. See
 ``docs/source/settings.rst`` ("Which values are HTML").
+
+**Bootstrap with its own Popper.** The page header loads
+``bootstrap.bundle.min.js`` instead of ``popper.min.js`` and
+``bootstrap.min.js``, in the compressed bundle (``pylpfile.py``) and in the
+separate files -- which did not load Popper at all. A dropdown (the Kanban's
+"Move to", the menus) no longer dies with ``createPopper is not a function``
+where ``window.Popper`` went missing. There is no global ``window.Popper``
+any more: code of a project that used it loads ``vendors/bootstrap/
+popper.min.js`` itself (``loaddevstatic`` still downloads it). The bundle is
+built with ``python -m pylp`` (``make assets``), not committed.
 
 Fixes
 """"""""
