@@ -5491,3 +5491,257 @@ msgstr "Enviar mis notificaciones como push a mis dispositivos suscritos"
 #: templates/gentelella/pwa/preferences.html
 msgid "Subscribed devices"
 msgstr "Dispositivos suscritos"
+
+#: datasources/base.py:92
+msgid "The query took too long: narrow it with filters."
+msgstr "La consulta tardó demasiado: acótela con filtros."
+
+#: datasources/export.py:223
+#, python-format
+msgid "The export has more than %(limit)d rows: narrow it with filters."
+msgstr "La exportación tiene más de %(limit)d filas: acótela con filtros."
+
+#: designs/translations.py:136
+msgid "an object {language: {key: text}}"
+msgstr "un objeto {idioma: {clave: texto}}"
+
+#: designs/translations.py:143 translations/store.py:79
+msgid "an object {key: text}"
+msgstr "un objeto {clave: texto}"
+
+#: designs/translations.py:148 translations/store.py:90
+#, python-format
+msgid "the document has no translatable text %s"
+msgstr "el documento no tiene el texto traducible %s"
+
+#: designs/translations.py:151 translations/__init__.py:115
+#: translations/store.py:93
+msgid "a translation is a text"
+msgstr "una traducción es un texto"
+
+#: models.py:208 templates/gentelella/translations/form.html:8
+#: templates/gentelella/translations/index.html:3
+#: templates/gentelella/translations/index.html:6
+#: templates/gentelella/translations/missing.html:8
+msgid "Translations"
+msgstr "Traducciones"
+
+#: models.py:209
+msgid ""
+"The title in other languages, e.g. {\"en\": \"Products\"}. Empty: the title "
+"in every language."
+msgstr ""
+"El título en otros idiomas, p. ej. {\"en\": \"Products\"}. Vacío: el título "
+"en todos los idiomas."
+
+#: models.py:826
+msgid "List of values"
+msgstr "Lista de valores"
+
+#: models.py:828
+msgid "Language"
+msgstr "Idioma"
+
+#: models.py:833
+msgid "LOV translation"
+msgstr "Traducción de LOV"
+
+#: models.py:834
+msgid "LOV translations"
+msgstr "Traducciones de LOV"
+
+#: pwa/views.py:105
+msgid "Unknown subscription."
+msgstr "Suscripción desconocida."
+
+#: templates/gentelella/translations/form.html:15
+msgid "Original"
+msgstr "Texto original"
+
+#: templates/gentelella/translations/form.html:31
+msgid "Nothing to translate."
+msgstr "No hay nada que traducir."
+
+#: templates/gentelella/translations/index.html:6
+msgid "texts written as data, in other languages"
+msgstr "textos escritos como datos, en otros idiomas"
+
+#: templates/gentelella/translations/index.html:8
+#, python-format
+msgid ""
+"The written texts are the originals (%(code)s). A text without a translation"
+" is shown as written."
+msgstr ""
+"Los textos escritos son los originales (%(code)s). Un texto sin traducción "
+"se muestra tal como se escribió."
+
+#: templates/gentelella/translations/index.html:9
+msgid "Missing translations:"
+msgstr "Traducciones que faltan:"
+
+#: templates/gentelella/translations/index.html:13
+msgid "Texts"
+msgstr "Textos"
+
+#: templates/gentelella/translations/index.html:13
+#, python-format
+msgid "Missing in %(name)s"
+msgstr "Faltan en %(name)s"
+
+#: templates/gentelella/translations/index.html:19
+#: templates/gentelella/translations/missing.html:15
+msgid "Menu"
+msgstr "Menú"
+
+#: templates/gentelella/translations/index.html:28
+msgid "Export"
+msgstr "Exportar"
+
+#: templates/gentelella/translations/index.html:33
+msgid "Only the texts already translated"
+msgstr "Solo los textos ya traducidos"
+
+#: templates/gentelella/translations/index.html:34
+msgid "Download JSON"
+msgstr "Descargar JSON"
+
+#: templates/gentelella/translations/index.html:38
+#: templates/gentelella/translations/index.html:43
+msgid "Import"
+msgstr "Importar"
+
+#: templates/gentelella/translations/index.html:41
+msgid "Translations file"
+msgstr "Archivo de traducciones"
+
+#: templates/gentelella/translations/index.html:42
+msgid "Only check the file"
+msgstr "Solo revisar el archivo"
+
+#: templates/gentelella/translations/missing.html:3
+#: templates/gentelella/translations/missing.html:6
+#, python-format
+msgid "Missing in %(language_name)s"
+msgstr "Faltan en %(language_name)s"
+
+#: templates/gentelella/translations/missing.html:9
+msgid "Download them as JSON"
+msgstr "Descargarlas como JSON"
+
+#: templates/gentelella/translations/missing.html:23
+msgid "Everything is translated."
+msgstr "Todo está traducido."
+
+#: translations/__init__.py:65
+#, python-format
+msgid "%r is not a language code (lower case, e.g. \"en\" or \"pt-br\")"
+msgstr "%r no es un código de idioma (en minúsculas, p. ej. \"en\" o \"pt-br\")"
+
+#: translations/__init__.py:68
+#, python-format
+msgid "unknown language %(code)s: the project offers %(known)s"
+msgstr "idioma desconocido %(code)s: el proyecto ofrece %(known)s"
+
+#: translations/__init__.py:109
+msgid "the translations are an object {language: text}"
+msgstr "las traducciones son un objeto {idioma: texto}"
+
+#: translations/store.py:161 translations/transfer.py:205
+#, python-format
+msgid "there is no LOV %s"
+msgstr "no existe la LOV %s"
+
+#: translations/store.py:165
+msgid "a value is a text of 1 to 255 characters"
+msgstr "un valor es un texto de 1 a 255 caracteres"
+
+#: translations/transfer.py:134
+msgid "an object {language: text}"
+msgstr "un objeto {idioma: texto}"
+
+#: translations/transfer.py:145
+msgid "a translations file is a JSON object"
+msgstr "un archivo de traducciones es un objeto JSON"
+
+#: translations/transfer.py:149
+#, python-format
+msgid "version %r is not supported"
+msgstr "la versión %r no está soportada"
+
+#: translations/transfer.py:159
+msgid "djgentelella.designs is not installed"
+msgstr "djgentelella.designs no está instalado"
+
+#: translations/transfer.py:163
+msgid "a page is {site, path, texts}"
+msgstr "una página es {site, path, texts}"
+
+#: translations/transfer.py:167
+#, python-format
+msgid "there is no page %(path)s in %(site)s"
+msgstr "no existe la página %(path)s en %(site)s"
+
+#: translations/transfer.py:168 translations/transfer.py:190
+#: translations/views.py:183
+msgid "global"
+msgstr "global (todos los sitios)"
+
+#: translations/transfer.py:174
+msgid "a text is {key, translations}"
+msgstr "un texto es {key, translations}"
+
+#: translations/transfer.py:184
+msgid "a menu item is {site, key, translations}"
+msgstr "un ítem de menú es {site, key, translations}"
+
+#: translations/transfer.py:188
+#, python-format
+msgid "there is no menu item %(key)s in %(site)s"
+msgstr "no existe el ítem de menú %(key)s en %(site)s"
+
+#: translations/transfer.py:200
+msgid "a LOV value is {lov, value, translations}"
+msgstr "un valor de LOV es {lov, value, translations}"
+
+#: translations/views.py:135 translations/views.py:180
+#: translations/views.py:211
+msgid "The translations were saved."
+msgstr "Las traducciones se guardaron."
+
+#: translations/views.py:157
+#, python-format
+msgid "Translations of page %s"
+msgstr "Traducciones de la página %s"
+
+#: translations/views.py:187
+msgid "Translations of the menu"
+msgstr "Traducciones del menú"
+
+#: translations/views.py:217
+#, python-format
+msgid "Translations of the list %s"
+msgstr "Traducciones de la lista %s"
+
+#: translations/views.py:275
+#, python-format
+msgid "Choose a JSON file of translations (at most %d MB)."
+msgstr "Elija un archivo JSON de traducciones (de %d MB como máximo)."
+
+#: translations/views.py:281
+msgid "The file is not valid JSON."
+msgstr "El archivo no es JSON válido."
+
+#: translations/views.py:295
+#, python-format
+msgid ""
+"The file is valid: %(pages)d pages, %(menus)d menu items and %(lovs)d lists "
+"would change."
+msgstr ""
+"El archivo es válido: cambiarían %(pages)d páginas, %(menus)d ítems de menú "
+"y %(lovs)d listas."
+
+#: translations/views.py:299
+#, python-format
+msgid "Imported: %(pages)d pages, %(menus)d menu items and %(lovs)d lists."
+msgstr ""
+"Importado: %(pages)d páginas, %(menus)d ítems de menú y %(lovs)d listas."

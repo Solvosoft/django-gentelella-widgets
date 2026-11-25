@@ -464,6 +464,42 @@ page (``/designs/shop-orders/``, new models ``demoapp.ShopItem`` and
 ``ShopOrder``) checks the stock, computes the total, takes the stock and goes
 to another page. See ``docs/source/pipeline.rst``.
 
+**Translations of metadata (C20).** What an administrator writes as data
+is translated without ``.po`` files (``djgentelella.translations``): a
+design page keeps its texts by language in ``document["translations"]``
+(keys ``meta.title`` and ``<node id>:<prop path>``, only the props a
+component declares in ``RuntimeComponent.translatable_props``), a menu item
+in ``MenuItem.translations`` and a LOV value in the ``LOVTranslation`` table
+(migration ``0028_translations``). Each is shown in the active language,
+else its base language, else the default language, else as written
+(``translations.pick``); always escaped. ``engine.resolve(...,
+translate=True)`` resolves a page in the active language and the cache of
+resolved pages keeps one per language. ``object_management``,
+``inline_object_management`` and ``interactive_grid`` take ``column_labels``
+(column headers, translatable). The translations travel with
+``export_page``/``import_page`` and ``export_tree``/``import_tree``, and
+unknown languages (``GT_TRANSLATION_LANGUAGES``, else ``LANGUAGES``) are
+errors. ``/gt-translations/`` has a screen per page, the menu and each LOV,
+what is missing per language, and exports and imports a JSON file by natural
+keys (also ``gttranslations_export``/``gttranslations_import``).
+``register_lov(..., all_values=)`` lists the values of a LOV with parents.
+The demo switches between Spanish and English from the top bar
+(``/designs/translated/``). See ``docs/source/translations.rst``.
+
+**Proposals of wave 12.** ``restricted(source, columns)`` /
+``DataSource.with_columns()``: a data source with only some columns;
+``DataSourceView.get_source`` documented as the hook,
+``DataSourceExportView.use_export_handler``,
+``GT_DATASOURCE_QUERY_TIMEOUT`` (a 504 past it; ``query_timeout()``) and
+``GT_DATASOURCE_EXPORT_REFUSE_OVER_LIMIT`` (a 400 instead of a cut file).
+``djgentelella.designs.openapi`` describes what each design viewset reads
+(``openapi_parameters``), and the ``SerializerMethodField`` of the designs and
+of select2 have type hints. The wizard documents that the errors of its final
+pipeline come back on its last step. PWA: ``pwa_scope`` per Site,
+``GT_PUSH_QUEUE`` (Celery), ``pushsubscriptionchange`` handled through
+``/pwa/push/resubscribe/`` and ``GT_PUSH_UNSUBSCRIBE_ON_LOGOUT``. See
+``datasources.rst``, ``designs.rst``, ``wizard.rst`` and ``pwa.rst``.
+
 Backwards incompatible
 """"""""""""""""""""""""
 

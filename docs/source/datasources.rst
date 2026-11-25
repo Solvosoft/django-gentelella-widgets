@@ -571,6 +571,56 @@ Before the handler, ``handle_export`` checks the parameters with
 ``validate_params``: an unknown column or a wrong aggregate is a
 ``ValidationError`` (a 400 from the API) at once, not an error of the job.
 
+A subclass of ``DataSourceExportView`` with ``use_export_handler = False``
+(``handle_export(..., use_handler=False)``) always answers the file itself,
+without the handler.
+
+Refusing instead of cutting
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The JSON and XLSX exports hold at most ``GT_DATASOURCE_EXPORT_MAX_ROWS`` rows
+(50000) and the PDF ``GT_DATASOURCE_PDF_MAX_ROWS`` (5000); past it the file is
+cut. With ``GT_DATASOURCE_EXPORT_REFUSE_OVER_LIMIT = True`` an export with
+more rows than its format's limit is refused instead: a 400 *"The export has
+more than N rows: narrow it with filters."*, before the handler and for CSV
+too (which otherwise streams every row).
+
+Restricted sources and your own endpoints
+-----------------------------------------
+
+``restricted(source, columns, *, name=None, label=None, perms=None)`` (or
+``source.with_columns(columns)``) is the source with only those columns, in
+its own order: only they are listed, filtered, searched, ordered, grouped
+and exported; a filter on another column is a 400. Its rows, permission and
+``project_model`` are the source's; ``perms`` adds permissions on top of the
+source's own check. ``get_queryset(request, params=None)`` passes the
+parameters on to a source that takes them. It is the boundary for a report
+per role, an API for a group of users or the tools of an assistant::
+
+    from djgentelella.datasources import api
+    from djgentelella.datasources.base import restricted
+
+    class SalesForAgents(api.DataSourceRowsView):
+        def get_source(self, name):
+            source = super().get_source(name)   # 404 / 403 as usual
+            return restricted(source, ['date', 'product', 'amount'])
+
+``DataSourceView.get_source(name)`` is the hook for that: the source the
+endpoint serves, after the 404 and the 403 of the base class.
+
+Query timeout
+-------------
+
+``GT_DATASOURCE_QUERY_TIMEOUT`` (seconds, ``None`` by default) stops the
+queries of a request of the data source API that run longer, and the answer
+is a **504** (``DataSourceUnavailable``). On PostgreSQL it is
+``statement_timeout``, set for the request only; on SQLite a progress
+handler; other databases run without a limit. A view sets its own with
+``query_timeout`` (``0``: none). ``query_timeout(seconds)`` in
+``djgentelella.datasources.base`` is the context manager, for a project's
+own code. A CSV export streams its rows after the view returns: the timeout
+does not cover them (the row cap above does).
+
 Widgets
 -------
 

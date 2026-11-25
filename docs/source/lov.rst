@@ -105,6 +105,15 @@ The widgets can be used alone, ``LOVSelect('provincias')``; the prefix is then
 taken from the widget's own name.
 
 -----------------
+Translated labels
+-----------------
+
+A ``LOVTranslation`` (LOV, value, language, label) replaces the label of a
+value while its language is active, in the endpoint, the widgets and the
+fields. ``register_lov(..., all_values=fn)`` lists every value of a LOV that
+depends on its parents for the translation screen. See :doc:`translations`.
+
+-----------------
 Not yet
 -----------------
 

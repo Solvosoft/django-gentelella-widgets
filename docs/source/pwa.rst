@@ -69,6 +69,17 @@ Settings
      - the browsers' push services
      - Hosts a subscription endpoint may point to (``.example.com`` covers
        its subdomains). ``None`` accepts any https host.
+   * - ``GT_PUSH_QUEUE``
+     - ``'sync'``
+     - How a new notification goes out: ``'sync'`` after the commit in the
+       same process, ``'celery'`` as the task
+       ``djgentelella.pwa.tasks.push_notification_task``, ``'auto'`` through
+       Celery when ``async_notification`` would (the ``celery`` extra and
+       ``CELERY_BROKER_URL``).
+   * - ``GT_PUSH_UNSUBSCRIBE_ON_LOGOUT``
+     - ``False``
+     - Logging out forgets the subscriptions that browser's session
+       registered.
 
 The manifest per Site
 ---------------------
@@ -96,6 +107,11 @@ without either a default applies.
      - The two icons (a static path, or a URL as it is); else djgentelella's.
    * - ``pwa_start_url``
      - ``start_url`` and ``id``; else the scope.
+   * - ``pwa_scope``
+     - ``scope`` (a path that starts and ends with ``/``: the prefix an
+       application is served under); else ``GT_PWA_SCOPE``. The service worker
+       of that Site is registered for it, and ``Service-Worker-Allowed``
+       follows it.
 
 .. code:: python
 
@@ -170,7 +186,8 @@ Then:
   deleted; any other error is logged and the subscription is kept. The
   notification is created whatever happens to the push.
 - Sending happens in the process that creates the notification, with
-  ``GT_PUSH_TIMEOUT``. To queue it, write a backend whose ``send`` enqueues.
+  ``GT_PUSH_TIMEOUT``, unless ``GT_PUSH_QUEUE`` queues it in Celery (the
+  worker needs ``djgentelella.pwa.tasks`` among the modules it imports).
 
 Endpoints (``POST``, JSON, CSRF token in ``X-CSRFToken``, ``403`` json without
 a session):
@@ -190,6 +207,12 @@ a session):
      - ``{"endpoint"}`` → ``{"deleted": n}``, only among the user's.
    * - ``/pwa/push/test/`` (``gt_push_test``)
      - → ``{"sent": n}``.
+   * - ``/pwa/push/resubscribe/`` (``gt_push_resubscribe``)
+     - ``{"old": toJSON(), "new": toJSON()}`` → ``{"id"}``: the
+       ``pushsubscriptionchange`` of the service worker. No session and no
+       CSRF token: the ``auth`` secret of the old subscription, which only the
+       browser and the server know, is the proof. ``404`` when the old one is
+       not known, ``400`` for a bad body.
 
 Sending something else::
 
@@ -221,12 +244,14 @@ Notes
 
 - Service workers and push need a secure context: https, or ``localhost``
   while developing.
-- Logging out does not unsubscribe the browser: the next user who subscribes
-  it takes it over. A project that wants the push to stop on logout calls the
-  unsubscribe endpoint from its logout page.
-- ``pushsubscriptionchange`` (the browser renewing a subscription) is not
-  handled: the next visit to ``/pwa/push/`` shows the device as not
-  subscribed.
+- Logging out does not unsubscribe the browser unless
+  ``GT_PUSH_UNSUBSCRIBE_ON_LOGOUT``: then the subscriptions that session
+  registered are forgotten (the browser keeps its own; the next visit to
+  ``/pwa/push/`` after logging in registers it again). Otherwise the next
+  user who subscribes it takes it over.
+- ``pushsubscriptionchange`` (the browser renewing a subscription): the
+  service worker sends the new subscription with the old one to
+  ``/pwa/push/resubscribe/``, which replaces it in place.
 - The demo turns the manifest on; ``DEMO_PWA_SERVICE_WORKER=1`` turns the
   worker on and ``DEMO_PUSH_LOCMEM=1`` (or real keys in
   ``GT_PUSH_VAPID_PRIVATE_KEY``/``GT_PUSH_VAPID_PUBLIC_KEY``) push.

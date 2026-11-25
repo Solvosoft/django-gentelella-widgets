@@ -69,6 +69,7 @@ Django Gentelella Widgets (``djgentelella``) is a reusable Django application th
    wizard
    feedback
    pipeline
+   translations
 
 .. toctree::
    :maxdepth: 1

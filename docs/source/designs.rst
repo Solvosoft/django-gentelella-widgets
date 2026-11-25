@@ -349,6 +349,16 @@ its own at the same path -- the one ``designs/<path>`` would serve. The viewset 
         return [Endpoint('', RowsViewSet, 'rows-%s' % build.id),
                 Endpoint('chart', ChartViewSet, 'chart-%s' % build.id)]
 
+**Describing them in OpenAPI.** What an endpoint reads besides its
+serializer -- the C4 ``params`` document, ``gtfilters``, ``bbox``,
+``start``/``end``, ``cursor``... -- is declared on each viewset (and on the
+mixins code generated from a design uses) as ``openapi_parameters``,
+``{action: [name]}`` (``'*'``: every action). ``djgentelella.designs.openapi.
+openapi_parameters(viewset, action)`` gathers them, bases first, as OpenAPI
+parameter objects (``PARAMETERS``), so any schema generator describes them the
+same way; it does not depend on one. The ``SerializerMethodField`` of the
+designs and of the select2 serializers have return type hints.
+
 Conditions
 ----------
 
@@ -1556,6 +1566,17 @@ gets; ``ResolvedPage.node_visible(node_id, request, obj=None)`` applies it,
 and the nodes a node depends on get their own.
 ``ResolvedNode.visible(request, obj=None)`` evaluates with the ``obj`` it is
 given.
+
+Translations
+------------
+
+``document["translations"]`` holds the page's texts in other languages --
+``meta.title`` and ``<node id>:<prop path>`` keys, only the props a component
+declares translatable (``RuntimeComponent.translatable_props``) -- and
+``engine.resolve`` resolves the page in the active language
+(``translate=False`` keeps the written texts). ``object_management``,
+``inline_object_management`` and ``interactive_grid`` take
+``column_labels``, ``{column: header}``. See :doc:`translations`.
 
 Pipeline
 --------

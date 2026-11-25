@@ -70,6 +70,11 @@ Fields
      - Optional natural key: unique among the items of its Site (or among the
        global items). An exported menu names the item by it, so importing it
        again updates the item in place. See `Exporting and Importing a Menu`_
+   * - ``translations``
+     - JSONField
+     - The title in other languages, ``{"en": "Products"}``: the menu shows
+       the one of the active language (:doc:`translations`); it travels with
+       ``export_tree``/``import_tree``
 
 
 Menu Categories
