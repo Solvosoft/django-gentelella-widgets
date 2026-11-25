@@ -141,6 +141,75 @@ registered source (see `REST API`_).
 ``search_config`` (the PostgreSQL text search configuration, such as
 ``'spanish'``) tune the search.
 
+Sources that do not live in the project's database
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A source can read its rows from somewhere else -- an external API, a file, a
+computation -- as long as ``get_queryset`` answers a queryset (djodo, for
+one, loads the rows of a REST API into an in-memory SQLite table). Three
+hooks make that fit:
+
+``project_model``
+    The model of the project behind the source: its rows are rows of that
+    model and their pks its pks, so a row link, an edit or a ``pk__in`` reach
+    them. ``ModelDataSource`` and ``FunctionDataSource`` answer their
+    ``model``; any other source answers ``None`` unless it says otherwise,
+    and then the components only read it (see the read-only tables of
+    :doc:`designs`). djgentelella used to read ``getattr(source, 'model',
+    None)`` for this: a ``model`` attribute is still read when there is no
+    ``project_model``, with a ``DeprecationWarning`` -- declare
+    ``project_model = None`` on a source whose ``model`` is something else.
+    ``project_model_of(source)`` reads it for any object.
+
+``get_queryset(request, params=None)``
+    A source whose ``get_queryset`` takes ``params`` gets the parameter
+    document the query functions are about to apply, normalized by
+    ``parse_params`` (``None`` when there is none). ``apply_params``,
+    ``aggregate``, ``pivot``, ``facets``, the exports and the API all read
+    the rows through ``query.source_queryset(source, request, params)``,
+    which passes it only to a source whose signature has it, so the other
+    sources are called as always. It is a hint, to narrow what the source
+    reads (filters an API understands): the queryset may hold more rows than
+    the filters select, never fewer, because the filters, the search and the
+    ordering are applied on it all the same. ``facets`` hands each facet the
+    document without that facet's own filter, or it would only count the
+    values already picked.
+
+``DataSourceUnavailable``
+    What ``get_queryset`` (or the evaluation of its queryset) raises when the
+    rows cannot be read right now: the API is down, it timed out, it answered
+    garbage. Not a bad request -- that is a ``ValidationError``, a 400 --
+    but a DRF ``APIException``, so every endpoint of djgentelella answers it
+    with ``{"detail": ...}`` and **503**; ``status=502`` when the upstream
+    answered something unusable, ``status=504`` when it did not answer in
+    time, and ``retry_after=<seconds>`` for a ``Retry-After`` header.
+
+.. code:: python
+
+    from djgentelella.datasources.base import (
+        Column, DataSource, DataSourceUnavailable, register_datasource)
+
+    @register_datasource
+    class Rates(DataSource):
+        name = 'finance.rates'
+        project_model = None
+
+        def columns(self, request):
+            return [Column('currency', 'Currency', 'string'),
+                    Column('rate', 'Rate', 'decimal')]
+
+        def get_queryset(self, request, params=None):
+            wanted = [f['value'] for f in (params or {}).get('filters', [])
+                      if f['column'] == 'currency' and f['op'] == 'eq']
+            try:
+                return load_rates(only=wanted)     # a queryset over the rows read
+            except ProviderError as error:
+                raise DataSourceUnavailable(str(error), status=502)
+
+Building the queryset should not read the rows: ``validate_params`` builds it
+and never evaluates it (see below), so a source that reads on the first
+evaluation is never read by a validation.
+
 Query parameters
 ----------------
 
@@ -197,9 +266,11 @@ It reports **every** problem with the JSON path of its entry: the filters
 the ``group_by`` entries, the aggregates, the pivot (``$.pivot.rows``...) and
 the highlights (a ``filter`` object and CSS class names in ``css``). When
 that passes and the user may read the source, the queryset is built -- not
-run -- so the ORM checks the values too. ``strict=True`` also refuses unknown
-keys, at the top level and inside the entries. ``clean`` is ``None`` when
-there are errors.
+run -- so the ORM checks the values too; ``build=False`` skips that, and then
+``get_queryset`` is not even called. ``validate_params`` **never evaluates**
+the queryset: no row is read, no ``count()``, no ``exists()``.
+``strict=True`` also refuses unknown keys, at the top level and inside the
+entries. ``clean`` is ``None`` when there are errors.
 
 The checks of one entry are public as well: ``group_expr(colmap, item,
 index=0)`` and ``aggregate_expr(colmap, spec)`` take ``source.column_map()``
@@ -362,7 +433,8 @@ The parameters go as ``?params=<json>`` on a GET or in a POST body, either
 ``start``/``length``, up to ``GT_DATASOURCE_MAX_PAGE_SIZE``, 1000) and also
 reads the ``search`` and ``ordering`` that ``formatDataTableParams`` sends.
 Every endpoint calls ``has_permission`` and answers **403** when it says no;
-an unknown source is a 404 and bad parameters a 400.
+an unknown source is a 404, bad parameters a 400 and a source that cannot read
+its rows now (``DataSourceUnavailable``) a 503 -- or the 502/504 it carries.
 
 Exports
 -------
@@ -373,7 +445,11 @@ returns the ``HttpResponse``. All formats honour the filters, search, ordering,
 
 ``csv``
     Streamed, a chunk of rows at a time; a header row of labels, UTF-8 with a
-    BOM so a spreadsheet opens it right. A text cell that starts with ``=``,
+    BOM so a spreadsheet opens it right. The first chunk
+    (``CHUNK_SIZE``, 1000 rows) is read **before** the response is returned,
+    so a source that fails to read is an HTTP error (400, 503) and not a file
+    cut after its header; a failure in a later chunk can only cut the stream,
+    and is logged. A text cell that starts with ``=``,
     ``+``, ``-``, ``@``, a tab or a carriage return gets a leading ``'``, so a
     spreadsheet never runs it as a formula (CSV injection); numbers are left
     alone.

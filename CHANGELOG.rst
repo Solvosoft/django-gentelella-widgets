@@ -335,6 +335,46 @@ visible box. A ``facets`` panel filters them (``facets_target``), and
 ``demoapp.meetups`` at ``/designs/meetups/``. See ``docs/source/designs.rst``
 ("Region components").
 
+**Data sources that do not live in the project's database.** A source's
+``get_queryset(request, params=None)`` may take the query parameters:
+``apply_params``, ``aggregate``, ``pivot``, ``facets`` (each facet without its
+own filter), the exports and the API hand it the normalized document through
+``query.source_queryset``, and a source without ``params`` is called as
+before (``takes_params``). ``DataSourceUnavailable`` (a DRF ``APIException``)
+is what a source raises when it cannot read now: every endpoint answers it
+with 503 (or the 502/504 it carries, and ``Retry-After``), apart from the 400
+of bad parameters. ``validate_params`` never evaluates the queryset, and
+``build=False`` does not even build it. The CSV export reads its first chunk
+before returning the response, so a read error is an HTTP status and not a
+file cut after its header. ``DataSource.project_model`` names the model of
+the project behind a source (``project_model_of(source)``), and is what
+djgentelella reads instead of ``getattr(source, 'model', None)``. See
+``docs/source/datasources.rst``.
+
+**Read-only tables over any data source.** ``object_management`` takes a
+``datasource`` instead of ``model`` and ``form`` (list mode): a DataTable of
+its rows, with search, ordering, ``column_conditions``, a ``facets`` panel and
+row links when the source is over a model of the project, and no modals.
+``interactive_grid`` over a data source that is not a ``ModelDataSource`` is
+read only (no ``editable``, no ``actions``) instead of an error. Both read
+through ``djgentelella.designs.source_tables`` (``SourceTableViewSet``,
+``SourceGridViewSet``). See ``docs/source/designs.rst``.
+
+**``default_form(model, fields=None)``** in ``djgentelella.designs.forms``:
+the ``forms`` entry a model gets by default (the fields of
+``is_form_field``), the one djgentelella-editor imports.
+
+**The calendar speaks the page's language.** ``calendar`` loads FullCalendar's
+locales (``locales-all.global.min.js``, now downloaded by ``loaddevstatic``)
+on a page that is not in English. The cost of the map's bounding box is
+documented.
+
+**``scripts/patch_pylp.py`` works on Python 3.13.5.** It wraps
+``runner.future`` in ``asyncio.ensure_future`` -- which takes the ``Future``
+of a task and the coroutine of a task with dependencies -- in ``cli/run.py``
+and in ``lib/runner.py``, and repairs an install patched with
+``create_task``, which broke the tasks without dependencies.
+
 Backwards incompatible
 """"""""""""""""""""""""
 
@@ -516,6 +556,19 @@ that Site has -- a ``flow:`` row link or a ``flow_kanban`` of a flow
 published there -- was published and then answered 404. It now resolves the
 page for ``page.site`` (a global page, as before, without one), and the Site
 is part of its cache key.
+
+**The ``model`` of a data source is deprecated as its project model.**
+djgentelella reads ``source.project_model``; a ``DataSource`` subclass (or
+any object) that only has ``model`` still works, with a
+``DeprecationWarning``. Declare ``project_model`` (``None`` when its rows are
+not rows of a model of the project). ``ModelDataSource`` and
+``FunctionDataSource`` already do.
+
+**``object_management`` no longer requires ``model`` and ``form`` in its
+schema.** They are still required unless the node has a ``datasource`` (list
+mode), but ``resolve()`` says so now (``"model is required (or a
+"datasource"...)"``), not the JSON schema: a tool reading
+``props_schema["required"]`` gets nothing there.
 
 0.7.1 (2026-11-15)
 --------------------

@@ -202,6 +202,14 @@ autocompletes need a select2 lookup of the target in a ``gtselects.py``, tree
 selects a ``TreeNode`` target. Without a choice, a relation with a lookup gets
 the autocomplete. ``help`` texts become the fields' ``help_text``.
 
+``djgentelella.designs.forms.default_form(model, fields=None)`` is the entry a
+model gets by default -- ``{"model": "<app>.<Model>", "fields": [...]}`` with
+every field a ModelForm would show (``is_form_field``), concrete fields first
+and then the many-to-many ones, each with its default widget -- and ``fields``
+(an exposure's names, say) keeps only those. djgentelella-editor imports a
+model with it, and an application builder can write the ``forms`` of a new
+``object_management`` with it.
+
 Pages
 -----
 
@@ -383,6 +391,27 @@ type                            what it is
     takes a JSON list of filters (``djgentelella.datasources``), which is
     how the facets reach the table. The page renders only the modals the user
     may use, and each row says which icons it gets.
+
+``object_management`` in list mode
+    ``datasource`` -- any registered data source, over a model of the project
+    or not (one that reads an external API, say) -- instead of ``model`` and
+    ``form``: a DataTable of its rows, **read only**, without create, update,
+    detail or delete (``djgentelella.designs.source_tables``). ``list_fields``
+    are columns of the source (by default its first six that are not JSON);
+    ``search_fields`` its text columns among them; ``ordering`` (``[]``: by
+    pk); ``perms`` only takes ``list`` (empty: only the source's own
+    ``has_permission``); ``column_conditions`` hide columns as in a table;
+    ``row_links`` need a source over a model of the project
+    (``project_model``). ``form``, ``notify``, ``action_conditions`` and
+    ``optimistic_lock`` are errors. A ``facets`` panel may target it: it reads
+    the data source API, and the table gets its filters as ``gtfilters``. The
+    endpoint answers the DataTables format (``?offset=&limit=&draw=&search=
+    &ordering=&gtfilters=``), only over the columns the request sees: a filter
+    on any other is a 400, an ordering by it is ignored. Remember that the
+    source itself is still readable through ``gtapis/datasources/<name>/`` by
+    whoever has its permission: a column a condition hides here is not a
+    secret there. A source that cannot read now
+    (``DataSourceUnavailable``) answers 503.
 
 ``row_links``
     Per row links to a page about one object: a URL name of the project that
@@ -588,6 +617,17 @@ Props:
     rows are those of the data source's queryset (its permissions, Site rule
     and filters apply, to reading and to writing: a row outside it is a 404),
     and the columns must be fields it offers. The model must be exposed too.
+
+    Any other data source (a ``FunctionDataSource``, one whose rows come from
+    an external API...) makes a **read-only** grid: ``columns`` are columns of
+    the source (not JSON), there are no ``editable`` columns, ``actions``,
+    ``widgets``, ``edit_conditions`` or ``action_conditions`` (each one an
+    error), ``perms`` only takes ``list`` (empty: only the source's own
+    check) and the locking props are ignored. The page has no *Add row* or
+    *Save changes*; its endpoint answers ``{"data", "count"}`` like the
+    editable grid's list, every row with ``actions`` false and relations as
+    ``{id, text}``, and ``search`` only over its ``search_fields`` that the
+    request sees. ``grid_page_context`` serves both kinds.
 ``columns`` (required)
     Fields of the model the exposure allows; not files, JSON, binary or
     points. A column that does not exist is an error of the document.
@@ -952,6 +992,13 @@ says when there were more). The colour of an event is the first
 matches, else ``colors[<value of color_field>]``, else the value itself when
 it is a colour. An event of a date column is an all-day one.
 
+The calendar speaks the language of the page: ``locale`` is the request's
+``LANGUAGE_CODE`` (or the active language), and on a page that is not in
+English the script also loads FullCalendar's locales
+(``vendors/fullcalendar/locales-all.global.min.js``, ~26 KB, downloaded by
+``loaddevstatic``). FullCalendar falls back from ``pt-br`` to ``pt``, and to
+English for a language it does not know.
+
 **Map** (``cluster``, ``bbox``, ``limit``, ``center``, ``zoom``, ``height``).
 The endpoint is a ``BaseMapView`` (``views/maps.py``), so its payload is the
 one ``DJMap`` and ``maplib.js`` draw. It sends at most ``limit`` points (500,
@@ -961,6 +1008,18 @@ map moves: ``?bbox=<west>,<south>,<east>,<north>``, filtered in the database
 (the ``"lat,lng"`` text is split and cast inside a ``CASE`` that skips a value
 that is not a point, so PostgreSQL never fails on one), across the
 antimeridian too. The popup is HTML rendered and escaped by the server.
+
+*What the box costs.* The point is text, so no index helps: the database
+splits and casts the ``"lat,lng"`` of **every row** the source's queryset
+(with the panel's filters) holds, and stops at ``limit + 1`` matches. That is
+cheap for the few thousand rows a map shows, and grows with the table: with
+tens of thousands of points, narrow the source (its filters, the Site rule)
+or keep the coordinates in two float columns behind a source of your own. An
+expression index only helps if it repeats, character for character, the SQL
+``regions.point_coordinates`` generates, which is not a stable interface, so
+djgentelella does not ship one. A prefilter on the text cannot work either
+(``"10.5"`` sorts before ``"9.9"``, and ``"-"`` before both), so there is
+none.
 
 **Facets.** A ``facets`` panel may name a region node over a ``datasource``
 as its ``target``; the panel and the component share the data source state of

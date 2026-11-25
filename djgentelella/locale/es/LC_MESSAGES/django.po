@@ -4523,3 +4523,49 @@ msgstr "en total"
 #: designs/templates/gtdesigns/components/cards_list.html:33
 msgid "Cards per page"
 msgstr "Tarjetas por página"
+
+#: datasources/base.py
+msgid "The data source is not available right now."
+msgstr "La fuente de datos no está disponible en este momento."
+
+#: designs/data_components.py
+#, python-format
+msgid "%s is required (or a \"datasource\", to only list its rows)"
+msgstr "%s es obligatorio (o un \"datasource\", para solo listar sus filas)"
+
+#: designs/data_components.py
+#, python-format
+msgid "a list over a data source only reads: it has no %r"
+msgstr "una lista sobre una fuente de datos solo lee: no tiene %r"
+
+#: designs/data_components.py
+msgid "a list over a data source only reads: there is nothing to lock"
+msgstr "una lista sobre una fuente de datos solo lee: no hay nada que bloquear"
+
+#: designs/grid.py
+#, python-format
+msgid ""
+"data source %(source)r is not over a model of the project: its grid only "
+"reads, it has no %(prop)r"
+msgstr ""
+"la fuente de datos %(source)r no está sobre un modelo del proyecto: su "
+"cuadrícula solo lee, no tiene %(prop)r"
+
+#: designs/source_tables.py
+#, python-format
+msgid "%(column)r is not a column data source %(source)r can show"
+msgstr "%(column)r no es una columna que la fuente de datos %(source)r pueda mostrar"
+
+#: designs/source_tables.py
+#, python-format
+msgid "%(column)r is not a text column of data source %(source)r"
+msgstr "%(column)r no es una columna de texto de la fuente de datos %(source)r"
+
+#: designs/source_tables.py
+#, python-format
+msgid "a list over a data source only reads: it has no %r permissions"
+msgstr "una lista sobre una fuente de datos solo lee: no tiene permisos %r"
+
+#: designs/source_tables.py
+msgid "must be a list of filters"
+msgstr "debe ser una lista de filtros"
