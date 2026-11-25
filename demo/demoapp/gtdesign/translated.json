@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "app": "demoapp",
+  "slug": "translated",
+  "kind": "page",
+  "meta": {
+    "title": "Catálogo traducido",
+    "url": "translated/",
+    "url_name": "designs_translated",
+    "permissions": {
+      "view": [
+        "demoapp.view_product"
+      ]
+    }
+  },
+  "forms": {
+    "product_form": {
+      "model": "demoapp.Product",
+      "fields": [
+        "name",
+        "price",
+        "status",
+        "category"
+      ]
+    }
+  },
+  "root": {
+    "type": "page",
+    "id": "page",
+    "children": [
+      {
+        "type": "row",
+        "id": "tiles",
+        "children": [
+          {
+            "type": "col",
+            "id": "tile",
+            "props": {"width": 4},
+            "children": [
+              {
+                "type": "stat",
+                "id": "count",
+                "props": {
+                  "model": "demoapp.Product",
+                  "title": "Productos",
+                  "subtitle": "en el catálogo",
+                  "icon": "fa fa-cubes"
+                }
+              }
+            ]
+          },
+          {
+            "type": "col",
+            "id": "about",
+            "props": {"width": 8},
+            "children": [
+              {
+                "type": "html",
+                "id": "help",
+                "props": {
+                  "html": "<p class=\"lead\">Los títulos, los encabezados de columna y el menú de esta página tienen traducción en <code>/gt-translations/</code>.</p>"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "row",
+        "id": "main",
+        "children": [
+          {
+            "type": "col",
+            "id": "table",
+            "props": {"width": 12},
+            "children": [
+              {
+                "type": "object_management",
+                "id": "catalogue",
+                "props": {
+                  "model": "demoapp.Product",
+                  "form": "product_form",
+                  "title": "Catálogo de productos",
+                  "list_fields": ["name", "price", "status", "category"],
+                  "column_labels": {
+                    "name": "Nombre del producto",
+                    "price": "Precio de venta"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "translations": {
+    "en": {
+      "meta.title": "Translated catalogue",
+      "count:title": "Products",
+      "count:subtitle": "in the catalogue",
+      "catalogue:title": "Product catalogue",
+      "catalogue:column_labels.name": "Product name",
+      "catalogue:column_labels.price": "Sale price"
+    }
+  }
+}

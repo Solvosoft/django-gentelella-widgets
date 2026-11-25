@@ -312,3 +312,30 @@ class Command(BaseCommand):
                 only_icon=False,
                 position=position
             )
+
+        # Metadata translations (W34): the translation screens, and the
+        # language switcher of the top bar. The titles are written in
+        # English; the Spanish translation is what the demo shows by default.
+        MenuItem.objects.create(
+            parent=look,
+            title='Translations',
+            translations={'es': 'Traducciones'},
+            url_name='gt_translations',
+            category='main',
+            is_reversed=True,
+            is_widget=False,
+            icon='fa fa-language',
+            only_icon=False,
+            position=2,
+            key='translations',
+        )
+        MenuItem.objects.create(
+            parent=None,
+            title='Language',
+            url_name='demoapp.menu_widgets.LanguageMenu',
+            category='main',
+            is_reversed=False,
+            is_widget=True,
+            only_icon=False,
+            position=3,
+        )

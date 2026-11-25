@@ -59,6 +59,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'demoapp.middleware.LanguageCookieMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -155,6 +156,9 @@ CORS_ALLOW_ALL_ORIGINS = False
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 
 LANGUAGE_CODE = 'es'
+# The languages of the switcher in the top bar (demoapp.menu_widgets.
+# LanguageMenu) and of the metadata translations (/gt-translations/).
+LANGUAGES = [('es', 'Español'), ('en', 'English')]
 
 # The DateTimeInput widget (js/base/datetime.html) sends whatever the user
 # typed as a plain naive string, with no timezone marker at all. Django

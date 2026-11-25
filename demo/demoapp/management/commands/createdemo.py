@@ -13,7 +13,7 @@ from demoapp import models
 from demoapp.flowdemos.seed import seed as seed_flow_demos
 from demoapp.flowdemos.views import DEMOS as FLOW_DEMOS
 from demoapp.models import SelectImage
-from djgentelella.models import MenuItem
+from djgentelella.models import LOVTranslation, MenuItem
 from djgentelella.utils import set_settings
 
 
@@ -1141,7 +1141,7 @@ class Command(BaseCommand):
         for name in ('welcome', 'category_products', 'product_admin',
                      'sales_dashboard', 'product_grid', 'ticket_kanban',
                      'meetups', 'insights', 'employee_wizard', 'employee_edit',
-                     'shop_order_done', 'shop_orders'):
+                     'shop_order_done', 'shop_orders', 'translated'):
             call_command('gtdesigns_publish', str(designs / ('%s.json' % name)))
         parent = MenuItem.objects.create(
             parent=None, title='Designs', url_name='/', category='sidebar',
@@ -1170,6 +1170,17 @@ class Command(BaseCommand):
             parent=parent, title='Hire an employee (wizard in code)',
             url_name='employee_wizard', category='sidebar', is_reversed=True,
             is_widget=False, icon='fa fa-list-ol', only_icon=False)
+        # Metadata translations (W34): a page, its menu item and a LOV written
+        # in Spanish, with their English translation.
+        MenuItem.objects.create(
+            parent=parent, title='Catálogo traducido', key='designs-translated',
+            translations={'en': 'Translated catalogue'},
+            url_name='gt-design-page', category='sidebar', is_reversed=True,
+            reversed_args='translated', is_widget=False, icon='fa fa-language',
+            only_icon=False)
+        LOVTranslation.objects.update_or_create(
+            lov='demo_countries', value='pa', language='en',
+            defaults={'label': 'Panama'})
 
     def handle(self, *args, **options):
 

@@ -91,3 +91,4 @@ from .ProposalsW30_Test import *
 from .ProposalsW31_Test import *
 from .ThemeDiagramFeedback_Test import *
 from .PwaPush_Test import *
+from .MetadataTranslations_Test import *

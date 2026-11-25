@@ -31,6 +31,7 @@ urlpatterns = djgentelellaurls + [
     path('add_view_select', add_view_select, name='add_view_select'),
     path('blog/', include('djgentelella.blog.urls')),
     path('async_notification/', include('djgentelella.async_notification.urls')),
+    path('i18n/', include('django.conf.urls.i18n')),
 ] + demourls + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DO_STATIC:
