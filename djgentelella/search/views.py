@@ -12,9 +12,11 @@ anonymous users is so on purpose (``perms = []``).
 
 from urllib.parse import urlencode
 
+from django.core.exceptions import ImproperlyConfigured
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
+from django.utils.module_loading import import_string
 from django.views.decorators.http import require_GET
 
 from djgentelella.sites import get_current_site
@@ -69,6 +71,36 @@ def requested_sources(request, names):
     return names
 
 
+#: What the results page itself puts in its context: ``GT_SEARCH_PAGE_CONTEXT``
+#: cannot replace it.
+RESERVED_CONTEXT = ('query', 'source', 'groups', 'min_length', 'page',
+                    'source_label', 'previous_page', 'next_page')
+
+
+def page_context(request):
+    """What the results page adds to its context besides the hits: the
+    ``base_template`` it extends (``GT_SEARCH_BASE_TEMPLATE``) and whatever
+    the ``GT_SEARCH_PAGE_CONTEXT`` callable returns for ``request`` -- a
+    ``base_template`` of its own, a theme, ``breadcrumbs``. The keys of
+    :data:`RESERVED_CONTEXT` are left out.
+    """
+    context = {'base_template': search_setting('BASE_TEMPLATE')}
+    hook = search_setting('PAGE_CONTEXT')
+    if not hook:
+        return context
+    if isinstance(hook, str):
+        hook = import_string(hook)
+    extra = hook(request)
+    if extra is None:
+        return context
+    if not isinstance(extra, dict):
+        raise ImproperlyConfigured('GT_SEARCH_PAGE_CONTEXT must return a dict, not %s'
+                                   % type(extra).__name__)
+    context.update({key: value for key, value in extra.items()
+                    if key not in RESERVED_CONTEXT})
+    return context
+
+
 def more_url(text, source):
     return '%s?%s' % (reverse('gt-search'), urlencode({'q': text,
                                                        'source': source}))
@@ -78,8 +110,9 @@ def more_url(text, source):
 def search_page(request):
     text = clean_text(request.GET.get('q'))
     source = request.GET.get('source') or None
-    context = {'query': text, 'source': None, 'groups': [],
-               'min_length': search_setting('MIN_LENGTH')}
+    context = page_context(request)
+    context.update({'query': text, 'source': None, 'groups': [],
+                    'min_length': search_setting('MIN_LENGTH')})
     if source is not None:
         names = requested_sources(request, [source])
         size = int(search_setting('PAGE_SIZE'))

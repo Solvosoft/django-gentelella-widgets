@@ -58,6 +58,15 @@ class GlobalSearch:
     :param select_related: relations loaded with the hits, for a title or a
         URL that reads them. Foreign keys named by a ``title`` or
         ``subtitle`` path are added on their own.
+    :param owners: who the source belongs to -- the keys of whatever groups
+        sources in the project (the slugs of djodo's Apps, a tenant...).
+        ``()``: shared, it belongs to nobody. djgentelella only stores
+        them: a ``GT_SEARCH_SOURCES`` hook reads them
+        (:func:`source_owners`, :func:`searchable_sources` ``owner=``) to
+        decide what a request searches.
+    :param tags: free labels of the source (``'catalog'``, ``'people'``),
+        for the same hooks and for screens that let someone choose sources
+        (:func:`source_tags`, :func:`searchable_sources` ``tags=``).
     """
     fields: object = None
     title: object = None
@@ -67,6 +76,8 @@ class GlobalSearch:
     icon: str = ''
     limit: int = None
     select_related: tuple = dc_field(default_factory=tuple)
+    owners: tuple = dc_field(default_factory=tuple)
+    tags: tuple = dc_field(default_factory=tuple)
 
     def __post_init__(self):
         if isinstance(self.fields, dict):
@@ -84,6 +95,8 @@ class GlobalSearch:
         if self.limit is not None and int(self.limit) < 1:
             raise ImproperlyConfigured('GlobalSearch.limit must be positive')
         self.select_related = tuple(self.select_related or ())
+        self.owners = _keys(self.owners, 'owners')
+        self.tags = _keys(self.tags, 'tags')
 
     def weighted_fields(self, source, request):
         """``[(path, weight)]`` to search in ``source``."""
@@ -182,18 +195,75 @@ DEFAULTS = {
     # Dotted path of a callable (request) -> list of source names or None:
     # the sources a request searches when it does not name them.
     'SOURCES': None,
+    # The template the results page extends.
+    'BASE_TEMPLATE': 'gentelella/base.html',
+    # Dotted path of a callable (request) -> dict added to the context of the
+    # results page: a base_template, a theme, breadcrumbs...
+    'PAGE_CONTEXT': None,
 }
 
 
-def searchable_sources(names=None):
+#: ``owner=`` of :func:`searchable_sources` when it is not given: any owner.
+ANY_OWNER = object()
+
+
+def _keys(value, name):
+    """``owners``/``tags`` as a tuple of non-empty strings; a bare string is
+    one key."""
+    if value is None:
+        return ()
+    if isinstance(value, str):
+        value = (value,)
+    value = tuple(dict.fromkeys(value))
+    if not all(isinstance(key, str) and key for key in value):
+        raise ImproperlyConfigured('GlobalSearch.%s takes non-empty strings, not %r'
+                                   % (name, value))
+    return value
+
+
+def source_owners(source):
+    """``GlobalSearch.owners`` of ``source``; ``()`` for a shared source or
+    one that is not searchable."""
+    spec = getattr(source, 'global_search', None)
+    return spec.owners if isinstance(spec, GlobalSearch) else ()
+
+
+def source_tags(source):
+    """``GlobalSearch.tags`` of ``source``; ``()`` when it has none."""
+    spec = getattr(source, 'global_search', None)
+    return spec.tags if isinstance(spec, GlobalSearch) else ()
+
+
+def is_owned_by(source, owner):
+    """Whether ``owner`` may search ``source``: it is shared (no owners) or
+    ``owner`` is one of them. ``owner=None`` (outside every owner) only
+    reaches the shared ones."""
+    owners = source_owners(source)
+    return not owners or (owner is not None and owner in owners)
+
+
+def searchable_sources(names=None, *, owner=ANY_OWNER, tags=()):
     """The registered sources that have a ``global_search``, by name.
 
     ``names`` keeps those and in that order; unknown or not searchable names
-    are left out.
+    are left out. ``owner`` keeps the shared sources and those of ``owner``
+    (:func:`is_owned_by`; ``None``: only the shared ones), ``tags`` those
+    that have every one of them. What a ``GT_SEARCH_SOURCES`` hook needs::
+
+        def app_sources(request):
+            app = getattr(request, 'app', None)
+            return list(searchable_sources(owner=app.slug if app else None))
     """
     registry = get_datasources()
     found = {name: source for name, source in registry.items()
              if isinstance(getattr(source, 'global_search', None), GlobalSearch)}
+    if owner is not ANY_OWNER:
+        found = {name: source for name, source in found.items()
+                 if is_owned_by(source, owner)}
+    wanted = set(_keys(tags, 'tags'))
+    if wanted:
+        found = {name: source for name, source in found.items()
+                 if wanted <= set(source_tags(source))}
     if names is None:
         return found
     return {name: found[name] for name in names if name in found}
