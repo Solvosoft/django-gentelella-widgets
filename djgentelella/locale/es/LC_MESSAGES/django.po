@@ -4255,3 +4255,109 @@ msgstr "%(name)s disponibles"
 #, python-format
 msgid "Chosen %(name)s"
 msgstr "%(name)s elegidos"
+
+#: async_notification/models.py:197
+msgid "Uploaded by"
+msgstr "Subido por"
+
+#: designs/data_components.py:203
+msgid "optimistic_lock_required needs optimistic_lock"
+msgstr "optimistic_lock_required necesita optimistic_lock"
+
+#: designs/publishing.py:105
+msgid "a page is an object"
+msgstr "una página es un objeto"
+
+#: designs/publishing.py:106 flows/definitions.py:262 menu.py:517
+msgid "unknown field"
+msgstr "campo desconocido"
+
+#: designs/publishing.py:111 flows/definitions.py:266 flows/definitions.py:268
+#: menu.py:520 menu.py:522
+msgid "required"
+msgstr "obligatorio"
+
+#: designs/publishing.py:113 menu.py:529
+msgid "wrong type"
+msgstr "tipo incorrecto"
+
+#: designs/publishing.py:117
+msgid "a page path has no leading, trailing or double slashes"
+msgstr "la ruta de una página no tiene barras al inicio, al final ni dobles"
+
+#: designs/publishing.py:119 menu.py:532
+#, python-format
+msgid "longer than %d characters"
+msgstr "más de %d caracteres"
+
+#: designs/publishing.py:124 menu.py:551
+msgid "a list of \"app_label.codename\""
+msgstr "una lista de \"app_label.codename\""
+
+#: designs/publishing.py:128 menu.py:555
+#, python-format
+msgid "no permission %s"
+msgstr "no existe el permiso %s"
+
+#: flows/definitions.py:261
+msgid "a flow is an object"
+msgstr "un flujo es un objeto"
+
+#: flows/definitions.py:272
+#, python-format
+msgid "the document is of another flow: %s"
+msgstr "el documento es de otro flujo: %s"
+
+#: menu.py:509
+msgid "a menu item is an object"
+msgstr "un ítem de menú es un objeto"
+
+#: menu.py:512
+#, python-format
+msgid "the menu is deeper than %d levels"
+msgstr "el menú tiene más de %d niveles"
+
+#: menu.py:536
+msgid "a key is a slug: letters, digits, - and _"
+msgstr "una clave es un slug: letras, dígitos, - y _"
+
+#: menu.py:539
+#, python-format
+msgid "the key %s is repeated"
+msgstr "la clave %s está repetida"
+
+#: menu.py:546
+#, python-format
+msgid "%s is not a registered menu widget"
+msgstr "%s no es un widget de menú registrado"
+
+#: menu.py:560
+msgid "only a root of a Site menu hangs from a global item"
+msgstr "solo una raíz del menú de un Site cuelga de un ítem global"
+
+#: menu.py:563
+msgid "there is no such global menu item"
+msgstr "no existe ese ítem de menú global"
+
+#: menu.py:566
+msgid "a list of menu items"
+msgstr "una lista de ítems de menú"
+
+#: menu.py:579
+msgid "a menu is a list of menu items"
+msgstr "un menú es una lista de ítems de menú"
+
+#: models.py:181
+msgid "Key"
+msgstr "Clave"
+
+#: models.py:182
+msgid ""
+"Optional. Names the item in its Site (or among the global items) when a menu "
+"is exported and imported again."
+msgstr "Opcional. Nombra el ítem en su Site (o entre los ítems globales) cuando un menú se exporta y se vuelve a importar."
+
+#: models.py:219
+#, python-format
+msgid "%s is not a registered menu widget."
+msgstr "%s no es un widget de menú registrado."
