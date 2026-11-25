@@ -162,7 +162,10 @@ for every step on "Finish". The steps see ``ctx.node`` =
 edited. ``djgentelella.designs`` must be installed for a wizard with a
 pipeline; one without does not import it. Hooks: ``get_step_pipeline(step)``,
 ``get_pipeline()``, ``pipeline_context(step, form)``,
-``finish_context(forms)``.
+``finish_context(forms)``. The ``fields`` of the wizard's context are those
+of every step, the skipped ones too (what ``get_pipeline()`` is checked
+against): a computation may set a field of a step its condition skipped, and
+it is saved with ``extra_values``.
 
 Other hooks: ``get_steps()``, ``get_form_kwargs(step)``,
 ``get_form_initial(step)``, ``get_form_instance(step)``, ``get_wizard_key()``,

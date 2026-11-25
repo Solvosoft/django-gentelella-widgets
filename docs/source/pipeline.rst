@@ -215,7 +215,18 @@ For generated code there are mixins over the same functions:
     a view whose ``GET`` runs a ``before_render`` ``pipeline`` first: errors
     are a 403, a branch redirects, the values reach the template as
     ``pipeline``. ``run_before_render(pipeline, request, ...)`` is the
-    function.
+    function. ``get_pipeline_parent()`` (the object of a page about one, the
+    steps' ``ctx.parent``) and ``get_pipeline_page()`` (``ctx.page``) return
+    ``None`` unless overridden.
+``GTFiltersMixin`` (``designs.factories``)
+    a DRF viewset whose ``list`` follows a facets panel: ``?gtfilters=`` (a
+    JSON list of filters of the parameter document) over
+    ``gtfilters_fields`` only; another column or an invalid filter is a 400.
+    In the browser, ``window.gtdesign_follow_facets(target_id, crud)`` links
+    the ``ObjectCRUD`` to the panel whose ``data-target`` is ``target_id``
+    (its table reloads when a facet changes) and returns the datatable
+    ``filter`` event that sends the facets; ``window.gtdesign_facet_filters
+    (target_id)`` gives the current filters.
 
 A step of a document may say its ``kind``: it must be the registered one,
 and a ``pipeline_step`` hook that takes a ``kind`` keyword receives it (a

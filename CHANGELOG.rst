@@ -790,6 +790,13 @@ what the document leaves out (``pipeline.param_defaults``,
 ``with_param_defaults``; ``step_build`` too). ``NominatimGeocoder`` takes
 ``extra_params`` and ``extra_headers`` (the key of a compatible service).
 
+**Proposals of E13 (W31).** ``PipelinePageMixin.get_pipeline_parent()`` and
+``get_pipeline_page()`` give the steps their ``ctx.parent`` and ``ctx.page``.
+``designs.factories.GTFiltersMixin`` (``gtfilters_fields``) lets a viewset of
+the project follow a facets panel, and ``window.gtdesign_follow_facets(id,
+crud)`` / ``window.gtdesign_facet_filters(id)`` link an ``ObjectCRUD`` of
+generated code to it.
+
 **The ``app`` of a document (W31).** ``app`` and ``slug`` stay lower-case
 Python identifiers (``format.APP_PATTERN``): ``app`` is a Django app label for
 code generation, flows and pipeline steps (``<app>.<step>``).
@@ -902,6 +909,11 @@ that looked for ``ul.gt-check`` must look for ``ul.gt-check-list``.
 
 **A metric card over every row says ``"period": "all"`` (W31).** It
 answered ``period: ''``, as a card without a ``date_field``.
+
+**A wizard's computation may set a field of a skipped step (W31).** The
+``fields`` of ``GTWizardView.finish_context`` were those of the steps that
+applied, so the wizard's pipeline failed with ``PipelineError`` on a field of
+a step skipped by its condition, although ``get_pipeline()`` had accepted it.
 
 **The trailing slash of a design page in the menu stays opt-in (W31).**
 ``GT_MENU_DESIGN_PAGE_SLASH`` remains off by default: turning it on changes
