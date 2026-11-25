@@ -12,3 +12,6 @@ class DjgentelellaConfig(AppConfig):
         # imports models.
         from djgentelella.authorization import autodiscover  # noqa: PLC0415
         autodiscover()
+        # Same reason: the push module imports the models.
+        from djgentelella.pwa.signals import connect  # noqa: PLC0415
+        connect()

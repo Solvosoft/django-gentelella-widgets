@@ -1,0 +1,30 @@
+{% load i18n %}<!doctype html>
+{% get_current_language as LANGUAGE_CODE %}
+<html lang="{{ LANGUAGE_CODE }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="{{ manifest.theme_color }}">
+<title>{{ manifest.name }}</title>
+<style>
+body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+       font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+       background: {{ manifest.background_color }}; color: #333; }
+main { max-width: 28rem; padding: 2rem; text-align: center; }
+header { background: {{ manifest.theme_color }}; color: #fff; padding: .75rem 1rem; border-radius: .5rem .5rem 0 0; }
+section { background: #fff; padding: 1.5rem 1rem; border-radius: 0 0 .5rem .5rem; box-shadow: 0 1px 3px rgba(0,0,0,.15); }
+button { margin-top: 1rem; padding: .5rem 1.25rem; border: 0; border-radius: .25rem; cursor: pointer;
+         background: {{ manifest.theme_color }}; color: #fff; font-size: 1rem; }
+</style>
+</head>
+<body>
+<main id="gt-pwa-offline">
+  <header><strong>{{ manifest.name }}</strong></header>
+  <section>
+    <h1 style="font-size:1.25rem;margin-top:0">{% trans 'You are offline' %}</h1>
+    <p>{% trans 'This page needs a connection. Check your network and try again.' %}</p>
+    <button type="button" onclick="window.location.reload()">{% trans 'Try again' %}</button>
+  </section>
+</main>
+</body>
+</html>

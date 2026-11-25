@@ -23,6 +23,8 @@ from djgentelella.models import (
     Trash,
     HistoryRelation,
     TrashRelation,
+    PushSubscription,
+    PushPreference,
 )
 from djgentelella.models import PermissionsCategoryManagement
 from djgentelella.sites import sites_installed
@@ -239,3 +241,21 @@ admin.site.register(Trash, TrashAdmin)
 admin.site.register(LogEntry, LogEntryAdmin)
 admin.site.register(HistoryRelation, HistoryRelationAdmin)
 admin.site.register(TrashRelation, TrashRelationAdmin)
+
+
+class PushSubscriptionAdmin(admin.ModelAdmin):
+    list_display = ('user', 'site', 'user_agent', 'created_at', 'last_used')
+    list_filter = ('site',) if sites_installed() else ()
+    search_fields = ('user__username', 'user_agent', 'endpoint')
+    raw_id_fields = ('user',)
+    readonly_fields = ('endpoint', 'p256dh', 'auth', 'created_at', 'last_used')
+
+
+class PushPreferenceAdmin(admin.ModelAdmin):
+    list_display = ('user', 'enabled')
+    list_filter = ('enabled',)
+    raw_id_fields = ('user',)
+
+
+admin.site.register(PushSubscription, PushSubscriptionAdmin)
+admin.site.register(PushPreference, PushPreferenceAdmin)

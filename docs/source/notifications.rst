@@ -41,3 +41,9 @@ use a render parameter in some columns to give it the proper format, e.g. the ``
 as a colored circle in the view. Also the link of each notification has a text with a hyperlink to the notification. The
 'State' column use render just to capitalize the first letter of the string. Also, within that script, there is a function
 used to update the ``document.dom`` of the datatable, specifically to give it a proper looking using some bootstrap classes.
+
+Push notifications
+------------------
+
+Every new notification can also reach the user's browsers as web push, with
+the ``[push]`` extra and VAPID keys. See :doc:`pwa`.

@@ -557,6 +557,20 @@ class Command(BaseCommand):
             only_icon=False,
         )
 
+        # djgentelella.pwa: subscribe this browser to the notifications as push.
+        MenuItem.objects.create(
+            parent=item,
+            title='Push notifications',
+            url_name='gt_push_preferences',
+            category='sidebar',
+            is_reversed=True,
+            reversed_kwargs=None,
+            reversed_args=None,
+            is_widget=False,
+            icon='fa fa-bell',
+            only_icon=False,
+        )
+
         MenuItem.objects.create(
             parent=item,
             title='Country list',

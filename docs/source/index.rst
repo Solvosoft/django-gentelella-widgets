@@ -57,6 +57,7 @@ Django Gentelella Widgets (``djgentelella``) is a reusable Django application th
    designs
    permissionmanagement
    notifications
+   pwa
    alerts
    async_notification/async_notification
    history

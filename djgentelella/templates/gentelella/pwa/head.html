@@ -1,0 +1,7 @@
+{% load static %}{% if manifest %}
+	<link rel="manifest" href="{% url 'gt_pwa_manifest' %}">
+	<meta name="theme-color" content="{{ manifest.theme_color }}">
+	<meta name="mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-title" content="{{ manifest.short_name }}">
+	<link rel="apple-touch-icon" href="{{ manifest.icons.0.src }}">{% endif %}{% if worker_on %}
+	<script src="{% static 'gentelella/js/pwa/register.js' %}" data-sw="{% url 'gt_pwa_service_worker' %}" data-scope="{{ scope }}" defer></script>{% endif %}

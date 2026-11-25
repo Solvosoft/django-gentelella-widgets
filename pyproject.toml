@@ -191,6 +191,12 @@ export = [
 pdf = [
     "xhtml2pdf>=0.2.28"
 ]
+# Web push of the notifications (djgentelella.pwa): pywebpush encrypts and
+# signs (VAPID) the messages for the push services of the browsers. Without it
+# the manifest and the service worker still work; push is just off.
+push = [
+    "pywebpush>=2.0"
+]
 
 # List URLs that are relevant to your project
 #
