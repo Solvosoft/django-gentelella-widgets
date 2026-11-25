@@ -14,7 +14,7 @@ from django.urls import include, path
 from demo.urls import urlpatterns as demo_urlpatterns
 from demoapp.models import Department
 from djgentelella.designs import engine, factories, publishing
-from djgentelella.designs.exposure import expose, unexpose
+from djgentelella.designs.exposure import expose, get_exposure, unexpose
 from djgentelella.forms.forms import GTForm
 from djgentelella.tests.Designs_Test import design, node
 from djgentelella.widgets import core as genwidgets
@@ -133,8 +133,11 @@ class FacetsOverModelCardsTest(SeleniumTestCase):
     def setup_data(self):
         engine.clear_cache()
         factories.clear_cache()
-        expose(Department)
-        self.addCleanup(unexpose, Department)
+        # The demo exposes it already; expose it only if it does not, and
+        # never leave it unexposed for the tests that come after.
+        if get_exposure('demoapp.Department') is None:
+            expose(Department)
+            self.addCleanup(unexpose, Department)
         other = Site.objects.create(domain='other.example', name='Other')
         Department.objects.create(name='Sales', head='Eva')
         Department.objects.create(name='Support', head='Leo')
