@@ -87,7 +87,8 @@ class FormWidgetsTest(SeleniumTestCase):
             (By.CSS_SELECTOR, '.select2-container--open .select2-search__field')))
         search.send_keys('Robots')
         self.wait_js("return [...document.querySelectorAll("
-                     "'.select2-results__option')].some(o => o.textContent === 'Robots')")
+                     "'.select2-results__option')]"
+                     ".some(o => o.textContent === 'Robots')")
         search.send_keys(Keys.ENTER)
         self.wait_js("return document.getElementById('id_category').value === 'Robots'")
 
@@ -125,7 +126,8 @@ class FormWidgetsTest(SeleniumTestCase):
         # Image: crop to a square before it is sent.
         d.find_element(By.ID, 'id_photo').send_keys(
             self.write_temp_file('wide.png', png()))
-        self.wait_js("return !!document.querySelector('#id_photo_crop .cropper-container')")
+        self.wait_js("return !!document.querySelector("
+                     "'#id_photo_crop .cropper-container')")
         self.click('#id_photo_crop .gt-image-crop-apply')
         self.wait_js("return !document.querySelector('#id_photo_crop "
                      ".gt-image-crop-result').classList.contains('d-none')")
@@ -145,7 +147,9 @@ class FormWidgetsTest(SeleniumTestCase):
         self.assertEqual(self.js("return document.getElementById('id_location').value"),
                          '9.998200,-84.116500')
 
-        self.click('#showcase_form button[type=submit]')
+        # requestSubmit(), not a click: at the bottom of a long page the
+        # button can sit under the footer, and the browser still validates.
+        self.js("document.getElementById('showcase_form').requestSubmit();")
         self.wait_js("return !!document.querySelector('#showcase_table tr[data-pk]')")
 
         item = WidgetShowcase.objects.get()
@@ -190,7 +194,8 @@ class FormWidgetsTest(SeleniumTestCase):
                 '**x** <img src="x" onerror="window.__xss = 1">'
                 '<script>window.__xss = 2</script> [a](javascript:window.__xss=3)')
         self.click('#id_description_previewtab')
-        self.wait_js("return !!document.querySelector('#id_description_preview strong')")
+        self.wait_js("return !!document.querySelector("
+                     "'#id_description_preview strong')")
         self.assertIsNone(self.js('return window.__xss || null'))
         self.assertEqual(self.js(
             "return document.querySelectorAll('#id_description_preview script,"
