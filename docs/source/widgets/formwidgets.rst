@@ -273,6 +273,16 @@ nothing leaves the server. It is turned on with a class::
         'countrycodes': 'cr',
     }
 
+``NominatimGeocoder`` also takes ``extra_params`` (added to every query
+string: the ``key`` of a compatible service such as LocationIQ, an
+``email``...) and ``extra_headers`` (an API key sent as a header); they never
+replace ``q``, ``format`` or ``limit``::
+
+    GT_GEOCODER_OPTIONS = {
+        'url': 'https://eu1.locationiq.com/v1/search',
+        'extra_params': {'key': os.environ['LOCATIONIQ_KEY']},
+    }
+
 The browser never calls the service: it asks ``gtapis/geocode/?q=``
 (``gt-geocode``, login required), which answers 404 while there is no
 geocoder, 400 without a query and 502 when the service fails. Any class with

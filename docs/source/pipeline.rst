@@ -69,6 +69,12 @@ A step is a function ``fn(ctx, **params)`` registered with a name of the form
 
 ``schema`` is the JSON Schema of the step's ``params``
 (:mod:`djgentelella.designs.jsonschema`); without one the step takes none.
+The ``default`` of a top-level property fills that param when the document
+leaves it out (before validating, so a required param with a default may be
+omitted): a step whose params all have one can be offered -- by an assistant,
+an editor -- without asking for them. ``param_defaults(schema)`` and
+``with_param_defaults(schema, params)`` are public; ``step_build`` applies
+them too.
 Registering a name again replaces the step. ``registered_processes(kind=None)``
 and ``catalogue()`` list them (``catalogue()`` as data, for an editor);
 ``unregister_process(name)`` removes one.

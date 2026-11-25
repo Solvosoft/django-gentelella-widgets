@@ -739,6 +739,13 @@ Props:
 ``search_fields``, ``ordering``, ``page_size``, ``title``
     As in a table; ``ordering`` is ``["pk"]`` by default and ``page_size``
     25 (at most 200).
+``site_field``
+    Over a ``model``, a foreign key to ``sites.Site``, as in
+    ``object_management``: the grid lists and edits the rows of the request's
+    Site and the global ones (another Site's row is a 404 in a batch too),
+    and a new row gets the request's Site. It cannot be an ``editable``
+    column, and the ``create`` check does not ask for it. Over a
+    ``datasource`` it is an error: the source applies its own Site rule.
 
 **In the page** a row starts as text. Clicking a cell (or the pencil) edits
 its row: each editable cell gets the widget of the column, booted like a modal
@@ -1317,8 +1324,8 @@ division by zero), and with nothing to compare the card says so.
 A card can take its own ``period`` -- another of the periods ("this year"
 next to "this month"), or ``"all"``: every row, without a comparison (the
 headcount next to the hires of the month). Only with a ``date_field``. Each
-card the endpoint answers carries ``period``, ``period_label`` and
-``compare_label``.
+card the endpoint answers carries ``period`` (``"all"`` for a card over every
+row), ``period_label`` and ``compare_label``.
 
 Every card is computed in **one** aggregate query (conditional aggregates,
 ``Sum(..., filter=Q(...))``) over the rows of the source after the page's

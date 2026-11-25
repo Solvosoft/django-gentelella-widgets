@@ -782,6 +782,14 @@ same model and ``site_field`` works too. A component opts in with
 the state a region's configuration names. A grid whose rows are pending
 applies a facet that changed once they are saved or undone.
 
+**Proposals of D18 (W31).** ``interactive_grid`` over a model takes
+``site_field``, as ``object_management``: the rows of the request's Site and
+the global ones, another Site's row is a 404 in a batch, a new row gets the
+request's Site. The ``default`` of a property of a step's params schema fills
+what the document leaves out (``pipeline.param_defaults``,
+``with_param_defaults``; ``step_build`` too). ``NominatimGeocoder`` takes
+``extra_params`` and ``extra_headers`` (the key of a compatible service).
+
 **The ``app`` of a document (W31).** ``app`` and ``slug`` stay lower-case
 Python identifiers (``format.APP_PATTERN``): ``app`` is a Django app label for
 code generation, flows and pipeline steps (``<app>.<step>``).
@@ -891,6 +899,9 @@ whatever came after it, in every layout. The list now gets ``gt-check-list``
 (plus the other classes of ``attrs``) and ``gt-check`` stays on each
 ``<input>``; ``checks.css`` lays the list out one choice per line. A selector
 that looked for ``ul.gt-check`` must look for ``ul.gt-check-list``.
+
+**A metric card over every row says ``"period": "all"`` (W31).** It
+answered ``period: ''``, as a card without a ``date_field``.
 
 **The trailing slash of a design page in the menu stays opt-in (W31).**
 ``GT_MENU_DESIGN_PAGE_SLASH`` remains off by default: turning it on changes
