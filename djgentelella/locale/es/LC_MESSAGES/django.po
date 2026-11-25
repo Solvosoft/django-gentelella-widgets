@@ -4802,3 +4802,141 @@ msgstr "%s necesita una columna"
 #: designs/tree_timeline_metrics.py
 msgid "Metric cards"
 msgstr "Tarjetas de métricas"
+
+#: designs/wizard.py
+msgid "Saved."
+msgstr "Guardado."
+
+#: designs/wizard.py
+msgid "Wizard (form in steps)"
+msgstr "Asistente (formulario por pasos)"
+
+#: designs/wizard.py
+#, python-format
+msgid "a wizard that edits needs a page about one %s (meta.parent)"
+msgstr "un asistente que edita necesita una página de un %s (meta.parent)"
+
+#: designs/wizard.py
+msgid "optimistic locking is for a wizard that edits (mode \"edit\")"
+msgstr "el bloqueo optimista es para un asistente que edita (modo \"edit\")"
+
+#: designs/wizard.py
+#, python-format
+msgid "step %r is repeated"
+msgstr "el paso %r está repetido"
+
+#: designs/wizard.py
+#, python-format
+msgid "%(field)r is required by %(model)s and no step asks for it"
+msgstr "%(model)s exige %(field)r y ningún paso lo pide"
+
+#: designs/wizard.py
+#, python-format
+msgid "%r is neither \"page:<path>\" nor a URL name that takes no arguments"
+msgstr "%r no es \"page:<ruta>\" ni un nombre de URL sin argumentos"
+
+#: designs/wizard.py
+#, python-format
+msgid "New %s"
+msgstr "Nuevo: %s"
+
+#: designs/wizard.py
+#, python-format
+msgid "%(field)r is already in step %(step)r"
+msgstr "%(field)r ya está en el paso %(step)r"
+
+#: designs/wizard.py
+#, python-format
+msgid "%r is the site_field: the wizard sets it"
+msgstr "%r es el site_field: lo pone el asistente"
+
+#: designs/wizard.py
+#, python-format
+msgid "a file of a wizard is uploaded in chunks (one of %s): a draft cannot keep a plain file input"
+msgstr "un archivo de un asistente se sube por partes (uno de %s): un borrador no puede guardar un campo de archivo simple"
+
+#: designs/wizard.py
+#, python-format
+msgid "\"when\" takes one of %s"
+msgstr "\"when\" lleva uno de %s"
+
+#: designs/wizard.py
+#, python-format
+msgid "%r is not a field of an earlier step"
+msgstr "%r no es un campo de un paso anterior"
+
+#: models.py templates/gentelella/wizard/wizard.html
+msgid "Wizard"
+msgstr "Asistente"
+
+#: models.py
+msgid "Uploads"
+msgstr "Subidas"
+
+#: models.py
+msgid "Wizard draft"
+msgstr "Borrador de asistente"
+
+#: models.py
+msgid "Wizard drafts"
+msgstr "Borradores de asistente"
+
+#: templates/gentelella/wizard/body.html
+msgid "Step %(number)s of %(total)s: %(title)s"
+msgstr "Paso %(number)s de %(total)s: %(title)s"
+
+#: templates/gentelella/wizard/body.html
+msgid "Step %(number)s of %(total)s"
+msgstr "Paso %(number)s de %(total)s"
+
+#: templates/gentelella/wizard/body.html
+msgid "Finish"
+msgstr "Terminar"
+
+#: templates/gentelella/wizard/body.html
+msgid "Wizard steps"
+msgstr "Pasos del asistente"
+
+#: templates/gentelella/wizard/body.html
+msgid "done"
+msgstr "hecho"
+
+#: templates/gentelella/wizard/body.html
+msgid "Please correct the errors below."
+msgstr "Corrija los errores de abajo."
+
+#: templates/gentelella/wizard/body.html
+msgid "%(field)s: \"%(name)s\" is already uploaded; upload another file only to replace it."
+msgstr "%(field)s: \"%(name)s\" ya está subido; suba otro archivo solo para reemplazarlo."
+
+#: templates/gentelella/wizard/body.html
+msgid "Save draft"
+msgstr "Guardar borrador"
+
+#: templates/gentelella/wizard/body.html
+msgid "Discard"
+msgstr "Descartar"
+
+#: templates/gentelella/wizard/body.html
+msgid "Your drafts"
+msgstr "Sus borradores"
+
+#: templates/gentelella/wizard/body.html
+msgid "open"
+msgstr "abierto"
+
+#: wizard/views.py
+msgid "No such draft."
+msgstr "No existe ese borrador."
+
+#: wizard/views.py
+msgid "Draft saved. You can go on with it later from this page."
+msgstr "Borrador guardado. Puede seguir con él más tarde desde esta página."
+
+#: wizard/views.py
+msgid "Draft saved in this session. Come back to this page to go on."
+msgstr "Borrador guardado en esta sesión. Vuelva a esta página para seguir."
+
+#: wizard/views.py
+msgid "The wizard was discarded."
+msgstr "Se descartó el asistente."
