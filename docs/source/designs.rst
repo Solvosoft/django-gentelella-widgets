@@ -367,6 +367,9 @@ type                            what it is
                                 period
                                 (``djgentelella.designs.tree_timeline_metrics``,
                                 see "Tree, timeline and metrics")
+``wizard``                      a form in steps over one model, with a
+                                progress bar and drafts
+                                (``djgentelella.designs.wizard``, see "Wizard")
 ==============================  ===============================================
 
 .. code:: json
@@ -1225,6 +1228,18 @@ that is down leaves the page up: the cards say they could not be computed.
 The demo publishes the three at ``/designs/insights/``: an organization chart
 (``demoapp.departments``), the meetups on a timeline with a facets panel, and
 two rows of cards over the meetups and the purchase requests.
+
+Wizard
+""""""
+
+*(Asistente por pasos.)* ``wizard`` (``djgentelella.designs.wizard``) is
+``djgentelella.wizard.GTWizardView`` served by the design router: one form
+per step over one exposed model, conditional steps (``condition`` and
+``when``), a draft in the session or in ``WizardDraft``, and one object
+created -- or edited, with the optimistic lock, on a page about it -- in one
+transaction when it finishes. The page renders the current step and the form
+posts to the node's endpoint, which redirects back: no javascript is needed.
+Its props, checks and ``x-widget`` hints are in :doc:`wizard`.
 
 Extending the engine
 --------------------
