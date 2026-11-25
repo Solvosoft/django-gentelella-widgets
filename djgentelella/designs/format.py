@@ -22,6 +22,7 @@ each node are checked by its component (:mod:`djgentelella.designs.components`).
 import copy
 import hashlib
 import json
+import re
 from functools import lru_cache
 from pathlib import Path
 
@@ -38,13 +39,39 @@ CURRENT = 1
 #: gets its own copy and may change it in place.
 UPGRADES = {}
 
-__all__ = ['CURRENT', 'UPGRADES', 'Error', 'UpgradeError', 'document_hash',
-           'load_schema', 'normalize', 'upgrade', 'validate_envelope',
-           'view_permissions', 'walk']
+#: What ``app`` (and ``slug``) of a document may be: a Python identifier in
+#: lower case, the label of a Django app. A slug with ``-`` (a ``SlugField``,
+#: a djodo App) goes through :func:`app_name` first.
+APP_PATTERN = r'^[a-z_][a-z0-9_]*$'
+
+__all__ = ['APP_PATTERN', 'CURRENT', 'UPGRADES', 'Error', 'UpgradeError',
+           'app_name', 'document_hash', 'load_schema', 'normalize', 'upgrade',
+           'validate_envelope', 'view_permissions', 'walk']
 
 
 class UpgradeError(ValueError):
     pass
+
+
+def app_name(text):
+    """``text`` -- a slug, ``"mi-tienda"`` -- as the ``app`` of a document
+    (:data:`APP_PATTERN`): lower case, ``-`` and spaces as ``_``, and a
+    leading ``_`` when it starts with a digit. ``ValueError`` when what is
+    left is still not a name (empty, other characters).
+
+    ``app`` stays a Python identifier on purpose: djgentelella-editor
+    generates code into the Django app of that label, a flow named without
+    ``app.`` is looked up as ``<app>.<name>``, and the pipeline steps of an
+    app are named ``<app>.<step>`` (``pipeline.NAME_PATTERN``), none of which
+    takes a ``-``. A project whose apps have slugs keeps the mapping both
+    ways with this function.
+    """
+    name = re.sub(r'[-\s]+', '_', str(text or '').strip().lower())
+    if name[:1].isdigit():
+        name = '_' + name
+    if not re.match(APP_PATTERN, name):
+        raise ValueError('%r cannot be the app of a design' % (text,))
+    return name
 
 
 @lru_cache(maxsize=1)
