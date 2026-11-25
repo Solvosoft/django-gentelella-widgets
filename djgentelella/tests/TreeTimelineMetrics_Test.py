@@ -32,6 +32,11 @@ from djgentelella.designs.exposure import expose
 from djgentelella.tests.Designs_Test import DesignState, design, node
 from djgentelella.tests.DesignsPages_Test import grant
 
+# Only the test classes: the package imports every module with ``*``, and a
+# class named like another module's would hide it from the runner.
+__all__ = ['TTMAccessTests', 'TTMFacetTests', 'TTMMetricsTests', 'TTMSchemaTests',
+           'TTMTimelineTests', 'TTMTreeTests']
+
 FAST_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
 UNITS = 'tests.ttm.departments'
 MEETUPS = 'tests.ttm.meetups'
@@ -69,7 +74,7 @@ def facets(target, columns, node_id='filters'):
 
 @override_settings(LANGUAGE_CODE='en', ALLOWED_HOSTS=['*'],
                    PASSWORD_HASHERS=FAST_HASHERS, TIME_ZONE='UTC')
-class Base(DesignState, TestCase):
+class TTMBase(DesignState, TestCase):
     def setUp(self):
         super().setUp()
         registry.get_components()
@@ -139,7 +144,7 @@ class Base(DesignState, TestCase):
 
 # -- the documents -------------------------------------------------------------------
 
-class SchemaTests(Base):
+class TTMSchemaTests(TTMBase):
     def test_registered_after_the_others(self):
         types = list(registry.get_components())
         first = types.index('cards')
@@ -256,7 +261,7 @@ class SchemaTests(Base):
 
 # -- access ---------------------------------------------------------------------------
 
-class AccessTests(Base):
+class TTMAccessTests(TTMBase):
     def setUp(self):
         super().setUp()
         self.unit('Global')
@@ -336,7 +341,7 @@ class AccessTests(Base):
         self.assertIn('gentelella/css/tree_timeline_metrics.css', html)
 
 
-class FacetTests(Base):
+class TTMFacetTests(TTMBase):
     """A facets panel filters the three (``?params=``), and ``filtered_by``
     lets one panel filter several."""
 
@@ -381,7 +386,7 @@ class FacetTests(Base):
 
 # -- tree -----------------------------------------------------------------------------
 
-class TreeTests(Base):
+class TTMTreeTests(TTMBase):
     def setUp(self):
         super().setUp()
         self.board = self.unit('Board', icon='fa fa-institution')
@@ -533,7 +538,7 @@ class TreeTests(Base):
 
 # -- timeline -------------------------------------------------------------------------
 
-class TimelineTests(Base):
+class TTMTimelineTests(TTMBase):
     def test_newest_first_in_pages(self):
         for index in range(7):
             self.meetup('M%d' % index, days=-index, city='City %d' % index)
@@ -632,7 +637,7 @@ class TimelineTests(Base):
 
 # -- metrics --------------------------------------------------------------------------
 
-class MetricsTests(Base):
+class TTMMetricsTests(TTMBase):
     def setUp(self):
         super().setUp()
         self.requester = User.objects.create_user('req')
