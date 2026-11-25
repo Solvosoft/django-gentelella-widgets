@@ -409,11 +409,19 @@ class GTWizardView(TemplateResponseMixin, ContextMixin, View):
     def finish_context(self, forms):
         """The context of the wizard's pipeline: the cleaned data of every
         step and what their pipelines computed, the object edited (or
-        ``None``) and :attr:`model`."""
-        data, names = {}, []
+        ``None``) and :attr:`model`.
+
+        Its ``fields`` are those of **every** step, the ones skipped by their
+        condition too -- what :meth:`get_pipeline` was checked against --, so
+        a computation may set a field of a skipped step (it is saved with
+        :meth:`extra_values`) instead of failing with ``PipelineError``."""
+        data = {}
         for form in forms.values():
             data.update(form.cleaned_data)
-            names.extend(form.fields)
+        names = [name for step in self.get_steps()
+                 for name in self.step_field_names(step)]
+        for form in forms.values():
+            names.extend(name for name in form.fields if name not in names)
         data.update(self.computed_values())
         return pipelines().PipelineContext(
             self.request, node=self.pipeline_node, data=data,
