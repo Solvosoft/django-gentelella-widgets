@@ -1,10 +1,12 @@
 """The settings of one application (a Site) that the manifest and the push
-payloads use, read in one query."""
+payloads use: the rows of every Site in one cached query, since the manifest
+is read on every page."""
+from django.core.cache import cache
 from django.templatetags.static import static
 
-from djgentelella.models import GentelellaSettings
+from djgentelella.models import PWA_SETTINGS_CACHE_KEY, GentelellaSettings
 from djgentelella.pwa import conf
-from djgentelella.sites import site_pk, site_q
+from djgentelella.sites import site_pk
 
 #: The keys of ``GentelellaSettings`` the PWA reads (per Site, C1).
 PWA_KEYS = (
@@ -14,6 +16,17 @@ PWA_KEYS = (
 )
 
 
+def _rows():
+    """``(key, value, site_id)`` of every ``PWA_KEYS`` row, of every Site: a
+    few per Site. Cleared by the receiver of ``GentelellaSettings`` saves."""
+    rows = cache.get(PWA_SETTINGS_CACHE_KEY)
+    if rows is None:
+        rows = list(GentelellaSettings.objects.filter(key__in=PWA_KEYS)
+                    .values_list('key', 'value', 'site_id'))
+        cache.set(PWA_SETTINGS_CACHE_KEY, rows, timeout=None)
+    return rows
+
+
 class AppSettings:
     """``PWA_KEYS`` of ``site``: the Site's value, else the global one."""
 
@@ -21,10 +34,11 @@ class AppSettings:
         self.site = site
         site_id = site_pk(site)
         found, own = {}, {}
-        rows = GentelellaSettings.objects.filter(
-            site_q(site_id), key__in=PWA_KEYS).values_list('key', 'value', 'site_id')
-        for key, value, row_site in rows:
-            (own if row_site is not None else found)[key] = value
+        for key, value, row_site in _rows():
+            if row_site is None:
+                found[key] = value
+            elif row_site == site_id:
+                own[key] = value
         found.update({key: value for key, value in own.items() if value})
         self.values = found
 

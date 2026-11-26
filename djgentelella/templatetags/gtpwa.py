@@ -19,10 +19,16 @@ def pwa_head(context):
     if not manifest_on and not worker_on:
         return ''
     request = context.get('request')
+    manifest = build_manifest(request) if manifest_on and request else None
+    if manifest is not None:
+        scope = manifest['scope']
+    elif request is not None:
+        scope = AppSettings(get_current_site(request)).scope()
+    else:
+        scope = conf.scope()
     return render_to_string('gentelella/pwa/head.html', {
         'manifest_on': manifest_on,
         'worker_on': worker_on,
-        'manifest': build_manifest(request) if manifest_on and request else None,
-        'scope': AppSettings(get_current_site(request)).scope() if request
-        else conf.scope(),
+        'manifest': manifest,
+        'scope': scope,
     })

@@ -12,7 +12,6 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.utils.translation import gettext_lazy as _
-from PIL import Image
 
 #: ``#rrggbb``: the only colour syntax a theme accepts.
 HEX_PATTERN = r'^#[0-9a-fA-F]{6}$'
@@ -108,6 +107,9 @@ def validate_logo(upload):
     name = getattr(upload, 'name', '') or ''
     extension = name.rsplit('.', 1)[-1].lower() if '.' in name else ''
     position = upload.tell() if hasattr(upload, 'tell') else 0
+    # Pillow costs ~4 MB per process, and models.py imports this module:
+    # imported here, only a process that validates a logo pays for it.
+    from PIL import Image  # noqa: PLC0415 -- startup memory, see above
     try:
         upload.seek(0)
         with Image.open(upload) as image:

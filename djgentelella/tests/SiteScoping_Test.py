@@ -391,6 +391,17 @@ class SiteSettingsTest(TestCase):
             self.assertEqual(get_settings('scoped_title', site=self.site_a), 'Of A')
             self.assertEqual(get_settings('scoped_title', site=self.site_b), 'Global')
 
+    def test_a_missing_global_value_is_cached_until_it_is_set(self):
+        get_settings('scoped_missing')
+        get_settings('scoped_missing', site=self.site_a)
+        with self.assertNumQueries(0):
+            self.assertEqual(get_settings('scoped_missing'), '')
+            self.assertIsNone(get_settings('scoped_missing', none_asdefault=True))
+            self.assertEqual(get_settings('scoped_missing', site=self.site_a), '')
+        set_settings('scoped_missing', 'Now set')
+        self.assertEqual(get_settings('scoped_missing'), 'Now set')
+        self.assertEqual(get_settings('scoped_missing', site=self.site_a), 'Now set')
+
     def test_setting_a_site_does_not_touch_the_global_cache(self):
         set_settings('scoped_title', 'Global')
         set_settings('scoped_title', 'Of A', site=self.site_a)

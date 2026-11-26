@@ -11,7 +11,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from django.core.management import call_command
-from django.test import Client, TestCase, override_settings
+from django.test import Client, RequestFactory, TestCase, override_settings
 from django.urls import reverse
 
 from djgentelella.models import Notification, PushPreference, PushSubscription
@@ -20,6 +20,7 @@ from djgentelella.pwa import backends, push
 from djgentelella.pwa.appsettings import AppSettings
 from djgentelella.pwa.backends import LocmemPushBackend, PushGone
 from djgentelella.pwa.manifest import worker_config
+from djgentelella.templatetags.gtpwa import pwa_head
 from djgentelella.utils import set_settings
 
 try:
@@ -108,6 +109,23 @@ class W33ManifestTests(TestCase):
             app = AppSettings(self.site)
         self.assertEqual((app.name(), app.get('pwa_theme_color')),
                          ('Global', '#000000'))
+        # Cached for every Site, and forgotten when a setting is saved.
+        with self.assertNumQueries(0):
+            self.assertEqual(AppSettings().name(), 'Global')
+            self.assertEqual(AppSettings(self.site).get('pwa_theme_color'), '#000000')
+        set_settings('pwa_theme_color', '#ffffff', site=self.site)
+        self.assertEqual(AppSettings(self.site).get('pwa_theme_color'), '#ffffff')
+
+    @override_settings(GT_PWA_MANIFEST=True, GT_PWA_SERVICE_WORKER=True)
+    def test_the_head_of_a_page_costs_no_query_once_cached(self):
+        set_settings('pwa_scope', '/app/', site=self.site)
+        AppSettings(self.site)
+        request = RequestFactory().get('/')
+        request.site = self.site
+        with self.assertNumQueries(0):
+            content = pwa_head({'request': request})
+        self.assertIn('rel="manifest"', content)
+        self.assertIn('data-scope="/app/"', content)
 
     def page(self, host='testserver'):
         user = get_user_model().objects.create_user('pageuser', password='x')

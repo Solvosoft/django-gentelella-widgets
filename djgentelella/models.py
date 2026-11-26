@@ -80,6 +80,10 @@ def settings_cache_key(key, site=None):
     return 'gtsettings:%s:%s' % (site_id, key)
 
 
+#: The cache of every PWA setting row (djgentelella.pwa.appsettings): forgotten
+#: on any settings write, which is rare, so it never needs a key per Site.
+PWA_SETTINGS_CACHE_KEY = 'gtpwa:settings'
+
 # Where a row was cached before a save that moves it: a save can change the
 # key or the Site of a row, and its old scope must be forgotten as well.
 _PREVIOUS_SCOPE_ATTR = '_gt_previous_cache_key'
@@ -100,7 +104,8 @@ def _forget_cached_setting(sender, instance, **kwargs):
     # The admin and any other ORM write change a value in place: the next read
     # must see it, not what get_settings cached before -- in the scope the row
     # has now and in the one it had before the save (another key or Site).
-    keys = {settings_cache_key(instance.key, instance.site_id)}
+    keys = {settings_cache_key(instance.key, instance.site_id),
+            PWA_SETTINGS_CACHE_KEY}
     previous = instance.__dict__.pop(_PREVIOUS_SCOPE_ATTR, None)
     if previous is not None:
         keys.add(previous)

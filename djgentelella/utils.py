@@ -10,6 +10,11 @@ from djgentelella.models import GentelellaSettings, settings_cache_key
 from djgentelella.sites import site_pk
 
 
+#: What the global cache holds for a key that has no global row. The global
+#: scope keeps the bare key and a plain string value (see settings_cache_key).
+_MISSING = '\x00gt-setting-missing'
+
+
 def _get_site_settings(key, site_id):
     """The value stored for ``key`` in that Site only, or ``None``.
 
@@ -40,19 +45,16 @@ def get_settings(key, site=None, none_asdefault=False):
         value = _get_site_settings(key, site_id)
         if value is not None:
             return value
-    _cache = cache.get(key)
-    if _cache:
-        return _cache
-    value = GentelellaSettings.objects.filter(
-        key=key, site__isnull=True).values('value')
-    if value:
-        value = value[0]['value']
+    value = cache.get(key)
+    if value is None:
+        found = GentelellaSettings.objects.filter(
+            key=key, site__isnull=True).values_list('value', flat=True)[:1]
+        # A key without a global row is cached too: most pages read several
+        # settings nobody set, and each would cost a query on every request.
+        value = found[0] if found else _MISSING
         cache.set(key, value, timeout=None)
-    else:
-        if none_asdefault:
-            value = None
-        else:
-            value = ''
+    if value == _MISSING:
+        return None if none_asdefault else ''
     return value
 
 
