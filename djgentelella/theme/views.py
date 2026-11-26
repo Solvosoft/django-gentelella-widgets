@@ -88,7 +88,8 @@ def theme_preview(request):
             for name in values.COLORS}
     data['font'] = request.GET.get('font', '')
     radius = request.GET.get('border_radius', '')
-    data['border_radius'] = int(radius) if radius.isdigit() else None
+    # isdecimal, not isdigit: int() refuses digits such as '²' (a 500).
+    data['border_radius'] = int(radius) if radius.isdecimal() else None
     response = HttpResponse(render_css(data), content_type='text/css; charset=utf-8')
     response['Cache-Control'] = 'no-store'
     response['X-Content-Type-Options'] = 'nosniff'

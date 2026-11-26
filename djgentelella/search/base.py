@@ -269,14 +269,28 @@ def searchable_sources(names=None, *, owner=ANY_OWNER, tags=()):
     return {name: found[name] for name in names if name in found}
 
 
+# Where default_source_names() keeps the answer of the hook for a request.
+_SOURCES_ATTR = '_gt_search_sources'
+
+
 def default_source_names(request):
-    """The names ``GT_SEARCH_SOURCES`` gives for ``request``, or None."""
+    """The names ``GT_SEARCH_SOURCES`` gives for ``request``, or None.
+
+    The hook is asked once per request: the answer is kept on it."""
     hook = search_setting('SOURCES')
     if not hook:
         return None
+    cached = getattr(request, _SOURCES_ATTR, None)
+    if cached is not None:
+        return None if cached[0] is None else list(cached[0])
     if isinstance(hook, str):
         hook = import_string(hook)
     names = hook(request)
+    names = None if names is None else list(names)
+    try:
+        setattr(request, _SOURCES_ATTR, (names,))
+    except AttributeError:
+        pass
     return None if names is None else list(names)
 
 

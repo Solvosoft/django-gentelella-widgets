@@ -9,7 +9,6 @@ from djgentelella.menu import (  # noqa: F401 -- PLACEHOLDER_URL_NAMES is public
     override_identity,
     scope_items,
 )
-from djgentelella.models import MenuItem
 from djgentelella.sites import get_current_site, site_q
 from djgentelella.templatetags._utils import get_title, get_link, get_menu_widget
 
@@ -27,20 +26,11 @@ def scope_menu_items(queryset, site):
 
 
 def get_children(item, env):
-    tree = env.get('menu_tree')
-    if tree is None:
-        return scope_menu_items(item.children.all(), env.get('site'))
-    return tree.children(item)
+    return env['menu_tree'].children(item)
 
 
 def get_roots(category, environment):
-    tree = environment.get('menu_tree')
-    if tree is None:
-        return scope_menu_items(
-            MenuItem.objects.filter(parent_id=None, category=category).order_by(
-                'position'),
-            environment['site'])
-    return tree.roots(category)
+    return environment['menu_tree'].roots(category)
 
 
 def menu_environment(context, args, kwargs):

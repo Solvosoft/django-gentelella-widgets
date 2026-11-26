@@ -14,17 +14,12 @@ from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
 from djgentelella.feedback.conf import (
-    ANSWER_PERMISSION, REVIEW_PERMISSION, can_answer_feedback, feedback_enabled,
-    is_feedback_reviewer,
+    can_answer_feedback, feedback_enabled, is_feedback_reviewer,
 )
 from djgentelella.feedback.forms import FeedbackForm, ResponseForm
 from djgentelella.models import Feedback
 from djgentelella.notification import create_notification
 from djgentelella.sites import get_current_site, site_q
-
-#: Kept for compatibility: the permissions without ``GT_FEEDBACK_REVIEWER``.
-REVIEW = REVIEW_PERMISSION
-ANSWER = ANSWER_PERMISSION
 
 
 def _wants_json(request):

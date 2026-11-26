@@ -6,7 +6,7 @@ from django.contrib.sites.models import Site
 from django.db import IntegrityError, transaction
 from django.test import TestCase, override_settings
 
-from djgentelella.menu import export_tree, import_tree, validate_tree
+from djgentelella.menu import export_tree, import_tree, menu_tree, validate_tree
 from djgentelella.models import MenuItem
 
 
@@ -233,3 +233,25 @@ class MenuTransferTests(TestCase):
         warnings = []
         export_tree(self.site, warnings=warnings)
         self.assertEqual(warnings, [])
+
+
+class MenuTransferOrderTests(TestCase):
+    def test_children_are_exported_in_the_order_the_menus_draw_them(self):
+        # Children are drawn by id, whatever their position (menus.rst): an
+        # exported and imported menu must draw them in the same order.
+        site = Site.objects.create(domain='orden.example.com', name='Orden')
+        root = MenuItem.objects.create(title='Root', url_name='#', site=site,
+                                       position=0)
+        MenuItem.objects.create(title='First', url_name='/1', parent=root,
+                                site=site, position=9)
+        MenuItem.objects.create(title='Second', url_name='/2', parent=root,
+                                site=site, position=0)
+        drawn = [item.title for item in menu_tree(site=site).children(root)]
+        self.assertEqual(drawn, ['First', 'Second'])
+        data = export_tree(site)
+        self.assertEqual([child['title'] for child in data[0]['children']], drawn)
+        other = Site.objects.create(domain='copia.example.com', name='Copia')
+        roots, errors = import_tree(data, other)
+        self.assertEqual(errors, [])
+        self.assertEqual([item.title for item in
+                          menu_tree(site=other).children(roots[0])], drawn)

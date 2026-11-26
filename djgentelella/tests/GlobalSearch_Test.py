@@ -2,7 +2,6 @@
 JSON API and the box of the top bar. Runs on SQLite (icontains) and on
 PostgreSQL (full-text, and trigram when pg_trgm is installed)."""
 import datetime
-import json
 from unittest import mock, skipUnless
 
 from django.apps import apps
@@ -332,11 +331,22 @@ class SearchTest(SearchFixture, TestCase):
         self.assertEqual(names, set(SOURCES))
 
     def test_text_is_never_sql(self):
-        for text in ("pa'; DROP TABLE demoapp_country; --", '100%', '__',
-                     'zz_qq:*&|!(', '"unclosed', '\\'):
+        # %, _ and quotes are matched as the characters they are: no LIKE
+        # wildcard, no quoting trouble.
+        for name, code in (('Rate 100% sure', 'pc'), ('Snake__case', 'sc'),
+                           ("O'Brien land", 'ob'), ('Rate 1000 sure', 'p0'),
+                           ('SnakeXcase', 'sx'), ('OXBrien land', 'ox')):
+            demo.Country.objects.create(name=name, code=code)
+        for text, found in (('100%', ['Rate 100% sure']), ('e__c', ['Snake__case']),
+                            ("O'B", ["O'Brien land"])):
+            with self.subTest(text=text):
+                groups = search(self.request(), text, sources=SOURCES)
+                self.assertEqual(self.titles(groups), {CountrySource.name: found})
+        for text in ("pa'; DROP TABLE demoapp_country; --", 'zz_qq:*&|!(',
+                     '"unclosed', '\\'):
             with self.subTest(text=text):
                 self.assertEqual(search(self.request(), text, sources=SOURCES), [])
-        self.assertEqual(demo.Country.objects.count(), 3)
+        self.assertEqual(demo.Country.objects.count(), 9)
 
     @override_settings(GT_SEARCH_MAX_LENGTH=5)
     def test_text_is_cut(self):
@@ -346,6 +356,16 @@ class SearchTest(SearchFixture, TestCase):
 
 def only_countries(request):
     return [CountrySource.name]
+
+
+HOOK_CALLS = []
+
+
+def every_source_counted(request):
+    """A GT_SEARCH_SOURCES hook that leaves every source and counts its
+    calls."""
+    HOOK_CALLS.append(request)
+    return None
 
 
 class SearchViewsTest(SearchFixture, TestCase):
@@ -410,6 +430,17 @@ class SearchViewsTest(SearchFixture, TestCase):
         response = self.client.get(reverse('gt-search'),
                                    {'q': 'rica', 'source': PersonSource.name})
         self.assertNotContains(response, 'Ana Rica')
+
+    @override_settings(GT_SEARCH_SOURCES='djgentelella.tests.GlobalSearch_Test'
+                                         '.every_source_counted')
+    def test_the_sources_hook_is_asked_once_per_request(self):
+        for url, params in ((reverse('gt-search'), {'q': 'rica'}),
+                            (reverse('gt-search-api'), {'q': 'rica'})):
+            with self.subTest(url=url):
+                HOOK_CALLS.clear()
+                response = self.client.get(url, params)
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(len(HOOK_CALLS), 1)
 
     def test_results_page(self):
         response = self.client.get(reverse('gt-search'), {'q': 'rica'})
@@ -588,5 +619,4 @@ class TrigramSearchTest(SearchFixture, TestCase):
         self.client.force_login(self.admin)
         data = self.client.get(reverse('gt-search-api'), {
             'q': 'nicaruga', 'sources': CountrySource.name}).json()
-        self.assertEqual(json.loads(json.dumps(data))['groups'][0]['results'][0]
-                         ['title'], 'Nicaragua')
+        self.assertEqual(data['groups'][0]['results'][0]['title'], 'Nicaragua')

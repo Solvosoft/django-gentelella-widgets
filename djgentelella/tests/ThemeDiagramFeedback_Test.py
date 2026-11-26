@@ -194,6 +194,17 @@ class W32ThemeTests(TestCase):
         self.client.logout()
         self.assertEqual(self.client.get(reverse('gt_theme_preview')).status_code, 302)
 
+    def test_preview_with_a_radius_that_is_not_a_number(self):
+        # The reproduction: '²' passed str.isdigit() and int() raised (500).
+        self.client.force_login(make_user('admin', 'djgentelella.change_sitetheme'))
+        for radius in ('²', '٣', '-1', 'x'):
+            response = self.client.get(reverse('gt_theme_preview'),
+                                       {'border_radius': radius})
+            self.assertEqual(response.status_code, 200, radius)
+        response = self.client.get(reverse('gt_theme_preview'),
+                                   {'border_radius': '12'})
+        self.assertIn('12px', response.content.decode())
+
     def test_logo(self):
         with self.settings(MEDIA_ROOT=self.media):
             form = SiteThemeForm({}, {'logo': image_file('logo.png')},

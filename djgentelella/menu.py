@@ -474,9 +474,10 @@ def export_tree(site=None, *, warnings=None):
 
     Each node has the :data:`MENU_FIELDS`, ``permissions`` and ``children``,
     and ``translations`` (``{language: title}``, C20) when it has any,
-    roots and children in the order the menus draw them (``position``, then
-    ``id``). A root of a Site under a global item names that parent in
-    ``global_parent`` (``key``, ``title``, ``url_name``, ``category``); an
+    in the order the menus draw them (:class:`MenuTree`): roots by
+    ``position``, then ``id``, and children by ``id``. A root of a Site
+    under a global item names that parent in ``global_parent`` (``key``,
+    ``title``, ``url_name``, ``category``); an
     item under an item of another Site is exported as a root. No pk travels:
     ``key`` is what names an item again on import.
 
@@ -499,6 +500,9 @@ def export_tree(site=None, *, warnings=None):
             children[item.parent_id].append(item)
         else:
             roots.append(item)
+    for siblings in children.values():
+        # MenuTree draws children by id, whatever their position.
+        siblings.sort(key=lambda item: item.pk)
 
     def node(item):
         data = {field: getattr(item, field) for field in MENU_FIELDS}
