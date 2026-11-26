@@ -1,6 +1,7 @@
 """
 Utility functions for chunked upload management.
 """
+from django.db.models import Q
 from django.utils import timezone
 
 from djgentelella.chunked_upload.constants import UPLOADING, COMPLETE
@@ -66,10 +67,16 @@ def find_upload(token, user):
     takes the upload whoever uploaded it, for code that has no request to ask
     (a serializer used outside one). An upload that did not finish
     (``UPLOADING``) is never taken: its file is only part of the document.
+
+    Finished is ``status=COMPLETE`` or a ``completed_on``: the upload views
+    set both when the last chunk arrives, and code that creates a
+    ``ChunkedUpload`` by hand (a generated file, a test) often sets only
+    ``completed_on`` and leaves ``status`` at its default, ``UPLOADING``.
     """
     if not isinstance(token, str) or not token:
         return None
-    uploads = ChunkedUpload.objects.filter(upload_id=token, status=COMPLETE)
+    uploads = ChunkedUpload.objects.filter(
+        Q(status=COMPLETE) | Q(completed_on__isnull=False), upload_id=token)
     if user is not ANY_USER:
         if user is not None and user.is_authenticated:
             uploads = uploads.filter(user=user)

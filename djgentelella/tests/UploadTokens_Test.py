@@ -8,6 +8,7 @@ from django.contrib.auth.models import AnonymousUser, User
 from django.contrib.contenttypes.models import ContentType
 from django.test import RequestFactory, override_settings
 from django.urls import reverse
+from django.utils import timezone
 
 from djgentelella.chunked_upload.constants import UPLOADING
 from djgentelella.chunked_upload.utils import ANY_USER, find_upload, request_user
@@ -55,6 +56,16 @@ class FindUploadTests(TokenTestBase):
         upload = self.upload(self.owner, status=UPLOADING)
         self.assertIsNone(find_upload(upload.upload_id, self.owner))
         self.assertIsNone(find_upload(upload.upload_id, ANY_USER))
+
+    def test_an_upload_created_by_hand_with_completed_on_is_finished(self):
+        # Code that builds the upload itself sets completed_on and leaves
+        # status at its default (UPLOADING): the file is whole.
+        upload = self.upload(self.owner, status=UPLOADING)
+        upload.completed_on = timezone.now()
+        upload.save()
+        self.assertEqual(find_upload(upload.upload_id, self.owner), upload)
+        self.assertEqual(find_upload(upload.upload_id, ANY_USER), upload)
+        self.assertIsNone(find_upload(upload.upload_id, self.other))
 
     def test_what_is_not_a_token(self):
         for token in (None, '', 3, {'token': 'x'}, ['x']):
