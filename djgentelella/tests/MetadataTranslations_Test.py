@@ -672,8 +672,9 @@ class MalformedSaveTests(DataDesignTestCase):
         page = self.publish(translated_design(), path='malformed', user=self.user)
         before = copy.deepcopy(page.document)
         for update in ({'en': {'count:title': 5}}, {'en': {'count:title': ['x']}}):
-            errors = store.save_page(page, update)
-            self.assertEqual([str(error.message) for error in errors],
-                             ['a translation is a text'], update)
+            with translation.override('en'):
+                errors = store.save_page(page, update)
+                self.assertEqual([str(error.message) for error in errors],
+                                 ['a translation is a text'], update)
         page.refresh_from_db()
         self.assertEqual(page.document, before)
