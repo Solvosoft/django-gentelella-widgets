@@ -148,6 +148,9 @@ class DataSourceProposalTests(TestCase):
     def test_without_the_setting_the_export_is_cut(self):
         response = self.call(api.DataSourceExportView, fmt='json')
         self.assertEqual(response.status_code, 200)
+        body = json.loads(response.content)
+        self.assertEqual(len(body['data']), 2)
+        self.assertEqual((body['truncated'], body['limit']), (True, 2))
 
     def test_the_query_timeout(self):
         with self.assertRaises(DataSourceUnavailable) as raised:

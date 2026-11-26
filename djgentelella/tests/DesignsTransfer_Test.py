@@ -88,6 +88,7 @@ class ServeForItsSiteTests(DataDesignTestCase):
         response = self.client.get(reverse('gt-design-page', args=['w20/flows']),
                                    HTTP_HOST='ventas.example.com')
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['page'], self.page)
 
     def test_the_same_document_in_another_site_is_resolved_apart(self):
         other = Site.objects.create(domain='other.example.com', name='Other')
