@@ -935,6 +935,17 @@ everything else works. See ``docs/source/pwa.rst``.
 Fixes
 """"""""
 
+**Security: the parent of a design page is limited to the request's Site
+(W35, found by D22).** A page about one object (``meta.parent``) of a model
+exposed with a ``site_field``, and the API of its ``inline_object_management``
+tables (and of their facets), reached an object of another Site by its pk: a
+user with the (global) view permissions of both models read -- and, with the
+add/change permissions, wrote -- that Site's details. ``parent_object()`` and
+the inline viewsets now look the parent up among the rows of the request's
+Site and the global ones, and answer 404 otherwise. An inline table also
+accepts ``site_field`` now: its rows are those of the parent and of the Site,
+and a new detail gets the Site.
+
 **``list_filter`` with field names.** ``get_filters`` called
 ``field.is_instance(str)``, which ``str`` does not have, so a ``CRUDView``
 whose ``list_filter`` named model fields raised ``AttributeError``.
@@ -1061,6 +1072,12 @@ served under a prefix that wants the old scope sets ``GT_PWA_SCOPE = '/'``.
 ``SiteTheme`` (or ``full_clean()``) writes each colour as ``#rrggbb`` in lower
 case, so a theme saved as ``#AABBCC`` reads back ``#aabbcc``. Compare colours
 case-insensitively, or through ``theme.values.normalize_color``.
+
+**A page about another Site's object is a 404 (W35).** See the security fix
+above: ``designs/<path>/<pk>`` and its inline APIs no longer reach an object of
+another Site when its model was exposed with a ``site_field``. A project that
+relied on it shares that object (empty ``site``) or exposes the model without
+``site_field``.
 
 **``Flow.dead_ends()`` of a flow without final activities is empty (W35).** It
 listed every state of a cyclic flow. Use ``Flow.is_endless()`` to warn about a

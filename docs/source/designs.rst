@@ -218,7 +218,10 @@ one that does not exist:
 * their serializers (``factories.SitePrimaryKeyRelatedField``, with the
   request in the serializer context), the batches of the grid included;
 * the select2 lookups of the model (``BaseSelect2View.site_field``: ``None``
-  takes the exposure's, ``''`` turns it off, a name sets it).
+  takes the exposure's, ``''`` turns it off, a name sets it);
+* the object of a page about one (``meta.parent``): one of another Site is a
+  404, and so is the API of its inline tables and of their facets -- their
+  rows are neither read nor written (``ObjectManagementBuild.parent_site_field``).
 
 ``exposure.site_field_of(model)``, ``site_choices(queryset, site)`` and
 ``limit_form_choices(form, site)`` are the same rule for a form of the
@@ -502,8 +505,9 @@ type                            what it is
     global ones (the rule of :doc:`sites`), a row of another Site is a 404
     (detail, update, delete), and a new row gets the request's Site. The form
     cannot ask for it -- the default form of ``crud_classic`` leaves it out
-    -- and a ``facets`` panel over the table counts the same rows. Not in an
-    inline table, whose rows are those of its parent.
+    -- and a ``facets`` panel over the table counts the same rows. An inline
+    table takes it too: its rows are then those of its parent *and* of the
+    request's Site (or global), and a new detail gets the Site.
 
     A field of the form written with ``MarkdownInput`` is a **Markdown
     column**: the rows and the detail carry ``<name>_html``, the text

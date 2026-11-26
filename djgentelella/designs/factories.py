@@ -220,10 +220,15 @@ def site_rows_by_field(queryset, site_field, request):
     return queryset.filter(site_q(request_site(request), field=site_field))
 
 
-def parent_or_none(model, pk):
+def parent_or_none(model, pk, *, site_field='', request=None):
+    """The object ``pk`` of ``model``, or ``None``; with ``site_field``,
+    only one of the request's Site or a global one."""
     if pk is None or not valid_pk(model, pk):
         return None
-    return model._default_manager.filter(pk=pk).first()
+    queryset = model._default_manager.all()
+    if site_field:
+        queryset = site_rows_by_field(queryset, site_field, request)
+    return queryset.filter(pk=pk).first()
 
 
 def check_perms(request, perms):
@@ -654,7 +659,11 @@ class ManagementMixin:
         # DRF permissions are per model, not per object: who may reach the
         # rows of a parent needs the view permissions of the parent model too.
         check_perms(self.request, self.gtdesign_build.parent_perms)
-        return super().get_parent_queryset()
+        # A parent of another Site is not found: its rows are neither read
+        # nor written (the site_field its model was exposed with).
+        return site_rows_by_field(super().get_parent_queryset(),
+                                  self.gtdesign_build.parent_site_field,
+                                  self.request)
 
     def get_parent_object(self):
         try:
@@ -1032,7 +1041,9 @@ def _make_facets_viewset(build):
         parent = None
         if build.inline:
             check_perms(request, target.parent_perms)
-            parent = parent_or_none(target.parent_model, self.kwargs.get('parent_pk'))
+            parent = parent_or_none(target.parent_model, self.kwargs.get('parent_pk'),
+                                    site_field=target.parent_site_field,
+                                    request=request)
             if parent is None:
                 raise Http404(_('No such parent'))
             queryset = queryset.filter(**{target.parent_field: parent})

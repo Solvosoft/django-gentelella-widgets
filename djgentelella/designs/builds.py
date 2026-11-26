@@ -147,6 +147,9 @@ class ObjectManagementBuild(DataBuild):
     parent_model: type = None
     #: What reaching a parent's rows needs: the parent model's view perms.
     parent_perms: list = field(default_factory=list)
+    #: The ``site_field`` the parent model was exposed with: only a parent of
+    #: the request's Site (or a global one) is reached, another is a 404.
+    parent_site_field: str = ''
     row_links: list = field(default_factory=list)
     notify: NotifyBuild = None
     #: ``{list field: select2 lookup basename}`` of the relation columns that

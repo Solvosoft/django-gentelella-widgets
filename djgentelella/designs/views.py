@@ -76,8 +76,9 @@ def find_page(path, site):
 
 
 def parent_object(request, resolved, parent_pk):
-    """The object a page with ``meta.parent`` is about; 404 without one, 403
-    without the view permissions of its model."""
+    """The object a page with ``meta.parent`` is about; 404 without one (or
+    when it belongs to another Site than the request's, for a model exposed
+    with a ``site_field``), 403 without the view permissions of its model."""
     parent = resolved.document['meta'].get('parent')
     if not parent:
         return None
@@ -86,8 +87,13 @@ def parent_object(request, resolved, parent_pk):
         raise Http404(_('No page at this path.'))
     if not request.user.has_perms(found.permissions('view')):
         raise PermissionDenied
+    queryset = found.model._default_manager.all()
+    if found.site_field:
+        # The Site rule (C1): an object of another Site is not found.
+        queryset = queryset.filter(site_q(get_current_site(request),
+                                          found.site_field))
     try:
-        obj = found.model._default_manager.filter(pk=parent_pk).first()
+        obj = queryset.filter(pk=parent_pk).first()
     except (ValueError, TypeError, ValidationError):
         obj = None
     if obj is None:

@@ -779,11 +779,12 @@ class ObjectManagementComponent(RuntimeComponent):
         return (node.get('props') or {}).get('datasource') or None
 
     def resolve_management(self, node, rctx, path, parent_field=None,
-                           parent_model=None, parent_perms=()):
+                           parent_model=None, parent_perms=(), parent_site_field=''):
         props = node.get('props') or {}
         build = data_build(ObjectManagementBuild, node, rctx,
                            parent_field=parent_field, parent_model=parent_model,
-                           parent_perms=list(parent_perms))
+                           parent_perms=list(parent_perms),
+                           parent_site_field=parent_site_field or '')
         found = rctx.exposure(props['model'], path + '.props.model')
         form = rctx.form(props['form'], path + '.props.form')
         if found is None or form is None:
@@ -849,12 +850,9 @@ class ObjectManagementComponent(RuntimeComponent):
             exposure=found, form_fields=form.field_names)
         site_field = ''
         if props.get('site_field'):
-            if parent_field is not None:
-                rctx.error(path + '.props.site_field',
-                           _('an inline table shows the rows of its parent: it '
-                             'takes no site_field'))
-            else:
-                site_field = resolve_site_field(rctx, path, model, props, form)
+            # An inline table too: its rows are those of the parent and of the
+            # request's Site (or global), and a new one gets the Site.
+            site_field = resolve_site_field(rctx, path, model, props, form)
         if rctx.has_errors_under(path):
             return build
 
@@ -1045,7 +1043,8 @@ class InlineObjectManagementComponent(ObjectManagementComponent):
             return data_build(ObjectManagementBuild, node, rctx)
         return self.resolve_management(node, rctx, path, parent_field=parent_field,
                                        parent_model=parent_found.model,
-                                       parent_perms=parent_found.permissions('view'))
+                                       parent_perms=parent_found.permissions('view'),
+                                       parent_site_field=parent_found.site_field)
 
 
 # -- charts and stats ------------------------------------------------------------------

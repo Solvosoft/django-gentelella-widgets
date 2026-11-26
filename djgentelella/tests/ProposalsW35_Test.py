@@ -21,7 +21,7 @@ from django.test import RequestFactory, SimpleTestCase, TestCase, override_setti
 from django.urls import resolve, reverse, set_script_prefix
 from django.views import View
 
-from demoapp.models import Department, Product
+from demoapp.models import Department, NewHire, Product
 from djgentelella.datasources.base import (
     ROW_KEY_MAX_LENGTH, Column, FunctionDataSource, ModelDataSource, restricted,
 )
@@ -658,3 +658,66 @@ class E16ProposalTests(DataDesignTestCase):
         self.assertTrue(links_to_itself(document, 'page:w35/elsewhere',
                                         path='w35/elsewhere/'))
         self.assertFalse(links_to_itself(document, 'page:w35/elsewhere'))
+
+
+# -- the Site of the parent of a page (D22) -------------------------------------------
+
+@override_settings(ALLOWED_HOSTS=['*'])
+class ParentSiteTests(DataDesignTestCase):
+    """A page about one object of a model exposed with a ``site_field``, and
+    its inline table, reach only an object of the request's Site or a global
+    one: another Site's is a 404, its details neither read nor written."""
+
+    def setUp(self):
+        super().setUp()
+        Site.objects.clear_cache()
+        cache.clear()
+        self.here = Site.objects.create(domain='here.example', name='Here')
+        self.there = Site.objects.create(domain='there.example', name='There')
+        self.mine = Department.objects.create(name='Sales', site=self.here)
+        self.shared = Department.objects.create(name='Global')
+        self.theirs = Department.objects.create(name='Hidden', site=self.there)
+        NewHire.objects.create(name='Eva', email='eva@example.com',
+                               start_date='2026-01-01', department=self.theirs,
+                               site=self.there)
+        document = design(
+            node('inline_object_management', 'hires', {
+                'model': 'demoapp.NewHire', 'form': 'hire_form',
+                'parent_field': 'department', 'site_field': 'site',
+                'list_fields': ['name']}),
+            forms={'hire_form': {'model': 'demoapp.NewHire',
+                                 'fields': ['name', 'email', 'start_date']}},
+            url='w35-department/', parent={'model': 'demoapp.Department'})
+        self.page = self.publish(document, path='w35-department')
+        self.grant('demoapp.view_department', 'demoapp.view_newhire',
+                   'demoapp.add_newhire', 'demoapp.change_newhire')
+
+    def get(self, url):
+        return self.client.get(url, HTTP_HOST='here.example')
+
+    def page_url(self, department):
+        return reverse('gt-design-page', args=['w35-department/%d' % department.pk])
+
+    def test_the_page_of_another_sites_parent_is_a_404(self):
+        self.assertEqual(self.get(self.page_url(self.mine)).status_code, 200)
+        self.assertEqual(self.get(self.page_url(self.shared)).status_code, 200)
+        self.assertEqual(self.get(self.page_url(self.theirs)).status_code, 404)
+
+    def test_its_inline_api_is_a_404(self):
+        url = self.api(self.page, 'hires', '%d/' % self.theirs.pk)
+        self.assertEqual(self.get(url).status_code, 404)
+        response = self.client.post(url, json.dumps({
+            'name': 'Leo', 'email': 'leo@example.com', 'start_date': '2026-02-01'}),
+            content_type='application/json', HTTP_HOST='here.example')
+        self.assertEqual(response.status_code, 404)
+        self.assertFalse(NewHire.objects.filter(name='Leo').exists())
+
+    def test_a_detail_created_gets_the_site(self):
+        url = self.api(self.page, 'hires', '%d/' % self.mine.pk)
+        self.assertEqual(self.get(url).status_code, 200)
+        response = self.client.post(url, json.dumps({
+            'name': 'Ana', 'email': 'ana@example.com', 'start_date': '2026-02-01'}),
+            content_type='application/json', HTTP_HOST='here.example')
+        self.assertEqual(response.status_code, 201, response.content)
+        hire = NewHire.objects.get(name='Ana')
+        self.assertEqual((hire.department, hire.site), (self.mine, self.here))
