@@ -223,6 +223,25 @@ Building the queryset should not read the rows: ``validate_params`` builds it
 and never evaluates it (see below), so a source that reads on the first
 evaluation is never read by a validation.
 
+The key of a row
+~~~~~~~~~~~~~~~~
+
+``source.row_key(row)`` is a stable text that identifies a row (a dict keyed
+by column name, as ``serialize_rows`` gives it), at most
+``ROW_KEY_MAX_LENGTH`` (100) characters: what an index, a cache or a bookmark
+of the rows keeps. With ``key_columns`` (a class attribute, or the
+``key_columns=`` of ``FunctionDataSource``), their values -- one as text,
+several as a JSON list; else, for a source over a model, its ``pk``; else a
+hash of the whole row without its ``pk`` (``'h:<sha1>'``: the position of a
+row of an external API is not who it is), which changes when any value does. A
+key longer than the limit becomes its hash. A restricted source answers its
+source's key; a subclass overrides it when it knows better.
+
+.. code:: python
+
+    class Rates(DataSource):
+        key_columns = ('currency',)
+
 Query parameters
 ----------------
 

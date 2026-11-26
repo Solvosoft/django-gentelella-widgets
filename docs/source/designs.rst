@@ -284,7 +284,26 @@ user may see (the view permissions of the model's exposure, and the Site rule
 of its ``site_field``), each a link to its page -- a page a menu can link to.
 A row link may name the page being published itself (``page:<its meta.url>``
 or its ``meta.url_name``), the master-detail page that does not exist yet the
-first time it is published. Then:
+first time it is published.
+
+A master-detail page (djgentelella-editor writes it) is such a page with a
+``row`` whose node ``meta`` says ``{"master_detail": {"variant": "stacked",
+"master": "<id of an object_management>"}}``: the master table, over the
+model of ``meta.parent``, lists the masters and the ``inline_object_management``
+tables of the row the details of the one chosen. The engine reads it for that
+table: the master of the page is marked in it (``table-active``,
+``aria-selected``) on every draw, and a click on a row -- not on its buttons
+or links -- opens the page of that master. Its ``data-gtconfig`` carries
+``master`` (``{current, url, placeholder, variant}``,
+``data_components.master_detail_config``). Generated code does the same with
+two public functions of ``designs/data_components.js``:
+``gtdesign_select_row(id, pk)`` marks the row of ``pk`` in the table ``id``
+(and unmarks the rest; it returns how many it marked) and
+``gtdesign_master_detail(id, {current, url, placeholder, crud})`` wires the
+marking and the click. ``data_components.master_detail_of(document, id)``
+finds the declaration.
+
+When a page is served:
 
 - an unpublished page is a 404, except for users with
   ``gtdesigns.change_page``, who see it with a "preview" notice;

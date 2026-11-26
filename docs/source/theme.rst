@@ -20,7 +20,9 @@ theme, not value by value.
 Values, never CSS
 -----------------
 
-Every value is typed and validated: a colour is ``#rrggbb`` and nothing else,
+Every value is typed and validated: a colour is ``#rrggbb`` and nothing else
+(the short ``#rgb`` is accepted as typed and stored as ``#rrggbb``, in lower
+case: ``djgentelella.theme.values.normalize_color``),
 the radius an integer in its range, the font a key of the list. The logo is
 opened with Pillow, its format must be one of the four and match the
 extension of its name, and it is served with the content type of that format

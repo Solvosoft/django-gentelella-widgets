@@ -75,9 +75,21 @@ omitted): a step whose params all have one can be offered -- by an assistant,
 an editor -- without asking for them. ``param_defaults(schema)`` and
 ``with_param_defaults(schema, params)`` are public; ``step_build`` applies
 them too.
-Registering a name again replaces the step. ``registered_processes(kind=None)``
-and ``catalogue()`` list them (``catalogue()`` as data, for an editor);
-``unregister_process(name)`` removes one.
+Registering a name again replaces the step. ``registered_processes(kind=None,
+*, tag=None)`` and ``catalogue(*, tag=None)`` list them (``catalogue()`` as
+data, for an editor: ``name``, ``kind``, ``label``, ``description``,
+``schema``, ``app`` and ``tags``); ``unregister_process(name)`` removes one.
+
+``tags`` are free labels of a step, kept on ``Process.tags`` and listed by
+``catalogue()``; the engine does not read them. A project marks, for example,
+the steps an assistant may call as tools, and lists them without registering
+them twice:
+
+.. code:: python
+
+    register_process('shop.order_total', order_total, kind='computation',
+                     tags=('ai',))
+    tools = pipeline.catalogue(tag='ai')
 
 The context
 ~~~~~~~~~~~

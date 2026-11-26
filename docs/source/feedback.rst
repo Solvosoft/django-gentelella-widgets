@@ -46,3 +46,25 @@ reviewer with ``djgentelella.change_feedback`` changes its status and answers
 it. A new answer marks it answered (unless it was given another status) and
 notifies its author with ``djgentelella.notification.create_notification``,
 linking to the feedback. Anyone else gets a 404.
+
+Reviewers per Site
+~~~~~~~~~~~~~~~~~~
+
+The permissions above are global: a reviewer reviews every Site. A project
+whose Sites have reviewers of their own (an application per Site) sets a hook,
+a callable or its dotted path, ``(request, user) -> bool``:
+
+.. code:: python
+
+    GT_FEEDBACK_REVIEWER = 'myproject.feedback.is_reviewer'
+
+    def is_reviewer(request, user):
+        app = request.app        # whatever the project hangs on the request
+        return app.reviewers.filter(pk=user.pk).exists()
+
+With it, the hook alone decides who sees the inbox and the feedback of the
+request's Site, and its reviewers answer too; ``GT_FEEDBACK_ANSWERER`` (same
+signature) narrows who answers. The global permissions no longer count. The
+functions ``djgentelella.feedback.conf.is_feedback_reviewer(request, user=None)``
+and ``can_answer_feedback(request, user=None)`` answer the same question for
+a menu or a template (the user menu uses the first).

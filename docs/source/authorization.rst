@@ -336,6 +336,41 @@ with a setting:
 The groups are read once per request.
 
 
+Public views
+============
+
+A project that asks for a login (or for access to an application) on every
+request with a middleware has to let some views through: the stylesheet and
+the logo of a theme, the manifest, service worker and offline page of the PWA
+(and the ``pushsubscriptionchange`` endpoint), the JavaScript catalog, the
+flags, the login, the logout and the password reset. They are marked with
+``gt_public = True``, and ``djgentelella.public.is_public_view(match)`` says
+whether a matched view is one, so the middleware lists no URL names:
+
+.. code:: python
+
+    from djgentelella.public import is_public_view
+
+    class AccessMiddleware:
+        def __init__(self, get_response):
+            self.get_response = get_response
+
+        def __call__(self, request):
+            return self.get_response(request)
+
+        def process_view(self, request, view_func, view_args, view_kwargs):
+            if is_public_view(request.resolver_match):
+                return None
+            if not request.user.is_authenticated:
+                return redirect_to_login(request.get_full_path())
+
+``match`` is a ``ResolverMatch`` or the view itself; the mark is read from the
+function, its class-based view (``view_class``) or its DRF viewset (``cls``),
+and only ``True`` counts. A view of the project joins them with
+``djgentelella.public.public_view`` (apply it last, around ``as_view()`` or
+as the outermost decorator) or with ``gt_public = True`` on its class.
+
+
 Designs and flows
 =================
 

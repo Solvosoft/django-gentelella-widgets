@@ -30,6 +30,22 @@ Available block are
     |   - javascripts
     | - js
 
+The login page (``gentelella/registration/login.html``) has three blocks of
+its own, so a project changes it without copying it:
+
+* ``login_messages``: the errors and the "please login" notes above the
+  fields;
+* ``login_form``: the whole form (messages, fields, buttons and footer);
+* ``login_providers``: empty, under the form, for the buttons of other ways
+  to sign in (an OpenID Connect provider, single sign-on...).
+
+.. code:: html
+
+    {% extends 'gentelella/registration/login.html' %}
+    {% block login_providers %}
+      <a class="btn btn-outline-secondary" href="{% url 'oidc_start' %}">Sign in with SSO</a>
+    {% endblock %}
+
 You can overwrite all blocks but remember use {{ block.super }}.
 Blocks ``extra_css``, ``js`` are designed to be overwrite when you want to include custom
 css and js.

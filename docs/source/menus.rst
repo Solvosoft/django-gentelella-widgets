@@ -395,6 +395,43 @@ Use a custom widget class for special menu functionality:
     )
 
 
+The User Menu
+-------------
+
+``gt-user-menu`` (``djgentelella.menu_widgets.user.UserMenu``) draws the
+signed-in user's name in the top bar and a dropdown of entries. A global item
+of the ``main`` category puts it there:
+
+.. code:: python
+
+    MenuItem.objects.create(
+        key='gt-user-menu', title='User', category='main', is_widget=True,
+        url_name='gt-user-menu', icon='fa fa-user', position=110)
+
+djgentelella registers three entries: ``push`` (``/pwa/push/``, while the
+manifest, the service worker or push is on), ``feedback`` (the feedback
+inbox, for its reviewers: :doc:`feedback`) and ``logout`` (a POST form, last).
+A project adds its own, replaces one by registering its key again or drops one,
+from an ``AppConfig.ready()`` or its ``menu_widgets`` module:
+
+.. code:: python
+
+    from djgentelella.menu_widgets.user import (
+        register_user_menu_entry, unregister_user_menu_entry)
+
+    register_user_menu_entry(
+        'profile', _('My profile'), 'profile',      # a URL name, a path or
+        icon='fa fa-id-card', position=50,          # a callable(request)
+        visible=lambda request: request.user.is_staff)
+    unregister_user_menu_entry('push')
+
+Entries are sorted by ``position``; ``method='post'`` draws a form with the
+CSRF token instead of a link, ``divider=True`` a line before it. An entry whose
+URL name does not reverse is left out. ``user_menu_entries(request)`` returns
+what a user sees (nothing for an anonymous one), for a menu drawn another way.
+Each entry has the id ``gt-user-<key>``.
+
+
 With Permissions
 ----------------
 

@@ -196,3 +196,27 @@ A resizable text area with Bootstrap styling.
             }
 
 By default, the textarea has 3 rows and is resizable.
+
+Buttons under the field
+"""""""""""""""""""""""
+
+``actions`` are buttons drawn under the text area -- generate a text, insert a
+template --: the slot a widget of the project fills instead of wrapping the
+template. Each one is a ``WidgetAction(label, icon='', css_class='btn btn-sm
+btn-outline-secondary', attrs={})`` or a dict of those fields; ``attrs`` may
+only be ``data-*``, ``aria-*``, ``title``, ``id``, ``name``, ``value`` or
+``disabled`` (no ``on*`` handler: a script finds the button). Every button
+gets ``data-gt-target`` with the id of the field.
+
+.. code:: python
+
+    from djgentelella.widgets.core import Textarea, WidgetAction
+
+    class AIGenerateTextarea(Textarea):
+        def __init__(self, prompt, attrs=None):
+            super().__init__(attrs=attrs, actions=[WidgetAction(
+                _('Generate with AI'), icon='fa fa-magic',
+                attrs={'data-ai-prompt': prompt})])
+
+A subclass may compute them per render in ``get_actions(name, value,
+attrs)``. Without actions the markup is the same as before.

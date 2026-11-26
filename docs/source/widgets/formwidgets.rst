@@ -74,6 +74,33 @@ Only the declared options reach the constructor, so a design never passes
 ``ValueError`` on invalid options. In a design they are the
 ``widget_options`` of a form (see :doc:`../designs`).
 
+Widgets of the project
+""""""""""""""""""""""
+
+``widgetmap.register_widget(key, path, options_schema=None, *, kinds=(),
+checks=None)`` offers a widget of the project wherever djgentelella's are:
+``widget_choices`` of each kind in ``kinds`` (at the end of the list, so no
+default changes), ``build_widget`` with the options of ``options_schema``
+(``{option: JSON schema}``, as ``WIDGET_OPTIONS``), the ``widgets`` and
+``widget_options`` of a design's form and djgentelella-editor. ``checks`` is
+``(options, path) -> [Error]`` for what a schema cannot say. Call it from an
+``AppConfig.ready()``; the class is imported only when a widget is built.
+
+.. code:: python
+
+    from djgentelella.forms import widgetmap
+
+    class AIConfig(AppConfig):
+        def ready(self):
+            widgetmap.register_widget(
+                'AIGenerateTextarea', 'myproject.ai.widgets.AIGenerateTextarea',
+                {'prompt': {'type': 'string', 'maxLength': 100, 'title': 'Prompt'}},
+                kinds=('text', 'string'))
+
+Registering a key again replaces it; a key of djgentelella's own widgets is
+refused (``ValueError``). ``unregister_widget(key)`` removes one the project
+registered (djgentelella's stay); ``REGISTERED_WIDGETS`` holds their keys.
+
 --------------------------------
 Libraries
 --------------------------------

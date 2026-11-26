@@ -505,6 +505,35 @@ object without its pk as the list of objects to choose from;
 in ``__all__``. See ``datasources.rst``, ``designs.rst``, ``flows.rst``,
 ``wizard.rst`` and ``pwa.rst``.
 
+**The last proposals of the roadmap (W35).** From D20:
+``GT_FEEDBACK_REVIEWER(request, user) -> bool`` (and ``GT_FEEDBACK_ANSWERER``)
+decides who reviews and answers the feedback of the request's Site, with
+``feedback.conf.is_feedback_reviewer``/``can_answer_feedback``; the views a
+browser reads before signing in (theme, PWA, JavaScript catalog, flags, login,
+logout, password reset) carry ``gt_public = True`` and
+``djgentelella.public.is_public_view(match)``/``public_view`` let an access
+middleware through without naming them; the manifest's ``scope`` and
+``start_url`` follow the request's script prefix when ``GT_PWA_SCOPE`` is not
+set; ``gentelella/registration/login.html`` has the blocks ``login_form``,
+``login_messages`` and ``login_providers``; the user menu of the top bar is the
+menu widget ``gt-user-menu`` with entries a project registers
+(``menu_widgets.user.register_user_menu_entry``); ``SiteTheme`` accepts
+``#rgb`` and stores ``#rrggbb`` in lower case (``theme.values.normalize_color``).
+From D21: ``widgetmap.register_widget(key, path, options_schema, kinds=,
+checks=)`` offers a widget of the project in ``widget_choices``,
+``build_widget``, the forms of a design and the editor; ``register_process(...,
+tags=)`` with ``registered_processes(tag=)`` and ``catalogue(tag=)`` (each entry
+has ``tags``); ``DataSource.row_key(row)`` and ``key_columns`` give a stable key
+to the rows of a source without a model; ``Textarea(actions=[WidgetAction(...)])``
+draws buttons under the field. From E15: the engine reads
+``meta.master_detail`` -- the master of the page marked in its table, a click
+on a row opens that master's page -- and ``designs/data_components.js``
+exposes ``gtdesign_select_row`` and ``gtdesign_master_detail``. See
+``feedback.rst``, ``authorization.rst``, ``pwa.rst``, ``templates.rst``,
+``menus.rst``, ``theme.rst``, ``widgets/formwidgets.rst``,
+``widgets/core_inputs.rst``, ``pipeline.rst``, ``datasources.rst`` and
+``designs.rst``.
+
 Backwards incompatible
 """"""""""""""""""""""""
 
@@ -1012,6 +1041,18 @@ a step skipped by its condition, although ``get_pipeline()`` had accepted it.
 ``GT_MENU_DESIGN_PAGE_SLASH`` remains off by default: turning it on changes
 every link already drawn, and the projects on top of djgentelella assert the
 links without it. ``docs/source/menus.rst`` says how to adopt it.
+
+**The PWA's scope follows the script prefix (W35).** Without
+``GT_PWA_SCOPE``, the manifest's ``scope`` and ``start_url``, the service
+worker's scope and its ``Service-Worker-Allowed`` header are the request's
+script prefix (``SCRIPT_NAME``, ``FORCE_SCRIPT_NAME`` or the one a middleware
+sets) instead of ``/``. A project served at the root sees no change; one
+served under a prefix that wants the old scope sets ``GT_PWA_SCOPE = '/'``.
+
+**The colours of a theme are stored normalized (W35).** Saving a
+``SiteTheme`` (or ``full_clean()``) writes each colour as ``#rrggbb`` in lower
+case, so a theme saved as ``#AABBCC`` reads back ``#aabbcc``. Compare colours
+case-insensitively, or through ``theme.values.normalize_color``.
 
 0.7.1 (2026-11-15)
 --------------------

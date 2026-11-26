@@ -29,8 +29,12 @@ Settings
      - Every page registers the service worker: static cache and offline
        page.
    * - ``GT_PWA_SCOPE``
-     - ``'/'``
-     - Scope of the service worker and of the app.
+     - the script prefix
+     - Scope of the service worker and of the app. Without it, the script
+       prefix of the request (``get_script_prefix()``: ``SCRIPT_NAME``,
+       ``FORCE_SCRIPT_NAME`` or the prefix a middleware sets, such as the
+       ``/a/<slug>/`` of an application served under a path), ``/`` when
+       there is none, so ``scope`` and ``start_url`` stay inside it.
    * - ``GT_PWA_CACHE_VERSION``
      - djgentelella's version
      - Names the static cache. Change it on each deploy that changes static
@@ -109,7 +113,8 @@ without either a default applies.
      - ``start_url`` and ``id``; else the scope.
    * - ``pwa_scope``
      - ``scope`` (a path that starts and ends with ``/``: the prefix an
-       application is served under); else ``GT_PWA_SCOPE``. The service worker
+       application is served under); else ``GT_PWA_SCOPE``, else the script
+       prefix of the request. The service worker
        of that Site is registered for it, and ``Service-Worker-Allowed``
        follows it.
 
