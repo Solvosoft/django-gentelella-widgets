@@ -48,8 +48,9 @@ class MasterDetailTest(SeleniumTestCase):
                         and 'Food' in self.marked()[0],
                         'the master of the page is not marked')
         # On demand, for generated code.
-        count = self.js("return window.gtdesign_select_row('categories', arguments[0]);",
-                        self.tools.pk)
+        count = self.js(
+            "return window.gtdesign_select_row('categories', arguments[0]);",
+            self.tools.pk)
         self.assertEqual(count, 1)
         self.assertIn('Tools', self.marked()[0])
         # A click on the text of a row (not its buttons) opens its page.
