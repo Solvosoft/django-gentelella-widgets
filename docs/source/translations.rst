@@ -164,7 +164,13 @@ Each kind of object needs the permission to change it:
 menu and ``djgentelella.change_lovtranslation`` for LOVs (and the LOV's own
 permission). The index, the missing texts and the export show only the kinds
 the user may change; importing a file with a section the user may not change
-is a 403.
+is a 403, and a file that names a LOV the user may not open is refused with an
+error at that LOV (``$.lovs[i]``): nothing is written.
+
+The screens work on the request's Site: they list, save, export and import
+the pages and menu items of that Site and the global ones, never another
+Site's (its page is a 404). The ``gttranslations_*`` commands have no request
+and move every Site.
 
 Saving the translations of a page changes its document and its hash, never
 its publisher (``updated_by``): the trust of the page (templates, JavaScript)
@@ -192,13 +198,16 @@ Site (``null``: global) and its path, a menu item by the domain of its Site
 and its ``key`` (items without a key are not exported), a LOV value by LOV and
 value. ``original`` is for the translator and is ignored on import.
 
-``export_translations(languages=None, sections=('pages', 'menus', 'lovs'),
-request=None, empty=True)`` exports every translatable text, translated or
-not (``empty=False``: only the translated ones). ``import_translations(data,
-dry_run=False)`` returns ``(summary, [])`` or ``(None, errors)``: it validates
+``export_translations(*, languages=None, sections=('pages', 'menus', 'lovs'),
+request=None, empty=True, site=ALL_SITES)`` exports every translatable text,
+translated or not (``empty=False``: only the translated ones); ``site`` limits
+it to a Site and the global objects. ``import_translations(data, *,
+dry_run=False, request=None, site=ALL_SITES)`` returns ``(summary, [])`` or ``(None, errors)``: it validates
 the whole file before writing and writes it in one transaction. An empty text
 removes that translation; the languages and keys the file does not name stay.
-``validate_translations_data(data)`` only validates.
+With a ``request``, each LOV is checked against the user's permission on it.
+``validate_translations_data(data, *, request=None, site=ALL_SITES)`` only
+validates.
 
 The same from the command line::
 

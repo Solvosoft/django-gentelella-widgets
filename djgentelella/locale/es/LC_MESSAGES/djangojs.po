@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-24 15:41-0600\n"
+"POT-Creation-Date: 2026-11-26 17:11-0600\n"
 "PO-Revision-Date: 2026-10-29 12:00-0600\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -98,8 +98,8 @@ msgstr "Usuario"
 #: async_notification/templates/async_notification/newsletter_task.html:84
 #: async_notification/templates/async_notification/newsletter_template.html:61
 #: async_notification/templates/async_notification/newsletter_template.html:78
-#: static/gentelella/js/designs/data_components.js:104
-#: static/gentelella/js/designs/data_components.js:158
+#: static/gentelella/js/designs/data_components.js:116
+#: static/gentelella/js/designs/data_components.js:226
 #: static/gentelella/js/obj_api_management.js:436
 msgid "Actions"
 msgstr "Acciones"
@@ -170,6 +170,7 @@ msgstr "Aceptar"
 #: static/gentelella/js/base/digital_signature.js:851
 #: static/gentelella/js/base/digital_signature.js:935
 #: static/gentelella/js/base/digital_signature.js:939
+#: static/gentelella/js/designs/data_components.js:210
 #: static/gentelella/js/obj_api_management.js:118
 #: static/gentelella/js/obj_api_management.js:127
 #: static/gentelella/js/obj_api_management.js:155
@@ -461,6 +462,18 @@ msgstr ""
 msgid "Problem in the Internet?"
 msgstr "¿Problemas de conexión?"
 
+#: static/gentelella/js/base/formwidgets.js:155
+msgid "Select or write a value"
+msgstr "Seleccione o escriba un valor"
+
+#: static/gentelella/js/base/formwidgets.js:180
+msgid "The text is too long for a QR code."
+msgstr "El texto es demasiado largo para un código QR."
+
+#: static/gentelella/js/base/formwidgets.js:267
+msgid "The camera could not be opened."
+msgstr "No se pudo abrir la cámara."
+
 #: static/gentelella/js/base/gt_facets.js:174
 msgid "From"
 msgstr "Desde"
@@ -501,7 +514,7 @@ msgid "Export"
 msgstr "Exportar"
 
 #: static/gentelella/js/base/gt_facets.js:483
-#: static/gentelella/js/datatables.js:245
+#: static/gentelella/js/datatables.js:254
 #: static/gentelella/js/obj_api_management.js:578
 msgid "Clear Filters"
 msgstr "Limpiar filtros"
@@ -513,6 +526,15 @@ msgstr "Editar esta ayuda"
 #: static/gentelella/js/base/helper_widget.js:223
 msgid "Write the help for this field"
 msgstr "Escriba la ayuda de este campo"
+
+#: static/gentelella/js/base/lovpopup.js:106
+#, javascript-format
+msgid "Page %s"
+msgstr "Página %s"
+
+#: static/gentelella/js/base/lovpopup.js:112
+msgid "The list could not be loaded."
+msgstr "No se pudo cargar la lista."
 
 #: static/gentelella/js/base/lovselect.js:43
 #: static/gentelella/js/base/select2related.js:149
@@ -537,6 +559,22 @@ msgstr "No se pudo obtener su ubicación"
 #: static/gentelella/js/base/mappoint.js:187
 msgid "Address search failed"
 msgstr "La búsqueda de la dirección falló"
+
+#: static/gentelella/js/base/markdowninput.js:35
+msgid "bold text"
+msgstr "texto en negrita"
+
+#: static/gentelella/js/base/markdowninput.js:36
+msgid "italic text"
+msgstr "texto en cursiva"
+
+#: static/gentelella/js/base/markdowninput.js:38
+msgid "link text"
+msgstr "texto del enlace"
+
+#: static/gentelella/js/base/markdowninput.js:73
+msgid "Loading..."
+msgstr "Cargando..."
 
 #: static/gentelella/js/base/mediarecord.js:5
 #: static/gentelella/js/base/voiceprogressive.js:26
@@ -687,76 +725,157 @@ msgid "Search "
 msgstr "Buscar "
 
 #: static/gentelella/js/datatables.js:203
+#: static/gentelella/js/designs/tree_timeline_metrics.js:196
 msgid "More"
 msgstr "Más"
 
 #: static/gentelella/js/datatables.js:204
-#: static/gentelella/js/designs/data_components.js:84
+#: static/gentelella/js/designs/data_components.js:96
 msgid "Download"
 msgstr "Descargar"
 
-#: static/gentelella/js/designs/data_components.js:91
+#: static/gentelella/js/designs/data_components.js:103
 msgid "Id"
 msgstr "Id"
 
-#: static/gentelella/js/designs/interactive_grid.js:190
-#: static/gentelella/js/designs/interactive_grid.js:260
+#: static/gentelella/js/designs/interactive_grid.js:192
+#: static/gentelella/js/designs/interactive_grid.js:264
+#: static/gentelella/js/designs/interactive_grid.js:314
 msgid "Save or undo your changes first."
 msgstr "Primero guarda o deshaz tus cambios."
 
-#: static/gentelella/js/designs/interactive_grid.js:246
+#: static/gentelella/js/designs/interactive_grid.js:300
 msgid "No rows"
 msgstr "Sin filas"
 
-#: static/gentelella/js/designs/interactive_grid.js:254
+#: static/gentelella/js/designs/interactive_grid.js:308
 msgid "The rows could not be read."
 msgstr "No se pudieron leer las filas."
 
-#: static/gentelella/js/designs/interactive_grid.js:334
+#: static/gentelella/js/designs/interactive_grid.js:388
 msgid "Edit"
 msgstr "Editar"
 
-#: static/gentelella/js/designs/interactive_grid.js:337
+#: static/gentelella/js/designs/interactive_grid.js:391
 #: static/gentelella/js/obj_api_management.js:612
 msgid "Delete"
 msgstr "Eliminar"
 
-#: static/gentelella/js/designs/interactive_grid.js:340
+#: static/gentelella/js/designs/interactive_grid.js:394
 msgid "Undo the changes of this row"
 msgstr "Deshacer los cambios de esta fila"
 
-#: static/gentelella/js/designs/interactive_grid.js:343
+#: static/gentelella/js/designs/interactive_grid.js:397
 msgid "Reload this row"
 msgstr "Recargar esta fila"
 
-#: static/gentelella/js/designs/interactive_grid.js:494
+#: static/gentelella/js/designs/interactive_grid.js:548
 msgid "That row is no longer available."
 msgstr "Esa fila ya no está disponible."
 
-#: static/gentelella/js/designs/interactive_grid.js:504
+#: static/gentelella/js/designs/interactive_grid.js:558
 msgid "The row was reloaded with the current data."
 msgstr "Se recargó la fila con los datos actuales."
 
-#: static/gentelella/js/designs/interactive_grid.js:507
+#: static/gentelella/js/designs/interactive_grid.js:561
 msgid "The row could not be read."
 msgstr "No se pudo leer la fila."
 
-#: static/gentelella/js/designs/interactive_grid.js:537
+#: static/gentelella/js/designs/interactive_grid.js:591
 msgid "Nothing to save."
 msgstr "No hay nada que guardar."
 
-#: static/gentelella/js/designs/interactive_grid.js:542
+#: static/gentelella/js/designs/interactive_grid.js:596
 msgid "Saving..."
 msgstr "Guardando..."
 
-#: static/gentelella/js/designs/interactive_grid.js:559
-#: static/gentelella/js/designs/interactive_grid.js:602
+#: static/gentelella/js/designs/interactive_grid.js:613
+#: static/gentelella/js/designs/interactive_grid.js:656
 msgid "The changes could not be saved."
 msgstr "No se pudieron guardar los cambios."
 
-#: static/gentelella/js/designs/interactive_grid.js:584
+#: static/gentelella/js/designs/interactive_grid.js:638
 msgid "Saved."
 msgstr "Guardado."
+
+#: static/gentelella/js/designs/regions.js:137
+msgid "The cards could not be loaded."
+msgstr "No se pudieron cargar las tarjetas."
+
+#: static/gentelella/js/designs/regions.js:188
+#, javascript-format
+msgid "Showing the first %s events of this range."
+msgstr "Se muestran los primeros %s eventos de este rango."
+
+#: static/gentelella/js/designs/regions.js:193
+msgid "The events could not be loaded."
+msgstr "No se pudieron cargar los eventos."
+
+#: static/gentelella/js/designs/regions.js:204
+msgid "The calendar could not be loaded."
+msgstr "No se pudo cargar el calendario."
+
+#: static/gentelella/js/designs/regions.js:247
+#, javascript-format
+msgid "Showing the first %s points: zoom in to see the others."
+msgstr ""
+"Se muestran los primeros %s puntos: acerque el mapa para ver los demás."
+
+#: static/gentelella/js/designs/regions.js:251
+msgid "The points could not be loaded."
+msgstr "No se pudieron cargar los puntos."
+
+#: static/gentelella/js/designs/tree_timeline_metrics.js:114
+#, javascript-format
+msgid "%s rows whose parent is not shown are at the root."
+msgstr "%s filas cuyo padre no se muestra están en la raíz."
+
+#: static/gentelella/js/designs/tree_timeline_metrics.js:117
+#, javascript-format
+msgid "%s cycles in the parents: one row of each is at the root."
+msgstr "%s ciclos en los padres: una fila de cada uno está en la raíz."
+
+#: static/gentelella/js/designs/tree_timeline_metrics.js:120
+msgid "Too many rows to look for cycles in the parents."
+msgstr "Demasiadas filas para buscar ciclos en los padres."
+
+#: static/gentelella/js/designs/tree_timeline_metrics.js:123
+#, javascript-format
+msgid "Showing the first %s rows."
+msgstr "Se muestran las primeras %s filas."
+
+#: static/gentelella/js/designs/tree_timeline_metrics.js:140
+msgid "Open"
+msgstr "Abrir"
+
+#: static/gentelella/js/designs/tree_timeline_metrics.js:151
+msgid "parent not shown"
+msgstr "padre no visible"
+
+#: static/gentelella/js/designs/tree_timeline_metrics.js:155
+msgid "cycle"
+msgstr "ciclo"
+
+#: static/gentelella/js/designs/tree_timeline_metrics.js:208
+#: static/gentelella/js/designs/tree_timeline_metrics.js:240
+msgid "The tree could not be loaded."
+msgstr "No se pudo cargar el árbol."
+
+#: static/gentelella/js/designs/tree_timeline_metrics.js:304
+msgid "Nothing to show."
+msgstr "Nada que mostrar."
+
+#: static/gentelella/js/designs/tree_timeline_metrics.js:309
+msgid "The timeline could not be loaded."
+msgstr "No se pudo cargar la línea de tiempo."
+
+#: static/gentelella/js/designs/tree_timeline_metrics.js:346
+msgid "The metrics could not be computed."
+msgstr "No se pudieron calcular las métricas."
+
+#: static/gentelella/js/feedback.js:54 static/gentelella/js/feedback.js:57
+msgid "The feedback could not be sent."
+msgstr "No se pudo enviar el comentario."
 
 #: static/gentelella/js/obj_api_management.js:138
 msgid "This record has changed"
@@ -794,144 +913,31 @@ msgstr ""
 "Hubo un problema al realizar tu solicitud. Por favor, intenta nuevamente más "
 "tarde o contacta al administrador."
 
-#: static/gentelella/js/designs/regions.js:119
-msgid "The cards could not be loaded."
-msgstr "No se pudieron cargar las tarjetas."
-
-#: static/gentelella/js/designs/regions.js:160
-#, javascript-format
-msgid "Showing the first %s events of this range."
-msgstr "Se muestran los primeros %s eventos de este rango."
-
-#: static/gentelella/js/designs/regions.js:165
-msgid "The events could not be loaded."
-msgstr "No se pudieron cargar los eventos."
-
-#: static/gentelella/js/designs/regions.js:176
-msgid "The calendar could not be loaded."
-msgstr "No se pudo cargar el calendario."
-
-#: static/gentelella/js/designs/regions.js:219
-#, javascript-format
-msgid "Showing the first %s points: zoom in to see the others."
-msgstr ""
-"Se muestran los primeros %s puntos: acerque el mapa para ver los demás."
-
-#: static/gentelella/js/designs/regions.js:223
-msgid "The points could not be loaded."
-msgstr "No se pudieron cargar los puntos."
-
-#: static/gentelella/js/base/formwidgets.js
-msgid "Select or write a value"
-msgstr "Seleccione o escriba un valor"
-
-#: static/gentelella/js/base/formwidgets.js
-msgid "The text is too long for a QR code."
-msgstr "El texto es demasiado largo para un código QR."
-
-#: static/gentelella/js/base/formwidgets.js
-msgid "The camera could not be opened."
-msgstr "No se pudo abrir la cámara."
-
-#: static/gentelella/js/base/lovpopup.js
-#, javascript-format
-msgid "Page %s"
-msgstr "Página %s"
-
-#: static/gentelella/js/base/lovpopup.js
-msgid "The list could not be loaded."
-msgstr "No se pudo cargar la lista."
-
-#: static/gentelella/js/base/markdowninput.js
-msgid "bold text"
-msgstr "texto en negrita"
-
-#: static/gentelella/js/base/markdowninput.js
-msgid "italic text"
-msgstr "texto en cursiva"
-
-#: static/gentelella/js/base/markdowninput.js
-msgid "link text"
-msgstr "texto del enlace"
-
-#: static/gentelella/js/base/markdowninput.js
-msgid "Loading..."
-msgstr "Cargando..."
-#: static/gentelella/js/designs/tree_timeline_metrics.js
-#, javascript-format
-msgid "%s rows whose parent is not shown are at the root."
-msgstr "%s filas cuyo padre no se muestra están en la raíz."
-
-#: static/gentelella/js/designs/tree_timeline_metrics.js
-#, javascript-format
-msgid "%s cycles in the parents: one row of each is at the root."
-msgstr "%s ciclos en los padres: una fila de cada uno está en la raíz."
-
-#: static/gentelella/js/designs/tree_timeline_metrics.js
-msgid "Too many rows to look for cycles in the parents."
-msgstr "Demasiadas filas para buscar ciclos en los padres."
-
-#: static/gentelella/js/designs/tree_timeline_metrics.js
-#, javascript-format
-msgid "Showing the first %s rows."
-msgstr "Se muestran las primeras %s filas."
-
-#: static/gentelella/js/designs/tree_timeline_metrics.js
-msgid "Open"
-msgstr "Abrir"
-
-#: static/gentelella/js/designs/tree_timeline_metrics.js
-msgid "parent not shown"
-msgstr "padre no visible"
-
-#: static/gentelella/js/designs/tree_timeline_metrics.js
-msgid "cycle"
-msgstr "ciclo"
-
-#: static/gentelella/js/designs/tree_timeline_metrics.js
-msgid "The tree could not be loaded."
-msgstr "No se pudo cargar el árbol."
-
-#: static/gentelella/js/designs/tree_timeline_metrics.js
-msgid "Nothing to show."
-msgstr "Nada que mostrar."
-
-#: static/gentelella/js/designs/tree_timeline_metrics.js
-msgid "The timeline could not be loaded."
-msgstr "No se pudo cargar la línea de tiempo."
-
-#: static/gentelella/js/designs/tree_timeline_metrics.js
-msgid "The metrics could not be computed."
-msgstr "No se pudieron calcular las métricas."
-
-#: static/gentelella/js/feedback.js
-msgid "The feedback could not be sent."
-msgstr "No se pudo enviar el comentario."
-#: static/gentelella/js/pwa/push.js
-msgid "Push notifications failed:"
-msgstr "Las notificaciones push fallaron:"
-
-#: static/gentelella/js/pwa/push.js
-#, javascript-format
-msgid "Test sent to %s device(s)."
-msgstr "Prueba enviada a %s dispositivo(s)."
-
-#: static/gentelella/js/pwa/push.js
-msgid "This browser blocks the notifications of this site."
-msgstr "Este navegador bloquea las notificaciones de este sitio."
-
-#: static/gentelella/js/pwa/push.js
-msgid "This browser does not support push notifications."
-msgstr "Este navegador no admite notificaciones push."
-
-#: static/gentelella/js/pwa/push.js
-msgid "This device does not receive push notifications."
-msgstr "Este dispositivo no recibe notificaciones push."
-
-#: static/gentelella/js/pwa/push.js
+#: static/gentelella/js/pwa/push.js:48
 msgid "This device receives your push notifications."
 msgstr "Este dispositivo recibe sus notificaciones push."
 
-#: static/gentelella/js/pwa/push.js
+#: static/gentelella/js/pwa/push.js:49
+msgid "This device does not receive push notifications."
+msgstr "Este dispositivo no recibe notificaciones push."
+
+#: static/gentelella/js/pwa/push.js:53
+msgid "Push notifications failed:"
+msgstr "Las notificaciones push fallaron:"
+
+#: static/gentelella/js/pwa/push.js:58
+msgid "This browser does not support push notifications."
+msgstr "Este navegador no admite notificaciones push."
+
+#: static/gentelella/js/pwa/push.js:77
+msgid "This browser blocks the notifications of this site."
+msgstr "Este navegador bloquea las notificaciones de este sitio."
+
+#: static/gentelella/js/pwa/push.js:84
 msgid "permission not granted"
 msgstr "permiso no concedido"
+
+#: static/gentelella/js/pwa/push.js:112
+#, javascript-format
+msgid "Test sent to %s device(s)."
+msgstr "Prueba enviada a %s dispositivo(s)."

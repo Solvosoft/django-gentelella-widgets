@@ -24,8 +24,11 @@ project = 'Django gentelella widgets'
 copyright = '2020, Luis Zárate, Solvosoft'
 author = 'Luis Zárate, Solvosoft'
 
-# The full version, including alpha/beta/rc tags
-release = 'v.01'
+# The full version, including alpha/beta/rc tags: the package's own.
+import djgentelella  # noqa: E402
+
+release = djgentelella.__version__
+version = '.'.join(release.split('.')[:2])
 
 
 # -- General configuration ---------------------------------------------------

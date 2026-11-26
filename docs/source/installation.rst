@@ -89,6 +89,9 @@ Add the following to your ``INSTALLED_APPS`` in ``settings.py``:
         'django.contrib.admin',
         'django.contrib.staticfiles',
 
+        # Required by the Site of menus and settings: docs/sites
+        'django.contrib.sites',
+
         # Required apps
         'djgentelella',
         'rest_framework',
@@ -96,11 +99,9 @@ Add the following to your ``INSTALLED_APPS`` in ``settings.py``:
         # Optional apps (add as needed)
         'djgentelella.blog',
         'djgentelella.async_notification',
-        'django.contrib.sites',     # needed by djgentelella.flows (and SITE_ID)
         'djgentelella.flows',       # flows and the task inbox: docs/flows
-
-        # Required by the Site of menus and settings: docs/sites
-        'django.contrib.sites',
+        'djgentelella.designs',     # design documents served as pages: docs/designs
+        'djgentelella.datasources', # data sources and their API: docs/datasources
 
         # Your apps...
     ]
@@ -111,11 +112,14 @@ which ``djgentelella/models.py`` imports at module level. Without it the project
 fails at startup with ``Model class django.contrib.admin.models.LogEntry doesn't
 declare an explicit app_label and isn't in an application in INSTALLED_APPS``.
 
-Only ``djgentelella.blog``, ``djgentelella.async_notification`` and
-``djgentelella.flows`` are separate Django apps — they are the ones that ship
-their own models and migrations. The rest of the subpackages (``notification``,
-``permission_management``, ``chunked_upload``, ``trash``, ``history``, ``voice``,
-``firmador_digital``) are plain Python modules: their models, when they have any,
+Only ``djgentelella.blog``, ``djgentelella.async_notification``,
+``djgentelella.flows`` and ``djgentelella.designs`` are separate Django apps
+that ship their own models and migrations; ``djgentelella.datasources`` is an
+app without models (it autodiscovers ``<app>/gtdatasources.py``). The rest of
+the subpackages (``notification``, ``permission_management``,
+``chunked_upload``, ``trash``, ``history``, ``voice``, ``firmador_digital``,
+``wizard``, ``search``, ``pwa``, ``translations``, ``theme``, ``feedback``) are
+plain Python modules: their models, when they have any,
 belong to the ``djgentelella`` app and migrate with it, and their views are wired
 through ``djgentelella.urls``. Adding them to ``INSTALLED_APPS`` does nothing.
 

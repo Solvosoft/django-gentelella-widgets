@@ -167,10 +167,17 @@ Orphaned files (``object_id=0``, older than 24 hours) are automatically cleaned 
 Serving attached files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-``/preview-file/<pk>/`` needs one of the module's view or authoring permissions. Inline images and
-uploads not linked yet are served to any such user, since they are part of the bodies they see. A
-file attached to an object (the attachment of a notification) also needs ``view`` or ``change`` on
-that object's model; otherwise the answer is 404. The ``Content-Disposition`` carries the base name
+``/preview-file/<pk>/`` needs one of the module's view or authoring permissions, and then:
+
+* an upload not linked yet (``object_id=0``) is served only to the user who uploaded it; one
+  without an uploader (created by code) needs ``change`` on its model;
+* the inline images of an email or newsletter template are served to any user of the module, since
+  they are part of the bodies they see;
+* any other file (the attachment or the inline image of a notification) needs ``view`` or
+  ``change`` on its object's model.
+
+Otherwise the answer is 404, the same as for a file that does not exist. The file is streamed
+(``FileResponse``), never read whole into memory. The ``Content-Disposition`` carries the base name
 of the file, escaped by Django (``content_disposition_header``: quoted, or ``filename*=`` when it is
 not ASCII).
 

@@ -70,6 +70,13 @@ It also returns ``None`` without a request (management commands, Celery
 tasks) and when ``django.contrib.sites`` is not installed. The answer is
 cached on the request, so a page resolves it once.
 
+Step 2 costs one query per request (two when the host has a port and no Site
+matches it), and it is not cached between requests: a Site created by another
+worker must be seen at once. A project that wants that query gone sets
+``request.site`` itself: ``CurrentSiteMiddleware`` does it through Django's
+own per-process ``SITE_CACHE``, and a project middleware can keep a cache of
+its own when it knows how its Sites change.
+
 **SITE_ID is not a fallback.** With ``SITE_ID = 1`` and no Site for the host,
 ``get_current_site`` returns ``None``, not Site 1: otherwise every host
 without its own Site would show the menus of Site 1 (by default

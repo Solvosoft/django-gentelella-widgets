@@ -1,8 +1,21 @@
 Changelog
 ===========
 
-Unreleased
+0.8.0 (2026-11-26)
 --------------------
+
+A large release. The new modules: forms in several steps with drafts
+(``djgentelella.wizard``), global search (``djgentelella.search``), PWA and
+web push (``djgentelella.pwa``), translations of metadata
+(``djgentelella.translations``), a theme roller per Site
+(``djgentelella.theme``), user feedback (``djgentelella.feedback``),
+optimistic locking (``djgentelella.locking``), the menu as data
+(``djgentelella.menu``) and ``djgentelella.authorization``. The design
+engine gains the interactive grid, the Kanban board of a flow, the region
+components (cards, calendar, map, tree, timeline, metric cards) and the page
+pipeline, and the form widgets of the catalog arrive (stars, range, switch,
+combobox, QR, Markdown, image crop, LOV popup, geocoded address). Each one is
+off or opt-in by default; read **Backwards incompatible** before upgrading.
 
 New features
 """"""""""""""""""
@@ -247,7 +260,7 @@ the document for the Site they publish in (``engine.resolve`` and
 in that Site was an error and is now valid there. See
 ``docs/source/designs.rst`` and ``flows.rst``.
 
-**``optimistic_lock_required`` as a design prop (C9).** ``object_management``,
+**``optimistic_lock_required`` as a design prop.** ``object_management``,
 ``inline_object_management``, ``crud_classic`` and ``interactive_grid``
 accept it (a boolean, ``false`` by default, in their ``props_schema``). It
 turns ``optimistic_lock`` on: the table's viewset gets
@@ -266,7 +279,7 @@ takes a ``Site`` not saved yet, so a menu with a ``global_parent`` can be
 checked before its Site is created; ``import_tree`` still needs it saved.
 See ``docs/source/menus.rst`` ("Exporting and Importing a Menu").
 
-**The grid and the Kanban as public API (W21).** ``designs.grid`` and
+**The grid and the Kanban as public API.** ``designs.grid`` and
 ``designs.flow_kanban`` list in ``__all__`` what code generated from a design
 uses (``GridState``, ``required_fields``, ``NOT_SHOWN``, ``NOT_EDITABLE``,
 ``board``, ``render_cards``, ``resting_states``...).
@@ -317,7 +330,7 @@ over its data source). See ``docs/source/designs.rst``.
 background for ``make test-selenium`` (it reuses one already answering on
 ``:8025``) and stop it.
 
-**Region components: ``cards``, ``calendar`` and ``map`` (C15).** Three design
+**Region components: ``cards``, ``calendar`` and ``map``.** Three design
 components (``djgentelella.designs.regions``) show the rows of a data source
 -- or of an exposed model with an optional ``site_field`` -- with columns by
 role (title, subtitle, fields, image, start/end, colour, ``"lat,lng"`` point),
@@ -325,8 +338,8 @@ row links with their conditions and ``column_conditions``. They show only the
 source's ``get_queryset(request)`` and answer 403 without its permission or
 the node's ``perms``. ``cards`` is a ``ListAreaViewset`` read by ``CardList``
 (paging, search); ``calendar`` (FullCalendar) reads only the visible range,
-at most ``limit`` events, coloured by a column, a value map or C4 filter
-rules; ``map`` is a ``BaseMapView`` drawn by ``maplib.js``: popups, optional
+at most ``limit`` events, coloured by a column, a value map or the rules of
+``color_rules``; ``map`` is a ``BaseMapView`` drawn by ``maplib.js``: popups, optional
 clustering, at most ``limit`` points and, as the map moves, only those of the
 visible box. A ``facets`` panel filters them (``facets_target``), and
 ``filtered_by`` makes one panel filter the three. ``ListAreaViewset`` gained
@@ -464,7 +477,7 @@ page (``/designs/shop-orders/``, new models ``demoapp.ShopItem`` and
 ``ShopOrder``) checks the stock, computes the total, takes the stock and goes
 to another page. See ``docs/source/pipeline.rst``.
 
-**Translations of metadata (C20).** What an administrator writes as data
+**Translations of metadata.** What an administrator writes as data
 is translated without ``.po`` files (``djgentelella.translations``): a
 design page keeps its texts by language in ``document["translations"]``
 (keys ``meta.title`` and ``<node id>:<prop path>``, only the props a
@@ -486,7 +499,7 @@ keys (also ``gttranslations_export``/``gttranslations_import``).
 The demo switches between Spanish and English from the top bar
 (``/designs/translated/``). See ``docs/source/translations.rst``.
 
-**Proposals of wave 12.** ``restricted(source, columns)`` /
+**Data sources, OpenAPI and push: smaller additions.** ``restricted(source, columns)`` /
 ``DataSource.with_columns()``: a data source with only some columns;
 ``DataSourceView.get_source`` documented as the hook,
 ``DataSourceExportView.use_export_handler``,
@@ -497,15 +510,15 @@ The demo switches between Spanish and English from the top bar
 of select2 have type hints. The wizard documents that the errors of its final
 pipeline come back on its last step. PWA: ``pwa_scope`` per Site,
 ``GT_PUSH_QUEUE`` (Celery), ``pushsubscriptionchange`` handled through
-``/pwa/push/resubscribe/`` and ``GT_PUSH_UNSUBSCRIBE_ON_LOGOUT``. From
-E15: a row link may name the design page being published itself (master-detail
+``/pwa/push/resubscribe/`` and ``GT_PUSH_UNSUBSCRIBE_ON_LOGOUT``. A row
+link may name the design page being published itself (master-detail
 on its first publication); ``meta.parent.choose`` serves a page about one
 object without its pk as the list of objects to choose from;
 ``Flow.unreachable_states()`` and ``Flow.dead_ends()``; ``factories.site_rows``
 in ``__all__``. See ``datasources.rst``, ``designs.rst``, ``flows.rst``,
 ``wizard.rst`` and ``pwa.rst``.
 
-**The last proposals of the roadmap (W35).** From D20:
+**Feedback reviewers, public views, login blocks and the user menu.**
 ``GT_FEEDBACK_REVIEWER(request, user) -> bool`` (and ``GT_FEEDBACK_ANSWERER``)
 decides who reviews and answers the feedback of the request's Site, with
 ``feedback.conf.is_feedback_reviewer``/``can_answer_feedback``; the views a
@@ -519,13 +532,13 @@ set; ``gentelella/registration/login.html`` has the blocks ``login_form``,
 menu widget ``gt-user-menu`` with entries a project registers
 (``menu_widgets.user.register_user_menu_entry``); ``SiteTheme`` accepts
 ``#rgb`` and stores ``#rrggbb`` in lower case (``theme.values.normalize_color``).
-From D21: ``widgetmap.register_widget(key, path, options_schema, kinds=,
+``widgetmap.register_widget(key, path, options_schema, kinds=,
 checks=)`` offers a widget of the project in ``widget_choices``,
 ``build_widget``, the forms of a design and the editor; ``register_process(...,
 tags=)`` with ``registered_processes(tag=)`` and ``catalogue(tag=)`` (each entry
 has ``tags``); ``DataSource.row_key(row)`` and ``key_columns`` give a stable key
 to the rows of a source without a model; ``Textarea(actions=[WidgetAction(...)])``
-draws buttons under the field. From E15: the engine reads
+draws buttons under the field. The engine reads
 ``meta.master_detail`` -- the master of the page marked in its table, a click
 on a row opens that master's page -- and ``designs/data_components.js``
 exposes ``gtdesign_select_row`` and ``gtdesign_master_detail``. See
@@ -534,7 +547,7 @@ exposes ``gtdesign_select_row`` and ``gtdesign_master_detail``. See
 ``widgets/core_inputs.rst``, ``pipeline.rst``, ``datasources.rst`` and
 ``designs.rst``.
 
-From E16 (W35): ``CardsViewSet`` declares ``page_size`` in its
+**Smaller additions to flows and designs.** ``CardsViewSet`` declares ``page_size`` in its
 ``openapi_parameters``; ``Flow.is_endless()`` and ``dead_ends()`` is empty for a
 flow without final activities (a cycle never finishes by design);
 ``factories.site_rows_by_field(queryset, site_field, request)``; a row link
@@ -542,8 +555,258 @@ flow without final activities (a cycle never finishes by design);
 its ``meta.url`` (``data_components.publishing_path``, ``links_to_itself(...,
 path=)``). See ``flows.rst`` and ``designs.rst``.
 
+**Widget options in the designs.** ``widgetmap.WIDGET_OPTIONS``
+declares, as a JSON schema per option, the options a widget takes:
+``StarRatingInput`` (``stars``, ``readonly``), ``RangeInput`` (``min_value``,
+``max_value``, ``step``, ``show_value``, ``suffix``), ``ComboboxInput``
+(``choices``), ``QRCodeInput`` (``scan``, ``readonly``, ``size``),
+``ImageCropInput`` (``aspect_ratio``, ``max_width``, ``max_height``,
+``output_type``, ``quality``), ``GeocodedAddressInput`` (``point_field``,
+``replace_text``), ``MarkdownInput`` (``rows``) and ``SwitchInput``
+(``label``). ``widget_options(key)`` is the object schema of one widget,
+``validate_widget_options(key, options)`` its errors and
+``build_widget(key, options)`` the instance. A design form (and an
+``interactive_grid``) takes ``widget_options`` by field, validated with the
+design: an option the widget does not declare, a value out of its schema, a
+fractional range on an integer field, a ``point_field`` that is not a point
+field of the form or options for a widget without them are errors; nothing
+reaches the constructor as a free keyword argument. The JSON schema validator
+also reads ``maxLength``, ``maxItems`` and ``exclusiveMinimum``. See
+``docs/source/designs.rst`` and ``widgets/formwidgets.rst``.
+
+**Facets over a read-only grid and aggregates ordered by value.** A
+``facets`` panel can target an ``interactive_grid`` over a data source that is
+not over a model of the project: ``SourceGridViewSet`` reads ``gtfilters``,
+as the list, and the grid follows the panel (``datasource_url``/``group`` in
+its configuration, ``source_tables.facets_config``; ``grid_page_context``
+takes ``datasource_url=``). The parameter document takes ``"order_by_value":
+true``: ``aggregate()`` returns the groups from the largest first aggregate
+down (a saved report can ask for it); ``order_by_value=`` of the call still
+wins. ``max``/``min`` over ``date`` and ``datetime`` columns are covered by
+tests through ``aggregate``, the API and ``validate_params``. See
+``docs/source/datasources.rst``.
+
+**Wizard: forms in several steps with drafts.** ``djgentelella.wizard``:
+``GTWizardView`` and ``Step`` -- one form per step, a Bootstrap 5 progress
+bar, "Previous", "Next", "Save draft", "Finish" and "Discard", all plain
+posts (no javascript to move). Steps are skipped by a ``condition`` (a
+callable over the earlier steps' ``cleaned_data_for()`` or a condition of
+``djgentelella.authorization``); "Finish" validates every step again and runs
+``done()`` in one transaction, with the hooks ``on_step`` and ``on_finish``;
+``optimistic_lock`` when editing. Drafts in the session (default) or in the
+new model ``WizardDraft`` (migration ``djgentelella.0025_wizarddraft``: user,
+Site, key, data, uploads), only ever found for their own user and Site (404
+otherwise), expiring after ``GT_WIZARD_DRAFT_EXPIRATION`` (30 days) and
+deleted by ``manage.py delete_expired_wizard_drafts``. Files go through the
+chunked upload: only the user's own uploads are taken, kept alive while the
+wizard runs (new ``FileChunkedUpload.consume_upload``) and by a live draft
+(``delete_expired_uploads`` leaves them), and deleted when it finishes. The
+design component ``wizard`` (``djgentelella.designs.wizard``) does the same
+over one exposed model: steps with fields, ``condition`` and ``when``,
+``perms``, ``site_field``, ``mode: "edit"`` on a page about the object with
+``optimistic_lock``; new ``x-widget`` hints ``wizard-steps`` and
+``step-when``. Demo: ``/wizard/employee/`` and ``/designs/employees/new/``.
+See ``docs/source/wizard.rst``.
+
+**The page pipeline inside the wizard.** A ``Step`` takes
+``pipeline=`` and ``GTWizardView`` a ``pipeline`` attribute: an ``on_submit``
+stage of ``djgentelella.designs.pipeline`` (``{"steps", "branches"}``) or a
+``PipelineBuild``. The pipeline of a step runs its validations and
+computations whenever the step validates -- an error keeps the user in the
+step, a computed value goes to the form and to ``state['computed']``, so a
+draft keeps it --; a process or a branch there is refused. The pipeline of
+the wizard runs when it finishes: validations and computations with the data
+of every step, then ``done()``, ``on_finish()`` and the processes in one
+transaction (a failing process rolls everything back and the wizard stays at
+its last step with the error), and the branch that holds is where it goes
+instead of ``success_url``. ``done()`` saves the fields computed outside the
+forms (``writes``; ``extra_values()``). The ``wizard`` component takes
+``pipeline`` on the node and on each step, checked when the document is
+published. New: ``pipeline.build_pipeline(stage, model=, form_fields=,
+intermediate=)`` builds a pipeline in code; ``resolve_pipeline`` takes
+``intermediate=`` and ``where=``. Computations must be idempotent: a step
+validates more than once. See ``docs/source/wizard.rst``.
+
+**``site_field`` in the forms of a model.** ``object_management`` and
+``crud_classic`` take ``site_field`` (a foreign key to ``sites.Site``): the
+rows are those of the request's Site and the global ones, another Site's row
+is a 404 (detail, update, delete), and a new row gets the request's Site. The
+form cannot ask for it, and the default form of ``crud_classic`` leaves it
+out; a ``facets`` panel over the table counts the same rows. See
+``docs/source/designs.rst``.
+
+**A geocoder per request.** ``GT_GEOCODER`` can name a function -- or
+be one -- that takes the request and returns its ``Geocoder`` (or ``None``):
+one per Site, with the key read from the Site's credentials, without global
+state. ``get_geocoder(request=None)`` and ``geocoder_configured()``;
+``gt-geocode`` passes the request. A class keeps working as before. See
+``docs/source/widgets/formwidgets.rst``.
+
+**Metrics and facets for generated code.** A metric card takes its own
+``period`` (one of the periods, or ``"all"``: every row, no comparison --
+"total" next to "new this month"); each card carries ``period``,
+``period_label`` and ``compare_label``. ``MetricsComponent.page_context()``
+adds ``cards``, ``cards_html`` and ``unavailable``, so
+``region_page_context()`` draws a metrics node without a page, and
+``render_cards`` is public. A chart bound to a ``facets`` panel copies the
+``column_conditions`` of the panel's target into ``ChartBuild.
+facet_conditions`` when the page is resolved, and ``chart_facet_filters`` no
+longer needs ``request.gtdesign_resolved``. ``facets_viewset_for(build,
+target=None)`` (or ``FacetsBuild.target_build``) and
+``facets_page_context(build, request, url=, target=)`` serve a panel over a
+table of a model without a published page. See ``docs/source/designs.rst``.
+
+**Markdown columns.** A field of the form of an ``object_management``
+written with ``MarkdownInput`` is a Markdown column: its rows and its detail
+carry ``<name>_html`` (cleaned by ``render_markdown``), the table shows it
+and the detail modal prints it as HTML; the text itself never is. For
+``ObjectCRUD`` in code: ``djgentelella.serializers.GTMarkdownHTMLField`` and
+the ``markdownprint`` renderer of ``datatables.js``.
+
+**The pipeline for generated code.**
+``PipelineFormMixin`` (a ``CreateView``/``UpdateView``),
+``PipelineViewSetMixin`` (``perform_create``/``perform_update``, the branch
+as ``gtdesign_redirect``) and ``PipelinePageMixin`` (``before_render`` before
+a ``GET``) take a ``pipeline`` stage; ``run_form_pipeline``,
+``run_serializer_pipeline`` and ``run_before_render`` are the functions under
+them. ``data_components.js`` exports ``window.gtdesign_pipeline_events`` (the
+modal events that follow ``gtdesign_redirect``). A step of the document may
+say its ``kind`` (checked against the step, and given to a
+``pipeline_step`` hook that takes ``kind=``); ``step_build(name, kind,
+function, ...)`` builds a step without registering it. New hook
+``ResolveContext.branch_target(target, path, *, event, model)`` (default
+``pipeline.resolve_branch_target``) for branch targets a tool generates.
+``catalogue()`` and ``Process`` carry the ``app`` that defines each step.
+The steps of a ``wizard`` take ``widget_options``.
+
+**The project's ResolveContext everywhere a page is published.** The
+new setting ``GT_DESIGNS_RESOLVE_CONTEXT`` (a ``ResolveContext`` subclass or
+its dotted path) is the context every design is resolved with when the caller
+gives none: ``gtdesigns_publish``, the admin, ``publishing.publish``,
+``validate`` and ``import_page`` (and the APIs built on them),
+``engine.resolve_page`` when a page is served (the class is part of its cache
+key), ``pipeline.build_pipeline`` and ``region_page_context``. A rule such as
+djodo's "a page of an App names only that App's pipeline steps" then holds on
+every path, not only on the project's own. ``publish``, ``validate``,
+``import_page`` and ``build_pipeline`` take ``context=``, which wins;
+``components.default_context_class()`` returns the configured class. Adding a
+page in the admin validates it for the Site of the form and with the trust of
+the user adding it, as ``publish`` does; **Validate** resolves a page for its
+own Site.
+
+**Facets over a region or a grid of a model.** A ``facets`` panel may
+target a ``cards``, ``calendar``, ``map``, ``tree``, ``timeline``,
+``metrics`` or ``interactive_grid`` node over an exposed ``model`` (before,
+only over a ``datasource``): it counts through its own endpoint over the rows
+of that node -- its ``site_field`` and, for a region, its ``perms`` included
+--, and the node follows it by its group (``gtdesign:<target>``; the browser
+reads the panel's ``data-url``). ``filtered_by`` from another region over the
+same model and ``site_field`` works too. A component opts in with
+``RuntimeComponent.facets_model = True``; ``regions.facets_state(build)`` is
+the state a region's configuration names. A grid whose rows are pending
+applies a facet that changed once they are saved or undone.
+
+**``site_field`` in the interactive grid, defaults of step params, geocoder
+options.** ``interactive_grid`` over a model takes
+``site_field``, as ``object_management``: the rows of the request's Site and
+the global ones, another Site's row is a 404 in a batch, a new row gets the
+request's Site. The ``default`` of a property of a step's params schema fills
+what the document leaves out (``pipeline.param_defaults``,
+``with_param_defaults``; ``step_build`` too). ``NominatimGeocoder`` takes
+``extra_params`` and ``extra_headers`` (the key of a compatible service).
+
+**Pipeline context and facets for project code.** ``PipelinePageMixin.get_pipeline_parent()`` and
+``get_pipeline_page()`` give the steps their ``ctx.parent`` and ``ctx.page``.
+``designs.factories.GTFiltersMixin`` (``gtfilters_fields``) lets a viewset of
+the project follow a facets panel, and ``window.gtdesign_follow_facets(id,
+crud)`` / ``window.gtdesign_facet_filters(id)`` link an ``ObjectCRUD`` of
+generated code to it.
+
+**The ``app`` of a document.** ``app`` and ``slug`` stay lower-case
+Python identifiers (``format.APP_PATTERN``): ``app`` is a Django app label for
+code generation, flows and pipeline steps (``<app>.<step>``).
+``format.app_name(slug)`` turns a slug with ``-`` (a djodo App) into one.
+
+**Theme roller per Site.** ``SiteTheme`` (migration ``0026``) holds the
+Bootstrap colours, the sidebar's, the border radius, a font of a fixed list and
+a logo of a Site, or the global theme. Only typed, validated values (``#rrggbb``,
+0-24 px, PNG/JPEG/GIF/WebP checked with Pillow), never CSS: the stylesheet is
+written from them (``theme.css.render_css``) and served at
+``/gt-theme/<pk>.css?v=<version>``, cached for a year and fetched again when the
+theme is saved. ``{% gt_theme_css %}`` links it from ``base.html``; the sidebar
+shows the logo. The page ``gt_theme_roller`` edits it with a live preview. See
+``docs/source/theme.rst``.
+
+**The diagram of a flow instance.** ``Flow.instance_diagram(obj, user)``
+highlights the current activity, the transitions taken (from the log) and the
+transitions the user may run now (``data-transition``), and says it in a
+``<title>``/``<desc>`` for screen readers; ``Flow.runtime()`` adds ``taken`` and
+``path``. ``flow_detail`` uses it, and ``{% flow_diagram object %}`` finds the
+flow of the object (``flow=`` names it).
+
+**User feedback.** With ``GT_FEEDBACK = True``, a button of ``base.html``
+(``{% gt_feedback_button %}``) sends an error, an idea or a question, with the
+page and the browser if the user agrees, never form data. ``Feedback`` (same
+migration) is reviewed at ``gt_feedback_inbox`` (``view_feedback``) and answered
+at ``gt_feedback_detail`` (``change_feedback``), which notifies its author. A
+Site turns it off with the setting ``feedback_enabled``. See
+``docs/source/feedback.rst``.
+
+**Choices of a relation by Site.** ``expose(model,
+site_field='site')`` makes every relation to that model in the forms of
+``object_management``, ``crud_classic``, ``wizard`` and ``interactive_grid``,
+their serializers (``factories.SitePrimaryKeyRelatedField``) and the model's
+select2 lookups (``BaseSelect2View.site_field``) offer the rows of the
+request's Site and the global ones; another Site's row is refused.
+``exposure.site_choices``, ``limit_form_choices``, ``site_field_of``;
+``FormBuild.get_form(request=)``.
+
+**PWA and web push.** ``djgentelella.pwa``: a web app manifest per
+Site at ``/pwa/manifest.webmanifest`` (name, short name, colours, icons and
+start URL from the ``pwa_*`` keys of ``GentelellaSettings``, Site's over
+global), its tags in the new ``pwa_head`` block of ``base.html`` behind
+``GT_PWA_MANIFEST``; a service worker at ``/pwa/sw.js`` registered behind
+``GT_PWA_SERVICE_WORKER``, with a versioned cache of the static files only
+(``GT_PWA_CACHE_VERSION``; pages and APIs are not cached) and an offline
+page, which unregisters itself when the setting is turned off; and web push
+(VAPID) of the notifications: ``PushSubscription`` per user and device (with
+its Site) and ``PushPreference`` (migration ``0026_push_subscriptions``),
+every new ``Notification`` sent to its user's subscriptions after the commit
+through a pluggable backend (``GT_PUSH_BACKEND``; ``WebPushBackend`` with
+``pywebpush``, the new ``[push]`` extra, or ``LocmemPushBackend``), expired
+subscriptions (404/410) deleted, ``send_push()`` for anything else, the user's
+page at ``/pwa/push/`` (subscribe, unsubscribe, test, turn off) and
+``manage.py gt_vapid_keys``. Without the extra or the keys push is off and
+everything else works. See ``docs/source/pwa.rst``.
+
+
 Backwards incompatible
 """"""""""""""""""""""""
+
+**async_notification: a pending upload belongs to its uploader.**
+``/preview-file/<pk>/`` and ``/preview-video/<pk>/`` served any upload not
+linked yet (``object_id=0``) and any inline image to every user of the module,
+by sequential pk. A pending upload is now served only to the user who
+uploaded it (one without an uploader needs ``change`` on its model), and an
+inline image of a notification needs ``view`` or ``change`` on it; the inline
+images of email and newsletter templates stay visible to every user of the
+module. ``preview_file_view`` streams the file (``FileResponse``) instead of
+reading it whole into memory.
+
+**The translation screens work on the request's Site.** ``gt-translations/``
+listed and saved the menu items of every Site and opened any page by pk. They
+now take the request's Site and the global objects (another Site's page is a
+404), and the import refuses a LOV the user may not open. The
+``gttranslations_*`` commands still move every Site.
+``export_translations``, ``import_translations`` and
+``validate_translations_data`` take ``request=`` and ``site=``.
+
+**Select2 lookups of an exposed model are filtered by Site.** A
+``BaseSelect2View`` whose model is ``expose()``\ d to the designs with a
+``site_field`` now answers only the rows of the request's Site and the global
+ones, without any change in the view: ``site_field_of(model)`` is its default
+``site_field``. A lookup that must keep listing every Site's rows sets
+``site_field = ''``.
 
 **Conditions of a table's row actions about the object get the row.** In a
 table that is not inline, an ``update``, ``destroy`` or ``retrieve`` condition
@@ -578,8 +841,12 @@ whoever uploaded it, and in whatever state. They now take only a finished
 upload of the user of the request (an anonymous visitor, only the uploads
 without a user): another user's token, or one of an unfinished upload, gives
 no file, and the preview answers 404 (it answered 200 with the text
-``None``). A serializer used without a request keeps the old rule.
+``None``). A serializer used without a request takes the upload whoever
+uploaded it, but still only a finished one.
 ``djgentelella.chunked_upload.utils.find_upload(token, user)`` is the lookup.
+Finished is ``status=COMPLETE`` or a ``completed_on``: an upload created by
+hand with ``completed_on`` but no ``status`` (whose default is ``UPLOADING``)
+still counts, as it did before.
 The form widgets do not see the request and keep taking the token whoever
 uploaded it, on purpose: ``FileChunkedUpload`` and ``FileInput`` as before,
 ``DigitalSignatureInput`` now only a finished upload; ``UserFileChunkedUpload``
@@ -697,7 +964,7 @@ any more: code of a project that used it loads ``vendors/bootstrap/
 popper.min.js`` itself (``loaddevstatic`` still downloads it). The bundle is
 built with ``python -m pylp`` (``make assets``), not committed.
 
-**The list of a ``CheckboxSelectMultiple`` is ``ul.gt-check-list`` (W31).**
+**The list of a ``CheckboxSelectMultiple`` is ``ul.gt-check-list``.**
 It was ``<ul class="gt-check ...">`` (and drew as one box). CSS or a script
 that selected ``ul.gt-check`` selects ``ul.gt-check-list``; the boxes keep
 ``input.gt-check``. Adding a page in the admin validates its document for the
@@ -709,234 +976,72 @@ breaks the new rule stops resolving when it is served: validate the pages
 (``gtdesigns_export`` + ``gtdesigns_publish``, or **Validate** in the admin)
 before turning it on.
 
-**Widget options in the designs (W29).** ``widgetmap.WIDGET_OPTIONS``
-declares, as a JSON schema per option, the options a widget takes:
-``StarRatingInput`` (``stars``, ``readonly``), ``RangeInput`` (``min_value``,
-``max_value``, ``step``, ``show_value``, ``suffix``), ``ComboboxInput``
-(``choices``), ``QRCodeInput`` (``scan``, ``readonly``, ``size``),
-``ImageCropInput`` (``aspect_ratio``, ``max_width``, ``max_height``,
-``output_type``, ``quality``), ``GeocodedAddressInput`` (``point_field``,
-``replace_text``), ``MarkdownInput`` (``rows``) and ``SwitchInput``
-(``label``). ``widget_options(key)`` is the object schema of one widget,
-``validate_widget_options(key, options)`` its errors and
-``build_widget(key, options)`` the instance. A design form (and an
-``interactive_grid``) takes ``widget_options`` by field, validated with the
-design: an option the widget does not declare, a value out of its schema, a
-fractional range on an integer field, a ``point_field`` that is not a point
-field of the form or options for a widget without them are errors; nothing
-reaches the constructor as a free keyword argument. The JSON schema validator
-also reads ``maxLength``, ``maxItems`` and ``exclusiveMinimum``. See
-``docs/source/designs.rst`` and ``widgets/formwidgets.rst``.
-
-**Facets over a read-only grid and aggregates ordered by value (W29).** A
-``facets`` panel can target an ``interactive_grid`` over a data source that is
-not over a model of the project: ``SourceGridViewSet`` reads ``gtfilters``,
-as the list, and the grid follows the panel (``datasource_url``/``group`` in
-its configuration, ``source_tables.facets_config``; ``grid_page_context``
-takes ``datasource_url=``). The parameter document takes ``"order_by_value":
-true``: ``aggregate()`` returns the groups from the largest first aggregate
-down (a saved report can ask for it); ``order_by_value=`` of the call still
-wins. ``max``/``min`` over ``date`` and ``datetime`` columns are covered by
-tests through ``aggregate``, the API and ``validate_params``. See
-``docs/source/datasources.rst``.
-
-**Wizard: forms in several steps with drafts.** ``djgentelella.wizard``:
-``GTWizardView`` and ``Step`` -- one form per step, a Bootstrap 5 progress
-bar, "Previous", "Next", "Save draft", "Finish" and "Discard", all plain
-posts (no javascript to move). Steps are skipped by a ``condition`` (a
-callable over the earlier steps' ``cleaned_data_for()`` or a condition of
-``djgentelella.authorization``); "Finish" validates every step again and runs
-``done()`` in one transaction, with the hooks ``on_step`` and ``on_finish``;
-``optimistic_lock`` when editing. Drafts in the session (default) or in the
-new model ``WizardDraft`` (migration ``djgentelella.0025_wizarddraft``: user,
-Site, key, data, uploads), only ever found for their own user and Site (404
-otherwise), expiring after ``GT_WIZARD_DRAFT_EXPIRATION`` (30 days) and
-deleted by ``manage.py delete_expired_wizard_drafts``. Files go through the
-chunked upload: only the user's own uploads are taken, kept alive while the
-wizard runs (new ``FileChunkedUpload.consume_upload``) and by a live draft
-(``delete_expired_uploads`` leaves them), and deleted when it finishes. The
-design component ``wizard`` (``djgentelella.designs.wizard``) does the same
-over one exposed model: steps with fields, ``condition`` and ``when``,
-``perms``, ``site_field``, ``mode: "edit"`` on a page about the object with
-``optimistic_lock``; new ``x-widget`` hints ``wizard-steps`` and
-``step-when``. Demo: ``/wizard/employee/`` and ``/designs/employees/new/``.
-See ``docs/source/wizard.rst``.
-
-**The page pipeline inside the wizard (W30).** A ``Step`` takes
-``pipeline=`` and ``GTWizardView`` a ``pipeline`` attribute: an ``on_submit``
-stage of ``djgentelella.designs.pipeline`` (``{"steps", "branches"}``) or a
-``PipelineBuild``. The pipeline of a step runs its validations and
-computations whenever the step validates -- an error keeps the user in the
-step, a computed value goes to the form and to ``state['computed']``, so a
-draft keeps it --; a process or a branch there is refused. The pipeline of
-the wizard runs when it finishes: validations and computations with the data
-of every step, then ``done()``, ``on_finish()`` and the processes in one
-transaction (a failing process rolls everything back and the wizard stays at
-its last step with the error), and the branch that holds is where it goes
-instead of ``success_url``. ``done()`` saves the fields computed outside the
-forms (``writes``; ``extra_values()``). The ``wizard`` component takes
-``pipeline`` on the node and on each step, checked when the document is
-published. New: ``pipeline.build_pipeline(stage, model=, form_fields=,
-intermediate=)`` builds a pipeline in code; ``resolve_pipeline`` takes
-``intermediate=`` and ``where=``. Computations must be idempotent: a step
-validates more than once. See ``docs/source/wizard.rst``.
-
-**``site_field`` in the forms of a model (W30).** ``object_management`` and
-``crud_classic`` take ``site_field`` (a foreign key to ``sites.Site``): the
-rows are those of the request's Site and the global ones, another Site's row
-is a 404 (detail, update, delete), and a new row gets the request's Site. The
-form cannot ask for it, and the default form of ``crud_classic`` leaves it
-out; a ``facets`` panel over the table counts the same rows. See
-``docs/source/designs.rst``.
-
-**A geocoder per request (W30).** ``GT_GEOCODER`` can name a function -- or
-be one -- that takes the request and returns its ``Geocoder`` (or ``None``):
-one per Site, with the key read from the Site's credentials, without global
-state. ``get_geocoder(request=None)`` and ``geocoder_configured()``;
-``gt-geocode`` passes the request. A class keeps working as before. See
-``docs/source/widgets/formwidgets.rst``.
-
-**Metrics and facets for generated code (W30).** A metric card takes its own
-``period`` (one of the periods, or ``"all"``: every row, no comparison --
-"total" next to "new this month"); each card carries ``period``,
-``period_label`` and ``compare_label``. ``MetricsComponent.page_context()``
-adds ``cards``, ``cards_html`` and ``unavailable``, so
-``region_page_context()`` draws a metrics node without a page, and
-``render_cards`` is public. A chart bound to a ``facets`` panel copies the
-``column_conditions`` of the panel's target into ``ChartBuild.
-facet_conditions`` when the page is resolved, and ``chart_facet_filters`` no
-longer needs ``request.gtdesign_resolved``. ``facets_viewset_for(build,
-target=None)`` (or ``FacetsBuild.target_build``) and
-``facets_page_context(build, request, url=, target=)`` serve a panel over a
-table of a model without a published page. See ``docs/source/designs.rst``.
-
-**Markdown columns (W30).** A field of the form of an ``object_management``
-written with ``MarkdownInput`` is a Markdown column: its rows and its detail
-carry ``<name>_html`` (cleaned by ``render_markdown``), the table shows it
-and the detail modal prints it as HTML; the text itself never is. For
-``ObjectCRUD`` in code: ``djgentelella.serializers.GTMarkdownHTMLField`` and
-the ``markdownprint`` renderer of ``datatables.js``.
-
-**The pipeline for generated code (W30, proposals of E12).**
-``PipelineFormMixin`` (a ``CreateView``/``UpdateView``),
-``PipelineViewSetMixin`` (``perform_create``/``perform_update``, the branch
-as ``gtdesign_redirect``) and ``PipelinePageMixin`` (``before_render`` before
-a ``GET``) take a ``pipeline`` stage; ``run_form_pipeline``,
-``run_serializer_pipeline`` and ``run_before_render`` are the functions under
-them. ``data_components.js`` exports ``window.gtdesign_pipeline_events`` (the
-modal events that follow ``gtdesign_redirect``). A step of the document may
-say its ``kind`` (checked against the step, and given to a
-``pipeline_step`` hook that takes ``kind=``); ``step_build(name, kind,
-function, ...)`` builds a step without registering it. New hook
-``ResolveContext.branch_target(target, path, *, event, model)`` (default
-``pipeline.resolve_branch_target``) for branch targets a tool generates.
-``catalogue()`` and ``Process`` carry the ``app`` that defines each step.
-The steps of a ``wizard`` take ``widget_options``.
-
-**The project's ResolveContext everywhere a page is published (W31).** The
-new setting ``GT_DESIGNS_RESOLVE_CONTEXT`` (a ``ResolveContext`` subclass or
-its dotted path) is the context every design is resolved with when the caller
-gives none: ``gtdesigns_publish``, the admin, ``publishing.publish``,
-``validate`` and ``import_page`` (and the APIs built on them),
-``engine.resolve_page`` when a page is served (the class is part of its cache
-key), ``pipeline.build_pipeline`` and ``region_page_context``. A rule such as
-djodo's "a page of an App names only that App's pipeline steps" then holds on
-every path, not only on the project's own. ``publish``, ``validate``,
-``import_page`` and ``build_pipeline`` take ``context=``, which wins;
-``components.default_context_class()`` returns the configured class. Adding a
-page in the admin validates it for the Site of the form and with the trust of
-the user adding it, as ``publish`` does; **Validate** resolves a page for its
-own Site.
-
-**Facets over a region or a grid of a model (W31).** A ``facets`` panel may
-target a ``cards``, ``calendar``, ``map``, ``tree``, ``timeline``,
-``metrics`` or ``interactive_grid`` node over an exposed ``model`` (before,
-only over a ``datasource``): it counts through its own endpoint over the rows
-of that node -- its ``site_field`` and, for a region, its ``perms`` included
---, and the node follows it by its group (``gtdesign:<target>``; the browser
-reads the panel's ``data-url``). ``filtered_by`` from another region over the
-same model and ``site_field`` works too. A component opts in with
-``RuntimeComponent.facets_model = True``; ``regions.facets_state(build)`` is
-the state a region's configuration names. A grid whose rows are pending
-applies a facet that changed once they are saved or undone.
-
-**Proposals of D18 (W31).** ``interactive_grid`` over a model takes
-``site_field``, as ``object_management``: the rows of the request's Site and
-the global ones, another Site's row is a 404 in a batch, a new row gets the
-request's Site. The ``default`` of a property of a step's params schema fills
-what the document leaves out (``pipeline.param_defaults``,
-``with_param_defaults``; ``step_build`` too). ``NominatimGeocoder`` takes
-``extra_params`` and ``extra_headers`` (the key of a compatible service).
-
-**Proposals of E13 (W31).** ``PipelinePageMixin.get_pipeline_parent()`` and
-``get_pipeline_page()`` give the steps their ``ctx.parent`` and ``ctx.page``.
-``designs.factories.GTFiltersMixin`` (``gtfilters_fields``) lets a viewset of
-the project follow a facets panel, and ``window.gtdesign_follow_facets(id,
-crud)`` / ``window.gtdesign_facet_filters(id)`` link an ``ObjectCRUD`` of
-generated code to it.
-
-**The ``app`` of a document (W31).** ``app`` and ``slug`` stay lower-case
-Python identifiers (``format.APP_PATTERN``): ``app`` is a Django app label for
-code generation, flows and pipeline steps (``<app>.<step>``).
-``format.app_name(slug)`` turns a slug with ``-`` (a djodo App) into one.
-
-**Theme roller per Site (W32).** ``SiteTheme`` (migration ``0026``) holds the
-Bootstrap colours, the sidebar's, the border radius, a font of a fixed list and
-a logo of a Site, or the global theme. Only typed, validated values (``#rrggbb``,
-0-24 px, PNG/JPEG/GIF/WebP checked with Pillow), never CSS: the stylesheet is
-written from them (``theme.css.render_css``) and served at
-``/gt-theme/<pk>.css?v=<version>``, cached for a year and fetched again when the
-theme is saved. ``{% gt_theme_css %}`` links it from ``base.html``; the sidebar
-shows the logo. The page ``gt_theme_roller`` edits it with a live preview. See
-``docs/source/theme.rst``.
-
-**The diagram of a flow instance (W32).** ``Flow.instance_diagram(obj, user)``
-highlights the current activity, the transitions taken (from the log) and the
-transitions the user may run now (``data-transition``), and says it in a
-``<title>``/``<desc>`` for screen readers; ``Flow.runtime()`` adds ``taken`` and
-``path``. ``flow_detail`` uses it, and ``{% flow_diagram object %}`` finds the
-flow of the object (``flow=`` names it).
-
-**User feedback (W32).** With ``GT_FEEDBACK = True``, a button of ``base.html``
-(``{% gt_feedback_button %}``) sends an error, an idea or a question, with the
-page and the browser if the user agrees, never form data. ``Feedback`` (same
-migration) is reviewed at ``gt_feedback_inbox`` (``view_feedback``) and answered
-at ``gt_feedback_detail`` (``change_feedback``), which notifies its author. A
-Site turns it off with the setting ``feedback_enabled``. See
-``docs/source/feedback.rst``.
-
-**Choices of a relation by Site (W32, proposal of D18).** ``expose(model,
-site_field='site')`` makes every relation to that model in the forms of
-``object_management``, ``crud_classic``, ``wizard`` and ``interactive_grid``,
-their serializers (``factories.SitePrimaryKeyRelatedField``) and the model's
-select2 lookups (``BaseSelect2View.site_field``) offer the rows of the
-request's Site and the global ones; another Site's row is refused.
-``exposure.site_choices``, ``limit_form_choices``, ``site_field_of``;
-``FormBuild.get_form(request=)``.
-
-**PWA and web push (W33).** ``djgentelella.pwa``: a web app manifest per
-Site at ``/pwa/manifest.webmanifest`` (name, short name, colours, icons and
-start URL from the ``pwa_*`` keys of ``GentelellaSettings``, Site's over
-global), its tags in the new ``pwa_head`` block of ``base.html`` behind
-``GT_PWA_MANIFEST``; a service worker at ``/pwa/sw.js`` registered behind
-``GT_PWA_SERVICE_WORKER``, with a versioned cache of the static files only
-(``GT_PWA_CACHE_VERSION``; pages and APIs are not cached) and an offline
-page, which unregisters itself when the setting is turned off; and web push
-(VAPID) of the notifications: ``PushSubscription`` per user and device (with
-its Site) and ``PushPreference`` (migration ``0026_push_subscriptions``),
-every new ``Notification`` sent to its user's subscriptions after the commit
-through a pluggable backend (``GT_PUSH_BACKEND``; ``WebPushBackend`` with
-``pywebpush``, the new ``[push]`` extra, or ``LocmemPushBackend``), expired
-subscriptions (404/410) deleted, ``send_push()`` for anything else, the user's
-page at ``/pwa/push/`` (subscribe, unsubscribe, test, turn off) and
-``manage.py gt_vapid_keys``. Without the extra or the keys push is off and
-everything else works. See ``docs/source/pwa.rst``.
-
 Fixes
 """"""""
 
-**Security: the parent of a design page is limited to the request's Site
-(W35, found by D22).** A page about one object (``meta.parent``) of a model
+**Security: region components do not search through hidden columns.**
+``cards``, ``calendar``, ``map``, ``tree``, ``timeline`` and ``metrics``
+refused a filter on a column their ``column_conditions`` hide, but searched
+every text column and ordered by default by any: a search could tell which
+rows held a value the user may not see. They search and order only by the
+visible columns (``query.apply_params_over``). Ordering a region by ``pk`` is
+no longer a 400.
+
+**What every page costs.** A warm page of the layout takes four queries (the
+menu, the session and the user; ``PageQueriesTest``):
+
+* ``get_settings`` cached only the keys it found: each key without a global
+  row (``site_extracss``, ``sidebar_icon``, ``sidebar_title``,
+  ``feedback_enabled``) cost a query on every page. A missing key is cached
+  too, and forgotten when the setting is saved.
+* ``{% pwa_head %}`` read the PWA settings twice; the rows of every Site are
+  now one cached query (``PWA_SETTINGS_CACHE_KEY``), cleared on any save of
+  ``GentelellaSettings``.
+* ``gentelella/index.html`` ran ``get_or_create_permission_context`` for
+  permissions of the demo (``demoapp``) on every visit: four lookups and a
+  write on a ``GET`` in every project that used it. Its ``pre_head`` block is
+  empty.
+* ``djgentelella.theme.values``, imported by ``models.py``, imported Pillow at
+  module level: about 4 MB per process. It is imported when a logo is
+  validated.
+
+**Design endpoints read less.** The data source and source-table rows skip the
+second ``COUNT`` when there are no filters nor search; a region or a source
+table reads its columns once per request; a map gets its popup template once
+for all its points; a page of ``cards`` does not repeat the search to read its
+rows.
+
+**Pipelines of code know the Site.** ``PipelineFormMixin``,
+``PipelineViewSetMixin`` and ``PipelinePageMixin`` built their pipeline
+without the request's Site, so a ``page:`` branch to a page of that Site was
+an ``ImproperlyConfigured`` (a 500).
+
+**Wizard.** ``get_object()`` is called once per request (it was asked
+dozens of times, a query each); validating a step no longer discards the
+cleaned data of the others, so *Finish* validates each step once instead of
+O(N²) times; *Previous* and a step link no longer answer a 500 when the
+current step's own data makes it stop applying; and its pipelines are built
+with the request's Site.
+
+**Fewer reads in locking and flows.** ``OptimisticLockMixin.update`` read the
+row four times, now twice. ``flow_detail`` evaluated every transition twice
+(the buttons and the diagram): ``transition_buttons()`` and
+``instance_diagram()`` take ``instance=`` and ``available=``. The global
+search asks the ``GT_SEARCH_SOURCES`` hook once per request.
+
+**The menu export keeps the drawn order.** ``export_tree`` wrote the children
+by position while the menu draws them by id: an export followed by an import
+changed the order. Children are exported by id.
+
+**Validation instead of a 500.** A theme border radius such as ``²`` and a
+malformed ``save_lov`` or ``save_page`` raised instead of reporting the error.
+
+**The LOV popup and the Markdown preview drop late answers.** An answer that
+arrived after a newer search, or after going back to *Write*, replaced the
+newer one.
+
+**Security: the parent of a design page is limited to the request's Site.**
+A page about one object (``meta.parent``) of a model
 exposed with a ``site_field``, and the API of its ``inline_object_management``
 tables (and of their facets), reached an object of another Site by its pk: a
 user with the (global) view permissions of both models read -- and, with the
@@ -1001,7 +1106,7 @@ nor actions.
 loads ``gentelella/css/custom.css`` instead of an empty ``<link
 href="/static/?v=...">``.
 
-**A source error that is also a ``ValidationError`` is a 503 (W29).** The
+**A source error that is also a ``ValidationError`` is a 503.** The
 data source API and the endpoints of the design components (list and grid
 over a data source, regions, metrics, chart, stat, facets) check
 ``DataSourceUnavailable`` before ``ValidationError``: a class that inherits
@@ -1009,7 +1114,7 @@ from both answers its 503/502/504, not a 400 (``datasources.base.api_error``).
 ``validate_params`` lets it through instead of reporting it as a problem of
 the document.
 
-**Test classes no longer hide each other (W29).** ``tests/__init__.py``
+**Test classes no longer hide each other.** ``tests/__init__.py``
 imports every module with ``*``, and four test classes had the name of a
 class of another module (``RegistryTests``, ``RenderEndpointTests``,
 ``SchemaTests``, ``PreviewTests``): 20 tests did not run. They are renamed,
@@ -1021,7 +1126,7 @@ validator ignored them: the ``prefix``/``suffix`` of a metric (8 characters),
 the ``metrics`` list (12) and the ``center`` of a map (2 numbers) are now
 checked when the document is validated.
 
-**A design page in the menu with a trailing slash (W30).** With the new
+**A design page in the menu with a trailing slash.** With the new
 setting ``GT_MENU_DESIGN_PAGE_SLASH = True`` the link of a ``page:<path>``
 item and of a reversed ``gt-design-page`` ends in ``/``
 (``/designs/sales/clients/``), the URL a project that visits its pages with
@@ -1029,8 +1134,8 @@ the slash shows, so a breadcrumb or an "active item" that compares the link
 with ``request.path`` matches. Off by default: the links stay as they were.
 Both forms serve the page.
 
-**Small fixes (W30).** ``DataSource.__repr__`` was dead code inside
-``source_column_map`` (W24): a source shows as ``<ModelDataSource name>``
+**Small fixes.** ``DataSource.__repr__`` was dead code inside
+``source_column_map``: a source shows as ``<ModelDataSource name>``
 again. ``MetricsComponent.render`` no longer repeats the access rule of
 ``RegionComponent.render``: both go through ``page_context``. Two test
 helpers named ``DownSource`` are now ``TTMDownSource`` and
@@ -1040,7 +1145,7 @@ helpers named ``DownSource`` are now ``TTMDownSource`` and
 other's database (a killed run leaves its file; ``--keepdb`` keeps nothing
 between runs).
 
-**``CheckboxSelectMultiple`` draws one box per choice (W31).** The
+**``CheckboxSelectMultiple`` draws one box per choice.** The
 ``gt-check`` class of its ``attrs`` reached the ``<ul>`` around the choices
 too, which ``checks.css`` painted as one 13 px box: the choices spilled over
 whatever came after it, in every layout. The list now gets ``gt-check-list``
@@ -1048,38 +1153,38 @@ whatever came after it, in every layout. The list now gets ``gt-check-list``
 ``<input>``; ``checks.css`` lays the list out one choice per line. A selector
 that looked for ``ul.gt-check`` must look for ``ul.gt-check-list``.
 
-**A metric card over every row says ``"period": "all"`` (W31).** It
+**A metric card over every row says ``"period": "all"``.** It
 answered ``period: ''``, as a card without a ``date_field``.
 
-**A wizard's computation may set a field of a skipped step (W31).** The
+**A wizard's computation may set a field of a skipped step.** The
 ``fields`` of ``GTWizardView.finish_context`` were those of the steps that
 applied, so the wizard's pipeline failed with ``PipelineError`` on a field of
 a step skipped by its condition, although ``get_pipeline()`` had accepted it.
 
-**The trailing slash of a design page in the menu stays opt-in (W31).**
+**The trailing slash of a design page in the menu stays opt-in.**
 ``GT_MENU_DESIGN_PAGE_SLASH`` remains off by default: turning it on changes
 every link already drawn, and the projects on top of djgentelella assert the
 links without it. ``docs/source/menus.rst`` says how to adopt it.
 
-**The PWA's scope follows the script prefix (W35).** Without
+**The PWA's scope follows the script prefix.** Without
 ``GT_PWA_SCOPE``, the manifest's ``scope`` and ``start_url``, the service
 worker's scope and its ``Service-Worker-Allowed`` header are the request's
 script prefix (``SCRIPT_NAME``, ``FORCE_SCRIPT_NAME`` or the one a middleware
 sets) instead of ``/``. A project served at the root sees no change; one
 served under a prefix that wants the old scope sets ``GT_PWA_SCOPE = '/'``.
 
-**The colours of a theme are stored normalized (W35).** Saving a
+**The colours of a theme are stored normalized.** Saving a
 ``SiteTheme`` (or ``full_clean()``) writes each colour as ``#rrggbb`` in lower
 case, so a theme saved as ``#AABBCC`` reads back ``#aabbcc``. Compare colours
 case-insensitively, or through ``theme.values.normalize_color``.
 
-**A page about another Site's object is a 404 (W35).** See the security fix
+**A page about another Site's object is a 404.** See the security fix
 above: ``designs/<path>/<pk>`` and its inline APIs no longer reach an object of
 another Site when its model was exposed with a ``site_field``. A project that
 relied on it shares that object (empty ``site``) or exposes the model without
 ``site_field``.
 
-**``Flow.dead_ends()`` of a flow without final activities is empty (W35).** It
+**``Flow.dead_ends()`` of a flow without final activities is empty.** It
 listed every state of a cyclic flow. Use ``Flow.is_endless()`` to warn about a
 flow that never finishes.
 
