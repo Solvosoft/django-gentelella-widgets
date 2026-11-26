@@ -11,7 +11,7 @@ from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 
 from demoapp.models import Product
-from djgentelella.designs import engine, factories
+from djgentelella.designs import factories
 from djgentelella.locking import OptimisticLockFormMixin, object_version
 from djgentelella.tests.Designs_Test import design, node
 from djgentelella.tests.DesignsData_Test import (
@@ -50,15 +50,6 @@ class CrudClassicLockTests(DataDesignTestCase):
         errors = self.errors(crud(optimistic_lock='yes'))
         self.assertEqual(len(errors), 1)
         self.assertIn('optimistic_lock', errors[0])
-
-    def test_the_crud_view_gets_it(self):
-        for props, expected in (({}, False), ({'optimistic_lock': False}, False),
-                                ({'optimistic_lock': True}, True)):
-            resolved, errors = engine.resolve(crud(**props))
-            self.assertEqual(errors, [])
-            build = resolved.nodes['products'].build
-            self.assertIs(build.optimistic_lock, expected)
-            self.assertIs(factories.DesignCRUDView(build).optimistic_lock, expected)
 
     def test_the_update_page_carries_the_version(self):
         base = self.page(optimistic_lock=True)

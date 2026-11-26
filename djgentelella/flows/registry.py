@@ -111,7 +111,9 @@ def activity_arguments():
 
 def variable_types():
     """``[{"name", "label", "json_types"}]``: the types a flow variable can
-    be declared with (:mod:`djgentelella.flows.variables`)."""
+    be declared with (:mod:`djgentelella.flows.variables`), sorted by name
+    (:func:`~djgentelella.flows.variables.get_variable_types` keeps the order
+    of registration)."""
     return [found.describe()
             for _name, found in sorted(variables.get_variable_types().items())]
 

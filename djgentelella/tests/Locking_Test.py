@@ -581,6 +581,20 @@ class LockingAPITests(TestCase):
         self.assertEqual(self.put(data=bad, if_match='"%s"' % current).status_code,
                          400)
 
+    def test_an_update_reads_the_row_twice(self):
+        # get_object (permissions) and the locked read; the update itself
+        # and the ETag of the answer reuse them instead of reading again.
+        product_table = Product._meta.db_table
+        with CaptureQueriesContext(connection) as queries:
+            response = self.put(if_match='"%s"' % object_version(self.product))
+        self.assertEqual(response.status_code, 200, response.data)
+        reads = [query['sql'] for query in queries.captured_queries
+                 if query['sql'].startswith('SELECT')
+                 and product_table in query['sql']]
+        self.assertEqual(len(reads), 2, reads)
+        self.product.refresh_from_db()
+        self.assertEqual(response['ETag'], '"%s"' % object_version(self.product))
+
     def test_a_missing_object_is_404(self):
         self.product.delete()
         self.product.pk = 999999

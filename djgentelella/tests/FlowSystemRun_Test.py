@@ -3,6 +3,7 @@ way automatic transitions and deadlines do: no permission is checked, the
 source state and the condition are; and nobody gets there by accident --
 ``user=None`` or an anonymous user without the flag are refused as before."""
 
+import inspect
 from decimal import Decimal
 
 from django.contrib.auth.models import AnonymousUser, User
@@ -96,5 +97,14 @@ class SystemRunTests(TestCase):
         self.assertEqual(self.state(), 'draft')
 
     def test_the_flag_is_keyword_only(self):
+        # A True in any positional slot can never turn on the system run.
+        parameter = inspect.signature(self.flow.run).parameters['system']
+        self.assertIs(parameter.kind, inspect.Parameter.KEYWORD_ONLY)
+        self.assertIs(parameter.default, False)
+        positional = [name for name, found in
+                      inspect.signature(self.flow.run).parameters.items()
+                      if found.kind is inspect.Parameter.POSITIONAL_OR_KEYWORD]
         with self.assertRaises(TypeError):
-            self.flow.run(self.obj, 'prepare', None, None, None, '', None, True)
+            self.flow.run(self.obj, 'prepare',
+                          *[None] * (len(positional) - 2), True)
+        self.assertEqual(self.state(), 'draft')

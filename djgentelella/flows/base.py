@@ -181,6 +181,10 @@ class Transition:
         return '<Transition %s: %s -> %s>' % (self.name, self.source, self.target)
 
 
+#: ``instance`` not given: the method reads it (:meth:`Flow._bound`).
+_NOT_READ = object()
+
+
 class Button:
     """A transition as the pages show it: runnable, or disabled with why."""
 
@@ -906,11 +910,18 @@ class Flow:
         return [transition for transition in flow.transitions
                 if flow._check(transition, obj, user, states, instance)[0]]
 
-    def transition_buttons(self, obj, user):
+    def transition_buttons(self, obj, user, *, instance=_NOT_READ):
         """The transitions to show ``user``: the ones they can run, and the
         ones they hold the permission for but whose condition fails now --
-        disabled, with the reason."""
-        flow, instance = self._bound(obj)
+        disabled, with the reason.
+
+        ``instance`` is the object's instance (or ``None``) when the caller
+        already bound it with :meth:`_bound` on this flow: it is not read
+        again."""
+        if instance is _NOT_READ:
+            flow, instance = self._bound(obj)
+        else:
+            flow = self
         states = flow.active_states(instance)
         buttons = []
         for transition in flow.transitions:
@@ -1426,20 +1437,28 @@ class Flow:
         return {'active': active, 'error': error, 'completed': completed,
                 'taken': taken, 'path': path}
 
-    def instance_diagram(self, obj=None, user=None):
+    def instance_diagram(self, obj=None, user=None, *, instance=_NOT_READ,
+                         available=None):
         """The SVG of the flow for ``obj``: its current activities, the
         activities done and the transitions taken (from its log), and the
         transitions ``user`` may run now (:meth:`available_transitions`,
         so its permissions and conditions). Without ``obj``, the bare flow.
+
+        A page that already has them passes ``instance`` (bound on this flow
+        with :meth:`_bound`) and ``available`` (the transitions ``user`` may
+        run), so they are not read nor checked again.
         """
         if obj is None:
             return render_svg(self.as_graph(), title=str(self))
-        flow, instance = self._bound(obj)
-        available = []
-        if user is not None and getattr(user, 'is_authenticated', False):
-            available = [transition for transition
-                         in flow.available_transitions(obj, user)
-                         if not transition.auto]
+        if instance is _NOT_READ:
+            flow, instance = self._bound(obj)
+        else:
+            flow = self
+        if user is None or not getattr(user, 'is_authenticated', False):
+            available = []
+        elif available is None:
+            available = flow.available_transitions(obj, user)
+        available = [transition for transition in available if not transition.auto]
         return render_svg(
             flow.as_graph(), runtime=flow.runtime(instance),
             available=[transition.name for transition in available],

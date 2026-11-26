@@ -305,6 +305,20 @@ def add_version_to_rows(serializer, name=VERSION_FIELD):
     return serializer
 
 
+def _copy_fields(source, target):
+    """The values of the concrete fields of ``source`` onto ``target``."""
+    for model_field in type(target)._meta.concrete_fields:
+        setattr(target, model_field.attname,
+                getattr(source, model_field.attname))
+
+
+def _has_expressions(obj):
+    """Whether a concrete field of ``obj`` holds a query expression."""
+    return any(hasattr(getattr(obj, model_field.attname, None),
+                       'resolve_expression')
+               for model_field in type(obj)._meta.concrete_fields)
+
+
 class OptimisticLockMixin:
     """For a DRF ``ModelViewSet`` (put it before the viewset class).
 
@@ -341,6 +355,10 @@ class OptimisticLockMixin:
         return serializer
 
     def get_object(self):
+        updating = getattr(self, '_gt_update_object', None)
+        if updating is not None:
+            # Inside update(): the object already checked and locked.
+            return updating
         obj = super().get_object()
         self._gt_lock_object = obj
         return obj
@@ -380,9 +398,21 @@ class OptimisticLockMixin:
                     if version is not None:
                         response['ETag'] = etag(version)
                     return response
-            response = super().update(request, *args, **kwargs)
+            # The update saves over the row just locked (PATCH keeps what
+            # others changed) and reuses the object permissions were checked
+            # on, instead of reading it twice more.
+            _copy_fields(current, instance)
+            self._gt_update_object = instance
+            try:
+                response = super().update(request, *args, **kwargs)
+            finally:
+                self._gt_update_object = None
             if status.is_success(response.status_code):
-                saved = locked_object(instance)
+                saved = instance
+                if _has_expressions(saved):
+                    # A version written as F('version') + 1: only the
+                    # database knows its value.
+                    saved = locked_object(instance)
                 if saved is not None:
                     response['ETag'] = etag(object_version(saved))
         return response

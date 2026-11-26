@@ -1,5 +1,6 @@
 import datetime
 from types import SimpleNamespace
+from unittest import mock
 
 from django import forms
 from django.contrib.auth import get_user_model
@@ -214,6 +215,28 @@ class FlowViewTests(TestCase):
         self.assertContains(response, 'Draft')
         self.assertContains(response, self.url('flow_transition', 'submit',
                                                self.country.pk))
+
+    def test_detail_checks_each_transition_once(self):
+        # The buttons and the diagram share one evaluation of the
+        # transitions, and one read of the instance.
+        flow_class = type(self.flow)
+        real_check, real_bound = flow_class._check, flow_class._bound
+        calls = {'check': 0, 'bound': 0}
+
+        def check(flow, *args, **kwargs):
+            calls['check'] += 1
+            return real_check(flow, *args, **kwargs)
+
+        def bound(flow, *args, **kwargs):
+            calls['bound'] += 1
+            return real_bound(flow, *args, **kwargs)
+
+        with mock.patch.object(flow_class, '_check', check), \
+                mock.patch.object(flow_class, '_bound', bound):
+            response = self.client.get(self.url('flow_detail', self.country.pk))
+        self.assertContains(response, 'data-transition="submit"')
+        self.assertEqual(calls['check'], len(self.flow.transitions))
+        self.assertEqual(calls['bound'], 1)
 
     def test_transition_form_and_run(self):
         url = self.url('flow_transition', 'submit', self.country.pk)

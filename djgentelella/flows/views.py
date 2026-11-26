@@ -86,7 +86,7 @@ def flow_detail(request, flow, pk):
     obj = object_or_404(flow, request, pk)
     flow, instance = flow._bound(obj)
     state = instance.state if instance else flow.initial
-    buttons = flow.transition_buttons(obj, request.user)
+    buttons = flow.transition_buttons(obj, request.user, instance=instance)
     return render(request, 'gentelella/flows/detail.html', {
         'flow': flow, 'object': obj, 'state': state, 'instance': instance,
         'state_label': flow.state_label(state),
@@ -100,7 +100,10 @@ def flow_detail(request, flow, pk):
         'control': control_actions(flow, instance, request.user),
         'assignment': flow.assignment_actions(obj, request.user),
         'history': flow.history(obj),
-        'diagram': flow.instance_diagram(obj, request.user),
+        'diagram': flow.instance_diagram(
+            obj, request.user, instance=instance,
+            available=[button.transition for button in buttons
+                       if not button.disabled]),
     })
 
 
