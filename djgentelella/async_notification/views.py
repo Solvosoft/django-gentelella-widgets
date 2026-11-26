@@ -21,7 +21,6 @@ from django.http import FileResponse, Http404, JsonResponse, HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.utils.crypto import constant_time_compare
-from django.utils.http import content_disposition_header
 from django.utils.translation import gettext as _, ngettext
 from django.views.decorators.csrf import csrf_exempt
 from django_filters.rest_framework import DjangoFilterBackend
@@ -210,15 +209,26 @@ def can_attach_files(user, obj):
                 and getattr(obj, owner_field + '_id', None) == user.pk)
 
 
+#: The models whose inline images every user of the module sees: a
+#: notification or newsletter rendered from a template shows its images.
+SHARED_IMAGE_MODELS = frozenset(('emailtemplate', 'newslettertemplate'))
+
+
 def can_read_attachment(user, attached):
     """Whether ``user`` may download ``attached``.
 
-    Inline images and uploads not yet linked to an object are part of the
-    bodies every author and viewer of the module sees. A file attached to an
-    object -- the attachment of a notification -- needs ``view`` or
-    ``change`` on that object.
+    An upload not linked yet (``object_id=0``) is its uploader's; one without
+    an uploader (created by code) needs ``change`` on its model. The inline
+    images of a template are part of the bodies every author and viewer of
+    the module sees. Any other file -- the attachment of a notification, an
+    image of its body -- needs ``view`` or ``change`` on its object.
     """
-    if attached.is_inline or not attached.object_id:
+    if not attached.object_id:
+        if attached.uploaded_by_id is not None:
+            return attached.uploaded_by_id == user.pk
+        model = attached.content_type.model_class()
+        return model is not None and user.has_perm(_model_perm(model, 'change'))
+    if attached.is_inline and attached.content_type.model in SHARED_IMAGE_MODELS:
         return True
     model = attached.content_type.model_class()
     if model is None:
@@ -789,13 +799,14 @@ def preview_file_view(request, pk):
     attached = get_object_or_404(AttachedFile, pk=pk)
     if not can_read_attachment(request.user, attached):
         raise Http404()
-    response = HttpResponse(
-        attached.file.read(), content_type='application/octet-stream'
-    )
-    # The name escaped by Django (RFC 6266/5987), never pasted into quotes.
-    response['Content-Disposition'] = content_disposition_header(
-        False, os.path.basename(attached.file.name))
-    return response
+    try:
+        handle = attached.file.open('rb')
+    except (OSError, ValueError):
+        raise Http404()
+    # Streamed and closed with the response; FileResponse escapes the name
+    # (RFC 6266/5987, content_disposition_header), never pasted into quotes.
+    return FileResponse(handle, content_type='application/octet-stream',
+                        filename=os.path.basename(attached.file.name))
 
 
 @require_any_perm(*VIEW_OR_AUTHORING_PERMS)

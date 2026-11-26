@@ -158,16 +158,19 @@ class VideoTests(FilesTestCase):
 
 @override_settings(LANGUAGE_CODE='en')
 class ContentDispositionTests(FilesTestCase):
+    def setUp(self):
+        self.author = perm_user('author', *AUTHOR_PERMS)
+
     def stored(self, name):
         # Saved by the storage itself: upload_to would have cleaned the name.
         path = default_storage.save('async_notification/w20/' + name,
                                     ContentFile(b'\x89PNG x'))
         return AttachedFile.objects.create(
             content_type=ContentType.objects.get_for_model(EmailNotification),
-            object_id=0, is_inline=True, file=path)
+            object_id=0, is_inline=True, file=path, uploaded_by=self.author)
 
     def get(self, attached):
-        self.client.force_login(perm_user('author', *AUTHOR_PERMS))
+        self.client.force_login(self.author)
         return self.client.get(
             reverse('async_notification:preview_file', args=[attached.pk]))
 

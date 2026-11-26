@@ -11,6 +11,7 @@ previewing recipients read the email of any row of any model.
 from django.contrib.auth.models import Permission, User
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.http import FileResponse
 from django.test import RequestFactory, TestCase, override_settings
 from django.urls import reverse
 
@@ -187,15 +188,61 @@ class PreviewFileTests(FilesTestCase):
         self.client.force_login(perm_user('viewer', 'view_emailnotification'))
         response = self.get(self.attachment)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content, b'%PDF private')
+        self.assertEqual(b''.join(response.streaming_content), b'%PDF private')
         self.client.force_login(perm_user('editor', 'change_emailnotification'))
         self.assertEqual(self.get(self.attachment).status_code, 200)
 
-    def test_inline_images_and_pending_uploads_as_before(self):
+    def test_template_images_are_seen_by_every_viewer(self):
         # A notification rendered from a template shows the template's images.
         self.client.force_login(perm_user('viewer', 'view_emailnotification'))
         self.assertEqual(self.get(self.inline).status_code, 200)
+
+    def test_a_pending_upload_is_only_its_uploaders(self):
+        # The reproduction: user B, an author too, read the image A had just
+        # uploaded (and not saved yet) by its sequential pk.
+        author_a = perm_user('author_a', 'add_emailnotification')
+        author_b = perm_user('author_b', 'add_emailnotification')
+        self.client.force_login(author_a)
+        mine = self.upload()
+        video = AttachedFile.objects.create(
+            content_type=mine.content_type, object_id=0, uploaded_by=author_a,
+            file=SimpleUploadedFile('clip.mp4', b'video'))
+        self.assertEqual(self.get(mine).status_code, 200)
+        self.assertEqual(self.get(video).status_code, 200)
+        self.client.force_login(author_b)
+        self.assertEqual(self.get(mine).status_code, 404)
+        self.assertEqual(self.get(video).status_code, 404)
+        self.assertEqual(self.client.get(reverse(
+            'async_notification:preview_video', args=[video.pk])).status_code, 404)
+
+    def test_a_pending_upload_without_uploader(self):
+        # Created by code: only who may change its model reads it.
+        self.client.force_login(perm_user('viewer', 'view_emailnotification'))
+        self.assertEqual(self.get(self.pending).status_code, 404)
+        self.client.force_login(perm_user('editor', 'change_emailnotification'))
         self.assertEqual(self.get(self.pending).status_code, 200)
+
+    def test_an_inline_image_of_a_notification_needs_the_notification(self):
+        ct = ContentType.objects.get_for_model(EmailNotification)
+        image = AttachedFile.objects.create(
+            content_type=ct, object_id=self.notification.pk, is_inline=True,
+            file=SimpleUploadedFile('body.png', b'\x89PNG body'))
+        self.client.force_login(perm_user('reader', 'view_newsletter'))
+        self.assertEqual(self.get(image).status_code, 404)
+        self.client.force_login(perm_user('viewer', 'view_emailnotification'))
+        self.assertEqual(self.get(image).status_code, 200)
+
+    def test_the_file_is_streamed_and_closed(self):
+        self.client.force_login(perm_user('viewer', 'view_emailnotification'))
+        response = self.get(self.attachment)
+        # A FileResponse: read in blocks and its file closed by
+        # response.close(); HttpResponse(file.read()) read it whole, left open.
+        self.assertIsInstance(response, FileResponse)
+        self.assertTrue(response.streaming)
+        self.assertEqual(b''.join(response.streaming_content), b'%PDF private')
+        self.assertEqual(response['Content-Type'], 'application/octet-stream')
+        self.assertIn('invoice', response['Content-Disposition'])
+        self.assertTrue(response['Content-Disposition'].startswith('inline'))
 
     def test_an_attachment_of_a_deleted_object(self):
         self.client.force_login(perm_user('viewer', 'view_emailnotification'))
