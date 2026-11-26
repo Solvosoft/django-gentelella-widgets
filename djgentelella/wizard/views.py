@@ -77,6 +77,7 @@ from djgentelella.authorization import evaluate_condition
 from djgentelella.chunked_upload.utils import find_upload
 from djgentelella.locking import conflict_message, locked_object, object_version
 from djgentelella.models import ChunkedUpload
+from djgentelella.sites import get_current_site
 from djgentelella.widgets.core import upload_token
 from djgentelella.widgets.files import FileChunkedUpload
 from djgentelella.wizard import conf
@@ -233,6 +234,22 @@ class GTWizardView(TemplateResponseMixin, ContextMixin, View):
 
     # -- configuration --------------------------------------------------------
 
+    def setup(self, request, *args, **kwargs):
+        super().setup(request, *args, **kwargs)
+        # get_object() is asked by the key, the forms, the conditions, the
+        # pipelines and the lock several times per request: one call, whatever
+        # a subclass does in it.
+        uncached = self.get_object
+        found = []
+
+        def get_object():
+            if not found:
+                found.append(uncached())
+            return found[0]
+
+        get_object.__doc__ = uncached.__doc__
+        self.get_object = get_object
+
     def get_steps(self):
         steps = list(self.steps)
         names = [step.name for step in steps]
@@ -322,7 +339,8 @@ class GTWizardView(TemplateResponseMixin, ContextMixin, View):
         if step.name not in self._step_pipelines:
             self._step_pipelines[step.name] = pipelines().build_pipeline(
                 step.pipeline, model=self.model,
-                form_fields=self.step_field_names(step), intermediate=True)
+                form_fields=self.step_field_names(step), intermediate=True,
+                site=get_current_site(self.request))
         return self._step_pipelines[step.name]
 
     def get_pipeline(self):
@@ -334,7 +352,8 @@ class GTWizardView(TemplateResponseMixin, ContextMixin, View):
             names = [name for step in self.get_steps()
                      for name in self.step_field_names(step)]
             self._pipeline = pipelines().build_pipeline(
-                self.pipeline, model=self.model, form_fields=names)
+                self.pipeline, model=self.model, form_fields=names,
+                site=get_current_site(self.request))
         return self._pipeline
 
     def computed(self):
@@ -482,6 +501,14 @@ class GTWizardView(TemplateResponseMixin, ContextMixin, View):
         self._active = None
         self._cleaned = {}
 
+    def forget_step(self, step):
+        """Like :meth:`forget_steps`, after only the data of ``step``
+        changed: the cleaned data of the other steps is kept."""
+        self._active = None
+        if not hasattr(self, '_cleaned'):
+            self._cleaned = {}
+        self._cleaned.pop(step.name, None)
+
     def get_step(self, name):
         return next((step for step in self.get_steps() if step.name == name), None)
 
@@ -498,7 +525,19 @@ class GTWizardView(TemplateResponseMixin, ContextMixin, View):
         return active[-1]
 
     def step_index(self, step):
-        return [item.name for item in self.active_steps()].index(step.name)
+        """The position of ``step`` among :meth:`active_steps`; for a step
+        that no longer applies (its own data made its condition false), that
+        of the last active step declared before it, or ``-1``."""
+        names = [item.name for item in self.active_steps()]
+        if step.name in names:
+            return names.index(step.name)
+        index = -1
+        for item in self.get_steps():
+            if item.name == step.name:
+                break
+            if item.name in names:
+                index = names.index(item.name)
+        return index
 
     # -- forms ------------------------------------------------------------------
 
@@ -618,7 +657,7 @@ class GTWizardView(TemplateResponseMixin, ContextMixin, View):
             state['files'].pop(step.name, None)
         state['errors'] = None
         state.pop('pipeline_errors', None)
-        self.forget_steps()
+        self.forget_step(step)
 
     def check_uploads(self):
         """Forget the uploads of the state that no longer exist (expired and
@@ -764,7 +803,11 @@ class GTWizardView(TemplateResponseMixin, ContextMixin, View):
 
     def validate_step(self, step):
         """The bound form of ``step``, validated, with :meth:`on_step` run
-        when it is valid; a valid step is marked as done."""
+        when it is valid; a valid step is marked as done.
+
+        Its cleaned data is kept for the conditions (:meth:`cleaned_data_for`)
+        and the steps that apply are computed again when next asked; the
+        cleaned data of the other steps did not change."""
         state = self.load_state()
         form = self.bound_form(step)
         if form.is_valid():
@@ -776,7 +819,8 @@ class GTWizardView(TemplateResponseMixin, ContextMixin, View):
                 state['valid'].append(step.name)
         elif step.name in state['valid']:
             state['valid'].remove(step.name)
-        self.forget_steps()
+        self.forget_step(step)
+        self._cleaned[step.name] = form.cleaned_data if form.is_valid() else {}
         return form
 
     def step_invalid(self, step, form):
@@ -797,6 +841,9 @@ class GTWizardView(TemplateResponseMixin, ContextMixin, View):
     def previous(self, step):
         state = self.load_state()
         index = self.step_index(step)
+        if step not in self.active_steps():
+            # It stopped applying: the step before it is the last one before.
+            index += 1
         state['current'] = self.active_steps()[max(index - 1, 0)].name
         self.save_state()
         return self.redirect()
@@ -807,7 +854,10 @@ class GTWizardView(TemplateResponseMixin, ContextMixin, View):
         state = self.load_state()
         if target is not None:
             names = [item.name for item in self.active_steps()]
-            index, wanted = names.index(step.name), names.index(target.name)
+            if target.name not in names:
+                self.save_state()
+                return self.redirect()
+            index, wanted = self.step_index(step), names.index(target.name)
             if wanted <= index or all(name in state['valid']
                                       for name in names[:wanted]):
                 state['current'] = target.name

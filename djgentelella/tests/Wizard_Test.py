@@ -36,7 +36,8 @@ from djgentelella.wizard import GTWizardView, Step
 from djgentelella.wizard.storage import SESSION_KEY
 
 __all__ = ['WizNavigationTests', 'WizDraftTests', 'WizUploadTests',
-           'WizComponentResolveTests', 'WizComponentTests', 'WizHelpersTests']
+           'WizComponentResolveTests', 'WizComponentTests', 'WizHelpersTests',
+           'WizCostTests']
 
 FAST_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
 
@@ -102,6 +103,54 @@ class PermWizard(SessionWizard):
              Step('job', JobForm)]
 
 
+class CountingEditWizard(EditWizard):
+    """:class:`EditWizard` counting the calls of ``get_object``."""
+
+    wizard_key = 'tests.counting'
+    calls = 0
+
+    def get_object(self):
+        type(self).calls += 1
+        return super().get_object()
+
+
+class CountingPersonalForm(PersonalForm):
+    """Counts how many times it is validated."""
+
+    cleans = 0
+
+    def full_clean(self):
+        type(self).cleans += 1
+        super().full_clean()
+
+
+class CleanCountWizard(SessionWizard):
+    wizard_key = 'tests.cleancount'
+    steps = [Step('personal', CountingPersonalForm, 'Personal data'),
+             Step('vehicle', VehicleForm, 'Vehicle', condition=has_car),
+             Step('job', JobForm, 'Job')]
+
+
+def plate_is_not_gone(wizard):
+    return wizard.cleaned_value('vehicle', 'car_plate') != 'GONE'
+
+
+class SelfSkippingWizard(SessionWizard):
+    """A step whose own data makes it stop applying (an odd condition)."""
+
+    wizard_key = 'tests.selfskipping'
+    steps = [Step('personal', PersonalForm, 'Personal data'),
+             Step('vehicle', VehicleForm, 'Vehicle', condition=plate_is_not_gone),
+             Step('job', JobForm, 'Job')]
+
+
+class SitePipelineWizard(SessionWizard):
+    """Finishes on a design page published only in one Site."""
+
+    wizard_key = 'tests.sitepipeline'
+    pipeline = {'steps': [], 'branches': [{'to': 'page:only-in-a'}]}
+
+
 def done_view(request):
     return HttpResponse('done')
 
@@ -112,6 +161,10 @@ urlpatterns = [
     path('wizard-hooked/', HookedWizard.as_view(), name='wiz_hooked'),
     path('wizard-edit/<int:pk>/', EditWizard.as_view(), name='wiz_edit'),
     path('wizard-perm/', PermWizard.as_view(), name='wiz_perm'),
+    path('wizard-counting/<int:pk>/', CountingEditWizard.as_view()),
+    path('wizard-cleancount/', CleanCountWizard.as_view()),
+    path('wizard-selfskipping/', SelfSkippingWizard.as_view()),
+    path('wizard-sitepipeline/', SitePipelineWizard.as_view()),
     path('wizard-done/', done_view),
     path('', include('demo.urls')),
 ]
@@ -729,6 +782,11 @@ class WizComponentTests(DesignState, TestCase):
     def test_a_hidden_node_serves_nothing(self):
         page = self.publish(wizard(condition={'perm': 'demoapp.delete_newhire'}))
         self.assertEqual(self.post(self.endpoint(page), personal()).status_code, 404)
+        self.assertEqual(self.post(self.endpoint(page), JOB, 'finish').status_code,
+                         404)
+        self.assertFalse(NewHire.objects.exists())
+        self.assertFalse(any('gtdesign:' in key for key in
+                             self.client.session.get(SESSION_KEY) or {}))
 
     def test_csrf_is_checked(self):
         page = self.publish(wizard())
@@ -736,6 +794,16 @@ class WizComponentTests(DesignState, TestCase):
         client.force_login(self.user)
         response = client.post(self.endpoint(page), personal(), HTTP_HOST='a.example')
         self.assertEqual(response.status_code, 403)
+        self.assertIn(b'CSRF', response.content)
+        # The same post with the token of the page goes on.
+        client.get(self.page_url(page), HTTP_HOST='a.example')
+        token = client.cookies['csrftoken'].value
+        response = client.post(self.endpoint(page), personal(), HTTP_HOST='a.example',
+                               HTTP_X_CSRFTOKEN=token)
+        self.assertRedirects(response, self.page_url(page),
+                             fetch_redirect_response=False)
+        self.assertContains(client.get(self.page_url(page), HTTP_HOST='a.example'),
+                            'Step 2 of 2')
 
     def test_edit_with_site_and_lock(self):
         page = self.publish(wizard(mode='edit', site_field='site',
@@ -789,3 +857,87 @@ class WizHelpersTests(TestCase):
         for bad in ('', 'a:b', 'a|b'):
             with self.assertRaises(ImproperlyConfigured):
                 Step(bad, forms.Form)
+
+
+@override_settings(ROOT_URLCONF=__name__, LANGUAGE_CODE='en', ALLOWED_HOSTS=['*'],
+                   PASSWORD_HASHERS=FAST_HASHERS)
+class WizCostTests(DesignState, WizBase):
+    """What one request of a wizard costs, and the steps that stop applying
+    while the user moves."""
+
+    def hire(self):
+        return NewHire.objects.create(name='Old', email='old@example.com',
+                                      start_date=date(2026, 1, 1))
+
+    def test_get_object_runs_once_per_request(self):
+        url = '/wizard-counting/%d/' % self.hire().pk
+        for data, action in ((None, None), (personal(), 'next'),
+                             (JOB, 'finish')):
+            CountingEditWizard.calls = 0
+            if data is None:
+                self.client.get(url)
+            else:
+                self.post(url, data, action)
+            self.assertEqual(CountingEditWizard.calls, 1, action)
+        self.assertEqual(NewHire.objects.get().name, 'Ana')
+
+    def test_a_step_costs_a_fixed_number_of_queries(self):
+        url = '/wizard-edit/%d/' % self.hire().pk
+        self.client.get(url)
+        # The object once (it was 4 times), the Site, the session and the
+        # user, the session saved in its savepoint.
+        with self.assertNumQueries(7):
+            response = self.post(url, personal())
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(state_of(self.client, 'tests.edit')['current'], 'job')
+
+    def test_finish_validates_each_step_once(self):
+        url = '/wizard-cleancount/'
+        self.post(url, personal(has_car='on'))
+        self.post(url, {'wizard_step': 'vehicle', 'vehicle-car_plate': 'abc1'})
+        CountingPersonalForm.cleans = 0
+        response = self.post(url, JOB, 'finish')
+        self.assertRedirects(response, '/wizard-done/',
+                             fetch_redirect_response=False)
+        # Once for the condition of the vehicle step, once more by Finish
+        # (it validates every step again): it was 4.
+        self.assertEqual(CountingPersonalForm.cleans, 2)
+        self.assertEqual(NewHire.objects.get().car_plate, 'ABC1')
+
+    def test_previous_from_a_step_that_stops_applying(self):
+        url = '/wizard-selfskipping/'
+        self.post(url, personal())
+        self.assertEqual(state_of(self.client, 'tests.selfskipping')['current'],
+                         'vehicle')
+        response = self.post(url, {'wizard_step': 'vehicle',
+                                   'vehicle-car_plate': 'gone'}, 'previous')
+        self.assertRedirects(response, url, fetch_redirect_response=False)
+        self.assertEqual(state_of(self.client, 'tests.selfskipping')['current'],
+                         'personal')
+
+    def test_goto_from_a_step_that_stops_applying(self):
+        url = '/wizard-selfskipping/'
+        self.post(url, personal())
+        response = self.post(url, {'wizard_step': 'vehicle',
+                                   'vehicle-car_plate': 'gone'}, 'goto:personal')
+        self.assertRedirects(response, url, fetch_redirect_response=False)
+        self.assertEqual(state_of(self.client, 'tests.selfskipping')['current'],
+                         'personal')
+        # Forward past it: job is reachable, personal being done.
+        response = self.post(url, personal(), 'goto:job')
+        self.assertEqual(state_of(self.client, 'tests.selfskipping')['current'],
+                         'job')
+
+    def test_the_pipeline_branches_to_a_page_of_the_request_site(self):
+        site_a = Site.objects.create(domain='a.example', name='A')
+        Site.objects.create(domain='b.example', name='B')
+        page, errors = publishing.publish(
+            design(node('html', 'x', {'html': '<p>A</p>'})), site=site_a,
+            path='only-in-a')
+        self.assertEqual(errors, [])
+        url = '/wizard-sitepipeline/'
+        self.post(url, personal(), HTTP_HOST='a.example')
+        response = self.post(url, JOB, 'finish', HTTP_HOST='a.example')
+        self.assertRedirects(response, reverse('gt-design-page', args=['only-in-a']),
+                             fetch_redirect_response=False)
+        self.assertEqual(NewHire.objects.count(), 1)
