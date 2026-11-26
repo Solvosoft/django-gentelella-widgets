@@ -61,7 +61,7 @@ from django.db import models
 from django.db.models import Case, FloatField, Q, Value, When
 from django.db.models.functions import Cast, Left, StrIndex, Substr, Trim
 from django.http import Http404
-from django.template.loader import render_to_string
+from django.template.loader import get_template, render_to_string
 from django.templatetags.static import static
 from django.urls import NoReverseMatch, reverse
 from django.utils import formats, timezone
@@ -87,12 +87,12 @@ from djgentelella.designs.components import (
     Endpoint, RuntimeComponent, default_context_class,
 )
 from djgentelella.designs.conditions import (
-    check_conditions, conditions_schema, hidden_columns,
+    check_conditions, conditions_schema, hidden_columns, without_hidden,
 )
 from djgentelella.designs.data_components import (
-    PERMISSION_LIST, allowed_fields, can, data_build, endpoint_url, find_node,
+    PERMISSION_LIST, allowed_fields, data_build, endpoint_url, find_node,
     json_config, kind_of, no_permission, plural, resolve_row_links,
-    row_link_config, source_columns,
+    resolve_site_field, row_link_config, source_columns,
 )
 from djgentelella.fields.maps import GTPointField, parse_point
 from djgentelella.permission_management import all_permission
@@ -100,13 +100,13 @@ from djgentelella.serializers.paginators import PageListPagination
 from djgentelella.views.listAreaViewset import ListAreaViewset
 from djgentelella.views.maps import BaseMapView
 
-__all__ = ['CALENDAR_VIEWS', 'CalendarBuild', 'CalendarComponent',
-           'CalendarViewSet', 'CardsBuild', 'CardsComponent', 'CardsViewSet',
-           'MapBuild', 'MapComponent', 'MapViewSet', 'REGION_COMPONENTS',
-           'RegionBuild', 'RegionComponent', 'RegionMixin', 'check_access',
-           'events_in_range', 'facets_state', 'map_points', 'read_rows',
-           'region_page_context',
-           'region_queryset', 'region_source', 'request_params']
+__all__ = ['CALENDAR_VIEWS', 'COLOR_PROPS', 'COLUMN_WIDTHS', 'CalendarBuild',
+           'CalendarComponent', 'CalendarViewSet', 'CardsBuild', 'CardsComponent',
+           'CardsViewSet', 'MapBuild', 'MapComponent', 'MapViewSet',
+           'REGION_COMPONENTS', 'RegionBuild', 'RegionComponent', 'RegionMixin',
+           'check_access', 'column_width', 'events_in_range', 'facets_state',
+           'map_points', 'read_rows', 'region_page_context', 'region_queryset',
+           'region_source', 'request_params', 'resolve_colors', 'row_color']
 
 SCRIPT = 'gentelella/js/designs/regions.js'
 FULLCALENDAR = 'vendors/fullcalendar/index.global.min.js'
@@ -124,6 +124,22 @@ CALENDAR_VIEWS = ('dayGridMonth', 'timeGridWeek', 'timeGridDay', 'listMonth')
 COLOR = re.compile(r'^(#[0-9a-fA-F]{3,4}|#[0-9a-fA-F]{6}|#[0-9a-fA-F]{8}'
                    r'|[a-zA-Z]{3,20})$')
 COLOR_SCHEMA = {'type': 'string', 'pattern': COLOR.pattern}
+#: The props of a component coloured by a column or by rules (calendar,
+#: timeline).
+COLOR_PROPS = {
+    'colors': {'type': 'object', 'additionalProperties': COLOR_SCHEMA,
+               'x-widget': 'value-colors',
+               'title': 'Colour by value of the colour field'},
+    'color_rules': {
+        'type': 'array', 'x-widget': 'color-rules',
+        'title': 'Colour rules: the first whose filter matches',
+        'items': {'type': 'object', 'required': ['filter', 'color'],
+                  'additionalProperties': False,
+                  'properties': {'filter': {'type': 'object', 'x-widget': 'filter'},
+                                 'color': COLOR_SCHEMA}}},
+}
+#: Bootstrap columns of a card by cards per row on a wide screen.
+COLUMN_WIDTHS = {1: 12, 2: 6, 3: 4, 4: 3, 6: 2}
 #: The widest range the calendar endpoint answers, in days: a month view asks
 #: for six weeks, a list of a year for a bit more than 366 days.
 MAX_RANGE_DAYS = 400
@@ -266,7 +282,8 @@ def check_access(build, request):
 def request_params(build, request, hidden=()):
     """The query parameter document of the request (``?params=``), without
     the parts a region does not use; 400 on a filter or an ordering over a
-    hidden column."""
+    hidden column. The default ordering (the build's) leaves out those over
+    a hidden column: the order would tell their values apart."""
     try:
         params = query.parse_params(request.query_params.get('params'))
     except DjangoValidationError as error:
@@ -279,14 +296,21 @@ def request_params(build, request, hidden=()):
     if any(str(name).split('__')[0] in hidden for name in names if name):
         raise ValidationError({'detail': _('unknown column')})
     return {'search': params['search'], 'filters': params['filters'],
-            'ordering': params['ordering'] or list(build.ordering)}
+            'ordering': params['ordering']
+            or without_hidden(list(build.ordering), hidden)}
 
 
-def region_queryset(build, source, request, params):
-    """``apply_params`` of the source -- its ``get_queryset(request)``, the
-    filters, the search and the ordering -- or 400."""
+def region_queryset(build, source, request, params, hidden=(), colmap=None):
+    """The rows of the source -- its ``get_queryset(request)`` -- with the
+    filters, the search and the ordering of ``params``, or 400. The search
+    does not look in the ``hidden`` columns (``colmap``, the columns of the
+    source when already read)."""
+    colmap = source.column_map(request) if colmap is None else colmap
+    searched = {name: column for name, column in colmap.items()
+                if name not in hidden}
     try:
-        return query.apply_params(source, request, params)
+        return query.apply_params_over(source, request, params, colmap,
+                                       searched=searched)
     except DjangoValidationError as error:
         raise api_error(error)
 
@@ -301,7 +325,9 @@ def file_url(model_field, name):
 def safe_url(value):
     """``value`` if it is a link within the site or to http(s), else ''."""
     value = str(value or '')
-    return value if re.match(r'^(https?://|/(?!/))', value, re.IGNORECASE) else ''
+    # Not "//host" nor "/\\host", which browsers read as another host.
+    return value if re.match(r'^(https?://|/(?![/\\]))', value, re.IGNORECASE) \
+        else ''
 
 
 def display(build, name, value):
@@ -330,10 +356,11 @@ def display(build, name, value):
     return str(value)
 
 
-def read_rows(build, source, request, queryset):
+def read_rows(build, source, request, queryset, colmap=None):
     """The rows of ``queryset`` as dicts by column (``pk`` too), in the
-    queryset's order: raw values, the relations as ``{id, display_name}``."""
-    colmap = source.column_map(request)
+    queryset's order: raw values, the relations as ``{id, display_name}``.
+    ``colmap``: the columns of the source, when already read."""
+    colmap = source.column_map(request) if colmap is None else colmap
     columns = [colmap[name] for name in build.read_columns() if name in colmap]
     return query.serialize_rows(source, request, queryset, columns)
 
@@ -561,17 +588,7 @@ class RegionComponent(RuntimeComponent):
         by_name = allowed_fields(found)
         names = [name for name, model_field in by_name.items()
                  if kind_of(model_field) not in ('binary',)]
-        site_field = props.get('site_field') or ''
-        if site_field:
-            model_field = next((item for item in model._meta.get_fields()
-                                if item.name == site_field), None)
-            related = getattr(model_field, 'related_model', None)
-            if model_field is None or not model_field.many_to_one or \
-                    related is None or related._meta.label_lower != 'sites.site':
-                rctx.error(path + '.props.site_field',
-                           _('%(field)r is not a foreign key of %(model)s to '
-                             'sites.Site') % {'field': site_field,
-                                              'model': model._meta.label})
+        site_field = resolve_site_field(rctx, path, model, props)
         perms = props.get('perms') or found.permissions('view')
         rctx.check_permissions(path + '.props.perms', perms)
         build.model = model
@@ -657,13 +674,13 @@ class RegionComponent(RuntimeComponent):
         ``rctx``, its endpoint at ``url``: ``{'b', 'preview', 'template',
         'config'}``; ``None`` when the request may not see it (the rule of
         :func:`check_access`) or there is no ``url``."""
-        if build.model is None and not build.datasource:
+        if build.model is None and not build.datasource or rctx.request is None:
             return None
-        if build.perms and not can(rctx, build.perms):
-            return None
-        source = region_source(build)
-        if source is None or rctx.request is None or \
-                not source.has_permission(rctx.request):
+        try:
+            # The rule of the endpoint's 403 (and 404): the page shows what
+            # the endpoint serves.
+            check_access(build, rctx.request)
+        except (PermissionDenied, Http404):
             return None
         if not url:
             return None
@@ -781,11 +798,14 @@ class RegionMixin:
         if self.build.preview:
             raise Http404()
         self.source = check_access(self.build, request)
+        #: The columns of the source, read once for the request.
+        self.colmap = self.source.column_map(request)
         self.hidden = hidden_columns(self.build, request)
         self.params = request_params(self.build, request, self.hidden)
 
     def rows_queryset(self):
-        return region_queryset(self.build, self.source, self.request, self.params)
+        return region_queryset(self.build, self.source, self.request, self.params,
+                               self.hidden, self.colmap)
 
 
 class CardsPagination(PageListPagination):
@@ -821,10 +841,13 @@ class CardsViewSet(RegionMixin, ListAreaViewset):
         self.paginator.page_size = build.page_size
         queryset = self.rows_queryset()
         # A page of pks first (with the count), then the rows of that page:
-        # the same queries for 1 card or 100.
+        # the same queries for 1 card or 100. Those rows are read by pk from
+        # the source, without the filters and the search again.
         pks = self.paginate_queryset(queryset.values_list('pk', flat=True))
+        page = query.source_queryset(self.source, request, self.params).filter(
+            pk__in=list(pks))
         rows = {row['pk']: row for row in read_rows(
-            build, self.source, request, queryset.filter(pk__in=list(pks)))}
+            build, self.source, request, page, self.colmap)}
         links = link_urls(build, request)
         cards = []
         for pk in pks:
@@ -847,7 +870,7 @@ class CardsViewSet(RegionMixin, ListAreaViewset):
 
     def get_template_context(self, request):
         context = super().get_template_context(request)
-        context['col'] = {1: 12, 2: 6, 3: 4, 4: 3, 6: 2}.get(self.build.per_row, 4)
+        context['col'] = column_width(self.build.per_row, 4)
         return context
 
 
@@ -862,7 +885,7 @@ class CalendarViewSet(RegionMixin, viewsets.ViewSet):
         start, end = visible_range(request.query_params)
         events, truncated = events_in_range(self.build, self.source, request,
                                             self.rows_queryset(), start, end,
-                                            self.hidden)
+                                            self.hidden, self.colmap)
         return Response({'events': events, 'truncated': truncated})
 
 
@@ -878,7 +901,8 @@ class MapViewSet(RegionMixin, BaseMapView):
     def get_layers(self):
         points, self.truncated = map_points(
             self.build, self.source, self.request, self.rows_queryset(),
-            parse_bbox(self.request.query_params.get('bbox')), self.hidden)
+            parse_bbox(self.request.query_params.get('bbox')), self.hidden,
+            self.colmap)
         return [{'name': '', 'points': points}]
 
     def get_cluster(self):
@@ -949,6 +973,43 @@ def range_q(build, start, end):
     return q
 
 
+def column_width(per_row, default):
+    """The Bootstrap ``col-lg-<n>`` of ``per_row`` cards per row
+    (:data:`COLUMN_WIDTHS`), ``default`` for any other number."""
+    return COLUMN_WIDTHS.get(per_row, default)
+
+
+def resolve_colors(build, props, rctx, path, columns):
+    """``colors`` and ``color_rules`` of ``props`` (:data:`COLOR_PROPS`) on
+    ``build``: the map needs a ``color_field``, a rule a column the rows can
+    be filtered by."""
+    build.colors = dict(props.get('colors') or {})
+    if build.colors and not build.color_field:
+        rctx.error(path + '.props.colors', _('colors needs a color_field'))
+    rules = props.get('color_rules') or []
+    for index, rule in enumerate(rules):
+        column = columns.get((rule.get('filter') or {}).get('column'))
+        if column is None or not column.filterable:
+            rctx.error('%s.props.color_rules[%d].filter' % (path, index),
+                       _('unknown column %r') % (
+                           (rule.get('filter') or {}).get('column'),))
+    build.color_rules = [dict(rule) for rule in rules]
+
+
+def row_color(build, row, rule_colors=None):
+    """The colour of ``row``: the one of its colour rule (``rule_colors``,
+    ``{pk: colour}`` of :func:`rule_colors`), else the ``colors`` map of the
+    value of ``color_field`` -- or, without a map, the value itself --; only
+    a valid CSS colour (:data:`COLOR`), or ``None``."""
+    color = (rule_colors or {}).get(row['pk'])
+    if color is None and build.color_field:
+        value = row.get(build.color_field)
+        color = build.colors.get(str(value), value if not build.colors else None)
+    if color and COLOR.match(str(color)):
+        return str(color)
+    return None
+
+
 def iso(build, name, value, end=False):
     """``(text, all day)`` of a start or end value for FullCalendar."""
     if isinstance(value, datetime.datetime):
@@ -961,13 +1022,13 @@ def iso(build, name, value, end=False):
     return None, False
 
 
-def rule_colors(build, source, request, queryset, pks):
+def rule_colors(build, source, request, queryset, pks, colmap=None):
     """``{pk: colour}`` of the ``color_rules``: the first rule that matches;
     one query per rule."""
     result = {}
     if not build.color_rules or not pks:
         return result
-    colmap = source.column_map(request)
+    colmap = source.column_map(request) if colmap is None else colmap
     for rule in build.color_rules:
         try:
             q = query.filter_q(source, request, rule['filter'], colmap, queryset.model)
@@ -978,17 +1039,18 @@ def rule_colors(build, source, request, queryset, pks):
     return result
 
 
-def events_in_range(build, source, request, queryset, start, end, hidden=()):
+def events_in_range(build, source, request, queryset, start, end, hidden=(),
+                    colmap=None):
     """``([FullCalendar event], truncated)`` of the rows in ``[start, end)``:
     one query for the rows, at most ``build.limit``, plus those of the
     relations shown and one per colour rule."""
     queryset = queryset.filter(range_q(build, start, end)).order_by(
         build.start_field, 'pk')
-    rows = read_rows(build, source, request, queryset[:build.limit + 1])
+    rows = read_rows(build, source, request, queryset[:build.limit + 1], colmap)
     truncated = len(rows) > build.limit
     rows = rows[:build.limit]
     colors = rule_colors(build, source, request, queryset,
-                         [row['pk'] for row in rows])
+                         [row['pk'] for row in rows], colmap)
     links = link_urls(build, request)
     events = []
     for row in rows:
@@ -1003,12 +1065,9 @@ def events_in_range(build, source, request, queryset, start, end, hidden=()):
         if build.end_field and row.get(build.end_field) is not None:
             event['end'] = iso(build, build.end_field, row[build.end_field],
                                end=True)[0]
-        color = colors.get(row['pk'])
-        if color is None and build.color_field:
-            value = row.get(build.color_field)
-            color = build.colors.get(str(value), value if not build.colors else None)
-        if color and COLOR.match(str(color)):
-            event['color'] = str(color)
+        color = row_color(build, row, colors)
+        if color:
+            event['color'] = color
         row_link = row_links(links, row['pk'])
         if row_link:
             event['url'] = row_link[0]['url']
@@ -1050,7 +1109,8 @@ def point_coordinates(name):
             Case(When(valid, then=lng), default=None, output_field=FloatField()))
 
 
-def map_points(build, source, request, queryset, bbox=None, hidden=()):
+def map_points(build, source, request, queryset, bbox=None, hidden=(),
+               colmap=None):
     """``([point], truncated)``: the rows with a point (inside ``bbox``),
     at most ``build.limit``, in one query plus those of the relations shown.
     The popup is HTML rendered here, escaped."""
@@ -1066,9 +1126,11 @@ def map_points(build, source, request, queryset, bbox=None, hidden=()):
         else:
             queryset = queryset.filter(Q(gtdesign_lng__gte=west)
                                        | Q(gtdesign_lng__lte=east))
-    rows = read_rows(build, source, request, queryset[:build.limit + 1])
+    rows = read_rows(build, source, request, queryset[:build.limit + 1], colmap)
     truncated = len(rows) > build.limit
     links = link_urls(build, request)
+    # Read once: up to MAP_MAX_LIMIT popups are rendered with it.
+    popup = get_template('gtdesigns/components/map_popup.html')
     points = []
     for row in rows[:build.limit]:
         found = parse_point(row.get(name))
@@ -1078,8 +1140,7 @@ def map_points(build, source, request, queryset, bbox=None, hidden=()):
         point_links = row_links(links, row['pk'])
         points.append({
             'lat': found[0], 'lng': found[1], 'title': texts['title'],
-            'popup': render_to_string('gtdesigns/components/map_popup.html', {
-                'texts': texts, 'links': point_links}),
+            'popup': popup.render({'texts': texts, 'links': point_links}),
         })
     return points, truncated
 
@@ -1149,17 +1210,7 @@ class CalendarComponent(RegionComponent):
             'end_field': column_prop('End (optional)', 'date'),
             'color_field': column_prop('Colour of each event (a colour, or a '
                                        'value of "colors")'),
-            'colors': {'type': 'object', 'additionalProperties': COLOR_SCHEMA,
-                       'x-widget': 'value-colors',
-                       'title': 'Colour by value of the colour field'},
-            'color_rules': {
-                'type': 'array', 'x-widget': 'color-rules',
-                'title': 'Colour rules: the first whose filter matches',
-                'items': {'type': 'object', 'required': ['filter', 'color'],
-                          'additionalProperties': False,
-                          'properties': {'filter': {'type': 'object',
-                                                    'x-widget': 'filter'},
-                                         'color': COLOR_SCHEMA}}},
+            **COLOR_PROPS,
             'initial_view': {'enum': list(CALENDAR_VIEWS), 'title': 'First view'},
             'limit': {'type': 'integer', 'minimum': 1, 'maximum': CALENDAR_MAX_LIMIT,
                       'title': 'At most this many events per range (default %d)'
@@ -1168,17 +1219,7 @@ class CalendarComponent(RegionComponent):
     }
 
     def resolve_more(self, build, props, rctx, path, columns):
-        build.colors = dict(props.get('colors') or {})
-        if build.colors and not build.color_field:
-            rctx.error(path + '.props.colors', _('colors needs a color_field'))
-        rules = props.get('color_rules') or []
-        for index, rule in enumerate(rules):
-            column = columns.get((rule.get('filter') or {}).get('column'))
-            if column is None or not column.filterable:
-                rctx.error('%s.props.color_rules[%d].filter' % (path, index),
-                           _('unknown column %r') % (
-                               (rule.get('filter') or {}).get('column'),))
-        build.color_rules = [dict(rule) for rule in rules]
+        resolve_colors(build, props, rctx, path, columns)
         build.initial_view = props.get('initial_view', 'dayGridMonth')
         build.limit = props.get('limit', CALENDAR_LIMIT)
 

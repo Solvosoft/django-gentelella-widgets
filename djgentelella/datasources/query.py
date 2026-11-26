@@ -534,16 +534,7 @@ def apply_params(source, request, params):
     ``columns``, ``group_by``, ``aggregates``, ``pivot`` and ``highlights``
     are read by the functions that use them, not here.
     """
-    params = parse_params(params)
-    colmap = source.column_map(request)
-    queryset = source_queryset(source, request, params)
-    queryset = apply_filters(source, request, queryset, params['filters'], colmap)
-    queryset = apply_search(source, request, queryset, params['search'], colmap)
-    order = ordering_args(colmap, params['ordering'])
-    if not any(item.lstrip('-') == 'pk' for item in order):
-        # Stable pages: without a unique last key a row can show up twice.
-        order.append('pk')
-    return queryset.order_by(*order)
+    return apply_params_over(source, request, params, source.column_map(request))
 
 
 def selected_columns(source, request, params):
@@ -635,6 +626,33 @@ def _value_ordering(queryset, alias):
         return Coalesce(F(alias), Value(0, output_field=output),
                         output_field=output).desc()
     return F(alias).desc(nulls_last=True)
+
+
+def apply_params_over(source, request, params, colmap, *, searched=None):
+    """:func:`apply_params` over the columns of ``colmap`` (``{name:
+    Column}``, already read): the filters and the ordering may only name
+    them, and the search only looks in ``searched`` (by default ``colmap``)
+    -- what a component that hides some columns from a request uses, with
+    the columns read once for the whole request.
+
+    ``pk`` may be ordered by (it is no column); without it, it goes last.
+    """
+    params = parse_params(params)
+    queryset = source_queryset(source, request, params)
+    queryset = apply_filters(source, request, queryset, params['filters'], colmap)
+    queryset = apply_search(source, request, queryset, params['search'],
+                            colmap if searched is None else searched)
+
+    def is_pk(item):
+        return isinstance(item, str) and item.lstrip('-') == 'pk'
+
+    order = ordering_args(colmap, [item for item in params['ordering']
+                                   if not is_pk(item)])
+    order += [item for item in params['ordering'] if is_pk(item)]
+    if not any(is_pk(item) for item in order):
+        # Stable pages: without a unique last key a row can show up twice.
+        order.append('pk')
+    return queryset.order_by(*order)
 
 
 def aggregate(source, request, params, *, order_by_value=None, limit=None):

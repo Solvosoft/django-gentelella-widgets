@@ -9,7 +9,8 @@ from decimal import Decimal
 from unittest import mock
 
 from django.core.exceptions import ImproperlyConfigured, ValidationError
-from django.test import override_settings
+from django.contrib.sites.models import Site
+from django.test import RequestFactory, override_settings
 from django.urls import reverse
 
 from demoapp.models import ShopItem, ShopOrder
@@ -626,3 +627,35 @@ class PPRunPipelineTests(PPTestCase):
                          ['validation', 'computation', 'process'])
         self.assertEqual(pipe.steps[1].writes, ('total',))
         factories.clear_cache()
+
+
+@override_settings(ALLOWED_HOSTS=['*'])
+class PPCodeMixinSiteTests(PPTestCase):
+    """The pipeline of a view of the project is built for the Site of its
+    request: a branch to a page of that Site is found."""
+
+    def setUp(self):
+        super().setUp()
+        Site.objects.clear_cache()
+        self.here = Site.objects.create(domain='here.example', name='Here')
+        page, errors = publishing.publish(plain_page('only-here/'), site=self.here,
+                                          path='only-here')
+        self.assertEqual(errors, [])
+
+    def view(self, mixin, host, **attrs):
+        view = type('View', (mixin,), {'pipeline': {
+            'branches': [{'to': 'page:only-here'}]}, **attrs})()
+        view.request = RequestFactory().get('/', HTTP_HOST=host)
+        return view
+
+    def test_a_branch_to_a_page_of_the_site(self):
+        target = reverse('gt-design-page', args=['only-here'])
+        for mixin in (pipeline.PipelineFormMixin, pipeline.PipelineViewSetMixin):
+            found = self.view(mixin, 'here.example').get_pipeline()
+            self.assertEqual(found.branches[0].url_for(), target, mixin)
+        before_render = self.view(pipeline.PipelinePageMixin, 'here.example')
+        self.assertEqual(before_render.get_pipeline().branches[0].url_for(), target)
+
+    def test_another_site_does_not_have_it(self):
+        with self.assertRaisesMessage(ImproperlyConfigured, 'only-here'):
+            self.view(pipeline.PipelineFormMixin, 'elsewhere.example').get_pipeline()

@@ -15,9 +15,12 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db.models import QuerySet
 from django.http import StreamingHttpResponse
+from django.db import connection
 from django.test import RequestFactory, TestCase, override_settings
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import translation
+from rest_framework.exceptions import ValidationError as DRFValidationError
 
 from demoapp import models as demo
 from djgentelella.datasources import base as ds_base
@@ -25,7 +28,8 @@ from djgentelella.datasources import export as ds_export
 from djgentelella.datasources import query
 from djgentelella.datasources.base import (
     Column, DataSource, DataSourceUnavailable, FunctionDataSource, ModelDataSource,
-    project_model_of, register_datasource, takes_params, unregister_datasource,
+    api_error, project_model_of, register_datasource, takes_params,
+    unregister_datasource,
 )
 from djgentelella.designs import engine, publishing, registry
 from djgentelella.designs.builds import ObjectManagementBuild
@@ -561,5 +565,90 @@ class RegionUnavailableTests(ReadOnlyBase):
 
 class ValidationErrorIsNotUnavailable(TestCase):
 
-    def test_they_are_different_exceptions(self):
+    def test_a_validation_error_is_a_400_and_unavailable_stays_itself(self):
         self.assertFalse(issubclass(DataSourceUnavailable, ValidationError))
+        bad = api_error(ValidationError('bad value'))
+        self.assertIsInstance(bad, DRFValidationError)
+        self.assertEqual(bad.detail, {'detail': ['bad value']})
+        down = DataSourceUnavailable('down', status=504)
+        self.assertIs(api_error(down), down)
+
+        class Both(DataSourceUnavailable, ValidationError):
+            """A source error in transition: still a ValidationError."""
+
+        both = Both('down')
+        # Not a bad request: the same parameters may work later.
+        self.assertIs(api_error(both), both)
+        self.assertEqual(api_error(both).status_code, 503)
+
+
+class CountsTests(ReadOnlyBase):
+    """A table without filters nor search counts its rows once: the total
+    and the filtered count are the same number."""
+
+    def counts(self, call):
+        with CaptureQueriesContext(connection) as queries:
+            body = call()
+        return body, len([item for item in queries.captured_queries
+                          if 'COUNT(' in item['sql']
+                          and 'demoapp_country' in item['sql']])
+
+    def test_the_list_of_a_source(self):
+        page = self.publish(listing())
+        body, counts = self.counts(lambda: self.get(page, 'list').json())
+        self.assertEqual((body['recordsTotal'], body['recordsFiltered'], counts),
+                         (3, 3, 1))
+        body, counts = self.counts(lambda: self.get(page, 'list',
+                                                    search='pan').json())
+        self.assertEqual((body['recordsTotal'], body['recordsFiltered'], counts),
+                         (3, 1, 2))
+        filters = json.dumps([{'column': 'code', 'op': 'eq', 'value': 'cr'}])
+        body, counts = self.counts(lambda: self.get(page, 'list',
+                                                    gtfilters=filters).json())
+        self.assertEqual((body['recordsTotal'], body['recordsFiltered'], counts),
+                         (3, 1, 2))
+
+    def test_the_rows_of_the_data_source_api(self):
+        url = reverse('gtdatasource-rows', args=[REMOTE])
+        body, counts = self.counts(lambda: self.client.get(url, {
+            'params': json.dumps({'ordering': ['name']})}).json())
+        self.assertEqual((body['recordsTotal'], body['recordsFiltered'], counts),
+                         (3, 3, 1))
+        body, counts = self.counts(lambda: self.client.get(url, {
+            'params': json.dumps({'search': 'pan'})}).json())
+        self.assertEqual((body['recordsTotal'], body['recordsFiltered'], counts),
+                         (3, 1, 2))
+
+
+class ColumnsOncePerRequestTests(ReadOnlyBase):
+    """The columns of a source are read once per request of an endpoint,
+    however many helpers need them (a source may read them from somewhere)."""
+
+    def setUp(self):
+        super().setUp()
+        self.calls = []
+        columns = self.source.columns
+
+        def counted(request):
+            self.calls.append(request)
+            return columns(request)
+
+        self.source.columns = counted
+
+    def calls_of(self, page, node_id, **params):
+        self.get(page, node_id, **params)  # the page resolved and cached
+        del self.calls[:]
+        response = self.get(page, node_id, **params)
+        self.assertEqual(response.status_code, 200, response.content)
+        return len(self.calls)
+
+    def test_a_list_and_a_grid(self):
+        page = self.publish(listing(), grid())
+        self.assertEqual(self.calls_of(page, 'list', search='a', ordering='name'), 1)
+        self.assertEqual(self.calls_of(page, 'grid', search='a'), 1)
+
+    def test_cards(self):
+        page = self.publish(node('cards', 'list', {'datasource': REMOTE,
+                                                   'title_field': 'name'}))
+        self.assertEqual(self.calls_of(page, 'list', search='a', params=json.dumps(
+            {'filters': [{'column': 'code', 'op': 'ne', 'value': 'x'}]})), 1)

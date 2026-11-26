@@ -69,14 +69,12 @@ from rest_framework.response import Response
 from djgentelella.authorization import evaluate_condition, validate_condition
 from djgentelella.datasources import query
 from djgentelella.datasources.base import api_error
-from djgentelella.designs.data_components import (
-    can, endpoint_url, no_permission,
-)
+from djgentelella.designs.data_components import endpoint_url, no_permission
 from djgentelella.designs.regions import (
-    COLOR, COLOR_SCHEMA, DATE_KINDS, RegionBuild, RegionComponent, RegionMixin,
-    column_prop, common_properties, display, facets_state, iso, link_urls,
-    model_field_of, parse_moment, read_rows, region_source, row_links, row_texts,
-    rule_colors,
+    COLOR_PROPS, DATE_KINDS, RegionBuild, RegionComponent, RegionMixin, bound,
+    column_prop, column_width, common_properties, display, iso, link_urls,
+    model_field_of, parse_moment, read_rows, region_source, resolve_colors,
+    row_color, row_links, row_texts, rule_colors,
 )
 
 __all__ = ['ALL_TIME', 'METRIC_FORMATS', 'METRIC_FUNCTIONS', 'MetricsBuild',
@@ -126,15 +124,6 @@ PERIOD_LABELS = {
 def clean_icon(value):
     value = str(value or '').strip()
     return value if ICON.match(value) else ''
-
-
-def config_with_source(component, build, rctx, url):
-    """What :meth:`RegionComponent.render` puts in the configuration of the
-    browser: the endpoint, and with a data source its state for facets."""
-    config = {'id': build.id, 'type': build.type, 'url': url}
-    config.update(facets_state(build))
-    config.update(component.config(build, rctx))
-    return config
 
 
 def int_param(query_params, name, default=0, maximum=None):
@@ -255,7 +244,7 @@ def sort_key(text):
 
 
 def tree_level(build, source, request, queryset, parent=None, offset=0,
-               hidden=()):
+               hidden=(), colmap=None):
     """One level of a lazy tree: ``{'nodes', 'next_offset', 'orphans',
     'cycles', 'checked'}``. The roots (``parent`` None) are the rows without
     a parent, those whose parent is not among the rows (``orphan``) and, on
@@ -293,13 +282,14 @@ def tree_level(build, source, request, queryset, parent=None, offset=0,
         page = page[:build.limit]
         result['next_offset'] = offset + build.limit
     rows = {row['pk']: row for row in read_rows(
-        build, source, request, queryset.filter(pk__in=page))}
+        build, source, request, queryset.filter(pk__in=page), colmap)}
     ordered = [rows[pk] for pk in page if pk in rows]
     cycle_rows = []
     if cycle_keys:
         by_key = {}
         for row in read_rows(build, source, request,
-                             queryset.filter(**{id_name + '__in': cycle_keys})):
+                             queryset.filter(**{id_name + '__in': cycle_keys}),
+                             colmap):
             by_key[key_of(row.get(build.id_field) if build.id_field
                           else row['pk'])] = row
         cycle_rows = [by_key[key] for key in cycle_keys if key in by_key]
@@ -329,12 +319,12 @@ def tree_level(build, source, request, queryset, parent=None, offset=0,
     return result
 
 
-def tree_full(build, source, request, queryset, hidden=()):
+def tree_full(build, source, request, queryset, hidden=(), colmap=None):
     """A whole tree, at most ``build.limit`` rows, in pre-order: ``{'nodes':
     [{..., 'parent', 'depth'}], 'truncated', 'orphans', 'cycles'}``. Every
     row appears once; one query for the rows (plus those of the relations
     shown)."""
-    rows = read_rows(build, source, request, queryset[:build.limit + 1])
+    rows = read_rows(build, source, request, queryset[:build.limit + 1], colmap)
     truncated = len(rows) > build.limit
     rows = rows[:build.limit]
     by_key, order = {}, []
@@ -387,13 +377,13 @@ class TreeViewSet(RegionMixin, viewsets.ViewSet):
         queryset = self.rows_queryset()
         if build.load == 'full':
             return Response(tree_full(build, self.source, request, queryset,
-                                      self.hidden))
+                                      self.hidden, self.colmap))
         parent = request.query_params.get('parent')
         if parent == '':
             parent = None
         offset = int_param(request.query_params, 'offset')
         return Response(tree_level(build, self.source, request, queryset, parent,
-                                   offset, self.hidden))
+                                   offset, self.hidden, self.colmap))
 
 
 class TreeComponent(RegionComponent):
@@ -519,14 +509,8 @@ def decode_cursor(build, text):
     return moment, pk
 
 
-def bound_of(build, moment):
-    if build.kinds.get(build.start_field) == 'date':
-        return timezone.localtime(moment).date()
-    return moment
-
-
 def timeline_page(build, source, request, queryset, cursor=None, start=None,
-                  end=None, hidden=()):
+                  end=None, hidden=(), colmap=None):
     """``{'items', 'next'}``: at most ``build.page_size`` rows, newest first,
     older than ``cursor`` (``(start, pk)`` of the last row shown) and starting
     in ``[start, end)``. ``next`` is the cursor of the following page, or
@@ -535,9 +519,9 @@ def timeline_page(build, source, request, queryset, cursor=None, start=None,
     name = build.start_field
     queryset = queryset.exclude(**{name + '__isnull': True})
     if start is not None:
-        queryset = queryset.filter(**{name + '__gte': bound_of(build, start)})
+        queryset = queryset.filter(**{name + '__gte': bound(build, name, start)})
     if end is not None:
-        queryset = queryset.filter(**{name + '__lt': bound_of(build, end)})
+        queryset = queryset.filter(**{name + '__lt': bound(build, name, end)})
     if cursor is not None:
         moment, pk = cursor
         try:
@@ -546,10 +530,11 @@ def timeline_page(build, source, request, queryset, cursor=None, start=None,
         except (ValueError, TypeError, DjangoValidationError):
             raise ValidationError({'detail': _('invalid cursor')}) from None
     queryset = queryset.order_by('-' + name, '-pk')
-    rows = read_rows(build, source, request, queryset[:build.page_size + 1])
+    rows = read_rows(build, source, request, queryset[:build.page_size + 1], colmap)
     more = len(rows) > build.page_size
     rows = rows[:build.page_size]
-    colors = rule_colors(build, source, request, queryset, [row['pk'] for row in rows])
+    colors = rule_colors(build, source, request, queryset, [row['pk'] for row in rows],
+                         colmap)
     links = link_urls(build, request)
     items = []
     for row in rows:
@@ -570,12 +555,9 @@ def timeline_page(build, source, request, queryset, cursor=None, start=None,
         if build.end_field and row.get(build.end_field) is not None:
             item['end'] = iso(build, build.end_field, row[build.end_field])[0]
             item['until'] = display(build, build.end_field, row[build.end_field])
-        color = colors.get(row['pk'])
-        if color is None and build.color_field:
-            value = row.get(build.color_field)
-            color = build.colors.get(str(value), value if not build.colors else None)
-        if color and COLOR.match(str(color)):
-            item['color'] = str(color)
+        color = row_color(build, row, colors)
+        if color:
+            item['color'] = color
         items.append(item)
     following = None
     if more and rows:
@@ -606,7 +588,7 @@ class TimelineViewSet(RegionMixin, viewsets.ViewSet):
         return Response(timeline_page(
             self.build, self.source, request, self.rows_queryset(),
             decode_cursor(self.build, cursor) if cursor else None, start, end,
-            self.hidden))
+            self.hidden, self.colmap))
 
     @staticmethod
     def moment(params, name):
@@ -645,17 +627,7 @@ class TimelineComponent(RegionComponent):
             'description_field': column_prop('Description of each item', 'text'),
             'color_field': column_prop('Colour of each item (a colour, or a value '
                                        'of "colors")', 'color'),
-            'colors': {'type': 'object', 'additionalProperties': COLOR_SCHEMA,
-                       'x-widget': 'value-colors',
-                       'title': 'Colour by value of the colour field'},
-            'color_rules': {
-                'type': 'array', 'x-widget': 'color-rules',
-                'title': 'Colour rules: the first whose filter matches',
-                'items': {'type': 'object', 'required': ['filter', 'color'],
-                          'additionalProperties': False,
-                          'properties': {'filter': {'type': 'object',
-                                                    'x-widget': 'filter'},
-                                         'color': COLOR_SCHEMA}}},
+            **COLOR_PROPS,
             'page_size': {'type': 'integer', 'minimum': 1,
                           'maximum': TIMELINE_MAX_PAGE_SIZE,
                           'title': 'Items per page (default %d)' % TIMELINE_PAGE_SIZE},
@@ -663,17 +635,7 @@ class TimelineComponent(RegionComponent):
     }
 
     def resolve_more(self, build, props, rctx, path, columns):
-        build.colors = dict(props.get('colors') or {})
-        if build.colors and not build.color_field:
-            rctx.error(path + '.props.colors', _('colors needs a color_field'))
-        rules = props.get('color_rules') or []
-        for index, rule in enumerate(rules):
-            column = columns.get((rule.get('filter') or {}).get('column'))
-            if column is None or not column.filterable:
-                rctx.error('%s.props.color_rules[%d].filter' % (path, index),
-                           _('unknown column %r') % (
-                               (rule.get('filter') or {}).get('column'),))
-        build.color_rules = [dict(rule) for rule in rules]
+        resolve_colors(build, props, rctx, path, columns)
         build.page_size = props.get('page_size', TIMELINE_PAGE_SIZE)
 
     def config(self, build, rctx):
@@ -861,7 +823,7 @@ def labelled(build, metric, card):
     return card
 
 
-def metric_values(build, source, request, queryset, now=None):
+def metric_values(build, source, request, queryset, now=None, colmap=None):
     """``[card]`` of the metrics whose condition holds, every one computed in
     a single aggregate query over ``queryset`` (the rows of the source after
     the filters of the page). A sum or a count of no rows is 0; an average,
@@ -871,7 +833,7 @@ def metric_values(build, source, request, queryset, now=None):
     metrics = visible_metrics(build, request)
     if not metrics:
         return []
-    colmap = source.column_map(request)
+    colmap = source.column_map(request) if colmap is None else colmap
     column = None
     if build.date_field:
         column = colmap.get(build.date_field)
@@ -921,7 +883,8 @@ class MetricsViewSet(RegionMixin, viewsets.ViewSet):
     (``?params=``): ``{'metrics': [card], 'html'}``."""
 
     def list(self, request, *args, **kwargs):
-        cards = metric_values(self.build, self.source, request, self.rows_queryset())
+        cards = metric_values(self.build, self.source, request, self.rows_queryset(),
+                              colmap=self.colmap)
         return Response({'metrics': cards,
                          'html': render_cards(self.build, cards)})
 
@@ -937,7 +900,7 @@ def render_cards(build, cards):
             card['compare_label'] = str(labels[1])
     return render_to_string('gtdesigns/components/metrics_cards.html', {
         'b': build, 'cards': cards,
-        'col': {1: 12, 2: 6, 3: 4, 4: 3, 6: 2}.get(build.per_row, 3),
+        'col': column_width(build.per_row, 3),
         'current_label': labels[0] if build.date_field else '',
         'compare_label': labels[1]})
 

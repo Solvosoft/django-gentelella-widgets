@@ -161,10 +161,15 @@ class DataSourceRowsView(DataSourceView):
         for row in rows:
             if row['pk'] in css:
                 row['DT_RowClass'] = css[row['pk']]
+        filtered = queryset.count()
+        # Without filters nor a search every row is selected: no second COUNT.
+        total = filtered if not params['filters'] and \
+            not (params['search'] or '').strip() \
+            else source_queryset(source, request, {}).count()
         return Response({
             'data': rows,
-            'recordsTotal': source_queryset(source, request, {}).count(),
-            'recordsFiltered': queryset.count(),
+            'recordsTotal': total,
+            'recordsFiltered': filtered,
             'draw': _int(data.get('draw'), 0),
         })
 

@@ -23,7 +23,8 @@ from demoapp.models import Product
 from djgentelella.async_notification.models import EmailTemplate
 from djgentelella.authorization import authorization
 from djgentelella.datasources.base import (
-    ModelDataSource, register_datasource, unregister_datasource,
+    Column, FunctionDataSource, ModelDataSource, register_datasource,
+    unregister_datasource,
 )
 from djgentelella.designs import engine, exposure, factories, grid
 from djgentelella.flows.base import watch_deletes
@@ -617,8 +618,8 @@ class GridBatchTests(GridTestCase):
             response = self.post_json(url + 'save/', body)
             self.assertEqual(response.status_code, 400, body)
             self.assertEqual(response.json()['code'], 'invalid_batch', body)
-        with mock.patch.object(grid, 'MAX_BATCH_ROWS', 2), \
-                mock.patch.object(grid.GridMixin, 'max_batch_rows', 2):
+        # The limit of the viewset (MAX_BATCH_ROWS by default).
+        with mock.patch.object(grid.GridMixin, 'max_batch_rows', 2):
             response = self.post_json(url + 'save/', {'rows': [
                 {'key': str(index), 'op': 'create'} for index in range(3)]})
             self.assertEqual(response.status_code, 400)
@@ -642,10 +643,27 @@ class GridBatchTests(GridTestCase):
             'datasource': 'tests.grid.food', 'columns': ['name', 'owner']})))
         self.assertTrue(any("'owner'" in str(error) for error in errors))
 
-    def test_a_data_source_without_a_model(self):
+    def test_an_unknown_data_source(self):
         _resolved, errors = engine.resolve(design(node('interactive_grid', 'grid', {
             'datasource': 'tests.grid.none', 'columns': ['name']})))
         self.assertTrue(any('unknown data source' in str(error) for error in errors))
+
+    def test_a_data_source_without_a_model_is_read_only(self):
+        register_datasource(FunctionDataSource(
+            lambda request: Product.objects.all(),
+            [Column('name', 'Name', 'string')], name='tests.grid.nomodel', perms=[]))
+        self.addCleanup(unregister_datasource, 'tests.grid.nomodel')
+        resolved, errors = engine.resolve(design(node('interactive_grid', 'grid', {
+            'datasource': 'tests.grid.nomodel', 'columns': ['name']})))
+        self.assertEqual(errors, [])
+        build = resolved.nodes['grid'].build
+        self.assertTrue(build.list_only)
+        self.assertEqual((build.editable, build.actions), ([], []))
+        self.assertIsNone(build.form)
+        _resolved, errors = engine.resolve(design(node('interactive_grid', 'grid', {
+            'datasource': 'tests.grid.nomodel', 'columns': ['name'],
+            'editable': ['name']})))
+        self.assertTrue(any("it has no 'editable'" in str(error) for error in errors))
 
 
 class GridQueryCountTests(GridTestCase):

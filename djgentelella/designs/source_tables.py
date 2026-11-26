@@ -35,6 +35,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
 from djgentelella.datasources import query
+from djgentelella.datasources.api import _int
 from djgentelella.datasources.base import (
     TEXT_KINDS, api_error, get_datasource, project_model_of,
 )
@@ -161,10 +162,11 @@ def visible_columns(build, hidden):
             if column['name'] not in hidden]
 
 
-def source_rows(build, source, request, queryset, columns):
+def source_rows(build, source, request, queryset, columns, colmap=None):
     """The rows of ``queryset`` by column name, plus ``pk``: raw values, a
-    relation as ``{id, display_name}`` (``serialize_rows``)."""
-    colmap = source.column_map(request)
+    relation as ``{id, display_name}`` (``serialize_rows``). ``colmap``: the
+    columns of the source, when already read."""
+    colmap = source.column_map(request) if colmap is None else colmap
     return query.serialize_rows(source, request, queryset,
                                 [colmap[name] for name in columns if name in colmap])
 
@@ -182,13 +184,6 @@ def facets_config(build, datasource_url=None):
         except NoReverseMatch:
             return {}
     return {'datasource_url': datasource_url, 'group': 'gtdesign:%s' % build.id}
-
-
-def _int(value, default):
-    try:
-        return int(value)
-    except (TypeError, ValueError):
-        return default
 
 
 class SourceRowsMixin:
@@ -241,6 +236,8 @@ class SourceRowsMixin:
         self.hidden = hidden_columns(build, request)
         self.columns = [column['name']
                         for column in visible_columns(build, self.hidden)]
+        #: The columns of the source, read once for the request.
+        self.colmap = self.source.column_map(request)
 
     def page(self):
         data = self.request.query_params
@@ -271,8 +268,7 @@ class SourceRowsMixin:
         bare = item.lstrip('-')
         if bare == 'id':
             return [item[:len(item) - len(bare)] + 'pk']
-        sortable = {column.name for column in self.source.columns(self.request)
-                    if column.sortable}
+        sortable = {name for name, column in self.colmap.items() if column.sortable}
         if bare and bare in self.columns and bare in sortable:
             return [item]
         return None
@@ -286,28 +282,25 @@ class SourceRowsMixin:
         if ordering is None:
             ordering = [item for item in build.ordering
                         if str(item).lstrip('-') not in self.hidden]
-        params = query.parse_params({'search': search, 'filters': list(filters),
-                                     'ordering': list(ordering)})
+        params = {'search': search, 'filters': list(filters),
+                  'ordering': list(ordering)}
+        visible = {name: self.colmap[name] for name in self.columns
+                   if name in self.colmap}
+        searched = {name: column for name, column in visible.items()
+                    if name in build.search_fields}
         try:
-            colmap = source.column_map(request)
-            visible = {name: colmap[name] for name in self.columns if name in colmap}
-            searched = {name: column for name, column in visible.items()
-                        if name in build.search_fields}
-            queryset = query.source_queryset(source, request, params)
-            queryset = query.apply_filters(source, request, queryset,
-                                           params['filters'], visible)
-            queryset = query.apply_search(source, request, queryset,
-                                          params['search'], searched)
-            order = query.ordering_args(visible, [
-                item for item in params['ordering'] if item.lstrip('-') != 'pk'])
-            order += [item for item in params['ordering'] if item.lstrip('-') == 'pk']
+            return query.apply_params_over(source, request, params, visible,
+                                           searched=searched)
         except DjangoValidationError as error:
             raise api_error(error)
-        if not any(item.lstrip('-') == 'pk' for item in order):
-            order.append('pk')
-        return queryset.order_by(*order)
 
-    def total(self):
+    def total(self, filtered=None, filters=()):
+        """Every row of the source. Without filters nor a search it is the
+        count of ``rows_queryset``: ``filtered``, when that is already known,
+        and no second COUNT."""
+        searched = (self.request.query_params.get('search') or '').strip()
+        if filtered is not None and not filters and not searched:
+            return filtered
         return query.source_queryset(self.source, self.request, {}).count()
 
 
@@ -322,15 +315,18 @@ class SourceTableViewSet(SourceRowsMixin, viewsets.ViewSet):
     openapi_parameters = {'list': ['draw']}
 
     def list(self, request, *args, **kwargs):
-        queryset = self.rows_queryset(self.filters(), self.asked_ordering())
+        filters = self.filters()
+        queryset = self.rows_queryset(filters, self.asked_ordering())
         offset, limit = self.page()
         rows = source_rows(self.build, self.source, request,
-                           queryset[offset:offset + limit], self.columns)
+                           queryset[offset:offset + limit], self.columns, self.colmap)
         for row in rows:
             row['id'] = row['pk']
             row['actions'] = {'detail': False, 'update': False, 'destroy': False}
-        return Response({'data': rows, 'recordsTotal': self.total(),
-                         'recordsFiltered': queryset.count(),
+        filtered = queryset.count()
+        return Response({'data': rows,
+                         'recordsTotal': self.total(filtered, filters),
+                         'recordsFiltered': filtered,
                          'draw': _int(request.query_params.get('draw'), 1)})
 
 
@@ -355,7 +351,7 @@ class SourceGridViewSet(SourceRowsMixin, viewsets.ViewSet):
         queryset = self.rows_queryset(self.filters())
         offset, limit = self.page()
         rows = source_rows(self.build, self.source, request,
-                           queryset[offset:offset + limit], self.columns)
+                           queryset[offset:offset + limit], self.columns, self.colmap)
         data = []
         for row in rows:
             item = {name: _grid_value(row.get(name)) for name in self.columns}

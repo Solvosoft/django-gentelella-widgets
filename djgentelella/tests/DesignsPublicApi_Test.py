@@ -25,6 +25,16 @@ OWNER = {'auth': 'tests.public.owner'}
 TABLE = '$.root.children[0].children[0].children[0]'
 
 
+#: The objects ``tests.public.counted`` was evaluated with.
+COUNTED = []
+
+
+@authorization('tests.public.counted')
+def counted(request, obj=None):
+    COUNTED.append(obj)
+    return True
+
+
 @authorization('tests.public.owner')
 def is_owner(request, obj=None):
     """Holds for the rows of the user: a condition about each row."""
@@ -195,7 +205,7 @@ class RowConditionTests(HooksTestCase):
     def test_a_missing_row_is_still_a_404(self):
         self.assertEqual(self.client.get(self.url + '999999/').status_code, 404)
 
-    def test_create_is_evaluated_once(self):
+    def test_create_is_not_about_a_row(self):
         response = self.post_json(self.url, {'name': 'Milk', 'price': '1.00',
                                              'status': 'active'})
         self.assertEqual(response.status_code, 403)
@@ -203,6 +213,24 @@ class RowConditionTests(HooksTestCase):
         response = self.post_json(self.url, {'name': 'Milk', 'price': '1.00',
                                              'status': 'active'})
         self.assertEqual(response.status_code, 201, response.content)
+
+    def test_create_is_evaluated_once(self):
+        # Even naming an authorization: create is not an action on one row.
+        page = self.publish(design(
+            table(list_fields=['name', 'price'],
+                  action_conditions={'update': OWNER,
+                                     'create': {'auth': 'tests.public.counted'}}),
+            forms=product_form()), path='counted')
+        url = self.api(page, 'products')
+        del COUNTED[:]
+        rows = self.client.get(url).json()['data']
+        self.assertGreaterEqual(len(rows), 3)
+        self.assertEqual(COUNTED, [None])
+        del COUNTED[:]
+        response = self.post_json(url, {'name': 'Milk', 'price': '1.00',
+                                        'status': 'active'})
+        self.assertEqual(response.status_code, 201, response.content)
+        self.assertEqual(COUNTED, [None])
 
 
 class InlineRowConditionTests(HooksTestCase):

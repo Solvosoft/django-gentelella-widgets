@@ -4,11 +4,13 @@
 import json
 from datetime import timedelta
 from pathlib import Path
+from unittest import mock
 
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.db import connection
 from django.test import RequestFactory, TestCase, override_settings
+from django.template import Engine
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone
@@ -27,6 +29,8 @@ from djgentelella.views.listAreaViewset import ListAreaViewset
 
 FAST_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
 SOURCE = 'tests.regions.meetups'
+#: The same rows with a relation shown (``site``): what an N+1 would hit.
+FK_SOURCE = 'tests.regions.meetups_fk'
 LINK = {'url_name': 'admin:demoapp_meetup_change', 'title': 'Open'}
 
 
@@ -64,6 +68,11 @@ class RegionBase(DesignState, TestCase):
             fields=['id', 'title', 'kind', 'city', 'starts_at', 'ends_at',
                     'location', 'picture']))
         self.addCleanup(unregister_datasource, SOURCE)
+        register_datasource(ModelDataSource(
+            Meetup, name=FK_SOURCE, site_field='site',
+            fields=['id', 'title', 'kind', 'starts_at', 'ends_at', 'location',
+                    'site']))
+        self.addCleanup(unregister_datasource, FK_SOURCE)
         self.user = grant(User.objects.create_user('ana', password='pw'),
                           'demoapp.view_meetup')
         self.client.force_login(self.user)
@@ -316,6 +325,35 @@ class FacetTests(RegionBase):
         self.assertEqual(self.get(page, 'list', params={'filters': [
             {'column': 'city', 'op': 'eq', 'value': 'Heredia'}]}).status_code, 400)
 
+    def test_a_hidden_field_is_not_searched(self):
+        page = self.publish(cards(fields=['city', 'kind'], column_conditions={
+            'city': {'perm': 'demoapp.delete_meetup'}}), path='hidden')
+        # Only Social has "Heredia", in its hidden city: no row tells it.
+        self.assertEqual(self.titles(self.get(page, 'list', params={
+            'search': 'heredia'}), 'cards'), [])
+        self.assertEqual(self.titles(self.get(page, 'list', search='heredia'),
+                                     'cards'), [])
+        self.assertEqual(self.titles(self.get(page, 'list', params={
+            'search': 'social'}), 'cards'), ['Social'])
+        # Where the condition holds, the city is searched again.
+        self.user = grant(self.user, 'demoapp.delete_meetup')
+        self.client.force_login(self.user)
+        self.assertEqual(self.titles(self.get(page, 'list', params={
+            'search': 'heredia'}), 'cards'), ['Social'])
+
+    def test_the_default_ordering_skips_a_hidden_field(self):
+        def order(page):
+            return [card['title'] for card in self.get(page, 'list').json()['data']]
+
+        shown = self.publish(cards(fields=['city'], ordering=['-city']), path='shown')
+        self.assertEqual(order(shown)[0], 'Social')
+        hidden = self.publish(cards(fields=['city'], ordering=['-city'],
+                                    column_conditions={
+                                        'city': {'perm': 'demoapp.delete_meetup'}}),
+                              path='hidden')
+        # By pk, as without an ordering: the order does not tell the cities.
+        self.assertEqual(order(hidden), ['Talk', 'Workshop', 'Social'])
+
 
 class CardsTests(RegionBase):
     def test_a_page_of_cards(self):
@@ -347,20 +385,56 @@ class CardsTests(RegionBase):
         page = self.publish(cards(image_field='picture'))
         self.assertEqual(self.get(page, 'list').json()['data'][0]['image'], '')
 
+    def test_an_ordering_by_pk(self):
+        for title in ('First', 'Second', 'Third'):
+            self.meetup(title)
+        # The resolver accepts "pk" (it is no column of the source).
+        page = self.publish(cards(ordering=['-pk']))
+        response = self.get(page, 'list')
+        self.assertEqual(response.status_code, 200, response.content)
+        self.assertEqual([card['title'] for card in response.json()['data']],
+                         ['Third', 'Second', 'First'])
+
+    def test_safe_url(self):
+        for value in ('javascript:alert(1)', '//evil.example/x.png',
+                      '/\\evil.example/x.png', '\\\\evil.example', 'data:x'):
+            self.assertEqual(regions.safe_url(value), '', value)
+        for value in ('/media/x.png', 'https://img.example/x.png',
+                      'HTTP://img.example/x.png'):
+            self.assertEqual(regions.safe_url(value), value)
+
     def test_queries_do_not_grow_with_the_cards(self):
-        page = self.publish(cards(fields=['kind'], page_size=50))
-        self.meetup('One')
+        # A relation among the fields: its labels are read once per page.
+        page = self.publish(cards(datasource=FK_SOURCE, fields=['kind', 'site'],
+                                  page_size=50))
+        self.meetup('One', site=self.site_a)
         self.get(page, 'list')  # warm the caches (page, registry)
 
         def count():
             with CaptureQueriesContext(connection) as queries:
-                self.assertEqual(self.get(page, 'list').status_code, 200)
-            return len(queries)
+                response = self.get(page, 'list')
+            self.assertEqual(response.status_code, 200)
+            return len(queries), response.json()['data']
 
-        one = count()
+        one, _cards = count()
         for index in range(30):
-            self.meetup('More %d' % index)
-        self.assertEqual(count(), one)
+            self.meetup('More %d' % index, site=self.site_a)
+        many, data = count()
+        self.assertEqual((many, len(data)), (one, 31))
+        self.assertEqual(data[0]['fields'][1], {'label': 'Site', 'value': 'a.example'})
+
+    def test_the_rows_of_a_page_are_not_searched_again(self):
+        for title in ('Alpha', 'Beta', 'Alphabet'):
+            self.meetup(title)
+        page = self.publish(cards())
+        with CaptureQueriesContext(connection) as queries:
+            titles = self.titles(self.get(page, 'list', params={'search': 'alpha'}),
+                                 'cards')
+        self.assertEqual(titles, ['Alpha', 'Alphabet'])
+        searched = [item['sql'] for item in queries.captured_queries
+                    if 'demoapp_meetup' in item['sql'] and 'LIKE' in item['sql']]
+        # The count and the page of pks; the rows of that page by pk only.
+        self.assertEqual(len(searched), 2, searched)
 
     def test_list_area_viewset_without_a_filter_form(self):
         class Plain(ListAreaViewset):
@@ -439,19 +513,24 @@ class CalendarTests(RegionBase):
         body = self.get(page, 'agenda', **self.month()).json()
         self.assertEqual((len(body['events']), body['truncated']), (1, True))
 
-    def test_queries_do_not_grow_with_the_rows_outside(self):
-        page = self.publish(calendar(end_field='ends_at'))
+    def test_queries_do_not_grow_with_the_rows(self):
+        page = self.publish(calendar(datasource=FK_SOURCE, end_field='ends_at',
+                                     fields=['site']))
+        # A relation with a value from the start: its labels are one query.
+        self.meetup('Here', site=self.site_a)
         self.get(page, 'agenda', **self.month())
 
         def count():
             with CaptureQueriesContext(connection) as queries:
-                self.get(page, 'agenda', **self.month())
-            return len(queries)
+                events = self.get(page, 'agenda', **self.month()).json()['events']
+            return len(queries), len(events)
 
-        before = count()
+        before, shown = count()
         for index in range(20):
+            # Inside the range, with a relation shown, and far outside it.
+            self.meetup('Near %d' % index, days=index % 10, site=self.site_a)
             self.meetup('Far %d' % index, days=200 + index)
-        self.assertEqual(count(), before)
+        self.assertEqual(count(), (before, shown + 20))
 
 
 class MapTests(RegionBase):
@@ -504,7 +583,9 @@ class MapTests(RegionBase):
                           body['limit']), (2, True, 2))
 
     def test_queries_do_not_grow_with_the_points(self):
-        page = self.publish(region_map(limit=10, fields=['kind']))
+        page = self.publish(region_map(datasource=FK_SOURCE, limit=10,
+                                       fields=['kind', 'site']))
+        self.meetup('Here', site=self.site_a)
         self.get(page, 'places', bbox='-180,-90,180,90')
 
         def count():
@@ -514,9 +595,27 @@ class MapTests(RegionBase):
 
         before, _points = count()
         for index in range(40):
-            self.meetup('More %d' % index, location='%d,%d' % (index, index))
+            self.meetup('More %d' % index, location='%d,%d' % (index, index),
+                        site=self.site_a)
         after, points = count()
         self.assertEqual((after, points), (before, 10))
+
+    def test_the_popup_template_is_read_once(self):
+        for index in range(5):
+            self.meetup('P%d' % index, location='%d,%d' % (index, index))
+        page = self.publish(region_map(fields=['kind']))
+        self.get(page, 'places')
+        original = Engine.get_template
+        names = []
+
+        def get_template(engine_self, name):
+            names.append(name)
+            return original(engine_self, name)
+
+        with mock.patch.object(Engine, 'get_template', get_template):
+            points = self.get(page, 'places').json()['layers'][0]['points']
+        self.assertGreaterEqual(len(points), 5)
+        self.assertEqual(names.count('gtdesigns/components/map_popup.html'), 1)
 
 
 class RegionPreviewTests(RegionBase):

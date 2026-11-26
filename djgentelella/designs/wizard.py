@@ -69,7 +69,7 @@ from djgentelella.designs.builds import DataBuild
 from djgentelella.designs.components import Endpoint, RuntimeComponent
 from djgentelella.designs.data_components import (
     PERMISSION_LIST, allowed_fields, can, check_permissions, columns_of,
-    data_build, endpoint_url, no_permission, plural,
+    data_build, endpoint_url, no_permission, plural, resolve_site_field,
 )
 from djgentelella.designs.factories import valid_pk
 from djgentelella.designs.exposure import limit_form_choices
@@ -434,17 +434,7 @@ class WizardComponent(RuntimeComponent):
             rctx.error(path + '.props.optimistic_lock', _(
                 'optimistic locking is for a wizard that edits (mode "edit")'))
 
-        site_field = props.get('site_field') or ''
-        if site_field:
-            model_field = next((item for item in model._meta.get_fields()
-                                if item.name == site_field), None)
-            related = getattr(model_field, 'related_model', None)
-            if model_field is None or not model_field.many_to_one or \
-                    related is None or related._meta.label_lower != 'sites.site':
-                rctx.error(path + '.props.site_field',
-                           _('%(field)r is not a foreign key of %(model)s to '
-                             'sites.Site') % {'field': site_field,
-                                              'model': model._meta.label})
+        site_field = resolve_site_field(rctx, path, model, props)
 
         steps, placed = [], {}
         for index, data in enumerate(props.get('steps') or []):

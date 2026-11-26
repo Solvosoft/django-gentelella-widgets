@@ -40,7 +40,7 @@ from dataclasses import dataclass, field
 
 from django import forms
 from django.core.exceptions import ValidationError
-from django.db.models import Count, Exists, F, OuterRef, Q, Window
+from django.db.models import Count, Exists, F, OuterRef, Window
 from django.db.models.functions import RowNumber
 from django.http import Http404
 from django.template.loader import render_to_string
@@ -59,7 +59,7 @@ from djgentelella.designs.builds import DataBuild
 from djgentelella.designs.components import Endpoint, RuntimeComponent
 from djgentelella.designs.data_components import (
     NOT_LISTABLE, allowed_fields, data_build, endpoint_url, flows_installed,
-    json_config, kind_of, label, no_permission, sample_value,
+    json_config, kind_of, label, no_permission, resolve_site_field, sample_value,
 )
 from djgentelella.sites import get_current_site, site_q
 
@@ -393,17 +393,7 @@ class FlowKanbanComponent(RuntimeComponent):
                 rctx.error('%s.props.ordering[%d]' % (path, index),
                            _('unknown field %r') % (name,))
 
-        site_field = props.get('site_field') or ''
-        if site_field:
-            model_field = next((item for item in model._meta.get_fields()
-                                if item.name == site_field), None)
-            related = getattr(model_field, 'related_model', None)
-            if model_field is None or not model_field.many_to_one or \
-                    related is None or related._meta.label_lower != 'sites.site':
-                rctx.error(path + '.props.site_field',
-                           _('%(field)r is not a foreign key of %(model)s to '
-                             'sites.Site') % {'field': site_field,
-                                              'model': model._meta.label})
+        site_field = resolve_site_field(rctx, path, model, props)
         if rctx.has_errors_under(path):
             return build
         build.title = props.get('title') or str(flow)

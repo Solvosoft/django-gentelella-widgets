@@ -72,7 +72,7 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
 
 from djgentelella.authorization import evaluate_condition, validate_condition
-from djgentelella.designs.jsonschema import Error, validate
+from djgentelella.designs.jsonschema import validate
 from djgentelella.designs.models import Page, normalize_path
 from djgentelella.locking import VERSION_FIELD, version_field
 from djgentelella.sites import get_current_site
@@ -1108,8 +1108,12 @@ def run_before_render(pipeline, request, *, page=None, parent=None, node=None):
 def _built(view, stage, event=ON_SUBMIT, form_fields=None):
     if not stage:
         return None
+    # The Site of the request: a "page:" branch is looked up in it, as the
+    # pages of a design are.
+    request = _request_of(getattr(view, 'request', None))
+    site = get_current_site(request) if request is not None else None
     return build_pipeline(stage, model=getattr(view, 'model', None), event=event,
-                          form_fields=form_fields)
+                          form_fields=form_fields, site=site)
 
 
 class PipelineFormMixin:
