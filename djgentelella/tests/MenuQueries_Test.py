@@ -6,17 +6,19 @@ types, its children): ~200 on every page of the demo.
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser, Group, Permission
+from django.core.cache import cache
 from django.db import connection
 from django.template import Context, Template
 from django.template.loader import render_to_string
-from django.test import RequestFactory, TestCase
+from django.test import RequestFactory, TestCase, override_settings
 from django.test.utils import CaptureQueriesContext
+from django.urls import reverse
 
 from djgentelella.forms.decorators import decore_form_instance
 from djgentelella.menu import (
     item_visible, menu_tree, register_menu_widget, visible_items,
 )
-from djgentelella.models import MenuItem
+from djgentelella.models import MenuItem, PermissionsCategoryManagement
 from djgentelella.permission_management.forms import PermCategoryManagementForm
 from djgentelella.templatetags.gentelellamenu import PLACEHOLDER_URL_NAMES
 from djgentelella.utils import set_settings
@@ -243,3 +245,29 @@ class SidebarTitleTest(TestCase):
         html = self.render(sidebar_title='Aplicaciones <b>')
         self.assertIn('<span>Aplicaciones &lt;b&gt;</span>', html)
         self.assertNotIn('Configured', html)
+
+
+@override_settings(LANGUAGE_CODE='en')
+class PageQueriesTest(TestCase):
+    """What the layout of every page costs once its caches are warm: the menu
+    (two queries), the session and the user. Settings nobody set, the PWA tags
+    and the home template used to add a query each, or a write."""
+
+    def setUp(self):
+        cache.clear()
+        user = get_user_model().objects.create_superuser('pages', 'p@x.org', 'pw')
+        self.client.force_login(user)
+
+    def test_a_warm_page_takes_four_queries(self):
+        url = reverse('home')
+        self.client.get(url)
+        with self.assertNumQueries(4):
+            self.assertEqual(self.client.get(url).status_code, 200)
+
+    @override_settings(GT_PWA_MANIFEST=True, GT_PWA_SERVICE_WORKER=True)
+    def test_the_pwa_tags_add_none(self):
+        self.test_a_warm_page_takes_four_queries()
+
+    def test_the_home_page_writes_nothing(self):
+        self.client.get(reverse('home'))
+        self.assertFalse(PermissionsCategoryManagement.objects.exists())
