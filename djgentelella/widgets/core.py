@@ -1,4 +1,6 @@
 import json
+import re
+from dataclasses import dataclass, field
 
 from django.forms import (
     PasswordInput as DJPasswordInput,
@@ -433,10 +435,52 @@ class ClearableFileInput(DJClearableFileInput):
         super().__init__(attrs)
 
 
+#: The attribute names a :class:`WidgetAction` may set on its button.
+ACTION_ATTRIBUTE_RE = re.compile(r'^(?:data-[a-z0-9_.:-]+|aria-[a-z]+|title|id|name'
+                                 r'|value|disabled)$')
+
+
+@dataclass
+class WidgetAction:
+    """A button drawn under a field (:class:`Textarea` ``actions``): its
+    ``label`` (escaped), a Font Awesome ``icon``, its ``css_class`` and
+    ``attrs`` -- ``data-*``, ``aria-*``, ``title``, ``id``, ``name``,
+    ``value`` or ``disabled``, nothing else (no ``on*`` handler: the
+    behaviour comes from a script that finds the button). Each button also
+    gets ``data-gt-target`` with the id of the field."""
+
+    label: str
+    icon: str = ''
+    css_class: str = 'btn btn-sm btn-outline-secondary'
+    attrs: dict = field(default_factory=dict)
+
+    def __post_init__(self):
+        for name in self.attrs:
+            if not isinstance(name, str) or not ACTION_ATTRIBUTE_RE.match(name):
+                raise ValueError('A widget action cannot set the attribute %r'
+                                 % (name,))
+
+    @classmethod
+    def from_value(cls, value):
+        """``value`` as an action: a :class:`WidgetAction` as it is, or a
+        dict of its fields."""
+        if isinstance(value, cls):
+            return value
+        if isinstance(value, dict):
+            return cls(**value)
+        raise ValueError('A widget action is a WidgetAction or a dict, not %r'
+                         % (value,))
+
+
 class Textarea(DJTextarea):
+    """A text area. ``actions`` (:class:`WidgetAction` or dicts of its
+    fields) are buttons drawn under it -- generate a text, dictate, insert a
+    template --, the slot a widget of the project fills instead of wrapping
+    the template; a subclass may return them from :meth:`get_actions`."""
+
     template_name = 'gentelella/widgets/textarea.html'
 
-    def __init__(self, attrs=None, extraskwargs=True):
+    def __init__(self, attrs=None, extraskwargs=True, actions=None):
         if extraskwargs:
             attrs = update_kwargs(
                 attrs,
@@ -447,7 +491,19 @@ class Textarea(DJTextarea):
         # this `Textarea(extraskwargs=False)` died on the next line.
         attrs = attrs or {}
         attrs['rows'] = '3'
+        self.actions = [WidgetAction.from_value(action) for action in actions or ()]
         super().__init__(attrs)
+
+    def get_actions(self, name, value, attrs):
+        """The buttons under the field: :attr:`actions` by default."""
+        return list(self.actions)
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        context['widget']['actions'] = [
+            WidgetAction.from_value(action)
+            for action in self.get_actions(name, value, attrs) or ()]
+        return context
 
 
 class DateFormatConverter:

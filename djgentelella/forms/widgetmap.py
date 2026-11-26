@@ -23,6 +23,8 @@ schema per option, and :func:`build_widget` builds a widget with options that
 :func:`validate_widget_options` accepted. Only the options declared there
 reach the constructor: a design never passes free keyword arguments.
 
+A project offers its own widgets with :func:`register_widget`.
+
 The *kind* of a field is its type name (:data:`FIELD_KINDS`), except that a
 field with ``choices`` is ``'choices'``, a nullable ``BooleanField`` is
 ``'nullboolean'`` and a ``GTPointField`` is ``'point'``.
@@ -358,6 +360,73 @@ def build_widget(key, options=None, *, lookup=None):
     if key in LOOKUP_WIDGETS:
         return widget_class(key)(lookup, **options)
     return widget_class(key)(**options)
+
+
+# -- widgets of the project --------------------------------------------------------
+
+#: The keys :func:`register_widget` added (djgentelella's own are not here).
+REGISTERED_WIDGETS = set()
+
+
+def register_widget(key, path, options_schema=None, *, kinds=(), checks=None):
+    """Offer the widget of the project ``key`` (its class at the dotted
+    ``path``) wherever djgentelella's are: :func:`widget_choices` of each
+    field kind in ``kinds`` (at the end of the list, so no default changes),
+    :func:`build_widget` with the options of ``options_schema`` (``{option:
+    JSON schema}``, like :data:`WIDGET_OPTIONS`; none by default), the
+    ``widget``/``widget_options`` of a design's form field and
+    djgentelella-editor::
+
+        register_widget(
+            'AIGenerateTextarea', 'djodo.ai.widgets.AIGenerateTextarea',
+            {'prompt': {'type': 'string', 'maxLength': 100, 'title': 'Prompt'}},
+            kinds=('text', 'string'))
+
+    ``checks`` is a function ``(options, path) -> [Error]`` for what a schema
+    cannot say (:data:`WIDGET_OPTION_CHECKS`). Registering a key again
+    replaces it; a key of djgentelella's own widgets cannot be registered.
+    Call it from an ``AppConfig.ready()``: the class is only imported when a
+    widget is built.
+    """
+    if not isinstance(key, str) or not key.isidentifier():
+        raise ValueError('A widget key is a Python identifier, not %r' % (key,))
+    if key in WIDGETS and key not in REGISTERED_WIDGETS:
+        raise ValueError('%r is a widget of djgentelella: register it under '
+                         'another key' % key)
+    if not isinstance(path, str) or '.' not in path:
+        raise ValueError('The path of widget %r is a dotted path, not %r'
+                         % (key, path))
+    if options_schema is not None and not isinstance(options_schema, dict):
+        raise ValueError('The options of widget %r are {option: JSON schema}'
+                         % (key,))
+    unknown = [kind for kind in kinds if kind not in WIDGETS_BY_KIND]
+    if unknown:
+        raise ValueError('Unknown field kinds for widget %r: %s' % (
+            key, ', '.join(map(str, unknown))))
+    unregister_widget(key)
+    WIDGETS[key] = path
+    REGISTERED_WIDGETS.add(key)
+    if options_schema:
+        WIDGET_OPTIONS[key] = dict(options_schema)
+    if checks is not None:
+        WIDGET_OPTION_CHECKS[key] = checks
+    for kind in kinds:
+        if key not in WIDGETS_BY_KIND[kind]:
+            WIDGETS_BY_KIND[kind].append(key)
+
+
+def unregister_widget(key):
+    """Remove a widget :func:`register_widget` added; nothing for any other
+    key (djgentelella's own widgets stay)."""
+    if key not in REGISTERED_WIDGETS:
+        return
+    REGISTERED_WIDGETS.discard(key)
+    WIDGETS.pop(key, None)
+    WIDGET_OPTIONS.pop(key, None)
+    WIDGET_OPTION_CHECKS.pop(key, None)
+    for keys in WIDGETS_BY_KIND.values():
+        if key in keys:
+            keys.remove(key)
 
 
 def gt_formfield_callback(field, **kwargs):

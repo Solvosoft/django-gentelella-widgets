@@ -11,7 +11,9 @@ Sources live in ``<app>/gtdatasources.py`` and are registered with
 ``AppConfig.ready()``, like ``gtflows``.
 """
 
+import hashlib
 import inspect
+import json
 import logging
 import sys
 import time
@@ -201,6 +203,16 @@ def _deprecated_model(source):
     return model
 
 
+#: The longest key :meth:`DataSource.row_key` returns.
+ROW_KEY_MAX_LENGTH = 100
+
+
+def _row_hash(data):
+    text = json.dumps(data, default=str, sort_keys=True, ensure_ascii=False,
+                      separators=(',', ':'))
+    return hashlib.sha1(text.encode('utf-8'), usedforsecurity=False).hexdigest()
+
+
 @dataclass
 class Column:
     """One column a data source exposes.
@@ -263,9 +275,45 @@ class DataSource:
     #: Text search configuration for SearchVector/SearchQuery ('spanish',
     #: 'simple', ...). None uses the database default.
     search_config = None
+    #: The columns whose values identify a row (:meth:`row_key`) of a source
+    #: without a model: the id of a record of an external API, a code...
+    key_columns = ()
 
     def columns(self, request):
         raise NotImplementedError
+
+    def row_key(self, row):
+        """A stable text that identifies ``row`` (a dict keyed by column name,
+        as :func:`~djgentelella.datasources.query.serialize_rows` gives it),
+        at most :data:`ROW_KEY_MAX_LENGTH` characters: what an index, a cache
+        or a bookmark of the rows keeps.
+
+        * with :attr:`key_columns`, their values (one: as text; several: a
+          JSON list);
+        * else, for a source over a model (:attr:`project_model`), its
+          ``pk``;
+        * else a hash of the whole row (``'h:<sha1>'``, the ``pk`` left out:
+          the position of a row of an external API is not who it is), which
+          changes when any value of the row does.
+
+        A key longer than the limit is replaced by its hash. A subclass
+        overrides it when it knows better.
+        """
+        if self.key_columns:
+            values = [row.get(name) for name in self.key_columns]
+            if len(values) == 1:
+                key = '' if values[0] is None else str(values[0])
+            else:
+                key = json.dumps(values, default=str, ensure_ascii=False,
+                                 separators=(',', ':'))
+        elif project_model_of(self) is not None and 'pk' in row:
+            key = str(row['pk'])
+        else:
+            data = {name: value for name, value in row.items() if name != 'pk'}
+            key = 'h:' + _row_hash(data)
+        if len(key) > ROW_KEY_MAX_LENGTH:
+            key = 'h:' + _row_hash(key)
+        return key
 
     def get_queryset(self, request):
         """The rows ``request`` may read, as a queryset.
@@ -364,6 +412,10 @@ class RestrictedDataSource(DataSource):
 
     def columns_for_site(self, site):
         return self._only(self.source.columns_for_site(site))
+
+    def row_key(self, row):
+        """The source's key of ``row``."""
+        return self.source.row_key(row)
 
     def get_queryset(self, request, params=None):
         """The source's rows; ``params`` goes on when the source takes it."""
@@ -574,6 +626,9 @@ class FunctionDataSource(DataSource):
     list[Column]``. ``perms`` works as in :class:`DataSource`: ``None`` (the
     default) asks for an authenticated user, ``[]`` opens it to anyone.
 
+    ``key_columns`` names the columns that identify a row
+    (:meth:`DataSource.row_key`), for rows that are not of a model.
+
     ``fn`` only runs for a user with permission. For anyone else
     :meth:`get_queryset` returns ``model._default_manager.none()`` when
     ``model`` is given, and raises ``PermissionDenied`` when it is not (the
@@ -581,8 +636,10 @@ class FunctionDataSource(DataSource):
     """
 
     def __init__(self, fn, columns, *, name=None, label=None, perms=None,
-                 search_mode=None, model=None):
+                 search_mode=None, model=None, key_columns=None):
         self.fn = fn
+        if key_columns is not None:
+            self.key_columns = tuple(key_columns)
         self.model = model
         self._columns = columns
         self.name = name or '%s.%s' % (fn.__module__.split('.')[0], fn.__name__)

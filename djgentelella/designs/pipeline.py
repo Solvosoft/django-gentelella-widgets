@@ -176,6 +176,10 @@ class Process:
     #: The label of the installed app whose module defines the function
     #: (``''`` when none does).
     app: str = ''
+    #: Free labels of the step (``('ai',)``: a step an assistant may call as
+    #: a tool), for whoever lists the steps: :func:`registered_processes` and
+    #: :func:`catalogue` filter by them. The engine does not read them.
+    tags: tuple = ()
 
 
 def app_of(function):
@@ -201,7 +205,7 @@ def generation():
 
 
 def register_process(name, function=None, *, kind, schema=None, label='',
-                     description=''):
+                     description='', tags=()):
     """Register ``function`` as the step ``name`` of ``kind`` (one of
     :data:`KINDS`); without ``function``, a decorator::
 
@@ -215,6 +219,8 @@ def register_process(name, function=None, *, kind, schema=None, label='',
     ``params`` (by default it takes none); the ``default`` of a property
     fills a param the document leaves out (:func:`with_param_defaults`), so
     a step whose params all have one can be named without ``params``.
+    ``tags`` are free labels of the step (``tags=('ai',)``), kept on
+    :class:`Process` and listed by :func:`catalogue`.
     Registering a name again replaces the step. Call it from a
     ``gtdesigns.py`` (imported when the project starts) or from an
     ``AppConfig.ready()``.
@@ -227,6 +233,7 @@ def register_process(name, function=None, *, kind, schema=None, label='',
                                    % (name, ', '.join(KINDS), kind))
     if schema is not None and not isinstance(schema, dict):
         raise ImproperlyConfigured('The schema of step %r is a dict' % (name,))
+    tags = _tags(name, tags)
 
     def decorator(target):
         if not callable(target):
@@ -234,13 +241,26 @@ def register_process(name, function=None, *, kind, schema=None, label='',
         with _lock:
             _registry[name] = Process(
                 name, kind, target, dict(schema) if schema else dict(NO_PARAMS),
-                label or name, description or '', app_of(target))
+                label or name, description or '', app_of(target), tags)
             _bump()
         return target
     return decorator(function) if function is not None else decorator
 
 
-def process(name, *, kind, schema=None, label='', description=''):
+def _tags(name, tags):
+    if isinstance(tags, str):
+        tags = (tags,)
+    try:
+        found = tuple(dict.fromkeys(tags or ()))
+    except TypeError:
+        found = None
+    if found is None or not all(isinstance(tag, str) and tag for tag in found):
+        raise ImproperlyConfigured('The tags of step %r are non-empty strings, '
+                                   'not %r' % (name, tags))
+    return found
+
+
+def process(name, *, kind, schema=None, label='', description='', tags=()):
     """:func:`register_process` as a decorator::
 
         @process('shop.take_stock', kind='process')
@@ -248,7 +268,7 @@ def process(name, *, kind, schema=None, label='', description=''):
             ...
     """
     return register_process(name, kind=kind, schema=schema, label=label,
-                            description=description)
+                            description=description, tags=tags)
 
 
 def unregister_process(name):
@@ -262,20 +282,23 @@ def get_process(name):
     return _registry.get(name)
 
 
-def registered_processes(kind=None):
-    """``{name: Process}``, only those of ``kind`` when given."""
+def registered_processes(kind=None, *, tag=None):
+    """``{name: Process}``, only those of ``kind`` and with the tag ``tag``
+    when given."""
     return {name: found for name, found in sorted(_registry.items())
-            if kind is None or found.kind == kind}
+            if (kind is None or found.kind == kind)
+            and (tag is None or tag in found.tags)}
 
 
-def catalogue():
+def catalogue(*, tag=None):
     """The registered steps as data, for whoever writes documents
-    (djgentelella-editor): ``[{name, kind, label, description, schema,
-    app}]`` -- ``app``, the label of the app that defines the step."""
+    (djgentelella-editor): ``[{name, kind, label, description, schema, app,
+    tags}]`` -- ``app``, the label of the app that defines the step;
+    ``tags``, its tags as a list. Only the steps with ``tag`` when given."""
     return [{'name': found.name, 'kind': found.kind, 'label': str(found.label),
              'description': str(found.description), 'schema': found.schema,
-             'app': found.app}
-            for found in registered_processes().values()]
+             'app': found.app, 'tags': list(found.tags)}
+            for found in registered_processes(tag=tag).values()]
 
 
 # -- the build -------------------------------------------------------------------

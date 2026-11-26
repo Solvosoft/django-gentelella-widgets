@@ -1,0 +1,1 @@
+<div class="gt-widget-actions mt-1">{% for action in widget.actions %}<button type="button" class="{{ action.css_class }}" data-gt-target="{{ widget.attrs.id }}"{% for name, value in action.attrs.items %} {{ name }}="{{ value }}"{% endfor %}>{% if action.icon %}<i class="{{ action.icon }}" aria-hidden="true"></i> {% endif %}{{ action.label }}</button>{% endfor %}</div>
