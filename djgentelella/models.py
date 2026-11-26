@@ -697,7 +697,18 @@ class SiteTheme(models.Model):
     def __str__(self):
         return str(self.site) if self.site_id else str(_('Global theme'))
 
+    def normalize_colors(self):
+        """Write every colour as ``#rrggbb`` in lower case: ``#rgb`` is
+        accepted (:func:`~djgentelella.theme.values.normalize_color`)."""
+        for name in theme_values.COLORS:
+            setattr(self, name, theme_values.normalize_color(getattr(self, name)))
+
+    def clean_fields(self, exclude=None):
+        self.normalize_colors()
+        super().clean_fields(exclude=exclude)
+
     def save(self, *args, **kwargs):
+        self.normalize_colors()
         if self.pk is not None:
             version, site_id = type(self).objects.filter(pk=self.pk).values_list(
                 'version', 'site_id').first() or (0, self.site_id)

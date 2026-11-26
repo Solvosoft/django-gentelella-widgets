@@ -302,7 +302,8 @@ MENU_WIDGETS_MODULE = 'menu_widgets'
 
 # The widgets of djgentelella itself, registered when their module loads.
 _BUILTIN_WIDGET_MODULES = ('djgentelella.menu_widgets.palette',
-                           'djgentelella.notification.widgets')
+                           'djgentelella.notification.widgets',
+                           'djgentelella.menu_widgets.user')
 
 _widgets = {}
 _widgets_lock = threading.RLock()

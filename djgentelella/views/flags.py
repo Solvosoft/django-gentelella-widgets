@@ -71,6 +71,9 @@ class FlagIconView(View):
     With none of them the symbol body is returned untouched.
     """
 
+    #: Public (:func:`djgentelella.public.is_public_view`): a flag is an image.
+    gt_public = True
+
     def get_size(self, request):
         try:
             size = int(request.GET.get('size', ''))
@@ -124,6 +127,9 @@ class FlagSpriteView(View):
     that already declares a ``Content-Encoding`` alone, so this cannot end up
     doubly compressed.
     """
+
+    #: Public (:func:`djgentelella.public.is_public_view`).
+    gt_public = True
 
     def get(self, request):
         payload = get_sprite_bytes()

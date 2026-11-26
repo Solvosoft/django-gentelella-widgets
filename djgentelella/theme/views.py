@@ -11,6 +11,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_GET
 
 from djgentelella.models import SiteTheme
+from djgentelella.public import public_view
 from djgentelella.sites import get_current_site
 from djgentelella.theme import values
 from djgentelella.theme.css import render_css
@@ -31,6 +32,7 @@ def _cached(response, request, version):
     return response
 
 
+@public_view
 @require_GET
 def theme_css(request, pk):
     """The stylesheet of the theme ``pk``: public, like any stylesheet."""
@@ -41,6 +43,7 @@ def theme_css(request, pk):
     return _cached(response, request, theme.version)
 
 
+@public_view
 @require_GET
 def theme_logo(request, pk):
     """The logo of the theme ``pk``, with the content type of its (validated)
@@ -81,7 +84,8 @@ def _scope(request):
 def theme_preview(request):
     """The CSS of the values being edited, for the live preview: the same
     writer as the saved stylesheet, so only valid values ever reach it."""
-    data = {name: request.GET.get(name, '') for name in values.COLORS}
+    data = {name: values.normalize_color(request.GET.get(name, ''))
+            for name in values.COLORS}
     data['font'] = request.GET.get('font', '')
     radius = request.GET.get('border_radius', '')
     data['border_radius'] = int(radius) if radius.isdigit() else None

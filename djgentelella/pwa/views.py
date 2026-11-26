@@ -13,12 +13,14 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 
 from djgentelella.models import PushSubscription
+from djgentelella.public import public_view
 from djgentelella.pwa import push
 from djgentelella.pwa.appsettings import AppSettings
 from djgentelella.pwa.manifest import build_manifest, worker_config
 from djgentelella.sites import get_current_site
 
 
+@public_view
 @require_GET
 def manifest_view(request):
     """The web app manifest of the current Site."""
@@ -29,6 +31,7 @@ def manifest_view(request):
     return response
 
 
+@public_view
 @require_GET
 def service_worker_view(request):
     """``sw.js``. Allowed to control ``GT_PWA_SCOPE`` wherever it is mounted,
@@ -43,6 +46,7 @@ def service_worker_view(request):
     return response
 
 
+@public_view
 @require_GET
 def offline_view(request):
     """What the service worker shows for a page when there is no network."""
@@ -87,6 +91,7 @@ def subscribe_view(request):
     return JsonResponse({'id': subscription.pk}, status=201)
 
 
+@public_view
 @csrf_exempt
 @require_POST
 def resubscribe_view(request):

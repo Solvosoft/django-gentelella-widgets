@@ -5,6 +5,7 @@ manifest tags, no service worker and no push.
 """
 from django.conf import settings
 from django.templatetags.static import static
+from django.urls import get_script_prefix
 
 from djgentelella import __version__
 
@@ -44,8 +45,18 @@ def service_worker_enabled():
 
 
 def scope():
-    """``GT_PWA_SCOPE``: the scope of the service worker and of the app."""
-    return getattr(settings, 'GT_PWA_SCOPE', '/')
+    """``GT_PWA_SCOPE``: the scope of the service worker and of the app.
+
+    Without it, the script prefix of the current request
+    (``get_script_prefix()``: ``SCRIPT_NAME``, ``FORCE_SCRIPT_NAME`` or the
+    prefix a middleware sets, such as ``/a/<slug>/`` of an application served
+    under a path), so the manifest's ``scope`` and ``start_url`` stay inside
+    the application; ``/`` when there is none.
+    """
+    value = getattr(settings, 'GT_PWA_SCOPE', None)
+    if value:
+        return value
+    return get_script_prefix() or '/'
 
 
 def cache_version():

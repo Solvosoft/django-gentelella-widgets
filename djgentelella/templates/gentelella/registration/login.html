@@ -1,6 +1,12 @@
 {% extends 'gentelella/base.html' %}
 {% load static i18n %}
-
+{% comment %}
+Blocks a project overrides instead of copying this page:
+  login_messages   the errors and the "please login" notes, above the fields;
+  login_form       the whole form (messages, fields, buttons, footer);
+  login_providers  under the form, empty: buttons of other ways to sign in
+                   (an OpenID Connect provider, a single sign-on...).
+{% endcomment %}
 {% block body_class %}login{% endblock body_class %}
 {% block body %}
 <div>
@@ -9,11 +15,13 @@
 	<div class="login_wrapper">
 		<div class="animate form login_form">
 			<section class="login_content">
+				{% block login_form %}
 				<form method="post" action="{% url 'login' %}">
 					{% csrf_token %}
 					<input type="hidden" name="next" value="{{ next }}">
 					<h1>{% trans 'Login' %}</h1>
 					<div>
+						{% block login_messages %}
 						{% if form.errors %}
 						<p class="text-warning">{% trans "Your username and password didn't match. Please try again." %}</p>
 						{% endif %}
@@ -26,6 +34,7 @@
 						<p class="text-warning">{% trans "Please login to see this page." %}</p>
 						{% endif %}
 						{% endif %}
+						{% endblock login_messages %}
 
 					</div>
 					<div>
@@ -41,6 +50,8 @@
 
 					{% include 'gentelella/registration/footer.html' %}
 				</form>
+				{% endblock login_form %}
+				{% block login_providers %}{% endblock login_providers %}
 			</section>
 		</div>
 	</div>

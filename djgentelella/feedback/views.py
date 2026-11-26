@@ -1,7 +1,8 @@
 """Send feedback, the reviewers' inbox and one feedback with its answer."""
 
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import Http404, HttpResponseRedirect, JsonResponse
@@ -12,14 +13,18 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
-from djgentelella.feedback.conf import feedback_enabled
+from djgentelella.feedback.conf import (
+    ANSWER_PERMISSION, REVIEW_PERMISSION, can_answer_feedback, feedback_enabled,
+    is_feedback_reviewer,
+)
 from djgentelella.feedback.forms import FeedbackForm, ResponseForm
 from djgentelella.models import Feedback
 from djgentelella.notification import create_notification
 from djgentelella.sites import get_current_site, site_q
 
-REVIEW = 'djgentelella.view_feedback'
-ANSWER = 'djgentelella.change_feedback'
+#: Kept for compatibility: the permissions without ``GT_FEEDBACK_REVIEWER``.
+REVIEW = REVIEW_PERMISSION
+ANSWER = ANSWER_PERMISSION
 
 
 def _wants_json(request):
@@ -72,9 +77,11 @@ def reviewer_queryset(request):
 
 
 @login_required
-@permission_required(REVIEW, raise_exception=True)
 def feedback_inbox(request):
-    """The reviewers' inbox, newest first, filtered by status and type."""
+    """The reviewers' inbox, newest first, filtered by status and type; 403
+    for whoever is not a reviewer of the Site (:func:`is_feedback_reviewer`)."""
+    if not is_feedback_reviewer(request):
+        raise PermissionDenied()
     queryset = reviewer_queryset(request)
     status = request.GET.get('status', '')
     if status in dict(Feedback.STATUSES):
@@ -106,14 +113,16 @@ def feedback_detail(request, pk):
     """One feedback: its author reads it with the answer; a reviewer of its
     Site also changes its status and answers it."""
     user = request.user
-    reviewer = user.has_perm(REVIEW) or user.has_perm(ANSWER)
+    answerer = can_answer_feedback(request, user)
+    inbox = is_feedback_reviewer(request, user)
+    reviewer = inbox or answerer
     queryset = Feedback.objects.select_related('user', 'site', 'responded_by')
     if reviewer:
         queryset = queryset.filter(Q(site_q(get_current_site(request))) | Q(user=user))
     else:
         queryset = queryset.filter(user=user)
     feedback = get_object_or_404(queryset, pk=pk)
-    can_answer = user.has_perm(ANSWER) and reviewer_queryset(request).filter(
+    can_answer = answerer and reviewer_queryset(request).filter(
         pk=feedback.pk).exists()
     form = None
     if can_answer:
@@ -136,5 +145,5 @@ def feedback_detail(request, pk):
         raise Http404()
     return render(request, 'gentelella/feedback/detail.html', {
         'feedback': feedback, 'form': form,
-        'inbox': user.has_perm(REVIEW),
+        'inbox': inbox,
     })

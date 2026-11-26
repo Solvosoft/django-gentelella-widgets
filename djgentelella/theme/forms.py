@@ -13,7 +13,7 @@ def color_widget():
     # puts a colour picker next to it.
     return genwidgets.TextInput(attrs={
         'class': 'gt-theme-color', 'placeholder': '#rrggbb', 'maxlength': 7,
-        'pattern': values.HEX_PATTERN.strip('^$'), 'autocomplete': 'off'})
+        'pattern': values.INPUT_PATTERN.strip('^$'), 'autocomplete': 'off'})
 
 
 class SiteThemeForm(GTForm, forms.ModelForm):

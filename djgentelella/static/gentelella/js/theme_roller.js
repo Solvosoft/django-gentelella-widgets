@@ -10,6 +10,16 @@
         return;
     }
     var HEX = /^#[0-9a-fA-F]{6}$/;
+    var SHORT = /^#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])$/;
+
+    // #rgb is accepted too (the server stores it as #rrggbb).
+    function longHex(value) {
+        var short = SHORT.exec(value);
+        if (short) {
+            return ('#' + short[1] + short[1] + short[2] + short[2] + short[3] + short[3]).toLowerCase();
+        }
+        return HEX.test(value) ? value.toLowerCase() : null;
+    }
     var timer = null;
 
     function query() {
@@ -33,7 +43,7 @@
         picker.title = field.placeholder;
         picker.setAttribute('aria-label', (field.labels && field.labels[0]
             ? field.labels[0].textContent : field.name) + ' (picker)');
-        picker.value = HEX.test(field.value) ? field.value : '#ffffff';
+        picker.value = longHex(field.value.trim()) || '#ffffff';
         var group = document.createElement('div');
         group.className = 'input-group';
         field.parentNode.insertBefore(group, field);
@@ -44,8 +54,9 @@
             refresh();
         });
         field.addEventListener('input', function () {
-            if (HEX.test(field.value.trim())) {
-                picker.value = field.value.trim();
+            var color = longHex(field.value.trim());
+            if (color) {
+                picker.value = color;
             }
             refresh();
         });

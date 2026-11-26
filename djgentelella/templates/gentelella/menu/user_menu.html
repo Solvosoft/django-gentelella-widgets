@@ -1,0 +1,19 @@
+{% load i18n %}
+<a id="{{ id }}" href="#" class="dropdown-toggle gt-user-menu" data-bs-toggle="dropdown"
+   role="button" aria-haspopup="true" aria-expanded="false" title="{{ item.title }}">
+  <i class="{{ item.icon|default:'fa fa-user' }}" aria-hidden="true"></i>
+  <span>{{ user.get_username }}</span>
+</a>
+<ul class="dropdown-menu dropdown-menu-end" role="menu" aria-labelledby="{{ id }}">
+  {% for entry in entries %}
+  {% if entry.divider and not forloop.first %}<li><hr class="dropdown-divider"></li>{% endif %}
+  {% if entry.method == 'post' %}
+  <li><form method="post" action="{{ entry.url }}" class="px-3">{% csrf_token %}
+    <button type="submit" class="btn btn-link dropdown-item p-0" id="{{ entry.id }}">
+      {% if entry.icon %}<i class="{{ entry.icon }}" aria-hidden="true"></i> {% endif %}{{ entry.title }}</button></form></li>
+  {% else %}
+  <li><a class="dropdown-item" id="{{ entry.id }}" href="{{ entry.url }}">
+    {% if entry.icon %}<i class="{{ entry.icon }}" aria-hidden="true"></i> {% endif %}{{ entry.title }}</a></li>
+  {% endif %}
+  {% endfor %}
+</ul>

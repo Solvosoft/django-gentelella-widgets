@@ -22,6 +22,28 @@ hex_color = RegexValidator(
     HEX_PATTERN, _('Enter a colour as #rrggbb (six hexadecimal digits).'),
     code='invalid_color')
 
+#: What a colour field takes as typed: ``#rrggbb`` or the short ``#rgb``,
+#: which :func:`normalize_color` turns into the first before it is checked.
+INPUT_PATTERN = r'^#(?:[0-9a-fA-F]{3}){1,2}$'
+SHORT_HEX_RE = re.compile(r'^#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])$')
+
+
+def normalize_color(value):
+    """``value`` as the theme stores it: ``#rgb`` becomes ``#rrggbb``, the
+    digits lower case, the blanks around it gone (``' #ABC '`` ->
+    ``'#aabbcc'``). Anything else is returned as it is (stripped, when it is
+    a string), for the validator to refuse it."""
+    if not isinstance(value, str):
+        return value
+    value = value.strip()
+    short = SHORT_HEX_RE.match(value)
+    if short:
+        value = '#' + ''.join(digit * 2 for digit in short.groups())
+    if HEX_RE.match(value):
+        return value.lower()
+    return value
+
+
 #: The colours of a theme: ``field -> label``, in the order of the form.
 COLORS = {
     'primary': _('Primary'),

@@ -31,6 +31,7 @@ from djgentelella.views.dynamic import dynamic_action_view, lov_view
 from djgentelella.views.geocoding import geocode_view
 from djgentelella.views.markdown import markdown_preview_view
 from .groute import routes
+from .public import public_view
 from .templatetags.gtsettings import get_version
 from .views import auth
 from .trash.api import TrashViewSet
@@ -62,34 +63,34 @@ auth_urls = [
     ),
     path(
         'accounts/password_reset/',
-        auth_views.PasswordResetView.as_view(
+        public_view(auth_views.PasswordResetView.as_view(
             email_template_name='gentelella/registration/password_reset_email.html',
             subject_template_name='gentelella/registration/password_reset_subject.txt',
             html_email_template_name='gentelella/registration/'
             + 'password_reset_email.html',
             template_name='gentelella/registration/password_reset_form.html',
-        ),
+        )),
         name='password_reset',
     ),
     path(
         'accounts/password_reset/done/',
-        auth_views.PasswordResetDoneView.as_view(
+        public_view(auth_views.PasswordResetDoneView.as_view(
             template_name='gentelella/registration/password_reset_done.html'
-        ),
+        )),
         name='password_reset_done',
     ),
     path(
         'accounts/reset/<uidb64>/<token>/',
-        auth_views.PasswordResetConfirmView.as_view(
+        public_view(auth_views.PasswordResetConfirmView.as_view(
             template_name='gentelella/registration/password_reset_confirm.html'
-        ),
+        )),
         name='password_reset_confirm',
     ),
     path(
         'accounts/reset/done/',
-        auth_views.PasswordResetDoneView.as_view(
+        public_view(auth_views.PasswordResetDoneView.as_view(
             template_name='gentelella/registration/reset_done.html'
-        ),
+        )),
         name='password_reset_complete',
     ),
 ]
@@ -239,15 +240,16 @@ if apps.is_installed('djgentelella.flows'):
 
 if settings.DEBUG:
     urlpatterns += [
-        path('djsi18n/', JavaScriptCatalog.as_view(), name='djgentelella-js-catalog'),
+        path('djsi18n/', public_view(JavaScriptCatalog.as_view()),
+             name='djgentelella-js-catalog'),
     ]
 else:
     urlpatterns += [
         path(
             'djsi18n/',
-            cache_page(86400, key_prefix='djsi18n-%s' % get_version())(
+            public_view(cache_page(86400, key_prefix='djsi18n-%s' % get_version())(
                 JavaScriptCatalog.as_view()
-            ),
+            )),
             name='djgentelella-js-catalog',
         ),
     ]
