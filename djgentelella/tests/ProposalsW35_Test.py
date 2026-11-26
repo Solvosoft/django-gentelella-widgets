@@ -21,12 +21,12 @@ from django.test import RequestFactory, SimpleTestCase, TestCase, override_setti
 from django.urls import resolve, reverse, set_script_prefix
 from django.views import View
 
-from demoapp.models import Product
+from demoapp.models import Department, Product
 from djgentelella.datasources.base import (
     ROW_KEY_MAX_LENGTH, Column, FunctionDataSource, ModelDataSource, restricted,
 )
 from djgentelella.designs import engine, pipeline
-from djgentelella.designs.data_components import master_detail_of
+from djgentelella.designs.data_components import links_to_itself, master_detail_of
 from djgentelella.designs.models import Page
 from djgentelella.feedback.conf import can_answer_feedback, is_feedback_reviewer
 from djgentelella.forms import widgetmap
@@ -605,3 +605,56 @@ class MasterDetailTests(DataDesignTestCase):
             'w35-master/%d' % self.food.pk]))
         self.assertNotIn('master', self.config(response))
         self.assertTrue(Page.objects.filter(path='w35-master').exists())
+
+
+# -- E16: what the editor asked at the end of the wave ---------------------------------
+
+class E16ProposalTests(DataDesignTestCase):
+    def test_the_cards_declare_page_size(self):
+        from djgentelella.designs.openapi import openapi_parameters  # noqa: PLC0415 test
+        from djgentelella.designs.regions import CardsViewSet  # noqa: PLC0415 test
+        self.assertEqual([item['name'] for item in openapi_parameters(CardsViewSet,
+                                                                      'list')],
+                         ['params', 'search', 'page', 'page_size'])
+
+    def test_a_flow_without_finals_has_no_dead_ends(self):
+        from djgentelella.flows import Flow, Transition  # noqa: PLC0415 app
+        cyclic = Flow(model=Product, name='tests.w35.cyclic',
+                      states=[('open', 'Open'), ('closed', 'Closed')],
+                      initial='open',
+                      transitions=[Transition('close', 'open', 'closed'),
+                                   Transition('reopen', 'closed', 'open')])
+        self.assertTrue(cyclic.is_endless())
+        self.assertEqual(cyclic.dead_ends(), [])
+        linear = Flow(model=Product, name='tests.w35.linear',
+                      states=[('new', 'New'), ('done', 'Done')], initial='new',
+                      transitions=[Transition('go', 'new', 'done')])
+        self.assertFalse(linear.is_endless())
+
+    def test_site_rows_by_field(self):
+        from djgentelella.designs.factories import (  # noqa: PLC0415 test
+            __all__ as public, site_rows_by_field,
+        )
+        self.assertIn('site_rows_by_field', public)
+        queryset = Product.objects.all()
+        request = RequestFactory().get('/')
+        self.assertIs(site_rows_by_field(queryset, '', request), queryset)
+        self.assertIn('site', str(site_rows_by_field(
+            Department.objects.all(), 'site', request).query).lower())
+
+    def test_a_row_link_to_the_path_it_is_published_at(self):
+        document = design(
+            node('object_management', 'categories', {
+                'model': 'demoapp.ProductCategory', 'form': 'category_form',
+                'list_fields': ['name'],
+                'row_links': [{'url_name': 'page:w35/elsewhere', 'title': 'Open'}]}),
+            forms={'category_form': {'model': 'demoapp.ProductCategory',
+                                     'fields': ['name']}},
+            url='w35-self/', parent={'model': 'demoapp.ProductCategory'})
+        self.assertTrue(self.errors(document))
+        page = self.publish(document, path='w35/elsewhere')
+        build = engine.resolve_page(page)[0].nodes['categories'].build
+        self.assertEqual(build.row_links[0].page, 'w35/elsewhere')
+        self.assertTrue(links_to_itself(document, 'page:w35/elsewhere',
+                                        path='w35/elsewhere/'))
+        self.assertFalse(links_to_itself(document, 'page:w35/elsewhere'))

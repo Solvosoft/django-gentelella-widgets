@@ -1375,12 +1375,26 @@ class Flow:
         reached = self._closure([self.initial], self._successors())
         return [key for key in self.activities if key not in reached]
 
+    def is_endless(self):
+        """Whether the flow has no final activity at all: every state has a
+        way out (a cycle, such as the status of a record that is opened and
+        closed again) or ``final_states`` is empty. Such a flow never
+        finishes by design."""
+        return not any(self.is_final(key) for key in self.activities)
+
     def dead_ends(self):
         """The activities that are not final and from which no final one
         can be reached: an instance that gets there never finishes. In
-        declaration order."""
+        declaration order.
+
+        A flow without final activities (:meth:`is_endless`) has none: never
+        finishing is what it is meant to do, so no state is a dead end; a
+        check of the flow (an Advisor) asks :meth:`is_endless` to warn
+        about it on its own."""
         successors = self._successors()
         finals = {key for key in self.activities if self.is_final(key)}
+        if not finals:
+            return []
         return [key for key in self.activities if key not in finals
                 and not (self._closure([key], successors) & finals)]
 

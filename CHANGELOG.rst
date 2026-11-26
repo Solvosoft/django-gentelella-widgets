@@ -534,6 +534,14 @@ exposes ``gtdesign_select_row`` and ``gtdesign_master_detail``. See
 ``widgets/core_inputs.rst``, ``pipeline.rst``, ``datasources.rst`` and
 ``designs.rst``.
 
+From E16 (W35): ``CardsViewSet`` declares ``page_size`` in its
+``openapi_parameters``; ``Flow.is_endless()`` and ``dead_ends()`` is empty for a
+flow without final activities (a cycle never finishes by design);
+``factories.site_rows_by_field(queryset, site_field, request)``; a row link
+``page:<path>`` names the page being published at that path even when it is not
+its ``meta.url`` (``data_components.publishing_path``, ``links_to_itself(...,
+path=)``). See ``flows.rst`` and ``designs.rst``.
+
 Backwards incompatible
 """"""""""""""""""""""""
 
@@ -1053,6 +1061,10 @@ served under a prefix that wants the old scope sets ``GT_PWA_SCOPE = '/'``.
 ``SiteTheme`` (or ``full_clean()``) writes each colour as ``#rrggbb`` in lower
 case, so a theme saved as ``#AABBCC`` reads back ``#aabbcc``. Compare colours
 case-insensitively, or through ``theme.values.normalize_color``.
+
+**``Flow.dead_ends()`` of a flow without final activities is empty (W35).** It
+listed every state of a cyclic flow. Use ``Flow.is_endless()`` to warn about a
+flow that never finishes.
 
 0.7.1 (2026-11-15)
 --------------------

@@ -12,6 +12,7 @@ from django.db.models import Q
 from django.utils.translation import gettext as _
 
 from djgentelella.designs import engine, format
+from djgentelella.designs.data_components import publishing_path
 from djgentelella.designs.models import Page, normalize_path
 from djgentelella.sites import resolve_site
 
@@ -66,7 +67,9 @@ def publish(document, *, site=None, path=None, user=None, published=True,
         document = format.upgrade(document)
     except format.UpgradeError as error:
         return None, [format.Error('$.schema_version', str(error))]
-    errors = validate(document, user, site=site, context=context)
+    # A row link to "page:<path>" names this very page (master-detail).
+    with publishing_path(path):
+        errors = validate(document, user, site=site, context=context)
     if errors:
         return None, errors
     path = normalize_path(path) if path else default_path(document)

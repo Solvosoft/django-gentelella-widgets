@@ -282,9 +282,14 @@ object>``; without the pk it is a 404, unless ``meta.parent`` has
 ``"choose": true``: then ``designs/<path>`` lists the first 50 objects the
 user may see (the view permissions of the model's exposure, and the Site rule
 of its ``site_field``), each a link to its page -- a page a menu can link to.
-A row link may name the page being published itself (``page:<its meta.url>``
-or its ``meta.url_name``), the master-detail page that does not exist yet the
-first time it is published.
+A row link may name the page being published itself (``page:<its meta.url>``,
+``page:<the path it is published at>`` or its ``meta.url_name``), the
+master-detail page that does not exist yet the first time it is published
+(``publish(..., path=)`` sets that path through
+``data_components.publishing_path``; ``links_to_itself(document, name,
+path=None)`` answers it). Generated code that has the name of a Site field and
+no build limits its rows with ``factories.site_rows_by_field(queryset,
+site_field, request)``.
 
 A master-detail page (djgentelella-editor writes it) is such a page with a
 ``row`` whose node ``meta`` says ``{"master_detail": {"variant": "stacked",

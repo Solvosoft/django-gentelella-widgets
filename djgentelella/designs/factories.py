@@ -83,7 +83,8 @@ from djgentelella.sites import site_q
 __all__ = ['CHART_CLASSES', 'DesignDataSource', 'GTFiltersMixin', 'apply_filters',
            'chart_getter_for', 'chart_rows', 'parse_filters',
            'clear_cache', 'crud_viewset_for', 'facets_viewset_for', 'filterset_for',
-           'management_viewset_for', 'serializer_for', 'site_rows', 'stat_value',
+           'management_viewset_for', 'serializer_for', 'site_rows',
+           'site_rows_by_field', 'stat_value',
            'stat_view_for']
 
 #: Chart kind -> the djgentelella.chartjs getter it extends.
@@ -205,6 +206,15 @@ def site_rows(queryset, build, request):
     of the request's Site and the global ones (:func:`~djgentelella.sites.
     site_q`)."""
     site_field = getattr(build, 'site_field', '')
+    if not site_field:
+        return queryset
+    return queryset.filter(site_q(request_site(request), field=site_field))
+
+
+def site_rows_by_field(queryset, site_field, request):
+    """``queryset`` limited, when ``site_field`` is not empty, to the rows of
+    the request's Site and the global ones: :func:`site_rows` for code that
+    has the name of the field and no build (generated code)."""
     if not site_field:
         return queryset
     return queryset.filter(site_q(request_site(request), field=site_field))

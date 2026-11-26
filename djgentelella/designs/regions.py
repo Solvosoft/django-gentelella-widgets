@@ -800,7 +800,7 @@ class CardsViewSet(RegionMixin, ListAreaViewset):
 
     #: What the endpoint reads besides its serializer
     #: (:mod:`djgentelella.designs.openapi`).
-    openapi_parameters = {'list': ['page']}
+    openapi_parameters = {'list': ['page', 'page_size']}
 
     pagination_class = CardsPagination
     filter_backends = ()

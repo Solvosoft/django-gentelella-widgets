@@ -711,7 +711,11 @@ failed are coloured (``data-status="active|completed|error"`` on each node).
 ``flow.unreachable_states()`` lists the activities no edge of the graph
 reaches from the initial one, and ``flow.dead_ends()`` the ones that are not
 final and from which no final activity can be reached (an instance there
-never finishes): checks for a flow designer or an advisor.
+never finishes): checks for a flow designer or an advisor. A flow without any
+final activity (every state has a way out, a cycle such as a record opened and
+closed again, or ``final_states=[]``) is ``flow.is_endless()``; its
+``dead_ends()`` is empty -- never finishing is what it is meant to do --, so a
+check that wants to warn about it asks ``is_endless()``.
 
 ``flow.instance_diagram(obj, user)`` is the diagram of one instance, what the
 detail page shows:

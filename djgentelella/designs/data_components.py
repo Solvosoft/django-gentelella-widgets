@@ -27,6 +27,8 @@ allows; every endpoint checks ``AllPermissionByAction`` with the permissions
 of the build.
 """
 
+import contextlib
+import contextvars
 import copy
 
 from django.apps import apps
@@ -67,6 +69,7 @@ __all__ = ['ChartComponent', 'CrudClassicComponent', 'DATA_COMPONENTS',
            'StatComponent', 'parse_flow_link', 'resolve_row_link',
            'FACETS_TEMPLATE', 'facets_page_context', 'TABLE_TEMPLATE',
            'links_to_itself', 'master_detail_config', 'master_detail_of',
+           'publishing_path',
            'row_link_config', 'table_page_context']
 
 SCRIPT = 'gentelella/js/designs/data_components.js'
@@ -268,13 +271,35 @@ def design_page_for(name):
     return page
 
 
-def links_to_itself(document, name):
+#: The path a document is being published at (:func:`publishing_path`).
+_PUBLISHING_PATH = contextvars.ContextVar('gtdesign_publishing_path', default=None)
+
+
+@contextlib.contextmanager
+def publishing_path(path):
+    """While a document is validated to be published at ``path``, a row link
+    ``page:<path>`` names that page itself (:func:`links_to_itself`), even
+    when the path is not the document's ``meta.url``.
+    :func:`~djgentelella.designs.publishing.publish` sets it."""
+    token = _PUBLISHING_PATH.set(normalize_path(path) if path else None)
+    try:
+        yield
+    finally:
+        _PUBLISHING_PATH.reset(token)
+
+
+def links_to_itself(document, name, path=None):
     """Whether the row link ``name`` names the page of ``document`` itself:
-    ``page:<its meta.url>`` or its ``meta.url_name``."""
+    ``page:<its meta.url>``, ``page:<path>`` (the path it is published at:
+    ``path``, else the one of :func:`publishing_path`) or its
+    ``meta.url_name``."""
     meta = (document or {}).get('meta') or {}
     if name.startswith(PAGE_PREFIX):
-        return bool(meta.get('url')) and normalize_path(
-            name[len(PAGE_PREFIX):]) == normalize_path(meta['url'])
+        target = normalize_path(name[len(PAGE_PREFIX):])
+        path = path or _PUBLISHING_PATH.get()
+        if path and target == normalize_path(path):
+            return True
+        return bool(meta.get('url')) and target == normalize_path(meta['url'])
     return bool(meta.get('url_name')) and name == meta['url_name']
 
 
@@ -441,7 +466,8 @@ def resolve_row_link(rctx, link, model, path):
     if page is None and links_to_itself(rctx.design, name):
         # The page being published, not saved yet (a master-detail page
         # whose rows link to itself): its own meta.parent decides.
-        page = Page(path=normalize_path(rctx.design['meta']['url']),
+        page = Page(path=normalize_path(_PUBLISHING_PATH.get()
+                                        or rctx.design['meta']['url']),
                     document=rctx.design)
     if page is None:
         rctx.error(path, _('%r is neither a URL name of the project that takes '
