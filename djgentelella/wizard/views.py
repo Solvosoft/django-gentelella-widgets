@@ -841,8 +841,9 @@ class GTWizardView(TemplateResponseMixin, ContextMixin, View):
     def previous(self, step):
         state = self.load_state()
         index = self.step_index(step)
-        if step not in self.active_steps():
+        if step.name not in [item.name for item in self.active_steps()]:
             # It stopped applying: the step before it is the last one before.
+            # By name: the steps of a design are built again on every call.
             index += 1
         state['current'] = self.active_steps()[max(index - 1, 0)].name
         self.save_state()

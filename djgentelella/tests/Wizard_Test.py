@@ -58,6 +58,15 @@ class SessionWizard(GTWizardView):
              Step('job', JobForm, 'Job')]
 
 
+class FreshStepsWizard(SessionWizard):
+    """New ``Step`` objects on every call, as the wizard of a design builds
+    them: the view must compare steps by name, never by identity."""
+
+    def get_steps(self):
+        return [Step(step.name, step.form_class, step.title,
+                     condition=step.condition) for step in self.steps]
+
+
 class FailingWizard(SessionWizard):
     """Saves the object and then fails: nothing must stay."""
 
@@ -157,6 +166,7 @@ def done_view(request):
 
 urlpatterns = [
     path('wizard-test/', SessionWizard.as_view(), name='wiz_session'),
+    path('wizard-fresh/', FreshStepsWizard.as_view()),
     path('wizard-failing/', FailingWizard.as_view(), name='wiz_failing'),
     path('wizard-hooked/', HookedWizard.as_view(), name='wiz_hooked'),
     path('wizard-edit/<int:pk>/', EditWizard.as_view(), name='wiz_edit'),
@@ -226,6 +236,13 @@ class WizNavigationTests(WizBase):
         response = self.client.get(self.url)
         self.assertContains(response, 'Step 2 of 2')
         self.assertContains(response, '2026-12-24')
+
+    def test_back_with_steps_built_on_every_call(self):
+        url = '/wizard-fresh/'
+        self.post(url, personal())
+        self.assertContains(self.client.get(url), 'Step 2 of 2: Job')
+        self.post(url, JOB, 'previous')
+        self.assertContains(self.client.get(url), 'Step 1 of 2')
 
     def test_a_step_with_errors_stays(self):
         response = self.post(self.url, personal(email='not an email'))
