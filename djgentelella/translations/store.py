@@ -77,6 +77,11 @@ def save_page(page, update):
         errors.extend(core.validate_language(code, '$.%s' % code))
         if not isinstance(texts, dict):
             errors.append(Error('$.%s' % code, _('an object {key: text}')))
+            continue
+        # Before merge(), which strips each text.
+        errors.extend(Error('$.%s[%r]' % (code, key), _('a translation is a text'))
+                      for key, text in texts.items()
+                      if text is not None and not isinstance(text, str))
     if errors:
         return errors
     document = dict(page.document)
@@ -88,9 +93,6 @@ def save_page(page, update):
             if key not in known:
                 errors.append(Error('$.%s[%r]' % (code, key), _(
                     'the document has no translatable text %s') % key))
-            elif text is not None and not isinstance(text, str):
-                errors.append(Error('$.%s[%r]' % (code, key),
-                                    _('a translation is a text')))
     errors.extend(translations.validate_translations(document))
     if errors:
         return errors
@@ -163,9 +165,11 @@ def save_lov(name, update):
         where = '$[%r]' % (value,)
         if not isinstance(value, str) or not value or len(value) > 255:
             errors.append(Error(where, _('a value is a text of 1 to 255 characters')))
+        if not isinstance(texts, dict):
+            errors.append(Error(where, _('an object {language: label}')))
+            continue
         errors.extend(core.validate_texts(
-            {code: text or '' for code, text in (texts or {}).items()}
-            if isinstance(texts, dict) else texts, where))
+            {code: text or '' for code, text in texts.items()}, where))
     if errors:
         return errors
     model = _model()

@@ -545,3 +545,135 @@ class ScreenTests(DataDesignTestCase):
         response = self.client.post(reverse('gt_translations_import'),
                                     {'file': upload}, follow=True)
         self.assertContains(response, 'not valid JSON')
+
+
+@register_lov('w34_secret', perms=['auth.view_user'])
+def w34_secret(request, q=''):
+    return [('s', 'Secreto')]
+
+
+def translations_file(**sections):
+    return SimpleUploadedFile('t.json', json.dumps(dict(
+        {'format': 'djgentelella.translations', 'version': 1},
+        **sections)).encode())
+
+
+@override_settings(LANGUAGES=LANGUAGES, LANGUAGE_CODE='es')
+class ScreenScopeTests(DataDesignTestCase):
+    """The screens see the LOVs the user may open and the objects of the
+    request's Site (and the global ones), as the design pages do (D22)."""
+
+    def setUp(self):
+        super().setUp()
+        self.other = Site.objects.create(domain='otro.example.com', name='Otro')
+        self.page = self.publish(translated_design(), path='translated',
+                                 user=self.user)
+        self.foreign_page = self.publish(translated_design(), path='foreign',
+                                         site=self.other, user=self.user)
+        self.item = MenuItem.objects.create(title='Catálogo', url_name='/',
+                                            key='catalogue')
+        self.foreign_item = MenuItem.objects.create(
+            title='Ajeno', url_name='/ajeno', key='foreign', site=self.other)
+
+    def test_import_needs_the_permission_of_each_lov(self):
+        # The reproduction: the screen of w34_secret is a 403, but its labels
+        # were rewritten through the import.
+        self.grant('djgentelella.change_lovtranslation')
+        self.assertEqual(self.client.get(reverse(
+            'gt_translations_lov', args=['w34_secret'])).status_code, 403)
+        response = self.client.post(reverse('gt_translations_import'), {
+            'file': translations_file(lovs=[{
+                'lov': 'w34_secret', 'value': 's',
+                'translations': {'en': 'Hacked'}}])}, follow=True)
+        self.assertContains(response, 'w34_secret')
+        self.assertFalse(LOVTranslation.objects.filter(lov='w34_secret').exists())
+        request = RequestFactory().get('/')
+        request.user = self.user
+        summary, errors = transfer.import_translations({
+            'format': 'djgentelella.translations', 'version': 1,
+            'lovs': [{'lov': 'w34_secret', 'value': 's',
+                      'translations': {'en': 'Hacked'}}]}, request=request)
+        self.assertIsNone(summary)
+        self.assertEqual([error.path for error in errors], ['$.lovs[0]'])
+        # Without a request (the command), every LOV, as before.
+        summary, errors = transfer.import_translations({
+            'format': 'djgentelella.translations', 'version': 1,
+            'lovs': [{'lov': 'w34_secret', 'value': 's',
+                      'translations': {'en': 'Secret'}}]})
+        self.assertEqual(errors, [])
+        self.assertEqual(LOVTranslation.objects.get(lov='w34_secret').label,
+                         'Secret')
+
+    def test_the_menu_screen_shows_and_saves_only_this_site(self):
+        self.grant('djgentelella.change_menuitem')
+        url = reverse('gt_translations_menu')
+        response = self.client.get(url)
+        self.assertContains(response, 'Catálogo')
+        self.assertNotContains(response, 'Ajeno')
+        self.client.post(url, {'count': 2, 'k0': str(self.foreign_item.pk),
+                               'v0_en': 'Hacked', 'k1': str(self.item.pk),
+                               'v1_en': 'Catalogue'})
+        self.foreign_item.refresh_from_db()
+        self.item.refresh_from_db()
+        self.assertEqual(self.foreign_item.translations, {})
+        self.assertEqual(self.item.translations, {'en': 'Catalogue'})
+
+    def test_a_page_of_another_site_is_not_found(self):
+        self.grant('gtdesigns.change_page')
+        self.assertEqual(self.client.get(reverse(
+            'gt_translations_page', args=[self.foreign_page.pk])).status_code, 404)
+        self.assertEqual(self.client.get(reverse(
+            'gt_translations_page', args=[self.page.pk])).status_code, 200)
+        response = self.client.get(reverse('gt_translations'))
+        self.assertContains(response, 'translated')
+        self.assertNotContains(response, 'foreign')
+
+    def test_missing_export_and_import_of_this_site(self):
+        self.grant('gtdesigns.change_page', 'djgentelella.change_menuitem')
+        MenuItem.objects.create(title='Sin clave ajeno', url_name='/x',
+                                site=self.other)
+        response = self.client.get(reverse('gt_translations_missing', args=['en']))
+        self.assertContains(response, 'Catálogo')
+        self.assertNotContains(response, 'Ajeno')
+        self.assertNotContains(response, 'Sin clave ajeno')
+        self.assertNotContains(response, 'foreign')
+        data = json.loads(self.client.get(reverse('gt_translations_export')).content)
+        self.assertEqual([entry['key'] for entry in data['menus']], ['catalogue'])
+        self.assertEqual([entry['path'] for entry in data['pages']], ['translated'])
+        response = self.client.post(reverse('gt_translations_import'), {
+            'file': translations_file(menus=[{
+                'site': 'otro.example.com', 'key': 'foreign',
+                'translations': {'en': 'Hacked'}}])}, follow=True)
+        self.assertContains(response, 'foreign')
+        self.foreign_item.refresh_from_db()
+        self.assertEqual(self.foreign_item.translations, {})
+        # The command still exports every Site.
+        data = transfer.export_translations()
+        self.assertEqual(sorted(entry['key'] for entry in data['menus']),
+                         ['catalogue', 'foreign'])
+
+
+@override_settings(LANGUAGES=LANGUAGES, LANGUAGE_CODE='es')
+class MalformedSaveTests(DataDesignTestCase):
+    """``save_lov`` and ``save_page`` called from code with what is not
+    ``{key: {language: text}}``: errors, never an exception."""
+
+    def test_save_lov(self):
+        # The reproduction: {'a': None} passed validation and crashed.
+        for update in ({'a': None}, {'a': 'Active'}, {'a': ['en']}):
+            errors = store.save_lov('w34_status', update)
+            self.assertTrue(errors, update)
+        self.assertEqual(store.save_lov('w34_status', {'a': {'en': 5}})[0].path,
+                         "$['a'].en")
+        self.assertFalse(LOVTranslation.objects.exists())
+
+    def test_save_page(self):
+        # The reproduction: a translation 5 raised AttributeError in merge().
+        page = self.publish(translated_design(), path='malformed', user=self.user)
+        before = copy.deepcopy(page.document)
+        for update in ({'en': {'count:title': 5}}, {'en': {'count:title': ['x']}}):
+            errors = store.save_page(page, update)
+            self.assertEqual([str(error.message) for error in errors],
+                             ['a translation is a text'], update)
+        page.refresh_from_db()
+        self.assertEqual(page.document, before)

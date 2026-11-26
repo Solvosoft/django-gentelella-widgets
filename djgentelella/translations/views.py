@@ -4,8 +4,11 @@ language, and exporting and importing the JSON of
 
 Each kind of object needs the permission to change it:
 ``gtdesigns.change_page`` for the pages, ``djgentelella.change_menuitem`` for
-the menu and ``djgentelella.change_lovtranslation`` for the LOVs. The index,
-the missing texts and the export show only the kinds the user may change.
+the menu and ``djgentelella.change_lovtranslation`` for the LOVs (and each
+LOV's own permission). The index, the missing texts and the export show only
+the kinds the user may change. Pages and menu items are those of the Site of
+the request and the global ones (``site_q``), on every screen, the export and
+the import.
 """
 
 import json
@@ -21,6 +24,7 @@ from django.views.decorators.http import require_http_methods, require_POST
 from djgentelella import lov as lovs
 from djgentelella import translations as core
 from djgentelella.models import MenuItem
+from djgentelella.sites import get_current_site, site_q
 from djgentelella.translations import store, transfer
 
 PAGE_PERM = 'gtdesigns.change_page'
@@ -89,6 +93,20 @@ def _page_model():
     return Page
 
 
+def _site(request):
+    return get_current_site(request)
+
+
+def _pages(request):
+    """The pages of the request's Site and the global ones."""
+    return _page_model().objects.filter(site_q(_site(request)))
+
+
+def _menu_items(request):
+    """The menu items of the request's Site and the global ones."""
+    return MenuItem.objects.filter(site_q(_site(request)))
+
+
 @login_required
 def translations_index(request):
     """What can be translated, with how much is missing per language."""
@@ -96,7 +114,7 @@ def translations_index(request):
     languages = _language_columns()
     pages, menus, lov_list = [], [], []
     if 'pages' in sections:
-        for page in _page_model().objects.select_related('site').order_by('path'):
+        for page in _pages(request).select_related('site').order_by('path'):
             texts = store.page_texts(page)
             stored = store.page_translations(page)
             pages.append({'page': page, 'total': len(texts), 'missing': [
@@ -104,7 +122,7 @@ def translations_index(request):
                     if not (stored.get(code) or {}).get(text.key))
                 for code, _name in languages]})
     if 'menus' in sections:
-        items = list(MenuItem.objects.select_related('site'))
+        items = list(_menu_items(request).select_related('site'))
         menus = [{'total': len(items), 'missing': [
             sum(1 for item in items if not (item.translations or {}).get(code))
             for code, _name in languages]}]
@@ -141,7 +159,7 @@ def _save(request, save, target, rows, success_url):
 def translate_page(request, pk):
     """The translations of one design page, one row per translatable text."""
     _require(request, 'pages')
-    page = get_object_or_404(_page_model(), pk=pk)
+    page = get_object_or_404(_pages(request), pk=pk)
     if request.method == 'POST':
         response = _save(request, store.save_page, page,
                          _rows_from_post(request, _count(request)), request.path)
@@ -164,8 +182,8 @@ def translate_menu(request):
     """The translations of the menu items' titles."""
     _require(request, 'menus')
     items = {str(item.pk): item for item in
-             MenuItem.objects.select_related('site').order_by('site_id', 'category',
-                                                              'position', 'pk')}
+             _menu_items(request).select_related('site').order_by(
+                 'site_id', 'category', 'position', 'pk')}
     if request.method == 'POST':
         errors = []
         for key, texts in _rows_from_post(request, _count(request)):
@@ -225,21 +243,21 @@ def translations_missing(request, language):
     if language not in core.language_codes():
         raise Http404()
     data = transfer.export_translations(languages=[language], sections=sections,
-                                        request=request)
+                                        request=request, site=_site(request))
     pages = [{'page': entry, 'texts': [text for text in entry['texts']
                                        if not text['translations']]}
              for entry in data.get('pages', [])]
     pages = [entry for entry in pages if entry['texts']]
     if pages:
         found = {(page.site.domain if page.site_id else None, page.path): page.pk
-                 for page in _page_model().objects.select_related('site')}
+                 for page in _pages(request).select_related('site')}
         for entry in pages:
             entry['pk'] = found.get((entry['page']['site'], entry['page']['path']))
     menus = [entry for entry in data.get('menus', []) if not entry['translations']]
     unnamed = []
     if 'menus' in sections:
         # Items without a key are not exported, but they are translated too.
-        unnamed = [item for item in MenuItem.objects.filter(key__isnull=True)
+        unnamed = [item for item in _menu_items(request).filter(key__isnull=True)
                    if not (item.translations or {}).get(language)]
     lov_rows = [entry for entry in data.get('lovs', []) if not entry['translations']]
     return render(request, 'gentelella/translations/missing.html', {
@@ -257,7 +275,7 @@ def translations_export(request):
                  if code in core.language_codes()] or None
     data = transfer.export_translations(
         languages=languages, sections=sections, request=request,
-        empty=request.GET.get('missing', '1') != '0')
+        empty=request.GET.get('missing', '1') != '0', site=_site(request))
     response = HttpResponse(json.dumps(data, ensure_ascii=False, indent=2),
                             content_type='application/json; charset=utf-8')
     response['Content-Disposition'] = 'attachment; filename="translations.json"'
@@ -286,7 +304,8 @@ def translations_import(request):
         if refused:
             raise PermissionDenied
     summary, errors = transfer.import_translations(
-        data, dry_run=bool(request.POST.get('dry_run')))
+        data, dry_run=bool(request.POST.get('dry_run')), request=request,
+        site=_site(request))
     if errors:
         for error in errors[:50]:
             messages.error(request, str(error))
