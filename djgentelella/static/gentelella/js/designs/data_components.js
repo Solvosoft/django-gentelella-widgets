@@ -304,7 +304,8 @@
             selectRow(id, options.current);
         });
         if (!options.url) { return; }
-        $(element).find('tbody').on('click', 'tr.gt-master-row', function (event) {
+        // Delegated from the table: DataTables draws the tbody later.
+        $(element).on('click', 'tbody tr.gt-master-row', function (event) {
             if ($(event.target).closest('a, button, input, select, .dropdown-menu').length) { return; }
             var datatable = dataTable(id);
             var data = datatable ? datatable.row(this).data() : null;
