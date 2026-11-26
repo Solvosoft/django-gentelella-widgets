@@ -248,7 +248,71 @@
             if (column.kind === 'fk' || column.kind === 'o2o') { options.relation_render[column.name] = 'text'; }
         });
         entry.crud = ObjectCRUD(id, options);
+        if (config.master) { masterDetail(id, config.master); }
         entry.crud.init();
+    }
+
+    /* The DataTable of the table `id`: its ObjectCRUD's, else the one
+       DataTables already made on #<id>_table. */
+    function dataTable(id) {
+        var entry = table(String(id));
+        if (entry.crud && entry.crud.datatable) { return entry.crud.datatable; }
+        var element = document.getElementById(id + '_table');
+        if (element && $.fn.dataTable && $.fn.dataTable.isDataTable(element)) {
+            return $(element).DataTable();
+        }
+        return null;
+    }
+
+    /* Mark the rows of the table `id` whose id is `pk` (table-active,
+       aria-selected) and unmark the others; how many it marked. */
+    function selectRow(id, pk) {
+        var datatable = dataTable(id);
+        if (!datatable) { return 0; }
+        var wanted = pk === null || pk === undefined ? null : String(pk);
+        var marked = 0;
+        datatable.rows().every(function () {
+            var row = this.node();
+            var data = this.data();
+            if (!row) { return; }
+            var chosen = wanted !== null && data && String(data.id) === wanted;
+            row.classList.toggle('table-active', chosen);
+            if (chosen) {
+                row.setAttribute('aria-selected', 'true');
+                marked += 1;
+            } else {
+                row.removeAttribute('aria-selected');
+            }
+        });
+        return marked;
+    }
+
+    /* The master table of a master-detail (meta.master_detail of a row):
+       the master of the page (`options.current`) stays marked on every draw,
+       and a click on a row -- not on its buttons or links -- opens the page
+       of that master (`options.url` with its pk in place of
+       `options.placeholder`). */
+    function masterDetail(id, options) {
+        id = String(id);
+        options = options || {};
+        var element = document.getElementById(id + '_table');
+        if (!element) { return; }
+        var entry = table(id);
+        if (options.crud) { entry.crud = options.crud; }
+        $(element).on('draw.dt', function () {
+            $(element).find('tbody tr').addClass('gt-master-row');
+            selectRow(id, options.current);
+        });
+        if (!options.url) { return; }
+        $(element).find('tbody').on('click', 'tr.gt-master-row', function (event) {
+            if ($(event.target).closest('a, button, input, select, .dropdown-menu').length) { return; }
+            var datatable = dataTable(id);
+            var data = datatable ? datatable.row(this).data() : null;
+            if (data && data.id !== undefined && data.id !== null) {
+                window.location.assign(options.url.split(options.placeholder)
+                    .join(encodeURIComponent(data.id)));
+            }
+        });
     }
 
     function initFacets(element) {
@@ -288,6 +352,13 @@
     // facets as gtfilters (GTFiltersMixin on the server) and the search to
     // the panel's counts. Either side may start first.
     window.gtdesign_facet_filters = facetFilters;
+    // Master-detail: gtdesign_select_row(id, pk) marks the row of `pk` in the
+    // table `id` (and unmarks the rest); gtdesign_master_detail(id, {current,
+    // url, placeholder, crud}) keeps the current master marked and opens the
+    // page of the master a click chooses. For the engine's tables and the
+    // ObjectCRUD of generated code alike.
+    window.gtdesign_select_row = selectRow;
+    window.gtdesign_master_detail = masterDetail;
     window.gtdesign_follow_facets = function (id, crud) {
         var entry = table(String(id));
         if (crud) { entry.crud = crud; }

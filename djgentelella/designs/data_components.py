@@ -66,7 +66,8 @@ __all__ = ['ChartComponent', 'CrudClassicComponent', 'DATA_COMPONENTS',
            'ObjectManagementComponent', 'PAGE_PREFIX', 'PK_PLACEHOLDERS',
            'StatComponent', 'parse_flow_link', 'resolve_row_link',
            'FACETS_TEMPLATE', 'facets_page_context', 'TABLE_TEMPLATE',
-           'links_to_itself', 'row_link_config', 'table_page_context']
+           'links_to_itself', 'master_detail_config', 'master_detail_of',
+           'row_link_config', 'table_page_context']
 
 SCRIPT = 'gentelella/js/designs/data_components.js'
 PERMISSION = {'type': 'string', 'pattern': r'^[a-z_][a-z0-9_]*\.[a-z_][a-z0-9_]*$'}
@@ -275,6 +276,68 @@ def links_to_itself(document, name):
         return bool(meta.get('url')) and normalize_path(
             name[len(PAGE_PREFIX):]) == normalize_path(meta['url'])
     return bool(meta.get('url_name')) and name == meta['url_name']
+
+
+#: The key of a node ``meta`` that declares a master-detail
+#: (djgentelella-editor's ``gteditor.components.master_detail``).
+MASTER_DETAIL_KEY = 'master_detail'
+
+
+def master_detail_of(document, node_id):
+    """The ``meta.master_detail`` (a dict) of the node of ``document`` that
+    names the table ``node_id`` as its ``master``, or ``None``.
+
+    A master-detail is a ``row`` whose ``meta.master_detail`` is ``{"variant":
+    ..., "master": "<id of an object_management>"}``: a page about one master
+    (``meta.parent``) lists the masters in that table and the details of the
+    one chosen. The engine only reads it to mark the current master and to
+    choose one with a click (:func:`master_detail_config`); the layout is the
+    row's.
+    """
+    pending = [(document or {}).get('root')]
+    while pending:
+        node = pending.pop()
+        if not isinstance(node, dict):
+            continue
+        meta = node.get('meta')
+        found = meta.get(MASTER_DETAIL_KEY) if isinstance(meta, dict) else None
+        if isinstance(found, dict) and found.get('master') == node_id:
+            return found
+        children = node.get('children')
+        if isinstance(children, list):
+            pending.extend(reversed(children))
+    return None
+
+
+def master_detail_config(build, rctx):
+    """What the master table ``build`` of a master-detail page needs in the
+    browser, or ``None`` when it is not one: ``{"current": pk of the master of
+    the page or None, "url": the page of a master, "placeholder": the pk in
+    "url", "variant"}``.
+
+    Only for a table over the model of the page's ``meta.parent`` on a page
+    with a ``meta.url``: a click on a row opens the page of that master
+    (``url`` with the row's pk in place of ``placeholder``).
+    """
+    found = master_detail_of(rctx.design, build.id)
+    if found is None or build.model is None or build.inline:
+        return None
+    meta = (rctx.design or {}).get('meta') or {}
+    parent = (meta.get('parent') or {}).get('model')
+    if not isinstance(parent, str) or parent.lower() != build.model._meta.label_lower \
+            or not meta.get('url'):
+        return None
+    placeholder = PK_PLACEHOLDERS[0]
+    try:
+        url = reverse('gt-design-page', args=['%s/%s' % (
+            normalize_path(meta['url']), placeholder)])
+    except NoReverseMatch:
+        return None
+    current = getattr(rctx.request, 'gtdesign_parent', None)
+    return {'current': (str(current.pk) if isinstance(current, build.model)
+                        else None),
+            'url': url, 'placeholder': placeholder,
+            'variant': str(found.get('variant') or '')}
 
 
 def parse_flow_link(text, known=None):
@@ -878,6 +941,9 @@ class ObjectManagementComponent(RuntimeComponent):
             'row_links': row_link_config(build, rctx.request, obj),
             'delete_display': factories.delete_display(build),
         }
+        master = master_detail_config(build, rctx)
+        if master is not None:
+            config['master'] = master
         return render_to_string('gtdesigns/components/object_management.html', {
             'b': build, 'forms': forms, 'base': base, 'modal_ids': modal_ids,
             'allowed': allowed,
