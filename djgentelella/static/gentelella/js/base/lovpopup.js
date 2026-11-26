@@ -8,8 +8,7 @@
 **/
 function gt_lov_popup(instance) {
     instance.each(function (i, select) {
-        if (select.dataset.gtReadyLovPopup) return;
-        select.dataset.gtReadyLovPopup = '1';
+        if (!gt_widget_once(select, 'LovPopup')) return;
         var wrapper = select.closest('.gt-lov-popup');
         var label = wrapper.querySelector('.gt-lov-popup-label');
         var modalEl = wrapper.querySelector('.gt-lov-popup-modal');
@@ -55,6 +54,8 @@ function gt_lov_popup(instance) {
         var modal = bootstrap.Modal.getOrCreateInstance(modalEl);
         var page = 1;
         var timer = null;
+        // A slow answer must not overwrite the one of a later search.
+        var request = 0;
 
         var setValue = function (id, text) {
             select.textContent = '';
@@ -72,6 +73,7 @@ function gt_lov_popup(instance) {
             select.dispatchEvent(new Event('change', {bubbles: true}));
         };
         var load = function () {
+            var current = ++request;
             var query = new URLSearchParams({q: search.value, page: page});
             Object.keys(depends).forEach(function (param) {
                 query.append(param, parentValue(depends[param]));
@@ -83,6 +85,7 @@ function gt_lov_popup(instance) {
                 if (!response.ok) throw new Error(response.status);
                 return response.json();
             }).then(function (data) {
+                if (current !== request) return;
                 results.textContent = '';
                 (data.results || []).forEach(function (row) {
                     var item = document.createElement('button');
@@ -102,13 +105,16 @@ function gt_lov_popup(instance) {
                 next.disabled = !(data.pagination && data.pagination.more);
                 pageLabel.textContent = interpolate(gettext('Page %s'), [page]);
             }).catch(function (error) {
+                if (current !== request) return;
                 results.textContent = '';
                 var item = document.createElement('div');
                 item.className = 'list-group-item text-danger';
                 item.textContent = gettext('The list could not be loaded.');
                 results.appendChild(item);
                 console.error('LOVPopupSelect', error);
-            }).finally(function () { results.removeAttribute('aria-busy'); });
+            }).finally(function () {
+                if (current === request) results.removeAttribute('aria-busy');
+            });
         };
 
         wrapper.querySelector('.gt-lov-popup-open').addEventListener('click', function () {

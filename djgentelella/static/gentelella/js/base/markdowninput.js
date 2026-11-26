@@ -47,15 +47,17 @@ function gt_markdown_tool(textarea, tool) {
 
 function gt_markdown_input(instance) {
     instance.each(function (i, textarea) {
-        if (textarea.dataset.gtReadyMarkdown) return;
-        textarea.dataset.gtReadyMarkdown = '1';
+        if (!gt_widget_once(textarea, 'Markdown')) return;
         var wrapper = textarea.closest('.gt-markdown');
         var preview = wrapper.querySelector('.gt-markdown-preview');
         var writeTab = wrapper.querySelector('.gt-markdown-write');
         var previewTab = wrapper.querySelector('.gt-markdown-preview-tab');
         var toolbar = wrapper.querySelector('.gt-markdown-toolbar');
+        // Bumped by each tab change: a late preview answer is dropped.
+        var request = 0;
 
         var showWrite = function () {
+            request++;
             writeTab.classList.add('active');
             previewTab.classList.remove('active');
             preview.classList.add('d-none');
@@ -69,6 +71,7 @@ function gt_markdown_input(instance) {
             if (toolbar) toolbar.classList.add('d-none');
             preview.classList.remove('d-none');
             preview.textContent = gettext('Loading...');
+            var current = ++request;
             // The token of the form first: a project with CSRF_COOKIE_HTTPONLY
             // has no readable cookie.
             var tokenInput = textarea.form
@@ -85,10 +88,12 @@ function gt_markdown_input(instance) {
                     return data;
                 });
             }).then(function (data) {
+                if (current !== request) return;
                 // Cleaned on the server by nh3: see render_markdown().
                 preview.innerHTML = data.html;
                 preview.classList.add('gt-markdown-rendered');
             }).catch(function (error) {
+                if (current !== request) return;
                 preview.textContent = error.message;
             });
         };

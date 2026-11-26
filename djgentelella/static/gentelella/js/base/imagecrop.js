@@ -7,8 +7,7 @@
 **/
 function gt_image_crop(instance) {
     instance.each(function (i, input) {
-        if (input.dataset.gtReadyCrop) return;
-        input.dataset.gtReadyCrop = '1';
+        if (!gt_widget_once(input, 'Crop')) return;
         var wrapper = input.closest('.gt-image-crop');
         var editor = wrapper.querySelector('.gt-image-crop-editor');
         var source = wrapper.querySelector('.gt-image-crop-source');
