@@ -202,8 +202,9 @@ The box in the top bar is off by default. Turn it on for the whole project::
 or for one Site, with its ``global_search`` setting (``"true"`` or
 ``"false"``), which wins over ``GT_SEARCH_NAVBAR``::
 
+    from djgentelella.search import NAVBAR_SETTING   # 'global_search'
     from djgentelella.utils import set_settings
-    set_settings('global_search', 'true', site=site)
+    set_settings(NAVBAR_SETTING, 'true', site=site)
 
 The box sends the form to the results page; while typing, it asks the JSON
 API and lists the hits under it (arrow keys, Enter, Escape). It is drawn by

@@ -3,12 +3,20 @@
 conditions of a table evaluated per row and the condition hooks of
 ``CRUDView``."""
 
+from unittest import mock
+
 from django.contrib.auth.models import AnonymousUser
+from django.core.exceptions import ValidationError
 from django.test import RequestFactory, SimpleTestCase
+from rest_framework.parsers import JSONParser
+from rest_framework.request import Request
+from rest_framework.test import APIRequestFactory
 
 from demoapp.models import Product
+from djgentelella import search
 from djgentelella.authorization import authorization, set_flag
 from djgentelella.cruds.base import CRUDMixin, CRUDView
+from djgentelella.datasources.api import request_body
 from djgentelella.designs import data_components, engine
 from djgentelella.designs.builds import ROW_ACTIONS, RowLink
 from djgentelella.designs.components import ResolveContext
@@ -432,3 +440,34 @@ class CrudConditionHookTests(HooksTestCase):
         request = self.request()
         request.user = AnonymousUser()
         self.assertEqual(ProductCRUD().list(request).status_code, 302)
+
+
+class ConsumerHelpersTests(SimpleTestCase):
+    """What djodo and djgentelella-editor import instead of private names."""
+
+    def test_request_body(self):
+        factory = APIRequestFactory()
+
+        def body(data):
+            request = Request(factory.post('/', data, format='json'),
+                              parsers=[JSONParser()])
+            return request_body(request)
+
+        self.assertEqual(body({'fmt': 'csv'}), {'fmt': 'csv'})
+        for not_an_object in ([1, 2], 3, 'text'):
+            with self.assertRaises(ValidationError):
+                body(not_an_object)
+
+    def test_can(self):
+        user = mock.Mock(is_authenticated=True, is_superuser=False)
+        user.has_perms.return_value = True
+        self.assertTrue(data_components.can(ResolveContext({}, user=user),
+                                            ['demoapp.view_product']))
+        self.assertFalse(data_components.can(ResolveContext({}),
+                                             ['demoapp.view_product']))
+
+    def test_the_public_names(self):
+        for name in ('can', 'data_build'):
+            self.assertIn(name, data_components.__all__)
+        self.assertEqual(search.NAVBAR_SETTING, 'global_search')
+        self.assertIn('NAVBAR_SETTING', search.__all__)

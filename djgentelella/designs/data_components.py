@@ -70,7 +70,7 @@ __all__ = ['ChartComponent', 'CrudClassicComponent', 'DATA_COMPONENTS',
            'FACETS_TEMPLATE', 'facets_page_context', 'TABLE_TEMPLATE',
            'links_to_itself', 'master_detail_config', 'master_detail_of',
            'publishing_path',
-           'row_link_config', 'table_page_context']
+           'row_link_config', 'table_page_context', 'can', 'data_build']
 
 SCRIPT = 'gentelella/js/designs/data_components.js'
 PERMISSION = {'type': 'string', 'pattern': r'^[a-z_][a-z0-9_]*\.[a-z_][a-z0-9_]*$'}
@@ -107,6 +107,10 @@ def page_hash(rctx):
 
 
 def data_build(build_class, node, rctx, **kwargs):
+    """The ``build_class`` (a :class:`~djgentelella.designs.components.Build`)
+    of the document ``node``: its id, type and a copy of its props, with the
+    page hash the factories cache their classes by and the preview flag of
+    ``rctx``; ``kwargs`` are the build's own fields."""
     return build_class(node['id'], node['type'], dict(node.get('props') or {}),
                        page_hash=page_hash(rctx), preview=rctx.preview, **kwargs)
 
@@ -199,6 +203,8 @@ def condition_object(rctx, build):
 
 
 def can(rctx, perms):
+    """Whether the user of ``rctx`` has every permission of ``perms``
+    (``app.codename``); ``False`` without a user (publishing, a command)."""
     user = rctx.user
     return user is not None and all_permission(user, list(perms))
 

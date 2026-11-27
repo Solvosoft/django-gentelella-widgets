@@ -22,12 +22,10 @@ from django.views.decorators.http import require_GET
 from djgentelella.sites import get_current_site
 from djgentelella.utils import _get_site_settings
 
-from .base import default_source_names, search_setting, searchable_sources
+from .base import (
+    NAVBAR_SETTING, default_source_names, search_setting, searchable_sources,
+)
 from .engine import clean_text, search
-
-#: The GentelellaSettings key that turns the top bar box on or off for one
-#: Site ("true"/"false"); without it, ``GT_SEARCH_NAVBAR`` decides.
-NAVBAR_SETTING = 'global_search'
 
 _TRUE = ('1', 'true', 'yes', 'on', 'si', 'sí')
 

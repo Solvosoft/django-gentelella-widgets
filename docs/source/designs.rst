@@ -1472,6 +1472,14 @@ The last ``:`` starts the transition; since a flow name may hold ``:``,
 a flow. ``PK_PLACEHOLDERS`` (what a row link's URL is reversed with in place
 of the pk), ``FLOW_PREFIX`` and ``PAGE_PREFIX`` are public too.
 
+A component of a project that builds its own data component uses the same
+two helpers as djgentelella's: ``data_components.data_build(build_class, node,
+rctx, **fields)`` (the build of a node, with the page hash the factories
+cache by) and ``data_components.can(rctx, perms)`` (whether the user of the
+context has every permission; ``False`` without a user). The kind of a model
+field is ``djgentelella.forms.widgetmap.field_kind(field)`` and the columns
+of a data source for the context ``rctx.source_columns(source)``.
+
 ``rctx.components`` is the component registry the design is resolved with and
 ``rctx.resolved`` the ``ResolvedPage`` being rendered (``None`` while
 resolving).

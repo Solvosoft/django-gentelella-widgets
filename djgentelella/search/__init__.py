@@ -10,13 +10,14 @@ autocomplete ``gtapis/search/`` (``gt-search-api``), and
 See ``docs/source/global_search.rst``.
 """
 from .base import (
-    GlobalSearch, is_owned_by, searchable, searchable_sources, source_owners,
-    source_tags,
+    NAVBAR_SETTING, GlobalSearch, is_owned_by, searchable, searchable_sources,
+    source_owners, source_tags,
 )
 from .engine import (
     SearchGroup, SearchResult, reset_trigram_cache, search, trigram_available,
 )
 
-__all__ = ['GlobalSearch', 'SearchGroup', 'SearchResult', 'is_owned_by',
+__all__ = ['NAVBAR_SETTING', 'GlobalSearch', 'SearchGroup', 'SearchResult',
+           'is_owned_by',
            'reset_trigram_cache', 'search', 'searchable', 'searchable_sources',
            'source_owners', 'source_tags', 'trigram_available']

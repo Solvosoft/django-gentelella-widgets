@@ -124,7 +124,7 @@ class DataSourceView(APIView):
             return self.answer(request, source, params)
 
     def post(self, request, name):
-        _body(request)
+        request_body(request)
         return self.get(request, name)
 
     def answer(self, request, source, params):
@@ -190,7 +190,7 @@ class DataSourceFacetsView(DataSourceView):
         # the parameter that picks the columns of the rows.
         columns = request.query_params.get('columns')
         if columns is None and request.method == 'POST':
-            columns = _body(request).get('facets')
+            columns = request_body(request).get('facets')
         if isinstance(columns, str):
             columns = [name for name in columns.split(',') if name]
         if not columns:
@@ -206,15 +206,17 @@ class DataSourceExportView(DataSourceView):
     def answer(self, request, source, params):
         fmt = request.query_params.get('fmt')
         if fmt is None and request.method == 'POST':
-            fmt = _body(request).get('fmt')
+            fmt = request_body(request).get('fmt')
         if fmt is not None and not isinstance(fmt, str):
             raise ValidationError(_('"fmt" has to be a string.'))
         return handle_export(source, request, params, fmt or 'csv',
                              use_handler=self.use_export_handler)
 
 
-def _body(request):
-    """The POST body as a dict; any other JSON document is a bad request."""
+def request_body(request):
+    """The body of a DRF ``request`` as a dict (the JSON object, or the form
+    fields of a POST); any other JSON document (a list, a number) is a
+    ``ValidationError``, a 400."""
     if not hasattr(request.data, 'get'):
         raise ValidationError(_('The body has to be a JSON object.'))
     return request.data

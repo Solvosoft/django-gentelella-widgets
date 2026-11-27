@@ -169,6 +169,11 @@ def searchable(**options):
     return decorate
 
 
+#: The GentelellaSettings key that turns the top bar box on or off for one
+#: Site ("true"/"false"); without it, ``GT_SEARCH_NAVBAR`` decides.
+NAVBAR_SETTING = 'global_search'
+
+
 def search_setting(name):
     """``GT_SEARCH_<name>`` or its default."""
     return getattr(settings, 'GT_SEARCH_' + name, DEFAULTS[name])

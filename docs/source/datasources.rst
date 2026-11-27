@@ -625,7 +625,10 @@ per role, an API for a group of users or the tools of an assistant::
             return restricted(source, ['date', 'product', 'amount'])
 
 ``DataSourceView.get_source(name)`` is the hook for that: the source the
-endpoint serves, after the 404 and the 403 of the base class.
+endpoint serves, after the 404 and the 403 of the base class. A view of the
+project that reads the body of the request the way these do uses
+``djgentelella.datasources.api.request_body(request)``: the JSON object (or
+the form fields of a POST) as a dict, a 400 for any other JSON document.
 
 Query timeout
 -------------
