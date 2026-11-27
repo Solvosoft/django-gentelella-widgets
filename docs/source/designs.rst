@@ -105,7 +105,15 @@ type        goes in         renders
 ``row``     page, col       ``<div class="row">``
 ``col``     row             ``<div class="col-md-<width>">`` (``col`` without)
 ``html``    col             its markup, cleaned (see Security)
+``heading`` col             ``<h<level>>`` with its ``title`` and an optional
+                            ``subtitle``, as text (both translatable)
 ==========  ==============  ==================================================
+
+``heading`` takes ``title`` (required), ``subtitle`` and ``level`` (1 to 6, 2
+by default, since the layout draws the ``<h1>`` of the page). Its texts are
+translated like every component's ``title``/``subtitle``: with
+``"translations": {"en": {"<id>:title": "..."}}`` in the document, or in the
+translation screens (see :doc:`translations`).
 
 Writing one
 """""""""""

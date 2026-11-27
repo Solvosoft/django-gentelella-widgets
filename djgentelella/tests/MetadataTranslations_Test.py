@@ -150,6 +150,21 @@ class DesignTranslationTests(DataDesignTestCase):
         self.assertTrue(any('not one of the columns' in error
                             for error in errors), errors)
 
+    def test_a_heading_in_the_language_of_the_request(self):
+        document = design(node('heading', 'top', {
+            'title': 'Catálogo <b>', 'subtitle': 'Todo', 'level': 3}))
+        document['translations'] = {'en': {'top:title': 'Catalogue <b>'}}
+        self.publish(document, path='heading')
+        url = reverse('gt-design-page', args=['heading'])
+        content = self.client.get(url).content.decode()
+        self.assertIn('<h3 class="mb-1">Catálogo &lt;b&gt;</h3>', content)
+        self.assertIn('<p class="text-muted mb-0">Todo</p>', content)
+        self.client.cookies[COOKIE] = 'en'
+        content = self.client.get(url).content.decode()
+        self.assertIn('<h3 class="mb-1">Catalogue &lt;b&gt;</h3>', content)
+        # Untranslated, the subtitle stays as written.
+        self.assertIn('Todo', content)
+
     def test_html_in_a_translation_is_escaped(self):
         self.grant('demoapp.view_product')
         evil = '<img src=x onerror=alert(1)>'

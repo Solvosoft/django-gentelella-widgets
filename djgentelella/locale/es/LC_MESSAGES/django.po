@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-26 17:11-0600\n"
+"POT-Creation-Date: 2026-11-26 18:29-0600\n"
 "PO-Revision-Date: 2026-10-29 12:00-0600\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -1106,7 +1106,7 @@ msgstr "\"columns\" es obligatorio."
 msgid "\"fmt\" has to be a string."
 msgstr "\"fmt\" debe ser una cadena de texto."
 
-#: datasources/api.py:219
+#: datasources/api.py:221
 msgid "The body has to be a JSON object."
 msgstr "El cuerpo debe ser un objeto JSON."
 
@@ -1153,14 +1153,14 @@ msgid "The export has more than %(limit)d rows: narrow it with filters."
 msgstr "La exportación tiene más de %(limit)d filas: acótela con filtros."
 
 #: datasources/export.py:304 datasources/query.py:862
-#: designs/data_components.py:581 designs/flow_kanban.py:176
+#: designs/data_components.py:587 designs/flow_kanban.py:176
 #: designs/regions.py:347 designs/templatetags/gtdesigns_tags.py:26
 #: templates/gentelella/widgets/checkyesno.html:4 widgets/core.py:803
 msgid "Yes"
 msgstr "Sí"
 
 #: datasources/export.py:304 datasources/query.py:862
-#: designs/data_components.py:581 designs/flow_kanban.py:176
+#: designs/data_components.py:587 designs/flow_kanban.py:176
 #: designs/regions.py:347 designs/templatetags/gtdesigns_tags.py:26
 #: templates/gentelella/widgets/checkyesno.html:2 widgets/core.py:804
 msgid "No"
@@ -1352,7 +1352,7 @@ msgstr "El diseño es válido."
 msgid "Designs"
 msgstr "Diseños"
 
-#: designs/builtin.py:33 models.py:758
+#: designs/builtin.py:34 models.py:758
 #: templates/gentelella/cruds/pagination/prev_next.html:12
 #: templates/gentelella/datasources/export_pdf.html:61
 #: templates/gentelella/feedback/detail.html:17
@@ -1361,22 +1361,26 @@ msgstr "Diseños"
 msgid "Page"
 msgstr "Página"
 
-#: designs/builtin.py:60 designs/regions.py:698
+#: designs/builtin.py:61 designs/regions.py:698
 msgid "Row"
 msgstr "Fila"
 
-#: designs/builtin.py:72
+#: designs/builtin.py:73
 msgid "Column"
 msgstr "Columna"
 
-#: designs/builtin.py:110
+#: designs/builtin.py:111
 msgid "HTML"
 msgstr "HTML"
 
-#: designs/builtin.py:130
+#: designs/builtin.py:131
 #, python-format
 msgid "not a valid Django template: %s"
 msgstr "no es una plantilla de Django válida: %s"
+
+#: designs/builtin.py:162 widgets/markdown.py:36
+msgid "Heading"
+msgstr "Título"
 
 #: designs/components.py:193
 #, python-format
@@ -1408,7 +1412,7 @@ msgstr ""
 msgid "unknown permission %r"
 msgstr "permiso desconocido %r"
 
-#: designs/components.py:294 designs/data_components.py:409
+#: designs/components.py:294 designs/data_components.py:415
 #, python-format
 msgid "%r needs djgentelella.flows in INSTALLED_APPS"
 msgstr "%r necesita djgentelella.flows en INSTALLED_APPS"
@@ -1449,44 +1453,44 @@ msgstr "sin permiso para la fuente de datos %r"
 msgid "%(name)r is not a %(what)s of this component (%(names)s)"
 msgstr "%(name)r no es una %(what)s de este componente (%(names)s)"
 
-#: designs/data_components.py:146
+#: designs/data_components.py:150
 #, python-format
 msgid "%(field)r is not a foreign key of %(model)s to sites.Site"
 msgstr "%(field)r no es una llave foránea de %(model)s a sites.Site"
 
-#: designs/data_components.py:150 designs/grid.py:352
+#: designs/data_components.py:154 designs/grid.py:352
 #, python-format
 msgid "%r is the site_field: the component sets it, the form cannot ask for it"
 msgstr ""
 "%r es el site_field: lo llena el componente, el formulario no puede pedirlo"
 
-#: designs/data_components.py:167
+#: designs/data_components.py:171
 #, python-format
 msgid "form %(form)r is for %(model)s, not %(expected)s"
 msgstr "el formulario %(form)r es de %(model)s, no de %(expected)s"
 
-#: designs/data_components.py:243
+#: designs/data_components.py:249
 msgid "optimistic_lock_required needs optimistic_lock"
 msgstr "optimistic_lock_required necesita optimistic_lock"
 
-#: designs/data_components.py:425
+#: designs/data_components.py:431
 #, python-format
 msgid "%(link)r: no flow %(flow)r (djgentelella.flows)"
 msgstr "%(link)r: no hay ningún flujo %(flow)r (djgentelella.flows)"
 
-#: designs/data_components.py:429
+#: designs/data_components.py:435
 #, python-format
 msgid "flow %(flow)r is about %(model)s, not %(page)s"
 msgstr "el flujo %(flow)r es de %(model)s, no de %(page)s"
 
-#: designs/data_components.py:436
+#: designs/data_components.py:442
 #, python-format
 msgid "flow %(flow)r has no transition %(transition)r a user can run"
 msgstr ""
 "el flujo %(flow)r no tiene ninguna transición %(transition)r que pueda "
 "ejecutar un usuario"
 
-#: designs/data_components.py:473
+#: designs/data_components.py:479
 #, python-format
 msgid ""
 "%r is neither a URL name of the project that takes one pk, a design page "
@@ -1495,53 +1499,53 @@ msgstr ""
 "%r no es un nombre de URL del proyecto que reciba un pk, ni una página de "
 "diseño (\"page:<path>\" o su meta.url_name), ni un flujo (\"flow:<name>\")"
 
-#: designs/data_components.py:479
+#: designs/data_components.py:485
 #, python-format
 msgid "design page %(page)r is not a page of one %(model)s (its meta.parent)"
 msgstr ""
 "la página de diseño %(page)r no es una página de un %(model)s (su "
 "meta.parent)"
 
-#: designs/data_components.py:670
+#: designs/data_components.py:676
 msgid "Object management (CRUD table)"
 msgstr "Gestión de objetos (tabla CRUD)"
 
-#: designs/data_components.py:743
+#: designs/data_components.py:749
 #, python-format
 msgid "%s is required (or a \"datasource\", to only list its rows)"
 msgstr "%s es obligatorio (o un \"datasource\", para solo listar sus filas)"
 
-#: designs/data_components.py:756
+#: designs/data_components.py:762
 #, python-format
 msgid "a list over a data source only reads: it has no %r"
 msgstr "una lista sobre una fuente de datos solo lee: no tiene %r"
 
-#: designs/data_components.py:760
+#: designs/data_components.py:766
 msgid "a list over a data source only reads: there is nothing to lock"
 msgstr "una lista sobre una fuente de datos solo lee: no hay nada que bloquear"
 
-#: designs/data_components.py:770 designs/regions.py:505
+#: designs/data_components.py:776 designs/regions.py:505
 msgid "row links need a data source over a model"
 msgstr "los enlaces por fila necesitan una fuente de datos sobre un modelo"
 
-#: designs/data_components.py:808
+#: designs/data_components.py:814
 #, python-format
 msgid "%r cannot be a table column"
 msgstr "%r no puede ser una columna de la tabla"
 
-#: designs/data_components.py:818 designs/data_components.py:1464
+#: designs/data_components.py:824 designs/data_components.py:1470
 #: designs/grid.py:372
 #, python-format
 msgid "%(field)r is not a text field of %(model)s"
 msgstr "%(field)r no es un campo de texto de %(model)s"
 
-#: designs/data_components.py:825 designs/flow_kanban.py:394
+#: designs/data_components.py:831 designs/flow_kanban.py:394
 #: designs/grid.py:379 designs/regions.py:652 designs/source_tables.py:133
 #, python-format
 msgid "unknown field %r"
 msgstr "campo desconocido %r"
 
-#: designs/data_components.py:833
+#: designs/data_components.py:839
 #, python-format
 msgid ""
 "%s has a field \"id\" that is not its primary key: the table needs \"id\" "
@@ -1550,34 +1554,34 @@ msgstr ""
 "%s tiene un campo \"id\" que no es su clave primaria: la tabla necesita "
 "\"id\" para la fila"
 
-#: designs/data_components.py:839 designs/data_components.py:1474
+#: designs/data_components.py:845 designs/data_components.py:1480
 #: designs/grid.py:401 designs/source_tables.py:144
 msgid "column"
 msgstr "columna"
 
-#: designs/data_components.py:842 designs/grid.py:407
+#: designs/data_components.py:848 designs/grid.py:407
 msgid "action"
 msgstr "acción"
 
-#: designs/data_components.py:1002
+#: designs/data_components.py:1008
 msgid "Inline CRUD table (children of the page parent)"
 msgstr "Tabla CRUD en línea (hijos del padre de la página)"
 
-#: designs/data_components.py:1021
+#: designs/data_components.py:1027
 msgid "an inline table needs a page with a parent (meta.parent)"
 msgstr "una tabla en línea necesita una página con padre (meta.parent)"
 
-#: designs/data_components.py:1033
+#: designs/data_components.py:1039
 #, python-format
 msgid "%(field)r is not a foreign key of %(model)s to %(parent)s"
 msgstr "%(field)r no es una clave foránea de %(model)s hacia %(parent)s"
 
-#: designs/data_components.py:1041
+#: designs/data_components.py:1047
 #, python-format
 msgid "remove %r from the form: the parent comes from the URL"
 msgstr "quita %r del formulario: el padre viene de la URL"
 
-#: designs/data_components.py:1063
+#: designs/data_components.py:1069
 msgid ""
 "say which permissions can see it: neither the data source nor the page has "
 "any"
@@ -1585,39 +1589,39 @@ msgstr ""
 "indica qué permisos pueden verlo: ni la fuente de datos ni la página tienen "
 "ninguno"
 
-#: designs/data_components.py:1081 designs/grid.py:452 designs/regions.py:562
+#: designs/data_components.py:1087 designs/grid.py:452 designs/regions.py:562
 msgid "give a \"model\" or a \"datasource\", not both"
 msgstr "indica un \"model\" o un \"datasource\", no los dos"
 
-#: designs/data_components.py:1118
+#: designs/data_components.py:1124
 #, python-format
 msgid "%s needs a value_field"
 msgstr "%s necesita un value_field"
 
-#: designs/data_components.py:1122
+#: designs/data_components.py:1128
 #, python-format
 msgid "%(aggregate)s needs a numeric value_field; %(field)r is not one"
 msgstr "%(aggregate)s necesita un value_field numérico; %(field)r no lo es"
 
-#: designs/data_components.py:1140
+#: designs/data_components.py:1146
 msgid "Chart"
 msgstr "Gráfico"
 
-#: designs/data_components.py:1183
+#: designs/data_components.py:1189
 #, python-format
 msgid "%r cannot be grouped by"
 msgstr "no se puede agrupar por %r"
 
-#: designs/data_components.py:1191
+#: designs/data_components.py:1197
 msgid "a period needs a date group_by"
 msgstr "un periodo necesita un group_by de fecha"
 
-#: designs/data_components.py:1209 designs/regions.py:527
+#: designs/data_components.py:1215 designs/regions.py:527
 #, python-format
 msgid "%r is not the id of a facets panel of this page"
 msgstr "%r no es el id de un panel de facetas de esta página"
 
-#: designs/data_components.py:1224
+#: designs/data_components.py:1230
 #, python-format
 msgid ""
 "facets panel %(panel)r does not filter data source %(source)r, the one of "
@@ -1626,7 +1630,7 @@ msgstr ""
 "el panel de facetas %(panel)r no filtra la fuente de datos %(source)r, la "
 "del gráfico"
 
-#: designs/data_components.py:1229
+#: designs/data_components.py:1235
 #, python-format
 msgid ""
 "facets panel %r filters the rows of one parent (an inline table): a chart "
@@ -1635,7 +1639,7 @@ msgstr ""
 "el panel de facetas %r filtra las filas de un padre (una tabla en línea): un "
 "gráfico no puede seguirlo"
 
-#: designs/data_components.py:1237
+#: designs/data_components.py:1243
 #, python-format
 msgid ""
 "facets panel %(panel)r does not filter rows of %(model)s, the model of the "
@@ -1644,25 +1648,25 @@ msgstr ""
 "el panel de facetas %(panel)r no filtra filas de %(model)s, el modelo del "
 "gráfico"
 
-#: designs/data_components.py:1245
+#: designs/data_components.py:1251
 #, python-format
 msgid "facet %r is not a column the chart can filter"
 msgstr "la faceta %r no es una columna que el gráfico pueda filtrar"
 
-#: designs/data_components.py:1293
+#: designs/data_components.py:1299
 msgid "Stat tile"
 msgstr "Indicador"
 
-#: designs/data_components.py:1334
+#: designs/data_components.py:1340
 #, python-format
 msgid "%r is not a date"
 msgstr "%r no es una fecha"
 
-#: designs/data_components.py:1373
+#: designs/data_components.py:1379
 msgid "Classic CRUD (separate pages)"
 msgstr "CRUD clásico (páginas separadas)"
 
-#: designs/data_components.py:1441
+#: designs/data_components.py:1447
 msgid ""
 "the default form (every field the model exposes) does not work: give a "
 "\"form\""
@@ -1670,35 +1674,35 @@ msgstr ""
 "el formulario por defecto (todos los campos que expone el modelo) no "
 "funciona: indica un \"form\""
 
-#: designs/data_components.py:1477
+#: designs/data_components.py:1483
 msgid "page"
 msgstr "página"
 
-#: designs/data_components.py:1642
+#: designs/data_components.py:1648
 msgid "Facets"
 msgstr "Facetas"
 
-#: designs/data_components.py:1699
+#: designs/data_components.py:1705
 #, python-format
 msgid "%(target)r is not the id of a table (%(types)s) of this page"
 msgstr "%(target)r no es el id de una tabla (%(types)s) de esta página"
 
-#: designs/data_components.py:1713 designs/data_components.py:1744
+#: designs/data_components.py:1719 designs/data_components.py:1750
 #, python-format
 msgid "%r cannot have a facet"
 msgstr "%r no puede tener una faceta"
 
-#: designs/data_components.py:1719 designs/data_components.py:1750
+#: designs/data_components.py:1725 designs/data_components.py:1756
 #: templates/gentelella/cruds/list.html:58
 msgid "Filters"
 msgstr "Filtros"
 
-#: designs/data_components.py:1732
+#: designs/data_components.py:1738
 #, python-format
 msgid "node %r has no data source to filter"
 msgstr "el nodo %r no tiene una fuente de datos que filtrar"
 
-#: designs/data_components.py:1763 designs/data_components.py:1790
+#: designs/data_components.py:1769 designs/data_components.py:1796
 #: designs/regions.py:701 models.py:843
 #: templates/gentelella/cruds/detail.html:41
 msgid "Value"
@@ -2608,7 +2612,7 @@ msgstr "Mover a"
 #: templates/gentelella/widgets/record_audio.html:7
 #: templates/gentelella/widgets/record_photo.html:9
 #: templates/gentelella/widgets/record_video.html:8
-#: templates/gentelella/widgets/voice_dictation.html:8 widgets/imagecrop.py:49
+#: templates/gentelella/widgets/voice_dictation.html:8 widgets/imagecrop.py:51
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -5776,23 +5780,23 @@ msgstr "Buscar en el mapa"
 msgid "No places found"
 msgstr "No se encontraron lugares"
 
-#: widgets/imagecrop.py:49
+#: widgets/imagecrop.py:51
 msgid "Apply crop"
 msgstr "Aplicar recorte"
 
-#: widgets/imagecrop.py:50
+#: widgets/imagecrop.py:52
 msgid "Rotate"
 msgstr "Rotar"
 
-#: widgets/imagecrop.py:50
+#: widgets/imagecrop.py:52
 msgid "Reset"
 msgstr "Restablecer"
 
-#: widgets/imagecrop.py:51
+#: widgets/imagecrop.py:53
 msgid "Current image"
 msgstr "Imagen actual"
 
-#: widgets/imagecrop.py:51
+#: widgets/imagecrop.py:53
 msgid "New image"
 msgstr "Imagen nueva"
 
@@ -5820,10 +5824,6 @@ msgstr "Negrita"
 msgid "Italic"
 msgstr "Cursiva"
 
-#: widgets/markdown.py:36
-msgid "Heading"
-msgstr "Título"
-
 #: widgets/markdown.py:39
 msgid "Numbered list"
 msgstr "Lista numerada"
@@ -5846,14 +5846,14 @@ msgstr "%(name)s elegidos"
 msgid "No such draft."
 msgstr "No existe ese borrador."
 
-#: wizard/views.py:877
+#: wizard/views.py:878
 msgid "Draft saved. You can go on with it later from this page."
 msgstr "Borrador guardado. Puede seguir con él más tarde desde esta página."
 
-#: wizard/views.py:882
+#: wizard/views.py:883
 msgid "Draft saved in this session. Come back to this page to go on."
 msgstr "Borrador guardado en esta sesión. Vuelva a esta página para seguir."
 
-#: wizard/views.py:897
+#: wizard/views.py:898
 msgid "The wizard was discarded."
 msgstr "Se descartó el asistente."

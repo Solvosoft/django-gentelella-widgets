@@ -1,4 +1,5 @@
-"""The structural components: ``page``, ``row``, ``col`` and ``html``.
+"""The structural components: ``page``, ``row``, ``col``, ``html`` and
+``heading``.
 
 They behave like djgentelella-editor's ``PageSpec``, ``RowSpec``, ``ColSpec``
 and ``HtmlSpec``, but render final HTML instead of template source. The
@@ -17,8 +18,8 @@ from djgentelella.designs import pipeline
 from djgentelella.designs.components import NodeBuild, RuntimeComponent
 from djgentelella.designs.sanitize import clean_html
 
-__all__ = ['BUILTIN_COMPONENTS', 'ColComponent', 'HtmlBuild', 'HtmlComponent',
-           'PageBuild', 'PageComponent', 'RowComponent']
+__all__ = ['BUILTIN_COMPONENTS', 'ColComponent', 'HeadingComponent', 'HtmlBuild',
+           'HtmlComponent', 'PageBuild', 'PageComponent', 'RowComponent']
 
 
 @dataclass
@@ -147,4 +148,43 @@ class HtmlComponent(RuntimeComponent):
                            build.id, mark_safe(markup))
 
 
-BUILTIN_COMPONENTS = [PageComponent, RowComponent, ColComponent, HtmlComponent]
+class HeadingComponent(RuntimeComponent):
+    """A title, and an optional subtitle under it, as text: never markup.
+
+    ``title`` and ``subtitle`` are translatable like every component's
+    (:data:`~djgentelella.designs.translations.DEFAULT_TRANSLATABLE_PROPS`),
+    so a page shows them in the language of the request. ``level`` is the
+    ``<h1>``..``<h6>`` of the title (2 by default: the layout draws the
+    ``<h1>`` of the page).
+    """
+
+    type = 'heading'
+    label = gettext_lazy('Heading')
+    icon = 'fa fa-header'
+    props_schema = {
+        'type': 'object',
+        'required': ['title'],
+        'additionalProperties': False,
+        'properties': {
+            'title': {'type': 'string', 'minLength': 1, 'maxLength': 300,
+                      'title': 'Title'},
+            'subtitle': {'type': 'string', 'maxLength': 500, 'title': 'Subtitle'},
+            'level': {'type': 'integer', 'minimum': 1, 'maximum': 6,
+                      'default': 2, 'title': 'Level (1-6)'},
+        },
+    }
+    default_props = {'title': 'New title', 'level': 2}
+
+    def render(self, build, rctx, children):
+        level = build.props.get('level') or 2
+        subtitle = build.props.get('subtitle') or ''
+        return format_html(
+            '<div data-gtdesign="{}" class="gt-heading mb-3">'
+            '<h{} class="mb-1">{}</h{}>{}</div>',
+            build.id, level, build.props.get('title', ''), level,
+            format_html('<p class="text-muted mb-0">{}</p>', subtitle)
+            if subtitle else '')
+
+
+BUILTIN_COMPONENTS = [PageComponent, RowComponent, ColComponent, HtmlComponent,
+                      HeadingComponent]
