@@ -10,6 +10,12 @@ It is not a Django app: its models (``PushSubscription``, ``PushPreference``)
 live in ``djgentelella/models.py`` and its URLs come with
 ``djgentelella.urls``.
 
+A subscription is unique by its endpoint, through ``endpoint_hash``: the
+sha256 of ``endpoint``, which ``save()`` keeps in step. The endpoint itself (up
+to 1000 characters) has no index, since MySQL and MariaDB refuse a unique index
+that long. Code of the project looks a subscription up with
+``endpoint_hash=push_endpoint_hash(endpoint)`` (``djgentelella.models``).
+
 Settings
 --------
 

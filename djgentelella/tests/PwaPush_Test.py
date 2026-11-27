@@ -11,10 +11,16 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from django.core.management import call_command
-from django.test import Client, RequestFactory, TestCase, override_settings
+from django.db import IntegrityError, connection, transaction
+from django.db.migrations.executor import MigrationExecutor
+from django.test import (
+    Client, RequestFactory, TestCase, TransactionTestCase, override_settings,
+)
 from django.urls import reverse
 
-from djgentelella.models import Notification, PushPreference, PushSubscription
+from djgentelella.models import (
+    Notification, PushPreference, PushSubscription, push_endpoint_hash,
+)
 from djgentelella.notification import create_notification
 from djgentelella.pwa import backends, push
 from djgentelella.pwa.appsettings import AppSettings
@@ -31,7 +37,7 @@ except ImportError:                                   # pragma: no cover
 __all__ = [
     'W33ManifestTests', 'W33ServiceWorkerTests', 'W33SubscriptionTests',
     'W33PushSendingTests', 'W33WebPushBackendTests', 'W33WithoutExtraTests',
-    'W33PreferencesTests',
+    'W33PreferencesTests', 'W33EndpointHashMigrationTests',
 ]
 
 LOCMEM = 'djgentelella.pwa.backends.LocmemPushBackend'
@@ -233,6 +239,22 @@ class W33SubscriptionTests(PushTestMixin, TestCase):
         self.assertEqual(self.post_json('gt_push_subscribe',
                                         subscription_json()).status_code, 201)
         self.assertEqual(PushSubscription.objects.get().user, self.user)
+
+    def test_the_uniqueness_is_the_hash_of_the_endpoint(self):
+        # MySQL refuses a unique index over a 1000 character column
+        # (error 1071): the endpoint has none, its sha256 is the unique one.
+        self.assertFalse(PushSubscription._meta.get_field('endpoint').unique)
+        self.assertTrue(PushSubscription._meta.get_field('endpoint_hash').unique)
+        long = FCM + '/' + 'x' * (1000 - len(FCM) - 1)
+        self.assertEqual(self.post_json('gt_push_subscribe', subscription_json(
+            endpoint=long)).status_code, 201)
+        subscription = PushSubscription.objects.get()
+        self.assertEqual(subscription.endpoint_hash, push_endpoint_hash(long))
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            PushSubscription.objects.bulk_create([PushSubscription(
+                user=self.user, endpoint=long, endpoint_hash=push_endpoint_hash(long),
+                p256dh=P256DH, auth=AUTH)])
+        self.assertEqual(push.unsubscribe(self.user, long), 1)
 
     def test_unsubscribe_only_touches_own_subscriptions(self):
         other = get_user_model().objects.create_user('other', password='x')
@@ -491,3 +513,23 @@ class W33PreferencesTests(PushTestMixin, TestCase):
         self.client.post(reverse('gt_push_preferences'), {'enabled': '1'})
         self.assertTrue(push.push_wanted(self.user))
         self.assertEqual(PushPreference.objects.count(), 1)
+
+
+class W33EndpointHashMigrationTests(TransactionTestCase):
+    """0029 gives the subscriptions stored before it their hash."""
+
+    def test_existing_rows_get_their_hash(self):
+        executor = MigrationExecutor(connection)
+        before, after = [('djgentelella', '0028_translations')], [
+            ('djgentelella', '0029_push_endpoint_hash')]
+        executor.migrate(before)
+        old_apps = executor.loader.project_state(before).apps
+        user = old_apps.get_model(*settings.AUTH_USER_MODEL.split('.')).objects.create(
+            username='before')
+        old_apps.get_model('djgentelella', 'PushSubscription').objects.create(
+            user_id=user.pk, endpoint=FCM, p256dh=P256DH, auth=AUTH)
+        executor = MigrationExecutor(connection)
+        executor.loader.build_graph()
+        executor.migrate(after)
+        self.assertEqual(PushSubscription.objects.get().endpoint_hash,
+                         push_endpoint_hash(FCM))

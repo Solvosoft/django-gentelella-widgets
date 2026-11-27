@@ -1,3 +1,4 @@
+import hashlib
 import logging
 import uuid
 
@@ -778,6 +779,12 @@ class Feedback(models.Model):
         return '%s: %s' % (self.get_kind_display(), self.text[:60])
 
 
+def push_endpoint_hash(endpoint):
+    """The sha256 (hex) of a push ``endpoint``: what makes it unique and what
+    it is looked up by (:attr:`PushSubscription.endpoint_hash`)."""
+    return hashlib.sha256(str(endpoint or '').encode('utf-8')).hexdigest()
+
+
 class PushSubscription(models.Model):
     """One browser (device) where ``user`` accepted web push (:mod:`djgentelella.pwa`).
 
@@ -785,6 +792,12 @@ class PushSubscription(models.Model):
     ``auth`` are the keys the payload is encrypted with. An endpoint belongs to
     one browser, so it is unique: subscribing it again from another account
     moves it there. ``site`` is the Site it was subscribed from.
+
+    The uniqueness is on ``endpoint_hash``, the sha256 of the endpoint, never
+    on the endpoint itself: a unique index over a 1000 character column
+    exceeds what MySQL/MariaDB allow (3072 bytes in utf8mb4). Look a
+    subscription up by ``endpoint_hash=push_endpoint_hash(endpoint)``;
+    :meth:`save` keeps it in step with ``endpoint``.
     """
 
     user = models.ForeignKey(USER_MODEL_BASE, on_delete=models.CASCADE,
@@ -792,7 +805,9 @@ class PushSubscription(models.Model):
                              verbose_name=_('User'))
     site = models.ForeignKey('sites.Site', on_delete=models.CASCADE, null=True,
                              blank=True, related_name='+', verbose_name=_('Site'))
-    endpoint = models.URLField(_('Endpoint'), max_length=1000, unique=True)
+    endpoint = models.URLField(_('Endpoint'), max_length=1000)
+    endpoint_hash = models.CharField(_('Endpoint hash'), max_length=64, unique=True,
+                                     editable=False)
     p256dh = models.CharField(_('Public key'), max_length=255)
     auth = models.CharField(_('Authentication secret'), max_length=255)
     user_agent = models.CharField(_('Browser'), max_length=500, blank=True)
@@ -806,6 +821,13 @@ class PushSubscription(models.Model):
 
     def __str__(self):
         return '%s: %s' % (self.user, self.user_agent or self.endpoint[:60])
+
+    def save(self, *args, **kwargs):
+        self.endpoint_hash = push_endpoint_hash(self.endpoint)
+        update_fields = kwargs.get('update_fields')
+        if update_fields is not None and 'endpoint' in update_fields:
+            kwargs['update_fields'] = set(update_fields) | {'endpoint_hash'}
+        super().save(*args, **kwargs)
 
     def subscription_info(self):
         """The ``subscription_info`` of pywebpush, as the browser's

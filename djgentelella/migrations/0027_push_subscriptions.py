@@ -30,7 +30,7 @@ class Migration(migrations.Migration):
             name='PushSubscription',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('endpoint', models.URLField(max_length=1000, unique=True, verbose_name='Endpoint')),
+                ('endpoint', models.URLField(max_length=1000, verbose_name='Endpoint')),
                 ('p256dh', models.CharField(max_length=255, verbose_name='Public key')),
                 ('auth', models.CharField(max_length=255, verbose_name='Authentication secret')),
                 ('user_agent', models.CharField(blank=True, max_length=500, verbose_name='Browser')),

@@ -1056,6 +1056,15 @@ changed the order. Children are exported by id.
 **Validation instead of a 500.** A theme border radius such as ``²`` and a
 malformed ``save_lov`` or ``save_page`` raised instead of reporting the error.
 
+**The push subscriptions migrate on MySQL and MariaDB.** Migration ``0027``
+created a unique index over ``PushSubscription.endpoint``, a 1000 character
+column: on MySQL/MariaDB with utf8mb4 that is 4000 bytes, over the 3072 InnoDB
+allows, and ``migrate`` stopped there (error 1071). The uniqueness is now on
+``endpoint_hash``, the sha256 of the endpoint (``0029``, which also fills it
+for the rows already stored), and the lookups use it. A database that ran the
+old ``0027`` (SQLite, PostgreSQL) keeps working; on SQLite ``0029`` also drops
+the old index.
+
 **Every stylesheet and script of djgentelella carries its version.** Some
 local files were linked without ``?v=``, so after an upgrade a browser kept
 running the old one from its cache: the ``async_notification`` editors, the

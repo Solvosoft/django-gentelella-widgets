@@ -20,7 +20,9 @@ from django.utils import timezone
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext as _
 
-from djgentelella.models import PushPreference, PushSubscription
+from djgentelella.models import (
+    PushPreference, PushSubscription, push_endpoint_hash,
+)
 from djgentelella.pwa import conf
 from djgentelella.pwa.appsettings import AppSettings
 from djgentelella.pwa.backends import PushGone
@@ -209,8 +211,8 @@ def subscribe(user, data, *, site=None, user_agent=''):
     was another user's) and return it."""
     endpoint, p256dh, auth = clean_subscription(data)
     subscription, _created = PushSubscription.objects.update_or_create(
-        endpoint=endpoint,
-        defaults={'user': user, 'p256dh': p256dh, 'auth': auth,
+        endpoint_hash=push_endpoint_hash(endpoint),
+        defaults={'endpoint': endpoint, 'user': user, 'p256dh': p256dh, 'auth': auth,
                   'site_id': site_pk(site), 'user_agent': user_agent[:500]})
     return subscription
 
@@ -227,14 +229,16 @@ def resubscribe(old, data):
     endpoint, auth = old.get('endpoint'), keys.get('auth')
     if not isinstance(endpoint, str) or not isinstance(auth, str) or not auth:
         raise ValidationError(_('Invalid subscription.'))
-    found = PushSubscription.objects.filter(endpoint=endpoint, auth=auth).first()
+    found = PushSubscription.objects.filter(
+        endpoint_hash=push_endpoint_hash(endpoint), auth=auth).first()
     if found is None:
         return None
     new_endpoint, p256dh, new_auth = clean_subscription(data)
     with transaction.atomic():
         # The new endpoint may already be stored (two tabs, a retry).
-        PushSubscription.objects.filter(endpoint=new_endpoint).exclude(
-            pk=found.pk).delete()
+        PushSubscription.objects.filter(
+            endpoint_hash=push_endpoint_hash(new_endpoint),
+        ).exclude(pk=found.pk).delete()
         found.endpoint, found.p256dh, found.auth = new_endpoint, p256dh, new_auth
         found.save(update_fields=['endpoint', 'p256dh', 'auth'])
     return found
@@ -261,11 +265,12 @@ def on_user_logged_out(sender, request=None, user=None, **kwargs):
     session = getattr(request, 'session', None)
     endpoints = session.get(SESSION_KEY, []) if session is not None else []
     if endpoints:
-        PushSubscription.objects.filter(user=user, endpoint__in=endpoints).delete()
+        PushSubscription.objects.filter(user=user, endpoint_hash__in=[
+            push_endpoint_hash(endpoint) for endpoint in endpoints]).delete()
 
 
 def unsubscribe(user, endpoint):
     """Forget the subscription ``endpoint`` of ``user``; how many went."""
     deleted, _rows = PushSubscription.objects.filter(
-        user=user, endpoint=endpoint).delete()
+        user=user, endpoint_hash=push_endpoint_hash(endpoint)).delete()
     return deleted
