@@ -590,6 +590,23 @@ class ScreenScopeTests(DataDesignTestCase):
         self.foreign_item = MenuItem.objects.create(
             title='Ajeno', url_name='/ajeno', key='foreign', site=self.other)
 
+    def test_back_goes_to_a_next_of_this_site(self):
+        self.grant('djgentelella.change_menuitem')
+        url = reverse('gt_translations_menu')
+        index = reverse('gt_translations')
+        for target, expected in (('/apps/ventas/', '/apps/ventas/'),
+                                 ('https://evil.example/', index),
+                                 ('//evil.example/', index), ('', index)):
+            response = self.client.get(url, {'next': target})
+            self.assertContains(
+                response, 'href="%s" class="btn btn-sm btn-outline-secondary '
+                'gt-translations-back"' % expected)
+        # Saving keeps the way back.
+        response = self.client.post(url + '?next=/apps/ventas/', {
+            'count': 1, 'k0': str(self.item.pk), 'v0_en': 'Catalogue'})
+        self.assertRedirects(response, url + '?next=/apps/ventas/',
+                             fetch_redirect_response=False)
+
     def test_import_needs_the_permission_of_each_lov(self):
         # The reproduction: the screen of w34_secret is a 403, but its labels
         # were rewritten through the import.

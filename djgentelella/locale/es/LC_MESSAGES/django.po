@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-26 18:29-0600\n"
+"POT-Creation-Date: 2026-11-26 18:31-0600\n"
 "PO-Revision-Date: 2026-10-29 12:00-0600\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -3998,8 +3998,7 @@ msgstr ""
 "Opcional. Nombra el ítem en su Site (o entre los ítems globales) cuando un "
 "menú se exporta y se vuelve a importar."
 
-#: models.py:213 templates/gentelella/translations/form.html:8
-#: templates/gentelella/translations/index.html:3
+#: models.py:213 templates/gentelella/translations/index.html:3
 #: templates/gentelella/translations/index.html:6
 #: templates/gentelella/translations/missing.html:8
 msgid "Translations"
@@ -5138,6 +5137,10 @@ msgstr "Marcado"
 msgid "The sidebar of this page previews its colours."
 msgstr "La barra lateral de esta página muestra sus colores."
 
+#: templates/gentelella/translations/form.html:8
+msgid "Back"
+msgstr "Volver"
+
 #: templates/gentelella/translations/form.html:15
 msgid "Original"
 msgstr "Texto original"
@@ -5584,7 +5587,7 @@ msgid "there is no page %(path)s in %(site)s"
 msgstr "no existe la página %(path)s en %(site)s"
 
 #: translations/transfer.py:185 translations/transfer.py:207
-#: translations/views.py:201
+#: translations/views.py:218
 msgid "global"
 msgstr "global (todos los sitios)"
 
@@ -5610,35 +5613,35 @@ msgstr "un valor de LOV es {lov, value, translations}"
 msgid "you may not translate the LOV %s"
 msgstr "no puede traducir la LOV %s"
 
-#: translations/views.py:153 translations/views.py:198
-#: translations/views.py:229
+#: translations/views.py:168 translations/views.py:215
+#: translations/views.py:246
 msgid "The translations were saved."
 msgstr "Las traducciones se guardaron."
 
-#: translations/views.py:175
+#: translations/views.py:191
 #, python-format
 msgid "Translations of page %s"
 msgstr "Traducciones de la página %s"
 
-#: translations/views.py:205
+#: translations/views.py:222
 msgid "Translations of the menu"
 msgstr "Traducciones del menú"
 
-#: translations/views.py:235
+#: translations/views.py:252
 #, python-format
 msgid "Translations of the list %s"
 msgstr "Traducciones de la lista %s"
 
-#: translations/views.py:293
+#: translations/views.py:311
 #, python-format
 msgid "Choose a JSON file of translations (at most %d MB)."
 msgstr "Elija un archivo JSON de traducciones (de %d MB como máximo)."
 
-#: translations/views.py:299
+#: translations/views.py:317
 msgid "The file is not valid JSON."
 msgstr "El archivo no es JSON válido."
 
-#: translations/views.py:314
+#: translations/views.py:332
 #, python-format
 msgid ""
 "The file is valid: %(pages)d pages, %(menus)d menu items and %(lovs)d lists "
@@ -5647,7 +5650,7 @@ msgstr ""
 "El archivo es válido: cambiarían %(pages)d páginas, %(menus)d ítems de menú "
 "y %(lovs)d listas."
 
-#: translations/views.py:318
+#: translations/views.py:336
 #, python-format
 msgid "Imported: %(pages)d pages, %(menus)d menu items and %(lovs)d lists."
 msgstr ""

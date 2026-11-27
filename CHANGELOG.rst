@@ -53,6 +53,26 @@ parse is now public, with tests:
 See ``docs/source/menus.rst``, ``flows.rst``, ``designs.rst`` and
 ``crud.rst``.
 
+**More public names for djodo and the generated Apps.**
+
+* ``djgentelella.datasources.api.request_body(request)`` reads the body of a
+  request as the data source API does (it was the private ``_body``, removed).
+* ``designs.data_components`` exports ``can(rctx, perms)`` and
+  ``data_build(build_class, node, rctx, **fields)``; for the kind of a field
+  and the columns of a source, ``widgetmap.field_kind`` and
+  ``ResolveContext.source_columns`` were already public.
+* ``djgentelella.search.NAVBAR_SETTING`` (``'global_search'``), the setting of
+  the navbar box per Site, moves out of ``search.views``.
+* A ``heading`` design component: ``title``, optional ``subtitle`` (both
+  translatable) and ``level`` 1-6, drawn as text.
+* ``register_lov(..., owner=)``, ``LOV.owner`` and ``get_lovs(owner=)``: a free
+  label of who registered a LOV, with no effect on permissions or the Site.
+* The translation screens take ``?next=``: their *Back* button returns there
+  when it is a URL of this site, also after saving.
+
+See ``designs.rst``, ``datasources.rst``, ``global_search.rst``, ``lov.rst``
+and ``translations.rst``.
+
 **Translated document messages and tooling.** The errors of design documents
 (``engine.resolve``, the JSON Schema validator, ``format``) and of flow
 documents (``validate_callables``, ``validate_task_forms``,

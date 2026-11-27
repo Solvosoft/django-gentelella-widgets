@@ -55,7 +55,7 @@ _registry = {}
 
 class LOV:
     def __init__(self, name, func, depends_on=(), perms=(), login_required=True,
-                 page_size=20, all_values=None):
+                 page_size=20, all_values=None, owner=''):
         if isinstance(depends_on, str) or isinstance(perms, str):
             raise ImproperlyConfigured(
                 'register_lov(%r): depends_on and perms are lists' % name)
@@ -66,6 +66,9 @@ class LOV:
         self.login_required = login_required
         self.page_size = page_size
         self.all_values = all_values
+        #: Who registered it (``'djodo.app.<slug>'``...): a label to list
+        #: the LOVs of one owner, with no effect on permissions or the Site.
+        self.owner = owner or ''
 
     def __repr__(self):
         return '<LOV %s depends_on=%r>' % (self.name, self.depends_on)
@@ -197,13 +200,15 @@ def _pair(row):
 
 
 def register_lov(name, depends_on=(), perms=(), login_required=True, page_size=20,
-                 all_values=None):
+                 all_values=None, owner=''):
     """Register the decorated function as the LOV ``name``.
 
     ``perms`` are checked with ``user.has_perms``; ``login_required=False``
     opens a LOV without perms to anonymous users. A repeated name replaces the
     previous LOV. ``all_values(request)`` returns every option regardless of
-    the parents, for the translation screen (C20).
+    the parents, for the translation screen. ``owner`` is a free label of who
+    registered it (``get_lovs(owner=...)`` lists them), like the ``tags`` of a
+    pipeline process: it changes neither the permissions nor the Site.
     """
     if not isinstance(name, str) or not name or '/' in name:
         raise ImproperlyConfigured('A LOV name is a non empty string without /')
@@ -211,7 +216,7 @@ def register_lov(name, depends_on=(), perms=(), login_required=True, page_size=2
     def decorator(func):
         _registry[name] = LOV(name, func, depends_on=depends_on, perms=perms,
                               login_required=login_required, page_size=page_size,
-                              all_values=all_values)
+                              all_values=all_values, owner=owner)
         return func
     return decorator
 
@@ -231,9 +236,12 @@ def get_lov(name):
         raise LookupError('No LOV registered as %r' % name) from None
 
 
-def get_lovs():
+def get_lovs(owner=None):
+    """``{name: LOV}``; only those of ``owner`` when given."""
     autodiscover()
-    return dict(_registry)
+    if owner is None:
+        return dict(_registry)
+    return {name: lov for name, lov in _registry.items() if lov.owner == owner}
 
 
 def unregister_lov(name):

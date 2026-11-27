@@ -18,6 +18,8 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods, require_POST
 
@@ -140,6 +142,19 @@ def translations_index(request):
         'default_language': core.default_language()})
 
 
+def _back_url(request):
+    """Where the form's *Back* link goes: ``?next=`` when it is a URL of this
+    site (``url_has_allowed_host_and_scheme``), else the translations index.
+    A project that links to a translation screen from its own page passes
+    ``?next=<that page>`` and needs no copy of the template."""
+    target = request.GET.get('next', '')
+    if target and url_has_allowed_host_and_scheme(
+            target, allowed_hosts={request.get_host()},
+            require_https=request.is_secure()):
+        return target
+    return reverse('gt_translations')
+
+
 def _save(request, save, target, rows, success_url):
     update = {}
     for key, texts in rows:
@@ -162,7 +177,8 @@ def translate_page(request, pk):
     page = get_object_or_404(_pages(request), pk=pk)
     if request.method == 'POST':
         response = _save(request, store.save_page, page,
-                         _rows_from_post(request, _count(request)), request.path)
+                         _rows_from_post(request, _count(request)),
+                         request.get_full_path())
         if response is not None:
             return response
     stored = store.page_translations(page)
@@ -173,7 +189,8 @@ def translate_page(request, pk):
             for text in store.page_texts(page)]
     return render(request, 'gentelella/translations/form.html', {
         'title': _('Translations of page %s') % page.title, 'object': page,
-        'kind': 'page', 'rows': rows, 'languages': _language_columns()})
+        'kind': 'page', 'rows': rows, 'languages': _language_columns(),
+        'back_url': _back_url(request)})
 
 
 @login_required
@@ -196,14 +213,14 @@ def translate_menu(request):
                 messages.error(request, str(error))
         else:
             messages.success(request, _('The translations were saved.'))
-            return redirect(request.path)
+            return redirect(request.get_full_path())
     rows = [{'key': key, 'original': item.title,
              'where': item.site.domain if item.site_id else _('global'),
              'path': item.key or '', 'cells': _cells(item.translations)}
             for key, item in items.items()]
     return render(request, 'gentelella/translations/form.html', {
         'title': _('Translations of the menu'), 'kind': 'menu', 'rows': rows,
-        'languages': _language_columns()})
+        'languages': _language_columns(), 'back_url': _back_url(request)})
 
 
 @login_required
@@ -227,13 +244,14 @@ def translate_lov(request, name):
                 messages.error(request, str(error))
         else:
             messages.success(request, _('The translations were saved.'))
-            return redirect(request.path)
+            return redirect(request.get_full_path())
     rows = [{'key': value, 'original': label, 'where': name, 'path': value,
              'cells': _cells(found)}
             for value, label, found in store.lov_rows(lov, request)]
     return render(request, 'gentelella/translations/form.html', {
         'title': _('Translations of the list %s') % name, 'kind': 'lov',
-        'rows': rows, 'languages': _language_columns()})
+        'rows': rows, 'languages': _language_columns(),
+        'back_url': _back_url(request)})
 
 
 @login_required

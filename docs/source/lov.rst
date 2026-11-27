@@ -113,6 +113,15 @@ value while its language is active, in the endpoint, the widgets and the
 fields. ``register_lov(..., all_values=fn)`` lists every value of a LOV that
 depends on its parents for the translation screen. See :doc:`translations`.
 
+Who registered it
+-----------------
+
+``register_lov(..., owner='djodo.app.ventas')`` labels a LOV with its owner,
+a free string: ``get_lovs(owner=...)`` lists only that owner's and
+``get_lov(name).owner`` reads it (``''`` for a LOV without one). It is only a
+label, like the ``tags`` of a pipeline process: it changes neither who may
+open the LOV nor its Site.
+
 -----------------
 Not yet
 -----------------

@@ -159,6 +159,11 @@ URL (name)                              What
 (``gt_translations_import``)
 ======================================  =========================================
 
+A page of the project that links to a translation screen passes where to
+come back to: ``?next=<path>``. The form's *Back* button goes there when it is
+a URL of this site (``url_has_allowed_host_and_scheme``), and to the
+translations index otherwise; saving keeps it.
+
 Each kind of object needs the permission to change it:
 ``gtdesigns.change_page`` for pages, ``djgentelella.change_menuitem`` for the
 menu and ``djgentelella.change_lovtranslation`` for LOVs (and the LOV's own

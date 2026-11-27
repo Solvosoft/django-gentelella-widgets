@@ -86,6 +86,23 @@ class GroupsForm(GTForm):
 
 
 class LOVRegistryTest(TestCase):
+    def test_owner_lists_the_lovs_of_who_registered_them(self):
+        def values(request, q=''):
+            return []
+
+        register_lov('owned.a', owner='djodo.app.ventas')(values)
+        register_lov('owned.b', owner='djodo.app.ventas')(values)
+        register_lov('owned.c', owner='djodo.app.compras')(values)
+        self.addCleanup(lambda: [unregister_lov(name)
+                                 for name in ('owned.a', 'owned.b', 'owned.c')])
+        self.assertEqual(sorted(get_lovs(owner='djodo.app.ventas')),
+                         ['owned.a', 'owned.b'])
+        self.assertEqual(get_lov('owned.c').owner, 'djodo.app.compras')
+        # Without owner, every LOV, owned or not; a LOV of nobody has ''.
+        self.assertTrue({'owned.a', 'test_countries'} <= set(get_lovs()))
+        self.assertEqual(get_lov('test_countries').owner, '')
+        self.assertEqual(get_lovs(owner='nobody'), {})
+
     def test_registered_and_autodiscovered(self):
         self.assertEqual(get_lov('test_provinces').depends_on, ['country'])
         # demoapp/gtlovs.py, found by the autodiscovery.

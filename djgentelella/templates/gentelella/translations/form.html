@@ -5,7 +5,7 @@
 <div class="x_panel gt-translations-form" data-kind="{{ kind }}">
   <div class="x_title"><h2>{{ title }}</h2><div class="clearfix"></div></div>
   <div class="x_content">
-    <p><a href="{% url 'gt_translations' %}"><i class="fa fa-arrow-left" aria-hidden="true"></i> {% trans 'Translations' %}</a></p>
+    <p><a href="{{ back_url }}" class="btn btn-sm btn-outline-secondary gt-translations-back"><i class="fa fa-arrow-left" aria-hidden="true"></i> {% trans 'Back' %}</a></p>
     {% if rows %}
     <form method="post">
       {% csrf_token %}
