@@ -24,7 +24,6 @@ from dataclasses import dataclass, field
 from django.core.exceptions import ImproperlyConfigured
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.shortcuts import render as render_template
-from django.templatetags.static import static
 from django.urls import Resolver404, URLResolver
 from django.urls.resolvers import RegexPattern
 from django.utils.safestring import mark_safe
@@ -32,6 +31,7 @@ from django.utils.translation import get_language
 from django.utils.translation import gettext as _
 from rest_framework.routers import SimpleRouter
 
+from djgentelella.assets import versioned_static
 from djgentelella.authorization import evaluate_condition, validate_condition
 from djgentelella.designs import (conf, exposure, format, pipeline, registry,
                                   translations)
@@ -567,10 +567,11 @@ def resolve_page(page):
 # -- render ---------------------------------------------------------------------
 
 def _asset_url(url):
-    """Absolute URLs and paths as they are; anything else is a static file."""
+    """Absolute URLs and paths as they are; anything else is a static file,
+    with the djgentelella version against stale browser caches."""
     if url.startswith(('/', 'http://', 'https://')):
         return url
-    return static(url)
+    return versioned_static(url)
 
 
 def _inline(code):

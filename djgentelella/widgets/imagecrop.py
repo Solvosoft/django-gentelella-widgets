@@ -1,7 +1,7 @@
 from django.forms import ClearableFileInput as DJClearableFileInput
-from django.templatetags.static import static
 from django.utils.translation import gettext_lazy as _
 
+from djgentelella.assets import versioned_static
 from .core import js_widget_name, update_kwargs
 
 
@@ -43,8 +43,10 @@ class ImageCropInput(DJClearableFileInput):
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
         widget_attrs = context['widget']['attrs']
-        widget_attrs['data-cropper-js'] = static('vendors/cropperjs/cropper.min.js')
-        widget_attrs['data-cropper-css'] = static('vendors/cropperjs/cropper.min.css')
+        widget_attrs['data-cropper-js'] = versioned_static(
+            'vendors/cropperjs/cropper.min.js')
+        widget_attrs['data-cropper-css'] = versioned_static(
+            'vendors/cropperjs/cropper.min.css')
         context['texts'] = {
             'apply': _('Apply crop'), 'cancel': _('Cancel'),
             'rotate': _('Rotate'), 'reset': _('Reset'),

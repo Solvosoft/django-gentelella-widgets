@@ -9,9 +9,9 @@ in the browser (:mod:`djgentelella.fields.extras`).
 
 from django.forms import CheckboxInput as DJCheckboxInput, \
     MultiWidget, NumberInput as DJNumberInput
-from django.templatetags.static import static
 from django.utils.translation import gettext_lazy as _
 
+from djgentelella.assets import versioned_static
 from .core import Select, TextInput, js_widget_name, update_kwargs
 
 
@@ -230,9 +230,9 @@ class QRCodeInput(TextInput):
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
         widget_attrs = context['widget']['attrs']
-        widget_attrs['data-qr-lib'] = static('vendors/qrcode/qrcode.js')
+        widget_attrs['data-qr-lib'] = versioned_static('vendors/qrcode/qrcode.js')
         if self.scan:
-            widget_attrs['data-jsqr-lib'] = static('vendors/jsqr/jsQR.js')
+            widget_attrs['data-jsqr-lib'] = versioned_static('vendors/jsqr/jsQR.js')
         context['scan'] = self.scan
         context['scan_title'] = _('Read a QR code with the camera')
         return context

@@ -1036,6 +1036,15 @@ changed the order. Children are exported by id.
 **Validation instead of a 500.** A theme border radius such as ``²`` and a
 malformed ``save_lov`` or ``save_page`` raised instead of reporting the error.
 
+**Every stylesheet and script of djgentelella carries its version.** Some
+local files were linked without ``?v=``, so after an upgrade a browser kept
+running the old one from its cache: the ``async_notification`` editors, the
+PWA scripts (``push.js`` had a fixed ``?v=1``), the navbar search, the media of
+design components and the libraries the form widgets load on demand (qrcode,
+jsQR, Cropper.js). ``djgentelella.assets.versioned_static(path)`` builds such
+a URL in code, and ``VersionedAssets_Test`` fails if a template of the package
+links a local stylesheet or script without ``{% get_version %}``.
+
 **The LOV popup and the Markdown preview drop late answers.** An answer that
 arrived after a newer search, or after going back to *Write*, replaced the
 newer one.

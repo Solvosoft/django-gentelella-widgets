@@ -1,4 +1,4 @@
-{% load i18n static %}{% if enabled %}
+{% load i18n static gtsettings %}{% if enabled %}
 <li class="nav-item gt-global-search">
   <style>
     .gt-global-search-form { position: relative; min-width: 14rem; margin: .4rem .75rem; }
@@ -27,6 +27,6 @@
          role="listbox" data-empty="{% trans 'No results' %}"
          data-more="{% trans 'See more' %}"></div>
   </form>
-  <script src="{% static 'gentelella/js/globalsearch.js' %}" defer></script>
+  <script src="{% static 'gentelella/js/globalsearch.js' %}?v={% get_version %}" defer></script>
 </li>
 {% endif %}

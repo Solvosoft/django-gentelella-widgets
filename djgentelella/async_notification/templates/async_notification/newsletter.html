@@ -1,8 +1,8 @@
 {% extends 'gentelella/base_site.html' %}
-{% load i18n static %}
+{% load i18n static gtsettings %}
 
 {% block extra_css %}{{ block.super }}
-<link rel="stylesheet" href="{% static 'async_notification/async_notification.css' %}">
+<link rel="stylesheet" href="{% static 'async_notification/async_notification.css' %}?v={% get_version %}">
 {% endblock %}
 
 {% block content %}
@@ -35,8 +35,8 @@
 {% block js %}
 {{ block.super }}
 {{ create_form.media }}
-<script src="{% static 'async_notification/an_preview.js' %}"></script>
-<script src="{% static 'async_notification/recipient_autocomplete.js' %}"></script>
+<script src="{% static 'async_notification/an_preview.js' %}?v={% get_version %}"></script>
+<script src="{% static 'async_notification/recipient_autocomplete.js' %}?v={% get_version %}"></script>
 <script>
 window.AN_URLS = {
 	autocomplete: "{% url 'async_notification:email_autocomplete' %}",

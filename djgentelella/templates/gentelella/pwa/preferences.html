@@ -1,5 +1,5 @@
 {% extends 'gentelella/base_site.html' %}
-{% load static i18n %}
+{% load static i18n gtsettings %}
 {% block title %}{% trans 'Push notifications' %}{% endblock %}
 {% block content %}
 <div class="container" id="gt-push-preferences">
@@ -56,6 +56,6 @@
 {% endblock content %}
 {% block js %}
 {% if available %}
-<script src="{% static 'gentelella/js/pwa/push.js' %}?v=1"></script>
+<script src="{% static 'gentelella/js/pwa/push.js' %}?v={% get_version %}"></script>
 {% endif %}
 {% endblock %}
